@@ -1,9 +1,11 @@
 package math.cat
 
-import org.specs2._
-import math.cat.SetMorphism;
 
-import math.cat.Base._
+
+
+import org.specs2._
+
+import Base._
 import static math.cat.PoSet.*;
 import static math.cat.SetMorphism.*;
 

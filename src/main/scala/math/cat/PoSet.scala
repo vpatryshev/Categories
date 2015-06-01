@@ -1,5 +1,8 @@
 package math.cat;
 
+import java.io.Reader
+
+import util.parsing.combinator.JavaTokenParsers
 import scala.collection.Set
 
 /**
@@ -15,7 +18,9 @@ import scala.collection.Set
  */
 class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Boolean) extends Set[T] {
   val underlyingSet = theElements
-  val le = comparator
+  // note: this function is a property of poset, not a property of its elements
+  def le(x: T, y: T): Boolean = comparator(x, y)
+  def le(p : (T, T)): Boolean = comparator(p._1, p._2)
   validate
 
   override def contains(t: T): Boolean = underlyingSet contains t
@@ -23,29 +28,31 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
   /**
    * Iterates over elements of this poset
    */
+  override def elements: Iterator[T] = underlyingSet.iterator
   override def iterator: Iterator[T] = underlyingSet.iterator
+
   /**
    * Size of this poset
    */
   override def size = underlyingSet.size
 
-  override def hashCode = iterator.hashCode
-  
+  override def hashCode = elements.hashCode
+
   override def equals(x: Any): Boolean = {
     x match {
-      case other: PoSet[_] => other.equals(this)
+      case other: PoSet[_] => other.asInstanceOf[PoSet[T]].equal(this)
       case _ => false
     }
   }
 
   private def validate {
-    for(x <- iterator) require(le(x, x), " reflexivity broken at " + x)
+    for(x <- elements) require(le(x, x), " reflexivity broken at " + x)
     
-    for(x <- iterator; y <- iterator) {
+    for(x <- elements; y <- elements) {
       if (le(x, y) && le(y, x)) require(x == y, " antisymmetry broken at " + x + ", " + y)
     }
     
-    for(x <- iterator; y <- iterator; z <- iterator) {
+    for(x <- elements; y <- elements; z <- elements) {
       if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
     }
   }
@@ -56,10 +63,10 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
    * @param other other poset to compare
    * @return true if these two posets are equal
    */
-  private def equals(other: PoSet[T]): Boolean = {
+  private def equal(other: PoSet[T]): Boolean = {
     val isEqual = underlyingSet == other.underlyingSet
     val product = Sets.product(underlyingSet, underlyingSet)
-    (isEqual /: product) ((bool: Boolean, p: (T, T)) => bool && (le(p._1, p._2) == other.le(p._1, p._2)))
+    (isEqual /: product) ((bool, p) => bool && (le(p) == other.le(p)))
   }
   
   /**
@@ -67,12 +74,15 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
    *
    * @return a new poset with the order that is opposite to the original.
    */
-  def unary_op = new PoSet[T](underlyingSet, ((x: T, y: T) => le(y, x)));
+  def unary_~ = new PoSet[T](underlyingSet, ((x: T, y: T) => le(y, x)));
 
   override def toString = {
-    def orderedPairs = Sets.product(underlyingSet, underlyingSet) filter ((p: (T, T)) => le(p._1, p._2))
-    underlyingSet.toString + "{" + (orderedPairs map (p => "" + p._1 + " <= " + p._2)) + "}"
+    def orderedPairs = Sets.product(underlyingSet, underlyingSet) filter ((p: (T, T)) => le(p))
+    "[" + (underlyingSet mkString ", ") + "]{" +
+            ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "}"
   }
+  def -(x: T) = Sets.requireImmutability
+  def +(x: T) = Sets.requireImmutability
 }
 
 object PoSet {
@@ -85,26 +95,41 @@ object PoSet {
    * @param pairs    pairs of comparable elements
    * @return a new poset built on the data provided
    */
-  def apply[T](theElements: Set[T], pairs: Set[(T, T)]) = 
-      new PoSet(theElements, (a: T, b: T) => pairs.contains((a, b)))
+  def apply[T](theElements: Set[T], pairs: Set[(T, T)]) =
+      new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
+
+  def apply[T](theElements: Set[T], pairs: List[(T, T)]) = 
+      new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
 
   def apply[T](theElements: Set[T], comparator: (T, T) => Boolean) = new PoSet(theElements, comparator)
 
-  implicit def discretePoSet[T](set: Set[T]) = apply(set, Set.empty[(T, T)])
+  def apply[T](comparator: (T, T) => Boolean, theElements: T*) = {
+    val s: Set[T] = Set(theElements: _*)
+    new PoSet(Set(theElements: _*), comparator)
+  }
+
+  def apply[T](set: Set[T]): PoSet[T] = apply(set, Set.empty[(T, T)])
+
+  class Parser extends Sets.Parser {
+    def poset: Parser[PoSet[String]] = "("~set~","~"{"~repsep(pair, ",")~"})"  ^^ {case "("~s~","~"{"~m~"})" => PoSet(s, m)}
+    def pair: Parser[(String, String)] = member~"<="~member ^^ {case x~"<="~y => (x, y)}
+    override def read(input: CharSequence) = parseAll(poset, input).get
+    override def read(input: Reader) = parseAll(poset, input).get
+  }
+
+  def apply(input: Reader) = (new Parser).read(input)
+
+  def apply(input: CharSequence) = (new Parser).read(input)
 
   /**
-   * Parses a poset from a kind of string that is produced by toString()
+   * Builds a linear poset consisting of a range of integers, with their natural order.
    *
-   * @param source source string
-   * @return a parsed poset
+   * @param from the first integer in the range
+   * @param to   the last intger in the range (included)
+   * @param step distance between two consecutive elements
+   * @return a new poset
    */
-  def apply(source: String): PoSet[String] = {
-    val splitAt = source.indexOf("]{"); // separates elements from comparisions
-    val pairsAsStrings = source.substring(splitAt + 2, source.length() - 1) split ",\\s*"
-    var pairsAsArrays = pairsAsStrings.map(_ split "<=").filter(_.length == 2)
-    def stringifiedPairs = pairsAsArrays.map((a: Array[String]) => (a(0), a(1)))
-    val pairs = (Set.empty[(String, String)] /: stringifiedPairs)(_+_)
-    val underlyingSet = Sets.parseSet(source.substring(0, splitAt + 1))
-    apply(underlyingSet, pairs)
-  }  
+  def range(from: Int, to: Int, step: Int): PoSet[Int] = {
+    new PoSet(Sets.range(from, to, step), (x: Int, y: Int) => x <= y)
+  }
 }

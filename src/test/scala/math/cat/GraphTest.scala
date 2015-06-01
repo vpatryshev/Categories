@@ -1,10 +1,11 @@
 package math.cat
 
+
+
 import org.specs2._
 import math.cat.Graph;
-import math.cat.Pair;
 
-import math.cat.Base._
+import Base._
 import static math.cat.Graph.*;
 import static math.cat.Pair.Pair;
 

@@ -1,11 +1,11 @@
 package math.cat;
 
-import static math.cat.Functions.compose;
-import static math.cat.Functions.forMap;
-import static math.cat.Functions.id;
-import static math.cat.Sets.Set;
-import math.cat.Functions.Function;
-import math.cat.Functions.Injection;
+import static java.math.cat.Functions.compose;
+import static java.math.cat.Functions.forMap;
+import static java.math.cat.Functions.id;
+import static java.math.cat.Sets.Set;
+import java.math.cat.Functions.Function;
+import java.math.cat.Functions.Injection;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,7 +19,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for math.cat.Base class
+ * Tests for java.math.cat.Base class
  * 
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>

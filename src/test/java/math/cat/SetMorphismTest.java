@@ -1,7 +1,7 @@
 package math.cat;
 
-import static math.cat.SetMorphism.compose;
-import static math.cat.SetMorphism.unit;
+import static java.math.cat.SetMorphism.compose;
+import static java.math.cat.SetMorphism.unit;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,8 +19,8 @@ import junit.framework.TestCase;
 public class SetMorphismTest extends TestCase {
   Set<Integer> ints = new HashSet<Integer>(Arrays.asList(1, 2, 3, 5, 8, 13));
   Set<String> strings = new HashSet<String>(Arrays.asList("even", "odd", "totally crazy"));
-  SetMorphism<Integer, Set<Integer>, String, Set<String>> m =
-    new SetMorphism<Integer, Set<Integer>, String, Set<String>>(ints, strings) {
+  java.math.cat.SetMorphism<Integer, Set<Integer>, String, Set<String>> m =
+    new java.math.cat.SetMorphism<Integer, Set<Integer>, String, Set<String>>(ints, strings) {
         @Override
         public String apply(Integer integer) {
           return integer % 2 == 0 ? "even" : "odd";

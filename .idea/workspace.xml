@@ -2,17 +2,81 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e4191166-7647-4f55-9dad-7163529057a6" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Base.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Base.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/AllTests.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Assert.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/java/math/topos/Categories.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/java/math/topos/Category.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/CategorySuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/FunctionsSuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/GraphMorphism.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismSuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/GraphSuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/LazyPair.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetMorphismSuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetSuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismSuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/SetsSuite.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismSuite.scala" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scala_lang_scala_library_2_10_1_jar.xml" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Base.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Base.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/BasePair.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/BasePair.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/BigSet.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/BigSet.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/BinaryRelationship.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/BinaryRelationship.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Categories.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Categories.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Category.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Category.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/DelegatingPair.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/DelegatingPair.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Functions.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Functions.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Functor.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Functor.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Graph.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Graph.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/GraphMorphism.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/GraphMorphism.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/LazyPair.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/LazyPair.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Maybe.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Maybe.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Morphism.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Morphism.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/N.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/N.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/NaturalTransformation.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/NaturalTransformation.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Pair.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Pair.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/PoSet.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/PoSet.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/PoSetMorphism.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/PoSetMorphism.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Predicate.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Predicate.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/SetDiagram.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/SetDiagram.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/SetMorphism.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/SetMorphism.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/Sets.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/Sets.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/math/cat/TypelessSetMorphism.java" afterPath="$PROJECT_DIR$/src/main/java/java/math/cat/TypelessSetMorphism.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/BaseTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/BaseTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/BinaryRelationshipTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/BinaryRelationshipTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/Categories.iml" afterPath="$PROJECT_DIR$/.idea/modules/Categories.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/CategoriesTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/CategoriesTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/CategoryTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/CategoryTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/FunctionsTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/FunctionsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/FunctorTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/FunctorTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/GraphTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/GraphTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/MaybeTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/MaybeTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/math/cat/MaybeTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/MaybeTest.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Morphism.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Morphism.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/PairTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/PairTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/math/cat/PairTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/PairTest.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/PoSetMorphism.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/PoSetMorphism.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/PoSetTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/PoSetTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/PredicateTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/PredicateTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/SetDiagramTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/SetDiagramTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/SetMorphismTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/SetMorphismTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/category-build.iml" afterPath="$PROJECT_DIR$/.idea/modules/category-build.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/math/cat/SetsTest.java" afterPath="$PROJECT_DIR$/src/test/java/math/cat/SetsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.sbt" afterPath="$PROJECT_DIR$/build.sbt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Category.iws" />
@@ -47,241 +111,148 @@
       <file leaf-file-name="BaseTest.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.44">
-              <caret line="9" column="13" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
-              <folding>
-                <element signature="e#18#40#0" expanded="true" />
-              </folding>
+            <state vertical-scroll-proportion="-1.52">
+              <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Base.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Base.java">
+      <file leaf-file-name="Base.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Base.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-              <folding />
+            <state vertical-scroll-proportion="0.5681818">
+              <caret line="439" column="15" selection-start-line="426" selection-start-column="30" selection-end-line="426" selection-end-column="35" />
+              <folding>
+                <element signature="e#11778#11779#0" expanded="true" />
+                <element signature="e#11806#11807#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="Sets.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Sets.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Sets.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="13.037037">
-              <caret line="544" column="16" selection-start-line="544" selection-start-column="16" selection-end-line="544" selection-end-column="16" />
+            <state vertical-scroll-proportion="-0.6909091">
+              <caret line="138" column="36" selection-start-line="138" selection-start-column="36" selection-end-line="138" selection-end-column="36" />
               <folding>
-                <element signature="e#3541#3542#0" expanded="false" />
-                <element signature="e#3589#3590#0" expanded="false" />
-                <element signature="e#9923#9924#0" expanded="false" />
-                <element signature="e#9967#9968#0" expanded="false" />
-                <element signature="e#10010#10011#0" expanded="false" />
-                <element signature="e#10052#10053#0" expanded="false" />
-                <element signature="e#10513#10514#0" expanded="false" />
-                <element signature="e#10543#10544#0" expanded="false" />
-                <element signature="e#10745#10746#0" expanded="false" />
-                <element signature="e#10778#10779#0" expanded="false" />
-                <element signature="e#11415#11416#0" expanded="false" />
-                <element signature="e#11456#11457#0" expanded="false" />
-                <element signature="e#11664#11665#0" expanded="false" />
-                <element signature="e#11731#11732#0" expanded="false" />
-                <element signature="e#11793#11794#0" expanded="false" />
-                <element signature="e#11822#11823#0" expanded="false" />
-                <element signature="e#12242#12243#0" expanded="false" />
-                <element signature="e#12286#12287#0" expanded="false" />
-                <element signature="e#12336#12337#0" expanded="false" />
-                <element signature="e#12382#12383#0" expanded="false" />
-                <element signature="e#12425#12426#0" expanded="false" />
-                <element signature="e#12468#12469#0" expanded="false" />
-                <element signature="e#13735#13883#0" expanded="false" />
-                <element signature="e#13882#13883#0" expanded="false" />
-                <element signature="e#19017#19018#0" expanded="false" />
-                <element signature="e#19086#19087#0" expanded="false" />
-                <element signature="e#19215#19216#0" expanded="false" />
-                <element signature="e#19272#19273#0" expanded="false" />
-                <element signature="e#19349#19350#0" expanded="false" />
-                <element signature="e#19373#19374#0" expanded="false" />
-                <element signature="e#19647#19648#0" expanded="false" />
-                <element signature="e#19696#19697#0" expanded="false" />
-                <element signature="e#20905#20906#0" expanded="false" />
-                <element signature="e#20947#20948#0" expanded="false" />
-                <element signature="e#21865#21866#0" expanded="false" />
-                <element signature="e#21895#21896#0" expanded="false" />
-                <element signature="e#22749#22750#0" expanded="false" />
-                <element signature="e#22802#22803#0" expanded="false" />
-                <element signature="e#23111#23112#0" expanded="false" />
-                <element signature="e#23156#23157#0" expanded="false" />
-                <element signature="e#23710#23711#0" expanded="false" />
-                <element signature="e#23761#23762#0" expanded="false" />
-                <element signature="e#23804#23805#0" expanded="false" />
-                <element signature="e#23848#23849#0" expanded="false" />
-                <element signature="e#24308#24319#0" expanded="false" />
-                <element signature="e#24982#24983#0" expanded="false" />
-                <element signature="e#25025#25026#0" expanded="false" />
-                <element signature="e#25419#25420#0" expanded="false" />
-                <element signature="e#25488#25489#0" expanded="false" />
-                <element signature="e#25604#25605#0" expanded="false" />
-                <element signature="e#25667#25668#0" expanded="false" />
-                <element signature="e#25728#25729#0" expanded="false" />
-                <element signature="e#25795#25796#0" expanded="false" />
-                <element signature="e#25857#25858#0" expanded="false" />
-                <element signature="e#25896#25897#0" expanded="false" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#3478#3796#0" expanded="true" />
+                <element signature="e#3623#3777#0" expanded="true" />
+                <element signature="e#3776#3777#0" expanded="true" />
+                <element signature="e#3795#3796#0" expanded="true" />
+                <element signature="e#7656#8241#0" expanded="true" />
+                <element signature="e#7918#8213#0" expanded="true" />
+                <element signature="e#7979#8012#0" expanded="true" />
+                <element signature="e#8212#8213#0" expanded="true" />
+                <element signature="e#8240#8241#0" expanded="true" />
+                <element signature="e#8821#9348#0" expanded="true" />
+                <element signature="e#9075#9320#0" expanded="true" />
+                <element signature="e#9132#9162#0" expanded="true" />
+                <element signature="e#9319#9320#0" expanded="true" />
+                <element signature="e#9347#9348#0" expanded="true" />
+                <element signature="e#10098#10099#0" expanded="true" />
+                <element signature="e#10142#10143#0" expanded="true" />
+                <element signature="e#10185#10186#0" expanded="true" />
+                <element signature="e#10227#10228#0" expanded="true" />
+                <element signature="e#10688#10689#0" expanded="true" />
+                <element signature="e#10718#10719#0" expanded="true" />
+                <element signature="e#10920#10921#0" expanded="true" />
+                <element signature="e#10953#10954#0" expanded="true" />
+                <element signature="e#11590#11591#0" expanded="true" />
+                <element signature="e#11631#11632#0" expanded="true" />
+                <element signature="e#11839#11840#0" expanded="true" />
+                <element signature="e#11906#11907#0" expanded="true" />
+                <element signature="e#11968#11969#0" expanded="true" />
+                <element signature="e#11997#11998#0" expanded="true" />
+                <element signature="e#12417#12418#0" expanded="true" />
+                <element signature="e#12461#12462#0" expanded="true" />
+                <element signature="e#12511#12512#0" expanded="true" />
+                <element signature="e#12557#12558#0" expanded="true" />
+                <element signature="e#12600#12601#0" expanded="true" />
+                <element signature="e#12643#12644#0" expanded="true" />
+                <element signature="e#13021#13029#0" expanded="true" />
+                <element signature="e#13910#14058#0" expanded="true" />
+                <element signature="e#14057#14058#0" expanded="true" />
+                <element signature="e#14470#14600#0" expanded="true" />
+                <element signature="e#14599#14600#0" expanded="true" />
+                <element signature="e#15125#15384#0" expanded="true" />
+                <element signature="e#15334#15340#0" expanded="true" />
+                <element signature="e#15383#15384#0" expanded="true" />
+                <element signature="e#16354#16666#0" expanded="true" />
+                <element signature="e#16665#16666#0" expanded="true" />
+                <element signature="e#17403#17433#0" expanded="true" />
+                <element signature="e#19192#19193#0" expanded="true" />
+                <element signature="e#19261#19262#0" expanded="true" />
+                <element signature="e#19390#19391#0" expanded="true" />
+                <element signature="e#19447#19448#0" expanded="true" />
+                <element signature="e#19524#19525#0" expanded="true" />
+                <element signature="e#19548#19549#0" expanded="true" />
+                <element signature="e#19822#19823#0" expanded="true" />
+                <element signature="e#19871#19872#0" expanded="true" />
+                <element signature="e#21080#21081#0" expanded="true" />
+                <element signature="e#21122#21123#0" expanded="true" />
+                <element signature="e#22040#22041#0" expanded="true" />
+                <element signature="e#22070#22071#0" expanded="true" />
+                <element signature="e#22339#22619#0" expanded="true" />
+                <element signature="e#22618#22619#0" expanded="true" />
+                <element signature="e#22924#22925#0" expanded="true" />
+                <element signature="e#22977#22978#0" expanded="true" />
+                <element signature="e#23142#23340#0" expanded="true" />
+                <element signature="e#23339#23340#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Functions.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Functions.java">
+      <file leaf-file-name="SetDiagram.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/SetDiagram.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-1.7407408">
-              <caret line="310" column="33" selection-start-line="310" selection-start-column="31" selection-end-line="310" selection-end-column="33" />
+            <state vertical-scroll-proportion="3.6363637">
+              <caret line="105" column="14" selection-start-line="105" selection-start-column="14" selection-end-line="105" selection-end-column="14" />
               <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#1312#1438#0" expanded="false" />
-                <element signature="e#1437#1438#0" expanded="false" />
-                <element signature="e#1927#1928#0" expanded="false" />
-                <element signature="e#1972#1973#0" expanded="false" />
-                <element signature="e#1999#2000#0" expanded="false" />
-                <element signature="e#2048#2049#0" expanded="false" />
-                <element signature="e#2080#2081#0" expanded="false" />
-                <element signature="e#2117#2118#0" expanded="false" />
-                <element signature="e#2520#2521#0" expanded="false" />
-                <element signature="e#2583#2584#0" expanded="false" />
-                <element signature="e#3662#3663#0" expanded="false" />
-                <element signature="e#3713#3714#0" expanded="false" />
-                <element signature="e#3760#3761#0" expanded="false" />
-                <element signature="e#3802#3803#0" expanded="false" />
-                <element signature="e#4300#4301#0" expanded="false" />
-                <element signature="e#4353#4354#0" expanded="false" />
-                <element signature="e#4412#4413#0" expanded="false" />
-                <element signature="e#4463#4464#0" expanded="false" />
-                <element signature="e#4510#4511#0" expanded="false" />
-                <element signature="e#4552#4553#0" expanded="false" />
-                <element signature="e#4921#4922#0" expanded="false" />
-                <element signature="e#4985#4986#0" expanded="false" />
-                <element signature="e#5289#5397#0" expanded="false" />
-                <element signature="e#5396#5397#0" expanded="false" />
-                <element signature="e#5883#5884#0" expanded="false" />
-                <element signature="e#5909#5910#0" expanded="false" />
-                <element signature="e#7008#7135#0" expanded="false" />
-                <element signature="e#7134#7135#0" expanded="false" />
-                <element signature="e#7492#7493#0" expanded="false" />
-                <element signature="e#7543#7544#0" expanded="false" />
-                <element signature="e#7590#7591#0" expanded="false" />
-                <element signature="e#7632#7633#0" expanded="false" />
-                <element signature="e#7952#7953#0" expanded="false" />
-                <element signature="e#7983#7984#0" expanded="false" />
-                <element signature="e#8274#8275#0" expanded="false" />
-                <element signature="e#8308#8309#0" expanded="false" />
-                <element signature="e#8573#8574#0" expanded="false" />
-                <element signature="e#8595#8596#0" expanded="false" />
-                <element signature="e#8867#8868#0" expanded="false" />
-                <element signature="e#8906#8907#0" expanded="false" />
-                <element signature="e#10196#10197#0" expanded="false" />
-                <element signature="e#10244#10245#0" expanded="false" />
-                <element signature="e#10295#10296#0" expanded="false" />
-                <element signature="e#10347#10348#0" expanded="false" />
-                <element signature="e#10539#10540#0" expanded="false" />
-                <element signature="e#10561#10562#0" expanded="false" />
-                <element signature="e#10604#10605#0" expanded="false" />
-                <element signature="e#10626#10627#0" expanded="false" />
-                <element signature="e#10871#10872#0" expanded="false" />
-                <element signature="e#10910#10911#0" expanded="false" />
-                <element signature="e#11356#11357#0" expanded="false" />
-                <element signature="e#11413#11414#0" expanded="false" />
-                <element signature="e#11469#11470#0" expanded="false" />
-                <element signature="e#11499#11500#0" expanded="false" />
-                <element signature="e#11763#11879#0" expanded="false" />
-                <element signature="e#11878#11879#0" expanded="false" />
-                <element signature="e#12145#12243#0" expanded="false" />
-                <element signature="e#12242#12243#0" expanded="false" />
+                <element signature="e#6193#6513#0" expanded="true" />
+                <element signature="e#6512#6513#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Categories.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Categories.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="178.40741">
-              <caret line="38" column="7" selection-start-line="38" selection-start-column="5" selection-end-line="38" selection-end-column="7" />
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#1182#1183#0" expanded="false" />
-                <element signature="e#1233#1234#0" expanded="false" />
-                <element signature="e#4313#4343#0" expanded="false" />
-                <element signature="e#4628#4629#0" expanded="false" />
-                <element signature="e#4693#4694#0" expanded="false" />
-                <element signature="e#5260#5261#0" expanded="false" />
-                <element signature="e#5302#5303#0" expanded="false" />
-                <element signature="e#5441#5442#0" expanded="false" />
-                <element signature="e#5497#5498#0" expanded="false" />
-                <element signature="e#5579#5580#0" expanded="false" />
-                <element signature="e#5639#5640#0" expanded="false" />
-                <element signature="e#5724#5725#0" expanded="false" />
-                <element signature="e#5779#5780#0" expanded="false" />
-                <element signature="e#6528#6529#0" expanded="false" />
-                <element signature="e#6597#6598#0" expanded="false" />
-                <element signature="e#7762#7763#0" expanded="false" />
-                <element signature="e#7828#7829#0" expanded="false" />
-                <element signature="e#9645#9646#0" expanded="false" />
-                <element signature="e#9699#9700#0" expanded="false" />
-                <element signature="e#9856#9857#0" expanded="false" />
-                <element signature="e#9910#9911#0" expanded="false" />
-                <element signature="e#11093#11094#0" expanded="false" />
-                <element signature="e#11181#11182#0" expanded="false" />
-                <element signature="e#11985#11986#0" expanded="false" />
-                <element signature="e#12035#12036#0" expanded="false" />
-                <element signature="e#12150#12151#0" expanded="false" />
-                <element signature="e#12191#12192#0" expanded="false" />
-                <element signature="e#12737#12738#0" expanded="false" />
-                <element signature="e#12808#12809#0" expanded="false" />
-                <element signature="e#12910#12911#0" expanded="false" />
-                <element signature="e#12956#12957#0" expanded="false" />
-                <element signature="e#13224#13225#0" expanded="false" />
-                <element signature="e#13314#13315#0" expanded="false" />
-                <element signature="e#13361#13362#0" expanded="false" />
-                <element signature="e#13455#13456#0" expanded="false" />
-                <element signature="e#13506#13507#0" expanded="false" />
-                <element signature="e#13542#13543#0" expanded="false" />
-                <element signature="e#13595#13596#0" expanded="false" />
-                <element signature="e#13637#13638#0" expanded="false" />
-                <element signature="e#13707#13708#0" expanded="false" />
-                <element signature="e#13750#13751#0" expanded="false" />
-                <element signature="e#13820#13821#0" expanded="false" />
-                <element signature="e#13865#13866#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Category.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Category.java">
+      <file leaf-file-name="Functor.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Functor.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-              <folding />
+              <caret line="293" column="12" selection-start-line="293" selection-start-column="12" selection-end-line="293" selection-end-column="12" />
+              <folding>
+                <element signature="e#9812#10166#0" expanded="true" />
+                <element signature="e#10165#10166#0" expanded="true" />
+                <element signature="e#12627#12646#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="PoSet.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/PoSet.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/PoSet.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.7037037">
+              <caret line="10" column="22" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="22" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Categories.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Categories.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="13" selection-end-column="4" />
+              <caret line="31" column="22" selection-start-line="31" selection-start-column="22" selection-end-line="31" selection-end-column="22" />
               <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#450#451#0" expanded="false" />
-                <element signature="e#486#487#0" expanded="false" />
-                <element signature="e#521#522#0" expanded="false" />
-                <element signature="e#553#554#0" expanded="false" />
-                <element signature="e#592#593#0" expanded="false" />
-                <element signature="e#628#629#0" expanded="false" />
-                <element signature="e#677#678#0" expanded="false" />
-                <element signature="e#740#741#0" expanded="false" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#882#883#0" expanded="true" />
+                <element signature="e#933#934#0" expanded="true" />
+                <element signature="e#4149#4175#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -290,98 +261,132 @@
       <file leaf-file-name="Base.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Base.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state vertical-scroll-proportion="-1.52">
               <caret line="2" column="8" selection-start-line="2" selection-start-column="8" selection-end-line="2" selection-end-column="8" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Functions.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala">
+      <file leaf-file-name="Pair.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Pair.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="33" column="18" selection-start-line="33" selection-start-column="18" selection-end-line="33" selection-end-column="18" />
+              <caret line="65" column="30" selection-start-line="65" selection-start-column="30" selection-end-line="65" selection-end-column="30" />
+              <folding>
+                <element signature="e#1381#1382#0" expanded="true" />
+                <element signature="e#1437#1438#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TypelessSetMorphism.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/TypelessSetMorphism.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="54" column="29" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="33" />
+              <folding>
+                <element signature="e#1386#1387#0" expanded="true" />
+                <element signature="e#1440#1441#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Graph.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Graph.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="31" column="25" selection-start-line="31" selection-start-column="25" selection-end-line="31" selection-end-column="25" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Predef.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/Predef.scala">
+      <file leaf-file-name="Categories.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/topos/Categories.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="95" column="31" selection-start-line="95" selection-start-column="31" selection-end-line="95" selection-end-column="31" />
+              <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Set.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/immutable/Set.scala">
+      <file leaf-file-name="Category.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/topos/Category.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="28" column="39" selection-start-line="28" selection-start-column="39" selection-end-line="28" selection-end-column="39" />
+              <caret line="219" column="2" selection-start-line="219" selection-start-column="2" selection-end-line="219" selection-end-column="2" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#6623#6624#0" expanded="true" />
+                <element signature="e#6657#6658#0" expanded="true" />
+                <element signature="e#6721#6722#0" expanded="true" />
+                <element signature="e#6770#6771#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SetMorphism.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/SetMorphism.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="253" column="11" selection-start-line="253" selection-start-column="11" selection-end-line="253" selection-end-column="11" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Set.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/Set.scala">
+      <file leaf-file-name="BinaryRelationship.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="25" column="25" selection-start-line="25" selection-start-column="25" selection-end-line="25" selection-end-column="25" />
+            <state vertical-scroll-proportion="-1.52">
+              <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GenSet.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/GenSet.scala">
+      <file leaf-file-name="Category.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Category.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="23" column="12" selection-start-line="23" selection-start-column="12" selection-end-line="23" selection-end-column="12" />
+            <state vertical-scroll-proportion="-34.96">
+              <caret line="46" column="21" selection-start-line="46" selection-start-column="21" selection-end-line="46" selection-end-column="21" />
+              <folding>
+                <element signature="e#18#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Assert.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Assert.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-10.64">
+              <caret line="14" column="6" selection-start-line="8" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GenSetLike.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/GenSetLike.scala">
+      <file leaf-file-name="Functor.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="24" column="14" selection-start-line="24" selection-start-column="14" selection-end-line="24" selection-end-column="14" />
+            <state vertical-scroll-proportion="22.88">
+              <caret line="17" column="3" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GenIterableLike.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/GenIterableLike.scala">
+      <file leaf-file-name="Sets.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="36" column="55" selection-start-line="36" selection-start-column="55" selection-end-line="36" selection-end-column="55" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GenTraversableLike.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/GenTraversableLike.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="55" column="66" selection-start-line="55" selection-start-column="66" selection-end-line="55" selection-end-column="66" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GenTraversableOnce.scala" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/GenTraversableOnce.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="48" column="6" selection-start-line="48" selection-start-column="6" selection-end-line="48" selection-end-column="6" />
+            <state vertical-scroll-proportion="-3.72">
+              <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -390,235 +395,98 @@
       <file leaf-file-name="Graph.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="10" column="28" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SetsTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/SetsTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state vertical-scroll-proportion="-6.8">
+              <caret line="11" column="12" selection-start-line="11" selection-start-column="12" selection-end-line="11" selection-end-column="12" />
               <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#1289#1290#0" expanded="false" />
-                <element signature="e#1341#1342#0" expanded="false" />
-                <element signature="e#1611#1612#0" expanded="false" />
-                <element signature="e#1676#1677#0" expanded="false" />
-                <element signature="e#1711#1712#0" expanded="false" />
-                <element signature="e#1772#1773#0" expanded="false" />
-                <element signature="e#2946#2947#0" expanded="false" />
-                <element signature="e#3008#3009#0" expanded="false" />
-                <element signature="e#5317#5328#0" expanded="false" />
-                <element signature="e#6286#6287#0" expanded="false" />
-                <element signature="e#6359#6360#0" expanded="false" />
-                <element signature="e#6404#6405#0" expanded="false" />
-                <element signature="e#6477#6478#0" expanded="false" />
-                <element signature="e#9861#9862#0" expanded="false" />
-                <element signature="e#9908#9909#0" expanded="false" />
-                <element signature="e#10097#10111#0" expanded="false" />
-                <element signature="e#11488#11489#0" expanded="false" />
-                <element signature="e#11539#11540#0" expanded="false" />
+                <element signature="e#18#39#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Zermelo.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/Zermelo.java">
+      <file leaf-file-name="LazyPair.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/LazyPair.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state vertical-scroll-proportion="-8.36">
+              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TypelessSetMorphism.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-1.52">
+              <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FunctionsSuite.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/FunctionsSuite.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-1.52">
+              <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
               <folding>
-                <element signature="e#1304#1305#0" expanded="false" />
-                <element signature="e#1338#1339#0" expanded="false" />
-                <element signature="e#1845#2086#0" expanded="false" />
-                <element signature="e#2085#2086#0" expanded="false" />
-                <element signature="e#2174#2289#0" expanded="false" />
-                <element signature="e#2288#2289#0" expanded="false" />
-                <element signature="e#2392#2489#0" expanded="false" />
-                <element signature="e#2488#2489#0" expanded="false" />
-                <element signature="e#2657#2658#0" expanded="false" />
-                <element signature="e#2690#2691#0" expanded="false" />
-                <element signature="e#2729#2730#0" expanded="false" />
-                <element signature="e#2791#2792#0" expanded="false" />
-                <element signature="e#3068#3069#0" expanded="false" />
-                <element signature="e#3123#3124#0" expanded="false" />
-                <element signature="e#3213#3335#0" expanded="false" />
-                <element signature="e#3334#3335#0" expanded="false" />
-                <element signature="e#3401#3402#0" expanded="false" />
-                <element signature="e#3440#3441#0" expanded="false" />
-                <element signature="e#3596#3889#0" expanded="false" />
-                <element signature="e#3888#3889#0" expanded="false" />
-                <element signature="e#3936#4220#0" expanded="false" />
-                <element signature="e#4219#4220#0" expanded="false" />
-                <element signature="e#4595#4677#0" expanded="false" />
-                <element signature="e#4676#4677#0" expanded="false" />
-                <element signature="e#4787#4898#0" expanded="false" />
-                <element signature="e#4897#4898#0" expanded="false" />
-                <element signature="e#4988#5117#0" expanded="false" />
-                <element signature="e#5116#5117#0" expanded="false" />
-                <element signature="e#5200#5481#0" expanded="false" />
-                <element signature="e#5304#5465#0" expanded="false" />
-                <element signature="e#5464#5465#0" expanded="false" />
-                <element signature="e#5480#5481#0" expanded="false" />
-                <element signature="e#5566#5827#0" expanded="false" />
-                <element signature="e#5649#5811#0" expanded="false" />
-                <element signature="e#5810#5811#0" expanded="false" />
-                <element signature="e#5826#5827#0" expanded="false" />
-                <element signature="e#5914#5915#0" expanded="false" />
-                <element signature="e#5938#5939#0" expanded="false" />
-                <element signature="e#5969#5970#0" expanded="false" />
-                <element signature="e#5991#5992#0" expanded="false" />
-                <element signature="e#6032#6033#0" expanded="false" />
-                <element signature="e#6059#6060#0" expanded="false" />
-                <element signature="e#6246#6247#0" expanded="false" />
-                <element signature="e#6280#6281#0" expanded="false" />
-                <element signature="e#6312#6313#0" expanded="false" />
-                <element signature="e#6346#6347#0" expanded="false" />
-                <element signature="e#6571#6824#0" expanded="false" />
-                <element signature="e#6823#6824#0" expanded="false" />
-                <element signature="e#6900#7003#0" expanded="false" />
-                <element signature="e#7002#7003#0" expanded="false" />
-                <element signature="e#7064#7065#0" expanded="false" />
-                <element signature="e#7131#7132#0" expanded="false" />
-                <element signature="e#7201#7295#0" expanded="false" />
-                <element signature="e#7294#7295#0" expanded="false" />
-                <element signature="e#7782#7892#0" expanded="false" />
-                <element signature="e#7891#7892#0" expanded="false" />
-                <element signature="e#7953#8079#0" expanded="false" />
-                <element signature="e#8078#8079#0" expanded="false" />
+                <element signature="e#20#38#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Sets.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
+      <file leaf-file-name="GraphMorphismSuite.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismSuite.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="438" column="47" selection-start-line="438" selection-start-column="29" selection-end-line="438" selection-end-column="47" />
+            <state vertical-scroll-proportion="-1.52">
+              <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
               <folding>
-                <element signature="e#20659#20694#0" expanded="true" />
+                <marker date="1433133792000" expanded="true" signature="18:153" placeholder="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BigSet.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/BigSet.java">
+      <file leaf-file-name="GraphSuite.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphSuite.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state vertical-scroll-proportion="-1.52">
+              <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
               <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#459#460#0" expanded="false" />
-                <element signature="e#493#494#0" expanded="false" />
-                <element signature="e#535#536#0" expanded="false" />
-                <element signature="e#605#606#0" expanded="false" />
-                <element signature="e#652#653#0" expanded="false" />
-                <element signature="e#731#732#0" expanded="false" />
-                <element signature="e#774#775#0" expanded="false" />
-                <element signature="e#853#854#0" expanded="false" />
-                <element signature="e#900#901#0" expanded="false" />
-                <element signature="e#979#980#0" expanded="false" />
-                <element signature="e#1030#1031#0" expanded="false" />
-                <element signature="e#1104#1105#0" expanded="false" />
-                <element signature="e#1153#1154#0" expanded="false" />
-                <element signature="e#1227#1228#0" expanded="false" />
-                <element signature="e#1462#1463#0" expanded="false" />
-                <element signature="e#1536#1537#0" expanded="false" />
-                <element signature="e#1595#1596#0" expanded="false" />
-                <element signature="e#1669#1670#0" expanded="false" />
-                <element signature="e#1728#1729#0" expanded="false" />
-                <element signature="e#1802#1803#0" expanded="false" />
-                <element signature="e#1839#1840#0" expanded="false" />
-                <element signature="e#1913#1914#0" expanded="false" />
-                <element signature="e#2006#2036#0" expanded="false" />
-                <element signature="e#2085#2240#0" expanded="false" />
-                <element signature="e#2239#2240#0" expanded="false" />
+                <marker date="1433133792000" expanded="true" signature="18:184" placeholder="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BinaryRelationship.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/BinaryRelationship.java">
+      <file leaf-file-name="GraphTest.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="19" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BinaryRelationship.scala" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.627451">
-              <caret line="14" column="3" selection-start-line="14" selection-start-column="3" selection-end-line="14" selection-end-column="3" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BasePair.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/BasePair.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="105" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="105" selection-end-column="0" />
+            <state vertical-scroll-proportion="-1.52">
+              <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
               <folding>
-                <element signature="e#524#525#0" expanded="false" />
-                <element signature="e#542#543#0" expanded="false" />
-                <element signature="e#601#602#0" expanded="false" />
-                <element signature="e#619#620#0" expanded="false" />
-                <element signature="e#1032#1033#0" expanded="false" />
-                <element signature="e#1073#1074#0" expanded="false" />
-                <element signature="e#2282#2409#0" expanded="false" />
-                <element signature="e#2408#2409#0" expanded="false" />
+                <element signature="e#20#39#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BasePair.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala">
+      <file leaf-file-name="Tuple2.scala" pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/Tuple2.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="5" column="27" selection-start-line="5" selection-start-column="27" selection-end-line="5" selection-end-column="27" />
+              <caret line="19" column="11" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PoSet.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala">
+      <file leaf-file-name="Product2.scala" pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/Product2.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="101" column="53" selection-start-line="101" selection-start-column="53" selection-end-line="101" selection-end-column="53" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SetMorphism.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="56" column="24" selection-start-line="56" selection-start-column="24" selection-end-line="56" selection-end-column="24" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CategoryTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/CategoryTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="14" column="46" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="46" />
+              <caret line="19" column="6" selection-start-line="19" selection-start-column="6" selection-end-line="19" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -628,9 +496,19 @@
         <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/FunctorTest.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="23" column="3" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
+              <caret line="25" column="3" selection-start-line="25" selection-start-column="3" selection-end-line="25" selection-end-column="3" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BasePair.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-11.16">
+              <caret line="25" column="5" selection-start-line="25" selection-start-column="5" selection-end-line="25" selection-end-column="5" />
               <folding>
-                <element signature="imports" expanded="false" />
+                <element signature="e#19#40#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -649,19 +527,39 @@
         <option value="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest2.java" />
         <option value="$PROJECT_DIR$/src/test/java/cat/BaseTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/math/cat/BaseTest.java" />
-        <option value="$PROJECT_DIR$/build.sbt" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" />
         <option value="$PROJECT_DIR$/src/main/java/math/cat/SetMorphism.java" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Category.java" />
         <option value="$PROJECT_DIR$/src/test/java/math/cat/CategoryTest.java" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Base.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/LazyPair.scala" />
+        <option value="$PROJECT_DIR$/build.sbt" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/cat/Base.java" />
+        <option value="$PROJECT_DIR$/src/main/java/math/topos/Category.java" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/GraphMorphism.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSetMorphism.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/FunctionsSuite.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismSuite.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/GraphSuite.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/cat/SetDiagram.java" />
+        <option value="$PROJECT_DIR$/src/main/java/math/topos/Categories.java" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/topos/Category.java" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/cat/Categories.java" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/cat/Pair.java" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/cat/Sets.java" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/cat/SetMorphism.java" />
+        <option value="$PROJECT_DIR$/src/main/java/java/math/cat/Functor.java" />
       </list>
     </option>
   </component>
@@ -669,7 +567,7 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="33" />
+    <option name="x" value="4" />
     <option name="y" value="22" />
     <option name="width" value="1436" />
     <option name="height" value="878" />
@@ -698,7 +596,7 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
-      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -775,20 +673,16 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
+              <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
+              <option name="myItemId" value="java" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="cat" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Sets.scala" />
-              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -864,6 +758,36 @@
               <option name="myItemId" value="main" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cat" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Category.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Categories" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Categories" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -910,6 +834,10 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="math" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="topos" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -945,14 +873,16 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="project.structure.side.proportion" value="0.3590535" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="FullScreen" value="false" />
+    <property name="recentsLimit" value="5" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -963,7 +893,14 @@
       <recent name="math" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Scala Console.Scala Console">
+    <configuration default="false" name="Scala Console" type="ScalaScriptConsoleRunConfiguration" factoryName="Scala Console" temporary="true">
+      <module name="" />
+      <setting name="vmparams4" value="-Djline.terminal=NONE" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <setting name="consoleArgs" value="-usejavacp" />
+      <method />
+    </configuration>
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="WIDTH" value="400" />
       <option name="HEIGHT" value="300" />
@@ -997,6 +934,13 @@
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
+      <method />
+    </configuration>
+    <configuration default="true" type="ScalaScriptConsoleRunConfiguration" factoryName="Scala Console">
+      <module name="" />
+      <setting name="vmparams4" value="-Djline.terminal=NONE" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <setting name="consoleArgs" value="-usejavacp" />
       <method />
     </configuration>
     <configuration default="true" type="ScalaTestRunConfiguration" factoryName="ScalaTest">
@@ -1047,6 +991,14 @@
       <envs />
       <method />
     </configuration>
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="Scala Console.Scala Console" />
+    </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="Scala Console.Scala Console" />
+      </list>
+    </recent_temporary>
     <configuration name="&lt;template&gt;" type="JUnit" default="true" selected="false">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" value="-ea" />
@@ -1099,22 +1051,32 @@
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="ToolWindowManager">
-    <frame x="33" y="22" width="1436" height="878" extended-state="0" />
+    <frame x="4" y="22" width="1436" height="878" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32894737" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32894737" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="SBT" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3347701" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32894737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3276316" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+      <window_info id="SBT" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33908045" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -1122,390 +1084,27 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Just throwing in more stuff from my archive; nothing to run yet" />
     <MESSAGE value="Just throwing in even more stuff from my archive; nothing to run yet" />
-    <option name="LAST_COMMIT_MESSAGE" value="Just throwing in even more stuff from my archive; nothing to run yet" />
+    <MESSAGE value="Started fixing compilation errors etc. Seems like this code is actually pretty old." />
+    <option name="LAST_COMMIT_MESSAGE" value="Started fixing compilation errors etc. Seems like this code is actually pretty old." />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/java/math/topos/Category.java</url>
+          <line>2</line>
+          <properties />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/BaseTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.sbt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.28">
-          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/PairTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="16" column="13" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <marker date="1433114549000" expanded="true" signature="-1:-1" placeholder="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/CategoriesTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="374" column="3" selection-start-line="374" selection-start-column="3" selection-end-line="374" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.sbt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.26078433">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/BaseTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="196" column="3" selection-start-line="196" selection-start-column="3" selection-end-line="196" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Maybe.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/N.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="13" column="11" selection-start-line="12" selection-start-column="13" selection-end-line="13" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/SetMorphism.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.67058825">
-          <caret line="23" column="22" selection-start-line="22" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1575#1697#0" expanded="false" />
-            <element signature="e#1696#1697#0" expanded="false" />
-            <element signature="e#3366#3367#0" expanded="false" />
-            <element signature="e#3443#3444#0" expanded="false" />
-            <element signature="e#4039#4040#0" expanded="false" />
-            <element signature="e#4074#4075#0" expanded="false" />
-            <element signature="e#5251#5252#0" expanded="false" />
-            <element signature="e#5277#5278#0" expanded="false" />
-            <element signature="e#5857#5858#0" expanded="false" />
-            <element signature="e#5883#5884#0" expanded="false" />
-            <element signature="e#6849#6850#0" expanded="false" />
-            <element signature="e#6893#6894#0" expanded="false" />
-            <element signature="e#7224#7254#0" expanded="false" />
-            <element signature="e#7447#7794#0" expanded="false" />
-            <element signature="e#7793#7794#0" expanded="false" />
-            <element signature="e#8023#8253#0" expanded="false" />
-            <element signature="e#8252#8253#0" expanded="false" />
-            <element signature="e#8901#8902#0" expanded="false" />
-            <element signature="e#8946#8947#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Predicate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="22" column="22" selection-start-line="22" selection-start-column="22" selection-end-line="22" selection-end-column="22" />
-          <folding>
-            <element signature="e#3526#3527#0" expanded="false" />
-            <element signature="e#3580#3581#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Morphism.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.52">
-          <caret line="2" column="15" selection-start-line="2" selection-start-column="15" selection-end-line="2" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Graph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="4" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/PoSet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="13" selection-end-column="4" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#450#451#0" expanded="false" />
-            <element signature="e#486#487#0" expanded="false" />
-            <element signature="e#521#522#0" expanded="false" />
-            <element signature="e#553#554#0" expanded="false" />
-            <element signature="e#592#593#0" expanded="false" />
-            <element signature="e#628#629#0" expanded="false" />
-            <element signature="e#677#678#0" expanded="false" />
-            <element signature="e#740#741#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Category.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/CategoryTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="46" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="46" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/FunctorTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="3" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/SetsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1289#1290#0" expanded="false" />
-            <element signature="e#1341#1342#0" expanded="false" />
-            <element signature="e#1611#1612#0" expanded="false" />
-            <element signature="e#1676#1677#0" expanded="false" />
-            <element signature="e#1711#1712#0" expanded="false" />
-            <element signature="e#1772#1773#0" expanded="false" />
-            <element signature="e#2946#2947#0" expanded="false" />
-            <element signature="e#3008#3009#0" expanded="false" />
-            <element signature="e#5317#5328#0" expanded="false" />
-            <element signature="e#6286#6287#0" expanded="false" />
-            <element signature="e#6359#6360#0" expanded="false" />
-            <element signature="e#6404#6405#0" expanded="false" />
-            <element signature="e#6477#6478#0" expanded="false" />
-            <element signature="e#9861#9862#0" expanded="false" />
-            <element signature="e#9908#9909#0" expanded="false" />
-            <element signature="e#10097#10111#0" expanded="false" />
-            <element signature="e#11488#11489#0" expanded="false" />
-            <element signature="e#11539#11540#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Zermelo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#1304#1305#0" expanded="false" />
-            <element signature="e#1338#1339#0" expanded="false" />
-            <element signature="e#1845#2086#0" expanded="false" />
-            <element signature="e#2085#2086#0" expanded="false" />
-            <element signature="e#2174#2289#0" expanded="false" />
-            <element signature="e#2288#2289#0" expanded="false" />
-            <element signature="e#2392#2489#0" expanded="false" />
-            <element signature="e#2488#2489#0" expanded="false" />
-            <element signature="e#2657#2658#0" expanded="false" />
-            <element signature="e#2690#2691#0" expanded="false" />
-            <element signature="e#2729#2730#0" expanded="false" />
-            <element signature="e#2791#2792#0" expanded="false" />
-            <element signature="e#3068#3069#0" expanded="false" />
-            <element signature="e#3123#3124#0" expanded="false" />
-            <element signature="e#3213#3335#0" expanded="false" />
-            <element signature="e#3334#3335#0" expanded="false" />
-            <element signature="e#3401#3402#0" expanded="false" />
-            <element signature="e#3440#3441#0" expanded="false" />
-            <element signature="e#3596#3889#0" expanded="false" />
-            <element signature="e#3888#3889#0" expanded="false" />
-            <element signature="e#3936#4220#0" expanded="false" />
-            <element signature="e#4219#4220#0" expanded="false" />
-            <element signature="e#4595#4677#0" expanded="false" />
-            <element signature="e#4676#4677#0" expanded="false" />
-            <element signature="e#4787#4898#0" expanded="false" />
-            <element signature="e#4897#4898#0" expanded="false" />
-            <element signature="e#4988#5117#0" expanded="false" />
-            <element signature="e#5116#5117#0" expanded="false" />
-            <element signature="e#5200#5481#0" expanded="false" />
-            <element signature="e#5304#5465#0" expanded="false" />
-            <element signature="e#5464#5465#0" expanded="false" />
-            <element signature="e#5480#5481#0" expanded="false" />
-            <element signature="e#5566#5827#0" expanded="false" />
-            <element signature="e#5649#5811#0" expanded="false" />
-            <element signature="e#5810#5811#0" expanded="false" />
-            <element signature="e#5826#5827#0" expanded="false" />
-            <element signature="e#5914#5915#0" expanded="false" />
-            <element signature="e#5938#5939#0" expanded="false" />
-            <element signature="e#5969#5970#0" expanded="false" />
-            <element signature="e#5991#5992#0" expanded="false" />
-            <element signature="e#6032#6033#0" expanded="false" />
-            <element signature="e#6059#6060#0" expanded="false" />
-            <element signature="e#6246#6247#0" expanded="false" />
-            <element signature="e#6280#6281#0" expanded="false" />
-            <element signature="e#6312#6313#0" expanded="false" />
-            <element signature="e#6346#6347#0" expanded="false" />
-            <element signature="e#6571#6824#0" expanded="false" />
-            <element signature="e#6823#6824#0" expanded="false" />
-            <element signature="e#6900#7003#0" expanded="false" />
-            <element signature="e#7002#7003#0" expanded="false" />
-            <element signature="e#7064#7065#0" expanded="false" />
-            <element signature="e#7131#7132#0" expanded="false" />
-            <element signature="e#7201#7295#0" expanded="false" />
-            <element signature="e#7294#7295#0" expanded="false" />
-            <element signature="e#7782#7892#0" expanded="false" />
-            <element signature="e#7891#7892#0" expanded="false" />
-            <element signature="e#7953#8079#0" expanded="false" />
-            <element signature="e#8078#8079#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.44">
-          <caret line="9" column="13" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
-          <folding>
-            <element signature="e#18#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Categories.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="178.40741">
-          <caret line="38" column="7" selection-start-line="38" selection-start-column="5" selection-end-line="38" selection-end-column="7" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1182#1183#0" expanded="false" />
-            <element signature="e#1233#1234#0" expanded="false" />
-            <element signature="e#4313#4343#0" expanded="false" />
-            <element signature="e#4628#4629#0" expanded="false" />
-            <element signature="e#4693#4694#0" expanded="false" />
-            <element signature="e#5260#5261#0" expanded="false" />
-            <element signature="e#5302#5303#0" expanded="false" />
-            <element signature="e#5441#5442#0" expanded="false" />
-            <element signature="e#5497#5498#0" expanded="false" />
-            <element signature="e#5579#5580#0" expanded="false" />
-            <element signature="e#5639#5640#0" expanded="false" />
-            <element signature="e#5724#5725#0" expanded="false" />
-            <element signature="e#5779#5780#0" expanded="false" />
-            <element signature="e#6528#6529#0" expanded="false" />
-            <element signature="e#6597#6598#0" expanded="false" />
-            <element signature="e#7762#7763#0" expanded="false" />
-            <element signature="e#7828#7829#0" expanded="false" />
-            <element signature="e#9645#9646#0" expanded="false" />
-            <element signature="e#9699#9700#0" expanded="false" />
-            <element signature="e#9856#9857#0" expanded="false" />
-            <element signature="e#9910#9911#0" expanded="false" />
-            <element signature="e#11093#11094#0" expanded="false" />
-            <element signature="e#11181#11182#0" expanded="false" />
-            <element signature="e#11985#11986#0" expanded="false" />
-            <element signature="e#12035#12036#0" expanded="false" />
-            <element signature="e#12150#12151#0" expanded="false" />
-            <element signature="e#12191#12192#0" expanded="false" />
-            <element signature="e#12737#12738#0" expanded="false" />
-            <element signature="e#12808#12809#0" expanded="false" />
-            <element signature="e#12910#12911#0" expanded="false" />
-            <element signature="e#12956#12957#0" expanded="false" />
-            <element signature="e#13224#13225#0" expanded="false" />
-            <element signature="e#13314#13315#0" expanded="false" />
-            <element signature="e#13361#13362#0" expanded="false" />
-            <element signature="e#13455#13456#0" expanded="false" />
-            <element signature="e#13506#13507#0" expanded="false" />
-            <element signature="e#13542#13543#0" expanded="false" />
-            <element signature="e#13595#13596#0" expanded="false" />
-            <element signature="e#13637#13638#0" expanded="false" />
-            <element signature="e#13707#13708#0" expanded="false" />
-            <element signature="e#13750#13751#0" expanded="false" />
-            <element signature="e#13820#13821#0" expanded="false" />
-            <element signature="e#13865#13866#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Base.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Base.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="8" selection-start-line="2" selection-start-column="8" selection-end-line="2" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/Function1.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.627451">
-          <caret line="54" column="32" selection-start-line="54" selection-start-column="32" selection-end-line="54" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="28" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="101" column="53" selection-start-line="101" selection-start-column="53" selection-end-line="101" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="56" column="24" selection-start-line="56" selection-start-column="24" selection-end-line="56" selection-end-column="24" />
+          <caret line="80" column="7" selection-start-line="80" selection-start-column="7" selection-end-line="80" selection-end-column="7" />
           <folding />
         </state>
       </provider>
@@ -1522,22 +1121,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="28" column="39" selection-start-line="28" selection-start-column="39" selection-end-line="28" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/generic/GenericTraversableTemplate.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.3372549">
-          <caret line="28" column="6" selection-start-line="28" selection-start-column="6" selection-end-line="28" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/collection/generic/GenericSetTemplate.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.29803923">
-          <caret line="14" column="74" selection-start-line="14" selection-start-column="74" selection-end-line="14" selection-end-column="74" />
           <folding />
         </state>
       </provider>
@@ -1590,229 +1173,529 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala">
+    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/SetsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="18" selection-start-line="33" selection-start-column="18" selection-end-line="33" selection-end-column="18" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#1424#1425#0" expanded="false" />
+            <element signature="e#1476#1477#0" expanded="false" />
+            <element signature="e#1746#1747#0" expanded="false" />
+            <element signature="e#1811#1812#0" expanded="false" />
+            <element signature="e#1846#1847#0" expanded="false" />
+            <element signature="e#1907#1908#0" expanded="false" />
+            <element signature="e#3081#3082#0" expanded="false" />
+            <element signature="e#3143#3144#0" expanded="false" />
+            <element signature="e#6449#6450#0" expanded="false" />
+            <element signature="e#6536#6537#0" expanded="false" />
+            <element signature="e#6581#6582#0" expanded="false" />
+            <element signature="e#6668#6669#0" expanded="false" />
+            <element signature="e#10094#10095#0" expanded="false" />
+            <element signature="e#10141#10142#0" expanded="false" />
+            <element signature="e#11749#11750#0" expanded="false" />
+            <element signature="e#11800#11801#0" expanded="false" />
+            <marker date="1433132280000" expanded="false" signature="-1:-1" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Zermelo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1304#1305#0" expanded="false" />
+            <element signature="e#1338#1339#0" expanded="false" />
+            <element signature="e#2227#2228#0" expanded="false" />
+            <element signature="e#2282#2283#0" expanded="false" />
+            <element signature="e#2446#2447#0" expanded="false" />
+            <element signature="e#2482#2483#0" expanded="false" />
+            <element signature="e#2657#2658#0" expanded="false" />
+            <element signature="e#2690#2691#0" expanded="false" />
+            <element signature="e#2729#2730#0" expanded="false" />
+            <element signature="e#2791#2792#0" expanded="false" />
+            <element signature="e#3068#3069#0" expanded="false" />
+            <element signature="e#3123#3124#0" expanded="false" />
+            <element signature="e#3401#3402#0" expanded="false" />
+            <element signature="e#3440#3441#0" expanded="false" />
+            <element signature="e#4646#4647#0" expanded="false" />
+            <element signature="e#4672#4673#0" expanded="false" />
+            <element signature="e#4840#4841#0" expanded="false" />
+            <element signature="e#4891#4892#0" expanded="false" />
+            <element signature="e#5041#5042#0" expanded="false" />
+            <element signature="e#5110#5111#0" expanded="false" />
+            <element signature="e#5362#5363#0" expanded="false" />
+            <element signature="e#5454#5455#0" expanded="false" />
+            <element signature="e#5726#5727#0" expanded="false" />
+            <element signature="e#5800#5801#0" expanded="false" />
+            <element signature="e#5914#5915#0" expanded="false" />
+            <element signature="e#5938#5939#0" expanded="false" />
+            <element signature="e#5969#5970#0" expanded="false" />
+            <element signature="e#5991#5992#0" expanded="false" />
+            <element signature="e#6032#6033#0" expanded="false" />
+            <element signature="e#6059#6060#0" expanded="false" />
+            <element signature="e#6246#6247#0" expanded="false" />
+            <element signature="e#6280#6281#0" expanded="false" />
+            <element signature="e#6312#6313#0" expanded="false" />
+            <element signature="e#6346#6347#0" expanded="false" />
+            <element signature="e#6953#6954#0" expanded="false" />
+            <element signature="e#6996#6997#0" expanded="false" />
+            <element signature="e#7064#7065#0" expanded="false" />
+            <element signature="e#7131#7132#0" expanded="false" />
+            <element signature="e#7249#7250#0" expanded="false" />
+            <element signature="e#7288#7289#0" expanded="false" />
+            <element signature="e#7844#7845#0" expanded="false" />
+            <element signature="e#7885#7886#0" expanded="false" />
+            <element signature="e#8016#8017#0" expanded="false" />
+            <element signature="e#8072#8073#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/BinaryRelationship.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1174#1175#0" expanded="false" />
+            <element signature="e#1207#1208#0" expanded="false" />
+            <element signature="e#1611#1612#0" expanded="false" />
+            <element signature="e#1653#1654#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/CategoryTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="14" column="46" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="46" />
+          <folding>
+            <element signature="e#3055#3056#0" expanded="false" />
+            <element signature="e#3114#3115#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/LazyPair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#974#975#0" expanded="false" />
+            <element signature="e#1015#1016#0" expanded="false" />
+            <element signature="e#1045#1046#0" expanded="false" />
+            <element signature="e#1063#1064#0" expanded="false" />
+            <element signature="e#1372#1373#0" expanded="false" />
+            <element signature="e#1405#1406#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.sbt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="10" column="56" selection-start-line="10" selection-start-column="56" selection-end-line="10" selection-end-column="56" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/BasePair.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/BigSet.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="105" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="105" selection-end-column="0" />
+          <caret line="14" column="22" selection-start-line="14" selection-start-column="22" selection-end-line="14" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/GraphMorphism.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.28">
+          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
           <folding>
-            <element signature="e#524#525#0" expanded="false" />
-            <element signature="e#542#543#0" expanded="false" />
-            <element signature="e#601#602#0" expanded="false" />
-            <element signature="e#619#620#0" expanded="false" />
-            <element signature="e#1032#1033#0" expanded="false" />
-            <element signature="e#1073#1074#0" expanded="false" />
-            <element signature="e#2282#2409#0" expanded="false" />
-            <element signature="e#2408#2409#0" expanded="false" />
+            <marker date="1433133792000" expanded="true" signature="-1:-1" placeholder="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.28">
+          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/PoSetMorphism.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.28">
+          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding>
+            <marker date="1433133792000" expanded="true" signature="-1:-1" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/FunctionsSuite.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding>
+            <element signature="e#20#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismSuite.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding>
+            <marker date="1433133792000" expanded="true" signature="18:153" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphSuite.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding>
+            <marker date="1433133792000" expanded="true" signature="18:184" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding>
+            <element signature="e#20#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/BasePair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.925">
+          <caret line="88" column="5" selection-start-line="88" selection-start-column="5" selection-end-line="88" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/math/cat/FunctorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="25" column="3" selection-start-line="25" selection-start-column="3" selection-end-line="25" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/Product2.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="6" selection-start-line="19" selection-start-column="6" selection-end-line="19" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar!/scala/Tuple2.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="11" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="5" column="27" selection-start-line="5" selection-start-column="27" selection-end-line="5" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Functions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.7407408">
-          <caret line="310" column="33" selection-start-line="310" selection-start-column="31" selection-end-line="310" selection-end-column="33" />
+        <state vertical-scroll-proportion="-11.16">
+          <caret line="25" column="5" selection-start-line="25" selection-start-column="5" selection-end-line="25" selection-end-column="5" />
           <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1312#1438#0" expanded="false" />
-            <element signature="e#1437#1438#0" expanded="false" />
-            <element signature="e#1927#1928#0" expanded="false" />
-            <element signature="e#1972#1973#0" expanded="false" />
-            <element signature="e#1999#2000#0" expanded="false" />
-            <element signature="e#2048#2049#0" expanded="false" />
-            <element signature="e#2080#2081#0" expanded="false" />
-            <element signature="e#2117#2118#0" expanded="false" />
-            <element signature="e#2520#2521#0" expanded="false" />
-            <element signature="e#2583#2584#0" expanded="false" />
-            <element signature="e#3662#3663#0" expanded="false" />
-            <element signature="e#3713#3714#0" expanded="false" />
-            <element signature="e#3760#3761#0" expanded="false" />
-            <element signature="e#3802#3803#0" expanded="false" />
-            <element signature="e#4300#4301#0" expanded="false" />
-            <element signature="e#4353#4354#0" expanded="false" />
-            <element signature="e#4412#4413#0" expanded="false" />
-            <element signature="e#4463#4464#0" expanded="false" />
-            <element signature="e#4510#4511#0" expanded="false" />
-            <element signature="e#4552#4553#0" expanded="false" />
-            <element signature="e#4921#4922#0" expanded="false" />
-            <element signature="e#4985#4986#0" expanded="false" />
-            <element signature="e#5289#5397#0" expanded="false" />
-            <element signature="e#5396#5397#0" expanded="false" />
-            <element signature="e#5883#5884#0" expanded="false" />
-            <element signature="e#5909#5910#0" expanded="false" />
-            <element signature="e#7008#7135#0" expanded="false" />
-            <element signature="e#7134#7135#0" expanded="false" />
-            <element signature="e#7492#7493#0" expanded="false" />
-            <element signature="e#7543#7544#0" expanded="false" />
-            <element signature="e#7590#7591#0" expanded="false" />
-            <element signature="e#7632#7633#0" expanded="false" />
-            <element signature="e#7952#7953#0" expanded="false" />
-            <element signature="e#7983#7984#0" expanded="false" />
-            <element signature="e#8274#8275#0" expanded="false" />
-            <element signature="e#8308#8309#0" expanded="false" />
-            <element signature="e#8573#8574#0" expanded="false" />
-            <element signature="e#8595#8596#0" expanded="false" />
-            <element signature="e#8867#8868#0" expanded="false" />
-            <element signature="e#8906#8907#0" expanded="false" />
-            <element signature="e#10196#10197#0" expanded="false" />
-            <element signature="e#10244#10245#0" expanded="false" />
-            <element signature="e#10295#10296#0" expanded="false" />
-            <element signature="e#10347#10348#0" expanded="false" />
-            <element signature="e#10539#10540#0" expanded="false" />
-            <element signature="e#10561#10562#0" expanded="false" />
-            <element signature="e#10604#10605#0" expanded="false" />
-            <element signature="e#10626#10627#0" expanded="false" />
-            <element signature="e#10871#10872#0" expanded="false" />
-            <element signature="e#10910#10911#0" expanded="false" />
-            <element signature="e#11356#11357#0" expanded="false" />
-            <element signature="e#11413#11414#0" expanded="false" />
-            <element signature="e#11469#11470#0" expanded="false" />
-            <element signature="e#11499#11500#0" expanded="false" />
-            <element signature="e#11763#11879#0" expanded="false" />
-            <element signature="e#11878#11879#0" expanded="false" />
-            <element signature="e#12145#12243#0" expanded="false" />
-            <element signature="e#12242#12243#0" expanded="false" />
+            <element signature="e#19#40#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/Sets.java">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="13.037037">
-          <caret line="544" column="16" selection-start-line="544" selection-start-column="16" selection-end-line="544" selection-end-column="16" />
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="22.88">
+          <caret line="17" column="3" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/LazyPair.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-8.36">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/SetDiagram.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="3.6363637">
+          <caret line="105" column="14" selection-start-line="105" selection-start-column="14" selection-end-line="105" selection-end-column="14" />
           <folding>
-            <element signature="e#3541#3542#0" expanded="false" />
-            <element signature="e#3589#3590#0" expanded="false" />
-            <element signature="e#9923#9924#0" expanded="false" />
-            <element signature="e#9967#9968#0" expanded="false" />
-            <element signature="e#10010#10011#0" expanded="false" />
-            <element signature="e#10052#10053#0" expanded="false" />
-            <element signature="e#10513#10514#0" expanded="false" />
-            <element signature="e#10543#10544#0" expanded="false" />
-            <element signature="e#10745#10746#0" expanded="false" />
-            <element signature="e#10778#10779#0" expanded="false" />
-            <element signature="e#11415#11416#0" expanded="false" />
-            <element signature="e#11456#11457#0" expanded="false" />
-            <element signature="e#11664#11665#0" expanded="false" />
-            <element signature="e#11731#11732#0" expanded="false" />
-            <element signature="e#11793#11794#0" expanded="false" />
-            <element signature="e#11822#11823#0" expanded="false" />
-            <element signature="e#12242#12243#0" expanded="false" />
-            <element signature="e#12286#12287#0" expanded="false" />
-            <element signature="e#12336#12337#0" expanded="false" />
-            <element signature="e#12382#12383#0" expanded="false" />
-            <element signature="e#12425#12426#0" expanded="false" />
-            <element signature="e#12468#12469#0" expanded="false" />
-            <element signature="e#13735#13883#0" expanded="false" />
-            <element signature="e#13882#13883#0" expanded="false" />
-            <element signature="e#19017#19018#0" expanded="false" />
-            <element signature="e#19086#19087#0" expanded="false" />
-            <element signature="e#19215#19216#0" expanded="false" />
-            <element signature="e#19272#19273#0" expanded="false" />
-            <element signature="e#19349#19350#0" expanded="false" />
-            <element signature="e#19373#19374#0" expanded="false" />
-            <element signature="e#19647#19648#0" expanded="false" />
-            <element signature="e#19696#19697#0" expanded="false" />
-            <element signature="e#20905#20906#0" expanded="false" />
-            <element signature="e#20947#20948#0" expanded="false" />
-            <element signature="e#21865#21866#0" expanded="false" />
-            <element signature="e#21895#21896#0" expanded="false" />
-            <element signature="e#22749#22750#0" expanded="false" />
-            <element signature="e#22802#22803#0" expanded="false" />
-            <element signature="e#23111#23112#0" expanded="false" />
-            <element signature="e#23156#23157#0" expanded="false" />
-            <element signature="e#23710#23711#0" expanded="false" />
-            <element signature="e#23761#23762#0" expanded="false" />
-            <element signature="e#23804#23805#0" expanded="false" />
-            <element signature="e#23848#23849#0" expanded="false" />
-            <element signature="e#24308#24319#0" expanded="false" />
-            <element signature="e#24982#24983#0" expanded="false" />
-            <element signature="e#25025#25026#0" expanded="false" />
-            <element signature="e#25419#25420#0" expanded="false" />
-            <element signature="e#25488#25489#0" expanded="false" />
-            <element signature="e#25604#25605#0" expanded="false" />
-            <element signature="e#25667#25668#0" expanded="false" />
-            <element signature="e#25728#25729#0" expanded="false" />
-            <element signature="e#25795#25796#0" expanded="false" />
-            <element signature="e#25857#25858#0" expanded="false" />
-            <element signature="e#25896#25897#0" expanded="false" />
+            <element signature="e#6193#6513#0" expanded="true" />
+            <element signature="e#6512#6513#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/topos/Categories.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/TypelessSetMorphism.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="54" column="29" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="33" />
+          <folding>
+            <element signature="e#1386#1387#0" expanded="true" />
+            <element signature="e#1440#1441#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Pair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="65" column="30" selection-start-line="65" selection-start-column="30" selection-end-line="65" selection-end-column="30" />
+          <folding>
+            <element signature="e#1381#1382#0" expanded="true" />
+            <element signature="e#1437#1438#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="438" column="47" selection-start-line="438" selection-start-column="29" selection-end-line="438" selection-end-column="47" />
-          <folding>
-            <element signature="e#20659#20694#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/BigSet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#459#460#0" expanded="false" />
-            <element signature="e#493#494#0" expanded="false" />
-            <element signature="e#535#536#0" expanded="false" />
-            <element signature="e#605#606#0" expanded="false" />
-            <element signature="e#652#653#0" expanded="false" />
-            <element signature="e#731#732#0" expanded="false" />
-            <element signature="e#774#775#0" expanded="false" />
-            <element signature="e#853#854#0" expanded="false" />
-            <element signature="e#900#901#0" expanded="false" />
-            <element signature="e#979#980#0" expanded="false" />
-            <element signature="e#1030#1031#0" expanded="false" />
-            <element signature="e#1104#1105#0" expanded="false" />
-            <element signature="e#1153#1154#0" expanded="false" />
-            <element signature="e#1227#1228#0" expanded="false" />
-            <element signature="e#1462#1463#0" expanded="false" />
-            <element signature="e#1536#1537#0" expanded="false" />
-            <element signature="e#1595#1596#0" expanded="false" />
-            <element signature="e#1669#1670#0" expanded="false" />
-            <element signature="e#1728#1729#0" expanded="false" />
-            <element signature="e#1802#1803#0" expanded="false" />
-            <element signature="e#1839#1840#0" expanded="false" />
-            <element signature="e#1913#1914#0" expanded="false" />
-            <element signature="e#2006#2036#0" expanded="false" />
-            <element signature="e#2085#2240#0" expanded="false" />
-            <element signature="e#2239#2240#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/math/cat/BinaryRelationship.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="19" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+        <state vertical-scroll-proportion="-3.72">
+          <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.627451">
-          <caret line="14" column="3" selection-start-line="14" selection-start-column="3" selection-end-line="14" selection-end-column="3" />
+        <state vertical-scroll-proportion="-6.8">
+          <caret line="11" column="12" selection-start-line="11" selection-start-column="12" selection-end-line="11" selection-end-column="12" />
+          <folding>
+            <element signature="e#18#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Sets.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.6909091">
+          <caret line="138" column="36" selection-start-line="138" selection-start-column="36" selection-end-line="138" selection-end-column="36" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#3478#3796#0" expanded="true" />
+            <element signature="e#3623#3777#0" expanded="true" />
+            <element signature="e#3776#3777#0" expanded="true" />
+            <element signature="e#3795#3796#0" expanded="true" />
+            <element signature="e#7656#8241#0" expanded="true" />
+            <element signature="e#7918#8213#0" expanded="true" />
+            <element signature="e#7979#8012#0" expanded="true" />
+            <element signature="e#8212#8213#0" expanded="true" />
+            <element signature="e#8240#8241#0" expanded="true" />
+            <element signature="e#8821#9348#0" expanded="true" />
+            <element signature="e#9075#9320#0" expanded="true" />
+            <element signature="e#9132#9162#0" expanded="true" />
+            <element signature="e#9319#9320#0" expanded="true" />
+            <element signature="e#9347#9348#0" expanded="true" />
+            <element signature="e#10098#10099#0" expanded="true" />
+            <element signature="e#10142#10143#0" expanded="true" />
+            <element signature="e#10185#10186#0" expanded="true" />
+            <element signature="e#10227#10228#0" expanded="true" />
+            <element signature="e#10688#10689#0" expanded="true" />
+            <element signature="e#10718#10719#0" expanded="true" />
+            <element signature="e#10920#10921#0" expanded="true" />
+            <element signature="e#10953#10954#0" expanded="true" />
+            <element signature="e#11590#11591#0" expanded="true" />
+            <element signature="e#11631#11632#0" expanded="true" />
+            <element signature="e#11839#11840#0" expanded="true" />
+            <element signature="e#11906#11907#0" expanded="true" />
+            <element signature="e#11968#11969#0" expanded="true" />
+            <element signature="e#11997#11998#0" expanded="true" />
+            <element signature="e#12417#12418#0" expanded="true" />
+            <element signature="e#12461#12462#0" expanded="true" />
+            <element signature="e#12511#12512#0" expanded="true" />
+            <element signature="e#12557#12558#0" expanded="true" />
+            <element signature="e#12600#12601#0" expanded="true" />
+            <element signature="e#12643#12644#0" expanded="true" />
+            <element signature="e#13021#13029#0" expanded="true" />
+            <element signature="e#13910#14058#0" expanded="true" />
+            <element signature="e#14057#14058#0" expanded="true" />
+            <element signature="e#14470#14600#0" expanded="true" />
+            <element signature="e#14599#14600#0" expanded="true" />
+            <element signature="e#15125#15384#0" expanded="true" />
+            <element signature="e#15334#15340#0" expanded="true" />
+            <element signature="e#15383#15384#0" expanded="true" />
+            <element signature="e#16354#16666#0" expanded="true" />
+            <element signature="e#16665#16666#0" expanded="true" />
+            <element signature="e#17403#17433#0" expanded="true" />
+            <element signature="e#19192#19193#0" expanded="true" />
+            <element signature="e#19261#19262#0" expanded="true" />
+            <element signature="e#19390#19391#0" expanded="true" />
+            <element signature="e#19447#19448#0" expanded="true" />
+            <element signature="e#19524#19525#0" expanded="true" />
+            <element signature="e#19548#19549#0" expanded="true" />
+            <element signature="e#19822#19823#0" expanded="true" />
+            <element signature="e#19871#19872#0" expanded="true" />
+            <element signature="e#21080#21081#0" expanded="true" />
+            <element signature="e#21122#21123#0" expanded="true" />
+            <element signature="e#22040#22041#0" expanded="true" />
+            <element signature="e#22070#22071#0" expanded="true" />
+            <element signature="e#22339#22619#0" expanded="true" />
+            <element signature="e#22618#22619#0" expanded="true" />
+            <element signature="e#22924#22925#0" expanded="true" />
+            <element signature="e#22977#22978#0" expanded="true" />
+            <element signature="e#23142#23340#0" expanded="true" />
+            <element signature="e#23339#23340#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/topos/Category.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="219" column="2" selection-start-line="219" selection-start-column="2" selection-end-line="219" selection-end-column="2" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#6623#6624#0" expanded="true" />
+            <element signature="e#6657#6658#0" expanded="true" />
+            <element signature="e#6721#6722#0" expanded="true" />
+            <element signature="e#6770#6771#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Category.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-34.96">
+          <caret line="46" column="21" selection-start-line="46" selection-start-column="21" selection-end-line="46" selection-end-column="21" />
+          <folding>
+            <element signature="e#18#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Assert.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.64">
+          <caret line="14" column="6" selection-start-line="8" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/SetMorphism.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="253" column="11" selection-start-line="253" selection-start-column="11" selection-end-line="253" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Graph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="31" column="25" selection-start-line="31" selection-start-column="25" selection-end-line="31" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Functor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="293" column="12" selection-start-line="293" selection-start-column="12" selection-end-line="293" selection-end-column="12" />
+          <folding>
+            <element signature="e#9812#10166#0" expanded="true" />
+            <element signature="e#10165#10166#0" expanded="true" />
+            <element signature="e#12627#12646#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Categories.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="31" column="22" selection-start-line="31" selection-start-column="22" selection-end-line="31" selection-end-column="22" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#882#883#0" expanded="true" />
+            <element signature="e#933#934#0" expanded="true" />
+            <element signature="e#4149#4175#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/PoSet.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7037037">
+          <caret line="10" column="22" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Base.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.52">
+          <caret line="2" column="8" selection-start-line="2" selection-start-column="8" selection-end-line="2" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/java/math/cat/Base.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5681818">
+          <caret line="439" column="15" selection-start-line="426" selection-start-column="30" selection-end-line="426" selection-end-column="35" />
+          <folding>
+            <element signature="e#11778#11779#0" expanded="true" />
+            <element signature="e#11806#11807#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1861,7 +1744,7 @@
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.2" />
+                <option value="0.3590535" />
               </list>
             </option>
           </splitter-proportions>
@@ -1881,11 +1764,11 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
-          <last-edited>SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2:jar</last-edited>
+          <last-edited>SBT: org.scala-lang:scala-library:2.11.1:jar</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.2" />
+                <option value="0.3590535" />
               </list>
             </option>
           </splitter-proportions>

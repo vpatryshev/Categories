@@ -1,12 +1,13 @@
 package math.cat;
 
-import static math.cat.BasePair.Pair;
-import static math.cat.LazyPair.LazyPair;
-import math.cat.Functions.Function;
+import static java.math.cat.BasePair.Pair;
+import static java.math.cat.LazyPair.LazyPair;
+
+import java.math.cat.Functions.Function;
 import junit.framework.TestCase;
 
 /**
- * Tests for math.cat.Pair class.
+ * Tests for java.math.cat.Pair class.
  * 
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
@@ -44,8 +45,8 @@ public class PairTest extends TestCase {
       }
     };
 
-    Pair<String, Integer> p0 = LazyPair("zero", f);
-    Pair<String, Integer> p1 = LazyPair("one", f);
+    java.math.cat.Pair<String, Integer> p0 = LazyPair("zero", f);
+    java.math.cat.Pair<String, Integer> p1 = LazyPair("one", f);
     shouldBeCalled[0] = true;
     assertEquals(Integer.valueOf(0), p0.y());
     assertEquals(Integer.valueOf(1), p1.y());

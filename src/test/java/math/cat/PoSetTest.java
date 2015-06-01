@@ -1,7 +1,7 @@
 package math.cat;
 
-import static math.cat.PoSet.PoSet;
-import static math.cat.Sets.Set;
+import static java.math.cat.PoSet.PoSet;
+import static java.math.cat.Sets.Set;
 import junit.framework.TestCase;
 
 /**

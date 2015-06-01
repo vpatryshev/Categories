@@ -1,12 +1,12 @@
 package math.cat;
 
-import static math.cat.Maybe.*;
+import static java.math.cat.Maybe.*;
 
 import junit.framework.TestCase;
-import math.cat.Maybe;
+import java.math.cat.Maybe;
 
 /**
- * Tests for math.cat.Pair class
+ * Tests for java.math.cat.Pair class
  */
 public class MaybeTest extends TestCase {
   public void testConstructor_plain() {

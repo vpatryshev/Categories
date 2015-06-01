@@ -1,10 +1,10 @@
 package math.cat;
 
-import static math.cat.Base.Map;
-import static math.cat.Base.array;
-import static math.cat.BasePair.Pair;
-import static math.cat.Graph.Graph;
-import static math.cat.Sets.Set;
+import static java.math.cat.Base.Map;
+import static java.math.cat.Base.array;
+import static java.math.cat.BasePair.Pair;
+import static java.math.cat.Graph.Graph;
+import static java.math.cat.Sets.Set;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +22,7 @@ public class GraphTest extends TestCase {
   @SuppressWarnings("unchecked")
   public void testParse() {
     Set<String> nodes = Set("0", "1", "2");
-    Map<String, Pair<String, String>> arrows =
+    Map<String, java.math.cat.Pair<String, String>> arrows =
         Map(array("0.id", "0.1", "0.2", "1.id", "a", "b", "2.1", "2.id", "2.a", "2.b", "2.swap"),
             array(Pair("0", "0"), Pair("0", "1"), Pair("0", "2"), Pair("1", "1"), Pair("1", "2"), Pair("1", "2"), Pair("2", "1"), Pair("2", "2"), Pair("2", "2"), Pair("2", "2"), Pair("2", "2"))
         );

@@ -1,11 +1,17 @@
 package math.cat
 
+
+import scala.Product2
 import Functions._
+
+trait Pair[X,Y] extends Product2[X,Y] {
+
+}
 
 /**
  * Elementary pair handling
  */
-case class BasePair[X,Y](x:X, y:Y) extends (X, Y) {
+case class BasePair[X,Y](x:X, y:Y) extends Pair[X, Y] {
 
 }
 

@@ -5,7 +5,7 @@ import static math.cat.Pair.*;
 import org.specs2._
 
 /**
- * Tests for math.cat.Pair class
+ * Tests for java.math.cat.Pair class
  */
 public class PairTest extends TestCase {
   public void testEquals_positive() {

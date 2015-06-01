@@ -1,453 +1,259 @@
 package math.cat
 
-  import Functions._
-  
-object Sets {
-  // TODO: ask people about what's the best name for my own kind of sets Ens?
-  // TODO: introduce that kind; define implicit transformation from a set to this class
-  // TODO: define union and product and powerset and exponent in this new category
-  
-  
-  def parseSet(s: String): Set[String] = {
-    val content: Array[String] = s.substring(1, s.length - 1).split(",\\s*").map(_.trim).filter(!_.isEmpty)
-    (Set.empty[String] /: content) (_+_)
-  }
+import java.io.Reader
 
-  def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X => Y): Y => Set[X] = {
-    y => Set.empty[X] ++ xs.filter(f(_) == y)
-  }   
-
-  def setOf[X](iterable: () => Iterator[X], size: => Int, contains: X => Boolean) = new Set[X] {
-      override def contains(x: X) = contains(x)
-      override def size = size
-      override def -(x: X): Set[X] = throw new UnsupportedOperationException
-      override def +(x: X): Set[X] = throw new UnsupportedOperationException
-//      override def empty[Y]: Set[Y] = throw new UnsupportedOperationException
-//      override def iterator = iterable()
-  }
-
-  def setOf[X](elements: Iterable[X], size: => Int, contains: X => Boolean) = new Set[X] {
-      override def contains(x: X) = contains(x)
-      override def size = size
-      override def -(x: X): Set[X] = throw new UnsupportedOperationException
-      override def +(x: X): Set[X] = throw new UnsupportedOperationException
-   //   override def empty[Y]: Set[Y] = throw new UnsupportedOperationException
-      override def iterator = elements.iterator
-  }
-  
-  def union[X] (set1: scala.collection.Set[X], set2: scala.collection.Set[X]): scala.collection.Set[X] = setOf(
-    set1 ++ set2, 
-    set1.size + set2.size, 
-    (x: X) => (set1 contains x) || (set2 contains x)
-  )
-    
-  def product[X, Y](xs: scala.collection.Set[X], ys: scala.collection.Set[Y]): scala.collection.Set[(X, Y)] = setOf(
-    () => (for (x <- xs; y <- ys) yield (x, y)),
-    xs.size * ys.size,
-    (p: (X, Y)) => xs.contains(p._1) && ys.contains(p._2)
-  )
-  
-  def powerset[X](xs: scala.collection.Set[X]) = setOf((List(Set.empty[X]) /: xs) ((xss, x) => xss ::: xss.map(_ + x)), 2 ^ xs.size, (sub: Set[X]) => (sub subsetOf xs))
-
-  def exponent[X, Y](ys: scala.collection.Set[Y], xs: scala.collection.Set[X]) = {
-    (Set(Map.empty[X,Y])/: xs) { // initially the set is empty; will append mappings for each x
-      (set, x) => { // given a set of maps and an x, build a new set, where maps are defined on x
-        val pairs = { for (y <- ys; map <- set) yield (map, y) } // will append x->y to each map for each y for given x
-        (Set(Map.empty[X,Y]) /: pairs) {
-          (newSetOfMaps, p) => {
-            val map: Map[X, Y] = p._1
-            val y: Y = p._2
-            newSetOfMaps + (map + (x->y)) 
-          }
-        }
-      }  
-    }
-  }
-}
+import scala.collection.Set
+import collection.immutable.HashSet
+import collection.mutable.Queue
 
 /**
- * All kinds of additional Set functionality.
- * 
- * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
- * 
+ * Lazy sets functionality
+ * @author vpatryshev
  */
-object SetsAlt {
+object Sets {
+  def requireImmutability = throw new UnsupportedOperationException("Immutable class")
 
-  /**
-   * This class serves as a namespace for Cartesian product of iterables.
-   * <p/>
-   * Given a sequence of sequences, Cartesian.product builds a product
-   * of these sequences.
-   * <p/>
-   * Type parameters:
-   * @tparam X the type of elements of each sequence (must be the same)
-   * @tparam XS the type of sequences, must extend Set[X].
-   */
-  class Cartesian[X, XS <: Set[X]] {
-    /**
-     * Public method that builds the Cartesian product. The product is lazy.
-     * @tparam X element type
-     * @tparam XS set type
-     *
-     * @param xss sequence of sequences that are being multiplied.
-     * @return Cartesian product of the sequences.
-     */
-    def product[X, XS <: Set[X]] (xss: Iterable[XS]): Set[Iterable[X]] =
-      new Cartesian[X, XS].calculateProduct(xss)
-    
-    /**
-     * Public method that builds the Cartesian product. The product is lazy.
-     * @tparam X element type
-     * @tparam XS set type
-     *
-     * @param xss list of sets that are being multiplied.
-     * @return Cartesian product of the sets.
-     */
-    def product[X, XS <: Set[X]] (xss: List[XS]): Set[List[X]] =
-      new Cartesian[X, XS].calculateProduct(xss)
-
-    /**
-     * Builds a function that builds projections from a Cartesian product of a list of sets
-     * to its components
-     * @tparam X element type
-     *
-     * @return a function that for each i returns a function just takes an i-th element of a list.
-     */
-    def projection[X]: Function[Integer, Function[List[X], X]] = 
-      (i: Integer) => ((xs: List[X]) => xs(i))
-
-    /**
-     * Public method that takes a vararg of sequences and builds their Cartesian product.
-     * @tparam X element type
-     * @tparam XS set type
-     *
-     * @param xss (a plurality of) sequences that are being multiplied.
-     * @return Cartesian product of the sequences.
-     */
-    def product[X, XS <: Set[X]](xss: XS*): Iterable[List[X]] = product(xss)
-
-    /**
-     * Actually builds the product of the sequence of sequences.
-     *
-     * @param xss sequences to multiply.
-     * @return their Cartesian product.
-     */
-    private def calculateProduct[X, XS](xss: Iterable[XS]): Set[Iterable[X]]  = {
-      xss.foldRight(Set(List[X]())){case (xs:XS, current:Set[Iterable[X]]) => appendComponentToProductOfIterable(xs, current map (_.asInstanceOf[Iterable[X]]))}
-
-    }
-
-    /**
-     * Actually builds the product of the list of sets.
-     *
-     * @param xss list of sets to multiply.
-     * @return their Cartesian product.
-     */
-    private def calculateProduct(xss: List[XS]): Set[List[X]] = 
-      if (xss.isEmpty) {
-        singleton(List[X]())
-      } else {
-        appendComponentToProductOfIterable(xss.head, calculateProduct(xss.tail))
-      }  
-
-    /**
-     * Given a Cartesian product of zero or more sequences (components), appends
-     * yet another component. So that if we have A0 and A1 x A2 x A3,
-     * we get A0 x A1 x A2 x A3.
-     *
-     * @param component      a component to append to the head of Cartesian product.
-     * @param partialProduct the product of zero or more components of the same kind.
-     * @return the new product.
-     */
-    private def appendComponentToProductOfIterable(component: XS, partialProduct: Set[Iterable[X]]): Set[Iterable[X]] =
-     {
-      // E.g. [1, 2, 3], [[4, 6], [5, 6]] ->
-      // [[[1, 4, 6], [1, 5, 6]], [[2, 4, 6], [2, 5, 6]], [[3, 4, 6], [3, 5, 6]]] ->
-      // [[1, 4, 6], [1, 5, 6], [2, 4, 6], [2, 5, 6], [3, 4, 6], [3, 5, 6]]
-      val concatenatedComponents: Set[Set[Iterable[X]]] = consWithIterableProduct(partialProduct).map(component)
-      union(concatenatedComponents)
-    }
-
-    /**
-     * Given a Cartesian product of zero or more sequences (components), appends
-     * yet another component. So that if we have A0 and A1 x A2 x A3,
-     * we get A0 x A1 x A2 x A3.
-     *
-     * @param component      a component to append to the head of Cartesian product.
-     * @param partialProduct the product of zero or more components of the same kind.
-     * @return the new product.
-     */
-    private def
-      appendComponentToProductOfList(component: XS, partialProduct: Set[List[X]]): Set[List[X]] = {
-      // E.g. [1, 2, 3], [[4, 6], [5, 6]] ->
-      // [[[1, 4, 6], [1, 5, 6]], [[2, 4, 6], [2, 5, 6]], [[3, 4, 6], [3, 5, 6]]] ->
-      // [[1, 4, 6], [1, 5, 6], [2, 4, 6], [2, 5, 6], [3, 4, 6], [3, 5, 6]]
-      val concatenatedComponents: Set[Set[List[X]]] = consWithListProduct(partialProduct).map(component)
-      union(concatenatedComponents)
-    }
-    
-    /**
-     * Takes [[x11,x12,...],[x21,x22,...]], that is, the product of n-1 components,
-     * and produces a function that, given an x, returns a sequence of
-     * [[x,x11,x12,...],[x,x21,x22,...]].
-     * @param <ElementOfProduct> type of product element
-     *
-     * @param pxs the product of n-1 iterables (components)
-     * @return the product of singleton {x} and the given product
-     */
-
-    /**
-     * Takes [[x11,x12,...],[x21,x22,...]], that is, the product of n-1 components,
-     * and produces a function that, given an x, returns a sequence of
-     * [[x,x11,x12,...],[x,x21,x22,...]].
-     * @param <ElementOfProduct> the type of product element (probably a list of X)
-     *
-     * @param pxs the product of n-1 lists (components)
-     * @return the product of singleton {x} and the given product
-     */
-    def consWithListProduct[ElementOfProduct <: List[X]] (pxs: Set[ElementOfProduct]): Injection[X, Set[List[X]]] = 
-      (x: X) => pxs.map(x :: _)
+  abstract class BigSet[X] extends Set[X] {
+    override def size = Integer.MAX_VALUE
+    override def iterator = error("This set is not enumerable")
+    override def isEmpty = error("Emptiness is unknown")
+    override def -(x:X) = Sets.requireImmutability
+    override def +(x:X) = Sets.requireImmutability
+    def map[Y] (f: Functions.Bijection[X,Y]) : BigSet[Y] = bigset((y: Y) => this contains (f unapply y))
+    override def filter(p: X => Boolean): BigSet[X] = bigset((x: X) => p(x) && (this contains x))
   }
 
-  def f : Integer = 1
-
-  /**
-   * Given an iterable of elements, builds a new (lazy) set with elements from that iterable.
-   * The size of the set is unknown; we could calculate it, of course, but we should not.
-   * Since its size is unknown, you should not use size() or isEmpty().
-   * That's a phisosophical issue. Usually programmers check the size
-   * of a set out of fear that they would be caught scanning an empty list. It's okay actually.
-   *
-   * @param elements an iterable listing the elements of the new set.
-   * @return a set that contains all these elements.
-   */
-   def SetOfUnknownSize[X](theElements: Iterable[X]): Set[X] = {
-    new AbstractSet[X]() {
-      override def elements(): Iterator[X] = return theElements.elements
-      override def size: Integer = Integer.MAX_VALUE
+  def bigset[X](p: X => Boolean) = new BigSet[X] {
+    override def contains(x: X) = p(x)
   }
 
   /**
-   * Builds a (virtual) set of numbers 0..n-1
-   * @param n the number of numbers
-   * @return the set
+   * A big set of all finite sets in Java. This set is infinite, of course.
    */
-  def numbers(n: Integer): Set[Integer] = numbers(0, n)
+  val FINITE_SETS = bigset((o: Set[_]) => o.size < Integer.MAX_VALUE)
+
+  private def filteredSet[X](i: => Iterator[X], p: X => Boolean): Set[X] = {
+    def j = i filter p
+    def n = (0 /: j) ((k, x) => k + 1)
+    setOf(j, n, p)
+  }
+
+  private def setForIterator[X](sourceIterator: => Iterator[X], sizeEvaluator: => Int, predicate: X => Boolean): Set[X] = {
+      new Set[X] {
+        override def contains(x: X) = predicate(x)
+        override def size = sizeEvaluator
+        override def iterator = sourceIterator filter predicate
+        override def isEmpty = !iterator.hasNext
+        override def -(x:X) = requireImmutability
+        override def +(x:X) = requireImmutability
+        def map[Y] (f: Functions.Injection[X,Y]) : Set[Y] = f.applyTo(this)
+        def map[Y] (f: Functions.Bijection[X,Y]) : Set[Y] = f.applyTo(this)
+        override def filter(p: X => Boolean) = filteredSet(sourceIterator, (x: X) => predicate(x) && p(x))
+      }
+    }
+
+  def setOf[X](sourceIterator: => Iterator[X], sizeEvaluator: => Int, predicate: X => Boolean): Set[X] =
+    setForIterator(sourceIterator, sizeEvaluator, predicate)
+
+  def setOf[X](source: Iterable[X], sizeEvaluator: => Int, predicate: X => Boolean) =
+    setForIterator(source.iterator, sizeEvaluator, predicate)
+
+  def setOf[X](content: Iterable[X], predicate: X => Boolean): Set[X] = {
+    setOf(content, (0 /: content) ((n, x) => n+1), predicate)
+  }
+
+  def setOf[X](content: Iterable[X]): Set[X] =
+      setOf(content, x => content exists (_ == x))
+
+    /**
+     * Casts a set into a set of subtype (contravariance, that is)
+     * This method does not work, due to JVM type erasure.
+     * Actually, delegating the work to runtime would be a stupid idea anyway;
+     * so, is it a general problem with oop? Have to think.
+     */
+    @Deprecated
+    def downshift[A, B >: A] (source: Set[B]) : Set[A] = {
+      val b2a: (B => A) = {case (a: A) => a}
+      for (b <- source) { println("DS trying " + b + ": " + b.isInstanceOf[A])}
+      val elements = {for (b <- source; if b.isInstanceOf[A]) yield b2a(b)}
+      setOf(elements, source.size, source.contains _)
+    }
+
 
   /**
-   * Builds a (virtual) set of numbers a..b-1
-   * @param a the first number
-   * @param b the last but one number
-   * @return the set
+   * Casts a set to a set of values of a superclass.
+   * Not good for mutable.
    */
-  def numbers(a: Integer, b: Integer): Set[Integer] = numbers(a, b, 1)
+  def upcast[X, Y >: X](s: Set[X]) = s.asInstanceOf[Set[Y]]
 
-  /**
-   * Builds a (virtual) set of numbers from a to b-c with step c
-   * @param a the first number
-   * @param b the last but one number
-   * @param c step; can be negative
-   * @return the set
-   */
-  def numbers(a: Integer, b: Integer, c: Integer): Set[Integer] = {
-    val delta = b - a
-    val dir = if (c < 0) 1 else -1
+  def range(from: Int, to: Int, step: Int) = {
+    def theElements = new Iterable[Int] {
+      def iterator: Iterator[Int] = new Iterator [Int] {
+          var i = from
 
-    val setSize = if (c == 0 || delta == 0 || c * delta < 0) 0 else
-        Math.max(0, (delta + c + dir) / c)
-
-    new scala.collection.AbstractSet[Integer]() {
-
-      override def elements: Iterator[Integer] = {
-        new Iterator[Integer]() {
-          private var i = 0;
-          
-          def hasNext: Boolean = i < setSize
-
-          def next: Integer = {
-            if (hasNext) then a + (i++) * c
-            else throw new NoSuchElementException()
-          }
-          
-          def remove {
-            throw new UnsupportedOperationException();
-          }
+          override def hasNext = i < to
+          override def next = { i += step; i - step }
         }
+    }
+
+    setOf(theElements, (to - from + step - 1) / step, (x: Int) => (x >= from && x < to && (x - from) % step == 0))
+  }
+
+  class ParallelIterator[X, X1 <: X, X2 <: X](
+          iterator1: Iterator[X1],
+          iterator2: Iterator[X2]) extends Iterator[X] {
+    def hasNext = iterator1.hasNext || iterator2.hasNext
+    var i2: (Iterator[X], Iterator[X]) = (iterator1, iterator2)
+    def next = {
+      i2 = (i2._2, i2._1)
+      if (i2._1.hasNext) i2._1.next else i2._2.next
+    }
+  }
+
+  class ParallelIterable[X, X1 <: X, X2 <: X](iterable1: Iterable[X1], iterable2: Iterable[X2])
+          extends Iterable[X] {
+    def iterator = new ParallelIterator(iterable1.iterator, iterable2.iterator)
+  }
+
+  /**
+   *  Builds a union of two non-intersecting sets
+   */
+  def union[X, X1 <: X, X2 <: X](set1: Set[X1], set2: Set[X2]): Set[X] = {
+    lazy val parIterable = new ParallelIterable(set1, set2)
+    lazy val size = if (set1.size == Integer.MAX_VALUE ||
+                        set2.size == Integer.MAX_VALUE) {
+                      Integer.MAX_VALUE
+                    } else {
+                      set1.size + set2.size
+                    }
+
+    setOf(parIterable,
+          size,
+          (x: X) => (x.isInstanceOf[X1] && (set1 contains x.asInstanceOf[X1])) ||
+                    (x.isInstanceOf[X2] && (set2 contains x.asInstanceOf[X2]))
+    )
+  }
+
+  /**
+   * Builds a union of non-intersecting sets
+   */
+  def union[X] (sets: Iterable[Set[X]]) = {
+    lazy val content = sets.flatten
+    setOf(content, (x: X) => sets exists (_ contains x))
+  }
+
+  def cantorIterator[X, Y](xs: Iterable[X], ys: Iterable[Y]): Iterator[(X, Y)] =
+    new Iterator[(X, Y)] {
+    var iterators: Queue[Iterator[Y]] = Queue()
+    var xi = xs.iterator
+    var yi: Iterator[Iterator[Y]] = Iterator.empty
+    var shift = 0
+      
+    def next = {
+      if (!yi.hasNext) {
+        if (xi.hasNext) {
+          iterators enqueue ys.iterator
+        }
+        yi = iterators.iterator
+        xi = xs.iterator.drop(shift)
+      }
+      
+      val yii = yi.next
+      val y = yii.next
+      val res = (xi.next, y)
+
+      if (!iterators.isEmpty && yii.isEmpty) {
+        iterators.dequeue
+        shift += 1
       }
 
-      override def size = setSize;
+      res
     }
+
+    def hasNext = !xs.isEmpty && !ys.isEmpty &&
+      (xi.hasNext || (!iterators.isEmpty && iterators(0).hasNext))
   }
 
   /**
-   * Take an iterable, trust it to be non-repeating,
-   * return a virtual set based on the iterable's elements.
-   * 
-   * @param [T] element type
-   * @param iterable source of elements
-   * @return a set consisting of the iterable's elements.
+   * Cartesian product of two sets
    */
-  def Set[T] (iterable: Iterable[T]): Set[T] = {
-    new scala.collection.AbstractSet[T]() {
-      override def elements: Iterator[T] = iterable.elements
-      override def isEmpty: boolean = elements.isEmpty
-      override def size = countEntries(this);
-    }
+  def product[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] = {
+    val predicate = (p: (X, Y)) => xs.contains(p._1) && ys.contains(p._2)
+    setOf(
+      cantorIterator(xs, ys),
+      xs.size * ys.size,
+      predicate
+    )
   }
+  
+  def cat[T](p: (T, List[T])): List[T] = (p._1 :: p._2)
 
-  /**
-   * Extracts a set from a string as produced by Set.toString().
-   * Entries in the set can not be empty strings and cannot contain commas.
-   *
-   * @param s the string
-   * @return restored set
-   */
-  def parseSet(s: String): Set[String] = {
-    val content = s.substring(1, s.length() - 1).split(",\\s*").map(_.trim).filter(_.nonEmpty)
-
-//    val empty: Set[String] = Set[String]()
-    Set[String](content) // TODO: fix it, should not work: repetitions
-    //(empty /: content)(+)
-  }
-
-  /**
-   * Builds a (virtual) map of unknown size, based on a given iterable of pairs.
-   * You cannot know the size of an iterable without scanning it; but still
-   * maps based on unlimited collections (iterables) are pretty useful; the
-   * only problem is halting problem: if the iterable is infinite, and the key
-   * cannot be found, it will run forever looking.
-   * 
-   * @tparam X key type
-   * @param [Y] value type
-   * @param [P] the type of key-value pairs
-   * @param pairs key-balue pairs
-   * @return the map
-   */
-  def Map[X, Y, P <: Pair[X, Y]](pairs: Iterable[P]): Map[X, Y] = {
-    Injection[P, Entry[X, Y]] cast = new Inclusion[Entry[X, Y], P]();
-
-    new AbstractMap[X, Y]() {
-      override def entrySet: Set[Entry[X, Y]] = cast.map(SetOfUnknownSize(pairs));
-    }
-  }
-/* probably it is just a toMap*/
-  /**
-   * Creates a (virtual) map based on a given set of key-value pairs
-   * @tparam X key type
-   * @param [Y] value type
-   * @param [P] the type of key-value pairs
-   * @param pairs the pairs
-   * @return the (virtual) map
-   *
-  def [X, Y, P extends Pair[X, Y]] Map[X, Y] Map(final Set[P> pairs) {
-    Injection[P, Entry[X, Y]] cast = new Inclusion<Entry[X, Y], P>();
-
-    return new AbstractMap[X, Y]() {
-      @Override
-      public Set[Entry[X, Y]] entrySet() {
-        return cast.map(pairs);
+  def product[X](xss:List[Set[X]]): Set[List[X]] =
+      xss match {
+        case List() => Set(List())
+        case head::tail => product(head, product(tail)) map cat
       }
-    };
-  }
-*/
-  /**
-   * Builds a (virtual) set of all maps from one set (<code>setX</code>) to another (<code>setY</code>).
-   * 
-   * @tparam X the type of elements of the first set (<code>setX</code>)
-   * @tparam Y the type of elements of the second set (<code>setY</code>)
-   * @param setX the first set (domain)
-   * @param setY the second set (codomain)
-   * @return the set of all maps
-   */
-  def allMaps[X,Y] (setX: Set[X], setY: Set[Y]): Set[Map[X, Y]] = {
-    type SetOfPairs = Set[Pair[X, Y]]
-    val pairBuilder: Injection[X, SetOfPairs] =  new Injection[X, SetOfPairs] {
-      // this function builds pairs (x, y) for all y for a given x
-      override def apply(x:X): Set[Pair[X, Y]] = Pair.withLeft(x).map(setY)
-    }
 
-    val sections: Set[Set[Pair[X, Y]]] = pairBuilder.map(setX)
+  def pow(a: Int, b: Int): Int = if (b == 0) 1 else (a * pow(a, b - 1))
 
-    val product: Set[Iterable[Pair[X, Y]]] = Cartesian.product(sections)
-    val setOfSetsOfPairs: Set[Set[Pair[X, Y]]] =
-        Set(new IterableToSet[Pair[X, Y]].map(product))
-    new PairsToMap[X, Y].map(setOfSetsOfPairs)
+  def powerset[X](xs: Set[X]):Set[Set[X]] =
+    setOf((List(Set.empty[X]) /: xs) ((xss, x) => xss ::: xss.map(_ + x)),
+          pow(2, xs.size),
+          (sub: Set[X]) => (sub subsetOf xs))
+
+  def split[X](xs: Iterable[X]): (X, Iterable[X]) = ((xs.iterator.next), (xs drop 1))
+
+  def iterable[X](source: () => Iterator[X]) = new Iterable[X] {
+    override def iterator = source()
   }
 
-  /**
-   * Factory method. Builds a function that makes one set a factorset of another.
-   * 
-   * @tparam X the main set element type
-   * @param set the set
-   * @param factorset the subset
-   * @return projection from the set to the factorset.
-   */
-  def factorset[X](set: Set[X], factorset: Set[Set[X]]): Function[X, Set[X]] = {
-    require(set == union(factorset), "factorset's components should contain all elements of main set")
-    var size = 0;
-    for (component <- factorset) {
-      require(component.size > 0, "factorset component should be non-empty")
-      size += component.size
-    }
-    require(size <= set.size, "factorset should be disjoint")
-
-    (x: X) => {
-      factorset find (_ contains x) match {
-        case Option(component) => component
-        case _ => throw new IllegalArgumentException("Factorset component not found for " + x);
-      }
-    }
+  private def exponentElements[X,Y](ys: Iterable[Y], xs: Iterable[X]): Iterable[Map[X, Y]] = {
+    iterable(() => {
+            if (xs.iterator hasNext) {
+               val (x, tail) = split(xs)
+               for(y <- ys;
+                   z <- exponentElements(ys, tail))
+               yield { z(x) = y }
+    } else List(Map[X, Y]())} iterator)
   }
+
+  def exponent[X, Y] (xs : Set[X], ys: Set[Y]): Set[Map[X, Y]] =
+      setOf(exponentElements(ys, xs),
+            pow(ys size, xs size),
+            (m: Map[X, Y])=> xs == m.keySet
+      )
+    
+  def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X => Y): Y => Set[X] = {
+    y => Set.empty[X] ++ xs.filter(f(_) == y)
+  }
+
+  def pullback[X, Y, Z](xs: Set[X], ys: Set[Y], fx: X => Z, fy: Y => Z): Set[(X, Y)] =
+    product(xs, ys) filter(p => fx(p._1) == fy(p._2))
 
   /**
    * Implements factorset functionality. A factorset may be built given a BinaryRelationship,
    * or incrementally, when the client provides pairs of equivalent elements.
    * The factorset is not lazy; equivalence classes are stored in a map, and the resulting
    * factorset is returned as a new HashSet.
-   * 
+   *
    * @tparam X element type
    */
-  class FactorSet[X](baseSet: Set[X]) {
-    /**
-     * The set being factored.
-     */
-    val set = baseSet
-    
+  class FactorSet[X](set: Set[X]) {
+
     /**
      * Maps elements of the main set to their equivalence classes (they constitute the factorset).
      */
-    var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: set)((map, x) => map + (x -> Set(x)))
+    var equivalenceClasses = (Map[X, Set[X]]() /: set) ((m, x) => m + (x -> Set(x)))
 
     /**
      * Builds a factorset of a given set, by the transitive closure of a given relationship.
      *
      * @param set base set
-     * @param r   binary relationship
+     * @param r binary relationship
      */
-    def this(baseSet: Set[X], r: BinaryRelationship[X, X]) {
+    def this(set: Set[X], r: BinaryRelationship[X, X]) {
       this(set)
       factorByRelationship(r)
-    }
-
-    /**
-     * Given a <code>BinaryRelationship r</code>, merges equivalent classes if they
-     * contain elements that are in <code>r</code>.
-     *
-     * @param r the binary relationship. Does not have to be symmetrical or transitive.
-     */
-    def factorByRelationship(BinaryRelationship[X, X] r): Unit {
-      for (x1 <- set) {
-        for (x2 <- set) {
-          if (x1 == x2) {
-            // skip same value
-          } else if (equivalenceClasses(x1) == equivalenceClasses(x2)) {
-            // skip same class
-          } else if (r(x1, x2) || r(x2, x1)) {
-            merge(x1, x2);
-          }
-        }
-      }
     }
 
     /**
@@ -456,226 +262,142 @@ object SetsAlt {
      * @param x1 first element
      * @param x2 second element
      */
-    def merge(x1: X, x2: X): Unit {
-      val class1 = equivalenceClasses(x1)
-      val class2 = equivalenceClasses(x2)
-      val merged = class1 + class2
-      for (x3 <- merged) {
-        equivalenceClasses += (x3 -> merged);
+    def merge(x1: X, x2: X) {
+      for (
+        class1 <- equivalenceClasses.get(x1);
+        class2 <- equivalenceClasses.get(x2)) {
+        val merged: Set[X] = class1 ++ class2
+        for (x3 <- merged) {
+          equivalenceClasses = equivalenceClasses + (x3 -> merged)
+        }
+      }
+    }
+
+    /**
+     * Given a <code>BinaryRelationship r</code>, merges equivalent classes if they
+     * contain elements that are in <code>r</code>.
+     *
+     * @param r the binary relationship. Does not have to be symmetrical or transitive.
+     */
+    def factorByRelationship(r: BinaryRelationship[X, X]): Unit = {
+      for (
+        x1 <- set;
+        x2 <- set;
+        if (r(x1, x2) || r(x2, x1))) {
+        merge(x1, x2)
       }
     }
 
     /**
      * @return the latest version of factorset built here.
      */
-    def factorset: Set[Set[X]] = Set[Set[X]](equivalenceClasses.values());
-    }
-
-    /**
-     * @return the function from the domain set to the factorset.
-     */
-    def asFunction: = equivalenceClasses(_)
+    lazy val factorset = new HashSet()++(equivalenceClasses.values)
 
     /**
      * @return the domain set.
      */
-    def domain = set
+    def domain: Set[X] = set
+
+    /**
+     * @return the function from the domain set to the factorset.
+     */
+    def asFunction: Function[X, Set[X]] = equivalenceClasses
   }
 
   /**
-   * Builds a union of disjoint sets.
+   * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
+   * given a set and binary relationship. Factoring is done on the relationship's transitive closure.
+   * @param [T] set element type
    *
-   * @param [T] element type
-   * @param components sets to be used in building the union.
-   * @return a set containing the elements of all the given sets.
+   * @param set the main set
+   * @param r binary relationship (not necessarily equivalence relationship) that determines factoring
+   * @return factorset epimorphism
    */
-  def union[T](components: Set[T]*): Set[T] =  union(Arrays.asList(components))
-
-  /**
-   * Builds a union of an Iterable of disjoint sets.
-   *
-   * @param [T] element type
-   * @param iterableOfSets provides sets to be used in building the union.
-   * @return a set containing the elements of all the sets of the Iterable.
-   */
-  def union[T](Iterable[Set[T]] iterableOfSets): Set[T] = 
-    new AbstractSet[T]() {
-      override def elements = {
-        Iterator[Iterable[T]] top = iterableOfSets.elements
-        require(top != null, "Top iterable's iterator() should not be null")
-        return new Iterator[T]() {
-          Iterator[T] current = Base.emptyIterator();
-
-          def hasNext: Boolean = {
-            while (!current.hasNext && top.hasNext) {
-              Iterable[T] nextTop = top.next
-              require(nextTop != null, "Top level iterator should not return nulls")
-              current = nextTop.elements
-            }
-            return current.hasNext
-          }
-
-          def next: T = {
-            if (hasNext) {
-              current.next
-            } else {
-              throw new NoSuchElementException
-            }
-          }
-
-          def remove: Unit {
-            current.remove
-          }
-        }
-      }
-
-      override def size: Integer = (0 /: iterableOfSets)( _ + _.size)
+  def factorset[T] (set: Set[T], r: BinaryRelationship[T, T]): SetMorphism[T, Set[T]] = {
+    val factorset = new FactorSet[T](set, r)
+    SetMorphism(set, factorset.factorset, factorset.asFunction)
   }
 
-  
-  /**
-   * Encapsulates disjoint union of a list of sets. Disjoint means that even if the 
-   * sets contain common elements, the union will make them distinct by tagging all elements.
-   * The result consists of pairs, the first being list index, the second an element of a set.
-   * E.g. disjointUnion(LIst(singleton("a"), singleton("b")) returns
-   * Set(Pair(0, "a"), Pair(1, "b")).
-   * 
-   * @param [T] the type of elements in the sets being joined. The same for all sets (it's Java...)
-   */
-  def class DisjointUnion[T](sets: List[Set[T]]) {
-    
-    /**
-     * @return the (virtual) set that is the disjoint union of given sets
-     */
-    def unionSet: Set[Pair[Integer, T]] {
-      val indexed = zip(range(sets.size()), sets)
-      val tojoin = (pair: Pair[Integer, Set[T]]) => injection(pair._1).map(pair._2)}.map(indexed);
-      return union(tojoin)
+  class MapForFunction[K, +V](xs: Set[K], f: (K => V)) extends Map[K, V] {
+    override def keys = xs
+    override def apply(x: K) = if (xs contains x) f(x) else throw new RuntimeException("oops, no value")
+    override def +[V1 >: V](kv: (K, V1)) = requireImmutability
+    override def -(x: K) = requireImmutability
+    override def updated[V1 >: V](x: K, y: V1) = requireImmutability
+    override def get(x: K) = if (xs contains x) Some(f(x)) else None
+    override def size = xs size
+    override def iterator = (xs map { x: K => (x, f(x)) }) iterator
+    override def elements = iterator
+  }
+
+  def buildMap[K, V](keys: Set[K], f: K => V) = new MapForFunction(keys, f)
+
+  def idMap[X] (xs: Set[X]) = {
+    val id: (X => X) = identity
+    buildMap(xs, id)
+  }
+
+  def toString(s: Set[_]) = "{" + s.mkString(", ") + "}"
+
+  class Parser extends JavaTokenParsers {
+    def set   : Parser[Set[String]] = "{"~repsep(member, ",")~"}" ^^ {case "{"~ms~"}" => Set() ++ ms}
+    def member: Parser[String] = regex("""\w+""".r)
+    def read(input: CharSequence) = parseAll(set, input).get
+    def read(input: Reader) = parseAll(set, input).get
+  }
+
+  def parse(input: Reader) = (new Parser).read(input)
+
+  def parse(input: CharSequence) = (new Parser).read(input)
+
+  val N = setOf(new Iterable[Int] {
+    def iterator = new Iterator[Int] {
+      private var i: Int = -1
+      def hasNext = true
+      def next = {i += 1; i}
     }
-    
-    /**
-     * Maps an i-th set into the union
-     * @param i index of the set to inject in the list of sets
-     * @return the injection (which is an Injection which is a Function))
-     */
-    def injection(i: Integer): Injection[T, Pair[Integer, T]] = BasePair.[Integer, T]withLeft(i)
+  },
+  Integer.MAX_VALUE,
+  (x: Any) => x.isInstanceOf[Int] && x.asInstanceOf[Int] >= 0)
 
-    /**
-     * @return the list of injections of original sets to their union
-     */
-    def injections: List[Injection[T, Pair[Integer, T]]] = range(sets.size) map ((index: Integer) => injection(index)).map())
-  }
-  
-  /**
-   * Builds a Cartesian product of two sets.
-   * 
-   * @tparam X element type for the first set
-   * @param [Y] element type for the second set
-   * @param x first product component.
-   * @param y second product component.
-   * @return a product set, contains all possible pairs of elements from x and y.
-   */
-  def product[X, Y](x: Set[X], y: Set[Y]) : Set[Pair[X, Y]] = {
+  def isSingleton[T](i: Iterator[T]) = i.hasNext && !{i.next; i.hasNext}
 
-import math.cat.Functions.Injection
+  def main(args: Array[String]) {
+    val a = Set("a", "b", "c")
+    val b = Set("x", "y")
+    println("Some examples of set operations")
 
-import math.cat.Functions.Injection
+    println("Building a union of two sets, " + a + " and " + b)
+    val u = union(a, b)
+    println("Union size=" + u.size)
+    println("Union itself is " + u)
+    println("Trying to compare sets")
+    println(a == b)
+    println(u == b)
+    println("Making a lazy copy")
+    val newb = setOf(b, 2, (x: String) => b contains x);
+    println("same size? " + (newb.size == b.size))
+    println("Equal to source? " + (b == newb))
 
-import scala.collection.AbstractSet
-
-import scala.collection.AbstractSet
-
-import scala.collection.AbstractSet
-
-import scala.collection.AbstractSet
-
-import scala.collection.AbstractSet
-
-new AbstractSet[Pair[X, Y]]() {
-      override def Iterator[Pair[X, Y]] elements = buildProductIterator(x, y)
-      override def size = x.size * y.size
-    }
-  }
-
-  /**
-   * Given two sets, xs and ys, and a function f: xs->ys,
-   * builds a map ys->xss, for each y returning all those x in xs that f(x)=y.
-   * 
-   * @tparam X domain element type
-   * @param [Y] codomain element type
-   * @param xs domain
-   * @param ys codomain
-   * @param f function
-   * @return the map
-   */
-   def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X => Y): Map[Y, Set[X]] = {
-    Map[Y, Set[X]] result = (new Map[Y, Set[X]]() /: ys)(_ + (_ -> Set[X]()))
-//    for (Y y <- ys) {
-//      result += (y -> new Set[X]());
-//    }
-
-    for (X x <- xs) {
-      result(f(x)) += x
+    println("Let's build an exponent")
+    val a2b = exponent(b, a)
+    println("We have an exponent of size " + a2b.size + ", but its still under construction")
+    val anElement = Map("x" -> "b", "y" -> "a");
+    println("Check membership for " + anElement + ": " + (a2b contains anElement))
+    println("We use exponent, but its elements are still not listed... but wait: ")
+    println(a2b)
+    val q = parse("{a, b, c}")
+    println(q)
+    println(Set("c", "b", "a") == q)
+    println(q.contains("a"))
+    val tuples = for (arg <- Set(1, 2, 3)) yield {
+      ("key" + arg, "v" + arg)
     }
 
-    result
+    println(scala.collection.immutable.Map() ++ tuples)
+
+    println("and now the product!")
+    val source = List(Set("a", "b", "c"), Set("1", "2"), Set("Ebony", "Ivory"), Set("Hi", "Lo"))
+    println(product(source))
   }
-
-  /**
-   * Powerset of a set. Cheap solution with bitmask.
-   * 
-   * @tparam X set element type
-   * @tparam XS powerset element type
-   * @param xs the set which powerset we are calculating.
-   * @return a powerset, lazy.
-   */
-  def powerset[X, XS <: Set[X]](xs: XS): Set[Set[X]] = {
-    xs match {
-      case Set() => Set(xs)
-      case nontempty => {
-        val allElements = xs.elements
-        val minusFirst = allElements.tail
-        minusFirst ::: (minusFirst map (_ + allElements.head)
-      }  
-    }
-/*
-    return new AbstractSet[Set[X]]() {
-
-      override def elements: Iterator[Set[X]] = {
-        new Iterator[Set[X]]() {
-          var i = 0;
-
-          def hasNext = i < size
-
-          def next: Set[X] = {
-            i++;
-            new AbstractSet[X]() {
-              int bits = i - 1;
-
-              override def elements = {
-                new Predicate[X]() {
-                  val mask = bits * 2
-
-                  override def eval(X x) = (mask /= 2) % 2 == 1
-                }.filter(xs.elements) // cheating!!!
-              }
-
-              override def size = Integer.bitCount(bits)
-            };
-          }
-
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
-        };
-      }
-
-      @Override
-      public int size() {
-        return 1 << xs.size();
-      }
-    };
-*/    
-  }
-
 }

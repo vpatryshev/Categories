@@ -1,20 +1,23 @@
 package math.cat;
 
-import static math.cat.Base.List;
-import static math.cat.Base.disjointUnion;
-import static math.cat.Base.setProduct;
-import static math.cat.BasePair.Pair;
-import static math.cat.Sets.Map;
-import static math.cat.Sets.Set;
-import static math.cat.Sets.factorset;
-import static math.cat.Sets.groupBy;
-import static math.cat.Sets.numbers;
-import static math.cat.Sets.parseSet;
-import static math.cat.Sets.powerset;
-import math.cat.Functions.Function;
-import math.cat.Sets.Cartesian;
-import math.cat.Sets.DisjointUnion;
-import math.cat.Sets.FactorSet;
+import static java.math.cat.Base.List;
+import static java.math.cat.Base.disjointUnion;
+import static java.math.cat.Base.setProduct;
+import static java.math.cat.BasePair.Pair;
+import static java.math.cat.Sets.Map;
+import static java.math.cat.Sets.Set;
+import static java.math.cat.Sets.factorset;
+import static java.math.cat.Sets.groupBy;
+import static java.math.cat.Sets.numbers;
+import static java.math.cat.Sets.parseSet;
+import static java.math.cat.Sets.powerset;
+
+import java.math.cat.Functions.Function;
+import java.math.cat.Pair;
+import java.math.cat.Sets;
+import java.math.cat.Sets.Cartesian;
+import java.math.cat.Sets.DisjointUnion;
+import java.math.cat.Sets.FactorSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +31,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for math.cat.Sets class
+ * Tests for java.math.cat.Sets class
  * 
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
@@ -129,8 +132,8 @@ public class SetsTest extends TestCase {
   }
 
   public void testRange_twoParam() {
-    assertTrue(Sets.numbers(-1, -3).isEmpty());
-    assertTrue(Sets.numbers(0, 0).isEmpty());
+    assertTrue(java.math.cat.Sets.numbers(-1, -3).isEmpty());
+    assertTrue(java.math.cat.Sets.numbers(0, 0).isEmpty());
     assertEquals(Set(3), numbers(3, 4));
     assertEquals(Set(4, 5, 6), numbers(4, 7));
   }
@@ -205,11 +208,11 @@ public class SetsTest extends TestCase {
   }
 
   public void testAllMaps_emptyBase() {
-    assertEquals(0, Sets.allMaps(Set("a", "b", "c"), Set()).size());
+    assertEquals(0, java.math.cat.Sets.allMaps(Set("a", "b", "c"), Set()).size());
   }
 
   public void testAllMaps_emptyExponent() {
-    assertEquals(1, Sets.allMaps(Set(), Set("a", "b", "c")).size());
+    assertEquals(1, java.math.cat.Sets.allMaps(Set(), Set("a", "b", "c")).size());
   }
 
   @SuppressWarnings({ "serial", "unchecked" })
@@ -272,7 +275,7 @@ public class SetsTest extends TestCase {
           }
         }
     );
-    assertEquals(expected, Sets.allMaps(Set("a", "b", "c"), Set(1, 2)));
+    assertEquals(expected, java.math.cat.Sets.allMaps(Set("a", "b", "c"), Set(1, 2)));
   }
 
   @SuppressWarnings("unchecked")
@@ -326,9 +329,9 @@ public class SetsTest extends TestCase {
   public void testFactorSet() {
     Set<Integer> set = Set(1, 2, 3, 4, 5);
     Set<Set<Integer>> expected = Set(Set(1, 3, 5), Set(2, 4));
-    Set<Set<Integer>> actual = new FactorSet<Integer>(set, new BinaryRelationship<Integer, Integer>() {
+    Set<Set<Integer>> actual = new FactorSet<Integer>(set, new java.math.cat.BinaryRelationship<Integer, Integer>() {
       @Override
-      public boolean eval(Pair<Integer, Integer> p) {
+      public boolean eval(java.math.cat.Pair<Integer, Integer> p) {
         return p.x() % 2 == p.y() % 2;
       }
     }).factorset();
@@ -339,7 +342,7 @@ public class SetsTest extends TestCase {
     Set<Integer> set = Set(1, 2, 3, 4, 5);
     Set<Set<Integer>> expected = new HashSet<Set<Integer>>();
     expected.add(Set(1, 2, 3, 4, 5));
-    Set<Set<Integer>> actual = new FactorSet<Integer>(set, new BinaryRelationship<Integer, Integer>() {
+    Set<Set<Integer>> actual = new FactorSet<Integer>(set, new java.math.cat.BinaryRelationship<Integer, Integer>() {
       @Override
       public boolean eval(Pair<Integer, Integer> p) {
         return (p.x() >= 3 && p.x() - 1 == p.y()) ||
@@ -371,7 +374,7 @@ public class SetsTest extends TestCase {
   public void testGroupBy() {
     Map<Integer, Set<String>> actual =
         groupBy(
-            Sets.Set("once", "upon", "a", "midnight", "dreary"),
+            java.math.cat.Sets.Set("once", "upon", "a", "midnight", "dreary"),
             Sets.numbers(10),
             new Function<String, Integer>() {
               @Override
@@ -388,7 +391,7 @@ public class SetsTest extends TestCase {
   public void testUnion() {
     List<Set<String>> source = List(parseSet("[a]"), parseSet("[b]"), parseSet("[a, b]"));
     DisjointUnion<String> du = new DisjointUnion<String>(source);
-    Set<Pair<Integer, String>> expected = Set(Pair(0, "a"), Pair(1, "b"), Pair(2, "a"), Pair(2, "b"));
+    Set<java.math.cat.Pair<Integer, String>> expected = Set(Pair(0, "a"), Pair(1, "b"), Pair(2, "a"), Pair(2, "b"));
     assertEquals(expected, Pair(du.unionSet(), du.injections()).x());
     assertEquals(Pair(1, "b"), Pair(du.unionSet(), du.injections()).y().get(1).apply("b"));
     assertEquals(Pair(2, "b"), Pair(du.unionSet(), du.injections()).y().get(2).apply("b"));

@@ -1,94 +1,148 @@
 package math.cat
 
-class Graph[N, A] (theElements: scala.collection.Set[N], theArrows: scala.collection.Set[A], domain: A => N, codomain: A => N) extends scala.collection.Set[N] {
+import java.io.Reader
+
+import util.parsing.combinator.JavaTokenParsers
+
+import scala.collection.Set
+import Sets._
+
+class Graph[N, A] (
+        val nodes: Set[N],
+        val arrows: Set[A],
+        val d0: A => N,
+        val d1: A => N
+      ) extends Set[N] {
+
+  def this(source: Graph[N, A]) = this(source.nodes, source.arrows, source.d0, source.d1)
+
   validate
 
-  val setOfNodes = theElements
-  val setOfArrows = theArrows
-  val d0 = domain
-  val d1 = codomain
-  
-  def iterator = setOfNodes.iterator
-  override def contains(node: N): Boolean = setOfNodes contains node
-  override def size = setOfNodes.size
-  override def hashCode = setOfNodes.hashCode * 61 + setOfArrows.hashCode
+  type Nodes = N
+  type Arrows = A
+  type MY_TYPE = this.type
+
+  override def elements = nodes.iterator
+  override def iterator = nodes.iterator
+  override def contains(node: N): Boolean = nodes contains node
+  override def size = nodes.size
+  override def hashCode = nodes.hashCode * 61 + arrows.hashCode
+  def -(x:N) = requireImmutability
+  def +(x:N) = requireImmutability
 
   override def equals(x: Any): Boolean = {
     x match {
-      case other: Graph[_, _] => other.equals(this)
+      case other: Graph[_, A] => other.equal(this)
       case _ => false
     }
   }
 
-  private def validate {
-    for(a <- setOfArrows) require(setOfNodes contains d0(a), " d0 for " + a + " is not in set of nodes")
-    for(a <- setOfArrows) require(setOfNodes contains d1(a), " d1 for " + a + " is not in set of nodes")
+  def validate {
+    require (arrows != null, "arrowset cannot be null")
+    require (nodes != null, "nodeset cannot be null")
+
+    if (!arrows.isEmpty) {
+      require (d0 != null, "d0 cannot be null")
+      require (d1 != null, "d1 cannot be null")
+    }
+    for(a <- arrows) require(nodes contains d0(a), " d0 for " + a + " should be in set of nodes")
+    for(a <- arrows) require(nodes contains d1(a), " d1 for " + a + " should be in set of nodes")
   }
 
   /**
-   * Checks equality of this graph to that one.
+   * Returned a collection of arrows from x to y.
+   *
+   * @param from first node
+   * @param to   second node
+   * @return the set of all arrows from x to y
+   */
+  def hom(from: N, to: N) = setOf(arrows filter ((f: A) => (d0(f) == from) && (d1(f) == to)))
+
+  /**
+   * Checks if one arrow follows another
+   * @param f an arrow
+   * @param g an arrow
+   * @return true iff f follows g
+   */
+  def follows(f: A, g: A) = d0(f) == d1(g)
+
+  /**
+   * Checks if two arrows have the same domain
+   * @param f an arrow
+   * @param g an arrow
+   * @return true iff g and f have the same domain
+   */
+  def sameDomain(f: A, g: A) = d0(f) == d0(g)
+
+  /**
+   * Checks if two arrows have the same codomain
+   * @param f an arrow
+   * @param g an arrow
+   * @return true iff g and f have the same codomain
+   */
+  def sameCodomain(f: A, g: A) = d1(f) == d1(g)
+
+  /**
+   * Checks if two arrows are parallel
+   * @param f an arrow
+   * @param g an arrow
+   * @return true iff g and f have the same domain and codomain
+   */
+  def areParallel(f: A, g: A) = sameDomain(f, g) && sameCodomain(f, g)
+
+  /**
+   *  Checks equality of this graph to that one.
    * They are equal if they have the same sets of nodes and arrows, and the arrows
    * originate and end at the same nodes.
    *
    * @param that another graph
    * @return true if they are equal.
    */
-  private def equals(that: Graph[N, A]) = {
-    val isEqual = this.setOfNodes == that.setOfNodes && this.setOfArrows == that.setOfArrows
-    (isEqual /: setOfArrows) ((bool: Boolean, a: A) => bool && (this.d0(a) == that.d0(a)) && (this.d1(a) == that.d1(a)))
+  private def equal(that: Graph[_, A]) = {
+    val isEqual = this.nodes == that.nodes && this.arrows == that.arrows
+    (isEqual /: arrows) ((bool: Boolean, a: A) => bool && (this.d0(a) == that.d0(a)) && (this.d1(a) == that.d1(a)))
   }
 
-  override def toString = "(" + 
-    setOfNodes.toString + ", {" + (setOfArrows map (a => a.toString + ": " + d0(a) + "->" + d1(a))) + 
+  override def toString = "({" +
+    nodes.mkString(", ") + "}, {" + (arrows map (a => a.toString + ": " + d0(a) + "->" + d1(a))).mkString(", ") +
     "})"
 
-  def unary_op = new Graph[N, A](setOfNodes, setOfArrows, d1, d0)
+  def unary_~ = new Graph[N, A](nodes, arrows, d1, d0)
 }
 
 object Graph {
-  def apply[N, A] (nodes: scala.collection.Set[N], arrows: scala.collection.Set[A], d0: A => N, d1: A => N) = new Graph(nodes, arrows, d0, d1)
+  def apply[N, A] (nodes: Set[N], arrows: Set[A], d0: A => N, d1: A => N) = {
+    require (arrows != null)
+    new Graph(nodes, arrows, d0, d1)
+  }
 
-  def apply[N, A] (nodes: scala.collection.Set[N], arrows: Map[A, (N, N)]): Graph[N, A] = apply(nodes, arrows.keySet, (a: A) => arrows(a)._1,  (a: A) => arrows(a)._2)
+  def apply[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Graph[N, A] = {
+    require (arrows.keySet != null)
+    apply(nodes, arrows.keySet, a => arrows(a)._1,  (a: A) => arrows(a)._2)
+  }
   
-  implicit def discrete[N] (nodes: Set[N]): Graph[N, N] = apply(nodes, Set.empty[N], (a: N) => a, (a: N) => a)
+  implicit def apply[N] (nodes: Set[N]): Graph[N, N] = apply(nodes, Set.empty[N], (a: N) => a, (a: N) => a)
 
-  implicit def fromPoset[N] (poset: PoSet[N]): Graph[N, (N, N)] = {
+  def first[N](p:(N,N)): N = p._1
+  def second[N](p:(N,N)): N = p._2
+
+  implicit def apply[N] (poset: PoSet[N]): Graph[N, (N, N)] = {
     val sequenceOfPairs = for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)
-    val setOfPairs: scala.collection.Set[(N, N)] = Sets.setOf(sequenceOfPairs, Integer.MAX_VALUE, (p: (N, N)) => poset.le(p._1, p._2))
-    apply(poset.underlyingSet, setOfPairs, p => p._1, p => p._2)
+    lazy val size = (0 /: sequenceOfPairs) ((n, x) => n+1)
+    val setOfPairs: Set[(N, N)] = Sets.setOf(sequenceOfPairs, size, (p: (N, N)) => poset.le(p._1, p._2))
+    apply(poset.underlyingSet, setOfPairs, first, second)
   }        
 
-  /**
-   * Parses a graph from a kind of string that is produced by toString()
-   *
-   * @param source source string
-   * @return a parsed graph
-   */
-  def apply(source: String): Graph[String, String] = {
-    val string = source.substring(1, source.length - 1)
-    val nodesAndArrows = string.split("\\],\\s*\\{")
-    require(nodesAndArrows.length > 0, "Could not find nodes or arrows in " + string)
-    val underlyingSet = Sets.parseSet(nodesAndArrows(0) + "]")
-    if (nodesAndArrows.length > 1) {
-      val arrowsAsString = nodesAndArrows(1)
-      val arrayOfMappings = arrowsAsString substring(0, arrowsAsString.length - 1) split(",\\s*")
-      def appendNewArrow(map: Map[String, (String, String)], arrow: String): Map[String, (String, String)] = {
-        val arrowAndNodes = arrow split ":\\s*"
-        if (arrowAndNodes.length == 2) {
-          val domainCodomain = arrowAndNodes(1) split "\\s*->\\s*"
-          require(domainCodomain.length == 2, "wrong arrow definition: " + arrow)
-          val newMapping = (arrowAndNodes(0) -> (domainCodomain(0), domainCodomain(1))) 
-          val newMap: Map[String, (String, String)] = map + newMapping
-          newMap
-        } else {
-          map
-        }
-      }
-      
-      val arrows = (Map.empty[String, (String, String)] /: arrayOfMappings) ((map: Map[String, (String, String)], arrow: String) => appendNewArrow(map, arrow))
-      apply(underlyingSet, arrows)
-    } else {
-      discrete(underlyingSet)
-    }
-  }  
+  class Parser extends Sets.Parser {
+    def all: Parser[Graph[String, String]] = "("~graph~")" ^^ {case "("~g~")" => g}
+    def graph: Parser[Graph[String, String]] = set~","~arrows ^^ {case s~","~a => Graph(s, a)}
+    def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
+    def arrow: Parser[(String, (String, String))] = member~":"~member~"->"~member ^^ {case f~":"~x~"->"~y => (f, (x, y))}
+    override def read(input: CharSequence) = parseAll(all, input).get
+    override def read(input: Reader) = parseAll(all, input).get
+  }
+
+  def apply(input: Reader) = (new Parser).read(input)
+
+  def apply(input: CharSequence) = (new Parser).read(input)
 }

@@ -1,14 +1,16 @@
 package math.cat;
 
-import static math.cat.Base.Map;
-import static math.cat.BasePair.Pair;
-import static math.cat.Categories.SQUARE;
-import static math.cat.Categories._4_;
-import static math.cat.Categories.discreteCategory;
-import static math.cat.Category.Category;
-import static math.cat.Functor.Functor;
-import static math.cat.Sets.Set;
+import static java.math.cat.Base.Map;
+import static java.math.cat.BasePair.Pair;
+import static java.math.cat.Categories.SQUARE;
+import static java.math.cat.Categories._4_;
+import static java.math.cat.Categories.discreteCategory;
+import static java.math.cat.Category.Category;
+import static java.math.cat.Functor.Functor;
+import static java.math.cat.Sets.Set;
 
+import java.math.cat.Functor;
+import java.math.cat.Pair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +31,7 @@ public class FunctorTest extends TestCase {
   private final Category<String, String> categorySquareWithTwoTopLeftCorners =
       Category("(([a0,a1,b,c,d], {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}), {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})");
 
-  Functor<String, String, String, String> functorFrom2to1toDoubleSquare =
+  java.math.cat.Functor<String, String, String, String> functorFrom2to1toDoubleSquare =
       Functor(categoryTwoToOne,
           categorySquareWithTwoTopLeftCorners,
           Map(new String[]{"0", "1", "2"},
@@ -56,7 +58,7 @@ public class FunctorTest extends TestCase {
   public void testFunctor_missingObjectMapppings() {
     try {
       Functor(_4_, _4_, Map(new Integer[] {0}, new Integer[] {1}),
-          new HashMap<Pair<Integer, Integer>, Pair<Integer, Integer>>()
+          new HashMap<java.math.cat.Pair<Integer, Integer>, java.math.cat.Pair<Integer, Integer>>()
       );
       fail("This constructor should have failed");
     } catch (Throwable e) {
@@ -70,7 +72,7 @@ public class FunctorTest extends TestCase {
           Map(
               new Integer[] {0, 1, 2, 3},
               new Integer[] {1, 2, 3, 3}),
-          new HashMap<Pair<Integer, Integer>, Pair<Integer, Integer>>()
+          new HashMap<java.math.cat.Pair<Integer, Integer>, java.math.cat.Pair<Integer, Integer>>()
       );
       fail("This constructor should have failed");
     } catch (Throwable e) {
@@ -90,7 +92,7 @@ public class FunctorTest extends TestCase {
               put(3, 3);
             }
           },
-          new HashMap<Pair<Integer, Integer>, Pair<Integer, Integer>>() {
+          new HashMap<java.math.cat.Pair<Integer, Integer>, java.math.cat.Pair<Integer, Integer>>() {
             {
               put(Pair(0, 0), Pair(1, 1));
               put(Pair(0, 1), Pair(1, 2));
@@ -123,7 +125,7 @@ public class FunctorTest extends TestCase {
               put(3, 3);
             }
           },
-          new HashMap<Pair<Integer, Integer>, Pair<Integer, Integer>>() {
+          new HashMap<java.math.cat.Pair<Integer, Integer>, java.math.cat.Pair<Integer, Integer>>() {
             {
               put(Pair(0, 0), Pair(1, 1));
               put(Pair(0, 1), Pair(1, 2));
@@ -146,7 +148,7 @@ public class FunctorTest extends TestCase {
 
   @SuppressWarnings("serial")
   public void testLimit_cartesianProductActually() {
-    Category<Integer, Integer> from = discreteCategory(Sets.numbers(2));
+    Category<Integer, Integer> from = discreteCategory(java.math.cat.Sets.numbers(2));
     Category<String, String> to = SQUARE;
     Map<Integer, String> map =
         new HashMap<Integer, String>() {
@@ -156,8 +158,8 @@ public class FunctorTest extends TestCase {
           }
         };
 
-    Functor<Integer, Integer, String, String> f = Functor(from, to, map, map);
-    Functor<Integer, Integer, String, String>.Cone limit = f.limit();
+    java.math.cat.Functor<Integer, Integer, String, String> f = Functor(from, to, map, map);
+    java.math.cat.Functor<Integer, Integer, String, String>.Cone limit = f.limit();
     assertNotNull(limit);
     assertEquals("ab", limit.arrowTo(0));
     assertEquals("ac", limit.arrowTo(1));
@@ -165,9 +167,9 @@ public class FunctorTest extends TestCase {
 
   @SuppressWarnings({ "serial", "unchecked" })
   public void testAllCones() {
-    Set<Functor<String, String, String, String>.Cone> allCones =
+    Set<java.math.cat.Functor<String, String, String, String>.Cone> allCones =
         functorFrom2to1toDoubleSquare.allCones();
-    Functor<String, String, String, String>.Cone c1 =
+    java.math.cat.Functor<String, String, String, String>.Cone c1 =
         functorFrom2to1toDoubleSquare.new Cone("a0",
             new HashMap<String, String>() {
               {
@@ -176,7 +178,7 @@ public class FunctorTest extends TestCase {
                 put("2", "a0d");
               }
             });
-    Functor<String, String, String, String>.Cone c2 =
+    java.math.cat.Functor<String, String, String, String>.Cone c2 =
         functorFrom2to1toDoubleSquare.new Cone("a1",
             new HashMap<String, String>() {
               {
@@ -186,13 +188,13 @@ public class FunctorTest extends TestCase {
               }
             }
         );
-    Set<Functor<String, String, String, String>.Cone> expectedCones = Set(c1, c2);
+    Set<java.math.cat.Functor<String, String, String, String>.Cone> expectedCones = Set(c1, c2);
     assertEquals(expectedCones.size(), allCones.size());
     assertEquals(expectedCones, allCones);
   }
 
   public void testLimit_twoCandidates() {
-    Functor<String, String, String, String>.Cone limit = functorFrom2to1toDoubleSquare.limit();
+    java.math.cat.Functor<String, String, String, String>.Cone limit = functorFrom2to1toDoubleSquare.limit();
     assertNotNull(limit);
     assertEquals("a1", limit.apex());
     assertEquals("a1b", limit.arrowTo("0"));
@@ -201,9 +203,9 @@ public class FunctorTest extends TestCase {
 
   @SuppressWarnings({ "serial", "unchecked" })
   public void testCoconesTo() {
-    Set<Functor<String, String, String, String>.Cocone> actual =
+    Set<java.math.cat.Functor<String, String, String, String>.Cocone> actual =
         functorFrom1to2toDoubleSquare.coconesTo("d0");
-    Functor<String, String, String, String>.Cocone expected =
+    java.math.cat.Functor<String, String, String, String>.Cocone expected =
         functorFrom1to2toDoubleSquare.new Cocone("d0",
             new HashMap<String, String>() {
               {
@@ -217,9 +219,9 @@ public class FunctorTest extends TestCase {
 
   @SuppressWarnings({ "serial", "unchecked" })
   public void testAllCocones() {
-    Set<Functor<String, String, String, String>.Cocone> allCocones =
+    Set<java.math.cat.Functor<String, String, String, String>.Cocone> allCocones =
         functorFrom1to2toDoubleSquare.allCocones();
-    Functor<String, String, String, String>.Cocone c1 =
+    java.math.cat.Functor<String, String, String, String>.Cocone c1 =
         functorFrom1to2toDoubleSquare.new Cocone("d0",
             new HashMap<String, String>() {
               {
@@ -228,7 +230,7 @@ public class FunctorTest extends TestCase {
                 put("2", "cd0");
               }
             });
-    Functor<String, String, String, String>.Cocone c2 =
+    java.math.cat.Functor<String, String, String, String>.Cocone c2 =
         functorFrom1to2toDoubleSquare.new Cocone("d1",
             new HashMap<String, String>() {
               {
@@ -238,8 +240,8 @@ public class FunctorTest extends TestCase {
               }
             }
         );
-    Set<Functor<String, String, String, String>.Cocone> expectedCocones = Set(c1, c2);
-    for (Functor<String, String, String, String>.Cocone cocone : allCocones) {
+    Set<java.math.cat.Functor<String, String, String, String>.Cocone> expectedCocones = Set(c1, c2);
+    for (java.math.cat.Functor<String, String, String, String>.Cocone cocone : allCocones) {
       assertTrue(cocone.equals(c1) || cocone.equals(c2));
     }
     assertEquals(expectedCocones, allCocones);

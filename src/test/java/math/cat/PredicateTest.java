@@ -1,7 +1,8 @@
 package math.cat;
 
-import static math.cat.Sets.Set;
+import static java.math.cat.Sets.Set;
 
+import java.math.cat.Predicate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +10,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for math.cat.Predicate class
+ * Tests for java.math.cat.Predicate class
  * 
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>

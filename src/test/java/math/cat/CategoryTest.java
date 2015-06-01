@@ -1,20 +1,20 @@
 package math.cat;
 
-import static math.cat.Base.Map;
-import static math.cat.Base.array;
-import static math.cat.BasePair.Pair;
-import static math.cat.Categories.M;
-import static math.cat.Categories.PARALLEL_PAIR;
-import static math.cat.Categories.PULLBACK;
-import static math.cat.Categories.SQUARE;
-import static math.cat.Categories.W;
-import static math.cat.Categories.Z2;
-import static math.cat.Categories._3_;
-import static math.cat.Categories._4_;
-import static math.cat.Category.Category;
-import static math.cat.Category.buildCategory;
-import static math.cat.Graph.Graph;
-import static math.cat.Sets.Set;
+import static java.math.cat.Base.Map;
+import static java.math.cat.Base.array;
+import static java.math.cat.BasePair.Pair;
+import static java.math.cat.Categories.M;
+import static java.math.cat.Categories.PARALLEL_PAIR;
+import static java.math.cat.Categories.PULLBACK;
+import static java.math.cat.Categories.SQUARE;
+import static java.math.cat.Categories.W;
+import static java.math.cat.Categories.Z2;
+import static java.math.cat.Categories._3_;
+import static java.math.cat.Categories._4_;
+import static java.math.cat.Category.Category;
+import static java.math.cat.Category.buildCategory;
+import static java.math.cat.Graph.Graph;
+import static java.math.cat.Sets.Set;
 import junit.framework.TestCase;
 
 /**
@@ -62,7 +62,7 @@ public class CategoryTest extends TestCase {
   }
 
   public void testSegment() {
-    Category<Integer, Pair<Integer, Integer>> n = segment(100);
+    Category<Integer, java.math.cat.Pair<Integer, Integer>> n = segment(100);
     assertEquals(100, n.objects().size());
     assertEquals(5050, n.arrows().size());
   }
@@ -159,7 +159,7 @@ public class CategoryTest extends TestCase {
 
   public void testProduct_none() {
     Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.product("0", "1");
+    java.math.cat.Pair<String, String> p = c.product("0", "1");
     assertNull(p);
   }
 
@@ -170,7 +170,7 @@ public class CategoryTest extends TestCase {
 
   public void testUnion_none() {
     Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.union("0", "1");
+    java.math.cat.Pair<String, String> p = c.union("0", "1");
     assertNull(p);
   }
 
@@ -181,13 +181,13 @@ public class CategoryTest extends TestCase {
 
   public void testPullback_none() {
     Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pullback("a", "b");
+    java.math.cat.Pair<String, String> p = c.pullback("a", "b");
     assertNull(p);
   }
 
   public void testPullback_same() {
     Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pullback("a", "a");
+    java.math.cat.Pair<String, String> p = c.pullback("a", "a");
     assertNotNull(p);
     assertEquals(p.x(), "0");
     assertEquals(p.y(), "0");
@@ -200,13 +200,13 @@ public class CategoryTest extends TestCase {
 
   public void testPushout_none() {
     Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pushout("a", "b");
+    java.math.cat.Pair<String, String> p = c.pushout("a", "b");
     assertNull(p);
   }
 
   public void testPushout_same() {
     Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pushout("a", "a");
+    java.math.cat.Pair<String, String> p = c.pushout("a", "a");
     assertNotNull(p);
     assertEquals(p.x(), "1");
     assertEquals(p.y(), "1");

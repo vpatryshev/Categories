@@ -1,14 +1,16 @@
 package math.cat;
 
-import static math.cat.Base.disjointUnion;
-import static math.cat.Base.flatten;
-import static math.cat.Base.inverse;
-import static math.cat.Base.oneOf;
-import static math.cat.Base.split;
-import static math.cat.Sets.Set;
-import static math.cat.Sets.numbers;
-import math.cat.Functions.Injection;
+import static java.math.cat.Base.disjointUnion;
+import static java.math.cat.Base.flatten;
+import static java.math.cat.Base.inverse;
+import static java.math.cat.Base.oneOf;
+import static java.math.cat.Base.split;
+import static java.math.cat.Sets.Set;
+import static java.math.cat.Sets.numbers;
 
+import java.math.cat.Functions.Injection;
+
+import java.math.cat.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for math.cat.Base class
+ * Tests for java.math.cat.Base class
  * 
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
@@ -169,9 +171,9 @@ public class BaseTest extends TestCase {
     for (int i : flatten(new Injection<Integer, Iterable<Integer>>() {
       @Override
       public Iterable<Integer> apply(Integer n) {
-        return Sets.numbers(n + 1);
+        return java.math.cat.Sets.numbers(n + 1);
       }
-    }.map(Sets.numbers(5)))) {
+    }.map(java.math.cat.Sets.numbers(5)))) {
       storage.add(i);
     }
     assertEquals(Arrays.asList(0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4), storage);
@@ -179,11 +181,11 @@ public class BaseTest extends TestCase {
 
   public void testSplit_plain() {
     Iterable<String> i = Arrays.asList("a", "b", "c");
-    Pair<String, Iterable<String>> p1 = split(i);
+    java.math.cat.Pair<String, Iterable<String>> p1 = split(i);
     assertEquals("a", p1.x());
-    Pair<String, Iterable<String>> p2 = split(p1.y());
+    java.math.cat.Pair<String, Iterable<String>> p2 = split(p1.y());
     assertEquals("b", p2.x());
-    Pair<String, Iterable<String>> p3 = split(p2.y());
+    java.math.cat.Pair<String, Iterable<String>> p3 = split(p2.y());
     assertEquals("c", p3.x());
     assertFalse(p3.y().iterator().hasNext());
   }
@@ -191,7 +193,7 @@ public class BaseTest extends TestCase {
   @SuppressWarnings("unchecked")
   public void testSplit_deep() {
     Iterable<Iterable<Integer>> i = Arrays.<Iterable<Integer>>asList(Arrays.asList(1, 2, 3), Arrays.asList(4, 5));
-    Pair<Iterable<Integer>, Iterable<Iterable<Integer>>> p1 = split(i);
+    java.math.cat.Pair<Iterable<Integer>, Iterable<Iterable<Integer>>> p1 = split(i);
     assertEquals(Set(1, 2, 3), Set(p1.x()));
     assertEquals(Set(4, 5), Set(p1.y().iterator().next()));
   }

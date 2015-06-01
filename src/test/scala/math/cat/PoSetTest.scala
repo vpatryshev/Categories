@@ -1,9 +1,11 @@
 package math.cat
 
+
+
 import org.specs2._
 import math.cat.PoSet;
 
-import math.cat.Base._
+import Base._
 import static math.cat.PoSet.*;
 
 public class PoSetTest extends TestCase {

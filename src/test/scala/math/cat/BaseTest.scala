@@ -1,13 +1,15 @@
 package math.cat
 
-import math.cat.Base._
+
+
+import Base._
 
 import org.specs2._
 
 /**
- * Tests for math.cat.Base class
+ * Tests for java.math.cat.Base class
  */
-public class BaseTest extends Specification {
+public class BaseTest extends Specification { /*
   def is = s2"""
 
   This is a specification for the 'Hello world' string
@@ -21,7 +23,7 @@ public class BaseTest extends Specification {
   def e2 = "Hello world" must startWith("Hello")
   def e3 = "Hello world" must endWith("world")
 
-}/*
+}
   public void testParse() {
     assertEquals(new HashSet<String>(Arrays.asList("abc", "def")), Base.parseSet("[abc, def]"));
   }

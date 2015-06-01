@@ -1,12 +1,14 @@
 package math.cat
 
+
+
 import static math.cat.Maybe.*;
 
 import org.specs2._
-import math.cat.Maybe;
+
 
 /**
- * Tests for math.cat.Pair class
+ * Tests for java.math.cat.Pair class
  */
 public class MaybeTest extends TestCase {
   public void testConstructor_plain() {
