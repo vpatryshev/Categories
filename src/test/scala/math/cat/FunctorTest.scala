@@ -1,8 +1,11 @@
-package math.cat;
+package math.cat
 
 import static math.cat.Functor.*;
 import static math.cat.Pair.*;
-import junit.framework.TestCase;
+import org.specs2._
+import math.cat.Category;
+import math.cat.Functor;
+import math.cat.Pair;
 
 import java.util.HashMap;
 

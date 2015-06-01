@@ -1,6 +1,6 @@
-package math.cat;
+package math.cat
 
-import junit.framework.TestCase;
+import org.specs2._
 import static math.cat.Pair.Pair;
 
 public class CategoriesTest extends TestCase {

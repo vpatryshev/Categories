@@ -3,6 +3,7 @@ package math.cat;
 import static math.cat.Maybe.*;
 
 import junit.framework.TestCase;
+import math.cat.Maybe;
 
 /**
  * Tests for math.cat.Pair class

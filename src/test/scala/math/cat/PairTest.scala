@@ -1,8 +1,8 @@
-package math.cat;
+package math.cat
 
 import static math.cat.Pair.*;
 
-import junit.framework.TestCase;
+import org.specs2._
 
 /**
  * Tests for math.cat.Pair class

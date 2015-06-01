@@ -1,7 +1,9 @@
-package math.cat;
+package math.cat
 
-import junit.framework.TestCase;
-import static math.cat.Base.*;
+import org.specs2._
+import math.cat.PoSet;
+
+import math.cat.Base._
 import static math.cat.PoSet.*;
 
 public class PoSetTest extends TestCase {

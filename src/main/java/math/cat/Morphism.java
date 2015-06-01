@@ -1,13 +1,15 @@
 package math.cat;
 
-import java.util.Set;
-
 /**
  * Abstraction of morphism (aka arrow), from categorical point of view.
  * two essential methods are defined here, domain() and codomain(). There is no way
  * to define or declare composition: what is the type of the result? How can it be instantiated?
- *
- * All code is <a href="http://myjavatools.com/projects/Category/source.zip">here</a>
+ * 
+ * @author Vlad Patryshev
+ * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * 
+ * @param <X> domain type
+ * @param <Y> codomain type
  */
 public abstract class Morphism<X, Y> {
   private String name;
