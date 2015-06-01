@@ -54,7 +54,7 @@ class SetMorphism[X, PX <: Set[X], Y, PY <: Set[Y]] (domain: PX, codomain: PY, f
   def - (x: X) = throw new RuntimeException("TODO: REPLACE THIS EXCEPTION WITH SOMETHING MEANINGFUL")
   def update[B1 >: Y](x: X, y: B1) = throw new RuntimeException("TODO: REPLACE THIS EXCEPTION WITH SOMETHING MEANINGFUL")
   def empty[PY] = throw new RuntimeException("TODO: find a better exception")
-  def elements = domain.elements map (x => (x, f(x)))
+  def iterator = domain.iterator map (x => (x, f(x)))
 }
 
 object SetMorphism {

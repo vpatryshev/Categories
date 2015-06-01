@@ -23,13 +23,13 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
   /**
    * Iterates over elements of this poset
    */
-  override def elements: Iterator[T] = underlyingSet.elements
+  override def iterator: Iterator[T] = underlyingSet.iterator
   /**
    * Size of this poset
    */
   override def size = underlyingSet.size
 
-  override def hashCode = elements.hashCode
+  override def hashCode = iterator.hashCode
   
   override def equals(x: Any): Boolean = {
     x match {
@@ -39,13 +39,13 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
   }
 
   private def validate {
-    for(x <- elements) require(le(x, x), " reflexivity broken at " + x)
+    for(x <- iterator) require(le(x, x), " reflexivity broken at " + x)
     
-    for(x <- elements; y <- elements) {
+    for(x <- iterator; y <- iterator) {
       if (le(x, y) && le(y, x)) require(x == y, " antisymmetry broken at " + x + ", " + y)
     }
     
-    for(x <- elements; y <- elements; z <- elements) {
+    for(x <- iterator; y <- iterator; z <- iterator) {
       if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
     }
   }

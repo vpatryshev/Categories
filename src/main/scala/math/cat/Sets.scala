@@ -1,4 +1,6 @@
 package math.cat
+
+  import Functions._
   
 object Sets {
   // TODO: ask people about what's the best name for my own kind of sets Ens?
@@ -20,8 +22,8 @@ object Sets {
       override def size = size
       override def -(x: X): Set[X] = throw new UnsupportedOperationException
       override def +(x: X): Set[X] = throw new UnsupportedOperationException
-      override def empty[Y]: Set[Y] = throw new UnsupportedOperationException
-      override def elements = iterable()
+//      override def empty[Y]: Set[Y] = throw new UnsupportedOperationException
+//      override def iterator = iterable()
   }
 
   def setOf[X](elements: Iterable[X], size: => Int, contains: X => Boolean) = new Set[X] {
@@ -29,8 +31,8 @@ object Sets {
       override def size = size
       override def -(x: X): Set[X] = throw new UnsupportedOperationException
       override def +(x: X): Set[X] = throw new UnsupportedOperationException
-      override def empty[Y]: Set[Y] = throw new UnsupportedOperationException
-      override def elements = elements
+   //   override def empty[Y]: Set[Y] = throw new UnsupportedOperationException
+      override def iterator = elements.iterator
   }
   
   def union[X] (set1: scala.collection.Set[X], set2: scala.collection.Set[X]): scala.collection.Set[X] = setOf(
@@ -40,7 +42,7 @@ object Sets {
   )
     
   def product[X, Y](xs: scala.collection.Set[X], ys: scala.collection.Set[Y]): scala.collection.Set[(X, Y)] = setOf(
-    () => (for (x <- xs; y <- ys) yield (x, y)).elements,
+    () => (for (x <- xs; y <- ys) yield (x, y)),
     xs.size * ys.size,
     (p: (X, Y)) => xs.contains(p._1) && ys.contains(p._2)
   )
@@ -61,7 +63,7 @@ object Sets {
       }  
     }
   }
-}package math.cat
+}
 
 /**
  * All kinds of additional Set functionality.
@@ -70,7 +72,7 @@ object Sets {
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
  * 
  */
-object Sets {
+object SetsAlt {
 
   /**
    * This class serves as a namespace for Cartesian product of iterables.
@@ -79,14 +81,14 @@ object Sets {
    * of these sequences.
    * <p/>
    * Type parameters:
-   * @param [X] the type of elements of each sequence (must be the same)
-   * @param [XS] the type of sequences, must extend Set[X]. 
+   * @tparam X the type of elements of each sequence (must be the same)
+   * @tparam XS the type of sequences, must extend Set[X].
    */
   class Cartesian[X, XS <: Set[X]] {
     /**
      * Public method that builds the Cartesian product. The product is lazy.
-     * @param [X] element type
-     * @param [XS] set type
+     * @tparam X element type
+     * @tparam XS set type
      *
      * @param xss sequence of sequences that are being multiplied.
      * @return Cartesian product of the sequences.
@@ -96,8 +98,8 @@ object Sets {
     
     /**
      * Public method that builds the Cartesian product. The product is lazy.
-     * @param [X] element type
-     * @param [XS] set type
+     * @tparam X element type
+     * @tparam XS set type
      *
      * @param xss list of sets that are being multiplied.
      * @return Cartesian product of the sets.
@@ -108,7 +110,7 @@ object Sets {
     /**
      * Builds a function that builds projections from a Cartesian product of a list of sets
      * to its components
-     * @param [X] element type
+     * @tparam X element type
      *
      * @return a function that for each i returns a function just takes an i-th element of a list.
      */
@@ -117,13 +119,13 @@ object Sets {
 
     /**
      * Public method that takes a vararg of sequences and builds their Cartesian product.
-     * @param [X] element type
-     * @param [XS] set type
+     * @tparam X element type
+     * @tparam XS set type
      *
      * @param xss (a plurality of) sequences that are being multiplied.
      * @return Cartesian product of the sequences.
      */
-    def product[X, XS <: Set[X]](xss: XS*): Iterable[List[X]] = product(Arrays.asList(xss))
+    def product[X, XS <: Set[X]](xss: XS*): Iterable[List[X]] = product(xss)
 
     /**
      * Actually builds the product of the sequence of sequences.
@@ -132,11 +134,8 @@ object Sets {
      * @return their Cartesian product.
      */
     private def calculateProduct[X, XS](xss: Iterable[XS]): Set[Iterable[X]]  = {
-      if (xss.isEmpty) {
-        Set(List[X]())
-      } else {
-        appendComponentToProductOfIterable(xss.head, calculateProduct(xss.tail))
-      }
+      xss.foldRight(Set(List[X]())){case (xs:XS, current:Set[Iterable[X]]) => appendComponentToProductOfIterable(xs, current map (_.asInstanceOf[Iterable[X]]))}
+
     }
 
     /**
@@ -147,7 +146,7 @@ object Sets {
      */
     private def calculateProduct(xss: List[XS]): Set[List[X]] = 
       if (xss.isEmpty) {
-        singleton(new List[X]())
+        singleton(List[X]())
       } else {
         appendComponentToProductOfIterable(xss.head, calculateProduct(xss.tail))
       }  
@@ -252,13 +251,15 @@ object Sets {
    * @return the set
    */
   def numbers(a: Integer, b: Integer, c: Integer): Set[Integer] = {
-    private final val delta = b - a;
-    val setSize = c == 0 || delta == 0 || c * delta < 0 ? 0 :
-        Math.max(0, (delta + c + (if (c < 0) then 1 else -1)) / c);
+    val delta = b - a
+    val dir = if (c < 0) 1 else -1
 
-    new AbstractSet[Integer]() {
+    val setSize = if (c == 0 || delta == 0 || c * delta < 0) 0 else
+        Math.max(0, (delta + c + dir) / c)
 
-      override def Iterator[Integer] elements = {
+    new scala.collection.AbstractSet[Integer]() {
+
+      override def elements: Iterator[Integer] = {
         new Iterator[Integer]() {
           private var i = 0;
           
@@ -288,7 +289,7 @@ object Sets {
    * @return a set consisting of the iterable's elements.
    */
   def Set[T] (iterable: Iterable[T]): Set[T] = {
-    new AbstractSet[T]() {
+    new scala.collection.AbstractSet[T]() {
       override def elements: Iterator[T] = iterable.elements
       override def isEmpty: boolean = elements.isEmpty
       override def size = countEntries(this);
@@ -302,9 +303,12 @@ object Sets {
    * @param s the string
    * @return restored set
    */
-  def parseSet(String s) Set[String] = {
-    val content = s.substring(1, s.length() - 1).split(",\\s*").map(trim(_)).filter(!_.isEmpty)
-    (Set[String]() /: content)(+)
+  def parseSet(s: String): Set[String] = {
+    val content = s.substring(1, s.length() - 1).split(",\\s*").map(_.trim).filter(_.nonEmpty)
+
+//    val empty: Set[String] = Set[String]()
+    Set[String](content) // TODO: fix it, should not work: repetitions
+    //(empty /: content)(+)
   }
 
   /**
@@ -314,28 +318,28 @@ object Sets {
    * only problem is halting problem: if the iterable is infinite, and the key
    * cannot be found, it will run forever looking.
    * 
-   * @param [X] key type
+   * @tparam X key type
    * @param [Y] value type
    * @param [P] the type of key-value pairs
    * @param pairs key-balue pairs
    * @return the map
    */
-  def Map[X, Y, P <: Pair[X, Y]](pairs: Iterable[P]) Map[X, Y] {
+  def Map[X, Y, P <: Pair[X, Y]](pairs: Iterable[P]): Map[X, Y] = {
     Injection[P, Entry[X, Y]] cast = new Inclusion[Entry[X, Y], P]();
 
     new AbstractMap[X, Y]() {
       override def entrySet: Set[Entry[X, Y]] = cast.map(SetOfUnknownSize(pairs));
     }
   }
-
+/* probably it is just a toMap*/
   /**
    * Creates a (virtual) map based on a given set of key-value pairs
-   * @param [X] key type
+   * @tparam X key type
    * @param [Y] value type
    * @param [P] the type of key-value pairs
    * @param pairs the pairs
    * @return the (virtual) map
-   */
+   *
   def [X, Y, P extends Pair[X, Y]] Map[X, Y] Map(final Set[P> pairs) {
     Injection[P, Entry[X, Y]] cast = new Inclusion<Entry[X, Y], P>();
 
@@ -346,33 +350,35 @@ object Sets {
       }
     };
   }
-
+*/
   /**
    * Builds a (virtual) set of all maps from one set (<code>setX</code>) to another (<code>setY</code>).
    * 
-   * @param [X] the type of elements of the first set (<code>setX</code>)
-   * @param [Y] the type of elements of the second set (<code>setY</code>)
+   * @tparam X the type of elements of the first set (<code>setX</code>)
+   * @tparam Y the type of elements of the second set (<code>setY</code>)
    * @param setX the first set (domain)
    * @param setY the second set (codomain)
    * @return the set of all maps
    */
-  def [X, Y] Set[Map[X, Y]] allMaps(final Set[X] setX, Set[Y] setY) {
-    Set[Set[Pair[X, Y]]] sections =
-        new Injection[X, Set[Pair[X, Y]]]() {
-          // this function builds pairs (x, y) for all y for a given x
-          override def apply(X x): Set[Pair[X, Y]] = BasePair.[X, Y]withLeft(x).map(setY)
-        }.map(setX);
+  def allMaps[X,Y] (setX: Set[X], setY: Set[Y]): Set[Map[X, Y]] = {
+    type SetOfPairs = Set[Pair[X, Y]]
+    val pairBuilder: Injection[X, SetOfPairs] =  new Injection[X, SetOfPairs] {
+      // this function builds pairs (x, y) for all y for a given x
+      override def apply(x:X): Set[Pair[X, Y]] = Pair.withLeft(x).map(setY)
+    }
 
-    Set[Iterable[Pair[X, Y]]] product = Cartesian.product(sections)
-    Set[Set[Pair[X, Y]]] setOfSetsOfPairs =
-        Set(new IterableToSet[Pair[X, Y]].map(product));
-    return new PairsToMap[X, Y].map(setOfSetsOfPairs);
+    val sections: Set[Set[Pair[X, Y]]] = pairBuilder.map(setX)
+
+    val product: Set[Iterable[Pair[X, Y]]] = Cartesian.product(sections)
+    val setOfSetsOfPairs: Set[Set[Pair[X, Y]]] =
+        Set(new IterableToSet[Pair[X, Y]].map(product))
+    new PairsToMap[X, Y].map(setOfSetsOfPairs)
   }
 
   /**
    * Factory method. Builds a function that makes one set a factorset of another.
    * 
-   * @param [X] the main set element type
+   * @tparam X the main set element type
    * @param set the set
    * @param factorset the subset
    * @return projection from the set to the factorset.
@@ -400,7 +406,7 @@ object Sets {
    * The factorset is not lazy; equivalence classes are stored in a map, and the resulting
    * factorset is returned as a new HashSet.
    * 
-   * @param [X] element type
+   * @tparam X element type
    */
   class FactorSet[X](baseSet: Set[X]) {
     /**
@@ -563,14 +569,29 @@ object Sets {
   /**
    * Builds a Cartesian product of two sets.
    * 
-   * @param [X] element type for the first set 
+   * @tparam X element type for the first set
    * @param [Y] element type for the second set
    * @param x first product component.
    * @param y second product component.
    * @return a product set, contains all possible pairs of elements from x and y.
    */
   def product[X, Y](x: Set[X], y: Set[Y]) : Set[Pair[X, Y]] = {
-    new AbstractSet[Pair[X, Y]]() {
+
+import math.cat.Functions.Injection
+
+import math.cat.Functions.Injection
+
+import scala.collection.AbstractSet
+
+import scala.collection.AbstractSet
+
+import scala.collection.AbstractSet
+
+import scala.collection.AbstractSet
+
+import scala.collection.AbstractSet
+
+new AbstractSet[Pair[X, Y]]() {
       override def Iterator[Pair[X, Y]] elements = buildProductIterator(x, y)
       override def size = x.size * y.size
     }
@@ -580,7 +601,7 @@ object Sets {
    * Given two sets, xs and ys, and a function f: xs->ys,
    * builds a map ys->xss, for each y returning all those x in xs that f(x)=y.
    * 
-   * @param [X] domain element type
+   * @tparam X domain element type
    * @param [Y] codomain element type
    * @param xs domain
    * @param ys codomain
@@ -603,8 +624,8 @@ object Sets {
   /**
    * Powerset of a set. Cheap solution with bitmask.
    * 
-   * @param [X] set element type
-   * @param [XS] powerset element type
+   * @tparam X set element type
+   * @tparam XS powerset element type
    * @param xs the set which powerset we are calculating.
    * @return a powerset, lazy.
    */

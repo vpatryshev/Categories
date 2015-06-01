@@ -8,7 +8,7 @@ class Graph[N, A] (theElements: scala.collection.Set[N], theArrows: scala.collec
   val d0 = domain
   val d1 = codomain
   
-  def elements = setOfNodes.elements
+  def iterator = setOfNodes.iterator
   override def contains(node: N): Boolean = setOfNodes contains node
   override def size = setOfNodes.size
   override def hashCode = setOfNodes.hashCode * 61 + setOfArrows.hashCode

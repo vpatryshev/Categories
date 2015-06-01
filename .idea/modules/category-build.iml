@@ -108,5 +108,19 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.6:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scalaz:scalaz-effect_2.11:7.1.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scodec:scodec-bits_2.11:1.0.6:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scalaz:scalaz-concurrent_2.11:7.1.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scala-lang:scala-reflect:2.11.6:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.specs2:specs2-matcher_2.11:3.6:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.specs2:specs2-common_2.11:3.6:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.10.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.specs2:specs2-core_2.11:3.6:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scalaz:scalaz-core_2.11:7.1.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scalaz.stream:scalaz-stream_2.11:0.7a:jar" level="project" />
   </component>
 </module>
