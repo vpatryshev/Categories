@@ -39,6 +39,55 @@ public class CategoryTest extends TestCase {
     assertEquals(testCategory, Category(testCategory.toString()));
   }
 
+  public void testZero() {
+    assertTrue(_0_.objects().isEmpty());
+    assertTrue(_0_.arrows().isEmpty());
+  }
+
+  public void testOne() {
+    assertEquals(1, _1_.objects().size());
+    assertEquals(1, _1_.arrows().size());
+  }
+
+  public void testTwo() {
+    assertEquals(2, _2_.objects().size());
+    assertEquals(3, _2_.arrows().size());
+    assertEquals(1, _2_.arrows(0, 1).size());
+  }
+
+  public void testThree() {
+    assertEquals(3, _3_.objects().size());
+    assertEquals(6, _3_.arrows().size());
+    assertEquals(1, _3_.arrows(1, 2).size());
+  }
+
+  public void testSegment() {
+    Category<Integer, Pair<Integer, Integer>> n = segment(100);
+    assertEquals(100, n.objects().size());
+    assertEquals(5050, n.arrows().size());
+  }
+
+  public void testParallelPair() {
+    assertEquals(2, PARALLEL_PAIR.objects().size());
+    assertEquals(4, PARALLEL_PAIR.arrows().size());
+    assertEquals(2, PARALLEL_PAIR.arrows("0", "1").size());
+  }
+
+  public void testZ2() {
+    int expected = -1;
+    String f = "1";
+    for (int i = 1; i < 5; i++) {
+      f = Z2.m(f, "-1");
+      assertEquals("Error in (-1)^" + i, Integer.toString(expected), f);
+      expected = -expected;
+    }
+  }
+
+  public void testInverse_Z2() {
+    assertEquals("1", Z2.inverse("1"));
+    assertEquals("-1", Z2.inverse("-1"));
+  }
+
   public void testInverse_noneActually() {
     assertEquals(Pair(1, 1), _3_.inverse(Pair(1, 1)));
   }
