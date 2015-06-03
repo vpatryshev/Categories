@@ -3,8 +3,9 @@ package math.cat
 import java.io.Reader
 
 import scala.collection.Set
-import collection.immutable.HashSet
-import collection.mutable.Queue
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.Queue
+import scala.util.parsing.combinator.RegexParsers
 
 /**
  * Lazy sets functionality
@@ -92,6 +93,7 @@ object Sets {
           var i = from
 
           override def hasNext = i < to
+
           override def next = { i += step; i - step }
         }
     }
@@ -339,7 +341,7 @@ object Sets {
 
   def toString(s: Set[_]) = "{" + s.mkString(", ") + "}"
 
-  class Parser extends JavaTokenParsers {
+  class Parser extends RegexParsers {
     def set   : Parser[Set[String]] = "{"~repsep(member, ",")~"}" ^^ {case "{"~ms~"}" => Set() ++ ms}
     def member: Parser[String] = regex("""\w+""".r)
     def read(input: CharSequence) = parseAll(set, input).get

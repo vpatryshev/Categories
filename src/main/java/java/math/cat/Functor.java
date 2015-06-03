@@ -291,7 +291,7 @@ public class Functor<
       Cone other = (Cone) o;
       if (!apex().equals(other.apex())) return false; 
       for (XObjects x : domain()) {
-        if (!Category.equal(arrowTo(x), other.arrowTo(x))) return false;
+        if (/*!Category.equal(*/arrowTo(x) != other.arrowTo(x)) return false;
       }
       return true;
     }
@@ -483,7 +483,7 @@ public class Functor<
       Cocone other = (Cocone) o;
       if (!apex().equals(other.apex())) return false; 
       for (XObjects x : domain()) {
-        if (!Category.equal(arrowFrom(x), other.arrowFrom(x))) return false;
+        if (/*!Category.equal(*/arrowFrom(x) != other.arrowFrom(x)) return false;
       }
       return true;
     }

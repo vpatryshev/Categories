@@ -1,5 +1,6 @@
 package java.math.cat;
 
+import static java.math.cat.Base.equal;
 import static java.util.Collections.singleton;
 import static java.math.cat.Base.Map;
 import static java.math.cat.Base.array;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static java.math.cat.Category.*;
 
 /**
  * Some specific categories here.
@@ -29,7 +31,9 @@ public final class Categories {
    * @return a new category
    */
   public static Category<Integer, Pair<Integer, Integer>> segment(int n) {
-    return Category(PoSet.range(0, n - 1, 1));
+
+    final PoSet<Integer> range = PoSet.range(0, n - 1, 1);
+    return Category(range);
   }
 
   /**
@@ -151,7 +155,7 @@ public final class Categories {
         }
 
         @Override
-        protected void validate() { // it IS a category
+        public void validate() { // it IS a category
         }
 
         @Override
@@ -193,7 +197,7 @@ public final class Categories {
             }
           }.forall(arrow.codomain());
         }
-
+/*
         @Override
         public Predicate<TypelessSetMorphism> factorsOnRight(TypelessSetMorphism g, TypelessSetMorphism f) {
           return super.factorsOnRight(g, f);
@@ -213,8 +217,8 @@ public final class Categories {
         public Predicate<TypelessSetMorphism> factorsUniquelyOnRight(TypelessSetMorphism f) {
           return super.factorsUniquelyOnRight(f);
         }
-
-        @Override
+*/
+      //  @Override
         public TypelessSetMorphism equalizer(
             final TypelessSetMorphism f, final TypelessSetMorphism g) {
           assert f.domain() == g.domain() && f.codomain() == g.codomain();

@@ -2,9 +2,9 @@ package math.cat
 
 import java.io.Reader
 
-import util.parsing.combinator.JavaTokenParsers
+//import util.parsing.combinator.JavaTokenParsers
 
-import scala.collection.Set
+import scala.collection.immutable.Set
 import Sets._
 
 class Graph[N, A] (

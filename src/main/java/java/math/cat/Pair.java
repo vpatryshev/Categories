@@ -70,5 +70,22 @@ public abstract class Pair<X, Y> implements Map.Entry<X, Y> {
   public String toString() {
     return "(" + x() + "," + y() + ")";
   }
+
+  private static <X,Y> Pair<X,Y> pair(final X x0, final Y y0) {
+    return new Pair<X, Y>() {
+      public X x() { return x0; }
+      public Y y() { return y0; }
+    };
+  }
+
+  public static <X,Y> Pair<X,Y> of(X x, Y y) {
+    return pair(x, y);
+  }
+
+  public static <X> Pair<X,X> from(X[] source) {
+    assert source.length == 2 : "Pair is built on a two-element array; got " + source.length;
+    return pair(source[0], source[1]);
+  }
+
 }
 
