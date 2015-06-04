@@ -513,7 +513,7 @@ public class Base {
      *
      * @param set set on which identity map is defined
      * @return the identity map
-     */
+     * hmm... maybe the stuff in Functions makes more sense?
     public static <T> Map<T, T> id(final Set<T> set) {
         return new AbstractMap<T, T>() {
 
@@ -559,5 +559,5 @@ public class Base {
                 };
             }
         };
-    }
+    }*/
 }

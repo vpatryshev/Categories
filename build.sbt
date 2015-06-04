@@ -10,6 +10,8 @@ libraryDependencies += "com.novocode" % "junit-interface" % "0.8" % "test->defau
 
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
 
+libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
+
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 scalacOptions in Test ++= Seq("-Yrangepos")

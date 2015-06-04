@@ -589,6 +589,738 @@ public abstract class Category<O, A> extends Graph<O, A> {
   }
 
   /**
+   * Assertion that two arrows are parallel
+   * @param f first arrow
+   * @param g second arrow
+   */
+  protected void assertParallelPair(A f, A g) {
+    assert sameDomain(f, g) : "" + f + " and " + g + " should have the same domain";
+    assert sameCodomain(f, g) : "" + f + " and " + g + " should have the same codomain";
+  }
+
+  /**
+   * Builds a predicate that checks whether an arrow equalizes two other arrows,
+   * that is, whether f o h = g o h  for a given arrow h.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return a predicate defined on arrows.
+   */
+  public Predicate<A> equalizes(final A f, final A g) {
+    assertParallelPair(f, g);
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(A h) {
+        return equalizes(h, f, g);
+      }
+    };
+  }
+
+  /**
+   * Builds a set of all arrows that equalize f: A -> B and g: A -> B, that is,
+   * such arrows h: X -> A that f o h = g o h.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return a set of arrows that equalize f and g
+   */
+  Set<A> allEqualizingArrows(final A f, final A g) {
+    return equalizes(f, g).find(arrows());
+  }
+
+  /**
+   * Builds a set of arrows coeqalizing two given arrows f,g: A -> B, that is,
+   * such arrows h: B -> C that h o f = h o g.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return a set of coequalizing arrows
+   */
+  public Set<A> allCoequalizingArrows(final A f, final A g) {
+    return coequalizes(f, g).find(arrows());
+  }
+  /**
+   * Builds a predicate that checks whether an arrow h: A -> B
+   * composed with g: B -> C gives f: A -> C.
+   *
+   * @param g first arrow
+   * @param f second arrow
+   * @return a predicate that checks the condition.
+   */
+  public Predicate<A> factorsOnRight(final A g, final A f) {
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(A h) {
+        return equal(m(h, g), f);
+      }
+    };
+  }
+
+  /**
+   * Builds a predicate that checks whether an arrow h: B -> C
+   * composed with g: A -> B gives f: A -> C.
+   *
+   * @param g first arrow
+   * @param f second arrow
+   * @return a predicate that checks the condition.
+   */
+  public Predicate<A> factorsOnLeft(final A g, final A f) {
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(A h) {
+        return equal(m(f, h), g);
+      }
+    };
+  }
+
+  /**
+   * Builds a predicate that checks if arrow g: y -> z
+   * uniquely factors on the left the arrow f: x -> z - that is,
+   * there is just one h: x -> y such that f = g o h.
+   *
+   * @param f arrow being factored
+   * @return the specified predicate
+   */
+  public Predicate<A> factorsUniquelyOnLeft(final A f) {
+    final O y = d0(f);
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(final A g) {
+        final O x = d0(g);
+        return factorsOnRight(f, g).existsUnique(arrows(x, y));
+      }
+    };
+  }
+  /**
+   * Builds a predicate that checks if arrow g: x -> y
+   * uniquely factors on the right the arrow f: z -> z - that is,
+   * there is just one h: y -> z such that f = h o g.
+   *
+   * @param f factored arrow
+   * @return the specified predicate
+   */
+  public Predicate<A> factorsUniquelyOnRight(final A f) {
+    final O z = d1(f);
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(final A g) {
+        O y = d1(g);
+        return factorsOnLeft(g, f).existsUnique(arrows(y, z));
+      }
+    };
+  }
+
+  /**
+   * Builds a predicate that checks
+   * if an arrow is an equalizer of the other two arrows.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return a predicate that checks if an arrow is an equalizer of f and g
+   */
+  public Predicate<A> isEqualizer(final A f, final A g) {
+    assertParallelPair(f, g);
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(final A h) {
+        return
+                equalizes(h, f, g) &&
+                        factorsUniquelyOnLeft(h).forall(allEqualizingArrows(f, g));
+      }
+    };
+  }
+
+  /**
+   * Checks if arrow h equalizes arrows f and g (that is, whether f o h == g o h).
+   *
+   * @param h arrow that may equalize f and g
+   * @param f first arrow
+   * @param g second arrow
+   * @return true iff f o h == g o h
+   */
+  public boolean equalizes(A h, A f, A g) {
+    assertParallelPair(f, g);
+    return canCompose(h, f) && equal(m(h, f), m(h, g));
+  }
+
+  /**
+   * Builds an equalizer arrow for a parallel pair of arrows.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return an equalizer arrow, if one exists, null othrewise
+   */
+  public A equalizer(final A f, final A g) {
+    assertParallelPair(f, g);
+    return isEqualizer(f, g).findOne(arrows());
+  }
+  /**
+   * Builds a predicate that checks if an arrow is a coequalizer of the other two arrows.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return true if it is a coequalizer
+   */
+  public Predicate<A> isCoequalizer(final A f, final A g) {
+    assertParallelPair(f, g);
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(A h) {
+        return
+                coequalizes(h, f, g) &&
+                        factorsUniquelyOnRight(h).forall(allCoequalizingArrows(f, g));
+      }
+    };
+  }
+
+  /**
+   * Builds a predicate that checks whether an arrow coequalizes two other arrows,
+   * that is, whether h o f = h o g  for a given arrow h.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return a predicate defined on arrows.
+   */
+  public Predicate<A> coequalizes(final A f, final A g) {
+    assertParallelPair(f, g);
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(A h) {
+        return coequalizes(h, f, g);
+      }
+    };
+  }
+
+  /**
+   * Checks if arrow h coequalizes arrows f and g (that is, whether h o f == h o g).
+   *
+   * @param h arrow that may coequalize f and g
+   * @param f first arrow
+   * @param g second arrow
+   * @return true iff h o f == h o g
+   */
+  protected boolean coequalizes(A h, A f, A g) {
+    assertParallelPair(f, g);
+    return canCompose(f, h) && equal(m(f, h), m(g, h));
+  }
+
+  /**
+   * Builds a coequalizer arrow for a parallel pair of arrows.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return a coequalizer arrow, if one exists, null othrewise
+   */
+  public A coequalizer(final A f, final A g) {
+    assertParallelPair(f, g);
+    return isCoequalizer(f, g).findOne(arrows());
+  }
+  /**
+   * Calculates a coequalizer of a collection of parallel arrows.
+   * Since the collection may be empty, should provide the codomain.
+   *
+   * @param arrowsToEqualize the arrows, all of which shold be equalized
+   * @param codomain         the arrows' common codomain
+   * @return a coequalizer arrow
+   */
+  public A coequalizer(final Iterable<A> arrowsToEqualize, O codomain) {
+    throw new UnsupportedOperationException("to be implemented later, maybe");
+  }
+
+  /**
+   * Builds a predicate that checks whether an arrow h: B -> A is such that
+   * px o h = qx and py o h = qy
+   * for q = (qx, qy): B -> X x Y and p = (px, py): A -> X x Y.
+   *
+   * @param q factoring pair of arrows
+   * @param p factored pair of arrows
+   * @return the specified predicate.
+   */
+  protected Predicate<A> pairFactorsOnLeft(final Pair<A, A> p, final Pair<A, A> q) {
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(A h) {
+        return equal(m(p.x(), h), q.x()) && equal(m(p.y(), h), q.y());
+      }
+    };
+  }
+
+  /**
+   * Builds a predicate that checks whether an arrow h: A -> B is such that
+   * h o px = qx and py o h = qy o h for q = (qx, qy), and p = (px, py)
+   * where qx: X -> B, qy: Y -> B, px: X -> A, py: Y -> A.
+   *
+   * @param q factoring pair of arrows
+   * @param p factored pair of arrows
+   * @return the predicate described above.
+   */
+  protected Predicate<A> pairFactorsOnRight(final Pair<A, A> p, final Pair<A, A> q) {
+    return new Predicate<A>() {
+      @Override
+      public boolean eval(A h) {
+        return equal(m(p.x(), h), q.x()) && equal(m(p.y(), h), q.y());
+      }
+    };
+  }
+
+  /**
+   * Builds a predicate that checks if a pair of arrows p = (px, py) : A -> X x Y
+   * factors uniquely a pair q = (qx, qy): B -> X x Y on the right,
+   * that is, if there exists a unique arrow h: B -> A such that qx = px o h and qy = py o h.
+   *
+   * @param p pair of arrows
+   * @return true if p factors q uniquely on the right
+   */
+  protected Predicate<Pair<A, A>> pairFactorsUniquelyOnRight(final Pair<A, A> p) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(final Pair<A, A> q) {
+        return pairFactorsOnLeft(p, q).existsUnique(arrows(d0(q.x()), d0(p.x())));
+      }
+    };
+  }
+
+  /**
+   * Builds a predicate that checks if a pair of arrows p = (px, py), where
+   * px: X -> A, py: Y -> A, factors uniquely a pair q = (qx, qy)
+   * (where qx: X -> B, qy: Y -> B) on the left,
+   * that is, if there exists a unique arrow h: A -> B
+   * such that qx = h o px and qy = h o py.
+   *
+   * @param p pair of arrows
+   * @return true if q factors p uniquely on the left
+   */
+  protected Predicate<Pair<A, A>> pairFactorsUniquelyOnLeft(final Pair<A, A> p) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(final Pair<A, A> q) {
+        return pairFactorsOnRight(p, q).existsUnique(arrows(d1(p.x()), d1(q.x())));
+      }
+    };
+  }
+
+  /**
+   * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
+   * at d0(f) and d0(g), equalizing them: f o px = g o py, that is, making the square
+   * <pre>
+   *       py
+   *   U -----> Y
+   *   |        |
+   * px|        | g
+   *   |        |
+   *   v        v
+   *   X -----> Z
+   *       f
+   * </pre>
+   * commutative.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return the set of all such pairs of arrows
+   */
+  public Set<Pair<A, A>> pairsEqualizing(final A f, final A g) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        return
+                sameDomain(p.x(), p.y()) &&
+                        canCompose(p.x(), f) &&
+                        canCompose(p.y(), g) &&
+                        equal(m(p.x(), f), m(p.y(), g));
+      }
+    }.find(setProduct(arrows(), arrows()));
+  }
+
+  /**
+   * Builds a set of all pairs (qx, qy) of arrows that end at the same codomain and start
+   * at d1(f) and d1(g), coequalizing them: m(f, px = m(py, g), making the square
+   * <pre>
+   *       g
+   *   Z -----> Y
+   *   |        |
+   *  f|        | qy
+   *   |        |
+   *   v        v
+   *   X -----> U
+   *       qx
+   * </pre>
+   * commutative.
+   *
+   * @param f first arrow
+   * @param g second arrow
+   * @return the set of all such pairs of arrows
+   */
+  public Set<Pair<A, A>> pairsCoequalizing(final A f, final A g) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        return
+                sameCodomain(p.x(), p.y()) &&
+                        canCompose(f, p.x()) &&
+                        canCompose(g, p.y()) &&
+                        equal(m(f, p.x()), m(g, p.y()));
+      }
+    }.find(setProduct(arrows(), arrows()));
+  }
+
+  /**
+   * Builds a set of all arrows to x and y (respectively) that start at the same object.
+   *
+   * @param x first object
+   * @param y second object
+   * @return a set of pairs of arrows with the same domain, ending at x and y.
+   */
+  protected Set<Pair<A, A>> pairsWithTheSameDomain(final O x, final O y) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        return
+                sameDomain(p.x(), p.y()) &&
+                        equal(d1(p.x()), x) &&
+                        equal(d1(p.y()), y);
+      }
+    }.find(setProduct(arrows(), arrows()));
+  }
+
+
+  /**
+   * Builds a set of all arrows that start at x and y, respectively, and end at the same object.
+   *
+   * @param x first object
+   * @param y second object
+   * @return a set of pairs of arrows with the same codomain, starting at x and y.
+   */
+  protected Set<Pair<A, A>> pairsWithTheSameCodomain(final O x, final O y) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        return
+                sameCodomain(p.x(), p.y()) &&
+                        equal(d0(p.x()), x) &&
+                        equal(d0(p.y()), y);
+      }
+    }.find(setProduct(arrows(), arrows()));
+  }
+
+  /**
+   * Checks if (px, py) is a Cartesian product of objects x and y.
+   *
+   * @param p pair of projections from product to x and y
+   * @param x first object
+   * @param y second object
+   * @return true if this is a cartesian product
+   */
+  public boolean isProduct(final Pair<A, A> p, final O x, final O y) {
+    final O prod = d0(p.x());
+    return
+            equal(d0(p.y()), prod) &&
+                    equal(d1(p.x()), x) &&
+                    equal(d1(p.y()), y) &&
+                    pairFactorsUniquelyOnRight(p).forall(pairsWithTheSameDomain(x, y));
+  }
+
+  /**
+   * Builds a Cartesian product of two objects, if it exists. Returns null otherwise.
+   * The product is represented as a pair of projections from the product object to the
+   * two which are being multiplied.
+   *
+   * @param x first object
+   * @param y second object
+   * @return a pair of arrows from product object to x and y, or null if none exists.
+   */
+  public Pair<A, A> product(final O x, final O y) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        return isProduct(p, x, y);
+      }
+    }.findOne(setProduct(arrows(), arrows()));
+  }
+  /**
+   * Checks if (ix, iy) is a union of objects x and y.
+   *
+   * @param i pair of insertions from x and y to their union
+   * @param x first object
+   * @param y second object
+   * @return true if this is a union
+   */
+  public boolean isUnion(final Pair<A, A> i, final O x, final O y) {
+    final O unionObject = d1(i.x());
+    return
+            equal(d1(i.y()), unionObject) &&
+                    equal(d0(i.x()), x) &&
+                    equal(d0(i.y()), y) &&
+                    pairFactorsUniquelyOnLeft(i).forall(pairsWithTheSameCodomain(x, y));
+  }
+
+  /**
+   * Builds a union of two objects, if it exists. Returns null otherwise.
+   * The union is represented as a pair of insertions of the two objects into their union
+   *
+   * @param x first object
+   * @param y second object
+   * @return a pair of arrows from a and b to their union, or null if none exists.
+   */
+  public Pair<A, A> union(final O x, final O y) {
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        return isUnion(p, x, y);
+      }
+    }.findOne(setProduct(arrows(), arrows()));
+  }
+
+  /**
+   * Checks if (pa, pb) is a pullback of arrows f and g.
+   *
+   * @param p pair of projections from alleged pullback to d0(f) and d0(g)
+   * @param f first arrow
+   * @param g second arrow
+   * @return true if this is a pullback
+   */
+  public boolean isPullback(final Pair<A, A> p, final A f, final A g) {
+    final O pullbackObject = d0(p.x());
+    return
+            equal(d0(p.y()), pullbackObject) &&
+                    canCompose(p.x(), f) &&
+                    canCompose(p.y(), g) &&
+                    equal(m(p.x(), f), m(p.y(), g)) &&
+                    pairFactorsUniquelyOnRight(p).forall(pairsEqualizing(f, g));
+  }
+
+  /**
+   * Builds a pullback of two arrows, if it exists. Returns null otherwise.
+   * The pullback is represented as a pair of projections from the pullback object to the
+   * domains of the two arrows.
+   *
+   * @param f first arrows
+   * @param g second arrow
+   * @return a pair of arrows from pullback object to d0(f) and d0(g), or null if none exists.
+   */
+  public Pair<A, A> pullback(final A f, final A g) {
+    assert sameCodomain(f, g) : "Codomains of " + f + " and " + g + " should be the same";
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        boolean result = isPullback(p, f, g);
+        trace("isPullback?(", p, ",", f, ",", g, ")->", result);
+        return result;
+      }
+    }
+//    .startTracing("pullbackBuilder")
+            .findOne(setProduct(arrows(), arrows()));
+  }
+
+  /**
+   * Checks if (pa, pb) is a pushout of arrows f and g.
+   *
+   * @param p pair of coprojections from d1(f) and d1(g) to the alleged pushout object
+   * @param f first arrow
+   * @param g second arrow
+   * @return true if this is a pushout
+   */
+  protected boolean isPushout(Pair<A, A> p, A f, A g) {
+    final O pushoutObject = d1(p.x());
+    return
+            equal(d1(p.y()), pushoutObject) &&
+                    canCompose(f, p.x()) &&
+                    canCompose(g, p.y()) &&
+                    equal(m(f, p.x()), m(g, p.y())) &&
+                    pairFactorsUniquelyOnRight(p).forall(pairsCoequalizing(f, g));
+  }
+
+  /**
+   * Builds a pushout of two arrows, if it exists. Returns null otherwise.
+   * The pushout is represented as a pair of coprojections from the codomains of the two arrows
+   * to the pushout object.
+   *
+   * @param f first arrows
+   * @param g second arrow
+   * @return a pair of arrows from d1(f) and d1(g) to the pushout object, or null if none exists.
+   */
+  public Pair<A, A> pushout(final A f, final A g) {
+    assert sameDomain(f, g) : "Domains should be the same";
+    return new Predicate<Pair<A, A>>() {
+      @Override
+      public boolean eval(Pair<A, A> p) {
+        boolean result = isPushout(p, f, g);
+        trace("isPullback?(", p, ",", f, ",", g, ")->", result);
+        return result;
+      }
+    }.findOne(setProduct(arrows(), arrows()));
+  }
+
+  /**
+   * Checks if a given object (candidate) is a terminal object (aka unit).
+   * Terminal object is the one which has just one arrow from every other object.
+   */
+  final public Predicate<O> isTerminal = new Predicate<O>() {
+    @Override
+    public boolean eval(final O candidate) {
+      return new Predicate<O>() {
+        @Override
+        public boolean eval(O x) {
+          return arrows(x, candidate).size() == 1;
+        }
+      }.forall(objects());
+    }
+  };
+
+  private O terminal = null;
+  private boolean terminalFound = false;
+
+  /**
+   * @return terminal object for this category (null if none found)
+   */
+  public O terminal() {
+    if (!terminalFound) {
+      terminal = isTerminal.findOne(objects());
+      terminalFound = true;
+    }
+    return terminal;
+  }
+
+  /**
+   * Checks if a given object (candidate) is an initial object (aka zero).
+   * Initial object is the one which has just one arrow to every other object.
+   */
+  final public Predicate<O> isInitial = new Predicate<O>() {
+    @Override
+    public boolean eval(final O candidate) {
+      return new Predicate<O>() {
+        @Override
+        public boolean eval(O x) {
+          return arrows(candidate, x).size() == 1;
+        }
+      }.forall(objects());
+    }
+  };
+
+  private O initial = null;
+  private boolean initialFound = false;
+
+  /**
+   * @return initial object for this category, or null if none found
+   */
+  public O initial() {
+    if (!initialFound) {
+      initial = isInitial.findOne(objects());
+      initialFound = true;
+    }
+    return initial;
+  }
+  /**
+   * @return a (hard) set of all objects that do not have any non-endomorphic arrows pointing at them.
+   *         Constructively, these are all such objects that if an arrow ends at such an object, it is an endomophism.
+   *         Since producing a lazy set is too heavy, I just build it in an old-fashion way.
+   */
+  public Set<O> allInitialObjects() {
+    final Set<O> objects = new HashSet<O>(objects());
+
+    // kick out objects that are found on the other end of an arrow
+    for (A a : arrows()) {
+      O dom = d0(a);
+      O codom = d1(a);
+      if (arrows(codom, dom).isEmpty()) {
+        objects.remove(d1(a));
+      }
+    }
+    return objects;
+  }
+
+  /**
+   * @return a set of all arrows that originate at initial objects (see allInitialObjects)
+   */
+  public Set<A> arrowsFromInitialObjects() {
+    Set<O> initialObjects = allInitialObjects();
+    Set<A> arrows = new HashSet<A>();
+    // include only arrows that originate at component objects
+    for (A a : arrows()) {
+      if (initialObjects.contains(d0(a))) {
+        arrows.add(a);
+      }
+    }
+    return arrows;
+  }
+
+  /**
+   * Given a set of object and a set of arrows, build a map that maps each object to
+   * a set of arrows starting at it.
+   *
+   * @param objects objects for which to build the bundles.
+   * @param arrows  arrows that participate in the bundles.
+   * @return a map.
+   */
+  public Map<O, Set<A>> buildBundles(Set<O> objects, Set<A> arrows) {
+    return SetMorphism.Morphism(arrows, objects, D0).revert().asMap();
+  }
+
+
+  /**
+   * Builds a degree object (x^n) for a given object.
+   *
+   * @param x the source object
+   * @param n degree to which to raise object x
+   * @return x^n and its projections to x
+   * @TODO(vpatryshev): write good unitests
+   */
+  @SuppressWarnings("unchecked")
+  public Pair<O, List<A>> degree(O x, int n) {
+    assert n >= 0 : "Degree should be positive, we have " + n;
+    if (n == 0) {
+      return Pair.of(terminal(), (List<A>) Collections.EMPTY_LIST);
+    }
+    if (n == 1) {
+      return Pair.of(x, Arrays.asList(this.unit(x)));
+    }
+    Pair<O, List<A>> previous = degree(x, n - 1);
+    Pair<A, A> xn = product(x, previous.x());
+    List<A> projections = new ArrayList<A>();
+    projections.add(xn.x());
+    for (A a : previous.y()) {
+      projections.add(m(xn.y(), a));
+    }
+    return Pair.of(d0(xn.x()), projections);
+  }
+
+  /**
+   * Creates an opposite category from this one.
+   * That is, all arrows are inverted.
+   *
+   * @return this<sup>op</sup>
+   */
+  @Override
+  public Category<O, A> op() {
+    final Category<O, A> source = this;
+    return new Category<O, A>(objects()) {
+      @Override
+      public Set<A> arrows() {
+        return source.arrows();
+      }
+
+      @Override
+      public A unit(O x) {
+        return source.unit(x);
+      }
+
+      @Override
+      public O d0(A f) {
+        return source.d1(f);
+      }
+
+      @Override
+      public O d1(A f) {
+        return source.d0(f);
+      }
+
+      @Override
+      public A m(A f, A g) {
+        return source.m(g, f);
+      }
+    };
+  }
+
+  /**
    * Builds a category out of a segment of integers between 0 and n (not included).
    *
    * @param n number of elements
@@ -607,22 +1339,6 @@ public abstract class Category<O, A> extends Graph<O, A> {
           Category(Graph(Set("0", "1"), Map(array("a", "b"), array(Pair.of("0","1"), Pair.of("0","1")))), null);
   public static final Category<String, String> Z2 = Category("(([1], {1: 1 -> 1, -1: 1 -> 1}), {1 o 1 = 1, 1 o -1 = -1, -1 o 1 = -1, -1 o -1 = 1})");
 
-  /**
-   * Creates an opposite category from this one.
-   * That is, all arrows are inverted.
-   *
-   * @return this<sup>op</sup>
-   */
-  public Category<O, A> op() {
-    final Category<O, A> source = this;
-    return new Category<O, A>(objects()) {
-      public Set<A> arrows() { return source.arrows(); }
-      public A unit(O x) { return source.unit(x); }
-      public O d0(A f) { return source.d1(f); }
-      public O d1(A f) { return source.d0(f); }
-      public A m(A f, A g) { return source.m(g, f); }
-    };
-  }
   public static void main(String[] args) {
     Category<String,String> three = buildCategory(Set("0", "1", "2"),
             Map(array("0.1", "0.2", "a",  "b", "2.1", "2.a", "2.b",   "2.swap"), // d0
