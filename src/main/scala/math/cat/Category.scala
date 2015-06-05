@@ -44,7 +44,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
     for (f <- arrows; g <- arrows if follows(g, f)) {
       val gf = m(f, g)
 
-      for (h: A <- arrows if follows(h, g)) {
+      for (h <- arrows if follows(h, g)) {
         require(m(gf, h) == m(f, m(g, h)), "Associativity broken for " + f + ", " + g + " and " + h)
       }
     }
@@ -206,7 +206,6 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
   /**
    * Checks if arrow h coequalizes arrows f and g (that is, whether h o f == h o g).
    *
-   * @param h arrow that may coequalize f and g
    * @param f first arrow
    * @param g second arrow
    * @return true iff h o f == h o g
@@ -297,7 +296,6 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * factors uniquely a pair q = (qx, qy): B -> X x Y on the right,
    * that is, if there exists a unique arrow h: B -> A such that qx = px o h and qy = py o h.
    *
-   * @param p pair of arrows
    * @return true if p factors q uniquely on the right
    */
   def factorsUniquelyOnRight(px: A, py: A) =
@@ -316,7 +314,6 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * that is, if there exists a unique arrow h: A -> B
    * such that qx = h o px and qy = h o py.
    *
-   * @param p pair of arrows
    * @return true if q factors p uniquely on the left
    */
   def factorsUniquelyOnLeft(f: A, g: A) =
@@ -424,9 +421,8 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
     )
 
   /**
-   * Checks if (px, py) is a Cartesian product of objects x and y.
+   * Checks if p = (px, py) is a Cartesian product of objects x and y.
    *
-   * @param p pair of projections from product to x and y
    * @param x first object
    * @param y second object
    * @return true if this is a cartesian product
@@ -452,9 +448,8 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
   def product(x: O, y: O) = Sets.product(arrows, arrows).find(isProduct(x, y))
 
   /**
-   * Checks if (ix, iy) is a union of objects x and y.
+   * Checks if i = (ix, iy) is a union of objects x and y.
    *
-   * @param i pair of insertions from x and y to their union
    * @param x first object
    * @param y second object
    * @return true if this is a union
@@ -476,9 +471,8 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
   def union(x: O, y: O): Option[(A, A)] = Sets.product(arrows, arrows).find(isUnion(x, y))
 
   /**
-   * Checks if (pa, pb) is a pullback of arrows f and g.
+   * Checks if p = (pa, pb) is a pullback of arrows f and g.
    *
-   * @param p pair of projections from alleged pullback to d0(f) and d0(g)
    * @param f first arrow
    * @param g second arrow
    * @return true if this is a pullback
@@ -505,9 +499,8 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
   }
 
   /**
-   * Checks if (pa, pb) is a pushout of arrows f and g.
+   * Checks if p = (pa, pb) is a pushout of arrows f and g.
    *
-   * @param p pair of coprojections from d1(f) and d1(g) to the alleged pushout object
    * @param f first arrow
    * @param g second arrow
    * @return true if this is a pushout
@@ -594,8 +587,8 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    *
    * @param x the source object
    * @param n degree to which to raise object x
-   * @return x^n and its projections to x
-   * @TODO(vpatryshev): write good unitests
+   * @return x^n^ and its projections to x
+   * TODO(vpatryshev): write good unitests
    */
   def degree(x: O, n: Int): Option[(O, List[A])] = {
     if (n < 0)
@@ -717,7 +710,7 @@ object Category {
   /**
    * Builds a discrete category on a given set of objects.
    *
-   * @param [T] object type
+   * @tparam T object type
    * @param objects set of this category's objects
    * @return the category
    */
@@ -726,7 +719,7 @@ object Category {
   /**
    * Builds a category given a graph, composition table, and a list of unit arrows.
    *
-   * @param [O] type of objects
+   * @tparam O type of objects
    * @param [A] type of arrows
    * @param g the graph on which we are to create a category
    * @param units maps objects to unit arrows
@@ -741,7 +734,7 @@ object Category {
   /**
    * Creates an instance of Category given a graph and arrow composition table
    *
-   * @param [T]         graph element and arrow type (must be the same)
+   * @tparam T         graph element and arrow type (must be the same)
    * @param graph       the underlying graph
    * @param composition arrows composition table
    * @return new category
@@ -775,8 +768,8 @@ object Category {
   /**
    * Creates an instance of Category given a graph, when no composition is required
    *
-   * @param [T] graph element and arrow type (must be the same)
-   * @param graph the underlying graph, with no units
+   * @tparam T graph element and arrow type (must be the same)
+   * @param g the underlying graph, with no units
    * @return new category
    */
   def apply[T](g: Graph[T, T]): Category[T, T] = apply(g, (f: T, g: T) => f) // map is meaningless here
@@ -784,7 +777,7 @@ object Category {
   /**
    * Creates a new instance of of category, given objects, arrows, units, and composition table.
    *
-   * @param [O]         object type
+   * @tparam O         object type
    * @param [A]         arrow type
    * @param objects     category's objects
    * @param d0          maps arrows to domains
@@ -866,8 +859,8 @@ object Category {
    * Builds a category given a limited (but sufficient) amount of data.
    * Objects have the same name as their units.
    *
-   * @param [T] arrow and node type
-   * @param g  graph
+   * @tparam T arrow and node type
+   * @param graph the graph
    * @param compositionSource source table of arrows composition (may be incomplete)
    * @return a newly-built category
    */
@@ -893,7 +886,7 @@ object Category {
      * Builds a category given a limited (but sufficient) amount of data.
      * Objects have the same name as their units.
      *
-     * @param [T]     arrow type
+     * @tparam T     arrow type
      * @param units   set of units (and objects)
      * @param domain      maps arrows to domains
      * @param codomain      maps arrows to codomain
@@ -913,7 +906,7 @@ object Category {
   /**
    * Builds a category out of a poset. Arrows are pairs (x,y) where x <= y.
    *
-   * @param [T] poset element type
+   * @tparam T poset element type
    * @param poset original poset
    * @return category based on he poset
    */

@@ -1,4 +1,4 @@
-package math.cat;
+package java.math.cat;
 
 import static java.math.cat.Base.disjointUnion;
 import static java.math.cat.Base.flatten;

@@ -1,6 +1,7 @@
-package math.cat;
+package java.math.cat;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
@@ -25,7 +26,7 @@ public class AllTests {
   public static TestSuite suite(String suiteName, String testNames) throws ClassNotFoundException {
     TestSuite suite = new TestSuite(suiteName);
     for (String testName : testNames.split(",\\s*")) {
-      suite.addTestSuite(Class.forName(packageName + "." + testName + "Test"));
+      suite.addTestSuite((Class<TestCase>)Class.forName(packageName + "." + testName + "Test"));
     }
 
     return suite;

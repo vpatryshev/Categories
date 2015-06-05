@@ -1,16 +1,9 @@
-package math.cat;
+package java.math.cat;
 
 import static java.math.cat.Base.Map;
 import static java.math.cat.Base.array;
 import static java.math.cat.BasePair.Pair;
-import static java.math.cat.Categories.M;
-import static java.math.cat.Categories.PARALLEL_PAIR;
-import static java.math.cat.Categories.PULLBACK;
-import static java.math.cat.Categories.SQUARE;
-import static java.math.cat.Categories.W;
-import static java.math.cat.Categories.Z2;
-import static java.math.cat.Categories._3_;
-import static java.math.cat.Categories._4_;
+import static java.math.cat.Categories.*;
 import static java.math.cat.Category.Category;
 import static java.math.cat.Category.buildCategory;
 import static java.math.cat.Graph.Graph;
@@ -62,7 +55,7 @@ public class CategoryTest extends TestCase {
   }
 
   public void testSegment() {
-    Category<Integer, java.math.cat.Pair<Integer, Integer>> n = segment(100);
+    Category<Integer, Pair<Integer, Integer>> n = segment(100);
     assertEquals(100, n.objects().size());
     assertEquals(5050, n.arrows().size());
   }

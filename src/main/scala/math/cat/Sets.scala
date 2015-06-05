@@ -309,7 +309,7 @@ object Sets {
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
    * given a set and binary relationship. Factoring is done on the relationship's transitive closure.
-   * @param [T] set element type
+   * @tparam T set element type
    *
    * @param set the main set
    * @param r binary relationship (not necessarily equivalence relationship) that determines factoring

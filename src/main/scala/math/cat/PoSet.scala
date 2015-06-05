@@ -11,7 +11,7 @@ import scala.collection.Set
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
  * 
- * @param [T] poset element type
+ * @tparam T poset element type
  * @param underlyingSet the set of elements
  * le a function that compares two elements a and b, returning true iff b >= a
  *
@@ -90,7 +90,7 @@ object PoSet {
   /**
    * Builds a poset based on pairs of elements that define the partial order.
    * 
-   * @param [T] element type 
+   * @tparam T element type
    * @param elements elements of this poset
    * @param pairs    pairs of comparable elements
    * @return a new poset built on the data provided

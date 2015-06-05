@@ -1,4 +1,4 @@
-package math.cat;
+package java.math.cat;
 
 import static java.math.cat.BasePair.Pair;
 import static java.math.cat.Sets.Set;

@@ -51,7 +51,7 @@ object Functions {
 
 /**
    * Injection of values of a certain type T1 to themselves, as a super type T.
-   * @param [T] main type
+   * @tparam T main type
    * @param [T1] subtype
    */
   class Inclusion[T1, T >: T1] extends Injection[T1, T] {
@@ -60,7 +60,7 @@ object Functions {
 
   /**
    * Builds an inclusion of type T1 to type T
-   * @param [T] main type
+   * @tparam T main type
    * @param [T1] subtype
    * @return an inclusion function that maps every instance of T1 to itself, considered as T
    */
@@ -118,7 +118,7 @@ object Functions {
 
   /**
    * Identity isomporphism on type T.
-   * @param [T] domain type
+   * @tparam T domain type
    */
   class Id[T] extends Bijection[T, T] {
     def unapply(t: T) = t
@@ -127,7 +127,7 @@ object Functions {
 
   /**
    * Builds an identity function
-   * @param [T] domain type
+   * @tparam T domain type
    *
    * @param set domain
    * @return the identity function

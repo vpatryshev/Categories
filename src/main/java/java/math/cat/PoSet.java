@@ -131,7 +131,7 @@ public abstract class PoSet<T> extends AbstractSet<T> {
      * Parses a poset from a kind of string that is produced by toString()
      * @param source source string
      * @return a parsed poset
-     *
+     */
     public static PoSet<String> PoSet(String source) {
       int splitAt = source.indexOf("]{"); // separates elements from comparisions
       Set<Pair<String, String>> pairs = new HashSet<Pair<String, String>>();
@@ -140,9 +140,9 @@ public abstract class PoSet<T> extends AbstractSet<T> {
         if (pair.length == 2) pairs.add(Pair.of(pair[0].trim(), pair[1].trim()));
       }
 
-      return PoSet(Base.parseSet(source.substring(0, splitAt + 1)), pairs);
+      return PoSet(Sets.parseSet(source.substring(0, splitAt + 1)), pairs);
     }
-*/
+
     /**
      * Builds a linear poset consisting of a range of integers, with their natural order.
      *

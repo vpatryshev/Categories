@@ -1,4 +1,4 @@
-package math.cat;
+package java.math.cat;
 
 import static java.math.cat.Base.Map;
 import static java.math.cat.Base.array;
@@ -66,7 +66,7 @@ public class CategoriesTest extends TestCase {
   }
 
   public void testSegment() {
-    Category<Integer, java.math.cat.Pair<Integer, Integer>> n = segment(10);
+    Category<Integer, Pair<Integer, Integer>> n = segment(10);
     assertEquals(10, n.objects().size());
     assertEquals(55, n.arrows().size());
   }

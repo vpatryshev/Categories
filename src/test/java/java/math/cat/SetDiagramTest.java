@@ -1,4 +1,4 @@
-package math.cat;
+package java.math.cat;
 
 import static java.math.cat.Base.List;
 import static java.math.cat.Base.Map;
@@ -27,10 +27,10 @@ import junit.framework.TestCase;
 
 /**
  * Unittest for SetDiagram class
- * 
+ *
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 public class SetDiagramTest extends TestCase {
@@ -81,7 +81,7 @@ public class SetDiagramTest extends TestCase {
     Set expected = java.math.cat.Sets.Set(List("b4", "a1"), List("b5", "a1"), List("b2", "a2"), List("b3", "a3"));
     assertEquals(expected, apex);
   }
-  
+
   public void testLimit_Z2() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.Z2, buildObjects("123"));
     java.math.cat.Functor<String, String, Set, java.math.cat.TypelessSetMorphism>.Cone actual = diagram.limit();
@@ -90,15 +90,15 @@ public class SetDiagramTest extends TestCase {
   }
 
   public void testLimit_SplitMono() {
-    SetDiagram<String, String> diagram = 
+    SetDiagram<String, String> diagram =
           buildDiagram(
-              Categories.SPLIT_MONO, 
+              Categories.SPLIT_MONO,
               buildObjects("01", "0123"),
               Map(array("bb"), array(Map(array("b0", "b1", "b2", "b3"), array("b0", "b1", "b0", "b0")))));
     java.math.cat.Functor<String, String, Set, TypelessSetMorphism>.Cone actual = diagram.limit();
     assertEquals(java.math.cat.Sets.Set(List("b0", "a0"), List("b1", "a1")), actual.apex());
   }
-  
+
   public void testColimit_unionActually() {
     SetDiagram<String, String> diagram = buildDiagram(Categories._1plus1_, buildObjects("12", "34"));
     java.math.cat.Functor<String, String, Set, java.math.cat.TypelessSetMorphism>.Cocone cocone = diagram.colimit();
@@ -108,23 +108,23 @@ public class SetDiagramTest extends TestCase {
   }
 
   public void testColimit_pushoutActually() {
-    SetDiagram<String, String> diagram = 
+    SetDiagram<String, String> diagram =
         buildDiagram(Categories.PUSHOUT, buildObjects("123", "12345", "01234"));
     java.math.cat.Functor<String, String, Set, java.math.cat.TypelessSetMorphism>.Cocone actual = diagram.colimit();
     Set actualSet = actual.apex();
     Set expectedSet = Set(
-        Set(Pair(1, "c0")), 
-        Set(Pair(0, "b1"), Pair(1, "c1")), 
-        Set(Pair(0, "b2"), Pair(1, "c2")), 
-        Set(Pair(0, "b3"), Pair(1, "c3")), 
-        Set(Pair(1, "c4")), 
-        Set(Pair(0, "b4")), 
+        Set(Pair(1, "c0")),
+        Set(Pair(0, "b1"), Pair(1, "c1")),
+        Set(Pair(0, "b2"), Pair(1, "c2")),
+        Set(Pair(0, "b3"), Pair(1, "c3")),
+        Set(Pair(1, "c4")),
+        Set(Pair(0, "b4")),
         Set(Pair(0, "b5")));
     assertEquals(expectedSet, actualSet);
     assertEquals(
         Map(
-            array("b1", "b2", "b3", "b4", "b5"), 
-            array(Set(Pair(0, "b1"), Pair(1, "c1")), Set(Pair(0, "b2"), Pair(1, "c2")), Set(Pair(0, "b3"), Pair(1, "c3")), Set(Pair(0, "b4")), Set(Pair(0, "b5")))), 
+            array("b1", "b2", "b3", "b4", "b5"),
+            array(Set(Pair(0, "b1"), Pair(1, "c1")), Set(Pair(0, "b2"), Pair(1, "c2")), Set(Pair(0, "b3"), Pair(1, "c3")), Set(Pair(0, "b4")), Set(Pair(0, "b5")))),
         actual.arrowFrom("b").asMap());
   }
 
@@ -133,12 +133,12 @@ public class SetDiagramTest extends TestCase {
     Functor<String, String, Set, java.math.cat.TypelessSetMorphism>.Cocone cocone = diagram.colimit();
     Set actual = cocone.apex();
     Set expected = Set(
-        Set(Pair(1, "b0")), 
-        Set(Pair(1, "b1")), 
-        Set(Pair(1, "b2"), Pair(0, "d2")), 
-        Set(Pair(1, "b3"), Pair(0, "d3")), 
-        Set(Pair(1, "b4"), Pair(0, "d4")), 
-        Set(Pair(1, "b5")), Set(Pair(0, "d5")), 
+        Set(Pair(1, "b0")),
+        Set(Pair(1, "b1")),
+        Set(Pair(1, "b2"), Pair(0, "d2")),
+        Set(Pair(1, "b3"), Pair(0, "d3")),
+        Set(Pair(1, "b4"), Pair(0, "d4")),
+        Set(Pair(1, "b5")), Set(Pair(0, "d5")),
         Set(Pair(0, "d6")));
     assertEquals(expected, actual);
   }
@@ -148,11 +148,11 @@ public class SetDiagramTest extends TestCase {
     java.math.cat.Functor<String, String, Set, java.math.cat.TypelessSetMorphism>.Cocone cocone = diagram.colimit();
     Set actual = cocone.apex();
     Set expected = Set(
-        Set(Pair(2, "a0")), Set(Pair(1, "c0")), 
-        Set(Pair(2, "a1"), Pair(1, "c1")), 
-        Set(Pair(2, "a2"), Pair(1, "c2"), Pair(0, "e2")), 
-        Set(Pair(2, "a3"), Pair(1, "c3"), Pair(0, "e3")), 
-        Set(Pair(2, "a4")), Set(Pair(1, "c4"), Pair(0, "e4")), 
+        Set(Pair(2, "a0")), Set(Pair(1, "c0")),
+        Set(Pair(2, "a1"), Pair(1, "c1")),
+        Set(Pair(2, "a2"), Pair(1, "c2"), Pair(0, "e2")),
+        Set(Pair(2, "a3"), Pair(1, "c3"), Pair(0, "e3")),
+        Set(Pair(2, "a4")), Set(Pair(1, "c4"), Pair(0, "e4")),
         Set(Pair(2, "a5")), Set(Pair(1, "c5")), Set(Pair(0, "e5")),
         Set(Pair(2, "a6")), Set(Pair(0, "e6")),
         Set(Pair(2, "a7")));
@@ -176,13 +176,13 @@ public class SetDiagramTest extends TestCase {
     }
     return codomainObjects.toArray(new Set[content.length]);
   }
-  
+
   private SetDiagram<String, String> buildDiagram(final Category<String, String> domain, Set[] codomainObjects) {
     return buildDiagram(domain, codomainObjects, new HashMap<String, Map<String, String>>());
   }
 
   private SetDiagram<String, String> buildDiagram(final Category<String, String> domain, Set[] codomainObjects, final Map<String, Map<String, String>> customMapping) {
-    Category<Set, java.math.cat.TypelessSetMorphism> codomain = Categories.SETF;
+    Category<Set, TypelessSetMorphism> codomain = Categories.SETF;
     String[] domainObjects = domain.objects().toArray(new String[domain.objects().size()]);
     Arrays.sort(domainObjects);
     final Map<String, Set> objectMapper = java.math.cat.Base.Map(domainObjects, codomainObjects);
@@ -199,7 +199,7 @@ public class SetDiagramTest extends TestCase {
             final Set arrowCodomain = objectMapper.get(codomainName);
             assertNotNull("Domain with name '" + domainName + "' should not be null for string " + s, arrowDomain);
             assertNotNull("Codomain with name '" + codomainName + "' should not be null for string " + s, arrowCodomain);
-            return customMapping.containsKey(s) ? 
+            return customMapping.containsKey(s) ?
                 java.math.cat.TypelessSetMorphism.forFunction(arrowDomain, arrowCodomain, Functions.forMap(customMapping.get(s))) :
                 s.length() == 1 ?
                 java.math.cat.TypelessSetMorphism.inclusion(arrowDomain, arrowCodomain) :
@@ -218,7 +218,7 @@ public class SetDiagramTest extends TestCase {
         SetMorphism.Morphism(domain.arrows(), codomain.arrows(), arrowMapper);
     return new SetDiagram<String, String>(domain, om, am);
   }
-  
+
   public void testColimit_Z2() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.Z2, buildObjects("123"));
     java.math.cat.Functor<String, String, Set, TypelessSetMorphism>.Cocone actual = diagram.colimit();
@@ -227,7 +227,7 @@ public class SetDiagramTest extends TestCase {
   }
 
   public void testColimit_SplitMono() {
-    SetDiagram<String, String> diagram = 
+    SetDiagram<String, String> diagram =
           buildDiagram(
               Categories.SPLIT_MONO,
               buildObjects("01", "0123"),
