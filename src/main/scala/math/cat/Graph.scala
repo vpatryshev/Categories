@@ -4,7 +4,7 @@ import java.io.Reader
 
 //import util.parsing.combinator.JavaTokenParsers
 
-import scala.collection.immutable.Set
+import scala.collection.Set
 import Sets._
 
 class Graph[N, A] (
@@ -22,7 +22,7 @@ class Graph[N, A] (
   type Arrows = A
   type MY_TYPE = this.type
 
-  override def elements = nodes.iterator
+  override def seq = nodes
   override def iterator = nodes.iterator
   override def contains(node: N): Boolean = nodes contains node
   override def size = nodes.size
@@ -120,16 +120,17 @@ object Graph {
     require (arrows.keySet != null)
     apply(nodes, arrows.keySet, a => arrows(a)._1,  (a: A) => arrows(a)._2)
   }
-  
-  implicit def apply[N] (nodes: Set[N]): Graph[N, N] = apply(nodes, Set.empty[N], (a: N) => a, (a: N) => a)
+
+  def apply[N] (nodes: Set[N]): Graph[N, N] = apply(nodes, Set.empty[N], (a: N) => a, (a: N) => a)
 
   def first[N](p:(N,N)): N = p._1
   def second[N](p:(N,N)): N = p._2
 
-  implicit def apply[N] (poset: PoSet[N]): Graph[N, (N, N)] = {
-    val sequenceOfPairs = for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)
+  def apply[N] (poset: PoSet[N]): Graph[N, (N, N)] = {
+    val sequenceOfPairs:Iterable[(N,N)] = for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)
     lazy val size = (0 /: sequenceOfPairs) ((n, x) => n+1)
-    val setOfPairs: Set[(N, N)] = Sets.setOf(sequenceOfPairs, size, (p: (N, N)) => poset.le(p._1, p._2))
+    val setOfPairs: Set[(N, N)] = Sets.setOf[(N,N)](sequenceOfPairs, size, (p: (N, N)) => poset.le(p._1, p._2))
+
     apply(poset.underlyingSet, setOfPairs, first, second)
   }        
 

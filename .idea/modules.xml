@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Categories.iml" filepath="$PROJECT_DIR$/.idea/modules/Categories.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/categories.iml" filepath="$PROJECT_DIR$/.idea/modules/categories.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/categories-build.iml" filepath="$PROJECT_DIR$/.idea/modules/categories-build.iml" />
     </modules>
   </component>
 </project>

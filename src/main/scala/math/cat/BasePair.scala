@@ -1,8 +1,7 @@
 package math.cat
 
 
-import scala.Product2
-import Functions._
+import math.cat.Functions._
 
 trait Pair[X,Y] extends Product2[X,Y] {
 
@@ -11,7 +10,7 @@ trait Pair[X,Y] extends Product2[X,Y] {
 /**
  * Elementary pair handling
  */
-case class BasePair[X,Y](x:X, y:Y) extends Pair[X, Y] {
+case class BasePair[X,Y](override val _1:X, override val _2:Y) extends Pair[X, Y] {
 
 }
 

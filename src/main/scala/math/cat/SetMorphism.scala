@@ -1,8 +1,5 @@
 package math.cat
 
-
-
-
 import scala.collection.Set
 import Sets._
 
@@ -84,7 +81,7 @@ object SetMorphism {
   def const[X, Y](d0: Set[X], d1: Set[Y], value: Y) =
     new SetMorphism[X, Y]("`" + value + "`", d0, d1, _ => value)
 
-  def hom[X, Y](xs: Set[X], ys: Set[Y]): Set[cat.SetMorphism[X, Y]] = {
+  def hom[X, Y](xs: Set[X], ys: Set[Y]): Set[SetMorphism[X, Y]] = {
       val maps = Sets.exponent(xs, ys)
       val morphisms = maps map (SetMorphism(xs, ys, _))
       def predicate(m: SetMorphism[X, Y]) = m.d0 == xs && m.d1 == ys && maps.contains(m)

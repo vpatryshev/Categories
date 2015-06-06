@@ -714,13 +714,16 @@ object Category {
    * @param objects set of this category's objects
    * @return the category
    */
-  def apply[T] (objects: Set[T]): Category[T, T] = Category(Graph(objects))
+  def apply[T] (objects: Set[T]): Category[T, T] = {
+    val dg: Graph[T, T] = Graph(objects)
+    Category(dg)
+  }
 
   /**
    * Builds a category given a graph, composition table, and a list of unit arrows.
    *
    * @tparam O type of objects
-   * @param [A] type of arrows
+   * @tparam A type of arrows
    * @param g the graph on which we are to create a category
    * @param units maps objects to unit arrows
    * @param composition defines composition
@@ -757,8 +760,8 @@ object Category {
 
   private def addUnitsToGraph[T] (graph: Graph[T, T]) =
   {
-    val nodes = graph.nodes.asInstanceOf[scala.collection.immutable.Set[T]] // this and the next casting is to cover up a weird bug somewhere in scala
-    val allArrows: Set[T] = nodes ++ graph.arrows
+    val nodes = graph.nodes.asInstanceOf[scala.collection.Set[T]] // this and the next casting is to cover up a weird bug somewhere in scala
+    val allArrows: scala.collection.Set[T] = nodes ++ graph.arrows
     val isUnit = (f: T) => graph.nodes contains f
     val d0 = (f: T) => if (isUnit(f)) f else graph.d0(f)
     val d1 = (f: T) => if (isUnit(f)) f else graph.d1(f)
@@ -778,7 +781,7 @@ object Category {
    * Creates a new instance of of category, given objects, arrows, units, and composition table.
    *
    * @tparam O         object type
-   * @param [A]         arrow type
+   * @tparam A         arrow type
    * @param objects     category's objects
    * @param d0          maps arrows to domains
    * @param d1          maps arrows to codomains

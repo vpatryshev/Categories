@@ -9,7 +9,7 @@ import Sets._
 import Functions._
 
 /**
- * Functor class: morphisms for categories.
+ * Functor class: functions for categories.
  *
  * @author Vlad Patryshev
  * All source code is stored at <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
@@ -32,7 +32,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
 
   /**
    * Validates this functor.
-   * A functor is valid if it is valid as a graph morphism, and besides,
+   * A functor is valid if it is valid as a graph function, and besides,
    * it preserves unit and arrows composition.
    * That is, F(unit(x)) == unit(F(x)), and
    * F(g) o F(f) = F(g o f)

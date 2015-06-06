@@ -52,7 +52,7 @@ object Functions {
 /**
    * Injection of values of a certain type T1 to themselves, as a super type T.
    * @tparam T main type
-   * @param [T1] subtype
+   * @tparam T1 subtype
    */
   class Inclusion[T1, T >: T1] extends Injection[T1, T] {
     def apply(t: T1): T = t
@@ -61,7 +61,7 @@ object Functions {
   /**
    * Builds an inclusion of type T1 to type T
    * @tparam T main type
-   * @param [T1] subtype
+   * @tparam T1 subtype
    * @return an inclusion function that maps every instance of T1 to itself, considered as T
    */
   def inclusion[T1, T >: T1] = new Inclusion[T1, T]
@@ -160,9 +160,13 @@ object Functions {
    */
   def constant[X, Y] (value: Y) = (x: X) => value
 
+  // TODO(vlad): figure out if this makes any sense
+  def restrict[X, X1 <: X, Y](fun: X => Y): (X1 => Y) = (x1: X1) => fun(x1)
+
+  // This should not even exist! What exception?! what extension? Be contravariant.
   /**
    * Extends a function to a wider domain and codomain
    * the result will throw an exception if argument is not right
    */
-  def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): (X1 => Y1) = { case (x0: X0) => f(x0) }
+//  def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): (X1 => Y1) = { case (x0: X0) => f(x0) }
 }

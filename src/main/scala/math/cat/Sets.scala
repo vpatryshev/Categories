@@ -3,7 +3,6 @@ package math.cat
 import java.io.Reader
 
 import scala.collection.Set
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.Queue
 import scala.util.parsing.combinator.RegexParsers
 
@@ -66,20 +65,22 @@ object Sets {
   def setOf[X](content: Iterable[X]): Set[X] =
       setOf(content, x => content exists (_ == x))
 
+
+  // this should not exist
     /**
      * Casts a set into a set of subtype (contravariance, that is)
      * This method does not work, due to JVM type erasure.
      * Actually, delegating the work to runtime would be a stupid idea anyway;
      * so, is it a general problem with oop? Have to think.
-     */
-    @Deprecated
+     *
+    deprecated
     def downshift[A, B >: A] (source: Set[B]) : Set[A] = {
       val b2a: (B => A) = {case (a: A) => a}
       for (b <- source) { println("DS trying " + b + ": " + b.isInstanceOf[A])}
-      val elements = {for (b <- source; if b.isInstanceOf[A]) yield b2a(b)}
-      setOf(elements, source.size, source.contains _)
+      val seq = {for (b <- source; if b.isInstanceOf[A]) yield b2a(b)}
+      setOf(seq, source.size, source.contains _)
     }
-
+*/
 
   /**
    * Casts a set to a set of values of a superclass.
@@ -87,18 +88,18 @@ object Sets {
    */
   def upcast[X, Y >: X](s: Set[X]) = s.asInstanceOf[Set[Y]]
 
-  def range(from: Int, to: Int, step: Int) = {
+  def range(first: Int, last: Int, step: Int) = {
     def theElements = new Iterable[Int] {
       def iterator: Iterator[Int] = new Iterator [Int] {
-          var i = from
+          var i:Int = first
 
-          override def hasNext = i < to
+          override def hasNext:Boolean = i < first
 
           override def next = { i += step; i - step }
         }
     }
 
-    setOf(theElements, (to - from + step - 1) / step, (x: Int) => (x >= from && x < to && (x - from) % step == 0))
+    setOf(theElements, (last - first + step - 1) / step, (x: Int) => (x >= first && x < last && (x - first) % step == 0))
   }
 
   class ParallelIterator[X, X1 <: X, X2 <: X](
@@ -121,7 +122,7 @@ object Sets {
    *  Builds a union of two non-intersecting sets
    */
   def union[X, X1 <: X, X2 <: X](set1: Set[X1], set2: Set[X2]): Set[X] = {
-    lazy val parIterable = new ParallelIterable(set1, set2)
+    lazy val parIterable: Iterable[X] = new ParallelIterable(set1, set2)
     lazy val size = if (set1.size == Integer.MAX_VALUE ||
                         set2.size == Integer.MAX_VALUE) {
                       Integer.MAX_VALUE
@@ -129,10 +130,13 @@ object Sets {
                       set1.size + set2.size
                     }
 
-    setOf(parIterable,
-          size,
-          (x: X) => (x.isInstanceOf[X1] && (set1 contains x.asInstanceOf[X1])) ||
-                    (x.isInstanceOf[X2] && (set2 contains x.asInstanceOf[X2]))
+    // TODO(vlad): can we figure out how to solve it without reflection?
+    def inX1(x: X) = set1(x.asInstanceOf[X1])
+    def inX2(x: X) = set2(x.asInstanceOf[X2])
+
+    setOf[X](parIterable,
+             size,
+             (x: X) => inX1(x) || inX2(x)
     )
   }
 
@@ -215,7 +219,7 @@ object Sets {
                val (x, tail) = split(xs)
                for(y <- ys;
                    z <- exponentElements(ys, tail))
-               yield { z(x) = y }
+               yield { z + (x -> y) }
     } else List(Map[X, Y]())} iterator)
   }
 
@@ -293,7 +297,7 @@ object Sets {
     /**
      * @return the latest version of factorset built here.
      */
-    lazy val factorset = new HashSet()++(equivalenceClasses.values)
+    lazy val factorset = Set()++(equivalenceClasses.values)
 
     /**
      * @return the domain set.
@@ -329,7 +333,7 @@ object Sets {
     override def get(x: K) = if (xs contains x) Some(f(x)) else None
     override def size = xs size
     override def iterator = (xs map { x: K => (x, f(x)) }) iterator
-    override def elements = iterator
+//    override def seq = (xs map { x: K => (x, f(x)) })
   }
 
   def buildMap[K, V](keys: Set[K], f: K => V) = new MapForFunction(keys, f)
@@ -396,7 +400,7 @@ object Sets {
       ("key" + arg, "v" + arg)
     }
 
-    println(scala.collection.immutable.Map() ++ tuples)
+    println(scala.collection.Map() ++ tuples)
 
     println("and now the product!")
     val source = List(Set("a", "b", "c"), Set("1", "2"), Set("Ebony", "Ivory"), Set("Hi", "Lo"))

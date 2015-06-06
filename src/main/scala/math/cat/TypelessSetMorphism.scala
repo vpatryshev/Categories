@@ -1,9 +1,19 @@
 package math.cat
 
-import scala.collection.Set
-import Sets._
-import Functions.{Id, Injection, extend}
+import math.cat.Sets._
 
+import scala.collection.Set
+
+/**
+ * This opportunistic class does not seem to be used anywhere anymore.
+ * The idea was to create something that would cover unresolved issues with type assignment
+ * while building bigger categorical structures. I'll probably throw it out eventually.
+ *
+ * @param tag name of the morphism
+ * @param d0 domain
+ * @param d1 codomain
+ * @param f the function that implements the morphism
+ */
 class TypelessSetMorphism(
     override val tag: String,
     override val d0: Set[Any],
@@ -43,20 +53,25 @@ object TypelessSetMorphism {
   /**
    * Constructor
    * @param tag morphism name
-   * @param domain morphism domain (a set)
-   * @param codomain morphism codomain (a set)
+   * @param d0 morphism domain (a set)
+   * @param d1 morphism codomain (a set)
    */
   def apply(tag: String, d0: Set[Any], d1: Set[Any], f: Any => Any) =
     new TypelessSetMorphism(tag, d0, d1, f)
 
-  def apply[X, Y] (morphism: SetMorphism[X, Y]): TypelessSetMorphism =
-      apply(morphism.tag, upcast(morphism.d0), upcast(morphism.d1), extend(morphism))
+  // this function is kind of stupid; it extends both domain and codomain, so it's supposed to crash on bad arguments
+  // never mind, we may kick it all out eventually
+  private def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): (X1 => Y1) = { case (x0: X0) => f(x0) }
+
+  def apply[X, Y] (morphism: SetMorphism[X, Y]): TypelessSetMorphism = {
+    apply(morphism.tag, upcast(morphism.d0), upcast(morphism.d1), extend(morphism))
+  }
 
   /**
    * Factory method. Builds constant morphism from one set to another (constant function).
    *
-   * @param dom domain
-   * @param codom codomain
+   * @param d0 domain
+   * @param d1 codomain
    * @param value the value in <code>codom</code> that the morphism returns
    * @return constant morphism
    */
@@ -122,6 +137,6 @@ object TypelessSetMorphism {
      * @param y base (the set to which all morphisms are)
      * @return y < sup > x, represented as a set of all morphisms.
      */
-  def exponent(x: Set[Any], y: Set[Any]): Set[cat.TypelessSetMorphism] =
+  def exponent(x: Set[Any], y: Set[Any]): Set[TypelessSetMorphism] =
     Sets.exponent(x, y) map { apply("exponent", x, y, _) }
   }

@@ -2,7 +2,6 @@ package math.cat;
 
 import java.io.Reader
 
-import util.parsing.combinator.JavaTokenParsers
 import scala.collection.Set
 
 /**
@@ -16,8 +15,7 @@ import scala.collection.Set
  * le a function that compares two elements a and b, returning true iff b >= a
  *
  */
-class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Boolean) extends Set[T] {
-  val underlyingSet = theElements
+class PoSet[T] (val underlyingSet: scala.collection.Set[T], comparator: (T, T) => Boolean) extends Set[T] {
   // note: this function is a property of poset, not a property of its elements
   def le(x: T, y: T): Boolean = comparator(x, y)
   def le(p : (T, T)): Boolean = comparator(p._1, p._2)
@@ -28,7 +26,7 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
   /**
    * Iterates over elements of this poset
    */
-  override def elements: Iterator[T] = underlyingSet.iterator
+  override def seq = underlyingSet
   override def iterator: Iterator[T] = underlyingSet.iterator
 
   /**
@@ -36,7 +34,7 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
    */
   override def size = underlyingSet.size
 
-  override def hashCode = elements.hashCode
+  override def hashCode = underlyingSet.hashCode * 1021 + comparator.hashCode
 
   override def equals(x: Any): Boolean = {
     x match {
@@ -46,13 +44,13 @@ class PoSet[T] (theElements: scala.collection.Set[T], comparator: (T, T) => Bool
   }
 
   private def validate {
-    for(x <- elements) require(le(x, x), " reflexivity broken at " + x)
+    for(x <- underlyingSet) require(le(x, x), " reflexivity broken at " + x)
     
-    for(x <- elements; y <- elements) {
+    for(x <- underlyingSet; y <- underlyingSet) {
       if (le(x, y) && le(y, x)) require(x == y, " antisymmetry broken at " + x + ", " + y)
     }
     
-    for(x <- elements; y <- elements; z <- elements) {
+    for(x <- underlyingSet; y <- underlyingSet; z <- underlyingSet) {
       if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
     }
   }
@@ -91,7 +89,7 @@ object PoSet {
    * Builds a poset based on pairs of elements that define the partial order.
    * 
    * @tparam T element type
-   * @param elements elements of this poset
+   * @param theElements elements of this poset
    * @param pairs    pairs of comparable elements
    * @return a new poset built on the data provided
    */
