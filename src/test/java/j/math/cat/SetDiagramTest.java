@@ -35,7 +35,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testLimit_productActually() {
     SetDiagram<String, String> diagram = buildDiagram(Categories._1plus1_, buildObjects("12", "34"));
-    Functor.Cone cone = diagram.limit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cone cone = diagram.limit();
     Set actual = cone.apex();
     Set expected = Sets.Set(Base.List("b3", "a1"), Base.List("b4", "a1"), Base.List("b3", "a2"), Base.List("b4", "a2"));
     assertEquals(expected, actual);
@@ -43,7 +43,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testLimit_pullbackActually() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.PULLBACK, buildObjects("123", "234", "012345"));
-    Functor.Cone cone = diagram.limit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cone cone = diagram.limit();
     Set actual = cone.apex();
     Set expected = Sets.Set(Base.List("b2", "a2"), Base.List("b3", "a3"));
     assertEquals(expected, actual);
@@ -51,7 +51,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testLimit_W() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.W, buildObjects("123", "012345", "234", "23456", "345"));
-    Functor.Cone cone = diagram.limit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cone cone = diagram.limit();
     Set actual = cone.apex();
     Set expected = Collections.singleton(Base.List("e3", "c3", "a3"));
     assertEquals(expected, actual);
@@ -59,7 +59,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testLimit_M() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.M, buildObjects("01234567", "123", "012345", "234", "23456"));
-    Functor.Cone cone = diagram.limit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cone cone = diagram.limit();
     Set actual = cone.apex();
     Set expected = Sets.Set(Base.List("d2", "b2"), Base.List("d3", "b3"));
     assertEquals(expected, actual);
@@ -68,7 +68,7 @@ public class SetDiagramTest extends TestCase {
   public void testLimit_coequalizerDiagram() {
     final Category<String, String> COEQUALIZER = Category("(([a,b,c,d], {ac: a -> c, bc: b -> c, cd: c -> d, ad: a -> d, bd: b -> d}), {cd o ac = ad, cd o bc = bd})");
     SetDiagram<String, String> diagram = buildDiagram(COEQUALIZER, buildObjects("123", "2345", "023", "0"));
-    Functor.Cone actual = diagram.limit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cone actual = diagram.limit();
     Set apex = actual.apex();
     Set expected = Sets.Set(Base.List("b4", "a1"), Base.List("b5", "a1"), Base.List("b2", "a2"), Base.List("b3", "a3"));
     assertEquals(expected, apex);
@@ -76,7 +76,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testLimit_Z2() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.Z2, buildObjects("123"));
-    Functor.Cone actual = diagram.limit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cone actual = diagram.limit();
     Set apex = actual.apex();
     assertEquals(Sets.Set(Base.List("a1"), Base.List("a2"), Base.List("a3")), apex);
   }
@@ -93,7 +93,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testColimit_unionActually() {
     SetDiagram<String, String> diagram = buildDiagram(Categories._1plus1_, buildObjects("12", "34"));
-    Functor.Cocone cocone = diagram.colimit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cocone cocone = diagram.colimit();
     Set actual = cocone.apex();
     Set expected = Sets.Set(Sets.Set(BasePair.Pair(0, "b3")), Sets.Set(BasePair.Pair(0, "b4")), Sets.Set(BasePair.Pair(1, "a1")), Sets.Set(BasePair.Pair(1, "a2")));
     assertEquals(expected, actual);
@@ -102,7 +102,7 @@ public class SetDiagramTest extends TestCase {
   public void testColimit_pushoutActually() {
     SetDiagram<String, String> diagram =
         buildDiagram(Categories.PUSHOUT, buildObjects("123", "12345", "01234"));
-    Functor.Cocone actual = diagram.colimit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cocone actual = diagram.colimit();
     Set actualSet = actual.apex();
     Set expectedSet = Sets.Set(
             Sets.Set(BasePair.Pair(1, "c0")),
@@ -137,7 +137,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testColimit_M() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.M, buildObjects("01234567", "123", "012345", "234", "23456"));
-    Functor.Cocone cocone = diagram.colimit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cocone cocone = diagram.colimit();
     Set actual = cocone.apex();
     Set expected = Sets.Set(
             Sets.Set(BasePair.Pair(2, "a0")), Sets.Set(BasePair.Pair(1, "c0")),
@@ -213,7 +213,7 @@ public class SetDiagramTest extends TestCase {
 
   public void testColimit_Z2() {
     SetDiagram<String, String> diagram = buildDiagram(Categories.Z2, buildObjects("123"));
-    Functor.Cocone actual = diagram.colimit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cocone actual = diagram.colimit();
     Set apex = actual.apex();
     TestCase.assertEquals(Sets.Set(Sets.Set(BasePair.Pair(0, "a1")), Sets.Set(BasePair.Pair(0, "a2")), Sets.Set(BasePair.Pair(0, "a3"))), apex);
   }
