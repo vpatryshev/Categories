@@ -1,7 +1,6 @@
 package math.cat
 
-import org.specs2._
-import static math.cat.Pair.Pair;
+import org.specs2.mutable._
 
-public class CategoriesTest extends TestCase {
+class CategoriesTest extends Specification {
 }
