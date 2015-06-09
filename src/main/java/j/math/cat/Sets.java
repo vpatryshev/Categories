@@ -568,7 +568,7 @@ public class Sets {
     public void merge(X x1, X x2) {
       Set<X> class1 = equivalenceClasses.get(x1);
       Set<X> class2 = equivalenceClasses.get(x2);
-      Set<X> merged = class1 == null ? new HashSet<X>(class1) : new HashSet<X>();
+      Set<X> merged = class1 == null ? new HashSet<X>() : new HashSet<X>(class1);
       if (class2 != null) merged.addAll(class2);
 
       for (X x3 : merged) {

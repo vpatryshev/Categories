@@ -111,34 +111,6 @@ public abstract class Predicate<X> {
   }
 
   /**
-   * Filters all the elements of a given iterable of candidates that satisfy the predicate.
-   *
-   * @param candidates the values at which the predicate is evaluated
-   * @return a new (virtual) Iterable of those elements that satisfy the predicate
-   */
-  public final Iterator<X> filter(final Iterator<? extends X> candidates) {
-    assert candidates != null;
-    return filteringIterator(candidates);
-  }
-
-  /**
-   * Filters all the elements of a given iterable of candidates that satisfy the predicate.
-   *
-   * @param candidates the values at which the predicate is evaluated
-   * @return a new (virtual) Iterable of those elements that satisfy the predicate
-   */
-  public final Iterable<X> filter(final Iterable<? extends X> candidates) {
-    assert candidates != null;
-    trace("called filter(", candidates, ")");
-    return new Iterable<X>() {
-
-      public Iterator<X> iterator() {
-        return filter(candidates.iterator());
-      }
-    };
-  }
-
-  /**
    * Filters all the elements of a given set of candidates that satisfy the predicate.
    *
    * @param candidates the values at which the predicate is evaluated
@@ -162,6 +134,34 @@ public abstract class Predicate<X> {
       @Override
       public int size() {
         return Base.countEntries(this);
+      }
+    };
+  }
+
+  /**
+   * Filters all the elements of a given iterable of candidates that satisfy the predicate.
+   *
+   * @param candidates the values at which the predicate is evaluated
+   * @return a new (virtual) Iterable of those elements that satisfy the predicate
+   */
+  public final Iterator<X> filter(final Iterator<? extends X> candidates) {
+    assert candidates != null;
+    return filteringIterator(candidates);
+  }
+
+  /**
+   * Filters all the elements of a given iterable of candidates that satisfy the predicate.
+   *
+   * @param candidates the values at which the predicate is evaluated
+   * @return a new (virtual) Iterable of those elements that satisfy the predicate
+   */
+  public final Iterable<X> filter(final Iterable<? extends X> candidates) {
+    assert candidates != null;
+    trace("called filter(", candidates, ")");
+    return new Iterable<X>() {
+
+      public Iterator<X> iterator() {
+        return filter(candidates.iterator());
       }
     };
   }

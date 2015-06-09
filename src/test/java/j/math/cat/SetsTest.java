@@ -265,7 +265,25 @@ public class SetsTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testFactorset() {
+  public void testFactorset1() {
+    Set<Integer> set = Sets.Set(1, 2, 3, 4, 5);
+    Set<Set<Integer>> expected = Sets.Set(Sets.Set(1, 3, 5), Sets.Set(2, 4));
+    final BinaryRelationship<Integer, Integer> relationship =
+            new BinaryRelationship<Integer, Integer>() {
+      @Override
+      public boolean eval(Pair<Integer, Integer> p) {
+        return p.x() % 2 == p.y() % 2;
+      }
+    };
+    assertTrue(relationship.eval(Pair(7, 17)));
+    assertTrue(relationship.eval(Pair(2, 0)));
+    final Sets.FactorSet<Integer> factorSet = new Sets.FactorSet<Integer>(set, relationship);
+    Set<Set<Integer>> actual = factorSet.factorset();
+    assertEquals("Something does not work; eq classes are " + factorSet.equivalenceClasses, expected, actual);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testFactorset2() {
     Set<String> set = Sets.Set("a", "b", "c", "d");
     Set<Set<String>> factorset = Sets.Set(Sets.Set("a", "b"), Sets.Set("c", "d"));
     Functions.Function<String, Set<String>> factoring = Sets.factorset(set, factorset);
@@ -309,19 +327,6 @@ public class SetsTest extends TestCase {
     } catch (Throwable t) {
       // as expected
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  public void testFactorSet() {
-    Set<Integer> set = Sets.Set(1, 2, 3, 4, 5);
-    Set<Set<Integer>> expected = Sets.Set(Sets.Set(1, 3, 5), Sets.Set(2, 4));
-    Set<Set<Integer>> actual = new Sets.FactorSet<Integer>(set, new BinaryRelationship<Integer, Integer>() {
-      @Override
-      public boolean eval(Pair<Integer, Integer> p) {
-        return p.x() % 2 == p.y() % 2;
-      }
-    }).factorset();
-    assertEquals(expected, actual);
   }
 
   public void testFactorSet_tricky() {

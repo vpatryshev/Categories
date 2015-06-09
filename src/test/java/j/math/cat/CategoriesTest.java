@@ -105,10 +105,11 @@ public class CategoriesTest extends TestCase {
         return 2;
       }
     };
-    assertFalse(isEnumerable(BigSet.FINITE_SETS));
-    assertTrue(BigSet.FINITE_SETS == Categories.SETF.objects());
+    assertFalse("Should not be able to enumerate all finite sets", isEnumerable(BigSet.FINITE_SETS));
+//    assertFalse("WTF is going on really", true);
+    assertTrue("SETF.objects() must be FINITE_SETS", BigSet.FINITE_SETS == Categories.SETF.objects());
     final Set<Set> allSets = Categories.SETF.objects();
-    assertFalse(isEnumerable((BigSet)allSets));
+    assertFalse("Should not be able to enumerate all sets", isEnumerable((BigSet) allSets));
     assertTrue("Domain for " + arrow + " not defined", allSets.contains(Categories.SETF.d0(arrow)));
     assertTrue("Codomain for " + arrow + " not defined", allSets.contains(Categories.SETF.d1(arrow)));
   }
