@@ -508,6 +508,10 @@ public class Base {
         }.toMap(Sets.numbers(list.size()));
     }
 
+    public static void require(Boolean what, String message) {
+        if (!what) throw new IllegalStateException(message);
+    }
+
     /**
      * Builds a (virtual) identity map from a set to itself
      *

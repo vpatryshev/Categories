@@ -1,6 +1,8 @@
 package j.math.cat;
 
 import java.util.*;
+import static j.math.cat.Base.*;
+import static j.math.cat.Functions.*;
 
 /**
  * Sample Implementation of category.
@@ -84,12 +86,18 @@ public abstract class Category<O, A> extends Graph<O, A> {
     return t1 == t2 || t1 != null && t1.equals(t2);
   }
 
+  private static <T> Map<T, Pair<T, T>> buildUnits(Set<T> objects) {
+    return new Function<T, Pair<T, T>>() {
+      @Override public Pair<T, T> apply(T t) { return Pair.of(t, t); }
+    }.toMap(objects);
+  }
+
   /**
    * Builds a category with given set of objects
    * @param objects the objects
    */
   protected Category(Set<O> objects) {
-    super(objects);
+    super(Graph(objects, buildUnits(objects)));
     validate();
   }
 
@@ -155,25 +163,29 @@ public abstract class Category<O, A> extends Graph<O, A> {
     super.validate();
     for (O x : objects()) {
       A unit = unit(x);
-      assert arrows().contains(unit) : "Unit for " + x + " not defined";
-      assert equal(d0(unit), x) : "Domain of unit " + unit + " should be " + x;
-      assert equal(d1(unit), x) : "Codomain of unit " + unit + " should be " + x;
+      require(arrows().contains(unit), "Unit for " + x + " not defined");
+      require(equal(d0(unit), x), "Domain of unit " + unit + " should be " + x);
+      require(equal(d1(unit), x), "Codomain of unit " + unit + " should be " + x);
     }
 
     for (A f : arrows()) {
-      A f0 = m(unit(d0(f)), f);
-      assert equal(f, f0) : "Left unit law broken for " + unit(d0(f)) + " and " + f + ": got " + f0;
-      A f1 = m(f, unit(d1(f)));
-      assert equal(f, f1) : "Right unit law broken for " + unit(d1(f)) + " and " + f + ": got " + f1;
+      final A u0f = unit(d0(f));
+      require(u0f != null, "Missing: unit for " + d0(f) + " which is from " + f);
+      final A u1f = unit(d1(f));
+      require(u1f != null, "Missing: unit for " + d1(f) + " which is from " + f);
+      A f0 = m(u0f, f);
+      require(equal(f, f0), "Left unit law broken for " + u0f + " and " + f + ": got " + f0);
+      A f1 = m(f, u1f);
+      require(equal(f, f1), "Right unit law broken for " + u1f + " and " + f + ": got " + f1);
     }
 
     for (A f : arrows()) {
       for (A g : arrows()) {
         if (canCompose(f, g)) {
           A gf = m(f, g);
-          assert gf != null : "Composition of " + f + " and " + g + " not defined";
-          assert sameDomain(gf, f) : "Wrong composition " + gf + " of " + f + " and " + g + ": its d0 is " + d0(gf) + ", must be " + d0(f);
-          assert sameCodomain(gf, g) : "Wrong composition " + gf + " of " + f + " and " + g + ": its d1 is " + d1(gf) + ", must be " + d1(g);
+          require(gf != null, "Composition of " + f + " and " + g + " not defined");
+          require(sameDomain(gf, f), "Wrong composition " + gf + " of " + f + " and " + g + ": its d0 is " + d0(gf) + ", must be " + d0(f));
+          require(sameCodomain(gf, g), "Wrong composition " + gf + " of " + f + " and " + g + ": its d1 is " + d1(gf) + ", must be " + d1(g));
         }
       }
     }
@@ -184,7 +196,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
           A gf = m(f, g);
           for (A h : arrows()) {
             if (canCompose(g, h)) {
-              assert equal(m(gf, h), m(f, m(g, h))) : "Associativity broken for " + f + ", " + g + " and " + h;
+              require(equal(m(gf, h), m(f, m(g, h))), "Associativity broken for " + f + ", " + g + " and " + h);
             }
           }
         }
@@ -354,12 +366,20 @@ public abstract class Category<O, A> extends Graph<O, A> {
   Category(final Graph<O, A> graph,
            final Map<O, A> units,
            final Map<Pair<A, A>, A> composition) {
+
+    final Map<A,O> unit2object = new HashMap<A, O>();
+    for (O o : units.keySet()) unit2object.put(units.get(o), o);
+
+    final Set<A> allArrows = new HashSet<A>(unit2object.keySet());
+    allArrows.addAll(graph.arrows());
+
     return new Category<O, A>(graph.nodes()) {
-      public O d0(A f) { return graph.d0(f); }
-      public O d1(A f) { return graph.d1(f); }
+      private boolean isUnit(A a) { return unit2object.containsKey(a); }
+      public O d0(A f) { return isUnit(f) ? unit2object.get(f) : graph.d0(f); }
+      public O d1(A f) { return isUnit(f) ? unit2object.get(f) : graph.d1(f); }
       public A unit(O x) { return units.get(x); }
-      public A m(A f, A g) { return composition.get(Pair.of(f, g)); }
-      public Set<A> arrows() { return graph.arrows(); }
+      public A m(A f, A g) { return isUnit(f) ? g : isUnit(g) ? f : composition.get(Pair.of(f, g)); }
+      public Set<A> arrows() { return allArrows; }
     };
   }
 
@@ -571,18 +591,28 @@ public abstract class Category<O, A> extends Graph<O, A> {
 
   public static Category<String, String> Category(String string) {
     int splitAt = string.indexOf("}), {");
-    assert splitAt > 0 : "Malformed string representation, missing composition table";
+    if (splitAt < 0) splitAt = string.length() - 2;
+    String graphText = string.substring(1, splitAt + 2);
+    require(graphText.length() > 0, "Missing graph repr in <<" + string + ">>");
     Graph<String, String> graph = Graph(string.substring(1, splitAt + 2));
     Map<Pair<String, String>, String> m = new HashMap<Pair<String, String>, String>();
-    for (String rule : string.substring(splitAt + 5, string.length() - 2).split(",\\s*")) {
-      String[] pairAndResult = rule.split("\\s+=\\s+");
-      if (pairAndResult.length == 2) {
-        String[] g_f = pairAndResult[0].split("\\s+o\\s+");
-        assert g_f.length == 2;
-        m.put(Pair.of(g_f[1], g_f[0]), pairAndResult[1]);
+
+    int multAt = splitAt + 5;
+    int curlyAt = string.indexOf('}', multAt);
+
+    if (splitAt < string.length() - 3 && curlyAt > 0) {
+      String multMapString = string.substring(multAt, curlyAt);
+//require(multMapString.isEmpty(), "Oops!!! " + multMapString);
+      for (String rule : multMapString.split(",\\s*")) {
+        String[] pairAndResult = rule.split("\\s+=\\s+");
+        if (pairAndResult.length == 2) {
+          String[] g_f = pairAndResult[0].split("\\s+o\\s+");
+          require(g_f.length == 2, "Failed to split " + pairAndResult);
+          m.put(Pair.of(g_f[1], g_f[0]), pairAndResult[1]);
+        }
       }
     }
-    return Category(graph, Functions.id(graph.nodes()), m);
+    return Category(graph, id(graph.nodes()), m);
   }
 
   /**
@@ -591,8 +621,8 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param g second arrow
    */
   protected void assertParallelPair(A f, A g) {
-    assert sameDomain(f, g) : "" + f + " and " + g + " should have the same domain";
-    assert sameCodomain(f, g) : "" + f + " and " + g + " should have the same codomain";
+    require(sameDomain(f, g), "" + f + " and " + g + " should have the same domain");
+    require(sameCodomain(f, g), "" + f + " and " + g + " should have the same codomain");
   }
 
   /**
@@ -1095,7 +1125,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @return a pair of arrows from pullback object to d0(f) and d0(g), or null if none exists.
    */
   public Pair<A, A> pullback(final A f, final A g) {
-    assert sameCodomain(f, g) : "Codomains of " + f + " and " + g + " should be the same";
+    require(sameCodomain(f, g), "Codomains of " + f + " and " + g + " should be the same");
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(Pair<A, A> p) {
@@ -1136,7 +1166,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @return a pair of arrows from d1(f) and d1(g) to the pushout object, or null if none exists.
    */
   public Pair<A, A> pushout(final A f, final A g) {
-    assert sameDomain(f, g) : "Domains should be the same";
+    require(sameDomain(f, g), "Domains should be the same");
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(Pair<A, A> p) {
@@ -1263,7 +1293,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    */
   @SuppressWarnings("unchecked")
   public Pair<O, List<A>> degree(O x, int n) {
-    assert n >= 0 : "Degree should be positive, we have " + n;
+    require(n >= 0, "Degree should be positive, we have " + n);
     if (n == 0) {
       return Pair.of(terminal(), (List<A>) Collections.EMPTY_LIST);
     }
@@ -1319,6 +1349,8 @@ public abstract class Category<O, A> extends Graph<O, A> {
 
 
   public static void main(String[] args) {
+
+
     Category<String,String> three = buildCategory(Sets.Set("0", "1", "2"),
             Base.Map(Base.array("0.1", "0.2", "a", "b", "2.1", "2.a", "2.b", "2.swap"), // d0
                     Base.array("0", "0", "1", "1", "2", "2", "2", "2")),
@@ -1336,5 +1368,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
                     Base.array("b", "b", "b", "b", "a", "a", "a")),
             Base.Map(Base.array(Pair.of("green", "medium")), Base.array("a")));
     System.out.println(vital_sol);
+    Category c = Category("([0,1,2], {a: 0 -> 2, b: 1 -> 2})");
+    System.out.println(c);
   }
 }

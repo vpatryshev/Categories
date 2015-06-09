@@ -85,7 +85,7 @@ public final class Categories {
   /**
    * Category <b>Z2</2> - a two-element monoid
    */
-  public static final Category<String, String> Z2 = Category("(([1], {1: 1 -> 1, a: 1 -> 1}), {1 o 1 = 1, 1 o a = a, a o 1 = a, a o a = 1})");
+  public static final Category<String, String> Z2 = Category("(([1], {1: 1 -> 1, -1: 1 -> 1}), {1 o 1 = 1, 1 o -1 = -1, -1 o 1 = -1, -1 o -1 = 1})");
   
   /**
    * "Split Monomorphism" category (see http://en.wikipedia.org/wiki/Morphism)
@@ -127,7 +127,7 @@ public final class Categories {
       new Category<Set, TypelessSetMorphism>(BigSet.FINITE_SETS) {
         private final Set<TypelessSetMorphism> ALL_MORPHISMS =
             new BigSet<TypelessSetMorphism>() {
-              public boolean contains(Object f) {
+              @Override public boolean contains(Object f) {
                 return f instanceof SetMorphism;
               }
             };
@@ -396,4 +396,11 @@ public final class Categories {
           return arrow.codomain();
         }
       };
+
+    public static void main(String[] args) {
+        for (Category cat : Base.array(_1_, _2_, _3_, _4_, Z2, _1plus1_, M, W, SPLIT_MONO, SQUARE)) {
+            cat.validate();
+            System.out.println(cat.toString());
+        }
+    }
 }

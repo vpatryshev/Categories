@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import static j.math.cat.Base.*;
 /**
  * Diagram from a category to Categories.SETF.
  * @param <Objects> type of objects of domain category
@@ -190,7 +190,12 @@ public class SetDiagram<Objects, Arrows>
         canonicalTSMPerObject.put(o, g);
         if (f != null) {
           for (Object x : from) {
-            factorset.merge(f.apply(x), g.apply(x));
+
+            final Object fx = f.apply(x);
+            require(fx != null, "Image of " + x + " under " + f + "should not be null");
+            final Object gx = g.apply(x);
+            require(gx != null, "Image of " + x + " under " + g + "should not be null");
+            factorset.merge(fx, gx);
           }
         }
         f = g;

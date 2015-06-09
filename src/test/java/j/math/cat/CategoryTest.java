@@ -31,6 +31,11 @@ public class CategoryTest extends TestCase {
     assertEquals(testCategory, Category(testCategory.toString()));
   }
 
+  public void testFunctorRegression() {
+    Category c = Category("(([0,1,2], {a: 0 -> 2, b: 1 -> 2}))");
+    assertTrue("0 should be there", c.objects().contains("0"));
+  }
+
   public void testZero() {
     assertTrue(_0_.objects().isEmpty());
     assertTrue(_0_.arrows().isEmpty());
@@ -73,6 +78,20 @@ public class CategoryTest extends TestCase {
       assertEquals("Error in (-1)^" + i, Integer.toString(expected), f);
       expected = -expected;
     }
+  }
+
+  private Integer Int(int n) { return Integer.valueOf(n); }
+
+  public void test_4_() {
+    for (int i = 0; i < 4; i++ ) {
+      assertEquals("unit for " + i + " missing?", Pair(Int(i), Int(i)), _4_.unit(Int(i)));
+      for (int j = 0; j < 4; j++ ) {
+        int expected = i <= j ? 1 : 0;
+        assertEquals("Expected " + expected + "arrows from " + i + " to " + j,
+                expected, _4_.arrows(Int(i), Int(j)).size());
+      }
+    }
+
   }
 
   public void testInverse_Z2() {
@@ -157,7 +176,12 @@ public class CategoryTest extends TestCase {
 
   public void testProduct_plain() {
     Category<String, String> c = SQUARE;
-    assertEquals(Pair("ab", "ac"), c.product("b", "c"));
+
+    final Pair<String, String> expected = Pair("ab", "ac");
+    String obj = c.d0(expected.getKey());
+    assertEquals("a", obj);
+    assertTrue("ab and ac is a product of b, c", c.isProduct(expected, "b", "c"));
+    assertEquals(expected, c.product("b", "c"));
   }
 
   public void testUnion_none() {
@@ -215,8 +239,35 @@ public class CategoryTest extends TestCase {
   }
 
   public void testIsTerminal_positive() {
-    assertTrue(SQUARE.isTerminal.eval("d"));
-    assertTrue(_4_.isTerminal.eval(3));
+    /*
+      final public Predicate<O> isTerminal = new Predicate<O>() {
+    @Override
+    public boolean eval(final O candidate) {
+      return new Predicate<O>() {
+        @Override
+        public boolean eval(O x) {
+          return arrows(x, candidate).size() == 1;
+        }
+      }.forall(objects());
+    }
+  };
+
+     */
+
+    assertTrue("3 is terminal in _4_", _4_.isTerminal.eval(3));
+    assertEquals("deconstructed: d is terminal in square, a",
+            1, SQUARE.arrows("a", "d").size());
+    assertEquals("deconstructed: d is terminal in square, b",
+            1, SQUARE.arrows("b", "d").size());
+    assertEquals("deconstructed: d is terminal in square, c",
+            1, SQUARE.arrows("c", "d").size());
+    String _1d = SQUARE.unit("d");
+    assertEquals("Where's d.unit?", "d", SQUARE.unit("d"));
+    assertEquals("unit not a unit at d0?", "d", SQUARE.d0(_1d));
+    assertEquals("unit not a unit at d1?", "d", SQUARE.d1(_1d));
+    assertEquals("deconstructed: d is terminal in square, d",
+            1, SQUARE.arrows("d", "d").size());
+    assertTrue("d is terminal in square", SQUARE.isTerminal.eval("d"));
   }
 
   public void testIsTerminal_negative() {
@@ -230,7 +281,7 @@ public class CategoryTest extends TestCase {
 
   public void testTerminal_misc() {
     assertEquals("d", SQUARE.terminal());
-    assertEquals(Integer.valueOf(3), _4_.terminal());
+    assertEquals(Int(3), _4_.terminal());
   }
 
   public void testInitial_none() {
@@ -240,7 +291,8 @@ public class CategoryTest extends TestCase {
 
   public void testInitial_misc() {
     assertEquals("a", SQUARE.initial());
-    assertEquals(Integer.valueOf(0), _4_.initial());
+    assertTrue("0 must be initial in _4_", _4_.isInitial.eval(Int(0)));
+    assertEquals(Int(0), _4_.initial());
   }
 
   public void testAllInitialObjects() {

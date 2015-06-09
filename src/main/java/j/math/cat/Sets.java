@@ -568,10 +568,9 @@ public class Sets {
     public void merge(X x1, X x2) {
       Set<X> class1 = equivalenceClasses.get(x1);
       Set<X> class2 = equivalenceClasses.get(x2);
-      if (class1 == null) {
-      }
-      Set<X> merged = new HashSet<X>(class1);
-      merged.addAll(class2);
+      Set<X> merged = class1 == null ? new HashSet<X>(class1) : new HashSet<X>();
+      if (class2 != null) merged.addAll(class2);
+
       for (X x3 : merged) {
         equivalenceClasses.put(x3, merged);
       }
@@ -826,4 +825,10 @@ public class Sets {
       }
     };
   }
+
+
+  public static <X> boolean isEnumerable(Set<X> set) {
+    return set.size() < Integer.MAX_VALUE;
+  }
+
 }

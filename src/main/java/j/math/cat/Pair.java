@@ -3,6 +3,7 @@ package j.math.cat;
 import static j.math.cat.Base.equal;
 
 import java.util.Map;
+import static j.math.cat.Base.*;
 
 /**
  * Abstract pair class.
@@ -83,7 +84,7 @@ public abstract class Pair<X, Y> implements Map.Entry<X, Y> {
   }
 
   public static <X> Pair<X,X> from(X[] source) {
-    assert source.length == 2 : "Pair is built on a two-element array; got " + source.length;
+    require(source.length == 2 , "Pair is built on a two-element array; got " + source.length);
     return pair(source[0], source[1]);
   }
 

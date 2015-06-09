@@ -15,7 +15,7 @@ import junit.framework.TestCase;
  * 
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
- * 
+ *
  */
 public class FunctorTest extends TestCase {
   private final Category<String, String> categoryTwoToOne =

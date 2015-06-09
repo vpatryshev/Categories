@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static j.math.cat.Categories.*;
+import static j.math.cat.Sets.isEnumerable;
 
 import junit.framework.TestCase;
 
@@ -28,6 +30,13 @@ public class CategoriesTest extends TestCase {
           return p.x() - p.y() == 2;
         }
       };
+
+  public void testValidity() {
+    for (Category cat : Base.array(_1_, _2_, _3_, _4_, Z2, _1plus1_, M, W, SPLIT_MONO, SQUARE, PARALLEL_PAIR, PULLBACK, PUSHOUT)) {
+      cat.validate();
+      System.out.println("\n" + cat.toString());
+    }
+  }
 
   public void testZero() {
     assertTrue(Categories._0_.objects().isEmpty());
@@ -68,7 +77,7 @@ public class CategoriesTest extends TestCase {
     String f = "1";
     for (int i = 1; i < 5; i++) {
       f = Categories.Z2.m(f, "-1");
-      assertEquals("Error in (-1)^" + i, Integer.toString(expected), f);
+      assertEquals("Error in a^" + i, Integer.toString(expected), f);
       expected = -expected;
     }
   }
@@ -96,8 +105,12 @@ public class CategoriesTest extends TestCase {
         return 2;
       }
     };
-    assertTrue("Domain for " + arrow + " not defined", Categories.SETF.objects().contains(Categories.SETF.d0(arrow)));
-    assertTrue("Codomain for " + arrow + " not defined", Categories.SETF.objects().contains(Categories.SETF.d1(arrow)));
+    assertFalse(isEnumerable(BigSet.FINITE_SETS));
+    assertTrue(BigSet.FINITE_SETS == Categories.SETF.objects());
+    final Set<Set> allSets = Categories.SETF.objects();
+    assertFalse(isEnumerable((BigSet)allSets));
+    assertTrue("Domain for " + arrow + " not defined", allSets.contains(Categories.SETF.d0(arrow)));
+    assertTrue("Codomain for " + arrow + " not defined", allSets.contains(Categories.SETF.d1(arrow)));
   }
 
   @SuppressWarnings("unchecked")

@@ -111,7 +111,7 @@ public class Functions {
      * @param domain the collection to apply this function to.
      * @return another collection that lists values of this function on domain values.
      */
-    public Collection<Y> map(final Collection<? extends X> domain) {
+    public Collection<Y>map(final Collection<? extends X> domain) {
       return new AbstractCollection<Y>() {
         @Override
         public Iterator<Y> iterator() {

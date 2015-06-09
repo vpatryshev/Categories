@@ -2,7 +2,8 @@ package j.math.cat;
 
 import static j.math.cat.BasePair.Pair;
 import static j.math.cat.Category.Category;
-import static j.math.cat.Sets.Set;
+import static j.math.cat.Sets.*;
+import j.math.cat.Functor;
 
 import j.math.cat.Functions.Function;
 
@@ -113,11 +114,16 @@ public class SetDiagramTest extends TestCase {
             Sets.Set(BasePair.Pair(0, "b4")),
             Sets.Set(BasePair.Pair(0, "b5")));
     assertEquals(expectedSet, actualSet);
-    assertEquals(
-        Base.Map(
-                Base.array("b1", "b2", "b3", "b4", "b5"),
-                Base.array(Sets.Set(BasePair.Pair(0, "b1"), BasePair.Pair(1, "c1")), Sets.Set(BasePair.Pair(0, "b2"), BasePair.Pair(1, "c2")), Sets.Set(BasePair.Pair(0, "b3"), BasePair.Pair(1, "c3")), Sets.Set(BasePair.Pair(0, "b4")), Sets.Set(BasePair.Pair(0, "b5")))),
-        actual.arrowFrom("b").asMap());
+
+      final Map<String, Set<Pair<Integer, String>>> expected = Base.Map(
+              Base.array("b1", "b2", "b3", "b4", "b5"),
+              Base.array(Sets.Set(BasePair.Pair(0, "b1"), BasePair.Pair(1, "c1")), Sets.Set(BasePair.Pair(0, "b2"), BasePair.Pair(1, "c2")), Sets.Set(BasePair.Pair(0, "b3"), BasePair.Pair(1, "c3")), Sets.Set(BasePair.Pair(0, "b4")), Sets.Set(BasePair.Pair(0, "b5"))));
+
+      final TypelessSetMorphism arrow = actual.arrowFrom("b");
+      assertNotNull("Arrow from b should not be null", arrow);
+      final Map<Object, Object> actual1 = arrow.asMap();
+
+      assertEquals(expected, actual1);
   }
 
   public void testColimit_W() {
@@ -136,7 +142,7 @@ public class SetDiagramTest extends TestCase {
   }
 
   public void testColimit_M() {
-    SetDiagram<String, String> diagram = buildDiagram(Categories.M, buildObjects("01234567", "123", "012345", "234", "23456"));
+    SetDiagram<String, String> diagram = buildDiagram(Categories.M, buildObjects("01234567", "123", "012345", "234",  "23456"));
     Functor<String, String, Set, TypelessSetMorphism>.Cocone cocone = diagram.colimit();
     Set actual = cocone.apex();
     Set expected = Sets.Set(
@@ -174,6 +180,7 @@ public class SetDiagramTest extends TestCase {
   }
 
   private SetDiagram<String, String> buildDiagram(final Category<String, String> domain, Set[] codomainObjects, final Map<String, Map<String, String>> customMapping) {
+      domain.validate();
     Category<Set, TypelessSetMorphism> codomain = Categories.SETF;
     String[] domainObjects = domain.objects().toArray(new String[domain.objects().size()]);
     Arrays.sort(domainObjects);

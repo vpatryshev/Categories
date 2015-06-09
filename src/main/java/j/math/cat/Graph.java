@@ -16,7 +16,7 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
   @Override public Iterator<N> iterator() {  return nodes.iterator(); }
   @Override public int size() { return nodes.size(); }
   @Override public int hashCode() { return nodes.hashCode() * 2 + arrows().hashCode(); }
-  @Override public boolean equals(Object o) { return o instanceof Graph && equals((Graph)o); }
+  @Override public boolean equals(Object o) { return o instanceof Graph && equals((Graph) o); }
 
   /**
    * Lists all nodes of a graph.
@@ -69,9 +69,11 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * Validates the graph: checks that for each arrow its domain and codomain is in the graph.
    */
   public void validate() {
-    for (A arrow : arrows()) {
-      assert nodes.contains(d0(arrow)) : "Domain for " + arrow + " not defined";
-      assert nodes.contains(d1(arrow)) : "Codomain for " + arrow + " not defined";
+    if (isEnumerable(arrows())) {
+      for (A arrow : arrows()) {
+        require(nodes.contains(d0(arrow)), "Domain for " + arrow + " not defined");
+        require(nodes.contains(d1(arrow)), "Codomain for " + arrow + " not defined");
+      }
     }
   }
 
@@ -125,10 +127,23 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * @param arrows graph arrows, represented here as mapping arrow tags to (domain,codomain) pairs.
    * @return a new graph
    */
-  public static <N, A> Graph<N, A> Graph(Set<N> nodes, final Map<A, Pair<N, N>> arrows) {
+  public static <N, A> Graph<N, A> Graph(final Set<N> nodes, final Map<A, Pair<N, N>> arrows) {
+
     return new Graph<N, A>(nodes) {
-      public N d0(A arrow) { return arrows.get(arrow).x(); }
-      public N d1(A arrow) { return arrows.get(arrow).y(); }
+      private Pair<N,N> d0d1(A arrow) {
+        Pair<N,N>fromTo = arrows.get(arrow);
+        require(fromTo != null, "Expected in arrows " + arrows.keySet() + ": <<" + arrow + ">>");
+        require(nodes.contains(fromTo.x()), "Expected " + fromTo.x() + "=d0(" + arrow + ") to be a member of " + nodes);
+        require(nodes.contains(fromTo.y()), "Expected " + fromTo.y() + "=d1(" + arrow + ") to be a member of " + nodes);
+        return fromTo;
+      }
+
+      public N d0(A arrow) {
+        return d0d1(arrow).x();
+      }
+      public N d1(A arrow) {
+        return d0d1(arrow).y();
+      }
       public Set<A> arrows() { return arrows.keySet(); }
     };
   }
@@ -142,7 +157,7 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * @return a new graph
    */
   public static <N, A> Graph<N, A> Graph(Set<N> nodes, final Map<A, N> d0, final Map<A, N> d1) {
-    assert d0.keySet().equals(d1.keySet());
+    require(d0.keySet().equals(d1.keySet()), "d0 and d1 are defined on different sets of arrows, which is weird");
 
     return new Graph<N, A>(nodes) {
       public N d0(A arrow) { return d0.get(arrow); }
@@ -172,10 +187,15 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
   public static Graph<String, String> Graph(String string) {
     int splitAt = string.indexOf("], {");
     Map<String, Pair<String, String>> arrows = new HashMap<String, Pair<String, String>>();
-    for (String arrow : string.substring(splitAt + 4, string.length() - 2).split(",\\s*")) {
+    require(string.length() > splitAt + 4, "Bad input string <<" + string + ">>, splitAt = " + splitAt);
+    int curlyAt = string.indexOf('}', splitAt + 4);
+    for (String arrow : string.substring(splitAt + 4, curlyAt).split(",\\s*")) {
       String[] arrowAndNodes = arrow.split(":\\s*");
       if (arrowAndNodes.length == 2) {
-        arrows.put(arrowAndNodes[0], Pair.from(arrowAndNodes[1].split("\\s*->\\s*")));
+        String arrowText = arrowAndNodes[1];
+        String[] fromTo = arrowText.split("\\s*->\\s*");
+        require(fromTo.length == 2, "Bad arrow descr: " + arrowText + " - from " + string);
+        arrows.put(arrowAndNodes[0], Pair.from(fromTo));
       }
     }
     return Graph(Sets.parseSet(string.substring(1, splitAt + 1)), arrows);

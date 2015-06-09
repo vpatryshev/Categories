@@ -2,6 +2,7 @@ package j.math.cat;
 
 import static j.math.cat.SetMorphism.Morphism;
 import static j.math.cat.Sets.Set;
+import static j.math.cat.Base.*;
 
 import j.math.cat.Functions.Injection;
 import j.math.cat.Functions.IterableToSet;
@@ -88,7 +89,6 @@ public class Functor<
           YArrows gy = arrowsMorphism.apply(gx);
           YArrows gy_fy = codomain().m(fy, gy);
           if (!gy_fy.equals(arrowsMorphism.apply(gx_fx))) {
-            System.out.println("oops!");
             gy_fy.equals(arrowsMorphism.apply(gx_fx));
           }
           assert gy_fy.equals(arrowsMorphism.apply(gx_fx)) :
@@ -446,7 +446,11 @@ public class Functor<
           // F(f)
           YArrows F_f = arrowsMorphism.apply(f);
           // q1 o F(f) must be equal to q0
-          return codomain().m(F_f, Fx1ToY).equals(Fx0ToY);
+codomain().validate();
+          require(codomain().arrows().contains(F_f), "Function should be in Y: " + F_f);
+          final YArrows composition = codomain().m(F_f, Fx1ToY);
+          require(composition != null, "Bad category, composition of " + F_f + " and " + Fx1ToY + " should be defined " + codomain().d1(F_f) + " vs " + codomain().d1(Fx1ToY));
+          return composition.equals(Fx0ToY);
         } // this should hold for all arrows f of category X
       }.forall(domain().arrows());
     }

@@ -12,7 +12,8 @@ import java.util.Set;
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
  */
-public abstract class BigSet<T> implements Set<T> {
+public abstract class
+        BigSet<T> implements Set<T> {
   @Override
   public int size() {
     return Integer.MAX_VALUE;
@@ -25,7 +26,7 @@ public abstract class BigSet<T> implements Set<T> {
 
   @Override
   public Iterator<T> iterator() {
-    throw new UnsupportedOperationException("This set is not enumerable");
+    throw new UnsupportedOperationException("This set is not enumerable: " + this);
   }
 
   @Override
