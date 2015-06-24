@@ -39,35 +39,56 @@ public class SetDiagram<Objects, Arrows>
     validate();
   }
 
-  @Override
-  public Cone limit() {
+  class Limit {
     Set<Objects> participantObjects = domain().allInitialObjects();
     Set<Arrows> participantArrows = domain().arrowsFromInitialObjects();
-
     final List<Objects> listOfObjects = new ArrayList<Objects>(participantObjects);
-
     Function<Objects, Integer> index = new Function<Objects, Integer>() {
       @Override
       public Integer apply(Objects x) {
         return listOfObjects.indexOf(x);
       }
     };
-
     // this function takes an object and returns a projection set function; we have to compose each such projection
     // with the right arrow from important object to the image of our object
     final Function<Objects, Function<List<Object>, Object>> projectionForObject = index.then(Sets.Cartesian.projection());
-    
-    final Set<? extends List<Object>> apex = calculateLimitApex(participantArrows, listOfObjects, projectionForObject);
+    // Here we have a non-repeating collection of sets to use for building a product
+    List<Set> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
 
+    final Set<? extends List<Object>> apex = calculateLimitApex(participantArrows, listOfObjects, projectionForObject);
     // now have the apex; build the cone
     final Map<Objects, Set<Arrows>> bundles =
-      domain().buildBundles(participantObjects, participantArrows);
+            domain().buildBundles(participantObjects, participantArrows);
+
+    private Set<? extends List<Object>> calculateLimitApex(Set<Arrows> participantArrows,
+                                                           final List<Objects> listOfObjects, final Function<Objects, Function<List<Object>, Object>> projectionForObject) {
+      Set<? extends List<Object>> product = Sets.Cartesian.product(setsToUse);
+      final Map<Objects, Set<Arrows>> cobundles =
+              domain().op().buildBundles(domain().objects(), participantArrows);
+
+      // Have a product set; have to remove all the bad elements from it
+      Predicate<List<Object>> compatibleListsOnly = new Predicate<List<Object>>() {
+        @Override
+        public boolean eval(final List<Object> point) {
+          Predicate<Set<Arrows>> checkCompatibility =
+                  allArrowsAreCompatibleOnPoint(projectionForObject, point);
+          return checkCompatibility.forall(cobundles.values());
+        }
+      };
+      return compatibleListsOnly.filter(product);
+    }
+
+  }
+
+  @Override
+  public Cone limit() {
+    final Limit data = new Limit();
 
     // For each object of domain we have an arrow from one of the objects used in building the product
     Map<Objects, Arrows> arrowFromImportantObject = new HashMap<Objects, Arrows>();
-    for (Objects object : bundles.keySet()) {
+    for (Objects object : data.bundles.keySet()) {
       arrowFromImportantObject.put(object, domain().unit(object));
-      for (Arrows arrow : bundles.get(object)) {
+      for (Arrows arrow : data.bundles.get(object)) {
         arrowFromImportantObject.put(domain().d1(arrow), arrow);
       }
     }
@@ -82,32 +103,12 @@ public class SetDiagram<Objects, Arrows>
       @Override
       public TypelessSetMorphism apply(Objects x) {
         TypelessSetMorphism componentMorphism = componentMorphismForObject.apply(x);
-        return TypelessSetMorphism.forFunction(apex, componentMorphism.codomain(),
-            projectionForObject.apply(x).then(componentMorphism.asFunction()));
+        return TypelessSetMorphism.forFunction(data.apex, componentMorphism.codomain(),
+            data.projectionForObject.apply(x).then(componentMorphism.asFunction()));
       }
     }.toMap(domain().objects());
 
-    return new Cone(apex, coneMap);
-  }
-
-  private Set<? extends List<Object>> calculateLimitApex(Set<Arrows> participantArrows,
-          final List<Objects> listOfObjects, final Function<Objects, Function<List<Object>, Object>> projectionForObject) {
-    // Here we have a non-repeating collection of sets to use for building a product
-    List<Set> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
-    Set<? extends List<Object>> product = Sets.Cartesian.product(setsToUse);
-    final Map<Objects, Set<Arrows>> cobundles =
-      domain().op().buildBundles(domain().objects(), participantArrows);
-
-    // Have a product set; have to remove all the bad elements from it
-    Predicate<List<Object>> compatibleListsOnly = new Predicate<List<Object>>() {
-      @Override
-      public boolean eval(final List<Object> point) {
-        Predicate<Set<Arrows>> checkCompatibility =
-            allArrowsAreCompatibleOnPoint(projectionForObject, point);
-        return checkCompatibility.forall(cobundles.values());
-      }
-    };
-    return compatibleListsOnly.filter(product);
+    return new Cone(data.apex, coneMap);
   }
 
   /**

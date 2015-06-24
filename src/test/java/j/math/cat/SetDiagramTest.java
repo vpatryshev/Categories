@@ -75,12 +75,21 @@ public class SetDiagramTest extends TestCase {
     assertEquals(expected, apex);
   }
 
+    private SetDiagram<String, String> Z2Diagram = buildDiagram(Categories.Z2, buildObjects("123"),
+            new HashMap<String, Map<String, String>>() {{
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("a1", "a1"); map.put("a2", "a3"); map.put("a3", "a2");
+                put("-1", map);
+            }});
+
   public void testLimit_Z2() {
-    SetDiagram<String, String> diagram = buildDiagram(Categories.Z2, buildObjects("123"));
-    Functor<String, String, Set, TypelessSetMorphism>.Cone actual = diagram.limit();
+      SetDiagram<String, String>.Limit limitData = Z2Diagram.new Limit();
+
+    Functor<String, String, Set, TypelessSetMorphism>.Cone actual = Z2Diagram.limit();
     Set apex = actual.apex();
-    assertEquals("Could not calculate limit on Z2: " + actual,
-            Sets.Set(Base.List("a1"), Base.List("a2"), Base.List("a3")), apex);
+    assertEquals("Could not calculate limit on Z2: " + actual + "\nfrom " +
+            limitData.listOfObjects + ", " + limitData.participantArrows + " with apex " + limitData.apex + "\nthe diagram was " + Z2Diagram + "\naptype=" + apex.getClass(),
+            Sets.Set(Base.List("a1")), apex);
   }
 
   public void testLimit_SplitMono() {
@@ -192,7 +201,7 @@ public class SetDiagramTest extends TestCase {
     Function<String, TypelessSetMorphism> arrowMapper =
         new Function<String, TypelessSetMorphism>() {
           @Override
-          public TypelessSetMorphism apply(String s) {
+          public TypelessSetMorphism apply(final String s) {
             final String domainName = domain.d0(s);
             final Set  arrowDomain = objectMapper.get(domainName);
             final String codomainName = domain.d1(s);
@@ -204,7 +213,7 @@ public class SetDiagramTest extends TestCase {
                 s.length() == 1 ?
                 TypelessSetMorphism.inclusion(arrowDomain, arrowCodomain) :
                 new TypelessSetMorphism(arrowDomain, arrowCodomain) {
-
+                    private String name = s;
                   @Override
                   public Object apply(Object o) {
                     String candidate = codomainName + o.toString().substring(1);
@@ -214,14 +223,15 @@ public class SetDiagramTest extends TestCase {
                 };
           }
         };
+
     SetMorphism<String, Set<String>, TypelessSetMorphism, Set<TypelessSetMorphism>> am =
         SetMorphism.Morphism(domain.arrows(), codomain.arrows(), arrowMapper);
+
     return new SetDiagram<String, String>(domain, om, am);
   }
 
   public void testColimit_Z2() {
-    SetDiagram<String, String> diagram = buildDiagram(Categories.Z2, buildObjects("123"));
-    Functor<String, String, Set, TypelessSetMorphism>.Cocone actual = diagram.colimit();
+    Functor<String, String, Set, TypelessSetMorphism>.Cocone actual = Z2Diagram.colimit();
     Set apex = actual.apex();
     TestCase.assertEquals(Sets.Set(Sets.Set(BasePair.Pair(0, "a1")), Sets.Set(BasePair.Pair(0, "a2")), Sets.Set(BasePair.Pair(0, "a3"))), apex);
   }
