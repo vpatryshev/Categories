@@ -12,12 +12,15 @@ import java.util.Set;
  * @author Vlad Patryshev
  * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
  */
-public abstract class
-        BigSet<T> implements Set<T> {
+public abstract class BigSet<T> implements Set<T> {
   @Override
   public int size() {
     return Integer.MAX_VALUE;
   }
+
+  public String whoami() { return "A BIG SET"; }
+
+  @Override public String toString() { return whoami(); }
 
   @Override
   public boolean isEmpty() {
@@ -89,5 +92,7 @@ public abstract class
     public boolean contains(Object o) {
       return o instanceof Set && ((Set) o).size() < Integer.MAX_VALUE;
     }
+
+    public String whoami() { return "SetF, the class of all finite sets"; }
   };
 }

@@ -86,20 +86,46 @@ public abstract class Category<O, A> extends Graph<O, A> {
     return t1 == t2 || t1 != null && t1.equals(t2);
   }
 
-  private static <T> Map<T, Pair<T, T>> buildUnits(Set<T> objects) {
+  static <T> Map<T, Pair<T, T>> buildUnits(Set<T> objects) {
     return new Function<T, Pair<T, T>>() {
       @Override public Pair<T, T> apply(T t) { return Pair.of(t, t); }
     }.toMap(objects);
   }
+/*
+  static <T> Map<Pair<T, T>, Pair<T, T>> arrowMapForUnits(Set<T> objects) {
+    Set<Pair<T, T>> diagonal = new Injection<T, Pair<T, T>>() {
+      @Override public Pair<T, T> apply(T t) { return Pair.of(t, t); }
+    }.map(objects);
+
+    return new Function<Pair<T, T>, Pair<T, T>>() {
+      @Override public Pair<T, T> apply(Pair<T, T> p) { return p; }
+    }.toMap(diagonal);
+  }
+
+  /**
+   * Builds a discrete category with given set of objects
+   * @param objects the objects
+   *
+  static <T> Category<T, Pair<T, T>> Discrete(Set<T> objects) {
+    super(objects, (Quiver<T, Pair<T, T>>) new Graph.ArrowMap<T, Pair<T, T>>(objects, arrowMapForUnits(objects)));
+
+    Quiver<T, Pair<T, T>> q = new Graph.ArrowMap<T, Pair<T, T>>(objects, arrowMapForUnits(objects));
+    ooo = objects;
+    validate();
+  }
+*/
 
   /**
    * Builds a category with given set of objects
    * @param objects the objects
    */
-  protected Category(Set<O> objects) {
-    super(Graph(objects, buildUnits(objects)));
-    validate();
+  protected Category(Set<O> objects, Quiver<O, A> arrows) {
+  super(objects, arrows);
+  ooo = objects;
+  validate();
   }
+
+  public Set<O> ooo = null;
 
   /**
    * Checks whether two arrows can be composed. Which happens iff the codomain of the first
@@ -373,13 +399,18 @@ public abstract class Category<O, A> extends Graph<O, A> {
     final Set<A> allArrows = new HashSet<A>(unit2object.keySet());
     allArrows.addAll(graph.arrows());
 
-    return new Category<O, A>(graph.nodes()) {
-      private boolean isUnit(A a) { return unit2object.containsKey(a); }
+    class AllArrows implements Quiver<O, A> {
       public O d0(A f) { return isUnit(f) ? unit2object.get(f) : graph.d0(f); }
       public O d1(A f) { return isUnit(f) ? unit2object.get(f) : graph.d1(f); }
-      public A unit(O x) { return units.get(x); }
-      public A m(A f, A g) { return isUnit(f) ? g : isUnit(g) ? f : composition.get(Pair.of(f, g)); }
       public Set<A> arrows() { return allArrows; }
+      boolean isUnit(A a) { return unit2object.containsKey(a); }
+    };
+
+    final AllArrows myQuiver = new AllArrows();
+
+    return new Category<O, A>(graph.nodes(), myQuiver) {
+      public A unit(O x) { return units.get(x); }
+      public A m(A f, A g) { return myQuiver.isUnit(f) ? g : myQuiver.isUnit(g) ? f : composition.get(Pair.of(f, g)); }
     };
   }
 
@@ -389,7 +420,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param graph the underlying graph
    * @return new category
    */
-  public static <T> Category<T, T> Category(Graph<T, T> graph) {
+  public static <N, A0, A extends A0/*&N*/> Category<N, A> Category(Graph<N, A> graph) {
     return Category(graph, null); // no composition specified
   }
 
@@ -400,19 +431,28 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param composition arrows composition table
    * @return new category
    */
-  public static <T> Category<T, T>
-  Category(final Graph<T, T> graph,
-           final Map<Pair<T, T>, T> composition) {
-    final Set<T> allArrows = new HashSet<T>(graph.nodes());
+  public static <N, A0, A extends A0/*&N*/> Category<N, A>
+  Category(final Graph<N, A> graph,
+           final Map<Pair<A, A>, A> composition) {
+    final Set<A> allArrows = new HashSet(graph.nodes());
     allArrows.addAll(graph.arrows());
-    return new Category<T, T>(graph.nodes()) {
-      public T d0(T f) { return objects().contains(f) ? f : graph.d0(f); }
-      public T d1(T f) { return objects().contains(f) ? f : graph.d1(f); }
-      public T unit(T x) { return x; }
-      public T m(T f, T g) {
+
+    final Set<N> myNodes = graph.nodes();
+
+    class AllArrows implements Quiver<N, A> {
+      public N d0(Object f) { return myNodes.contains(f) ? (N)f : graph.d0((A)f); }
+      public N d1(Object f) { return myNodes.contains(f) ? (N)f : graph.d1((A)f); }
+      public Set arrows() { return allArrows; }
+      boolean isUnit(Object a) { return myNodes.contains(a); }
+    };
+
+    final AllArrows myQuiver = new AllArrows();
+
+    return new Category<N, A>(myNodes, myQuiver) {
+      public A unit(N x) { return (A)x; }
+      public A m(A f, A g) {
         return objects().contains(f) ? g : objects().contains(g) ? f : composition.get(Pair.of(f, g));
       }
-      public Set<T> arrows() { return Collections.unmodifiableSet(allArrows); }
     };
   }
 
@@ -576,13 +616,13 @@ public abstract class Category<O, A> extends Graph<O, A> {
     for (O x : poset) for (O y : poset) if (poset._le_(x, y)) {
       arrows.add(Pair.of(x, y));
     }
-    return new Category<O, Pair<O, O>>(poset) {
-      public O d0(Pair<O, O> arrow) {
-        return arrow.x(); }
-      public O d1(Pair<O, O> arrow) { return arrow.y();
-      }
-
+    Quiver<O,Pair<O,O>> myQuiver = new Quiver<O, Pair<O, O>>() {
       public Set<Pair<O, O>> arrows() { return arrows; }
+      public O d0(Pair<O, O> arrow) { return arrow.x(); }
+      public O d1(Pair<O, O> arrow) { return arrow.y(); }
+    };
+
+    return new Category<O, Pair<O, O>>(poset.elements, myQuiver) {
       @SuppressWarnings("unchecked")
       public Pair<O, O> unit(O x) { return Pair.of(x, x); }
       public Pair<O, O> m(Pair<O, O> f, Pair<O, O> g) { return Pair.of(f.x(), g.y()); }
@@ -1319,25 +1359,22 @@ public abstract class Category<O, A> extends Graph<O, A> {
   @Override
   public Category<O, A> op() {
     final Category<O, A> source = this;
-    return new Category<O, A>(objects()) {
+    Quiver<O, A> myArrows = new Quiver<O, A>() {
       @Override
-      public Set<A> arrows() {
-        return source.arrows();
+      public Set<A> arrows() { return source.arrows(); }
+      @Override public O d0(A f) {
+        return source.d1(f);
       }
+      @Override public O d1(A f) {
+        return source.d0(f);
+      }
+    };
+
+    return new Category<O, A>(objects(), myArrows) {
 
       @Override
       public A unit(O x) {
         return source.unit(x);
-      }
-
-      @Override
-      public O d0(A f) {
-        return source.d1(f);
-      }
-
-      @Override
-      public O d1(A f) {
-        return source.d0(f);
       }
 
       @Override

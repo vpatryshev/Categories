@@ -10,7 +10,7 @@ import java.util.Set;
  * All code is <a href="http://myjavatools.com/projects/Category/source.zip">here</a>
  */
 public abstract class PoSet<T> extends AbstractSet<T> {
-  private final Set<T> elements;
+  public final Set<T> elements;
 
   /*
    * Java technicalities: have to override these methods.

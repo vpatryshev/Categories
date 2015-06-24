@@ -106,8 +106,17 @@ public class CategoriesTest extends TestCase {
       }
     };
     assertFalse("Should not be able to enumerate all finite sets", isEnumerable(BigSet.FINITE_SETS));
-//    assertFalse("WTF is going on really", true);
-    assertTrue("SETF.objects() must be FINITE_SETS", BigSet.FINITE_SETS == Categories.SETF.objects());
+
+    final Map<Set, Pair<Set, Set>> bigUnits = Category.buildUnits(BigSet.FINITE_SETS);
+
+    Graph g0 = Graph.Graph(BigSet.FINITE_SETS, bigUnits);
+
+    assertTrue("go.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS == g0.nodes());
+    assertTrue("SETF.ooo must be FINITE_SETS: " + Categories.SETF.ooo + "...", BigSet.FINITE_SETS == Categories.SETF.ooo);
+    Set nnn = Categories.SETF.nnn;
+    assertTrue("SETF.nnn must be FINITE_SETS: " + Graph.setStringifier(nnn), BigSet.FINITE_SETS == Categories.SETF.nnn);
+    assertTrue("SETF.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS == Categories.SETF.nodes());
+    assertTrue("SETF.objects() must be FINITE_SETS: ", BigSet.FINITE_SETS == Categories.SETF.objects());
     final Set<Set> allSets = Categories.SETF.objects();
     assertFalse("Should not be able to enumerate all sets", isEnumerable((BigSet) allSets));
     assertTrue("Domain for " + arrow + " not defined", allSets.contains(Categories.SETF.d0(arrow)));

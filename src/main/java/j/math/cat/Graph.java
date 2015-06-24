@@ -10,6 +10,14 @@ import static j.math.cat.Sets.*;
 public abstract class Graph<N, A> extends AbstractSet<N> {
   private Set<N> nodes;
 
+  protected interface Quiver<Nq, Aq> {
+    public Set<Aq> arrows();
+    public Nq d0(Aq arrow);
+    public Nq d1(Aq arrow);
+  }
+
+  Quiver<N, A> quiver;
+
   /*
    * Java technicalities: have to override these methods.
    */
@@ -30,20 +38,20 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * Lists all arrows of a graph.
    * @return a set of arrows
    */
-  public abstract Set<A> arrows();
+  public Set<A> arrows() { return quiver.arrows(); }
 
   /**
    * Maps an arrow to its domain, aka source.
    * @param arrow an arrow
    * @return the arrow's domain (source)
    */
-  public abstract N d0(A arrow);
+  public N d0(A arrow) { return quiver.d0(arrow); }
   /**
    * Maps an arrow to its codomain, aka target.
    * @param arrow an arrow
    * @return the arrow's codomain (target)
    */
-  public abstract N d1(A arrow);
+  public N d1(A arrow) { return quiver.d1(arrow); }
 
   public Set<A> arrows(final N from, final N to) {
     return new Predicate<A>() {
@@ -55,13 +63,49 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
     }.filter(arrows());
 
   }
+
+  public static <T> String setStringifier(Set<T> set) {
+    if (set instanceof BigSet) {
+      return (((BigSet)set).whoami());
+    } else if (!(set instanceof Graph)) {
+      return set.toString();
+    } else {
+      throw new UnsupportedOperationException("What do you want here? Graph on graph?! " + set);
+//      return "just another graph";
+    }
+  }
+
+  protected Graph() {
+
+    this.nnn = Collections.emptySet();
+    this.nodes = nnn;
+    validate();
+  }
+
+  /**
+   * Either discrete or abstract graph constructor. Takes nodes; arrows are defined in subclasses.
+   *
+   * @param nodes graph nodes.
+   */
+  protected Graph(Set<N> nodes) {
+
+    System.out.println("Building Graph on... " + setStringifier(nodes));
+    this.nnn = nodes;
+    this.nodes = nodes;
+    validate();
+  }
+
   /**
    * An abstract graph constructor. Takes nodes; arrows are defined in subclasses.
    *
    * @param nodes graph nodes.
    */
-  protected Graph(Set<N> nodes) {
+  protected Graph(Set<N> nodes, Quiver<N, A> quiver) {
+
+    System.out.println("Building Graph on... " + setStringifier(nodes));
+    this.nnn = nodes;
     this.nodes = nodes;
+    this.quiver = quiver;
     validate();
   }
 
@@ -98,6 +142,8 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
     return isEqual;
   }
   public String toString() {
+    if (nodes instanceof BigSet) return "(" + setStringifier(nodes) + "...)";
+
     StringBuffer out = new StringBuffer();
 
     for (A arrow : arrows()) {
@@ -120,6 +166,37 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
     };
   }
 
+  protected static class ArrowMap<N, A> implements Quiver<N, A> {
+    private final Map<A, Pair<N, N>> arrows;
+    private final Set<N> nodes;
+
+    ArrowMap(Set<N> nodes, Map<A, Pair<N, N>> arrows) {
+      this.nodes = nodes;
+      this.arrows = arrows;
+    }
+
+    private Pair<N,N> d0d1(A arrow) {
+      Pair<N,N>fromTo = arrows.get(arrow);
+      require(fromTo != null, "Expected in arrows " + arrows.keySet() + ": <<" + arrow + ">>");
+      require(nodes.contains(fromTo.x()), "Expected " + fromTo.x() + "=d0(" + arrow + ") to be a member of " + nodes);
+      require(nodes.contains(fromTo.y()), "Expected " + fromTo.y() + "=d1(" + arrow + ") to be a member of " + nodes);
+      return fromTo;
+    }
+
+    public Set<A> arrows() { return arrows.keySet(); }
+
+    public N d0(A arrow)   { return d0d1(arrow).x(); }
+    public N d1(A arrow)   { return d0d1(arrow).y(); }
+  }
+
+  public static class WithArrows<N, A> extends Graph<N, A> {
+
+    WithArrows(Set<N> nodes, Map<A, Pair<N, N>> arrows) {
+      super(nodes, new ArrowMap<N, A>(nodes, arrows));
+    }
+  }
+
+public Set<N> nnn = null;
   /**
    * Builds a graph from given nodes and arrows.
    *
@@ -128,24 +205,7 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * @return a new graph
    */
   public static <N, A> Graph<N, A> Graph(final Set<N> nodes, final Map<A, Pair<N, N>> arrows) {
-
-    return new Graph<N, A>(nodes) {
-      private Pair<N,N> d0d1(A arrow) {
-        Pair<N,N>fromTo = arrows.get(arrow);
-        require(fromTo != null, "Expected in arrows " + arrows.keySet() + ": <<" + arrow + ">>");
-        require(nodes.contains(fromTo.x()), "Expected " + fromTo.x() + "=d0(" + arrow + ") to be a member of " + nodes);
-        require(nodes.contains(fromTo.y()), "Expected " + fromTo.y() + "=d1(" + arrow + ") to be a member of " + nodes);
-        return fromTo;
-      }
-
-      public N d0(A arrow) {
-        return d0d1(arrow).x();
-      }
-      public N d1(A arrow) {
-        return d0d1(arrow).y();
-      }
-      public Set<A> arrows() { return arrows.keySet(); }
-    };
+    return new WithArrows(nodes, arrows);
   }
 
   /**
@@ -211,4 +271,5 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
     Graph<Integer,String> three = Graph(nodes, arrows);
     System.out.println(three);
   }
+
 }

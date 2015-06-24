@@ -79,7 +79,8 @@ public class SetDiagramTest extends TestCase {
     SetDiagram<String, String> diagram = buildDiagram(Categories.Z2, buildObjects("123"));
     Functor<String, String, Set, TypelessSetMorphism>.Cone actual = diagram.limit();
     Set apex = actual.apex();
-    assertEquals(Sets.Set(Base.List("a1"), Base.List("a2"), Base.List("a3")), apex);
+    assertEquals("Could not calculate limit on Z2: " + actual,
+            Sets.Set(Base.List("a1"), Base.List("a2"), Base.List("a3")), apex);
   }
 
   public void testLimit_SplitMono() {
