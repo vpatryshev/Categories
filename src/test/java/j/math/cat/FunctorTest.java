@@ -182,9 +182,10 @@ public class FunctorTest extends TestCase {
             }
         );
     Set<Functor.Cone> expectedCones = Sets.Set(c1, c2);
+
     assertEquals(expectedCones.size(), allCones.size());
     assertTrue("c1 should belong", allCones.contains(c1));
-    assertTrue("c2 should belong", allCones.contains(c1));
+    assertTrue("c2 should belong", allCones.contains(c2));
     for (Functor.Cone c: allCones) {
       assertTrue("this cone: " + c + " is unexpected", expectedCones.contains(c));
     }
