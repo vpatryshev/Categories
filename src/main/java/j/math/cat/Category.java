@@ -91,29 +91,6 @@ public abstract class Category<O, A> extends Graph<O, A> {
       @Override public Pair<T, T> apply(T t) { return Pair.of(t, t); }
     }.toMap(objects);
   }
-/*
-  static <T> Map<Pair<T, T>, Pair<T, T>> arrowMapForUnits(Set<T> objects) {
-    Set<Pair<T, T>> diagonal = new Injection<T, Pair<T, T>>() {
-      @Override public Pair<T, T> apply(T t) { return Pair.of(t, t); }
-    }.map(objects);
-
-    return new Function<Pair<T, T>, Pair<T, T>>() {
-      @Override public Pair<T, T> apply(Pair<T, T> p) { return p; }
-    }.toMap(diagonal);
-  }
-
-  /**
-   * Builds a discrete category with given set of objects
-   * @param objects the objects
-   *
-  static <T> Category<T, Pair<T, T>> Discrete(Set<T> objects) {
-    super(objects, (Quiver<T, Pair<T, T>>) new Graph.ArrowMap<T, Pair<T, T>>(objects, arrowMapForUnits(objects)));
-
-    Quiver<T, Pair<T, T>> q = new Graph.ArrowMap<T, Pair<T, T>>(objects, arrowMapForUnits(objects));
-    ooo = objects;
-    validate();
-  }
-*/
 
   /**
    * Builds a category with given set of objects
@@ -121,11 +98,8 @@ public abstract class Category<O, A> extends Graph<O, A> {
    */
   protected Category(Set<O> objects, Quiver<O, A> arrows) {
   super(objects, arrows);
-  ooo = objects;
   validate();
   }
-
-  public Set<O> ooo = null;
 
   /**
    * Checks whether two arrows can be composed. Which happens iff the codomain of the first

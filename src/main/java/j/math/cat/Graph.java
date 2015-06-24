@@ -64,21 +64,8 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
 
   }
 
-  public static <T> String setStringifier(Set<T> set) {
-    if (set instanceof BigSet) {
-      return (((BigSet)set).whoami());
-    } else if (!(set instanceof Graph)) {
-      return set.toString();
-    } else {
-      throw new UnsupportedOperationException("What do you want here? Graph on graph?! " + set);
-//      return "just another graph";
-    }
-  }
-
   protected Graph() {
-
-    this.nnn = Collections.emptySet();
-    this.nodes = nnn;
+    this.nodes = Collections.emptySet();
     validate();
   }
 
@@ -88,9 +75,6 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * @param nodes graph nodes.
    */
   protected Graph(Set<N> nodes) {
-
-    System.out.println("Building Graph on... " + setStringifier(nodes));
-    this.nnn = nodes;
     this.nodes = nodes;
     validate();
   }
@@ -101,9 +85,6 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * @param nodes graph nodes.
    */
   protected Graph(Set<N> nodes, Quiver<N, A> quiver) {
-
-    System.out.println("Building Graph on... " + setStringifier(nodes));
-    this.nnn = nodes;
     this.nodes = nodes;
     this.quiver = quiver;
     validate();
@@ -142,7 +123,7 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
     return isEqual;
   }
   public String toString() {
-    if (nodes instanceof BigSet) return "(" + setStringifier(nodes) + "...)";
+    if (nodes instanceof BigSet) return "(" + ((BigSet) nodes).whoami() + "...)";
 
     StringBuffer out = new StringBuffer();
 
@@ -196,7 +177,6 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
     }
   }
 
-public Set<N> nnn = null;
   /**
    * Builds a graph from given nodes and arrows.
    *
