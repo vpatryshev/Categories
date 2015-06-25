@@ -13,9 +13,10 @@ import junit.framework.TestCase;
  * Unittest for SetMorphism class
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class SetMorphismTest extends TestCase {
   Set<Integer> ints = new HashSet<Integer>(Arrays.asList(1, 2, 3, 5, 8, 13));
   Set<String> strings = new HashSet<String>(Arrays.asList("even", "odd", "totally crazy"));

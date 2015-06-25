@@ -16,7 +16,7 @@ import java.util.Set;
  * Contains function objects and operations.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  */
 public class Functions {
@@ -255,14 +255,14 @@ public class Functions {
   }
 
   /**
-   * A special kind of injection that maps a set of key-value pairs to a map.
+   * A special kind of injection that maps an iterable of key-value pairs to a map.
    *
    * @param <X> key type
    * @param <Y> value type
    */
-  public static class PairsToMap<X, Y> extends Injection<Set<Pair<X, Y>>, Map<X, Y>> {
+  public static class PairsToMap<X, Y> extends Injection<Iterable<Pair<X, Y>>, Map<X, Y>> {
     @Override
-    public Map<X, Y> apply(Set<Pair<X, Y>> pairs) {
+    public Map<X, Y> apply(Iterable<Pair<X, Y>> pairs) {
       return Sets.Map(pairs);
     }
   }

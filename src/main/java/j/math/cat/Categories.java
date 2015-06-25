@@ -14,7 +14,7 @@ import java.util.Set;
  * Some specific categories here.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
 public final class Categories {
   private Categories() {}
@@ -119,11 +119,11 @@ public final class Categories {
    */
   public static final Category<String, String> M = Category("(([a,b,c,d,e], {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e}), {})");
 
-    static class SetCategory extends  Category<Set, TypelessSetMorphism> {
-
+    @SuppressWarnings({"rawtypes","unchecked"})
+    static class SetCategory extends Category<Set<Object>, TypelessSetMorphism> {
 
         public SetCategory(BigSet classOfSets) {
-            super(classOfSets, new Quiver<Set, TypelessSetMorphism>() {
+            super(classOfSets, new Quiver<Set<Object>, TypelessSetMorphism>() {
                 private final Set<TypelessSetMorphism> ALL_MORPHISMS =
                         new BigSet<TypelessSetMorphism>() {
                             @Override public boolean contains(Object f) {
@@ -149,6 +149,7 @@ public final class Categories {
         }
 
         @Override
+        @SuppressWarnings({"rawtypes"})
         public TypelessSetMorphism unit(Set x) {
             // I don't know wtf prevents dispatching TypelessSetMorphism.unit to TypelessSetMorphism...
             return TypelessSetMorphism.unitMorphism(x);
@@ -247,7 +248,7 @@ public final class Categories {
         }
 
         @Override
-        public TypelessSetMorphism coequalizer(final Iterable<TypelessSetMorphism> arrowsToEqualize, Set codomain) {
+        public TypelessSetMorphism coequalizer(final Iterable<TypelessSetMorphism> arrowsToEqualize, Set<Object> codomain) {
             if (!arrowsToEqualize.iterator().hasNext()) {
                 return TypelessSetMorphism.unitMorphism(codomain);
             }
@@ -338,7 +339,7 @@ public final class Categories {
         }
 
         @Override
-        public Category<Set, TypelessSetMorphism> op() {
+        public Category<Set<Object>, TypelessSetMorphism> op() {
             throw new UnsupportedOperationException("TODO(vpatryshev): try to implement it.");
         }
         @Override
@@ -349,15 +350,17 @@ public final class Categories {
         private final Set TERMINAL_SET = singleton(initial());
 
         @Override
+        @SuppressWarnings({"rawtypes","unchecked"})
         public Set terminal() {
             return TERMINAL_SET;
         }
 
         @Override
+        @SuppressWarnings({"rawtypes","unchecked"})
         public Pair<Set, List<TypelessSetMorphism>> degree(final Set x, final int n) {
-            final Set<Map> allMaps = Sets.allMaps(Sets.numbers(n), x);
+            final Set allMaps = Sets.allMaps(Sets.numbers(n), x);
             return BasePair.Pair(
-                    (Set) allMaps,
+                    allMaps,
                     (List<TypelessSetMorphism>) new AbstractList<TypelessSetMorphism>() {
                         @Override
                         public TypelessSetMorphism get(final int i) {
@@ -378,7 +381,7 @@ public final class Categories {
 
 
         @Override
-        public Iterator<Set> iterator() {
+        public Iterator<Set<Object>> iterator() {
             throw new UnsupportedOperationException("Not an enumerable entity.");
         }
 
@@ -393,17 +396,17 @@ public final class Categories {
         }
 
         @Override
-        public Set<Set> nodes() {
+        public Set<Set<Object>> nodes() {
             return super.nodes();
         }
 
         @Override
-        public Set d0(TypelessSetMorphism arrow) {
+        public Set<Object> d0(TypelessSetMorphism arrow) {
             return arrow.domain();
         }
 
         @Override
-        public Set d1(TypelessSetMorphism arrow) {
+        public Set<Object> d1(TypelessSetMorphism arrow) {
             return arrow.codomain();
         }
     }
@@ -415,6 +418,7 @@ public final class Categories {
     @SuppressWarnings("unchecked")
     public static final SetCategory SETF = new SetCategory(BigSet.FINITE_SETS);
 
+    @SuppressWarnings({"rawtypes","unchecked"})
     public static void main(String[] args) {
         for (Category cat : Base.array(_1_, _2_, _3_, _4_, Z2, _1plus1_, M, W, SPLIT_MONO, SQUARE)) {
             cat.validate();

@@ -29,7 +29,7 @@ public class Maybe<T> {
 
   public boolean equals(Object o) {
     if (o instanceof Maybe) {
-      Maybe other = (Maybe)o;
+      Maybe<?> other = (Maybe)o;
       return hasValue() == other.hasValue() &&
           (hasValue() ? value().equals(other.value()) : true);
     }
@@ -40,13 +40,16 @@ public class Maybe<T> {
     return hasValue() ? value.toString() : "NONE";
   }
 
+  @SuppressWarnings({"rawtypes","unchecked"})
   public final static Maybe NONE = new Maybe();
 
+  @SuppressWarnings({"rawtypes","unchecked"})
   public static <T> Maybe<T> some(Maybe<T> maybe) {
     return maybe == null ? NONE : maybe;
   }
 
+  @SuppressWarnings({"unchecked"})
   public static <T> Maybe<T> some(T value) {
-    return value == null ? NONE : new Maybe(value);
+    return value == null ? NONE : new Maybe<T>(value);
   }
 }

@@ -15,7 +15,7 @@ import java.util.Set;
  * Functor class: morphisms for categories.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  * @param <XObjects> type of nodes in the first category (like Alksnis?) 
  * @param <XArrows> type of arrows in the first category 
@@ -282,6 +282,7 @@ public class Functor<
     }
 
     @Override
+    @SuppressWarnings({"rawtypes","unchecked"})
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof Functor.Cone)) return false;
@@ -478,6 +479,7 @@ codomain().validate();
     }
 
     @Override
+    @SuppressWarnings({"unchecked"})
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof Functor.Cocone)) return false;

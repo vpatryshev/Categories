@@ -49,8 +49,8 @@ public class Categories {
 
   public static Category discrete(Category source) {
     Category result = new Category(source.name + ".discrete");
-    for (Iterator i = source.objects.keySet().iterator(); i.hasNext();) {
-      result.addObject((String)i.next());
+    for (Iterator<String> i = source.objects.keySet().iterator(); i.hasNext();) {
+      result.addObject(i.next());
     }
 
     return result;
@@ -59,19 +59,19 @@ public class Categories {
   public static Category op(Category source) {
     Category result = new Category(source.name + ".op");
 
-    for (Iterator i = source.objects.keySet().iterator(); i.hasNext();) {
-      result.addObject((String)i.next());
+    for (Iterator<String> i = source.objects.keySet().iterator(); i.hasNext();) {
+      result.addObject(i.next());
     }
 
-    for (Iterator i = source.morphisms.values().iterator(); i.hasNext();) {
-      Category.Morphism f = (Category.Morphism)i.next();
+    for (Iterator<Category.Morphism> i = source.morphisms.values().iterator(); i.hasNext();) {
+      Category.Morphism f = i.next();
       result.addMorphism(f.name, f.d1.name, f.d0.name);
     }
 
-    for (Iterator i = source.mult.entrySet().iterator(); i.hasNext();) {
-      Map.Entry entry = (Map.Entry)i.next();
-      Category.Morphism[] from = (Category.Morphism[])entry.getKey();
-      result.setMult(from[0].name, from[1].name, ((Category.Morphism)entry.getValue()).name);
+    for (Iterator<Map.Entry<Category.Morphism[], Category.Morphism>> i = source.mult.entrySet().iterator(); i.hasNext();) {
+      Map.Entry<Category.Morphism[], Category.Morphism> entry = i.next();
+      Category.Morphism[] from = entry.getKey();
+      result.setMult(from[0].name, from[1].name, entry.getValue().name);
     }
 
     return result;
@@ -84,31 +84,31 @@ public class Categories {
   public static Category product(Category X, Category Y) {
     Category result = new Category("(" + X.name + " x " + Y.name + ")");
 
-    for (Iterator i = X.objects.keySet().iterator(); i.hasNext();) {
-      String xName = (String)i.next();
-      for (Iterator j = Y.objects.keySet().iterator(); j.hasNext();) {
-        result.addObject(pair(xName, (String)j.next()));
+    for (Iterator<String> i = X.objects.keySet().iterator(); i.hasNext();) {
+      String xName = i.next();
+      for (Iterator<String> j = Y.objects.keySet().iterator(); j.hasNext();) {
+        result.addObject(pair(xName, j.next()));
       }
     }
 
-    for (Iterator i = X.morphisms.values().iterator(); i.hasNext();) {
-      Category.Morphism f = (Category.Morphism)i.next();
-      for (Iterator j = Y.morphisms.values().iterator(); j.hasNext();) {
-        Category.Morphism g = (Category.Morphism) j.next();
+    for (Iterator<Category.Morphism> i = X.morphisms.values().iterator(); i.hasNext();) {
+      Category.Morphism f = i.next();
+      for (Iterator<Category.Morphism> j = Y.morphisms.values().iterator(); j.hasNext();) {
+        Category.Morphism g = j.next();
         result.addMorphism(pair(f.name, g.name),
                            pair(f.d0.name, g.d0.name),
                            pair(f.d1.name, g.d1.name));
       }
     }
 
-    for (Iterator i = X.mult.entrySet().iterator(); i.hasNext();) {
-      Map.Entry xEntry = (Map.Entry)i.next();
-      Category.Morphism[] xFrom = (Category.Morphism[])xEntry.getKey();
-      String xh = ((Category.Morphism)xEntry.getValue()).name;
-      for (Iterator j = Y.mult.entrySet().iterator(); j.hasNext();) {
-        Map.Entry yEntry = (Map.Entry) j.next();
-        Category.Morphism[] yFrom = (Category.Morphism[]) yEntry.getKey();
-        String yh = ( (Category.Morphism) yEntry.getValue()).name;
+    for (Iterator<Map.Entry<Category.Morphism[], Category.Morphism>> i = X.mult.entrySet().iterator(); i.hasNext();) {
+      Map.Entry<Category.Morphism[], Category.Morphism> xEntry = i.next();
+      Category.Morphism[] xFrom = xEntry.getKey();
+      String xh = xEntry.getValue().name;
+      for (Iterator<Map.Entry<Category.Morphism[], Category.Morphism>> j = Y.mult.entrySet().iterator(); j.hasNext();) {
+        Map.Entry<Category.Morphism[], Category.Morphism> yEntry = j.next();
+        Category.Morphism[] yFrom = yEntry.getKey();
+        String yh = yEntry.getValue().name;
         result.setMult(pair(xFrom[0].name, yFrom[0].name),
                        pair(xFrom[1].name, yFrom[1].name),
                        pair(xh, yh));

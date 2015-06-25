@@ -7,7 +7,7 @@ import java.util.*;
  * Base tools used in this package.
  *
  * @author Vlad Patryshev
- *         All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ *         All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  *         Credits: http://antilamer.livejournal.com/245962.html
  */
 
@@ -20,6 +20,7 @@ public class Base {
      * @param elements the elements to have in the array (vararg)
      * @return the newly-built array
      */
+    @SuppressWarnings({"unchecked"})
     public static <T> T[] array(T... elements) { return elements; }
 
     /**
@@ -72,6 +73,7 @@ public class Base {
      * @param elements the elements
      * @return a list of all these elements
      */
+    @SuppressWarnings({"unchecked"})
     public static <T> List<T> List(T... elements) {
         return Arrays.asList(elements);
     }
@@ -84,6 +86,7 @@ public class Base {
      * @param collections vararg list of participating collections
      * @return a set that contains all elements of those collections
      */
+    @SuppressWarnings({"unchecked"})
     static <A> Set<A> disjointUnion(final Collection<A>... collections) {
         return new AbstractSet<A>() {
             @Override
@@ -165,6 +168,7 @@ public class Base {
      * @param candidates the candidates to choose from
      * @return a candidate that is not null, or null if none such
      */
+    @SuppressWarnings({"unchecked"})
     public static <T> T oneOf(T... candidates) {
         for (T x : candidates) {
             if (x != null) {
@@ -348,6 +352,7 @@ public class Base {
      * @param iterables the iterables to concatenate
      * @return a flat iterable, listing elements of the given iterables
      */
+    @SuppressWarnings({"unchecked"})
     public static <T> Iterable<T> concat(final Iterable<T>... iterables) {
         return flatten(Arrays.asList(iterables));
     }
@@ -359,6 +364,7 @@ public class Base {
      * @param lists the lists to concatenate.
      * @return the list produced by concatenating given lists
      */
+    @SuppressWarnings({"unchecked"})
     public static <T> List<T> concat(final List<T>... lists) {
         return flattenList(Arrays.asList(lists));
     }

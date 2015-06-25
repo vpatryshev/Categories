@@ -1,8 +1,5 @@
 package j.math.cat;
 
-import static j.math.cat.BasePair.Pair;
-import static j.math.cat.Sets.Set;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -17,9 +14,10 @@ import junit.framework.TestCase;
  * Unittest for Categories class
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class CategoriesTest extends TestCase {
   private final Set<String> setofAandB = Sets.Set("a", "b");
   private final Set<Boolean> setofTrueAndFalse = Sets.Set(true, false);
@@ -112,9 +110,9 @@ public class CategoriesTest extends TestCase {
     Graph g0 = Graph.Graph(BigSet.FINITE_SETS, bigUnits);
 
     assertTrue("go.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS == g0.nodes());
-    assertTrue("SETF.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS == Categories.SETF.nodes());
-    assertTrue("SETF.objects() must be FINITE_SETS: ", BigSet.FINITE_SETS == Categories.SETF.objects());
-    final Set<Set> allSets = Categories.SETF.objects();
+    assertTrue("SETF.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS .equals(Categories.SETF.nodes()));
+    assertTrue("SETF.objects() must be FINITE_SETS: ", BigSet.FINITE_SETS.equals(Categories.SETF.objects()));
+    final Set<Set<Object>> allSets = Categories.SETF.objects();
     assertFalse("Should not be able to enumerate all sets", isEnumerable((BigSet) allSets));
     assertTrue("Domain for " + arrow + " not defined", allSets.contains(Categories.SETF.d0(arrow)));
     assertTrue("Codomain for " + arrow + " not defined", allSets.contains(Categories.SETF.d1(arrow)));

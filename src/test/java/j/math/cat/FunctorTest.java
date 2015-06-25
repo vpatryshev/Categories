@@ -1,8 +1,6 @@
 package j.math.cat;
 
-import static j.math.cat.BasePair.Pair;
 import static j.math.cat.Category.Category;
-import static j.math.cat.Sets.Set;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +12,7 @@ import junit.framework.TestCase;
  * Unittest for Functor class.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  *
  */
 public class FunctorTest extends TestCase {

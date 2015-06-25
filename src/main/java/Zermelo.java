@@ -15,6 +15,7 @@ import java.util.Comparator;
  *
  * Note that I use 'boolean', but I mean logical (intuitionistic).
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class Zermelo {
   int PATIENCE = 100;
   public void log(String s) {

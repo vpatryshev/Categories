@@ -4,7 +4,7 @@ import scala.Product2
  * Contains lazy pair implementation.
  *
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  *
  */
 

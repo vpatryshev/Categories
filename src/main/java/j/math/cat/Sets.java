@@ -31,7 +31,7 @@ import java.util.Map.Entry;
  * All kinds of additional Set functionality.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  */
 public class Sets {
@@ -118,6 +118,7 @@ public class Sets {
      * @param xss (a plurality of) sequences that are being multiplied.
      * @return Cartesian product of the sequences.
      */
+    @SuppressWarnings({"unchecked"})
     public static <X, XS extends Set<X>> Iterable<? extends List<X>> product(final XS... xss) {
       return product(Arrays.asList(xss));
     }
@@ -282,6 +283,7 @@ public class Sets {
    * @param elements the elements to add
    * @return the set
    */
+  @SuppressWarnings({"unchecked"})
   public static <T> Set<T> Set(T... elements) {
     return Collections.unmodifiableSet(new HashSet<T>(Arrays.asList(elements)));
   }
@@ -605,6 +607,7 @@ public class Sets {
    * @param components sets to be used in building the union.
    * @return a set containing the elements of all the given sets.
    */
+  @SuppressWarnings({"unchecked"})
   public static <T> Set<T> union(Set<T>... components) {
     return union(Arrays.asList(components));
   }

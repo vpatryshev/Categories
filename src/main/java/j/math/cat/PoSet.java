@@ -31,6 +31,7 @@ public abstract class PoSet<T> extends AbstractSet<T> {
   }
 
   @Override
+  @SuppressWarnings({"unchecked"})
   public boolean equals(Object o) {
     return o instanceof PoSet && ((PoSet) o).equals(this);
   }

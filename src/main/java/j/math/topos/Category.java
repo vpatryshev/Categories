@@ -15,10 +15,6 @@ import java.util.HashMap;
  */
 
 public class Category {
-  public final String name;
-  Map objects   = new HashMap();
-  Map morphisms = new HashMap();
-  Map mult      = new HashMap();
 
   private class Entity {
     public final String name;
@@ -51,7 +47,7 @@ public class Category {
     }
 
     public Morphism(String name, String d0, String d1) {
-      this(name, (Object)objects.get(d0), (Object)objects.get(d1));
+      this(name, objects.get(d0), objects.get(d1));
     }
 
     public String toString() {
@@ -60,21 +56,26 @@ public class Category {
   }
 
   public Morphism mult(Morphism a, Morphism b) {
-    return (Morphism) mult.get(new Morphism[] {a, b});
+    return mult.get(new Morphism[] {a, b});
   }
+
+  public final String name;
+  Map<String, Object> objects     = new HashMap<String, Object>();
+  Map<String, Morphism> morphisms = new HashMap<String, Morphism>();
+  Map<Morphism[], Morphism> mult  = new HashMap<Morphism[], Morphism>();
 
   void setMult(Morphism a, Morphism b, Morphism c) {
     mult.put(new Morphism[] {a, b}, c);
   }
 
   void setMult(String a, String b, String c) {
-    mult.put(new Morphism[] {(Morphism)morphisms.get(a), (Morphism)morphisms.get(b)},
-             (Morphism)morphisms.get(c));
+    mult.put(new Morphism[] {morphisms.get(a), morphisms.get(b)},
+             morphisms.get(c));
   }
 
   public String validateIds() {
-    for (Iterator object = objects.values().iterator(); object.hasNext();) {
-      Object   o  = (Object)object.next();
+    for (Iterator<Object> object = objects.values().iterator(); object.hasNext();) {
+      Object o = object.next();
       if (o.id == null) {
         return "Error: Missing id morphism for object " + o;
       }
@@ -87,8 +88,8 @@ public class Category {
         return "Error: Wrong id morphism for object " + o + " - its d1 is " + o.id.d1;
       }
 
-      for (Iterator morphism = morphisms.values().iterator(); morphism.hasNext();) {
-        Morphism m = (Morphism)morphism.next();
+      for (Iterator<Morphism> morphism = morphisms.values().iterator(); morphism.hasNext();) {
+        Morphism m = morphism.next();
         if (m.d0 == o) {
           Morphism mult = mult(o.id, m);
           if (mult != m) {
@@ -110,10 +111,10 @@ public class Category {
   }
 
   public String validateMultiplication() {
-    for (Iterator first = morphisms.values().iterator(); first.hasNext();) {
-      Morphism f = (Morphism)first.next();
-      for (Iterator second = morphisms.values().iterator(); second.hasNext();) {
-        Morphism g = (Morphism)second.next();
+    for (Iterator<Morphism> first = morphisms.values().iterator(); first.hasNext();) {
+      Morphism f = first.next();
+      for (Iterator<Morphism> second = morphisms.values().iterator(); second.hasNext();) {
+        Morphism g = second.next();
         if (f.d1 != g.d0) continue;
 
         Morphism fg = mult(f, g);
@@ -122,8 +123,8 @@ public class Category {
           return "Error: " + f + " o " + g + " = " + fg;
         }
 
-        for (Iterator third = morphisms.values().iterator(); third.hasNext();) {
-          Morphism h = (Morphism)third.next();
+        for (Iterator<Morphism> third = morphisms.values().iterator(); third.hasNext();) {
+          Morphism h = third.next();
           if (g.d1 != h.d0) continue;
           Morphism a = mult(fg, h);
           Morphism b = mult(f, mult(g, h));
@@ -266,8 +267,8 @@ public class Category {
 
   public Category discrete() {
     Category result = new Category(this.name + ".discrete");
-    for (Iterator i = objects.keySet().iterator(); i.hasNext();) {
-      result.addObject((String)i.next());
+    for (Iterator<String> i = objects.keySet().iterator(); i.hasNext();) {
+      result.addObject(i.next());
     }
 
     return result;
@@ -276,19 +277,19 @@ public class Category {
   public Category op() {
     Category result = new Category(this.name + ".op");
 
-    for (Iterator i = objects.keySet().iterator(); i.hasNext();) {
-      result.addObject((String)i.next());
+    for (Iterator<String> i = objects.keySet().iterator(); i.hasNext();) {
+      result.addObject(i.next());
     }
 
-    for (Iterator i = morphisms.values().iterator(); i.hasNext();) {
-      Morphism m = (Morphism)i.next();
+    for (Iterator<Morphism> i = morphisms.values().iterator(); i.hasNext();) {
+      Morphism m = i.next();
       result.addMorphism(m.name, m.d1.name, m.d0.name);
     }
 
-    for (Iterator i = mult.entrySet().iterator(); i.hasNext();) {
-      Map.Entry entry = (Map.Entry)i.next();
-      Morphism[] from = (Morphism[])entry.getKey();
-      result.setMult(from[0].name, from[1].name, ((Morphism)entry.getValue()).name);
+    for (Iterator<Map.Entry<Morphism[], Morphism>> i = mult.entrySet().iterator(); i.hasNext();) {
+      Map.Entry<Morphism[], Morphism> entry = i.next();
+      Morphism[] from = entry.getKey();
+      result.setMult(from[0].name, from[1].name, entry.getValue().name);
     }
 
     return result;

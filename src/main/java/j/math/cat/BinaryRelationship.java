@@ -9,7 +9,7 @@ import java.util.Set;
  * A predicate is a logical-valued function. Here in Java we use boolean for logical.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * Special thanks to Eugene Kirpichov (antilamer.livejournal.com) for inspirational ideas.
  * <p/>
  * <p/>

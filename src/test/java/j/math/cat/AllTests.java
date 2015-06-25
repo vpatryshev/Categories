@@ -8,12 +8,12 @@ import junit.framework.TestSuite;
  * Wraps all tests to run (have to list manually).
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ *  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
+
  * 
  */
 public class AllTests {
-  private static final String packageName =
-      AllTests.class.getPackage().getName();
+  private static final String packageName = AllTests.class.getPackage().getName();
 
   /**
    * Builds a test suite.
@@ -38,7 +38,7 @@ public class AllTests {
   public static Test suite() {
     try {
       return suite("All Tests",
-          "Base, Categories, Category, Functions, Functor, Graph, Pair, PoSet, Predicate, SetDiagram, SetMorphism, Sets");
+          "Base, BinaryRelationship, Categories, Category, Functions, Functor, Graph, Maybe, Pair, PoSet, Predicate, SetDiagram, SetMorphism, Sets");
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }

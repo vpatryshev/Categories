@@ -8,7 +8,7 @@ import static j.math.cat.Functions.*;
  * Sample Implementation of category.
  *
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  *
  * @param <O> object type
  * @param <A> arrow type
@@ -408,22 +408,26 @@ public abstract class Category<O, A> extends Graph<O, A> {
   public static <N, A0, A extends A0/*&N*/> Category<N, A>
   Category(final Graph<N, A> graph,
            final Map<Pair<A, A>, A> composition) {
+    @SuppressWarnings({"rawtypes","unchecked"})
     final Set<A> allArrows = new HashSet(graph.nodes());
     allArrows.addAll(graph.arrows());
 
     final Set<N> myNodes = graph.nodes();
 
     class AllArrows implements Quiver<N, A> {
+      @SuppressWarnings({"unchecked"})
       public N d0(Object f) { return myNodes.contains(f) ? (N)f : graph.d0((A)f); }
+      @SuppressWarnings({"unchecked"})
       public N d1(Object f) { return myNodes.contains(f) ? (N)f : graph.d1((A)f); }
-      public Set arrows() { return allArrows; }
+      public Set<A> arrows() { return allArrows; }
       boolean isUnit(Object a) { return myNodes.contains(a); }
     };
 
     final AllArrows myQuiver = new AllArrows();
 
     return new Category<N, A>(myNodes, myQuiver) {
-      public A unit(N x) { return (A)x; }
+      @SuppressWarnings({"unchecked"})
+      public A unit(N x) { return (A)x; } // the problem being, Java does not have union types
       public A m(A f, A g) {
         return objects().contains(f) ? g : objects().contains(g) ? f : composition.get(Pair.of(f, g));
       }
@@ -1358,9 +1362,8 @@ public abstract class Category<O, A> extends Graph<O, A> {
     };
   }
 
-
+  @SuppressWarnings({"rawtypes","unchecked"})
   public static void main(String[] args) {
-
 
     Category<String,String> three = buildCategory(Sets.Set("0", "1", "2"),
             Base.Map(Base.array("0.1", "0.2", "a", "b", "2.1", "2.a", "2.b", "2.swap"), // d0

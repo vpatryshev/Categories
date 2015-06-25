@@ -1,7 +1,5 @@
 package j.math.cat;
 
-import static j.math.cat.BasePair.Pair;
-
 import j.math.cat.Functions.Function;
 import junit.framework.TestCase;
 
@@ -9,7 +7,7 @@ import junit.framework.TestCase;
  * Tests for Pair class.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  * <p/>
  * Note. Please set "-ea" to your vm parameters, to enable assertions.

@@ -14,7 +14,7 @@ import java.util.Set;
  * SetMorphism class: morphisms for sets.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  * @param <X> domain element type
  * @param <PX> domain set type
@@ -252,15 +252,12 @@ public abstract class SetMorphism <X, PX extends Set<X>, Y, PY extends Set<Y>>
           // this function builds pairs (x, y) for all y for a given x
           @Override
           public Set<Pair<X, Y>> apply(final X x) {
-            Injection<Y, Pair<X, Y>> pairWithxOnTheLeft =
-                BasePair.withLeft(x);
+            Injection<Y, Pair<X, Y>> pairWithxOnTheLeft = BasePair.withLeft(x);
             return pairWithxOnTheLeft.map(setY);
           }
         }.map(setX);
 
-    Set<Map<X, Y>> allMaps =
-        new PairsToMap<X, Y>().map(
-            new Inclusion().map(Sets.Cartesian.product(sections)));
+    Set<Map<X, Y>> allMaps = new PairsToMap<X, Y>().map(Sets.Cartesian.product(sections));
 
     Function<Map<X, Y>, SetMorphism<X, Set<X>, Y, Set<Y>>> makeMorphism =
         new Function<Map<X, Y>, SetMorphism<X, Set<X>, Y, Set<Y>>>() {

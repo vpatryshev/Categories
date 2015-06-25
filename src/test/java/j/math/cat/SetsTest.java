@@ -20,9 +20,11 @@ import junit.framework.TestCase;
  * Tests for Sets class
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
+
  * 
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class SetsTest extends TestCase {
 
   @SuppressWarnings("serial")
@@ -203,14 +205,15 @@ public class SetsTest extends TestCase {
 
   @SuppressWarnings({ "serial", "unchecked" })
   public void testAllMaps_plain() {
+    Map<String, Integer> a1b1c1 = new HashMap<String, Integer>() {
+      {
+        put("a", 1);
+        put("b", 1);
+        put("c", 1);
+      }
+    };
     Set<? extends Map<String, Integer>> expected = Sets.Set(
-            new HashMap<String, Integer>() {
-              {
-                put("a", 1);
-                put("b", 1);
-                put("c", 1);
-              }
-            },
+            a1b1c1,
             new HashMap<String, Integer>() {
               {
                 put("a", 1);
@@ -261,7 +264,20 @@ public class SetsTest extends TestCase {
               }
             }
     );
-    TestCase.assertEquals(expected, Sets.allMaps(Sets.Set("a", "b", "c"), Sets.Set(1, 2)));
+
+
+    final Set<Map<String, Integer>> actual = Sets.allMaps(Sets.Set("a", "b", "c"), Sets.Set(1, 2));
+
+    Map<String, Integer> act1 = actual.iterator().next();
+    assertTrue("wtf? " + act1 + " vs " + a1b1c1, act1.equals(a1b1c1));
+    assertTrue("wtf? " + act1, actual.contains(a1b1c1));
+    for (Map<String, Integer> m: actual) {
+      assertTrue("wrong " + m, expected.contains(m));
+    }
+    for (Map<String, Integer> m: expected) {
+      assertTrue("missing " + m, actual.contains(m));
+    }
+    TestCase.assertEquals(expected, actual);
   }
 
   @SuppressWarnings("unchecked")

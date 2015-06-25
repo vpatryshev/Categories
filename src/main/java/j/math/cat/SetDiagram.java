@@ -6,11 +6,8 @@ import j.math.cat.Functions.Function;
 import j.math.cat.Functions.Id;
 import j.math.cat.Functions.Injection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 import static j.math.cat.Base.*;
 /**
  * Diagram from a category to Categories.SETF.
@@ -18,11 +15,11 @@ import static j.math.cat.Base.*;
  * @param <Arrows> type of arrows of domain category
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"rawtypes","unchecked"})
 public class SetDiagram<Objects, Arrows>
-    extends Functor<Objects, Arrows, Set, TypelessSetMorphism> {
+    extends Functor<Objects, Arrows, Set<java.lang.Object>, TypelessSetMorphism> {
 
   /**
    * Constructor. Builds unnamed functor.
@@ -33,9 +30,10 @@ public class SetDiagram<Objects, Arrows>
    */
   public SetDiagram(
       Category<Objects, Arrows> domain,
-      SetMorphism<Objects, Set<Objects>, Set, Set<Set>> objectsMorphism,
+      SetMorphism<Objects, Set<Objects>, Set<java.lang.Object>, Set<Set<java.lang.Object>>> objectsMorphism,
       SetMorphism<Arrows, Set<Arrows>, TypelessSetMorphism, Set<TypelessSetMorphism>> arrowsMorphism) {
     super(domain, Categories.SETF, objectsMorphism, arrowsMorphism);
+    Category<Set<Object>, TypelessSetMorphism> sf = Categories.SETF;
     validate();
   }
 
@@ -52,31 +50,33 @@ public class SetDiagram<Objects, Arrows>
     // this function takes an object and returns a projection set function; we have to compose each such projection
     // with the right arrow from important object to the image of our object
     final Function<Objects, Function<List<Object>, Object>> projectionForObject = index.then(Sets.Cartesian.projection());
-    // Here we have a non-repeating collection of sets to use for building a product
-    List<Set> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
+    // Here we have a non-repeating collection of sets to use for building a limit
+    List<Set<java.lang.Object>> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
 
-    final Set<? extends List<Object>> apex = calculateLimitApex(participantArrows, listOfObjects, projectionForObject);
+    // this is the product of these sets; will have to take a subset of this product
+    Set<? extends List<Object>> product = Sets.Cartesian.product(setsToUse);
+
+    // for each domain object, a collection of arrows looking outside
+    final Map<Objects, Set<Arrows>> cobundles =
+            domain().op().buildBundles(domain().objects(), participantArrows);
+
+    // Have a product set; have to remove all the bad elements from it
+    // this predicate leaves only compatible elements of product (which are lists)
+    Predicate<List<Object>> compatibleListsOnly = new Predicate<List<Object>>() {
+      @Override
+      public boolean eval(final List<Object> point) {
+        Predicate<Set<Arrows>> checkCompatibility =
+                allArrowsAreCompatibleOnPoint(projectionForObject, point);
+        return checkCompatibility.forall(cobundles.values());
+      }
+    };
+
+    // this is the limit object
+    final Set<? extends List<Object>> apex = compatibleListsOnly.filter(product);
+
     // now have the apex; build the cone
     final Map<Objects, Set<Arrows>> bundles =
             domain().buildBundles(participantObjects, participantArrows);
-
-    private Set<? extends List<Object>> calculateLimitApex(Set<Arrows> participantArrows,
-                                                           final List<Objects> listOfObjects, final Function<Objects, Function<List<Object>, Object>> projectionForObject) {
-      Set<? extends List<Object>> product = Sets.Cartesian.product(setsToUse);
-      final Map<Objects, Set<Arrows>> cobundles =
-              domain().op().buildBundles(domain().objects(), participantArrows);
-
-      // Have a product set; have to remove all the bad elements from it
-      Predicate<List<Object>> compatibleListsOnly = new Predicate<List<Object>>() {
-        @Override
-        public boolean eval(final List<Object> point) {
-          Predicate<Set<Arrows>> checkCompatibility =
-                  allArrowsAreCompatibleOnPoint(projectionForObject, point);
-          return checkCompatibility.forall(cobundles.values());
-        }
-      };
-      return compatibleListsOnly.filter(product);
-    }
 
   }
 
@@ -107,8 +107,10 @@ public class SetDiagram<Objects, Arrows>
             data.projectionForObject.apply(x).then(componentMorphism.asFunction()));
       }
     }.toMap(domain().objects());
-
-    return new Cone(data.apex, coneMap);
+//YObjects apex
+    Set<java.lang.Object> apex = new HashSet<Object>();
+    apex.addAll(data.apex);
+    return new Cone(apex, coneMap);
   }
 
   /**
@@ -161,7 +163,7 @@ public class SetDiagram<Objects, Arrows>
   }
 
   @Override
-  public Functor<Objects, Arrows, Set, TypelessSetMorphism>.Cocone colimit() {
+  public Functor<Objects, Arrows, Set<Object>, TypelessSetMorphism>.Cocone colimit() {
     Set<Objects> participantObjects = domain().op().allInitialObjects();
     Set<Arrows> participantArrows = domain().op().arrowsFromInitialObjects();
     final Map<Objects, Set<Arrows>> bundles =
@@ -169,7 +171,7 @@ public class SetDiagram<Objects, Arrows>
 
     final List<Objects> listOfObjects = new ArrayList<Objects>(participantObjects);
     // Here we have a non-repeating collection of sets to use for building a union
-    List<Set> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
+    List<Set<Object>> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
     List<Set<Object>> setsToJoin = new Id().map(setsToUse);
     Sets.DisjointUnion<Object> du = new Sets.DisjointUnion<Object>(setsToJoin);
 

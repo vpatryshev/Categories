@@ -6,7 +6,7 @@ package j.math.cat;
  * to define or declare composition: what is the type of the result? How can it be instantiated?
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  * @param <X> domain type
  * @param <Y> codomain type

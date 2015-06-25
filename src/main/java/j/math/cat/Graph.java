@@ -24,6 +24,8 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
   @Override public Iterator<N> iterator() {  return nodes.iterator(); }
   @Override public int size() { return nodes.size(); }
   @Override public int hashCode() { return nodes.hashCode() * 2 + arrows().hashCode(); }
+
+  @SuppressWarnings({"unchecked"})
   @Override public boolean equals(Object o) { return o instanceof Graph && equals((Graph) o); }
 
   /**
@@ -185,7 +187,7 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
    * @return a new graph
    */
   public static <N, A> Graph<N, A> Graph(final Set<N> nodes, final Map<A, Pair<N, N>> arrows) {
-    return new WithArrows(nodes, arrows);
+    return new WithArrows<N, A>(nodes, arrows);
   }
 
   /**
@@ -244,6 +246,7 @@ public abstract class Graph<N, A> extends AbstractSet<N> {
 
   public static void main(String[] args) {
     Set<Integer> nodes = Sets.Set(0, 1, 2);
+    @SuppressWarnings({"rawtypes","unchecked"})
     Map<String, Pair<Integer, Integer>> arrows =
             Base.Map(Base.array("0.id", "0.1", "0.2", "1.id", "a", "b", "2.1", "2.id", "2.a", "2.b", "2.swap"),
                     Base.array(Pair.of(0, 0), Pair.of(0, 1), Pair.of(0, 2), Pair.of(1, 1), Pair.of(1, 2), Pair.of(1, 2), Pair.of(2, 1), Pair.of(2, 2), Pair.of(2, 2), Pair.of(2, 2), Pair.of(2, 2))

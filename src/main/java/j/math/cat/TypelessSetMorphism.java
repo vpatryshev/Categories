@@ -10,9 +10,10 @@ import java.util.Set;
  * Set morphism for typeless sets.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public abstract class TypelessSetMorphism
     extends SetMorphism<Object, Set<Object>, Object, Set<Object>> {
 
@@ -21,7 +22,7 @@ public abstract class TypelessSetMorphism
    * @param domain morphism domain (a set)
    * @param codomain morphism codomain (a set)
    */
-  @SuppressWarnings("unchecked")
+
   public TypelessSetMorphism(Set domain, Set codomain) {
     super(domain, codomain);
   }
@@ -32,7 +33,7 @@ public abstract class TypelessSetMorphism
    * @param domain morphism domain (a set)
    * @param codomain morphism codomain (a set)
    */
-  @SuppressWarnings("unchecked")
+
   public TypelessSetMorphism(String name, Set domain, Set codomain) {
     super(name, domain, codomain);
   }
@@ -43,7 +44,7 @@ public abstract class TypelessSetMorphism
    * @param s the set
    * @return identity morphism on the given set
    */
-  @SuppressWarnings("unchecked")
+
   public static TypelessSetMorphism unitMorphism(Set s) {
     return forFunction(s, s, new Functions.Id());
   }
@@ -120,7 +121,7 @@ public abstract class TypelessSetMorphism
    * @param value the value in <code>codom</code> that the morphism returns
    * @return constant morphism
    */
-  @SuppressWarnings("unchecked")
+
   public static TypelessSetMorphism constant(final Set dom, final Set codom, final Object value) {
     return TypelessSetMorphism.forFunction(dom, codom, Functions.constant(value));
   }
@@ -133,7 +134,7 @@ public abstract class TypelessSetMorphism
    * @param f the function that defines the morphism action
    * @return the morphism
    */
-  @SuppressWarnings("unchecked")
+
   public static TypelessSetMorphism forFunction(Set domain, Set codomain, final Function f) {
     return new TypelessSetMorphism(domain, codomain) {
       @Override
@@ -150,7 +151,6 @@ public abstract class TypelessSetMorphism
    * @param set    the set
    * @return inclusion monomorphism
    */
-  @SuppressWarnings("unchecked")
   public static TypelessSetMorphism inclusion(Set subset, Set set) {
     assert set.containsAll(subset) : "It is not an inclusion if it is not a subset.";
     return forFunction(subset, set, Functions.inclusion());
@@ -164,8 +164,7 @@ public abstract class TypelessSetMorphism
    * @param predicate defines the condition for elements to be included in the subset
    * @return inclusion monomorphism
    */
-  @SuppressWarnings("unchecked")
-  public static TypelessSetMorphism inclusion(Set set, Predicate<?> predicate) {
+  public static TypelessSetMorphism inclusion(Set set, Predicate predicate) {
     return inclusion(predicate.filter(set), set);
   }
 
@@ -176,7 +175,7 @@ public abstract class TypelessSetMorphism
    * @param factorset the main set
    * @return factorset epimorphism
    */
-  public static TypelessSetMorphism forFactorset(Sets.FactorSet<Object> factorset) {
+  public static TypelessSetMorphism forFactorset(Sets.FactorSet factorset) {
     return forFunction(factorset.domain(), factorset.factorset(), factorset.asFunction());
   }
 
@@ -201,7 +200,6 @@ public abstract class TypelessSetMorphism
    * @param y base (the set to which all morphisms are)
    * @return y<sup>x, represented as a set of all morphisms.
    */
-  @SuppressWarnings("unchecked")
   public static Set<TypelessSetMorphism> power(final Set x, final Set y) {
     return new Injection<Map, TypelessSetMorphism>() {
 

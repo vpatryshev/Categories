@@ -8,7 +8,7 @@ import j.math.cat.Functions.Function;
  * Laziness means that f(x) is not calculated until requested.
  * 
  * @author Vlad Patryshev
- * All source code is stored on <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  * @param <X> first component type
  * @param <Y> second component type
