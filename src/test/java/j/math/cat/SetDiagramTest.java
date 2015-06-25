@@ -85,11 +85,15 @@ public class SetDiagramTest extends TestCase {
   public void testLimit_Z2() {
       SetDiagram<String, String>.Limit limitData = Z2Diagram.new Limit();
 
+      final List<String> a1s = Base.List("a1");
+      Set expectedApex = Sets.Set(Base.List(a1s));
+
     Functor<String, String, Set, TypelessSetMorphism>.Cone actual = Z2Diagram.limit();
     Set apex = actual.apex();
+
     assertEquals("Could not calculate limit on Z2: " + actual + "\nfrom " +
-            limitData.listOfObjects + ", " + limitData.participantArrows + " with apex " + limitData.apex + "\nthe diagram was " + Z2Diagram + "\naptype=" + apex.getClass(),
-            Sets.Set(Base.List("a1")), apex);
+            limitData.listOfObjects + ", " + limitData.participantArrows + " with apex " + limitData.apex + "\nthe diagram was " + Z2Diagram,
+            expectedApex, apex);
   }
 
   public void testLimit_SplitMono() {
@@ -233,7 +237,7 @@ public class SetDiagramTest extends TestCase {
   public void testColimit_Z2() {
     Functor<String, String, Set, TypelessSetMorphism>.Cocone actual = Z2Diagram.colimit();
     Set apex = actual.apex();
-    TestCase.assertEquals(Sets.Set(Sets.Set(BasePair.Pair(0, "a1")), Sets.Set(BasePair.Pair(0, "a2")), Sets.Set(BasePair.Pair(0, "a3"))), apex);
+    TestCase.assertEquals(Sets.Set(Sets.Set(BasePair.Pair(0, "a2"), BasePair.Pair(0, "a3")), Sets.Set(BasePair.Pair(0, "a1"))), apex);
   }
 
   public void testColimit_SplitMono() {
