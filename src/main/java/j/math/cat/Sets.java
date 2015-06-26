@@ -242,6 +242,9 @@ public class Sets {
   private Sets() {}
 
   /**
+   * We may not need this kind of set anymore. It causes tons of confusion. Can one build a map based on this?
+   * Hardly, right? And so on.
+   *
    * Given an iterable of elements, builds a new (lazy) set with elements from that iterable.
    * The size of the set is unknown; we could calculate it, of course, but we should not.
    * Since its size is unknown, you should not use size() or isEmpty().
@@ -250,7 +253,7 @@ public class Sets {
    *
    * @param elements an iterable listing the elements of the new set.
    * @return a set that contains all these elements.
-   */
+   *
   static <X> Set<X> SetOfUnknownSize(final Iterable<X> elements) {
     return new AbstractSet<X>() {
 
@@ -297,6 +300,7 @@ public class Sets {
       }
     };
   }
+*/
 
   /**
    * Builds an actual set out of elements provided
