@@ -13,18 +13,7 @@ import j.math.cat.Functions.Injection;
 import j.math.cat.Functions.IterableToSet;
 import j.math.cat.Functions.PairsToMap;
 
-import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -266,8 +255,40 @@ public class Sets {
     return new AbstractSet<X>() {
 
       @Override
+      public boolean isEmpty() {
+        return !iterator().hasNext();
+      }
+
+      @Override
       public Iterator<X> iterator() {
         return elements.iterator();
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        if (o == this)
+           return true;
+
+        if (!(o instanceof Set)) return false;
+
+        Set<X> c = (Set<X>) o;
+        try {
+          return containsAll(c) && c.containsAll(this);
+        } catch (ClassCastException unused)   { return false;
+        } catch (NullPointerException unused) { return false;
+        }
+      }
+
+      private int ENOUGH = 42;
+
+      @Override
+      public int hashCode() {
+        int h = 0; int i = ENOUGH;
+        for (X x : this) {
+          h += x.hashCode();
+          if (0 <-- i) break;
+        }
+        return h;
       }
 
       @Override
@@ -285,7 +306,9 @@ public class Sets {
    */
   @SuppressWarnings({"unchecked"})
   public static <T> Set<T> Set(T... elements) {
-    return Collections.unmodifiableSet(new HashSet<T>(Arrays.asList(elements)));
+    Set<T> source = new HashSet<T>();
+    source.addAll(Arrays.asList(elements));
+    return Set(source);
   }
 
   /**
@@ -379,6 +402,29 @@ public class Sets {
   }
 
   /**
+   * Take an iterable, trust it to be non-repeating,
+   * return a virtual set based on the iterable's elements.
+   *
+   * @param <T> element type
+   * @param iterable source of elements
+   * @return a set consisting of the iterable's elements.
+   */
+  public static <T> Set<T> Set(final Iterable<T> iterable, final int size) {
+    return new AbstractSet<T>() {
+
+      @Override
+      public Iterator<T> iterator() {
+        return iterable.iterator();
+      }
+
+      @Override
+      public int size() {
+        return size;
+      }
+    };
+  }
+
+  /**
    * Extracts a set from a string as produced by Set.toString().
    * Entries in the set can not be empty strings and cannot contain commas.
    *
@@ -416,9 +462,19 @@ public class Sets {
     return new AbstractMap<X, Y>() {
       @Override
       public Set<Entry<X, Y>> entrySet() {
-        return cast.map(SetOfUnknownSize(pairs));
+        return cast.map(Set(pairs));
       }
     };
+
+/*
+    final Set<Entry<X, Y>> entries = cast.map(SetOfUnknownSize(pairs));
+    Map<X,Y> res = new HashMap<X, Y>();
+
+    for (Entry<X, Y> p : entries) {
+      res.put(p.getKey(), p.getValue());
+    }
+    return res;
+    */
   }
 
   /**

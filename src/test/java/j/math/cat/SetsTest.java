@@ -1,9 +1,7 @@
 package j.math.cat;
 
 import static j.math.cat.BasePair.Pair;
-import static j.math.cat.Sets.Map;
-import static j.math.cat.Sets.Set;
-import static j.math.cat.Sets.numbers;
+import static j.math.cat.Sets.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import j.math.topos.*;
+import j.math.topos.Category;
 import junit.framework.TestCase;
 
 /**
@@ -29,48 +29,49 @@ public class SetsTest extends TestCase {
 
   @SuppressWarnings("serial")
   public void testSet_plain() {
-    TestCase.assertEquals(new HashSet<String>() {
-                            {
-                              add("a");
-                              add("bc");
-                              add("def");
-                            }
-                          },
+    mustBeEqual("hashset vs our set",
+            new HashSet<String>() {
+              {
+                add("a");
+                add("bc");
+                add("def");
+              }
+            },
             Sets.Set("bc", "a", "def"));
   }
 
   public void testSet_none() {
-    TestCase.assertEquals(Collections.EMPTY_SET, Sets.Set());
+    mustBeEqual("Junst an empty set", Collections.EMPTY_SET, Sets.Set());
   }
 
   @SuppressWarnings("serial")
   public void testSet_duplicates() {
-    TestCase.assertEquals(new HashSet<String>() {
-                            {
-                              add("a");
-                              add("bc");
-                              add("def");
-                            }
-                          },
+    assertEquals(Set(new HashSet<String>() {
+              {
+                add("a");
+                add("bc");
+                add("def");
+              }
+            }),
             Sets.Set("bc", "a", "def", "bc", "a", "a"));
   }
 
   public void testParse() {
-    TestCase.assertEquals(Sets.Set("abc", "def"), Sets.parseSet("[abc, def]"));
+    assertEquals(Sets.Set("abc", "def"), Sets.parseSet("[abc, def]"));
   }
 
   public void testParse_empty() {
-    TestCase.assertEquals(Collections.EMPTY_SET, Sets.parseSet("[]"));
+    assertEquals(Collections.EMPTY_SET, Sets.parseSet("[]"));
   }
 
   public void testParse_toStringAndBack() {
     Set<String> testSet = Sets.Set("abc", "def");
-    TestCase.assertEquals(testSet, Sets.parseSet(testSet.toString()));
+    assertEquals(testSet, Sets.parseSet(testSet.toString()));
   }
 
   public void testParse_evilWithSpaces() {
     Set<String> testSet = Sets.Set("a b c", "d e f");
-    TestCase.assertEquals(testSet, Sets.parseSet(testSet.toString()));
+    assertEquals(testSet, Sets.parseSet(testSet.toString()));
   }
 
   @SuppressWarnings("unchecked")
@@ -94,70 +95,70 @@ public class SetsTest extends TestCase {
 
   @SuppressWarnings("unchecked")
   public void testDisjointUnion_empty() {
-    TestCase.assertEquals(Collections.EMPTY_SET, Base.disjointUnion());
+    assertEquals(Collections.EMPTY_SET, Base.disjointUnion());
   }
 
   @SuppressWarnings("unchecked")
   public void testSetProduct_plain() {
-    TestCase.assertEquals(
+    assertEquals(
             Sets.Set(BasePair.Pair("a", "0"), BasePair.Pair("a", "1"), BasePair.Pair("a", "2"), BasePair.Pair("b", "0"), BasePair.Pair("b", "1"), BasePair.Pair("b", "2")),
             Base.setProduct(Sets.Set("a", "b"), Sets.Set("0", "1", "2")));
   }
 
   public void testSetProduct_emptyFirst() {
-    TestCase.assertTrue(Base.setProduct(new HashSet<String>(), Sets.Set("0", "1", "2")).isEmpty());
+    assertTrue(Base.setProduct(new HashSet<String>(), Sets.Set("0", "1", "2")).isEmpty());
   }
 
   public void testSetProduct_emptySecond() {
-    TestCase.assertTrue(Base.setProduct(Sets.Set("0", "1", "2"), new HashSet<String>()).isEmpty());
+    assertTrue(Base.setProduct(Sets.Set("0", "1", "2"), new HashSet<String>()).isEmpty());
   }
 
   public void testRange_oneParam() {
-    TestCase.assertTrue(Sets.numbers(-1).isEmpty());
-    TestCase.assertTrue(Sets.numbers(0).isEmpty());
-    TestCase.assertEquals(Sets.Set(0), Sets.numbers(1));
-    TestCase.assertEquals(Sets.Set(0, 1, 2), Sets.numbers(3));
+    assertTrue(Sets.numbers(-1).isEmpty());
+    assertTrue(Sets.numbers(0).isEmpty());
+    assertEquals(Sets.Set(0), Sets.numbers(1));
+    assertEquals(Sets.Set(0, 1, 2), Sets.numbers(3));
   }
 
   public void testRange_twoParam() {
-    TestCase.assertTrue(Sets.numbers(-1, -3).isEmpty());
-    TestCase.assertTrue(Sets.numbers(0, 0).isEmpty());
-    TestCase.assertEquals(Sets.Set(3), Sets.numbers(3, 4));
-    TestCase.assertEquals(Sets.Set(4, 5, 6), Sets.numbers(4, 7));
+    assertTrue(Sets.numbers(-1, -3).isEmpty());
+    assertTrue(Sets.numbers(0, 0).isEmpty());
+    assertEquals(Sets.Set(3), Sets.numbers(3, 4));
+    assertEquals(Sets.Set(4, 5, 6), Sets.numbers(4, 7));
   }
 
   public void testRange_threeParamPositiveStep() {
-    TestCase.assertTrue(Sets.numbers(-1, -3, 3).isEmpty());
-    TestCase.assertTrue(Sets.numbers(0, 0, 1).isEmpty());
-    TestCase.assertEquals(Sets.Set(3), Sets.numbers(3, 4, 6));
-    TestCase.assertEquals(Sets.Set(4, 7, 10), Sets.numbers(4, 11, 3));
+    assertTrue(Sets.numbers(-1, -3, 3).isEmpty());
+    assertTrue(Sets.numbers(0, 0, 1).isEmpty());
+    assertEquals(Sets.Set(3), Sets.numbers(3, 4, 6));
+    assertEquals(Sets.Set(4, 7, 10), Sets.numbers(4, 11, 3));
   }
 
   public void testRange_threeParamNonPositiveStep() {
-    TestCase.assertTrue(Sets.numbers(-1, -3, 0).isEmpty());
-    TestCase.assertTrue(Sets.numbers(0, 0, 0).isEmpty());
-    TestCase.assertTrue(Sets.numbers(0, 1, 0).isEmpty());
-    TestCase.assertTrue(Sets.numbers(0, 1, -1).isEmpty());
-    TestCase.assertEquals(Sets.Set(3), Sets.numbers(3, 2, -1));
-    TestCase.assertEquals(Sets.Set(4, 7, 10), Sets.numbers(10, 2, -3));
+    assertTrue(Sets.numbers(-1, -3, 0).isEmpty());
+    assertTrue(Sets.numbers(0, 0, 0).isEmpty());
+    assertTrue(Sets.numbers(0, 1, 0).isEmpty());
+    assertTrue(Sets.numbers(0, 1, -1).isEmpty());
+    assertEquals(Sets.Set(3), Sets.numbers(3, 2, -1));
+    assertEquals(Sets.Set(4, 7, 10), Sets.numbers(10, 2, -3));
   }
 
   @SuppressWarnings("unchecked")
   public void testCartesianProduct_plain() {
     Iterable<? extends Iterable<Integer>> actual = Sets.Cartesian.product(Arrays.asList(Sets.Set(1, 2, 3), Sets.Set(4, 5, 6)));
-    TestCase.assertEquals(9, Sets.Set(actual).size());
+    assertEquals(9, Sets.Set(actual).size());
   }
 
   @SuppressWarnings("unchecked")
   public void testProduct_oneSet() {
     Iterable<? extends Iterable<Integer>> actual = Sets.Cartesian.product(Arrays.asList(Sets.Set(1, 2, 3)));
-    TestCase.assertEquals(3, Sets.Set(actual).size());
+    assertEquals(3, Sets.Set(actual).size());
   }
 
   @SuppressWarnings("unchecked")
   public void testProduct_none() {
     Iterable<? extends List<Integer>> actual = Sets.Cartesian.product(new ArrayList<Set>());
-    TestCase.assertEquals(1, Sets.Set(actual).size());
+    assertEquals(1, Sets.Set(actual).size());
   }
 
   @SuppressWarnings("unchecked")
@@ -165,7 +166,7 @@ public class SetsTest extends TestCase {
     List<Set<Long>> oneEmptyComponent = new ArrayList<Set<Long>>();
     oneEmptyComponent.add(Collections.EMPTY_SET);
     Iterable<? extends Iterable<Long>> actual = Sets.Cartesian.product(oneEmptyComponent);
-    TestCase.assertTrue(Sets.Set(actual).isEmpty());
+    assertTrue(Sets.Set(actual).isEmpty());
   }
 
   @SuppressWarnings("unchecked")
@@ -192,26 +193,34 @@ public class SetsTest extends TestCase {
             BasePair.Pair("day", 2),
             BasePair.Pair("evening", 3)));
 
-    assertEquals(expected, actual);
+    for (String k : expected.keySet()) {
+      assertEquals(expected.get(k), actual.get(k));
+    }
+    for (String k : actual.keySet()) {
+      assertEquals(expected.get(k), actual.get(k));
+    }
   }
 
   public void testAllMaps_emptyBase() {
-    TestCase.assertEquals(0, Sets.allMaps(Sets.Set("a", "b", "c"), Sets.Set()).size());
+    assertTrue(Sets.allMaps(Sets.Set("a", "b", "c"), Sets.Set()).isEmpty());
   }
 
   public void testAllMaps_emptyExponent() {
-    TestCase.assertEquals(1, Sets.allMaps(Sets.Set(), Sets.Set("a", "b", "c")).size());
+    final Set<Map<Object, String>> actual = Sets.allMaps(Sets.Set(), Sets.Set("a", "b", "c"));
+    Map<Object, String> emptyMap = Collections.emptyMap();
+    assertTrue(actual.iterator().hasNext());
+    Map<Object, String> content = actual.iterator().next();
+    assertEquals(emptyMap, content);
+    mustBeEqual("just a set of empty map", Set(emptyMap), actual);
   }
 
   @SuppressWarnings({ "serial", "unchecked" })
   public void testAllMaps_plain() {
-    Map<String, Integer> a1b1c1 = new HashMap<String, Integer>() {
-      {
-        put("a", 1);
-        put("b", 1);
-        put("c", 1);
-      }
-    };
+    Map<String, Integer> a1b1c1 = new HashMap<String, Integer>();
+    a1b1c1.put("a", 1);
+    a1b1c1.put("b", 1);
+    a1b1c1.put("c", 1);
+
     Set<? extends Map<String, Integer>> expected = Sets.Set(
             a1b1c1,
             new HashMap<String, Integer>() {
@@ -269,15 +278,20 @@ public class SetsTest extends TestCase {
     final Set<Map<String, Integer>> actual = Sets.allMaps(Sets.Set("a", "b", "c"), Sets.Set(1, 2));
 
     Map<String, Integer> act1 = actual.iterator().next();
-    assertTrue("wtf? " + act1 + " vs " + a1b1c1, act1.equals(a1b1c1));
-    assertTrue("wtf? " + act1, actual.contains(a1b1c1));
-    for (Map<String, Integer> m: actual) {
-      assertTrue("wrong " + m, expected.contains(m));
-    }
+    final Set<Map.Entry<String, Integer>> entriesActual = act1.entrySet();
+    final Set<Map.Entry<String, Integer>> entriesExpected = a1b1c1.entrySet();
+
+    mustBeEqual("just entries", entriesExpected, entriesActual);
+
     for (Map<String, Integer> m: expected) {
       assertTrue("missing " + m, actual.contains(m));
     }
-    TestCase.assertEquals(expected, actual);
+
+    for (Map<String, Integer> m: actual) {
+      assertTrue("wrong " + m, expected.contains(m));
+    }
+    assertTrue("left", expected.containsAll(actual));
+    assertTrue("right", actual.containsAll(expected));
   }
 
   @SuppressWarnings("unchecked")
@@ -295,7 +309,7 @@ public class SetsTest extends TestCase {
     assertTrue(relationship.eval(Pair(2, 0)));
     final Sets.FactorSet<Integer> factorSet = new Sets.FactorSet<Integer>(set, relationship);
     Set<Set<Integer>> actual = factorSet.factorset();
-    assertEquals("Something does not work; eq classes are " + factorSet.equivalenceClasses, expected, actual);
+    mustBeEqual("Something does not work; eq classes are " + factorSet.equivalenceClasses, expected, actual);
   }
 
   @SuppressWarnings("unchecked")
@@ -303,10 +317,10 @@ public class SetsTest extends TestCase {
     Set<String> set = Sets.Set("a", "b", "c", "d");
     Set<Set<String>> factorset = Sets.Set(Sets.Set("a", "b"), Sets.Set("c", "d"));
     Functions.Function<String, Set<String>> factoring = Sets.factorset(set, factorset);
-    TestCase.assertEquals(Sets.Set("a", "b"), factoring.apply("a"));
-    TestCase.assertEquals(Sets.Set("a", "b"), factoring.apply("b"));
-    TestCase.assertEquals(Sets.Set("c", "d"), factoring.apply("c"));
-    TestCase.assertEquals(Sets.Set("c", "d"), factoring.apply("d"));
+    assertEquals(Sets.Set("a", "b"), factoring.apply("a"));
+    assertEquals(Sets.Set("a", "b"), factoring.apply("b"));
+    assertEquals(Sets.Set("c", "d"), factoring.apply("c"));
+    assertEquals(Sets.Set("c", "d"), factoring.apply("d"));
   }
 
   @SuppressWarnings("unchecked")
@@ -345,6 +359,15 @@ public class SetsTest extends TestCase {
     }
   }
 
+  public <X> void mustBeEqual(String msg, Set<X> expected, Set<X> actual) {
+    for (X x : actual) {
+      assertTrue(msg + ", this one is unexpected: " + x, expected.contains(x));
+    }
+    for (X x : expected) {
+      assertTrue(msg + ", this one is missing: " + x, actual.contains(x));
+    }
+  }
+
   public void testFactorSet_tricky() {
     Set<Integer> set = Sets.Set(1, 2, 3, 4, 5);
     Set<Set<Integer>> expected = new HashSet<Set<Integer>>();
@@ -356,7 +379,7 @@ public class SetsTest extends TestCase {
             (p.x() <= 3 && p.x() + 1 == p.y());
       }
     }).factorset();
-    assertEquals(expected, actual);
+    mustBeEqual("factorsets", expected, actual);
   }
 
   @SuppressWarnings("unchecked")
@@ -368,7 +391,7 @@ public class SetsTest extends TestCase {
     factorset.merge(3, 5);
     factorset.merge(4, 2);
     Set<Set<Integer>> actual = factorset.factorset();
-    assertEquals(expected, actual);
+    mustBeEqual("factorset", expected, actual);
   }
 
   @SuppressWarnings("unchecked")
@@ -389,9 +412,9 @@ public class SetsTest extends TestCase {
                     return s.length();
                   }
                 });
-    TestCase.assertEquals(Sets.Set("a"), actual.get(1));
-    TestCase.assertEquals(Sets.Set(), actual.get(2));
-    TestCase.assertEquals(Sets.Set("once", "upon"), actual.get(4));
+    assertEquals(Sets.Set("a"), actual.get(1));
+    assertEquals(Sets.Set(), actual.get(2));
+    assertEquals(Sets.Set("once", "upon"), actual.get(4));
   }
 
   @SuppressWarnings("unchecked")
@@ -399,8 +422,8 @@ public class SetsTest extends TestCase {
     List<Set<String>> source = Base.List(Sets.parseSet("[a]"), Sets.parseSet("[b]"), Sets.parseSet("[a, b]"));
     Sets.DisjointUnion<String> du = new Sets.DisjointUnion<String>(source);
     Set<Pair<Integer, String>> expected = Sets.Set(BasePair.Pair(0, "a"), BasePair.Pair(1, "b"), BasePair.Pair(2, "a"), BasePair.Pair(2, "b"));
-    TestCase.assertEquals(expected, BasePair.Pair(du.unionSet(), du.injections()).x());
-    TestCase.assertEquals(BasePair.Pair(1, "b"), BasePair.Pair(du.unionSet(), du.injections()).y().get(1).apply("b"));
-    TestCase.assertEquals(BasePair.Pair(2, "b"), BasePair.Pair(du.unionSet(), du.injections()).y().get(2).apply("b"));
+    assertEquals("check2", BasePair.Pair(1, "b"), BasePair.Pair(du.unionSet(), du.injections()).y().get(1).apply("b"));
+    assertEquals("check3", BasePair.Pair(2, "b"), BasePair.Pair(du.unionSet(), du.injections()).y().get(2).apply("b"));
+    assertEquals("check1", expected, BasePair.Pair(du.unionSet(), du.injections()).x());
   }
 }

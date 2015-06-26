@@ -240,17 +240,14 @@ public class Functions {
      * @return a set of function values on this set, since the function is an injection, it's a set
      */
     public Set<Y> map(final Set<? extends X> domain) {
-      return new AbstractSet<Y>() {
+      Iterable<Y> elements = new Iterable<Y>() {
         @Override
         public Iterator<Y> iterator() {
           return map(domain.iterator());
         }
-
-        @Override
-        public int size() {
-          return domain.size();
-        }
       };
+      return Sets.Set(elements, domain.size());
+//      return Sets.SetOfUnknownSize(elements);
     }
   }
 

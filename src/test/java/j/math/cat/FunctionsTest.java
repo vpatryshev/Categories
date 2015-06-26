@@ -30,7 +30,9 @@ public class FunctionsTest extends TestCase {
       }
     };
 
-    TestCase.assertEquals(expected, Functions.id(Sets.Set(0, 1, 2)));
+    final Map<Integer, Integer> actual = Functions.id(Sets.Set(0, 1, 2));
+
+    TestCase.assertEquals("class" + expected.getClass() + "/" + actual.getClass(), expected, actual);
   }
 
   @SuppressWarnings({ "serial", "unchecked" })
@@ -48,13 +50,14 @@ public class FunctionsTest extends TestCase {
     final Map.Entry<Integer, Integer> e2 = i.next();
     final Map.Entry<Integer, Integer> e3 = i.next();
     Set<Map.Entry<Integer, Integer>> actual = Sets.Set(e1, e2, e3);
-
+    assertTrue("extra?", expected.containsAll(actual));
+    assertTrue("missing?", actual.containsAll(expected));
     assertEquals(expected, actual);
   }
 
   @SuppressWarnings("unchecked")
   public void testId_empty() {
-    TestCase.assertEquals(Collections.EMPTY_MAP, Functions.id(Collections.EMPTY_SET));
+    TestCase.assertTrue(Functions.id(Collections.EMPTY_SET).isEmpty());
   }
 
   <T> Functions.Function<T, String> functionNamed(final String name) {
@@ -105,8 +108,9 @@ public class FunctionsTest extends TestCase {
   public void testToMap() {
     Functions.Function<Integer, String> f = functionNamed("f");
     Map<Integer, String> actual = f.toMap(Sets.Set(1, 2, 3));
-    assertEquals(3, actual.size());
+    assertEquals("f(1)", actual.get(1));
     assertEquals("f(2)", actual.get(2));
+    assertEquals("f(3)", actual.get(3));
   }
 
   public void testForMap() {

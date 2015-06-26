@@ -53,7 +53,7 @@ public abstract class Pair<X, Y> implements Map.Entry<X, Y> {
 
   @Override
   public boolean equals(Object o) {
-    return o instanceof Pair && equal(((Pair<?, ?>) o).x(), x()) && equal(((Pair<?, ?>) o).y(), y());
+    return o instanceof Map.Entry && equal(((Map.Entry<?, ?>) o).getKey(), getKey()) && equal(((Map.Entry<?, ?>) o).getValue(), getValue());
   }
 
   /**

@@ -16,3 +16,5 @@ libraryDependencies := libraryDependencies.value ++ Seq(
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 scalacOptions in Test ++= Seq("-Yrangepos")
+
+//javacOptions in (Compile, compile) += "-Xlint"
