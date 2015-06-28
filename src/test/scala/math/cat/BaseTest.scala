@@ -16,6 +16,14 @@ class BaseTest extends Specification { override def is = s2"""
     start with 'Hello'                                $e2
     end with 'world'                                  $e3
                                                       """
+
+/*
+
+  SetParser should
+    convert [abc,def] to a set of 'abc' and 'def'     ${Base.parseSet("[abc, def]") must_== Set("abc", "def")}
+
+ */
+
 def e1 = "Hello world" must haveSize(11)
 def e2 = "Hello world" must startWith("Hello")
 def e3 = "Hello world" must endWith("world")

@@ -5,7 +5,7 @@ import static j.math.cat.Base.*;
 import static j.math.cat.Sets.*;
 /**
  * Sample Implementation of (oriented multi-) graph.
- * All code is <a href="http://myjavatools.com/projects/Category/source.zip">here</a>
+ * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
 public abstract class Graph<N, A> extends AbstractSet<N> {
   private Set<N> nodes;

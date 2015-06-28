@@ -7,6 +7,15 @@ import org.specs2.mutable._
  * Test suite for Sets object
  */
 class SetsTest extends Specification {
+  override def is = s2"""
+
+  This is a specification for the set parser
+
+  Set Parser should
+    work as expected                             ${actual == expected}
+                                                      """
+  val actual = Sets.parse("{a, bc, def, ghij}")
+  val expected = Set("a", "bc", "def", "ghij")
 /*
   test("parsing plain set") {
     val actual = Sets.parse("{a, bc, def, ghij}")
