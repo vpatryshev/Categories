@@ -11,7 +11,7 @@ trait Pair[X,Y] extends Product2[X,Y] {
  * Elementary pair handling
  */
 case class BasePair[X,Y](override val _1:X, override val _2:Y) extends Pair[X, Y] {
-
+  override def toString() = s"(${_1}, ${_2})"
 }
 
 object Pair {

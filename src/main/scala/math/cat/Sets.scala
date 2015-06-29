@@ -88,18 +88,18 @@ object Sets {
    */
   def upcast[X, Y >: X](s: Set[X]) = s.asInstanceOf[Set[Y]]
 
-  def range(first: Int, last: Int, step: Int) = {
+  def range(first: Int, last1: Int, step: Int) = {
     def theElements = new Iterable[Int] {
       def iterator: Iterator[Int] = new Iterator [Int] {
           var i:Int = first
 
-          override def hasNext:Boolean = i < first
+          override def hasNext:Boolean = i < last1
 
           override def next = { i += step; i - step }
         }
     }
 
-    setOf(theElements, (last - first + step - 1) / step, (x: Int) => (x >= first && x < last && (x - first) % step == 0))
+    setOf(theElements, (last1 - first + step - 1) / step, (x: Int) => (x >= first && x < last1 && (x - first) % step == 0))
   }
 
   class ParallelIterator[X, X1 <: X, X2 <: X](
