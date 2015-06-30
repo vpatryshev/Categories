@@ -318,56 +318,52 @@ class SetsTest extends Specification {
       actual must contain(p3)
       actual === expected
     }
-/*
-    def doNotTestDownshift() {
-      val source: Set[Any] = Set("abc", 123, 4.56, Set("qqq"), "zzz")
-      val target: Set[String] = downshift(source)
-      target === Set("abc", "zzz")
-    }
 
     "Set should be monadic" >> {
       val i: Set[Int] = Set(1, 2, 3)
       val s: Set[String] = for (n <- i) yield(n.toString)
-      assertEquals(Set("1", "2", "3"), s)
+      s === Set("1", "2", "3")
     }
 
     "NNO's 10 element should be 9" >> {
-      Sets.N must contain(1001590, "omg, what's wrong with the phone number?")
+      Sets.N must contain(1001590)
       val first10 = Sets.N.take(10)
-      for (i <- 0 to 9) first10 must contain(i, "what's wrong with " + i + "? ")
+
+      0 to 9 forall (i => first10 must contain(i))
     }
 
     "Iterator of 1 is asingleton" >> {
-      Sets.isSingleton(List("abc").iterator))
+      Sets.isSingleton(List("abc").iterator) must beTrue
     }
 
     "Iterator of 0 is not a singleton" >> {
-      !Sets.isSingleton(List().iterator))
+      Sets.isSingleton(List().iterator) must beFalse
     }
 
     "Iterator of 2 is not a singleton" >> {
-      !Sets.isSingleton(List("a", "b").iterator))
+      Sets.isSingleton(List("a", "b").iterator) must beFalse
     }
 
     "Factorset" >> {
-      val set:Set[Any] = setOf(1 to 10)
-      def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
-      val br: BinaryRelationship[Any, Any] = ((a: Any, b: Any) => isOdd(a) == isOdd(b))
+      val set = setOf(1 to 10)
+      def isOdd(x: Int) = x % 2 == 0
+      val br: BinaryRelationship[Int, Int] = ((a: Int, b: Int) => isOdd(a) == isOdd(b))
       val factoring = new FactorSet(set, br)
-      factoring.factorset must haveSize(2, "actual " + factoring.factorset.size)
+
+      factoring.factorset must haveSize(2)
       val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
       val factor = Set(s(1), s(0))
-      factor == factoring.factorset, "got " + factoring.factorset)
-      assertEquals(s(0), factoring.asFunction(6))
-      assertEquals(s(1), factoring.asFunction(7))
-      }
+      factor === factoring.factorset
+      factoring.asFunction(6) === s(0)
+      factoring.asFunction(7) === s(1)
+    }
 
     "Factorset by a diagonal" >> {
       val set = setOf(1 to 10)
       val br: BinaryRelationship[Int, Int] = ((a: Int, b: Int) => a == b)
       val actual = factorset(set, br)
       val factor = setOf(for (i <- set) yield Set(i))
-      assertEquals(SetMorphism(set, factor, (i:Int) => Set(i)), actual)
+      actual === SetMorphism(set, factor, (i:Int) => Set(i))
     }
 
     "Factorset mod 2" >> {
@@ -376,16 +372,16 @@ class SetsTest extends Specification {
       val actual = factorset(set, br)
       val s = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val factor = Set(s(1), s(0))
-      assertEquals(SetMorphism(set, factor, (i:Int) => s(i % 2)), actual)
+      actual === SetMorphism(set, factor, (i:Int) => s(i % 2))
     }
 
     "Set(iterable, size, filter) should not return false positives" >> {
       val s = Set(1, 2, 3)
       def predicate = (x:Any) => x == 2
       val sut = setOf(s, 1, predicate)
-      !sut.contains(1))
+      sut contains 1 must beFalse
       val collected = (Set.empty[Any] /: sut.iterator) (_+_)
-      assertEquals(Set(2), collected)
+      collected === Set(2)
     }
 
     "Pullback, plain case" >> {
@@ -409,6 +405,13 @@ class SetsTest extends Specification {
       FINITE_SETS must contain(Set("infinity"))
       FINITE_SETS must contain(Set(1,2,3,42))
     }
-  */
+    /*
+        def doNotTestDownshift() {
+          val source: Set[Any] = Set("abc", 123, 4.56, Set("qqq"), "zzz")
+          val target: Set[String] = downshift(source)
+          target === Set("abc", "zzz")
+        }
+
+      */
   }
 }

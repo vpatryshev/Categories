@@ -139,8 +139,19 @@ object Graph {
     def graph: Parser[Graph[String, String]] = set~","~arrows ^^ {case s~","~a => Graph(s, a)}
     def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
     def arrow: Parser[(String, (String, String))] = member~":"~member~"->"~member ^^ {case f~":"~x~"->"~y => (f, (x, y))}
-    override def read(input: CharSequence) = parseAll(all, input).get
-    override def read(input: Reader) = parseAll(all, input).get
+    private def explain(pr: ParseResult[Graph[String, String]]): Graph[String, String] = {
+      pr match {
+        case Success(graph:Graph[String, String], _) => graph
+        case e: NoSuccess => throw new IllegalArgumentException(s"Failed to parse graph: $e")
+      }
+    }
+
+    override def read(input: CharSequence) = {
+      val pr: ParseResult[Graph[String, String]] = parseAll(all, input)
+      explain(pr)
+    }
+
+    override def read(input: Reader) = explain(parseAll(all, input))
   }
 
   def apply(input: Reader) = (new Parser).read(input)

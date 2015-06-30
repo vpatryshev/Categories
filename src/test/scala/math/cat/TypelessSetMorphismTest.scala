@@ -9,7 +9,7 @@ import org.specs2.mutable._
 class TypelessSetMorphismTest extends Specification {
   /*
 
-  test("building TypelessSetMorphism") {
+  "building TypelessSetMorphism" >> {
     val sut = TypelessSetMorphism("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x);
     assert(sut(1) == "x1")
     assert(sut("a") == "xa")
@@ -21,7 +21,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("TypelessSetMorphism then another") {
+  "TypelessSetMorphism then another" >> {
     val x = Set(1, 2, "a")
     val y = Set("x1", "x2", "xa", 77)
     val z = Set(2, 28, x)
@@ -38,7 +38,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("TypelessSetMorphism before another") {
+  "TypelessSetMorphism before another" >> {
     val x = Set(1, 2, "a")
     val y = Set("x1", "x2", "xa", 77)
     val z = Set(2, 28, x)
@@ -58,7 +58,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("building a constant") {
+  "building a constant" >> {
     val s0 = Set(1, 2, "a")
     val s1 = Set("x1", "x2", "xa", 77)
     val sut = TypelessSetMorphism.constant(s0, s1, 77);
@@ -73,7 +73,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("building a nonexistent constant") {
+  "building a nonexistent constant" >> {
     try {
       val sut = TypelessSetMorphism.constant(Set(1, 2, "a"), Set("x1", "x2", "xa", 77), "xx");
       failure("xx is not in codomain")
@@ -82,7 +82,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("building an inclusion") {
+  "building an inclusion" >> {
     val s0 = Set(1, 2, "a")
     val s1 = Set(0, 1, 2, "b", s0, "a")
     val sut = inclusion(s0, s1);
@@ -96,7 +96,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("building a predicate-based inclusion") {
+  "building a predicate-based inclusion" >> {
     val s = Set(1, 2, 77, 90, 42, "1xya2")
     def predicate = (x:Any) => x.toString.apply(0) == '1'
     val sut = inclusion(s, predicate);
@@ -110,7 +110,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("building a unit") {
+  "building a unit" >> {
     val s = Set(1, 2, "a")
     val sut = unit(s);
     assert(sut.d0 == s)
@@ -123,7 +123,7 @@ class TypelessSetMorphismTest extends Specification {
     }
   }
 
-  test("for factorset") {
+  "for factorset" >> {
     val set:Set[Any] = setOf(1 to 10)
     def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
     val br: BinaryRelationship[Any, Any] = ((a: Any, b: Any) => isOdd(a) == isOdd(b))
