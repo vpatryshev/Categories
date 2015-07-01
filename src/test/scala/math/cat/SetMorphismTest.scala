@@ -4,12 +4,12 @@ import org.specs2.mutable._
 import SetMorphism._
 
 class SetMorphismTest extends Specification {
-  val ints = Set(1, 2, 3, 5, 8, 13)
+  val ints = Set[BigInt](1, 2, 3, 5, 8, 13)
   val strings = Set("even", "odd", "totally crazy")
 
-  val m: SetMorphism[Int, String] =
-    new SetMorphism[Int, String]("testFun", ints, strings,
-      i => List("even", "odd")(i % 2)
+  val m: SetMorphism[BigInt, String] =
+    new SetMorphism[BigInt, String]("testFun", ints, strings,
+      i => List("even", "odd")((i % 2).toInt)
   )
 
   "Constructor1()" >> {
@@ -129,12 +129,12 @@ class SetMorphismTest extends Specification {
   }
 
   "Pullback" >> {
-    val xs = Set(1,2,3,4,5)
-    val ys = Set(2,4,6,8,10)
-    val f = SetMorphism("f", xs, N, (x:Int) => x/2)
-    val g = SetMorphism("g", ys, N, (y:Int) => y/5)
+    val xs = Set[BigInt](1,2,3,4,5)
+    val ys = Set[BigInt](2,4,6,8,10)
+    val f = SetMorphism("f", xs, N, (x:BigInt) => x/2)
+    val g = SetMorphism("g", ys, N, (y:BigInt) => y/5)
     val (left, right) = SetMorphism.pullback(f, g)
-    val pullbackSet = Set((1,2),(1,4),(2,6),(2,8),(3,6),(3,8),(4,10),(5,10))
+    val pullbackSet = Set[(BigInt,BigInt)]((1,2),(1,4),(2,6),(2,8),(3,6),(3,8),(4,10),(5,10))
     for (p <- pullbackSet) {
       (p._1 == left(p)) must beTrue
       (p._2 == right(p)) must beTrue

@@ -6,11 +6,27 @@ class PoSetTest extends Specification {
 
   "PoSet" >> {
     "parse" >> {
-      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), _ contains _)
-      val actual2 = PoSet("([abc, def, defgh, ab],{})")
-      val actual1 = PoSet("([abc, def, defgh, ab],{abc<=abc})")
-      val actual = PoSet("([abc, def, defgh, ab],{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})")
-      actual === expected
+      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x,y) => y contains x)
+      val actual: PoSet[String] = try {
+        PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})")
+      } catch {
+        case x: Exception =>
+          failure(s"Baaad: $x")
+          ???
+      }
+      val isEqual = expected.underlyingSet == actual.underlyingSet
+      val product = Sets.product(expected.underlyingSet, expected.underlyingSet)
+      val fe = (isEqual /: product) ((bool, p) => bool && (expected.le(p) == actual.le(p)))
+
+      isEqual must beTrue
+      for {p <- product} {
+        expected.le(p) aka s"@$p" must_== actual.le(p)
+      }
+      fe must beTrue
+      expected.equal(actual) must beTrue
+      actual.equal(expected) must beTrue
+      (expected == actual) aka actual.toString must beTrue
+      (actual == expected) aka actual.toString must beTrue
     }
 
     "plain pairs" >> {
@@ -83,9 +99,9 @@ class PoSetTest extends Specification {
       sut.underlyingSet == Set("a", "b", "c") must beTrue
     }
 
-    "Parser" >> {
+    "Paarser" >> {
       val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-      val actual: PoSet[String] = PoSet("( { a, b, c},  { a <= b, b <= c, a <= c})")
+      val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})")
       3 == actual.size must beTrue
       println(actual)
       actual.underlyingSet == Set("a", "b", "c") must beTrue

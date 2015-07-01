@@ -61,7 +61,7 @@ class PoSet[T] (val underlyingSet: scala.collection.Set[T], comparator: (T, T) =
    * @param other other poset to compare
    * @return true if these two posets are equal
    */
-  private def equal(other: PoSet[T]): Boolean = {
+  private[cat] def equal(other: PoSet[T]): Boolean = {
     val isEqual = underlyingSet == other.underlyingSet
     val product = Sets.product(underlyingSet, underlyingSet)
     (isEqual /: product) ((bool, p) => bool && (le(p) == other.le(p)))
@@ -76,8 +76,8 @@ class PoSet[T] (val underlyingSet: scala.collection.Set[T], comparator: (T, T) =
 
   override def toString = {
     def orderedPairs = Sets.product(underlyingSet, underlyingSet) filter ((p: (T, T)) => le(p))
-    "[" + (underlyingSet mkString ", ") + "]{" +
-            ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "}"
+    "({" + (underlyingSet mkString ", ") + "}, {" +
+            ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "})"
   }
   def -(x: T) = Sets.requireImmutability
   def +(x: T) = Sets.requireImmutability
@@ -109,15 +109,30 @@ object PoSet {
   def apply[T](set: Set[T]): PoSet[T] = apply(set, Set.empty[(T, T)])
 
   class Parser extends Sets.Parser {
-    def poset: Parser[PoSet[String]] = set~"{"~repsep(pair, ",")~"}"  ^^ {case s~"{"~m~"})" => PoSet(s, m)}
+    def poset: Parser[PoSet[String]] = "("~set~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)}
     def pair: Parser[(String, String)] = member~"<="~member ^^ {case x~"<="~y => (x, y)}
-    override def read(input: CharSequence) = parseAll(poset, input).get
-    override def read(input: Reader) = parseAll(poset, input).get
+
+    private def explain(pr: ParseResult[PoSet[String]]): PoSet[String] = {
+      pr match {
+        case Success(poset: PoSet[String], _) => poset
+        case e: NoSuccess =>
+          throw new IllegalArgumentException(s"Failed to parse graph: $e")
+      }
+    }
+
+    override def read(input: CharSequence) = {
+      val pr: ParseResult[PoSet[String]] = parseAll(poset, input)
+      explain(pr)
+    }
+
+    override def read(input: Reader) = explain(parseAll(poset, input))
   }
 
   def apply(input: Reader) = (new Parser).read(input)
 
   def apply(input: CharSequence) = (new Parser).read(input)
+
+
 
   /**
    * Builds a linear poset consisting of a range of integers, with their natural order.

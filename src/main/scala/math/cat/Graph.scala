@@ -2,8 +2,6 @@ package math.cat
 
 import java.io.Reader
 
-//import util.parsing.combinator.JavaTokenParsers
-
 import scala.collection.Set
 import Sets._
 
