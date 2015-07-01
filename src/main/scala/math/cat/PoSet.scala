@@ -109,7 +109,7 @@ object PoSet {
   def apply[T](set: Set[T]): PoSet[T] = apply(set, Set.empty[(T, T)])
 
   class Parser extends Sets.Parser {
-    def poset: Parser[PoSet[String]] = "("~set~","~"{"~repsep(pair, ",")~"})"  ^^ {case "("~s~","~"{"~m~"})" => PoSet(s, m)}
+    def poset: Parser[PoSet[String]] = set~"{"~repsep(pair, ",")~"}"  ^^ {case s~"{"~m~"})" => PoSet(s, m)}
     def pair: Parser[(String, String)] = member~"<="~member ^^ {case x~"<="~y => (x, y)}
     override def read(input: CharSequence) = parseAll(poset, input).get
     override def read(input: Reader) = parseAll(poset, input).get

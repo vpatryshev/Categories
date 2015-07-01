@@ -2,104 +2,105 @@ package math.cat
 
 import org.specs2.mutable._
 
-class PoSetTest extends Specification { /*
-  public void testParse() {
-    PoSet<String> testPoset = new PoSet<String>(Set("abc", "def", "ab", "defgh")) {
-      public boolean _le_(String a, String  b) {
-        return b.indexOf(a) >= 0;
+class PoSetTest extends Specification {
+
+  "PoSet" >> {
+    "parse" >> {
+      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), _ contains _)
+      val actual2 = PoSet("([abc, def, defgh, ab],{})")
+      val actual1 = PoSet("([abc, def, defgh, ab],{abc<=abc})")
+      val actual = PoSet("([abc, def, defgh, ab],{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})")
+      actual === expected
+    }
+
+    "plain pairs" >> {
+      val sut = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
+      sut.le("a", "c") must beTrue
+    }
+
+    "plain comparator" >> {
+      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      sut.le("a", "c") must beTrue
+    }
+
+    "Constructor_negativeTransitivity" >> {
+      try {
+        PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "c")))
+        failure("Validator should have thrown an exception")
+      } catch {
+        case e: IllegalArgumentException => true
       }
-    };
-    assertEquals(testPoset, PoSet("[abc, def, defgh, ab]{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab}"));
-  }
+      true
+    }
 
-    def testConstructor_plain_pairs {
-    val sut = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
-    assert(sut.le("a", "c"))
-  }
+    "Constructor_negativeAntireflexivity" >> {
+      try {
+        val sut = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "a")))
+        failure("Validator should have thrown an exception")
+      } catch {
+        case e: IllegalArgumentException => true
+      }
+      true
+    }
 
-   def testConstructor_plain_comparator {
-     val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-     assert(sut.le("a", "c"))
-  }
+    "Equals_positive" >> {
+      val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
+      val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
+      (sut1 == sut2) must beTrue
+    }
 
-  def testConstructor_negativeTransitivity {
-    try {
-      PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "c")))
-      failure("Validator should have thrown an exception")
-    } catch {
-      case e: IllegalArgumentException => // as expected
+    "Equals_negative" >> {
+      val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("c", "b")))
+      def naturalOrder(p: (String, String)) = p._1 <= p._2
+      val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
+      (sut1 == sut2) must beFalse
+    }
+
+    "Equals_differentTypes" >> {
+      val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
+      val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
+      (sut1 == sut2) must beFalse
+    }
+
+    "UnaryOp" >> {
+      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      val opsut = ~sut
+
+      opsut.le("c", "a") must beTrue
+      ~opsut === sut
+    }
+
+    "Discrete" >> {
+      val sut: PoSet[Int] = PoSet(Set(1, 2, 3))
+      sut.le(3, 3) must beTrue
+      sut.le(2, 3) must beFalse
+      sut.le(3, 2) must beFalse
+      sut == ~sut must beTrue
+    }
+
+    "UnderlyingSet" >> {
+      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      sut.underlyingSet == Set("a", "b", "c") must beTrue
+    }
+
+    "Parser" >> {
+      val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      val actual: PoSet[String] = PoSet("( { a, b, c},  { a <= b, b <= c, a <= c})")
+      3 == actual.size must beTrue
+      println(actual)
+      actual.underlyingSet == Set("a", "b", "c") must beTrue
+      actual.le("a", "b") must beTrue
+      actual.le("b", "c") must beTrue
+      actual.le("a", "c") must beTrue
+      expected == actual must beTrue
+    }
+
+    "Range" >> {
+      val sut = PoSet.range(0, 3, 1)
+      sut contains 2 must beTrue
+      sut.le(1, 2) must beTrue
+      sut.le(0, 2) must beTrue
+      sut.le(0, 1) must beTrue
     }
   }
-
-  def testConstructor_negativeAntireflexivity {
-    try {
-      val sut = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "a")))
-      failure("Validator should have thrown an exception")
-    } catch {
-      case e: IllegalArgumentException => // as expected
-    }
-  }
-
-  def testEquals_positive {
-    val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
-    val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
-    assert(sut1 == sut2)
-  }
-
-  def testEquals_negative {
-    val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("c", "b")))
-    def naturalOrder(p: (String, String)) = p._1 <= p._2
-    val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
-    assert(sut1 != sut2)
-  }
-
-  def testEquals_differentTypes {
-    val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
-    val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
-    assert(sut1 != sut2)
-  }
-
-   def testUnaryOp {
-     val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-     val opsut = ~sut
-
-     assert(opsut.le("c", "a"))
-     assert(sut == ~opsut)
-  }
-
-  def testDiscrete {
-    val sut:PoSet[Int] = PoSet(Set(1, 2, 3))
-    assert(sut.le(3, 3))
-    assert(!sut.le(2, 3))
-    assert(!sut.le(3, 2))
-    assert(sut == ~sut)
-  }
-
-  def testUnderlyingSet {
-    val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-    assert(sut.underlyingSet == Set("a", "b", "c"))
-  }
-
-  def testParser {
-    val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-    val actual: PoSet[String] = PoSet("( { a, b, c},  { a <= b, b <= c, a <= c})")
-    assert(3 == actual.size)
-    println(actual)
-    assert(actual.underlyingSet == Set("a", "b", "c"))
-    assert(actual.le("a", "b"))
-    assert(actual.le("b", "c"))
-    assert(actual.le("a", "c"))
-    assert(expected == actual)
-  }
-
-  def testRange {
-    val sut = PoSet.range(0, 3, 1)
-    assert(sut contains 2)
-    assert(sut.le(1, 2))
-    assert(sut.le(0, 2))
-    assert(sut.le(0, 1))
-  }
-
-
-  */
 }
