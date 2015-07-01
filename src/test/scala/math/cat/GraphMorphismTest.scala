@@ -7,9 +7,8 @@ import org.specs2.mutable._
  * @author vpatryshev
  */
 class GraphMorphismTest extends Specification {
-  /*
-
-  def testConstructor {
+  "GraphMorphism" >> {
+  "Constructor" >> {
     val objects = Set(1, 2, 3)
     val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
     val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
@@ -19,21 +18,24 @@ class GraphMorphismTest extends Specification {
     val nm = SetMorphism.unit(objects)
     val am = SetMorphism(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13))
     val sut = new GraphMorphism("test", graph1, graph2, nm, am)
-    assert(3 == sut.nodesMorphism(3))
-    assert(111 == sut.arrowsMorphism("1b"))
-    assert(graph1 == sut.d0)
-    assert(graph2 == sut.d1)
+    (3 == sut.nodesMorphism(3)) must beTrue
+    (111 == sut.arrowsMorphism("1b")) must beTrue
+    (graph1 == sut.d0) must beTrue
+    (graph2 == sut.d1) must beTrue
   }
 
-  def testUnit {
+  "Unit" >> {
     val objects = Set(1, 2, 3)
     val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
     val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
     val graph = Graph(objects, map)
     type GIS = Graph[Int, String]
     val sut: GraphMorphism[Int, String, GIS, Int, String, GIS] = GraphMorphism.unit(graph)
-    assert(objects == sut.d0)
-    assert(objects == sut.d1)
-    assert("1a" == sut.arrowsMorphism("1a"))
-  }*/
+    (objects == sut.d0) must beTrue
+    (objects == sut.d1) must beTrue
+    ("1a" == sut.arrowsMorphism("1a")) must beTrue
+  }
+
+  }
+
 }

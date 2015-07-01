@@ -1,43 +1,43 @@
 package math.cat
 
 import org.specs2.mutable._
+import SetMorphism._
 
-class SetMorphismTest extends Specification { /*
-  Set<Integer> ints = new HashSet<Integer>(Arrays.asList(1, 2, 3, 5, 8, 13));
-  Set<String> strings = new HashSet<String>(Arrays.asList("even", "odd", "totally crazy"));
-  SetMorphism<Integer, Set<Integer>, String, Set<String>> m =
-    new SetMorphism<Integer, Set<Integer>, String, Set<String>>(ints, strings) {
-        public String apply(Integer integer) {
-          return integer % 2 == 0 ? "even" : "odd";
-        }
-      };
+class SetMorphismTest extends Specification {
+  val ints = Set(1, 2, 3, 5, 8, 13)
+  val strings = Set("even", "odd", "totally crazy")
 
-  public void testConstructor() {
-    assertEquals("even", m.apply(8));
-    assertEquals("odd", m.apply(13));
-    try {
-      m.apply(4);
-      failure("4 does not belong to domain; should have thrown an error");
-    } catch (Throwable e) {
-      // as expected
+  val m: SetMorphism[Int, String] =
+    new SetMorphism[Int, String]("testFun", ints, strings,
+      i => List("even", "odd")(i % 2)
+  )
+
+  "Constructor1()" >> {
+    m(8) === "even"
+    m(13) === "odd"
+    try { m(4)
+          failure("4 does not belong to domain; should have thrown an error");
+    } catch  {
+      case e => // as expected
     }
+    true
   }
 
-  public void testUnitComposition() {
-    assertEquals(m, compose(m, unit(strings)));
-    assertEquals(m, compose(unit(ints), m));
+  "UnitComposition()" >>  {
+    m.compose(unit(strings)) === m
+    unit(ints).compose(m) === m
   }
 
- def testConstructor {
+ "Constructor2" >> {
     val x = Set(1, 2, 3, 4, 5)
     val y = Set("#1", "#2", "#3", "#4", "#5")
     val sut = SetMorphism(x, y, (n: Int) => "#" + n)
-    assert("#3" == sut(3))
-    assert(x == sut.d0)
-    assert(y == sut.d1)
+    ("#3" == sut(3)) must beTrue
+    (x == sut.d0) must beTrue
+    (y == sut.d1) must beTrue
   }
 
-  def testConstructor_negative {
+  "Constructor_negative" >> {
     val x = Set(1, 2, 3, 4, 5)
     val y = Set("#1", "#2", "#3", "#5")
 
@@ -47,87 +47,88 @@ class SetMorphismTest extends Specification { /*
     } catch {
       case e: IllegalArgumentException => // as expected
     }
+    true
   }
 
-  def testEquals {
+  "Equals" >> {
     val sut1 = SetMorphism(Set(1, 2, 3, 4, 5), Set("#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + n)
     val sut2 = SetMorphism(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
                            Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5"))
-    assert(sut1 == sut2)
+    (sut1 == sut2) must beTrue
     val sut3 = SetMorphism(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
                            Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#3"))
-    assert(sut1 != sut3)
+    (sut1 != sut3) must beTrue
   }
 
-  def testCompose {
+  "Compose" >> {
     val f = SetMorphism(Set(11, 12, 13, 14, 15), Set(1, 2, 3, 4, 5), (n: Int) => n - 10)
     val g = SetMorphism(Set(1, 2, 3, 4, 5), Set("#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + n)
-    val h = f compose g;
-    assert(h == SetMorphism(Set(11, 12, 13, 14, 15), Set("#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10)))
+    val h = f compose g
+    (h == SetMorphism(Set(11, 12, 13, 14, 15), Set("#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10))) must beTrue
   }
 
-  def testRevert {
+  "Revert" >> {
     val sut1 = SetMorphism(Set("abc", "x", "def"), Set(1, 2, 3, 4, 5), (s:String) => s.length)
     val sut2 = SetMorphism(Set(5, 4, 3, 2, 1), Set(Set("abc", "def"), Set("x"), Set()),
                            Map(1 -> Set("x"), 2 -> Set(), 3 -> Set("abc", "def"), 4 -> Set(), 5 -> Set()))
-    assert(sut2 == sut1.revert)
+    (sut2 == sut1.revert) must beTrue
   }
 
-  def testUnit {
+  "Unit" >> {
     val set = Set(1, "haha", 2.71828)
     val sut = SetMorphism.unit(set)
-    assert(Set(2.71828, 1, "haha") == sut.d0)
-    assert(Set(2.71828, 1, "haha") == sut.d1)
-    assert("haha" == sut("haha"))
+    (Set(2.71828, 1, "haha") == sut.d0) must beTrue
+    (Set(2.71828, 1, "haha") == sut.d1) must beTrue
+    ("haha" == sut("haha")) must beTrue
   }
 
-  def testConst {
+  "Const" >> {
     val strings = Set("a", "b", "c")
     val ints = Set(1, 2, 3)
     val two:Int = 2
     val sut = SetMorphism.const(strings, ints, two)
-    assert(strings == sut.d0)
-    assert(ints == sut.d1)
-    assert(2 == sut("a"))
+    (strings == sut.d0) must beTrue
+    (ints == sut.d1) must beTrue
+    (2 == sut("a")) must beTrue
   }
 
-  def testHom {
+  "Hom" >> {
     val d0 = Set("1", "2")
     val d1 = Set("x", "y", "z")
-    assert(d0 != d1)
+    (d0 != d1) must beTrue
     val actual = SetMorphism.hom(d0, d1)
-    assert(actual.size == 9)
-    assert(actual contains SetMorphism(d0, d1, Map("1" -> "y", "2" -> "x")))
+    (actual.size == 9) must beTrue
+    (actual contains SetMorphism(d0, d1, Map("1" -> "y", "2" -> "x"))) must beTrue
   }
 
-  def testVariance_byX {
+  "Variance_byX" >> {
     val x0 = Set(1, 2, 3, 4, 5)
     val x = Sets.setOf(x0, x0.size, x0.contains _)
     val y = Set("#1", "#2", "#3", "#4", "#5")
     val sut = SetMorphism(x, y, (n: Int) => "#" + n)
-    assert("#3" == sut(3))
+    ("#3" == sut(3)) must beTrue
   }
 
-  def testVariance_byY {
+  "Variance_byY" >> {
     val x = Set(1, 2, 3, 4, 5)
     val y0 = Set("#1", "#2", "#3", "#4", "#5")
     val y = Sets.setOf(y0, y0.size, y0.contains _)
     val sut = SetMorphism(x, y, (n: Int) => "#" + n)
-    assert("#3" == sut(3))
+    ("#3" == sut(3)) must beTrue
   }
 
-  def testProduct {
+  "Product" >> {
     val x = Set(0,1,2,3,4,5)
     val y = Set(0,1,2)
     val sut = SetMorphism(x, y, (x:Int) => x % 3).product
     def m(x:Int,y:Int,z:Int) = Map(0 -> x, 1 -> y, 2 -> z)
-    assert(sut == Set(m(0,1,2), m(0,1,5),
+    (sut == Set(m(0,1,2), m(0,1,5),
                       m(0,4,2), m(0,4,5),
                       m(3,1,2), m(3,1,5),
-                      m(3,4,2), m(3,4,5)), " got " + sut)
+                      m(3,4,2), m(3,4,5))) must beTrue
   }
 
-  def testPullback {
+  "Pullback" >> {
     val xs = Set(1,2,3,4,5)
     val ys = Set(2,4,6,8,10)
     val f = SetMorphism("f", xs, N, (x:Int) => x/2)
@@ -135,9 +136,9 @@ class SetMorphismTest extends Specification { /*
     val (left, right) = SetMorphism.pullback(f, g)
     val pullbackSet = Set((1,2),(1,4),(2,6),(2,8),(3,6),(3,8),(4,10),(5,10))
     for (p <- pullbackSet) {
-      assertEquals(p._1, left(p))
-      assertEquals(p._2, right(p))
+      (p._1 == left(p)) must beTrue
+      (p._2 == right(p)) must beTrue
     }
+    true
   }
-  */
 }
