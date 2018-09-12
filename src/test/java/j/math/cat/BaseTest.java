@@ -44,7 +44,7 @@ public class BaseTest extends TestCase {
 
   @SuppressWarnings("unchecked")
   public void testDisjointUnion_withEmpty() {
-    Set<String> actual = Base.disjointUnion(new HashSet<String>(), Sets.Set("ab", "ac", "ad", "bd", "cd"), new HashSet(), Sets.Set("a", "b", "c", "d"), new HashSet());
+    Set<String> actual = Base.disjointUnion(new HashSet<>(), Sets.Set("ab", "ac", "ad", "bd", "cd"), new HashSet(), Sets.Set("a", "b", "c", "d"), new HashSet());
     Set<String> expected = Sets.Set("a", "b", "c", "d", "ab", "ac", "ad", "bd", "cd");
     assertEquals(expected, actual);
   }
@@ -106,7 +106,7 @@ public class BaseTest extends TestCase {
   }
 
   public void testOneOf_forIterableEmpty() {
-    TestCase.assertEquals(null, Base.oneOf(Arrays.asList()));
+    TestCase.assertNull(Base.oneOf(Collections.emptyList()));
   }
 
   public void testOneOf_forIterable() {
@@ -114,7 +114,7 @@ public class BaseTest extends TestCase {
   }
 
   public void testOneOf_forVarargEmpty() {
-    TestCase.assertEquals(null, Base.oneOf());
+    TestCase.assertNull(Base.oneOf());
   }
 
   public void testOneOf_forVararg() {
@@ -122,22 +122,18 @@ public class BaseTest extends TestCase {
   }
 
   private Iterable<Iterable<Integer>> triangle(final int n) {
-    return new Iterable<Iterable<Integer>>() {
-      public Iterator<Iterable<Integer>> iterator() {
-        return new Iterator<Iterable<Integer>>() {
-          int i = n;
+    return () -> new Iterator<Iterable<Integer>>() {
+      int i = n;
 
-          public boolean hasNext() {
-            return i-- > 0;
-          }
+      public boolean hasNext() {
+        return i-- > 0;
+      }
 
-          public Iterable<Integer> next() {
-            return Sets.numbers(i, -1, -1);
-          }
+      public Iterable<Integer> next() {
+        return Sets.numbers(i, -1, -1);
+      }
 
-          public void remove() {
-          }
-        };
+      public void remove() {
       }
     };
   }

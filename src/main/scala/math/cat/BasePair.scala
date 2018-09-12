@@ -15,7 +15,7 @@ case class BasePair[X,Y](override val _1:X, override val _2:Y) extends Pair[X, Y
 }
 
 object Pair {
-  def pair[X,Y](x:X, y:Y) = BasePair(x,y)
+  def apply[X,Y](x:X, y:Y) = BasePair(x,y)
 
   /**
    * Builds a function that builds pairs attaching x as the first element.
@@ -26,7 +26,7 @@ object Pair {
    * @return a function y -> (x, y)
    */
   def withLeft[X, Y](x: X): Injection[Y, Pair[X,Y]] = new Injection[Y, Pair[X,Y]] {
-    def apply(y: Y) = pair(x, y)
+    def apply(y: Y) = Pair(x, y)
   }
 
   /**
@@ -38,6 +38,6 @@ object Pair {
    * @return a function x -> (x, y)
    */
   def withRight[X, Y](y: Y): Injection[X, Pair[X,Y]] = new Injection[X, Pair[X,Y]] {
-    def apply(x: X) = pair(x, y)
+    def apply(x: X) = Pair(x, y)
   }
 }
