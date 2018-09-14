@@ -1,10 +1,6 @@
 package math.cat
 
 
-
-
-import scala.collection.Set
-
 /**
  * Morphism for graphs.
  */

@@ -2,7 +2,6 @@ package math.cat
 
 import java.io.Reader
 
-import scala.collection.Set
 import Sets._
 
 class Graph[N, A] (

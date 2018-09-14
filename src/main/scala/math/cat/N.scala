@@ -1,32 +1,20 @@
 package math.cat
 
 /**
- * Natural numbers class.
+ * Set of natural numbers.
  *
  * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  */
-object N extends IntSetWithoutSomeValues(Set.empty[BigInt]) {}
-
-private[cat] class IntSetWithoutSomeValues(values: Set[BigInt]) extends Set[BigInt] {
-  override def hasDefiniteSize = false
-
-  override def contains(elem: BigInt): Boolean = !values.contains(elem)
-
-  override def +(elem: BigInt): Set[BigInt] = new IntSetWithoutSomeValues(values - elem)
-
-  override def -(elem: BigInt): Set[BigInt] = new IntSetWithoutSomeValues(values + elem)
-
+object N extends BigSet[BigInt] with EnumerableSet[BigInt] {
+  
   override def iterator: Iterator[BigInt] = new Iterator[BigInt] {
-    private var i:BigInt = -1
+    private var n: BigInt = -1
+  
     override def hasNext: Boolean = true
 
-    override def next(): BigInt = {
-      do {
-        i += 1
-      } while (values contains(i))
-      i
-    }
+    override def next(): BigInt = { n += 1; n }
   }
+  
+  override def contains(n: BigInt): Boolean = n >= 0
 }

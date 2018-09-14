@@ -1,7 +1,5 @@
 package math.cat
 
-import scala.collection.Set
-
 /**
  * Contains some functions and operations.
  *
@@ -28,7 +26,7 @@ object Functions {
      * @param g another Injection
      * @return a composition
      */
-    def compose[T](g: Injection[T, X]) = injection {(t:T) => apply(g(t))} 
+    def compose[T](g: Injection[T, X]): Injection[T, Y] = injection { t: T => apply(g(t))} 
 
     /**
      * Composes this Injection with another Injection.
@@ -37,17 +35,17 @@ object Functions {
      * @param g another Injection
      * @return a composition
      */
-    def andThen[Z](g: Injection[Y, Z]) = g compose this
+    def andThen[Z](g: Injection[Y, Z]): Injection[X, Z] = g compose this
 
     def applyTo(set: Set[X]): Set[Y] = {
       val source: Iterable[X] = set
       val target: Iterable[Y] = source.map(this)
-      val predicate:(Y => Boolean) = (y: Y) => (set.iterator.exists(self.apply(_) == y))
+      val predicate: Y => Boolean = (y: Y) => set.iterator.exists(self.apply(_) == y)
       Sets.setOf(target, set.size, predicate)
     }
   }
 
-  def injection[X, Y] (f: X => Y) = new Injection[X, Y] { def apply(x: X) = f(x) }
+  def injection[X, Y] (f: X => Y): Injection[X, Y] = new Injection[X, Y] { def apply(x: X) = f(x) }
 
 /**
    * Injection of values of a certain type T1 to themselves, as a super type T.
@@ -88,12 +86,12 @@ object Functions {
      * @param g another Injection
      * @return a composition
      */
-    def compose[T](g: Bijection[T, X]) = bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
+    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
 
     /**
      * Inverse to this bijection
      */
-    def inverse = bijection(unapply, apply)
+    def inverse: Bijection[Y, X] = bijection(unapply, apply)
 
     /**
      *  Composes this Bijection with another Bijection.
@@ -102,7 +100,7 @@ object Functions {
      * @param g another Injection
      * @return a composition
      */
-    def andThen[Z](g: Bijection[Y, Z]) = g compose this
+    def andThen[Z](g: Bijection[Y, Z]): Bijection[X, Z] = g compose this
 
     override def applyTo(set: Set[X]): Set[Y] = {
       val target: Iterable[Y] = set.map(this)
@@ -110,7 +108,7 @@ object Functions {
     }
   }
 
-  def bijection[X, Y] (f: X => Y, g: Y => X) =
+  def bijection[X, Y] (f: X => Y, g: Y => X): Bijection[X, Y] =
     new Bijection[X, Y] {
       def apply(x: X) = f(x)
       def unapply(y: Y) = g(y)
@@ -121,8 +119,8 @@ object Functions {
    * @tparam T domain type
    */
   class Id[T] extends Bijection[T, T] {
-    def unapply(t: T) = t
-    def apply(t: T) = t
+    def unapply(t: T): T = t
+    def apply(t: T): T = t
   }
 
   /**
@@ -158,10 +156,10 @@ object Functions {
    * @param value the only value it ever returns
    * @return the constant function
    */
-  def constant[X, Y] (value: Y) = (x: X) => value
+  def constant[X, Y] (value: Y): X => Y = (x: X) => value
 
   // TODO(vlad): figure out if this makes any sense
-  def restrict[X, X1 <: X, Y](fun: X => Y): (X1 => Y) = (x1: X1) => fun(x1)
+  def restrict[X, X1 <: X, Y](fun: X => Y): X1 => Y = (x1: X1) => fun(x1)
 
   // This should not even exist! What exception?! what extension? Be contravariant.
   /**

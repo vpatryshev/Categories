@@ -2,8 +2,6 @@ package math.cat;
 
 import java.io.Reader
 
-import scala.collection.Set
-
 /**
  * Implementation of partially ordered set.
  * 
@@ -15,7 +13,7 @@ import scala.collection.Set
  * le a function that compares two elements a and b, returning true iff b >= a
  *
  */
-class PoSet[T] (val underlyingSet: scala.collection.Set[T], comparator: (T, T) => Boolean) extends Set[T] {
+class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extends Set[T] {
   // note: this function is a property of poset, not a property of its elements
   def le(x: T, y: T): Boolean = comparator(x, y)
   def le(p : (T, T)): Boolean = comparator(p._1, p._2)
@@ -63,7 +61,7 @@ class PoSet[T] (val underlyingSet: scala.collection.Set[T], comparator: (T, T) =
    */
   private[cat] def equal(other: PoSet[T]): Boolean = {
     val isEqual = underlyingSet == other.underlyingSet
-    val product = Sets.product(underlyingSet, underlyingSet)
+    val product = Sets.product2(underlyingSet, underlyingSet)
     (isEqual /: product) ((bool, p) => bool && (le(p) == other.le(p)))
   }
   
@@ -75,7 +73,7 @@ class PoSet[T] (val underlyingSet: scala.collection.Set[T], comparator: (T, T) =
   def unary_~ = new PoSet[T](underlyingSet, ((x: T, y: T) => le(y, x)));
 
   override def toString = {
-    def orderedPairs = Sets.product(underlyingSet, underlyingSet) filter ((p: (T, T)) => le(p))
+    def orderedPairs = Sets.product2(underlyingSet, underlyingSet) filter ((p: (T, T)) => le(p))
     "({" + (underlyingSet mkString ", ") + "}, {" +
             ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "})"
   }

@@ -137,10 +137,10 @@ class TypelessSetMorphismTest extends Specification {
     }
 
     "for factorset" >> {
-      val set0: collection.Set[Int] = setOf(1 to 10)
+      val set0: Set[Int] = setOf(1 to 10)
       val set = set0.map(i => i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
-      val br: BinaryRelationship[Any, Any] = ((a: Any, b: Any) => isOdd(a) == isOdd(b))
+      val br: BinaryRelationship[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)
       val factoring = new FactorSet[Any](set, br)
       val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
       val sut = forFactorset(factoring)

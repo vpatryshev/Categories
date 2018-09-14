@@ -2,8 +2,6 @@ package math.cat
 
 import math.cat.Sets._
 
-import scala.collection.Set
-
 /**
  * This opportunistic class does not seem to be used anywhere anymore.
  * The idea was to create something that would cover unresolved issues with type assignment
@@ -62,6 +60,13 @@ object TypelessSetMorphism {
   // this function is kind of stupid; it extends both domain and codomain, so it's supposed to crash on bad arguments
   // never mind, we may kick it all out eventually
   private def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): (X1 => Y1) = { case (x0: X0) => f(x0) }
+
+  /**
+    * Casts a set to a set of values of a superclass.
+    * Not good for mutable.
+    * TODO: DON'T
+    */
+  private def upcast[X, Y >: X](s: Set[X]): Set[Y] = s.asInstanceOf[Set[Y]]
 
   def apply[X, Y] (morphism: SetMorphism[X, Y]): TypelessSetMorphism = {
     apply(morphism.tag, upcast(morphism.d0), upcast(morphism.d1), extend(morphism))

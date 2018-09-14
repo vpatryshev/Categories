@@ -2,7 +2,6 @@ package math.cat
 
 import java.io.Reader
 
-import scala.collection.Set
 import Sets._
 
 /**
@@ -341,17 +340,19 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * @param g second arrow
    * @return the set of all such pairs of arrows
    */
-  def pairsEqualizing(f: A, g: A) = setOf(
-    Sets.product(arrows, arrows).
-            filter (p => {
-                           val (px, py) = p
-                           sameDomain(px, py) &&
-                           follows(f, px) &&
-                           follows(g, py) &&
-                           m(px, f) == m(py, g)
-                        }
-      )
+  def pairsEqualizing(f: A, g: A) = {
+    setOf(
+      Sets.product2[A, A](arrows, arrows).
+        filter (p => {
+          val (px, py) = p
+          sameDomain(px, py) &&
+            follows(f, px) &&
+            follows(g, py) &&
+            m(px, f) == m(py, g)
+        }
+        )
     )
+  }
 
   /**
    * Builds a set of all pairs (qx, qy) of arrows that end at the same codomain and start
@@ -373,7 +374,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * @return an iterable of all such pairs of arrows
    */
   def pairsCoequalizing(f: A, g: A) = setOf(
-    Sets.product(arrows, arrows).
+    Sets.product2(arrows, arrows).
             filter (q => {
                            val (qx, qy) = q
                            sameCodomain(qx, qy) &&
@@ -392,7 +393,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * @return a set of pairs of arrows with the same domain, ending at x and y.
    */
   def pairsWithTheSameDomain(x: O, y: O) = setOf(
-    Sets.product(arrows, arrows).
+    Sets.product2(arrows, arrows).
             filter(p => {
                           val (px, py) = p
                           sameDomain(px, py) &&
@@ -410,7 +411,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * @return a set of pairs of arrows with the same codomain, starting at x and y.
    */
   def pairsWithTheSameCodomain(x: O, y: O) = setOf(
-    Sets.product(arrows, arrows).
+    Sets.product2(arrows, arrows).
             filter(p => {
                           val (px, py) = p
                           sameCodomain(px, py) &&
@@ -445,7 +446,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * @param y second object
    * @return a pair of arrows from product object to x and y, or null if none exists.
    */
-  def product(x: O, y: O) = Sets.product(arrows, arrows).find(isProduct(x, y))
+  def product(x: O, y: O) = Sets.product2(arrows, arrows).find(isProduct(x, y))
 
   /**
    * Checks if i = (ix, iy) is a union of objects x and y.
@@ -468,7 +469,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    * @param y second object
    * @return a pair of arrows from a and b to their union, or null if none exists.
    */
-  def union(x: O, y: O): Option[(A, A)] = Sets.product(arrows, arrows).find(isUnion(x, y))
+  def union(x: O, y: O): Option[(A, A)] = Sets.product2(arrows, arrows).find(isUnion(x, y))
 
   /**
    * Checks if p = (pa, pb) is a pullback of arrows f and g.
@@ -495,7 +496,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    */
   def pullback(f: A, g: A) = {
     require(sameCodomain(f, g), "Codomains of " + f + " and " + g + " should be the same")
-    Sets.product(arrows, arrows).find(isPullback(f, g))
+    Sets.product2(arrows, arrows).find(isPullback(f, g))
   }
 
   /**
@@ -526,7 +527,7 @@ class Category[O, A](val g: Graph[O, A], val unit: O => A, val m: (A, A) => A) e
    */
   def pushout(f: A, g: A) = {
     require(sameDomain(f, g), "Domains should be the same")
-    Sets.product(arrows, arrows).find(isPushout(f, g))
+    Sets.product2(arrows, arrows).find(isPushout(f, g))
   }
 
   /**
@@ -760,8 +761,8 @@ object Category {
 
   private def addUnitsToGraph[T] (graph: Graph[T, T]) =
   {
-    val nodes = graph.nodes.asInstanceOf[scala.collection.Set[T]] // this and the next casting is to cover up a weird bug somewhere in scala
-    val allArrows: scala.collection.Set[T] = nodes ++ graph.arrows
+    val nodes = graph.nodes.asInstanceOf[Set[T]] // this and the next casting is to cover up a weird bug somewhere in scala
+    val allArrows: Set[T] = nodes ++ graph.arrows
     val isUnit = (f: T) => graph.nodes contains f
     val d0 = (f: T) => if (isUnit(f)) f else graph.d0(f)
     val d1 = (f: T) => if (isUnit(f)) f else graph.d1(f)

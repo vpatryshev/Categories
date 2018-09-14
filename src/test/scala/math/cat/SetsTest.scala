@@ -2,6 +2,7 @@ package math.cat
 
 import org.specs2.mutable._
 import Sets._
+import org.specs2.execute.Failure
 
 /**
  * Test suite for Sets object
@@ -17,7 +18,7 @@ class SetsTest extends Specification {
     "groubBy should group" >> {
       val xs = Set(2, 3, -2, 5, 6, 7)
       val ys = Set(1, 2, 3, 4, 5, 6)
-      val f = groupBy(xs, ys, (n: Int) => (n * n))
+      val f = groupBy(xs, ys, (n: Int) => n * n)
       f(1) === Set.empty
       f(2) === Set.empty
       f(3) === Set.empty
@@ -36,7 +37,7 @@ class SetsTest extends Specification {
       var iteratorCalled = false
 
       val iterable = new Iterable[String] {
-        override def iterator = {
+        override def iterator: Iterator[String] = {
           iteratorCalled = true
           source.iterator
         }
@@ -48,15 +49,15 @@ class SetsTest extends Specification {
       actual === expected
     }
 
-    "Lazy iterator should not be called when building a set" >> {
+    "building from a list should work" >> {
       val source = List("one", "two", "three", "")
-      val actual = setOf(source, (s: String) => source.contains(s))
+      val actual: Set[String] = setOf[String](source, (s: String) => source.contains(s))
       val expected = Set("one", "two", "three", "")
       actual.size === expected.size
-      actual must contain("one")
-      actual must contain("two")
-      actual must contain("three")
-      actual must contain("")
+      actual.contains("one") must beTrue
+      actual.contains("two") must beTrue
+      actual.contains("three") must beTrue
+      actual.contains("") must beTrue
       actual === expected
     }
 
@@ -78,23 +79,25 @@ class SetsTest extends Specification {
     }
 
     "infinite set should be okay" >> {
-      val iterable = new Iterable[Int] {
-        def iterator = new Iterator[Int] {
-          var i = 0;
+      val iterable: Iterable[Int] = new Iterable[Int] {
+        def iterator: Iterator[Int] = new Iterator[Int] {
+          var i = 0
 
-          def next = {
-            i += 1;
+          def next: Int = {
+            i += 1
             i - 1
           }
 
           def hasNext = true
 
-          def remove = failure("N is immutable")
+          def remove: Failure = failure("N is immutable")
         }
       }
 
       val set = setOf(iterable, (n: Int) => true)
-      set must contain(42)
+      set.contains(42) must beTrue
+// the following matcher does not work, because our set is infinite, and it tries to build a vector      
+//      set must contain(42)
       var n = 0
       for (i <- set take 10) {
         n += 1
@@ -123,7 +126,11 @@ class SetsTest extends Specification {
       val sets = (1 to 5) map (n => setOf((10 * n) to (10 * n) + n))
       val expected = Set(10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41, 42, 43, 44, 50, 51, 52, 53, 54, 55)
       val actual = union(sets)
-      actual === expected
+      val eq1 = actual == expected
+      eq1 must beTrue
+      val eq2 = actual == expected
+      eq2 must beTrue
+      actual === expected // fails for some reason
     }
 
     "take n of infinite should not hang" >> {
@@ -132,21 +139,23 @@ class SetsTest extends Specification {
     }
 
     "union of a finite with an infinite should cover both" >> {
-      val sut = union(Set("a", "b", 1.4), N.asInstanceOf[Set[Any]]) take 20
+      val sut = union(Set("a", "b", 1.4), N) take 20
       sut must contain("a")
       sut must contain("b")
       sut must contain(8)
     }
 
     "union of an infinite with a finite should cover both" >> {
-      val sut = union(N.asInstanceOf[Set[Any]], Set("a", "b", 3.5)) take 20
+      val sut = union(N, Set("a", "b", 3.5)) take 20
       sut must contain("a")
       sut must contain("b")
       sut must contain(8)
     }
 
     "union of an infinite with an infinite should cover both" >> {
-      val sut = union(N filter (x => x % 5 == 0), N filter (x => x % 5 == 2)) take 20
+      val set1 = N filter (x => x % 5 == 0)
+      val set2 = N filter (x => x % 5 == 2)
+      val sut = union(set1, set2)
       sut must contain(15)
       sut must contain(22)
       sut must contain(0)
@@ -163,26 +172,26 @@ class SetsTest extends Specification {
     }
 
     "product with empty should produce empty" >> {
-      product(Set("a", "b", "c"), Set.empty).isEmpty must beTrue
-      product(Set.empty, Set("a", "b", "c")).isEmpty must beTrue
+      product2(Set("a", "b", "c"), Set.empty).isEmpty must beTrue
+      product2(Set.empty, Set("a", "b", "c")).isEmpty must beTrue
     }
 
     "product of 2 x 2 should produce a 6-element set" >> {
-      val actual = product(Set("a", "b"), Set("A", "B"))
+      val actual = product2(Set("a", "b"), Set("A", "B"))
       val expected = Set(("a", "A"), ("a", "B"), ("b", "A"), ("b", "B"))
       actual === expected
       expected === actual
     }
 
     "product of 3 x 2 should produce a 6-element set" >> {
-      val actual = product(Set("a", "b", "c"), Set("A", "B"))
+      val actual = product2(Set("a", "b", "c"), Set("A", "B"))
       val expected = Set(("a", "A"), ("a", "B"), ("b", "A"), ("b", "B"), ("c", "A"), ("c", "B"))
       actual === expected
       expected === actual
     }
 
     "product of 2 x 3 should produce a 6-element set" >> {
-      val actual = product(Set("a", "b"), Set("A", "B", "C"))
+      val actual = product2(Set("a", "b"), Set("A", "B", "C"))
       val expected = Set(("a", "A"), ("a", "B"), ("a", "C"), ("b", "A"), ("b", "B"), ("b", "C"))
       actual === expected
       expected === actual
@@ -191,36 +200,35 @@ class SetsTest extends Specification {
     "product should not prematurely calculate size" >> {
       var wasCalled = false
       val source = Set(1,2)
-      val s = Sets.setOf(source, {wasCalled = true; 2}, (x: Int) => (source contains x))
+      val s = Sets.setOf(source, {wasCalled = true; 2}, (x: Int) => source contains x)
 
       wasCalled must beFalse
-      val ss = product(s, s)
+      val ss = product2(s, s)
       wasCalled must beFalse
       ss must haveSize(4)
       wasCalled must beTrue
     }
 
     "product of an infinite set with a finite should iterate over all pairs" >> {
-      val sut = product(N, Set('A, 'B))
+      val sut = product2(N, Set('A, 'B))
       val segment = sut take 30
-      System.out.flush
-      segment must contain((4,'B))
-      segment must contain((2,'A))
+      segment.contains((4,'B)) must beTrue
+      segment.contains((2,'A)) must beTrue
     }
 
     "product of a finite set with an infinite should iterate over all pairs" >> {
-      val sut = product(Set("a", "b"), N)
+      val sut = product2(Set("a", "b"), N)
       val segment = sut take 20
-      segment must contain(("b",5))
-      segment must contain(("a",3))
+      segment.contains(("b",5)) must beTrue
+      segment.contains(("a",3)) must beTrue
     }
 
     "product of two infinite sets should iterate over all pairs" >> {
-      val sut = product(N, N)
+      val sut = product2(N, N)
       val segment = sut take 40
-      segment must contain((1,3))
-      segment must contain((3,1))
-      segment must contain((3,3))
+      segment.contains((1,3)) must beTrue
+      segment.contains((3,1)) must beTrue
+      segment.contains((3,3)) must beTrue
     }
 
     "powerset of a 3-element set should give 8 elements" >> {
@@ -305,13 +313,13 @@ class SetsTest extends Specification {
     }
 
     "Filtering product by diagonal should produce diagonal" >> {
-      val sut = product(Set(1, 2, 3), Set(1, 2, 3))
+      val sut = product2(Set(1, 2, 3), Set(1, 2, 3))
       val p1 = (1, 1)
       val p2 = (2, 2)
       val p3 = (3, 3)
       val expected = Set(p1, p2, p3)
       val actual = sut.filter(p => {val (x, y) = p; x  == y})
-      !(actual must contain((1, 2)))
+      actual must not contain((1, 2))
       actual must haveSize(3)
       actual must contain(p1)
       actual must contain(p2)
@@ -321,37 +329,37 @@ class SetsTest extends Specification {
 
     "Set should be monadic" >> {
       val i: Set[Int] = Set(1, 2, 3)
-      val s: Set[String] = for (n <- i) yield(n.toString)
+      val s: Set[String] = for (n <- i) yield n.toString
       s === Set("1", "2", "3")
     }
 
     "NNO's 10 element should be 9" >> {
-      Sets.N must contain(1001590)
-      val first10 = Sets.N.take(10)
+      N.contains(1001590) must beTrue
+      val first10 = N.take(10)
 
-      0 to 9 forall (i => first10 must contain(i))
+      0 to 9 forall (i => first10.contains(i) must beTrue)
     }
 
     "Iterator of 1 is asingleton" >> {
-      Sets.isSingleton(List("abc").iterator) must beTrue
+      Sets.isSingleton(List("abc")) must beTrue
     }
 
     "Iterator of 0 is not a singleton" >> {
-      Sets.isSingleton(List().iterator) must beFalse
+      Sets.isSingleton(List()) must beFalse
     }
 
     "Iterator of 2 is not a singleton" >> {
-      Sets.isSingleton(List("a", "b").iterator) must beFalse
+      Sets.isSingleton(List("a", "b")) must beFalse
     }
 
     "Factorset" >> {
       val set = setOf(1 to 10)
       def isOdd(x: Int) = x % 2 == 0
-      val br: BinaryRelationship[Int, Int] = ((a: Int, b: Int) => isOdd(a) == isOdd(b))
+      val br: BinaryRelationship[Int, Int] = (a: Int, b: Int) => isOdd(a) == isOdd(b)
       val factoring = new FactorSet(set, br)
 
       factoring.factorset must haveSize(2)
-      val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
+      val s = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val factor = Set(s(1), s(0))
       factor === factoring.factorset
       factoring.asFunction(6) === s(0)
@@ -360,19 +368,19 @@ class SetsTest extends Specification {
 
     "Factorset by a diagonal" >> {
       val set = setOf(1 to 10)
-      val br: BinaryRelationship[Int, Int] = ((a: Int, b: Int) => a == b)
-      val actual = factorset(set, br)
+      val br: BinaryRelationship[Int, Int] = (a: Int, b: Int) => a == b
+      val actual: SetMorphism[Int, Set[Int]] = factorset(set, br)
       val factor = setOf(for (i <- set) yield Set(i))
-      actual === SetMorphism(set, factor, (i:Int) => Set(i))
+      actual === SetMorphism[Int, Set[Int]](set, factor, (i:Int) => Set(i))
     }
 
     "Factorset mod 2" >> {
       val set = setOf(1 to 10)
-      val br: BinaryRelationship[Int, Int] = ((a: Int, b: Int) => a % 2 == b % 2)
+      val br: BinaryRelationship[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
       val actual = factorset(set, br)
       val s = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val factor = Set(s(1), s(0))
-      actual === SetMorphism(set, factor, (i:Int) => s(i % 2))
+      actual === SetMorphism[Int, Set[Int]](d0 = set, d1 = factor, function = (i:Int) => s(i % 2))
     }
 
     "Set(iterable, size, filter) should not return false positives" >> {
@@ -393,17 +401,17 @@ class SetsTest extends Specification {
     }
 
     "Finite Sets should not not contain NNO" >> {
-      !(FINITE_SETS must contain(N))
+      FiniteSets.contains(N) must beFalse
     }
 
     "Finite Sets should not contain itself" >> {
-      !(FINITE_SETS must contain(FINITE_SETS))
+      FiniteSets.contains(FiniteSets) must beFalse
     }
 
     "Finite Sets should contain various finite sets" >> {
-      FINITE_SETS must contain(Set[String]())
-      FINITE_SETS must contain(Set("infinity"))
-      FINITE_SETS must contain(Set(1,2,3,42))
+      FiniteSets.contains(Set[String]()) must beTrue
+      FiniteSets.contains(Set("infinity")) must beTrue
+      FiniteSets.contains(Set(1,2,3,42)) must beTrue
     }
     /*
         def doNotTestDownshift() {
@@ -415,3 +423,31 @@ class SetsTest extends Specification {
       */
   }
 }
+/*
+def spendNotMoreThan[T](time: Duration, extraTimePercent:Int = 1) = new {
+    def on(op: => Result[T]): Result[T] = {
+      import LockSupport._
+      var res:Result[T] = Empty
+      val millis = time.toMillis
+      val finalDeadline = System.currentTimeMillis + millis * (100 + extraTimePercent) / 100 + 1
+      val done = new AtomicBoolean(false)
+      val worker = new Thread {
+        override def run {
+          try {
+            res = op
+            done.set(true)
+          } catch {case ie: InterruptedException => }
+        }
+      }
+      worker.setPriority(1)
+      worker.start
+      worker.join(time.toMillis)
+      if (worker.isAlive) {
+        worker.interrupt
+        parkUntil(finalDeadline)
+      }
+      if (worker.isAlive) worker.stop
+      if (done.get) res else Result.error(s"Timeout after $time")
+    }
+  }
+ */

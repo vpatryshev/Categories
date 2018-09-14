@@ -1,6 +1,5 @@
 package math.cat
 
-import scala.collection.Set
 import Sets._
 
 /**

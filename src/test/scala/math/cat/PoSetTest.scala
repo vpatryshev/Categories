@@ -15,7 +15,7 @@ class PoSetTest extends Specification {
           ???
       }
       val isEqual = expected.underlyingSet == actual.underlyingSet
-      val product = Sets.product(expected.underlyingSet, expected.underlyingSet)
+      val product = Sets.product2(expected.underlyingSet, expected.underlyingSet)
       val fe = (isEqual /: product) ((bool, p) => bool && (expected.le(p) == actual.le(p)))
 
       isEqual must beTrue

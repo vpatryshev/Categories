@@ -1,7 +1,5 @@
 package math.cat
 
-import scala.collection.Set
-
 /**
  * Representing binary relationships here
  */

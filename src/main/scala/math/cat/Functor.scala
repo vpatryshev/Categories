@@ -1,9 +1,5 @@
 package math.cat
 
-
-
-
-import scala.collection.Set
 import SetMorphism._
 import Sets._
 import Functions._
