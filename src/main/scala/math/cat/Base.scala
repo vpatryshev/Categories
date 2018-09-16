@@ -93,7 +93,7 @@ object Base {
     * @return optionally, a candidate that is not null
     */
   @deprecated
-  def oneOf[T](candidates: T*): Option[T] = oneOf(candidates filter (null !=))
+  def oneOf[T](candidates: T*): Option[T] = candidates find (null !=)
 
   /**
     * Builds a Cartesian product of two sets.
@@ -104,10 +104,10 @@ object Base {
     * @param ys second set
     * @return Cartesian product of two sets: the set of all possible pairs.
     */
-  def setProduct[X, Y](xs: Set[X], ys: Set[Y]): Set[Pair[X, Y]] = {
+  def setProduct[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] = {
     (for {
       x <- xs; y <- ys
-    } yield Pair(x, y))(breakOut)
+    } yield(x, y))(breakOut)
   }
 
   /**
@@ -133,7 +133,8 @@ object Base {
     listofLists.flatten
 
   @deprecated
-  def flatten[T](listofLists: List[_ <: List[T]]): List[T] = flattenList(listofLists)
+  def flatten[T](listofLists: List[_ <: List[T]]): List[T] =
+    listofLists.flatten
 
   /**
     * Concatenates a sequence of iterables
@@ -163,8 +164,8 @@ object Base {
     * @return a pair consisting of the Iterable's head and tail.
     */
   @deprecated
-  def split[T](iterable: Iterable[T]): Pair[Option[T], Iterable[T]] =
-    Pair(iterable.headOption, iterable.tail)
+  def split[T](iterable: Iterable[T]): (Option[T], Iterable[T]) =
+    (iterable.headOption, iterable.tail)
 
   /**
     * Spits a list into head and tail pair.
@@ -174,7 +175,7 @@ object Base {
     * @return a pair consisting of head and tail
     */
   @deprecated
-  def split[T](list: List[T]): Pair[Option[T], List[T]] = Pair(list.headOption, list.tail)
+  def split[T](list: List[T]): (Option[T], List[T]) = (list.headOption, list.tail)
 
   /**
     * Count entries in an Iterable.
@@ -191,7 +192,6 @@ object Base {
     * @param n number of elements in the list
     * @return the list
     */
-  @deprecated
   def range(n: Int): List[Int] = range(0, n)
 
   /**
@@ -201,7 +201,6 @@ object Base {
     * @param b next after the last integer
     * @return the list
     */
-  @deprecated
   def range(a: Int, b: Int): List[Int] = range(a, b, 1)
 
   /**
@@ -212,7 +211,6 @@ object Base {
     * @param c step
     * @return the list
     */
-  @deprecated
   def range(a: Int, b: Int, c: Int): List[Int] = Range(a, b, c).toList
 
   /**
@@ -225,8 +223,8 @@ object Base {
     * @return the list of pairs of parallel elements of as and bs.
     */
   @deprecated
-  def zip[A, B](as: List[A], bs: List[B]): List[Pair[A, B]] =
-    (as zip bs) map { case (a, b) => Pair(a, b)}
+  def zip[A, B](as: List[A], bs: List[B]): List[(A, B)] =
+    (as zip bs) map { case (a, b) => (a, b)}
 
   /**
     * Checks if two objects are equal.

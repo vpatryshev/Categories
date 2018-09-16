@@ -45,12 +45,12 @@ class BaseTest extends Specification {
 
     "setProduct" in {
       setProduct(Set("a", "b"), Set(1, 2)) must_==
-        Set(Pair("a", 1), Pair("a", 2), Pair("b", 1), Pair("b", 2))
+        Set(("a", 1), ("a", 2), ("b", 1), ("b", 2))
     }
 
     "setProduct empty" in {
-      setProduct(Set("a", "b"), Set.empty[Int]) must_== Set.empty[Pair[String, Int]]
-      setProduct(Set.empty[String], Set(1, 2)) must_== Set.empty[Pair[String, Int]]
+      setProduct(Set("a", "b"), Set.empty[Int]) must_== Set.empty[(String, Int)]
+      setProduct(Set.empty[String], Set(1, 2)) must_== Set.empty[(String, Int)]
     }
 
     "toMap" in {

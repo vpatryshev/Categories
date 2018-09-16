@@ -81,7 +81,7 @@ class SetsTest extends Specification {
     "infinite set should be okay" >> {
       val iterable: Iterable[Int] = new Iterable[Int] {
         def iterator: Iterator[Int] = new Iterator[Int] {
-          var i = -1
+          private var i = -1
 
           def next: Int = {
             i += 1
@@ -152,7 +152,7 @@ class SetsTest extends Specification {
       sut must contain(8)
     }
 
-    "union of an infinite with an infinite should cover both" >> {
+    "union of an infinite with an infinite should include both" >> {
       val set1 = N filter (x => x % 5 == 0)
       val set2 = N filter (x => x % 5 == 2)
       val sut: Set[BigInt] = union(set1, set2)
