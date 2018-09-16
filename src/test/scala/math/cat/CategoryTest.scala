@@ -358,7 +358,7 @@ class CategoryTest extends Specification {
     }
 
     "Equalizer_negative" >> {
-      PARALLEL_PAIR.equalizer("a", "b") === None
+      ParallelPair.equalizer("a", "b") === None
     }
 
     "AllCoequalizingArrows" >> {
@@ -378,7 +378,7 @@ class CategoryTest extends Specification {
     }
 
     "Coequalizer_negative" >> {
-      PARALLEL_PAIR.coequalizer("a", "b") === None
+      ParallelPair.coequalizer("a", "b") === None
     }
 
     "PairsEqualizing" >> {
@@ -401,7 +401,7 @@ class CategoryTest extends Specification {
     }
 
     "PairsCoequalizing_SQUARE" >> {
-      SQUARE.pairsCoequalizing("ab", "ac") === Set(("bd", "cd"))
+      Square.pairsCoequalizing("ab", "ac") === Set(("bd", "cd"))
     }
 
     "PairsWithTheSameDomain" >> {
@@ -427,114 +427,114 @@ class CategoryTest extends Specification {
     }
 
     "Product_none" >> {
-      PARALLEL_PAIR.product("0", "1") === None
+      ParallelPair.product("0", "1") === None
     }
 
     "Product_plain" >> {
-      SQUARE.product("b", "c") === Some(("ab", "ac"))
+      Square.product("b", "c") === Some(("ab", "ac"))
     }
 
     "Union_none" >> {
-      PARALLEL_PAIR.union("0", "1") === None
+      ParallelPair.union("0", "1") === None
     }
 
     "Union_plain" >> {
-      SQUARE.union("b", "c") === Some(("bd", "cd"))
+      Square.union("b", "c") === Some(("bd", "cd"))
     }
 
     "IsPullback" >> {
-      SQUARE.isPullback("bd", "cd")(("ab", "ab")) must beFalse
-      SQUARE.isPullback("bd", "cd")(("ab", "ac")) must beTrue
+      Square.isPullback("bd", "cd")(("ab", "ab")) must beFalse
+      Square.isPullback("bd", "cd")(("ab", "ac")) must beTrue
     }
 
     "Pullback_none" >> {
-      PARALLEL_PAIR.pullback("a", "b") === None
+      ParallelPair.pullback("a", "b") === None
     }
 
     "Pullback_same" >> {
-      PARALLEL_PAIR.pullback("a", "a") === Some(("0", "0"))
+      ParallelPair.pullback("a", "a") === Some(("0", "0"))
     }
 
     "Pullback_plain" >> {
-      SQUARE.pullback("bd", "cd") === Some(("ab", "ac"))
+      Square.pullback("bd", "cd") === Some(("ab", "ac"))
     }
 
     "Pushout_none" >> {
-      PARALLEL_PAIR.pushout("a", "b") === None
+      ParallelPair.pushout("a", "b") === None
     }
 
     "Pushout_same" >> {
-      PARALLEL_PAIR.pushout("a", "a") === Some(("1", "1"))
+      ParallelPair.pushout("a", "a") === Some(("1", "1"))
     }
 
     "IsPushout_square" >> {
-      SQUARE.isPushout("ab", "ac")(("bd", "cd")) must beTrue
+      Square.isPushout("ab", "ac")(("bd", "cd")) must beTrue
     }
 
     "Pushout_plain" >> {
-      SQUARE.pushout("ab", "ac") === Some(("bd", "cd"))
+      Square.pushout("ab", "ac") === Some(("bd", "cd"))
     }
 
     "Terminal_none" >> {
       Z2.terminal === None
-      PARALLEL_PAIR.terminal === None
+      ParallelPair.terminal === None
     }
 
     "IsTerminal_positive" >> {
-      SQUARE.isTerminal("d") must beTrue
+      Square.isTerminal("d") must beTrue
       _4_.isTerminal(3) must beTrue
     }
 
     "IsTerminal_negative" >> {
-      SQUARE.isTerminal("a") must beFalse
-      SQUARE.isTerminal("b") must beFalse
+      Square.isTerminal("a") must beFalse
+      Square.isTerminal("b") must beFalse
       _4_.isTerminal(0) must beFalse
       _4_.isTerminal(1) must beFalse
-      PARALLEL_PAIR.isTerminal("0") must beFalse
-      PARALLEL_PAIR.isTerminal("1") must beFalse
+      ParallelPair.isTerminal("0") must beFalse
+      ParallelPair.isTerminal("1") must beFalse
     }
 
     "Terminal_misc" >> {
-      SQUARE.terminal === Some("d")
+      Square.terminal === Some("d")
       _4_.terminal === Some(3)
     }
 
     "Initial_none" >> {
       Z2.initial === None
-      PARALLEL_PAIR.initial === None
+      ParallelPair.initial === None
     }
 
     "Initial_misc" >> {
-      SQUARE.initial === Some("a")
+      Square.initial === Some("a")
       _4_.initial === Some(0)
     }
 
     "AllInitialObjects_byDefinition" >> {
-      Set("0") === PARALLEL_PAIR.allInitialObjects_byDefinition
-      Set("a") === SQUARE.allInitialObjects_byDefinition
-      Set("a", "b") === PULLBACK.allInitialObjects_byDefinition
+      Set("0") === ParallelPair.allInitialObjects_byDefinition
+      Set("a") === Square.allInitialObjects_byDefinition
+      Set("a", "b") === Pullback.allInitialObjects_byDefinition
       Set("b", "d") === M.allInitialObjects_byDefinition
       Set("a", "c", "e") === W.allInitialObjects_byDefinition
     }
 
     "AllInitialObjects_programmersShortcut" >> {
-      Set("0") === PARALLEL_PAIR.allInitialObjects_programmersShortcut
-      Set("a") === SQUARE.allInitialObjects_programmersShortcut
-      Set("a", "b") === PULLBACK.allInitialObjects_programmersShortcut
+      Set("0") === ParallelPair.allInitialObjects_programmersShortcut
+      Set("a") === Square.allInitialObjects_programmersShortcut
+      Set("a", "b") === Pullback.allInitialObjects_programmersShortcut
       Set("b", "d") === M.allInitialObjects_programmersShortcut
       Set("a", "c", "e") === W.allInitialObjects_programmersShortcut
     }
 
     "AllInitialObjects" >> {
-      Set("0") === PARALLEL_PAIR.allInitialObjects
-      Set("a") === SQUARE.allInitialObjects
-      Set("a", "b") === PULLBACK.allInitialObjects
+      Set("0") === ParallelPair.allInitialObjects
+      Set("a") === Square.allInitialObjects
+      Set("a", "b") === Pullback.allInitialObjects
       Set("b", "d") === M.allInitialObjects
       Set("a", "c", "e") === W.allInitialObjects
     }
 
     "AllInitialObjects_forKnownCategories" >> {
-      KNOWN_CATEGORIES.forall {c =>
+      KnownCategories.forall { c =>
         c.allInitialObjects_programmersShortcut === c.allInitialObjects_byDefinition
       }
     }

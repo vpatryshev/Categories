@@ -20,7 +20,8 @@ object BinaryRelationship {
       def apply(x: X, y: Y): Boolean = pairs.contains((x, y))
     }
 
-  implicit def apply[X, Y](f: Function2[X, Y, Boolean]) =
+  implicit def apply[X, Y](f: Function2[X, Y, Boolean]):
+  BinaryRelationship[X, Y] =
     new BinaryRelationship[X, Y] {
       def apply(x: X, y: Y) = f.apply(x, y)
     }

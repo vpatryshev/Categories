@@ -7,8 +7,8 @@ import org.specs2.mutable._
  * @author vpatryshev
  */
 class PoSetMorphismTest extends Specification {
-  val intComparator = (x:Int, y:Int) => x <= y
-  val stringComparator = (x:String, y:String) => x <= y
+  private val intComparator = (x:Int, y:Int) => x <= y
+  private val stringComparator = (x:String, y:String) => x <= y
 
   "PoSetMorphism" >> {
 

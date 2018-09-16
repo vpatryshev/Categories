@@ -81,11 +81,11 @@ class SetsTest extends Specification {
     "infinite set should be okay" >> {
       val iterable: Iterable[Int] = new Iterable[Int] {
         def iterator: Iterator[Int] = new Iterator[Int] {
-          var i = 0
+          var i = -1
 
           def next: Int = {
             i += 1
-            i - 1
+            i
           }
 
           def hasNext = true
@@ -155,10 +155,9 @@ class SetsTest extends Specification {
     "union of an infinite with an infinite should cover both" >> {
       val set1 = N filter (x => x % 5 == 0)
       val set2 = N filter (x => x % 5 == 2)
-      val sut = union(set1, set2)
-      sut must contain(15)
-      sut must contain(22)
-      sut must contain(0)
+      val sut: Set[BigInt] = union(set1, set2)
+      sut.contains(15) must beTrue
+      sut.contains(22) must beTrue
     }
 
     "union of two finite sets should have the size equal to their sum of sizes" >> {

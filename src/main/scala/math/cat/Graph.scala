@@ -11,7 +11,8 @@ class Graph[N, A] (
         val d1: A => N
       ) extends Set[N] {
 
-  def this(source: Graph[N, A]) = this(source.nodes, source.arrows, source.d0, source.d1)
+  def this(source: Graph[N, A]) =
+    this(source.nodes, source.arrows, source.d0, source.d1)
 
   validate
 
