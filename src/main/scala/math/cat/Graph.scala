@@ -14,19 +14,19 @@ class Graph[N, A] (
   def this(source: Graph[N, A]) =
     this(source.nodes, source.arrows, source.d0, source.d1)
 
-  validate
+  validateGraph()
 
   type Nodes = N
   type Arrows = A
   type MY_TYPE = this.type
 
-  override def seq = nodes
-  override def iterator = nodes.iterator
+  override def seq: Set[N] = nodes
+  override def iterator: Iterator[N] = nodes.iterator
   override def contains(node: N): Boolean = nodes contains node
-  override def size = nodes.size
-  override def hashCode = nodes.hashCode * 61 + arrows.hashCode
-  def -(x:N) = requireImmutability
-  def +(x:N) = requireImmutability
+  override def size: Int = nodes.size
+  override def hashCode: Int = nodes.hashCode * 61 + arrows.hashCode
+  def -(x:N): Set[N] = requireImmutability
+  def +(x:N): Set[N] = requireImmutability
 
   override def equals(x: Any): Boolean = {
     x match {
@@ -35,11 +35,11 @@ class Graph[N, A] (
     }
   }
 
-  def validate {
+  def validateGraph() {
     require (arrows != null, "arrowset cannot be null")
     require (nodes != null, "nodeset cannot be null")
 
-    if (!arrows.isEmpty) {
+    if (arrows.nonEmpty) {
       require (d0 != null, "d0 cannot be null")
       require (d1 != null, "d1 cannot be null")
     }
@@ -54,7 +54,7 @@ class Graph[N, A] (
    * @param to   second node
    * @return the set of all arrows from x to y
    */
-  def hom(from: N, to: N) = setOf(arrows filter ((f: A) => (d0(f) == from) && (d1(f) == to)))
+  def hom(from: N, to: N): Set[A] = setOf(arrows filter ((f: A) => (d0(f) == from) && (d1(f) == to)))
 
   /**
    * Checks if one arrow follows another
@@ -62,7 +62,7 @@ class Graph[N, A] (
    * @param g an arrow
    * @return true iff f follows g
    */
-  def follows(f: A, g: A) = d0(f) == d1(g)
+  def follows(f: A, g: A): Boolean = d0(f) == d1(g)
 
   /**
    * Checks if two arrows have the same domain
@@ -70,7 +70,7 @@ class Graph[N, A] (
    * @param g an arrow
    * @return true iff g and f have the same domain
    */
-  def sameDomain(f: A, g: A) = d0(f) == d0(g)
+  def sameDomain(f: A, g: A): Boolean = d0(f) == d0(g)
 
   /**
    * Checks if two arrows have the same codomain
@@ -78,7 +78,7 @@ class Graph[N, A] (
    * @param g an arrow
    * @return true iff g and f have the same codomain
    */
-  def sameCodomain(f: A, g: A) = d1(f) == d1(g)
+  def sameCodomain(f: A, g: A): Boolean = d1(f) == d1(g)
 
   /**
    * Checks if two arrows are parallel
@@ -86,7 +86,7 @@ class Graph[N, A] (
    * @param g an arrow
    * @return true iff g and f have the same domain and codomain
    */
-  def areParallel(f: A, g: A) = sameDomain(f, g) && sameCodomain(f, g)
+  def areParallel(f: A, g: A): Boolean = sameDomain(f, g) && sameCodomain(f, g)
 
   /**
    *  Checks equality of this graph to that one.
@@ -101,15 +101,18 @@ class Graph[N, A] (
     (isEqual /: arrows) ((bool: Boolean, a: A) => bool && (this.d0(a) == that.d0(a)) && (this.d1(a) == that.d1(a)))
   }
 
-  override def toString = "({" +
-    nodes.mkString(", ") + "}, {" + (arrows map (a => a.toString + ": " + d0(a) + "->" + d1(a))).mkString(", ") +
-    "})"
+  override def toString: String = {
+    val nodess = nodes.mkString(", ")
+    val arrowss =
+      arrows map ((a: A) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
+    s"({$nodess}, {$arrowss})"
+  }
 
   def unary_~ = new Graph[N, A](nodes, arrows, d1, d0)
 }
 
 object Graph {
-  def apply[N, A] (nodes: Set[N], arrows: Set[A], d0: A => N, d1: A => N) = {
+  def apply[N, A] (nodes: Set[N], arrows: Set[A], d0: A => N, d1: A => N): Graph[N, A] = {
     require (arrows != null)
     new Graph(nodes, arrows, d0, d1)
   }
@@ -144,15 +147,15 @@ object Graph {
       }
     }
 
-    override def read(input: CharSequence) = {
+    override def read(input: CharSequence): Graph[String, String] = {
       val pr: ParseResult[Graph[String, String]] = parseAll(all, input)
       explain(pr)
     }
 
-    override def read(input: Reader) = explain(parseAll(all, input))
+    override def read(input: Reader): Graph[String, String] = explain(parseAll(all, input))
   }
 
-  def apply(input: Reader) = (new Parser).read(input)
+  def apply(input: Reader): Graph[String, String] = (new Parser).read(input)
 
-  def apply(input: CharSequence) = (new Parser).read(input)
+  def apply(input: CharSequence): Graph[String, String] = (new Parser).read(input)
 }

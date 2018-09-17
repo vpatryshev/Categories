@@ -34,7 +34,7 @@ class CategoryTest extends Specification {
 
   "Category" >> {
 
-    "parser" >> {
+    "parsing example" >> {
       val d0d1 = Map(
         "0.1" -> ("0", "1"),
         "0.2" -> ("0", "2"), 
@@ -69,7 +69,25 @@ class CategoryTest extends Specification {
           ("2.swap", "2.b") -> "2.b",
           ("2.swap", "2.swap") -> "2") // composition map
        )
-      Category(testCategory.toString) must_== testCategory
+      val string = testCategory.toString
+      Category(string) must_== testCategory
+    }
+    
+    "regression from 6/9/15" >> {
+      val expected = Category(
+        units = Set("0", "1", "2"),
+        domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
+        codomain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "2", "b" -> "2"),
+        compositionSource = Map[(String, String), String]()
+      )
+      val source1 = "({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {0 o a = a})"
+      val sample1 = Category(source1)
+      sample1 must_== expected
+
+      val source2 = "({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
+      val sample2 = Category(source1)
+      sample2 must_== expected
+
     }
     
     "Constructor_halfSimplicial" >> {
@@ -582,23 +600,29 @@ class CategoryTest extends Specification {
       val expected = "({}, {}, {})"
       val actual = _0_.toString
       expected === actual
+      _0_.objects must beEmpty
+      _0_.arrows must beEmpty
     }
 
     "1" >> {
       Set(0) === _1_.objects
       Set((0, 0)) === _1_.arrows
+      _1_.objects.size must_== 1
+      _1_.arrows.size must_== 1
     }
 
     "2" >> {
-      Set(0, 1) === _2_.objects
+      val sut = _2_
+      Set(0, 1) === sut.objects
       val expected = Set((0, 0), (1, 1), (0, 1))
-      val actual = _2_.arrows
-      actual.forall {a => expected must contain(a)}
-      expected.forall {a => actual must contain(a)}
-      expected == actual must beTrue
-
-      // TODO(vlad): fix it, it fails
-      // _2_.arrows === expected
+      val arrows = sut.arrows
+      sut.objects.size must_== 2
+      arrows.size must_== 3
+      arrows.forall { a => expected must contain(a)}
+      expected.forall {a => arrows must contain(a)}
+      expected == arrows must beTrue
+      sut.hom(0, 1).size must_== 1
+      sut.arrows === expected
     }
 
     "3" >> {

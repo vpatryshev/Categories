@@ -15,10 +15,10 @@ class Category[O, A](
   def objects: Set[O] = nodes
   def composablePairs : Iterable[(A, A)] = Category.composablePairs(this)
 
-  validate
+  validate()
 
-  override def validate {
-    super.validate
+  def validate() {
+    validateGraph()
 
     for (x <- objects) {
       val ux = unit(x)
@@ -873,8 +873,9 @@ object Category {
       graph: Graph[T, T],
       compositionSource: Map[(T, T), T]): Category[T, T] = {
     val g = addUnitsToGraph(graph)
+
     val composition = fillCompositionTable(g, compositionSource)
-    def show(f: T) = f.toString + ":" + g.d0(f) + "->" + g.d1(f)
+    def show(f: T) = s"$f: ${g.d0(f)}->${g.d1(f)}"
 
     def compositionWithExplanation(f: T, g: T) = {
       val key = (f, g)

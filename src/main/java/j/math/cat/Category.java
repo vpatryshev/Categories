@@ -247,7 +247,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
   private final Map<Pair<O, O>, Set<A>> hom = new HashMap<Pair<O, O>, Set<A>>();
 
   /**
-   * Returned a cashed set of arrows from x to y.
+   * Returns a cashed set of arrows from x to y.
    *
    * @param from first object
    * @param to   second object
@@ -1373,7 +1373,6 @@ public abstract class Category<O, A> extends Graph<O, A> {
             Base.Map(Base.array(Pair.of("0.1", "a"), Pair.of("0.1", "b"), Pair.of("2.1", "a"), Pair.of("2.1", "b"), Pair.of("a", "2.swap"), Pair.of("b", "2.swap"), Pair.of("2.swap", "2.swap")), // composition map
                     Base.array("0.2", "0.2", "2.a", "2.b", "b", "a", "2"))
     );
-    System.out.println(three);
 
     Category<String, String> vital_sol = buildCategory(Sets.Set("a", "b"),
             Base.Map(Base.array("green", "yellow", "red", "blue", "big", "medium", "small"),
