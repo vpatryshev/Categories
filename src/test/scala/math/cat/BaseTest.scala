@@ -10,13 +10,6 @@ class BaseTest extends Specification {
 
   "BaseTest" should {
 
-    "buildMap" in {
-      buildMap(Array("a", "b", "c"), Array(1, 2, 3, 4)) must_== Map("a" -> 1, "b" -> 2, "c" -> 3)
-      buildMap(Array("a", "b", "c"), Array(1, 2)) must_== Map("a" -> 1, "b" -> 2)
-      buildMap(Array.empty[String], Array(1, 2)) must_== Map.empty[String, Int]
-      buildMap(Array("a", "b", "c"), Array.empty[Int]) must_== Map.empty[String, Int]
-    }
-
     def assertRightInverse[A, B](f: Map[A, B], g: Map[B, A]): MatchResult[Any] = {
       for (a <- f.keys) {
         f.get(a).flatMap(g.get) must beSome(a)

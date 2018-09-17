@@ -228,7 +228,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
 
   @Override
   public String toString() {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
 
     for (A f : arrows()) {
       for (A g : arrows()) {
@@ -378,7 +378,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
       public O d1(A f) { return isUnit(f) ? unit2object.get(f) : graph.d1(f); }
       public Set<A> arrows() { return allArrows; }
       boolean isUnit(A a) { return unit2object.containsKey(a); }
-    };
+    }
 
     final AllArrows myQuiver = new AllArrows();
 
@@ -421,7 +421,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
       public N d1(Object f) { return myNodes.contains(f) ? (N)f : graph.d1((A)f); }
       public Set<A> arrows() { return allArrows; }
       boolean isUnit(Object a) { return myNodes.contains(a); }
-    };
+    }
 
     final AllArrows myQuiver = new AllArrows();
 
@@ -534,9 +534,9 @@ public abstract class Category<O, A> extends Graph<O, A> {
                 final Map<A, A> d0,
                 final Map<A, A> d1,
                 final Map<Pair<A, A>, A> mSource) {
-    final Map<A, A> domain = new HashMap<A, A>(d0);
-    final Map<A, A> codomain = new HashMap<A, A>(d1);
-    final Map<Pair<A, A>, A> m = new HashMap<Pair<A, A>, A>(mSource);
+    final Map<A, A> domain = new HashMap<>(d0);
+    final Map<A, A> codomain = new HashMap<>(d1);
+    final Map<Pair<A, A>, A> m = new HashMap<>(mSource);
     for(A unit : units) {
       domain.put(unit, unit); // define d0 for unit arrows
       codomain.put(unit, unit); // define d1 for unit arrows
@@ -570,8 +570,8 @@ public abstract class Category<O, A> extends Graph<O, A> {
   buildCategory(final Set<A> units,
                 final Map<Pair<A, A>, Set<A>> arrows,
                 final Map<Pair<A, A>, A> mSource) {
-    final Map<A, A> domain = new HashMap<A, A>();
-    final Map<A, A> codomain = new HashMap<A, A>();
+    final Map<A, A> domain = new HashMap<>();
+    final Map<A, A> codomain = new HashMap<>();
 
     for (Pair<A, A> x_y : arrows.keySet()) { // list all arrows from x to y
       for (A arrow : arrows.get(x_y)) {
@@ -590,7 +590,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @return category based on he poset
    */
   public static <O> Category<O, Pair<O, O>> Category(PoSet<O> poset) {
-    final Set<Pair<O, O>> arrows = new HashSet<Pair<O, O>>();
+    final Set<Pair<O, O>> arrows = new HashSet<>();
     for (O x : poset) for (O y : poset) if (poset._le_(x, y)) {
       arrows.add(Pair.of(x, y));
     }
@@ -613,7 +613,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
     String graphText = string.substring(1, splitAt + 2);
     require(graphText.length() > 0, "Missing graph repr in <<" + string + ">>");
     Graph<String, String> graph = Graph(string.substring(1, splitAt + 2));
-    Map<Pair<String, String>, String> m = new HashMap<Pair<String, String>, String>();
+    Map<Pair<String, String>, String> m = new HashMap<>();
 
     int multAt = splitAt + 5;
     int curlyAt = string.indexOf('}', multAt);
@@ -638,7 +638,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param f first arrow
    * @param g second arrow
    */
-  protected void assertParallelPair(A f, A g) {
+  void assertParallelPair(A f, A g) {
     require(sameDomain(f, g), "" + f + " and " + g + " should have the same domain");
     require(sameCodomain(f, g), "" + f + " and " + g + " should have the same codomain");
   }
@@ -681,7 +681,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param g second arrow
    * @return a set of coequalizing arrows
    */
-  public Set<A> allCoequalizingArrows(final A f, final A g) {
+  private Set<A> allCoequalizingArrows(final A f, final A g) {
     return coequalizes(f, g).find(arrows());
   }
   /**
@@ -881,7 +881,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param p factored pair of arrows
    * @return the specified predicate.
    */
-  protected Predicate<A> pairFactorsOnLeft(final Pair<A, A> p, final Pair<A, A> q) {
+  private Predicate<A> pairFactorsOnLeft(final Pair<A, A> p, final Pair<A, A> q) {
     return new Predicate<A>() {
       @Override
       public boolean eval(A h) {
@@ -899,7 +899,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param p factored pair of arrows
    * @return the predicate described above.
    */
-  protected Predicate<A> pairFactorsOnRight(final Pair<A, A> p, final Pair<A, A> q) {
+  private Predicate<A> pairFactorsOnRight(final Pair<A, A> p, final Pair<A, A> q) {
     return new Predicate<A>() {
       @Override
       public boolean eval(A h) {
@@ -916,7 +916,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param p pair of arrows
    * @return true if p factors q uniquely on the right
    */
-  protected Predicate<Pair<A, A>> pairFactorsUniquelyOnRight(final Pair<A, A> p) {
+  private Predicate<Pair<A, A>> pairFactorsUniquelyOnRight(final Pair<A, A> p) {
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(final Pair<A, A> q) {
@@ -935,7 +935,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param p pair of arrows
    * @return true if q factors p uniquely on the left
    */
-  protected Predicate<Pair<A, A>> pairFactorsUniquelyOnLeft(final Pair<A, A> p) {
+  private Predicate<Pair<A, A>> pairFactorsUniquelyOnLeft(final Pair<A, A> p) {
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(final Pair<A, A> q) {
@@ -963,7 +963,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param g second arrow
    * @return the set of all such pairs of arrows
    */
-  public Set<Pair<A, A>> pairsEqualizing(final A f, final A g) {
+  private Set<Pair<A, A>> pairsEqualizing(final A f, final A g) {
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(Pair<A, A> p) {
@@ -995,7 +995,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param g second arrow
    * @return the set of all such pairs of arrows
    */
-  public Set<Pair<A, A>> pairsCoequalizing(final A f, final A g) {
+  private Set<Pair<A, A>> pairsCoequalizing(final A f, final A g) {
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(Pair<A, A> p) {
@@ -1015,7 +1015,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param y second object
    * @return a set of pairs of arrows with the same domain, ending at x and y.
    */
-  protected Set<Pair<A, A>> pairsWithTheSameDomain(final O x, final O y) {
+  private Set<Pair<A, A>> pairsWithTheSameDomain(final O x, final O y) {
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(Pair<A, A> p) {
@@ -1035,7 +1035,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param y second object
    * @return a set of pairs of arrows with the same codomain, starting at x and y.
    */
-  protected Set<Pair<A, A>> pairsWithTheSameCodomain(final O x, final O y) {
+  private Set<Pair<A, A>> pairsWithTheSameCodomain(final O x, final O y) {
     return new Predicate<Pair<A, A>>() {
       @Override
       public boolean eval(Pair<A, A> p) {
@@ -1055,7 +1055,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    * @param y second object
    * @return true if this is a cartesian product
    */
-  public boolean isProduct(final Pair<A, A> p, final O x, final O y) {
+  boolean isProduct(final Pair<A, A> p, final O x, final O y) {
     final O prod = d0(p.x());
     return
             equal(d0(p.y()), prod) &&
@@ -1260,7 +1260,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
    *         Since producing a lazy set is too heavy, I just build it in an old-fashion way.
    */
   public Set<O> allInitialObjects() {
-    final Set<O> objects = new HashSet<O>(objects());
+    final Set<O> objects = new HashSet<>(objects());
 
     // kick out objects that are found on the other end of an arrow
     for (A a : arrows()) {
@@ -1276,9 +1276,9 @@ public abstract class Category<O, A> extends Graph<O, A> {
   /**
    * @return a set of all arrows that originate at initial objects (see allInitialObjects)
    */
-  public Set<A> arrowsFromInitialObjects() {
+  Set<A> arrowsFromInitialObjects() {
     Set<O> initialObjects = allInitialObjects();
-    Set<A> arrows = new HashSet<A>();
+    Set<A> arrows = new HashSet<>();
     // include only arrows that originate at component objects
     for (A a : arrows()) {
       if (initialObjects.contains(d0(a))) {
@@ -1289,14 +1289,14 @@ public abstract class Category<O, A> extends Graph<O, A> {
   }
 
   /**
-   * Given a set of object and a set of arrows, build a map that maps each object to
+   * Given a set of objects and a set of arrows, build a map that maps each object to
    * a set of arrows starting at it.
    *
    * @param objects objects for which to build the bundles.
    * @param arrows  arrows that participate in the bundles.
    * @return a map.
    */
-  public Map<O, Set<A>> buildBundles(Set<O> objects, Set<A> arrows) {
+  Map<O, Set<A>> buildBundles(Set<O> objects, Set<A> arrows) {
     return SetMorphism.Morphism(arrows, objects, D0).revert().asMap();
   }
 
@@ -1320,7 +1320,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
     }
     Pair<O, List<A>> previous = degree(x, n - 1);
     Pair<A, A> xn = product(x, previous.x());
-    List<A> projections = new ArrayList<A>();
+    List<A> projections = new ArrayList<>();
     projections.add(xn.x());
     for (A a : previous.y()) {
       projections.add(m(xn.y(), a));

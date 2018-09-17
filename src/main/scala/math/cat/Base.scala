@@ -13,17 +13,6 @@ import scala.collection.breakOut
   *         Credits: http://antilamer.livejournal.com/245962.html
   */
 object Base {
-  /**
-    * Given an array of keys and an array of values, builds a map
-    * that maps these keys to the values.
-    *
-    * @tparam K    key type
-    * @tparam V    value type
-    * @param keys   the array of keys
-    * @param values the array of values
-    * @return a newly-built map
-    */
-  def buildMap[K, V](keys: Array[K], values: Iterable[V]): Map[K, V] = (keys zip values)(breakOut)
 
   /**
     * An empty iterator. This is a factory method,

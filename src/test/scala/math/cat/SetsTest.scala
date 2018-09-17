@@ -156,6 +156,7 @@ class SetsTest extends Specification {
       val set1 = N filter (x => x % 5 == 0)
       val set2 = N filter (x => x % 5 == 2)
       val sut: Set[BigInt] = union(set1, set2)
+      Set(BigInt(15), BigInt(22)).subsetOf(sut) must beTrue
       sut.contains(15) must beTrue
       sut.contains(22) must beTrue
     }

@@ -4,7 +4,7 @@ import org.specs2.mutable._
 import Category._
 
 /**
- * Test suite for Category class
+ * Tests for Category class
  * @author vpatryshev
  */
 class CategoryTest extends Specification {
@@ -34,6 +34,44 @@ class CategoryTest extends Specification {
 
   "Category" >> {
 
+    "parser" >> {
+      val d0d1 = Map(
+        "0.1" -> ("0", "1"),
+        "0.2" -> ("0", "2"), 
+        "a" -> ("1", "2"),
+        "b" -> ("1", "2"),
+        "2.1" -> ("2", "1"),
+        "2.a" -> ("2", "2"),
+        "2.b" -> ("2", "2"),
+        "2.swap" -> ("2", "2")
+      )
+      
+      val testCategory = Category(
+        Set("0", "1", "2"), // objects
+        d0d1.mapValues(_._1), // d0
+        d0d1.mapValues(_._2), // d1
+        Map(
+          ("0.1", "a") -> "0.2",
+          ("0.1", "b") -> "0.2",
+          ("2.1", "a") -> "2.a",
+          ("2.1", "b") -> "2.b",
+          ("a", "2.a") -> "a",
+          ("a", "2.b") -> "b",
+          ("a", "2.swap") -> "b",
+          ("b", "2.a") -> "a",
+          ("b", "2.b") -> "b",
+          ("b", "2.swap") -> "a",
+          ("2.a", "2.a") -> "2.a",
+          ("2.a", "2.b") -> "2.b",
+          ("2.b", "2.a") -> "2.a",
+          ("2.b", "2.b") -> "2.b",
+          ("2.swap", "2.a") -> "2.a",
+          ("2.swap", "2.b") -> "2.b",
+          ("2.swap", "2.swap") -> "2") // composition map
+       )
+      Category(testCategory.toString) must_== testCategory
+    }
+    
     "Constructor_halfSimplicial" >> {
       halfSimplicial.objects must haveSize(3)
     }
