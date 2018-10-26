@@ -15,7 +15,6 @@ abstract class BigSet[T] extends Set[T] { thisOne =>
   def whoami: String = "A BIG SET"
 
   override def toString: String = whoami
-
 // TODO: figure out whether to kick this out.
 //  override def containsAll(c: Seq[T]): Boolean = c.forall(contains)
 //

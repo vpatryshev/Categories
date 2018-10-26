@@ -12,6 +12,6 @@ case class LazyPair[X, Y](_1: X, f: X => Y)
   extends Product2[X, Y]
 {
   private lazy val y = f(_1)
-  override def toString() = "(" + _1 + "," + _2 + ")"
-  override def _2 = y
+  override def toString = s"(${_1},${_2})"
+  override def _2: Y = y
 }

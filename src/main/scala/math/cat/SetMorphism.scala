@@ -11,8 +11,6 @@ class SetMorphism[X, Y] (val tag: String, val d0: Set[X], val d1: Set[Y], f : X 
 
   // Validates set morphism.
   // All we need is that each d0 element is mapped to a d1 element.
-  require(d0 != null, "d0 should not be null")
-  require(d1 != null, "d1 should not be null")
   for (x <- d0) {
     val y = this(x)
     require(d1 contains y, "Morphism value " + y + " for " + x + " should be in d1 " + d1)

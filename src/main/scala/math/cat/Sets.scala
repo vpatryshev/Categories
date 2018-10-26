@@ -135,7 +135,7 @@ object Sets {
 
   def cat[T](p: (T, List[T])): List[T] = p._1 :: p._2
 
-  def product[X](xss: List[Set[X]]): Set[List[X]] =
+  def product[X](xss: Iterable[Set[X]]): Set[List[X]] =
     xss match {
       case List() => Set(List())
       case head :: tail => product2(head, product(tail)) map cat

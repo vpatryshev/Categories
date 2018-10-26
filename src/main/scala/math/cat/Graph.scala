@@ -128,11 +128,10 @@ object Graph {
   def second[N](p:(N,N)): N = p._2
 
   def apply[N] (poset: PoSet[N]): Graph[N, (N, N)] = {
-    val sequenceOfPairs:Iterable[(N,N)] = for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)
-    lazy val size = (0 /: sequenceOfPairs) ((n, x) => n+1)
-    val setOfPairs: Set[(N, N)] = Sets.setOf[(N,N)](sequenceOfPairs, size, (p: (N, N)) => poset.le(p._1, p._2))
+    val goodPairs:Set[(N,N)] = (for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)) toSet
+    lazy val size = goodPairs.size
 
-    apply(poset.underlyingSet, setOfPairs, first, second)
+    apply(poset.underlyingSet, goodPairs, first, second)
   }        
 
   class Parser extends Sets.Parser {

@@ -1,9 +1,5 @@
 package j.math.cat;
 
-import static j.math.cat.SetMorphism.Morphism;
-import static j.math.cat.Sets.Set;
-import static j.math.cat.Base.*;
-
 import j.math.cat.Functions.Injection;
 import j.math.cat.Functions.IterableToSet;
 import j.math.cat.Functions.PairsToMap;
@@ -11,16 +7,19 @@ import j.math.cat.Functions.PairsToMap;
 import java.util.Map;
 import java.util.Set;
 
+import static j.math.cat.Base.require;
+import static j.math.cat.SetMorphism.Morphism;
+import static j.math.cat.Sets.Set;
+
 /**
  * Functor class: morphisms for categories.
- * 
+ *
+ * @param <XObjects> type of nodes in the first category (like Alksnis?)
+ * @param <XArrows>  type of arrows in the first category
+ * @param <YObjects> type of nodes in the second category
+ * @param <YArrows>  type of arrows in the second category
  * @author Vlad Patryshev
  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
- * @param <XObjects> type of nodes in the first category (like Alksnis?) 
- * @param <XArrows> type of arrows in the first category 
- * @param <YObjects> type of nodes in the second category 
- * @param <YArrows> type of arrows in the second category 
  */
 public class Functor<
     XObjects,
@@ -100,10 +99,10 @@ public class Functor<
 
   /**
    * Factory method. Builds unit functor for a category (identity functor).
-   * 
-   * @param <XObjects> type of domain objects 
-   * @param <XArrows> type of domain arrows
-   * @param c the category
+   *
+   * @param <XObjects> type of domain objects
+   * @param <XArrows>  type of domain arrows
+   * @param c          the category
    * @return identity functor on the given category
    */
   public static <XObjects, XArrows>
@@ -114,14 +113,14 @@ public class Functor<
 
   /**
    * Factory method. Builds constant functor from a category to an object in another.
-   * 
+   *
    * @param <XObjects> type of objects in the first category
-   * @param <XArrows> type of arrows in the first category
-   * @param <YObjects> type of objects in the second category 
-   * @param <YArrows> type of arrows in the second category
-   * @param X the category
-   * @param Y another category
-   * @param y an object in category Y
+   * @param <XArrows>  type of arrows in the first category
+   * @param <YObjects> type of objects in the second category
+   * @param <YArrows>  type of arrows in the second category
+   * @param X          the category
+   * @param Y          another category
+   * @param y          an object in category Y
    * @return constant functor on X that takes maps all objects to y and all arrows to y's unit.
    */
   public static <XObjects, XArrows, YObjects, YArrows>
@@ -136,15 +135,15 @@ public class Functor<
 
   /**
    * Composes two functors
-   * 
-   * @param <XObjects> nodes type for the category in the chain 
-   * @param <XArrows> arrows type for the first category in the chain 
-   * @param <YObjects> nodes type for the second category in the chain 
-   * @param <YArrows> arrows type for the second category in the chain 
-   * @param <ZObjects> nodes type for the third category in the chain 
-   * @param <ZArrows> arrows type for the third category in the chain 
-   * @param f : X -> Y - first functor
-   * @param g : Y -> Z - second functor
+   *
+   * @param <XObjects> nodes type for the category in the chain
+   * @param <XArrows>  arrows type for the first category in the chain
+   * @param <YObjects> nodes type for the second category in the chain
+   * @param <YArrows>  arrows type for the second category in the chain
+   * @param <ZObjects> nodes type for the third category in the chain
+   * @param <ZArrows>  arrows type for the third category in the chain
+   * @param f          : X -> Y - first functor
+   * @param g          : Y -> Z - second functor
    * @return g o f : X -> Z - their composition
    */
   public static <
@@ -172,9 +171,9 @@ public class Functor<
    * Builds a functor, given two categories and two maps, one for the set of nodes, the other for the set of arrows.
    *
    * @param <XObjects> first category node type
-   * @param <XArrows> first category arrow type
+   * @param <XArrows>  first category arrow type
    * @param <YObjects> second category node type
-   * @param <YArrows> second category arrow type
+   * @param <YArrows>  second category arrow type
    * @param domain     first category
    * @param codomain   second category
    * @param objectsMap maps nodes of the first category to nodes of the second category
@@ -207,13 +206,14 @@ public class Functor<
      * Apex of this cone
      */
     protected YObjects apex;
-    
-    private final Map<XObjects, YArrows> map; 
-    
+
+    private final Map<XObjects, YArrows> map;
+
     /**
      * Constructor
+     *
      * @param apex cone apex object
-     * @param map maps domain objects to cone arrow components
+     * @param map  maps domain objects to cone arrow components
      */
     public Cone(YObjects apex, Map<XObjects, YArrows> map) {
       this.apex = apex;
@@ -282,19 +282,19 @@ public class Functor<
     }
 
     @Override
-    @SuppressWarnings({"rawtypes","unchecked"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof Functor.Cone)) return false;
 
       Cone other = (Cone) o;
-      if (!apex().equals(other.apex())) return false; 
+      if (!apex().equals(other.apex())) return false;
       for (XObjects x : domain()) {
         if (!Category.equal(arrowTo(x), other.arrowTo(x))) return false;
       }
       return true;
     }
-    
+
     @Override
     public int hashCode() {
       int code = apex().hashCode();
@@ -303,7 +303,7 @@ public class Functor<
       }
       return code;
     }
-    
+
     @Override
     public String toString() {
       return "Cone[" + apex() + "]";
@@ -356,22 +356,38 @@ public class Functor<
    * @return a map that maps objects x of domain category to arrows y -> F(x)
    */
   Set<Cone> conesFrom(final YObjects y) {
-    Set<Set<Pair<XObjects, YArrows>>> homs =
+    final Injection<XObjects, Set<Pair<XObjects, YArrows>>> arrowsFromYtoFX =
         new Injection<XObjects, Set<Pair<XObjects, YArrows>>>() {
           // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
           @Override
           public Set<Pair<XObjects, YArrows>> apply(final XObjects x) {
+            return arrowsToFX(x);
+          }
+
+          private Set<Pair<XObjects, YArrows>> arrowsToFX(XObjects x) {
             return BasePair.<XObjects, YArrows>withLeft(x).
                 map(codomain().arrows(y, nodesMorphism.apply(x)));
           }
-        }.map(domain().objects());
+        };
 
-    Set<? extends Iterable<Pair<XObjects, YArrows>>> productOfHoms = Sets.Cartesian.product(homs);
+    final Set<XObjects> xs = domain().objects();
+    // group (x, f: y->F[x]) by x
+    Set<Set<Pair<XObjects, YArrows>>> homsGroupedByX
+        = arrowsFromYtoFX.map(xs);
+
+    // all possible combinations of {(x, y->F[x]) | x \in X}
+    // that is, each element defines a selection of arrows from y - not all of them are cones
+    Set<? extends Iterable<Pair<XObjects, YArrows>>> productOfHoms = Sets.Cartesian.product(homsGroupedByX);
+
+    // the same, but now a set
     Set<Set<Pair<XObjects, YArrows>>> setOfSetsOfPairs =
         Set(new IterableToSet<Pair<XObjects, YArrows>>().map(productOfHoms));
-    Set<Map<XObjects, YArrows>> allMaps = new PairsToMap<XObjects, YArrows>().map(
-        setOfSetsOfPairs);
 
+    // the same, but now there's a map inside: for each x find an arrow, y->F[x]
+    Set<Map<XObjects, YArrows>> xWithArrowEndingAtIt
+        = new PairsToMap<XObjects, YArrows>().map(setOfSetsOfPairs);
+
+    // builds a cone from a map x \to (y->F[x]) - not all of them are cones actually
     Injection<Map<XObjects, YArrows>, Cone> makeCone =
         new Injection<Map<XObjects, YArrows>, Cone>() {
           @Override
@@ -380,11 +396,13 @@ public class Functor<
           }
         };
 
-    return isaCone.filter(makeCone.map(allMaps));
+    // out of all cone candidates select those that are actually cones
+    return isaCone.filter(makeCone.map(xWithArrowEndingAtIt));
   }
 
   /**
    * Checks if a given Cone is a limit
+   *
    * @param candidate cone to check
    * @return true iff it is a limit
    */
@@ -404,12 +422,12 @@ public class Functor<
    * and a bunch of arrows to the apex object from functor image objects.
    */
   public class Cocone extends BasePair<YObjects, Map<XObjects, YArrows>> {
-    
+
     /**
      * Constructor.
-     * 
+     *
      * @param apex cocone apex
-     * @param map maps domain objects to arrows to apex
+     * @param map  maps domain objects to arrows to apex
      */
     public Cocone(YObjects apex, Map<XObjects, YArrows> map) {
       super(apex, map);
@@ -447,7 +465,7 @@ public class Functor<
           // F(f)
           YArrows F_f = arrowsMorphism.apply(f);
           // q1 o F(f) must be equal to q0
-codomain().validate();
+          codomain().validate();
           require(codomain().arrows().contains(F_f), "Function should be in Y: " + F_f);
           final YArrows composition = codomain().m(F_f, Fx1ToY);
           require(composition != null, "Bad category, composition of " + F_f + " and " + Fx1ToY + " should be defined " + codomain().d1(F_f) + " vs " + codomain().d1(Fx1ToY));
@@ -485,13 +503,13 @@ codomain().validate();
       if (!(o instanceof Functor.Cocone)) return false;
 
       Cocone other = (Cocone) o;
-      if (!apex().equals(other.apex())) return false; 
+      if (!apex().equals(other.apex())) return false;
       for (XObjects x : domain()) {
         if (!Category.equal(arrowFrom(x), other.arrowFrom(x))) return false;
       }
       return true;
     }
-    
+
     @Override
     public int hashCode() {
       int code = apex().hashCode();
@@ -500,7 +518,7 @@ codomain().validate();
       }
       return code;
     }
-    
+
     @Override
     public String toString() {
       return "Cocone[" + apex() + "]";
@@ -521,7 +539,7 @@ codomain().validate();
 
   /**
    * Checks if a cocone is a colimit
-   * 
+   *
    * @param candidate a candidate cocone
    * @return true iff the cocone is a colimit
    */

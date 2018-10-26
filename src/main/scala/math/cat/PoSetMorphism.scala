@@ -22,8 +22,7 @@ class PoSetMorphism[X, Y] (
       if (d0.le(x, y)) {
         val fx = f(x)
         val fy = f(y)
-        require(d1.le(fx, fy), "Since " + x + "<=" + y +
-                " in domain, it should be " + fx + "<=" + fy + " in codomain")
+        require(d1.le(fx, fy), s"Since $x<=$y in domain, it should be $fx<=$fy in codomain")
       }
     }
   }

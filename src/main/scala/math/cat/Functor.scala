@@ -1,6 +1,5 @@
 package math.cat
 
-import SetMorphism._
 import Sets._
 import Functions._
 
@@ -24,7 +23,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       GraphMorphism[XObjects, XArrows, Category[XObjects, XArrows], YObjects, YArrows, Category[YObjects, YArrows]](
                     tag, domain, codomain, objectsMorphism, arrowsMorphism)
 {
-  validate
+  validate()
 
   /**
    * Validates this functor.
@@ -33,7 +32,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
    * That is, F(unit(x)) == unit(F(x)), and
    * F(g) o F(f) = F(g o f)
    */
-  def validate {
+  def validate() {
     for (x <- domain.objects) {
       val ux: XArrows = domain.unit(x)
       val y: YObjects = nodesMorphism.apply(x)
@@ -41,31 +40,28 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       require(uy == arrowsMorphism(ux), "Functor must preserve units (failed on " +x + ")")
     }
 
-    for (fx <- domain.arrows;
-         gx <- domain.arrows;
-         if (domain.follows(gx, fx))) {
-      val gx_fx: XArrows = domain.m(fx, gx)
-      val fy: YArrows = arrowsMorphism(fx)
-      val gy: YArrows = arrowsMorphism(gx)
-      val gy_fy: YArrows = codomain.m(fy, gy)
-      require(gy_fy == arrowsMorphism(gx_fx),
-              "Functor must preserve composition (failed on " + fx + ", " + fy + ", " + gx + ", " + gy + ", " + gy_fy + ", " + arrowsMorphism(gx_fx) + ")")
+    for {fx <- domain.arrows
+         gx <- domain.arrows
+         gx_fx <- domain.m(fx, gx)
+         fy = arrowsMorphism(fx)
+         gy = arrowsMorphism(gx)
+         gy_fy <- codomain.m(fy, gy)
     }
+      require(gy_fy == arrowsMorphism(gx_fx),
+          s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy, ${arrowsMorphism(gx_fx)})")
   }
 
   /**
    * Composes two functors
    *
-   * @tparam XObjects nodes type for the category in the chain
-   * @tparam XArrows arrows type for the first category in the chain
-   * @tparam YObjects nodes type for the second category in the chain
-   * @tparam YArrows arrows type for the second category in the chain
-   * @param [ZObjects] nodes type for the third category in the chain
-   * @param [ZArrows] arrows type for the third category in the chain
+   * @tparam ZObjects nodes type for the third category in the chain
+   * @tparam ZArrows arrows type for the third category in the chain
    * @param g : Y -> Z - second functor
    * @return g o this : X -> Z - composition of this functor with functor g
    */
-  def compose[ZObjects, ZArrows](g: Functor[YObjects, YArrows, ZObjects, ZArrows]) = {
+  def compose[ZObjects, ZArrows](
+    g: Functor[YObjects, YArrows, ZObjects, ZArrows]):
+       Functor[XObjects, XArrows, ZObjects, ZArrows] = {
     require(codomain == g.domain, "Composition not defined")
     val nm = g.nodesMorphism compose this.nodesMorphism
     val am = g.arrowsMorphism compose this.arrowsMorphism 
@@ -73,27 +69,25 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   }
 
   /**
-   * Cone class for this Functor. A cone is an object y (called apex) and a bundle of arrows cx: y -> F(x)
-   * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
-   * @param apex the cone's apex object in Y
-   * @param arrowTo maps each object of x to an arrow from F(x) to the apex.
-   */
-  case class Cone(val apex: YObjects, val arrowTo: XObjects => YArrows) {
+    * Cone class for this Functor. A cone is an object y (called apex) and a bundle of arrows cx: y -> F(x)
+    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
+    * @param apex the cone's apex object in Y
+    * @param arrowTo maps each object of x to an arrow from F(x) to the apex.
+    */
+  case class Cone(apex: YObjects, arrowTo: XObjects => YArrows) {
     require(apex != null, "an apex of a cone can't be null")
     require(arrowTo != null, "a map of arrows of a cone can't be null")
 
-    override def toString: String = {
-      return "Cone[" + apex + "]"
-    }
+    override def toString: String = "Cone[" + apex + "]"
 
     /**
-     * A cone from y1 to F is factored by this cone (with apex y)
-     * if there is an h : y1 -> y such that each f1: y1 -> F(x) is equal to
-     * f o h, where f: y -> F(x).
-     *
-     * @param factored a cone that may be factored
-     * @return true if it is so
-     */
+      * A cone from y1 to F is factored by this cone (with apex y)
+      * if there is an h : y1 -> y such that each f1: y1 -> F(x) is equal to
+      * f o h, where f: y -> F(x).
+      *
+      * @param factored a cone that may be factored
+      * @return true if it is so
+      */
     def factorsOnRight(factored: Cone): Boolean =
       codomain.hom(factored.apex, apex).exists(
         (h: YArrows) =>
@@ -102,101 +96,162 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       )
 
     /**
-     * @return true if this actually a well-formed cone.
-     */
+      * @return true if this actually a well-formed cone.
+      */
     def isWellFormed: Boolean = domain.arrows.forall(
       (f: XArrows) => {
-          var yToFx0: YArrows = arrowTo(domain.d0(f))
-          var yToFx1: YArrows = arrowTo(domain.d1(f))
-          var F_f: YArrows = arrowsMorphism.apply(f)
-          codomain.m(yToFx0, F_f).equals(yToFx1)
-        }
-      )
+        var yToFx0: YArrows = arrowTo(domain.d0(f))
+        var yToFx1: YArrows = arrowTo(domain.d1(f))
+        var F_f: YArrows = arrowsMorphism.apply(f)
+        codomain.m(yToFx0, F_f).equals(yToFx1)
+      }
+    )
 
     override def equals(o: Any): Boolean = {
-      this == o || (
-        o.isInstanceOf[Cone] && {
-          val other: Cone = o.asInstanceOf[Cone]
+      this == o || (o match {
+        case other: Cone =>
           apex == other.apex &&
-          domain.forall { (x: XObjects) => arrowTo(x) == other.arrowTo(x) }
-        }
-      )
+            domain.forall { x: XObjects => arrowTo(x) == other.arrowTo(x) }
+        case somethingElse => false
+      })
     }
 
     override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
 
+  def cone(apex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cone] = {
+    Option(Cone(apex, arrowTo.toMap)) filter (_.isWellFormed)
+  }
+
   /**
-   * Lists all possible cones from given object y to this functor.
-   * The requirement is that if f1: y -> F(x1) is in the collection of arrows,
-   * and there is a g: x1 -> x2, then f2 = F(g) o f1 : y -> F(x2) is also in this collection.
-   *
-   * @param y an object from which the cone originates.
-   * @return a map that maps objects x of domain category to arrows y -> F(x)
-   */
-  // will need a pullback to build {(x, a) where a: x->f(y)}
-//  def conesFrom (y: YObjects): Set[Cone] = {
-//    // a set of sets of pairs (x, a: y -> F(x)), indexed by x
-//    val homs = domain.objects.map(
-//      (x:XObjects) => (x, codomain.hom(y, objectsMorphism(x))))
-//    val homsProjection = SetMorphism(homs, domain.objects, (p:(XObjects, Set[YArrows])) => p._1)
-//
-//    // a set of sequences
-//    val productOfHoms = Sets.product(homsProjection)
-//    null
-////  var setOfSetsOfPairs: Set[Set[Pair[Any, Any]]] = Set (new IterableToSet[Pair[XObjects, YArrows]].map (productOfHoms) )
-////  var allMaps: Set[Map[XObjects, YArrows]] = new PairsToMap[XObjects, YArrows].map (setOfSetsOfPairs)
-//    for (functions <- allMaps;
-//         c = Cone(y, functions);
-//         if (c isWellFormed)) yield c
-//  }
+    * Lists all possible cones from given object y to this functor.
+    * The requirement is that if f1: y -> F(x1) is in the collection of arrows,
+    * and there is a g: x1 -> x2, then f2 = F(g) o f1 : y -> F(x2) is also in this collection.
+    *
+    * @param y an object from which the cone originates.
+    * @return a map that maps objects x of domain category to arrows y -> F(x)
+    */
+  def conesFrom (y: YObjects): Set[Cone] = {
+    // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
+    val arrowsFromYtoFX = injection (
+      (x: XObjects) => codomain.hom(y, nodesMorphism(x)) map { (x, _) }
+    )
 
-/**
- * @return all possible cones to this functor.
- *
+    // group (x, f: y->F[x]) by x
+    val homsGroupedByX: Set[Set[(XObjects, YArrows)]] = domain.objects map arrowsFromYtoFX
+
+    product(homsGroupedByX) flatMap cone(y)
+  }
+
+  /**
+    * @return all possible cones to this functor.
+    */
   def allCones: Set[Cone] = {
-    val s: Set[Set[Cone]] = codomain.objects.map((y: YObjects) => conesFrom(y))
+    val s: Set[Set[Cone]] = codomain.objects map conesFrom
     Sets.union(s)
-  }  
+  }
 
-  **
-   * Checks if a given Cone is a limit
-   * @param candidate cone to check
-   * @return true iff it is a limit
-   *
-  def isLimit(candidate: Cone) =
+  /**
+    * Checks if a given Cone is a limit
+    * @param candidate cone to check
+    * @return true iff it is a limit
+    */
+  def isLimit(candidate: Cone): Boolean =
     allCones.forall((anyCone: Cone) => candidate.factorsOnRight(anyCone))
 
-  **
-   * Builds a predicate that checks whether a given map constitutes a cone from an object to this functor.
-   *
-  val isaCone = (candidate: Cone) => candidate.isWellFormed
-*/
+
   /**
-    * Lists all possible cocones from this functor to a given object y.
-    * The requirement is that if f1: F(x1) -> y is in the collection of arrows,
-    * and there is a g: x0 -> x1, then f0 = f1 o F(g) F(x0) -> y is also in this collection.
+    * Cocone class for this Functor. A cocone is an object y (called apex) and a bundle of arrows cx: F(x) -> y
+    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
+    * @param apex the cone's apex object in Y
+    * @param arrowTo maps each object of x to an arrow from F(x) to the apex.
+    */
+  case class Cocone(apex: YObjects, arrowTo: XObjects => YArrows) {
+
+    override def toString: String = "Cone[" + apex + "]"
+
+    /**
+      * A cone from y1 to F is factored by this cone (with apex y)
+      * if there is an h : y1 -> y such that each f1: y1 -> F(x) is equal to
+      * f o h, where f: y -> F(x).
+      *
+      * @param factored a cone that may be factored
+      * @return true if it is so
+      */
+    def factorsOnRight(factored: Cocone): Boolean =
+      codomain.hom(factored.apex, apex).exists(
+        (h: YArrows) =>
+          domain.objects.forall(
+            (x: XObjects) => codomain.m(h, arrowTo(x)).equals(factored.arrowTo(x)))
+      )
+
+    /**
+      * @return true if this actually a well-formed cone.
+      */
+    def isWellFormed: Boolean = domain.arrows.forall(
+      (f: XArrows) => {
+        var yToFx0: YArrows = arrowTo(domain.d0(f))
+        var yToFx1: YArrows = arrowTo(domain.d1(f))
+        var F_f: YArrows = arrowsMorphism.apply(f)
+        codomain.m(yToFx0, F_f).equals(yToFx1)
+      }
+    )
+
+    override def equals(o: Any): Boolean = {
+      this == o || (o match {
+        case other: Cone =>
+          apex == other.apex &&
+            domain.forall { x: XObjects => arrowTo(x) == other.arrowTo(x) }
+        case somethingElse => false
+      })
+    }
+
+    override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
+  }
+
+  def cocone(apex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cocone] = {
+    Option(Cocone(apex, arrowTo.toMap)) filter (_.isWellFormed)
+  }
+
+  /**
+    * Lists all possible cones from given object y to this functor.
+    * The requirement is that if f1: y -> F(x1) is in the collection of arrows,
+    * and there is a g: x1 -> x2, then f2 = F(g) o f1 : y -> F(x2) is also in this collection.
     *
-    * @param y an object at which the cone terminates.
-    * @return a map that maps objects x of domain category to arrows F(x) -> y
-    *
-   private[cat] def coconesTo(y: YObjects): Set[Cocone] = {
- var homs: Set[Set[Pair[Any, Any]]] = new Injection[XObjects, Set[Pair[Any, Any]]] {
-   def apply(x: XObjects): Set[Pair[XObjects, YArrows]] = {
-     return BasePair.withLeft[XObjects, YArrows](x).map(codomain.arrows(nodesMorphism.apply(x), y))
-   }
- }.map(domain.objects)
- var productOfHoms: Set[_ <: Iterable[Any]] = Cartesian.product(homs)
- var setOfSetsOfPairs: Set[Set[Pair[Any, Any]]] = Set(new IterableToSet[Pair[XObjects, YArrows]].map(productOfHoms))
- var allMaps: Set[Map[XObjects, YArrows]] = new PairsToMap[XObjects, YArrows].map(setOfSetsOfPairs)
- var makeCocone: Injection[Map[XObjects, YArrows], Cocone] = new Injection[Map[XObjects, YArrows], Cocone] {
-   def apply(map: Map[XObjects, YArrows]): Cocone = {
-     return new Cocone(y, map)
-   }
- }
- return makeCocone.map(allMaps) filter (_.isWellFormed)
- }
-  */
+    * @param y an object from which the cone originates.
+    * @return a map that maps objects x of domain category to arrows y -> F(x)
+    */
+  def coconesTo (y: YObjects): Set[Cocone] = {
+    // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
+    val arrowsFromFXtoY = injection (
+      (x: XObjects) => codomain.hom(y, nodesMorphism(x)) map { (x, _) }
+    )
+
+    // group (x, f: y->F[x]) by x
+    val homsGroupedByX: Set[Set[(XObjects, YArrows)]] = domain.objects map arrowsFromFXtoY
+
+    product(homsGroupedByX) flatMap cocone(y)
+  }
+
+  /**
+    * @return all possible cones to this functor.
+    */
+  def allCocones: Set[Cocone] = {
+    val s: Set[Set[Cocone]] = codomain.objects map coconesTo
+    
+    Sets.union(s)
+  }
+
+  /**
+    * Checks if a given Cone is a limit
+    * @param candidate cone to check
+    * @return true iff it is a limit
+    */
+  def isColimit(candidate: Cocone): Boolean =
+    allCocones.forall((anyCocone: Cocone) => candidate.factorsOnRight(anyCocone))
+  
+  def colimit: Option[Cocone] = allCocones find isColimit
+  
 }
 
 object Functor {

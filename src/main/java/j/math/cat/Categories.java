@@ -422,7 +422,6 @@ public final class Categories {
     public static void main(String[] args) {
         for (Category cat : Base.array(_1_, _2_, _3_, _4_, Z2, _1plus1_, M, W, SPLIT_MONO, SQUARE)) {
             cat.validate();
-            System.out.println(cat.toString());
         }
     }
 }
