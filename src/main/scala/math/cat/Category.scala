@@ -162,7 +162,7 @@ class Category[O, A](
     sameDomain(h, qx) && sameDomain(h, qy) &&
       follows(px, h) && follows(py, h) &&
       sameCodomain(px, qx) && sameCodomain(py, qy) &&
-      m(h, px) == qx && m(h, py) == qy
+      (m(h, px) contains qx) && (m(h, py) contains qy)
   }
 
   /**
@@ -194,7 +194,7 @@ class Category[O, A](
   def factorsUniquelyOnLeft(f: A): A => Boolean =
     (g: A) => {
       sameCodomain(g, f) &&
-        isUnique(hom(d0(f), d0(g)).filter(m(_, g) == f))
+        isUnique(hom(d0(f), d0(g)).filter(m(_, g) contains f))
     }
 
   /**
@@ -208,7 +208,7 @@ class Category[O, A](
   def factorsUniquelyOnRight(f: A): A => Boolean =
     (g: A) => {
       sameDomain(g, f) &&
-        isUnique(hom(d1(g), d1(f)).filter(m(g, _) == f))
+        isUnique(hom(d1(g), d1(f)).filter(m(g, _) contains f))
     }
 
   /**
@@ -858,8 +858,8 @@ trait CategoryFactory {
     * @param poset original poset
     * @return category based on he poset
     */
-  def apply[T](poset: PoSet[T]): Category[T, (T, T)] = apply(Graph(poset), (x: T) => (x, x), (f: (T, T), g: (T, T)) => Some((f, g)) collect {
-    case (f, g) if f._2 == g._1 => (f._1, g._2)
+  def apply[T](poset: PoSet[T]): Category[T, (T, T)] = apply(Graph(poset), (x: T) => (x, x), (f: (T, T), g: (T, T)) => Option((f, g)) collect {
+    case (first, second) if first._2 == second._1 => (first._1, second._2)
   })
 
   class Parser extends Graph.Parser {

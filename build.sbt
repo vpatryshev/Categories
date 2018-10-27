@@ -10,7 +10,7 @@ triggeredMessage := Watched.clearWhenTriggered
 
 libraryDependencies := libraryDependencies.value ++ Seq(
    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3",
-   "org.specs2" %% "specs2-core" % "3.6" % "test" withSources(),
+   "org.specs2" %% "specs2-core" % "3.8.4" % "test" withSources(),
    "com.novocode" % "junit-interface" % "0.11" % "test")
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"

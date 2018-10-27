@@ -32,7 +32,6 @@ public class CategoriesTest extends TestCase {
   public void testValidity() {
     for (Category cat : Base.array(_1_, _2_, _3_, _4_, Z2, _1plus1_, M, W, SPLIT_MONO, SQUARE, PARALLEL_PAIR, PULLBACK, PUSHOUT)) {
       cat.validate();
-      System.out.println("\n" + cat.toString());
     }
   }
 
@@ -109,11 +108,11 @@ public class CategoriesTest extends TestCase {
 
     Graph g0 = Graph.Graph(BigSet.FINITE_SETS, bigUnits);
 
-    assertTrue("go.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS == g0.nodes());
-    assertTrue("SETF.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS .equals(Categories.SETF.nodes()));
-    assertTrue("SETF.objects() must be FINITE_SETS: ", BigSet.FINITE_SETS.equals(Categories.SETF.objects()));
+    assertEquals("go.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS, g0.nodes());
+    assertEquals("SETF.nodes() must be FINITE_SETS: ", BigSet.FINITE_SETS, Categories.SETF.nodes());
+    assertEquals("SETF.objects() must be FINITE_SETS: ", BigSet.FINITE_SETS, Categories.SETF.objects());
     final Set<Set<Object>> allSets = Categories.SETF.objects();
-    assertFalse("Should not be able to enumerate all sets", isEnumerable((BigSet) allSets));
+    assertFalse("Should not be able to enumerate all sets", isEnumerable(allSets));
     assertTrue("Domain for " + arrow + " not defined", allSets.contains(Categories.SETF.d0(arrow)));
     assertTrue("Codomain for " + arrow + " not defined", allSets.contains(Categories.SETF.d1(arrow)));
   }
@@ -200,7 +199,7 @@ public class CategoriesTest extends TestCase {
   }
 
   public void testSetf_arrows() {
-    Set<TypelessSetMorphism> expected = new HashSet<TypelessSetMorphism>();
+    Set<TypelessSetMorphism> expected = new HashSet<>();
     for (String version : Sets.Set("", "a", "b", "ab")) {
       expected.add(buildAMorphism(version));
     }
@@ -212,7 +211,7 @@ public class CategoriesTest extends TestCase {
     return new TypelessSetMorphism(setofAandB, setofTrueAndFalse) {
       @Override
       public Object apply(Object o) {
-        return s.indexOf(o.toString()) >= 0;
+        return s.contains(o.toString());
       }
     };
   }
@@ -250,7 +249,8 @@ public class CategoriesTest extends TestCase {
   }
 
   public void testSetf_equalizer_empty() {
-    Categories.SETF.equalizer(buildAMorphism("a"), buildAMorphism("b")).domain().isEmpty();
+    assertTrue(
+        Categories.SETF.equalizer(buildAMorphism("a"), buildAMorphism("b")).domain().isEmpty());
   }
 
   public void testSetf_equalizer_plain() {
@@ -258,8 +258,8 @@ public class CategoriesTest extends TestCase {
         Categories.SETF.equalizer(buildAMorphism("a"), buildAMorphism("ab")));
   }
 
-  Set<Integer> numbers(int from, int to) {
-    Set<Integer> result = new HashSet<Integer>();
+  private Set<Integer> numbers(int from, int to) {
+    Set<Integer> result = new HashSet<>();
     for (int i = from; i < to; i++) {
       result.add(i);
     }
@@ -268,7 +268,7 @@ public class CategoriesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  TypelessSetMorphism shift(Set domain, Set codomain, final int shift) {
+  private TypelessSetMorphism shift(Set domain, Set codomain, final int shift) {
     return new TypelessSetMorphism(domain, codomain) {
       @Override
       public Object apply(Object o) {

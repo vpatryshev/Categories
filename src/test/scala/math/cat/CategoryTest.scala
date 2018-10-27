@@ -18,7 +18,6 @@ class CategoryTest extends Specification {
         ("2_1", "b") -> "2_b",
         ("a", "2_swap") -> "b",
         ("a", "2_a") -> "a",
-        ("a", "2_b") -> "b",
         ("b", "2_swap") -> "a",
         ("b", "2_a") -> "a",
         ("b", "2_b") -> "b",
@@ -34,6 +33,17 @@ class CategoryTest extends Specification {
 
   "Category" >> {
 
+    "have segments" >> {
+      val sut = new CategoryFactory {}
+      
+      for {
+        i <- 0 until 10
+      } {
+        sut.segment(i)
+      }
+      ok
+    }
+    
     "parsing example" >> {
       val d0d1 = Map(
         "0.1" -> ("0", "1"),
@@ -46,7 +56,17 @@ class CategoryTest extends Specification {
         "2.swap" -> ("2", "2")
       )
       
-      val testCategory = Category(
+      try {
+        val c = Category
+        println(c)
+      } catch {
+        case x: Exception =>
+          x.printStackTrace()
+          failure(x.toString)
+      }
+      
+      
+      val testCategory = Category.apply(
         Set("0", "1", "2"), // objects
         d0d1.mapValues(_._1), // d0
         d0d1.mapValues(_._2), // d1
@@ -141,9 +161,9 @@ class CategoryTest extends Specification {
       Set("0", "1") === sut.objects
     }
 
+    val Z3 = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
     "Parse_3" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
-      Set("0", "1", "2") === sut.arrows
+      Set("0", "1", "2") === Z3.arrows
     }
 
     "Parse_negative" >> {
@@ -294,8 +314,7 @@ class CategoryTest extends Specification {
       Set("0", "1") === c1.objects
       c1.objects === c2.objects
       c1.arrows === c2.arrows
-      (c1 == c2) must beTrue
-// bug!      c1 === c2
+      c1 === c2
     }
 
     "Equals_negative_arrows()" >> {
@@ -311,21 +330,18 @@ class CategoryTest extends Specification {
     }
 
     "AreInverse()" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
-      sut.areInverse("1", "2") must beTrue
-      sut.areInverse("2", "1") must beTrue
-      sut.areInverse("2", "2") must beFalse
+      Z3.areInverse("1", "2") must beTrue
+      Z3.areInverse("2", "1") must beTrue
+      Z3.areInverse("2", "2") must beFalse
     }
 
     "Inverse()" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
-      sut.inverse("2") === Some("1")
-      sut.inverse("1") === Some("2")
+      Z3.inverse("2") === Some("1")
+      Z3.inverse("1") === Some("2")
     }
 
     "IsIsomorphism_positive()" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
-      sut.isIsomorphism("2") must beTrue
+      Z3.isIsomorphism("2") must beTrue
     }
 
     "IsIsomorphism_negative()" >> {
@@ -334,7 +350,7 @@ class CategoryTest extends Specification {
     }
 
     "IsMonomorphism_positive()" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
+      val sut = Z3
       sut.isMonomorphism("0") must beTrue
       sut.isMonomorphism("1") must beTrue
       sut.isMonomorphism("2") must beTrue
@@ -376,7 +392,8 @@ class CategoryTest extends Specification {
 
     "FactorsUniquelyOnRight" >> {
       val sut = halfSimplicial
-      sut.factorsUniquelyOnRight("0_1")("0_2") must beTrue
+      val mustDo = sut.factorsUniquelyOnRight("0_1")("0_2")
+      mustDo must beTrue
       sut.factorsUniquelyOnRight("2_swap")("2_a") must beFalse
       sut.factorsUniquelyOnRight("2_swap")("0_2") must beFalse
     }
@@ -397,7 +414,7 @@ class CategoryTest extends Specification {
       sut.coequalizes("2_a", "2_b")("2") must beFalse
     }
 
-    "AllEqualisingArrows" >> {
+    "AllEqualizingArrows" >> {
       halfSimplicial.allEqualizingArrows("2_a", "2_b") === Set("0_2")
     }
 
@@ -445,9 +462,7 @@ class CategoryTest extends Specification {
       }
       actual.forall {a => expected must contain(a)}
       expected.forall {a => actual must contain(a)}
-      expected == actual must beTrue
-      // TODO(vlad): fix it, it fails
-//      expected === actual
+      expected === actual
     }
 
     "PairsCoequalizing" >> {
@@ -465,10 +480,7 @@ class CategoryTest extends Specification {
       val expected = Set(("1", "b"), ("2_1", "2_b"), ("2_1", "2"), ("2_1", "2_swap"), ("0_1", "0_2"), ("2_1", "2_a"), ("1", "a"))
       actual.forall {a => expected must contain(a)}
       expected.forall {a => actual must contain(a)}
-      expected == actual must beTrue
-
-      // TODO(vlad): fix it, it fails
-//      expected === actual
+      expected === actual
     }
 
     "PairsWithTheSameCodomain" >> {
@@ -476,10 +488,7 @@ class CategoryTest extends Specification {
       val expected = Set(("0_2", "2"), ("0_1", "2_1"), ("0_2", "2_swap"), ("0_2", "2_b"), ("0_2", "2_a"))
       actual.forall {a => expected must contain(a)}
       expected.forall {a => actual must contain(a)}
-      expected == actual must beTrue
-
-      // TODO(vlad): fix it, it fails
-//      expected === actual
+      expected === actual
     }
 
     "Product_none" >> {
@@ -487,7 +496,8 @@ class CategoryTest extends Specification {
     }
 
     "Product_plain" >> {
-      Square.product("b", "c") === Some(("ab", "ac"))
+      val actual = Square.product("b", "c")
+      actual === Some(("ab", "ac"))
     }
 
     "Union_none" >> {
@@ -495,12 +505,15 @@ class CategoryTest extends Specification {
     }
 
     "Union_plain" >> {
-      Square.union("b", "c") === Some(("bd", "cd"))
+      val actual = Square.union("b", "c")
+      actual === Some(("bd", "cd"))
     }
 
     "IsPullback" >> {
-      Square.isPullback("bd", "cd")(("ab", "ab")) must beFalse
-      Square.isPullback("bd", "cd")(("ab", "ac")) must beTrue
+      val actual1 = Square.isPullback("bd", "cd")(("ab", "ab"))
+      actual1 must beFalse
+      val actual2 = Square.isPullback("bd", "cd")(("ab", "ac"))
+      actual2 must beTrue
     }
 
     "Pullback_none" >> {
@@ -508,11 +521,13 @@ class CategoryTest extends Specification {
     }
 
     "Pullback_same" >> {
-      ParallelPair.pullback("a", "a") === Some(("0", "0"))
+      val actual = ParallelPair.pullback("a", "a")
+      actual === Some(("0", "0"))
     }
 
     "Pullback_plain" >> {
-      Square.pullback("bd", "cd") === Some(("ab", "ac"))
+      val actual = Square.pullback("bd", "cd")
+      actual === Some(("ab", "ac"))
     }
 
     "Pushout_none" >> {
@@ -520,15 +535,18 @@ class CategoryTest extends Specification {
     }
 
     "Pushout_same" >> {
-      ParallelPair.pushout("a", "a") === Some(("1", "1"))
+      val actual = ParallelPair.pushout("a", "a")
+      actual === Some(("1", "1"))
     }
 
     "IsPushout_square" >> {
-      Square.isPushout("ab", "ac")(("bd", "cd")) must beTrue
+      val actual = Square.isPushout("ab", "ac")(("bd", "cd"))
+      actual must beTrue
     }
 
     "Pushout_plain" >> {
-      Square.pushout("ab", "ac") === Some(("bd", "cd"))
+      val actual = Square.pushout("ab", "ac")
+      actual === Some(("bd", "cd"))
     }
 
     "Terminal_none" >> {
@@ -637,7 +655,7 @@ class CategoryTest extends Specification {
 
     "Z2" >> {
       Set("1", "a") === Z2.arrows
-      Z2.m("a", "a") === "1"
+      Z2.m("a", "a") === Some("1")
     }
 
     "SplitMono" >> {
@@ -650,8 +668,8 @@ class CategoryTest extends Specification {
       5 === M.objects.size
     }
 
-    "ImplicitSegment" >> {
-      def sut: Category[Int, (Int, Int)] = 3
+    "Segment" >> {
+      def sut: Category[Int, (Int, Int)] = segment(3)
       _3_ === sut
     }
   }
