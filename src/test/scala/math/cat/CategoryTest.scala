@@ -90,7 +90,7 @@ class CategoryTest extends Specification {
           ("2.swap", "2.swap") -> "2") // composition map
        )
       val string = testCategory.toString
-      Category(string) must_== testCategory
+      Category(string) === testCategory
     }
     
     "regression from 6/9/15" >> {
@@ -102,11 +102,11 @@ class CategoryTest extends Specification {
       )
       val source1 = "({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {0 o a = a})"
       val sample1 = Category(source1)
-      sample1 must_== expected
+      sample1 === expected
 
       val source2 = "({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
       val sample2 = Category(source1)
-      sample2 must_== expected
+      sample2 === expected
 
     }
     
@@ -153,17 +153,17 @@ class CategoryTest extends Specification {
 
     "Parse_1_1" >> {
       val sut = Category("({1, 0}, {}, {})")
-      Set("0", "1") === sut.objects
+      sut.objects === Set("0", "1")
     }
 
     "Parse_2" >> {
       val sut = Category("({1, 0}, {a: 0 -> 1}, {})")
-      Set("0", "1") === sut.objects
+      sut.objects === Set("0", "1")
     }
 
     val Z3 = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
     "Parse_3" >> {
-      Set("0", "1", "2") === Z3.arrows
+      Z3.arrows === Set("0", "1", "2")
     }
 
     "Parse_negative" >> {
@@ -188,7 +188,7 @@ class CategoryTest extends Specification {
         Map()
       )
       val actual = sut.toString()
-      "({1}, {1: 1->1}, {1 o 1 = 1})" === actual
+      actual === "({1}, {1: 1->1}, {1 o 1 = 1})"
     }
 
     "Parse_positive_0" >> {
@@ -199,21 +199,21 @@ class CategoryTest extends Specification {
       )
       val string = expected.toString()
       val parsed = Category(string)
-      expected.objects === parsed.objects
-      expected.arrows === parsed.arrows
-      expected === parsed
+      parsed.objects === expected.objects
+      parsed.arrows === expected.arrows
+      parsed === expected
     }
 
     "Parse_positive_3" >> {
       val source = "({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2 o 2_1 = 2_1})"
       val parsed = Category(source)
-      2 === parsed.objects.size
+      parsed.objects.size === 2
     }
 
     "Parse_positive_4" >> {
       val source = "({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, {2 o 2_1 = 2_1, 2_a o 2_a = 2_a, 2 o 2_a = 2_a, 2_a o 2_1 = 2_1, 2_a o 2 = 2_a, 2 o 2 = 2, 1 o 1 = 1, 2_1 o 1 = 2_1})"
       val parsed = Category(source)
-      2 === parsed.objects.size
+      parsed.objects.size === 2
     }
 
     "Parse_positive_5" >> {
@@ -224,9 +224,9 @@ class CategoryTest extends Specification {
       )
       val string = expected.toString()
       val parsed = Category(string)
-      expected.objects === parsed.objects
-      expected.arrows === parsed.arrows
-      expected === parsed
+      parsed.objects === expected.objects
+      parsed.arrows === expected.arrows
+      parsed === expected
     }
 
     "Parse_positive_6" >> {
@@ -237,9 +237,9 @@ class CategoryTest extends Specification {
       )
       val string = expected.toString()
       val parsed = Category(string)
-      expected.objects === parsed.objects
-      expected.arrows === parsed.arrows
-      expected === parsed
+      parsed.objects === expected.objects
+      parsed.arrows === expected.arrows
+      parsed === expected
     }
 
     "Parse_positive_7" >> {
@@ -253,9 +253,9 @@ class CategoryTest extends Specification {
       )
       val string = expected.toString()
       val parsed = Category(string)
-      expected.objects === parsed.objects
-      expected.arrows === parsed.arrows
-      expected === parsed
+      parsed.objects === expected.objects
+      parsed.arrows === expected.arrows
+      parsed === expected
     }
 
     "Parse_positive_8" >> {
@@ -269,25 +269,25 @@ class CategoryTest extends Specification {
       )
       val string = expected.toString()
       val parsed = Category(string)
-      expected.objects === parsed.objects
-      expected.arrows === parsed.arrows
-      expected === parsed
+      parsed.objects === expected.objects
+      parsed.arrows === expected.arrows
+      parsed === expected
     }
 
     "Parse_positive" >> {
       val expected = halfSimplicial
       val string = expected.toString()
       val parsed = Category(string)
-      expected.objects === parsed.objects
-      expected.arrows === parsed.arrows
-      expected === parsed
+      parsed.objects === expected.objects
+      parsed.arrows === expected.arrows
+      parsed === expected
     }
 
     "D0_positive()" >> {
-      "0" === halfSimplicial.d0("0")
-      "1" === halfSimplicial.d0("1")
-      "1" === halfSimplicial.d0("a")
-      "2" === halfSimplicial.d0("2_swap")
+      halfSimplicial.d0("0") === "0"
+      halfSimplicial.d0("1") === "1"
+      halfSimplicial.d0("a") === "1"
+      halfSimplicial.d0("2_swap") === "2"
     }
 
     "D0_negative()" >> {
@@ -302,18 +302,18 @@ class CategoryTest extends Specification {
     }
 
     "D1_positive()" >> {
-      "0" === halfSimplicial.d1("0")
-      "1" === halfSimplicial.d1("1")
-      "2" === halfSimplicial.d1("a")
-      "2" === halfSimplicial.d1("2_swap")
+      halfSimplicial.d1("0") === "0"
+      halfSimplicial.d1("1") === "1"
+      halfSimplicial.d1("a") === "2"
+      halfSimplicial.d1("2_swap") === "2"
     }
 
     "Equals_positive_arrows()" >> {
       val c1 = Category("({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})")
       val c2 = Category("({1, 0}, {b: 0 -> 1, a: 0 -> 1}, {})")
-      Set("0", "1") === c1.objects
-      c1.objects === c2.objects
-      c1.arrows === c2.arrows
+      c1.objects === Set("0", "1")
+      c2.objects === c1.objects
+      c2.arrows === c1.arrows
       c1 === c2
     }
 
@@ -457,18 +457,13 @@ class CategoryTest extends Specification {
     "PairsEqualizing" >> {
       val actual = halfSimplicial.pairsEqualizing("a", "2_swap")
       val expected = Set(("0_1", "0_2"), ("2_1", "2_b"), ("1", "b"))
-      for (p <- actual) {
-        expected must contain(p)
-      }
-      actual.forall {a => expected must contain(a)}
-      expected.forall {a => actual must contain(a)}
-      expected === actual
+      actual === expected
     }
 
     "PairsCoequalizing" >> {
       val actual = halfSimplicial.pairsCoequalizing("2_1", "2_swap")
       val expected = Set(("a", "2_a"), ("1", "2_1"), ("b", "2_b"))
-      expected === actual
+      actual === expected
     }
 
     "PairsCoequalizing_SQUARE" >> {
@@ -478,17 +473,13 @@ class CategoryTest extends Specification {
     "PairsWithTheSameDomain" >> {
       val actual = halfSimplicial.pairsWithTheSameDomain("1", "2")
       val expected = Set(("1", "b"), ("2_1", "2_b"), ("2_1", "2"), ("2_1", "2_swap"), ("0_1", "0_2"), ("2_1", "2_a"), ("1", "a"))
-      actual.forall {a => expected must contain(a)}
-      expected.forall {a => actual must contain(a)}
-      expected === actual
+      actual === expected
     }
 
     "PairsWithTheSameCodomain" >> {
       val actual = halfSimplicial.pairsWithTheSameCodomain("0", "2")
       val expected = Set(("0_2", "2"), ("0_1", "2_1"), ("0_2", "2_swap"), ("0_2", "2_b"), ("0_2", "2_a"))
-      actual.forall {a => expected must contain(a)}
-      expected.forall {a => actual must contain(a)}
-      expected === actual
+      actual === expected
     }
 
     "Product_none" >> {
@@ -584,27 +575,27 @@ class CategoryTest extends Specification {
     }
 
     "AllInitialObjects_byDefinition" >> {
-      Set("0") === ParallelPair.allInitialObjects_byDefinition
-      Set("a") === Square.allInitialObjects_byDefinition
-      Set("a", "b") === Pullback.allInitialObjects_byDefinition
-      Set("b", "d") === M.allInitialObjects_byDefinition
-      Set("a", "c", "e") === W.allInitialObjects_byDefinition
+      ParallelPair.allInitialObjects_byDefinition === Set("0")
+      Square.allInitialObjects_byDefinition === Set("a")
+      Pullback.allInitialObjects_byDefinition === Set("a", "b")
+      M.allInitialObjects_byDefinition === Set("b", "d")
+      W.allInitialObjects_byDefinition === Set("a", "c", "e")
     }
 
     "AllInitialObjects_programmersShortcut" >> {
-      Set("0") === ParallelPair.allInitialObjects_programmersShortcut
-      Set("a") === Square.allInitialObjects_programmersShortcut
-      Set("a", "b") === Pullback.allInitialObjects_programmersShortcut
-      Set("b", "d") === M.allInitialObjects_programmersShortcut
-      Set("a", "c", "e") === W.allInitialObjects_programmersShortcut
+      ParallelPair.allInitialObjects_programmersShortcut === Set("0")
+      Square.allInitialObjects_programmersShortcut === Set("a")
+      Pullback.allInitialObjects_programmersShortcut === Set("a", "b")
+      M.allInitialObjects_programmersShortcut === Set("b", "d")
+      W.allInitialObjects_programmersShortcut === Set("a", "c", "e")
     }
 
     "AllInitialObjects" >> {
-      Set("0") === ParallelPair.allInitialObjects
-      Set("a") === Square.allInitialObjects
-      Set("a", "b") === Pullback.allInitialObjects
-      Set("b", "d") === M.allInitialObjects
-      Set("a", "c", "e") === W.allInitialObjects
+      ParallelPair.allInitialObjects === Set("0")
+      Square.allInitialObjects === Set("a")
+      Pullback.allInitialObjects === Set("a", "b")
+      M.allInitialObjects === Set("b", "d")
+      W.allInitialObjects === Set("a", "c", "e")
     }
 
     "AllInitialObjects_forKnownCategories" >> {
@@ -617,60 +608,51 @@ class CategoryTest extends Specification {
     "0" >> {
       val expected = "({}, {}, {})"
       val actual = _0_.toString
-      expected === actual
+      actual === expected
       _0_.objects must beEmpty
       _0_.arrows must beEmpty
     }
 
     "1" >> {
-      Set(0) === _1_.objects
-      Set((0, 0)) === _1_.arrows
-      _1_.objects.size must_== 1
-      _1_.arrows.size must_== 1
+      _1_.objects === Set(0)
+      _1_.arrows === Set((0, 0))
+        _1_.objects.size === 1
+      _1_.arrows.size === 1
     }
 
     "2" >> {
       val sut = _2_
-      Set(0, 1) === sut.objects
+      sut.objects === Set(0, 1)
       val expected = Set((0, 0), (1, 1), (0, 1))
       val arrows = sut.arrows
-      sut.objects.size must_== 2
-      arrows.size must_== 3
-      arrows.forall { a => expected must contain(a)}
-      expected.forall {a => arrows must contain(a)}
-      expected == arrows must beTrue
-      sut.hom(0, 1).size must_== 1
-      sut.arrows === expected
+      arrows === expected
+      sut.hom(0, 1).size === 1
     }
 
     "3" >> {
-      Set(0, 1, 2) === _3_.objects
+      _3_.objects === Set(0, 1, 2)
       val expected = Set((0, 0), (1, 1), (2, 2), (0, 1), (0, 2), (1, 2))
-      _3_.arrows.forall {a => expected must contain(a)}
-      expected.forall {a => _3_.arrows must contain(a)}
-
-      // TODO(vlad): fix it, it fails
-      // _3_.arrows === expected
+      expected === _3_.arrows
     }
 
     "Z2" >> {
-      Set("1", "a") === Z2.arrows
+      Z2.arrows === Set("1", "a")
       Z2.m("a", "a") === Some("1")
     }
 
     "SplitMono" >> {
       val SPLIT_MONO =
         Category("({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = bb, ab o ba = a, ab o bb = ab, bb o ba = ba, bb o bb = bb})")
-      Set("a", "b") === SPLIT_MONO.objects
+      SPLIT_MONO.objects === Set("a", "b")
     }
 
     "M" >> {
-      5 === M.objects.size
+      M.objects.size === 5
     }
 
     "Segment" >> {
       def sut: Category[Int, (Int, Int)] = segment(3)
-      _3_ === sut
+      sut === _3_
     }
   }
 }

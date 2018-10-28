@@ -53,11 +53,6 @@ class SetsTest extends Specification {
       val source = List("one", "two", "three", "")
       val actual: Set[String] = setOf[String](source, (s: String) => source.contains(s))
       val expected = Set("one", "two", "three", "")
-      actual.size === expected.size
-      actual.contains("one") must beTrue
-      actual.contains("two") must beTrue
-      actual.contains("three") must beTrue
-      actual.contains("") must beTrue
       actual === expected
     }
 
@@ -65,11 +60,6 @@ class SetsTest extends Specification {
       val source = List("one", "two", "three", "")
       val actual = setOf(source, (s: String) => source.contains(s))
       val expected = Set("one", "two", "three", "")
-      actual.size === expected.size
-      actual must contain("one")
-      actual must contain("two")
-      actual must contain("three")
-      actual must contain("")
       actual === expected
     }
 
@@ -96,7 +86,7 @@ class SetsTest extends Specification {
 
       val set = setOf(iterable, (n: Int) => true)
       set.contains(42) must beTrue
-// the following matcher does not work, because our set is infinite, and it tries to build a vector      
+// the following matcher does not work, because our set is infinite, and the test tries to build a vector      
 //      set must contain(42)
       var n = 0
       for (i <- set take 10) {
@@ -157,6 +147,7 @@ class SetsTest extends Specification {
       val set2 = N filter (x => x % 5 == 2)
       val sut: Set[BigInt] = union(set1, set2)
       Set(BigInt(15), BigInt(22)).subsetOf(sut) must beTrue
+      // can't use must contain(), since sets are infinite
       sut.contains(15) must beTrue
       sut.contains(22) must beTrue
     }
@@ -319,11 +310,6 @@ class SetsTest extends Specification {
       val p3 = (3, 3)
       val expected = Set(p1, p2, p3)
       val actual = sut.filter(p => {val (x, y) = p; x  == y})
-      actual must not contain((1, 2))
-      actual must haveSize(3)
-      actual must contain(p1)
-      actual must contain(p2)
-      actual must contain(p3)
       actual === expected
     }
 

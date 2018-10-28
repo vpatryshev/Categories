@@ -3,7 +3,7 @@ package math.cat
 import org.specs2.mutable._
 
 /**
- * Test suite for GraphMorphism class
+ * Tests for GraphMorphism class
  * @author vpatryshev
  */
 class GraphMorphismTest extends Specification {
@@ -18,10 +18,10 @@ class GraphMorphismTest extends Specification {
     val nm = SetMorphism.unit(objects)
     val am = SetMorphism(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13))
     val sut = new GraphMorphism("test", graph1, graph2, nm, am)
-    (3 == sut.nodesMorphism(3)) must beTrue
-    (111 == sut.arrowsMorphism("1b")) must beTrue
-    (graph1 == sut.d0) must beTrue
-    (graph2 == sut.d1) must beTrue
+    sut.nodesMorphism(3) === 3
+    sut.arrowsMorphism("1b") === 111
+    sut.d0 === graph1
+    sut.d1 === graph2
   }
 
   "Unit" >> {
@@ -31,9 +31,9 @@ class GraphMorphismTest extends Specification {
     val graph = Graph(objects, map)
     type GIS = Graph[Int, String]
     val sut: GraphMorphism[Int, String, GIS, Int, String, GIS] = GraphMorphism.unit(graph)
-    (objects == sut.d0) must beTrue
-    (objects == sut.d1) must beTrue
-    ("1a" == sut.arrowsMorphism("1a")) must beTrue
+    sut.d0 === graph
+    sut.d1 === graph
+    sut.arrowsMorphism("1a") == "1a"
   }
 
   }

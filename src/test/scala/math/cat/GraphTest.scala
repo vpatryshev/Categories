@@ -20,7 +20,7 @@ class GraphTest extends Specification {
             "2.b"   -> ("2", "2"),
             "2.swap"-> ("2", "2"))
        val testGraph = Graph(nodes, arrows)
-       Graph(testGraph.toString()) === testGraph
+      testGraph ===  Graph(testGraph.toString())
      }
 
     "Singleton" >> {
@@ -96,7 +96,7 @@ class GraphTest extends Specification {
      val opsut = ~sut
      val expected = Graph(Set(1, 2, 3), Set(11, 21, 32, 13), (x:Int) => x % 10, (x:Int) => x / 10 % 10)
 
-     expected === opsut
+     opsut === expected
      sut === ~opsut
   }
 
@@ -113,33 +113,23 @@ class GraphTest extends Specification {
     val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
     val expected = Graph(nodes, arrows)
     sut.nodes === expected.nodes
-    for {
-      ar <- expected.arrows
-    } sut.arrows must contain(ar)
-
-    for {
-      ar <- sut.arrows
-    } expected.arrows must contain(ar)
-
-    sut.arrows.equals(expected.arrows) aka ("something fishy: " + sut.arrows.getClass) must beTrue
-    expected.arrows.equals(sut.arrows) aka ("something fishy: " + sut.arrows.getClass) must beTrue
-    (sut.arrows == expected.arrows) must beTrue // TODO(vlad): check why === does not work
+    sut.arrows ==== expected.arrows
     sut === expected
   }
 
   "Parser_empty1" >> {
     val sut = Graph("({}, {})")
-    Graph(Set[String]()) === sut
+    sut === Graph(Set[String]())
   }
 
   "Parser_1" >> {
     var sut = Graph("({0}, {})")
-    Graph(Set("0")) === sut
+    sut === Graph(Set("0"))
   }
 
   "Parser_discrete1" >> {
     val sut = Graph("({1, 2, 3}, {})")
-    Graph(Set("1", "2", "3")) === sut
+    sut === Graph(Set("1", "2", "3"))
   }
 
   "Parser" >> {
@@ -148,9 +138,9 @@ class GraphTest extends Specification {
     val expected = Graph(objects, map)
     val sut = Graph("({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})")
 
-    sut.nodes === expected.nodes
+    sut.nodes ==== expected.nodes
     sut.arrows === expected.arrows
-    expected === sut
+    sut === expected
   }
 
   "Hom" >> {

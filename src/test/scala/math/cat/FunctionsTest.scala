@@ -49,13 +49,13 @@ class FunctionsTest extends Specification {
 
     "injection applied to a set should produce a set of the same size" >> {
       val set = Set("a", "b", "cdef")
-      val f = injection{(s: String) => s + "!"}
+      val f = injection{s: String => s + "!"}
       f.applyTo(set) === Set("a!", "b!", "cdef!")
     }
 
     "injection after injection is still an injection" >> {
-      val f = injection{(s: String) => s + "!"}
-      val g = injection{(s: String) => s + "?!"}
+      val f = injection{s: String => s + "!"}
+      val g = injection{s: String => s + "?!"}
       val fg: Injection[String, String] = f andThen g
       true
     }
@@ -67,7 +67,7 @@ class FunctionsTest extends Specification {
     }
 
     "Schwartzian transform as defined in Wikipedia" >> {
-      val f = schwartzianTransform {(s: String) => s.toUpperCase}
+      val f = schwartzianTransform {s: String => s.toUpperCase}
       f.applyTo(Set("aX", "mmm")) === Set(("aX", "AX"), ("mmm", "MMM"))
     }
 

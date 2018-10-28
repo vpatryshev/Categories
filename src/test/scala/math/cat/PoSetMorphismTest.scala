@@ -16,35 +16,23 @@ class PoSetMorphismTest extends Specification {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5")
       val sut = PoSetMorphism(x, y, (n: Int) => "#" + n)
-      ("#3" == sut(3)) must beTrue
-      (x == sut.d0) must beTrue
-      (y == sut.d1) must beTrue
+      sut(3) === "#3"
+      sut.d0 === x
+      sut.d1 === y
     }
 
     "Constructor_negative_badCodomain" >> {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#5")
 
-      try {
-        PoSetMorphism(x, y, (n: Int) => "#" + n)
-        failure("Validator should have thrown an exception")
-      } catch {
-        case e: IllegalArgumentException => print(e) // as expected
-      }
-      true
+      PoSetMorphism(x, y, (n: Int) => "#" + n) must throwA[IllegalArgumentException]
     }
 
     "Constructor_negative_lostOrder" >> {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(intComparator, 1, 2, 3, 4, 5)
 
-      try {
-        PoSetMorphism(x, y, (n: Int) => 1 + (n - 3) * (n - 3))
-        failure("Validator should have thrown an exception")
-      } catch {
-        case e: IllegalArgumentException => print(e) // as expected
-      }
-      true
+      PoSetMorphism(x, y, (n: Int) => 1 + (n - 3) * (n - 3)) must throwA[IllegalArgumentException]
     }
 
     "Equals" >> {
@@ -55,16 +43,16 @@ class PoSetMorphismTest extends Specification {
       val sut1 = PoSetMorphism(x1, y1, (n: Int) => "#" + n)
       val sut2 = PoSetMorphism(x2, y2,
         Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5"))
-      (sut1 == sut2) must beTrue
+      sut1 === sut2
       val sut3 = PoSetMorphism(x2, y2, Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#4"))
-      (sut1 != sut3) must beTrue
+      sut1 !== sut3
     }
 
     "Compose" >> {
       val f = PoSetMorphism(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(intComparator, 1, 2, 3, 4, 5), (n: Int) => n - 10)
       val g = PoSetMorphism(PoSet(intComparator, 1, 2, 3, 4, 5), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + n)
       val h = f compose g
-      (h == PoSetMorphism(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10))) must beTrue
+      h === PoSetMorphism(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10))
     }
 
     "Unit" >> {
@@ -72,23 +60,23 @@ class PoSetMorphismTest extends Specification {
       val sut = PoSetMorphism.unit(set)
       (PoSet(stringComparator, "2.71828", "1", "haha") == sut.d0) must beTrue
       (PoSet(stringComparator, "2.71828", "1", "haha") == sut.d1) must beTrue
-      ("haha" == sut("haha")) must beTrue
+      sut("haha") === "haha"
     }
 
     "Const" >> {
       val strings = PoSet(stringComparator, "a", "b", "c")
       val ints = PoSet(intComparator, 1, 2, 3)
       val sut = PoSetMorphism.const(strings, ints, 2)
-      (strings == sut.d0) must beTrue
-      (ints == sut.d1) must beTrue
-      (2 == sut("a")) must beTrue
+      sut.d0 === strings
+      sut.d1 === ints
+      sut("a") === 2
     }
 
     "Range" >> {
       val sut = PoSet.range(2, 11, 3)
-      (sut.contains(8)) must beTrue
-      (!sut.contains(11)) must beTrue
-      (sut.le(5, 8)) must beTrue
+      sut must contain(8)
+      sut must not contain 11
+      sut.le(5, 8) must beTrue
     }
   }
 }

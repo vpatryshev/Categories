@@ -27,7 +27,7 @@ class BaseTest extends Specification {
     
     "inverse empty" in {
       val actual = inverse(Map.empty[String, Date])
-      actual must_== Map.empty[Date, String]
+      actual === Map.empty[Date, String]
     }
 
     "inverse bad" in {
@@ -37,23 +37,23 @@ class BaseTest extends Specification {
     }
 
     "setProduct" in {
-      setProduct(Set("a", "b"), Set(1, 2)) must_==
+      setProduct(Set("a", "b"), Set(1, 2)) ===
         Set(("a", 1), ("a", 2), ("b", 1), ("b", 2))
     }
 
     "setProduct empty" in {
-      setProduct(Set("a", "b"), Set.empty[Int]) must_== Set.empty[(String, Int)]
-      setProduct(Set.empty[String], Set(1, 2)) must_== Set.empty[(String, Int)]
+      setProduct(Set("a", "b"), Set.empty[Int]) === Set.empty[(String, Int)]
+      setProduct(Set.empty[String], Set(1, 2)) === Set.empty[(String, Int)]
     }
 
     "toMap" in {
-      toMap(List.empty[Object]) must_== Map.empty[String, Object]
+      toMap(List.empty[Object]) === Map.empty[String, Object]
       
-      toMap(List("Nada", "I", "II")) must_== Map(0 -> "Nada", 1 -> "I", 2 -> "II")
+      toMap(List("Nada", "I", "II")) === Map(0 -> "Nada", 1 -> "I", 2 -> "II")
     }
 
     "id" in {
-      id(Set(1, "x", ())) must_== Map(1 -> 1, "x" -> "x", () -> ())
+      id(Set(1, "x", ())) === Map(1 -> 1, "x" -> "x", () -> ())
     }
 
   }

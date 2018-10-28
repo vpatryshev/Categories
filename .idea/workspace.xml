@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="12a17725-0696-4471-a97e-f20dd5fd6c60" name="Default Changelist" comment="Uncommented test caes in CategoryTest&#10;Fixed some methods in Category (comparing composition)&#10;Added better reporting, via Result class">
-      <change afterPath="$PROJECT_DIR$/src/main/scala/scalakittens/Container.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/scalakittens/Goodness.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/scalakittens/Result.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/scalakittens/TimeReader.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scala_lang_modules_scala_xml_2_11_1_0_2_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scalaz_scalaz_concurrent_2_11_7_1_1_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scalaz_scalaz_core_2_11_7_1_1_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scalaz_scalaz_effect_2_11_7_1_1_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scalaz_stream_scalaz_stream_2_11_0_7a_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scodec_scodec_bits_2_11_1_0_6_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_specs2_specs2_common_2_11_3_6_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_specs2_specs2_core_2_11_3_6_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_specs2_specs2_matcher_2_11_3_6_jar.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/Categories.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/Categories.iml" afterDir="false" />
+    <list default="true" id="12a17725-0696-4471-a97e-f20dd5fd6c60" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.sbt" beforeDir="false" afterPath="$PROJECT_DIR$/build.sbt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/j/math/cat/CategoriesTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/j/math/cat/CategoriesTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Pair.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/FunctionsTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/FunctionsTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/PairTest.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetMorphismTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetMorphismTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/project/project/target/" />
@@ -53,16 +47,16 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="java" value="46" />
+          <entry key="java" value="47" />
           <entry key="sbt" value="1" />
-          <entry key="scala" value="107" />
+          <entry key="scala" value="118" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="JAVA" value="1178" />
           <entry key="PLAIN_TEXT" value="668" />
-          <entry key="Scala" value="9430" />
+          <entry key="Scala" value="10387" />
           <entry key="sbt" value="3" />
         </counts>
       </usages-collector>
@@ -71,14 +65,14 @@
           <entry key="dummy" value="14" />
           <entry key="java" value="1178" />
           <entry key="sbt" value="3" />
-          <entry key="scala" value="9430" />
+          <entry key="scala" value="10387" />
           <entry key="txt" value="654" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JAVA" value="46" />
-          <entry key="Scala" value="107" />
+          <entry key="JAVA" value="47" />
+          <entry key="Scala" value="118" />
           <entry key="sbt" value="1" />
         </counts>
       </usages-collector>
@@ -96,11 +90,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Category.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="861" column="23" selection-start-line="861" selection-start-column="23" selection-end-line="861" selection-end-column="23" />
+            <state relative-caret-position="94">
+              <caret line="856" column="34" lean-forward="true" selection-start-line="856" selection-start-column="34" selection-end-line="856" selection-end-column="34" />
               <folding>
                 <element signature="e#18#39#0" expanded="true" />
               </folding>
@@ -139,15 +133,6 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalakittens/TimeReader.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="6" column="23" lean-forward="true" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalakittens/Container.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="160">
@@ -157,10 +142,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalakittens/Goodness.scala">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="15" selection-start-line="15" selection-end-line="15" />
+            <state relative-caret-position="-2346">
+              <caret line="55" selection-start-line="55" selection-end-line="55" />
+              <folding>
+                <element signature="e#18#45#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="200">
+              <caret line="146" column="34" lean-forward="true" selection-start-line="146" selection-start-column="34" selection-end-line="146" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -199,19 +196,19 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Sets.java">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="960">
-              <caret line="62" column="68" selection-start-line="62" selection-start-column="68" selection-end-line="62" selection-end-column="68" />
+            <state relative-caret-position="147">
+              <caret line="80" column="9" selection-start-line="80" selection-start-column="6" selection-end-line="80" selection-end-column="9" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
+        <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/SetMorphism.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="13" selection-start-line="13" selection-end-line="13" />
+            <state relative-caret-position="175">
+              <caret line="254" column="72" selection-start-line="254" selection-start-column="67" selection-end-line="254" selection-end-column="72" />
             </state>
           </provider>
         </entry>
@@ -237,8 +234,62 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="672" column="17" lean-forward="true" selection-start-line="672" selection-start-column="17" selection-end-line="672" selection-end-column="17" />
+            <state relative-caret-position="176">
+              <caret line="92" column="24" selection-start-line="92" selection-start-column="24" selection-end-line="92" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1616">
+              <caret line="93" column="16" lean-forward="true" selection-start-line="93" selection-start-column="16" selection-end-line="93" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="73">
+              <caret line="63" column="4" selection-start-line="63" selection-start-column="4" selection-end-line="63" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/FunctionsTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1020">
+              <caret line="51" column="24" selection-start-line="51" selection-start-column="24" selection-end-line="51" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="348">
+              <caret line="29" column="103" lean-forward="true" selection-start-line="29" selection-start-column="103" selection-end-line="29" selection-end-column="103" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/PoSetMorphismTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="172">
+              <caret line="76" column="15" selection-start-line="76" selection-start-column="15" selection-end-line="76" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="117">
+              <caret line="115" selection-start-line="115" selection-end-line="115" />
             </state>
           </provider>
         </entry>
@@ -255,21 +306,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/j/math/cat/CategoriesTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="270" column="10" selection-start-line="270" selection-start-column="10" selection-end-line="270" selection-end-column="10" />
+            <state relative-caret-position="158">
+              <caret line="270" column="30" selection-start-line="270" selection-start-column="30" selection-end-line="270" selection-end-column="30" />
               <folding>
                 <element signature="e#7327#7328#0" expanded="true" />
                 <element signature="e#7380#7381#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Categories.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="319">
-              <caret line="424" selection-start-line="424" selection-end-line="424" />
             </state>
           </provider>
         </entry>
@@ -295,8 +337,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1600">
-              <caret line="85" column="6" selection-start-line="85" selection-start-column="6" selection-end-line="85" selection-end-column="6" />
+            <state relative-caret-position="-207">
+              <caret line="27" column="11" lean-forward="true" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
               <folding>
                 <element signature="e#18#44#0" expanded="true" />
               </folding>
@@ -307,8 +349,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
-              <caret line="58" column="3" lean-forward="true" selection-start-line="58" selection-start-column="3" selection-end-line="58" selection-end-column="3" />
+            <state relative-caret-position="202">
+              <caret line="54" column="13" lean-forward="true" selection-start-line="54" selection-start-column="13" selection-end-line="54" selection-end-column="13" />
               <folding>
                 <element signature="e#18#39#0" expanded="true" />
               </folding>
@@ -327,19 +369,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>def product</find>
-      <find>withLeft</find>
-      <find>def cone</find>
-      <find>ss Cocone</find>
-      <find>make</find>
-      <find>class Cocone</find>
-      <find>Cocone</find>
-      <find>isLimit</find>
-      <find>def colimit</find>
-      <find>cocone</find>
-      <find>col</find>
-      <find>null</find>
-      <find>Result</find>
       <find>Good</find>
       <find>&quot; +</find>
       <find>Implicit Segment</find>
@@ -357,6 +386,19 @@
       <find>factorsUni</find>
       <find>here</find>
       <find>vlad</find>
+      <find>withLeft</find>
+      <find>(.*) === (.*)</find>
+      <find>withL</find>
+      <find>hom</find>
+      <find>ex</find>
+      <find>contain(</find>
+      <find>must</find>
+      <find>must_==</find>
+      <find>must_</find>
+      <find>Set(1</find>
+      <find>Set(&quot;#1&quot;, &quot;#2&quot;, &quot;#3&quot;, &quot;#4&quot;, &quot;#5&quot;)</find>
+      <find>11,</find>
+      <find>Set(1, 2, 3</find>
     </findStrings>
     <replaceStrings>
       <replace>@tparam X</replace>
@@ -364,6 +406,11 @@
       <replace>Int</replace>
       <replace>.contains</replace>
       <replace>Set</replace>
+      <replace>$1 === $1</replace>
+      <replace>$2 === $1</replace>
+      <replace>===</replace>
+      <replace>=</replace>
+      <replace>testSetZ</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/src/main/scala/math/cat</dir>
@@ -386,18 +433,12 @@
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/GraphMorphism.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/NotEnumerableSet.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSetMorphism.java" />
         <option value="$PROJECT_DIR$/src/main/java/j/math/cat/PoSetMorphism.java" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/PoSetMorphismTest.scala" />
         <option value="$PROJECT_DIR$/src/test/java/j/math/cat/SetDiagramTest.java" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/PairTest.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Base.scala" />
         <option value="$PROJECT_DIR$/src/main/java/j/math/cat/Category.java" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/BigSet.scala" />
@@ -417,10 +458,21 @@
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" />
         <option value="$PROJECT_DIR$/src/main/java/j/math/cat/Categories.java" />
         <option value="$PROJECT_DIR$/src/main/scala/scalakittens/Container.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala" />
         <option value="$PROJECT_DIR$/src/test/java/j/math/cat/CategoriesTest.java" />
         <option value="$PROJECT_DIR$/src/main/scala/scalakittens/Result.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/FunctionsTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/PairTest.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Pair.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/PoSetMorphismTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala" />
       </list>
     </option>
   </component>
@@ -461,6 +513,14 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="scala" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Categories" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Categories" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="scala" type="462c0819:PsiDirectoryNode" />
+              <item name="cat" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Categories" type="b2602c69:ProjectViewProjectNode" />
@@ -524,7 +584,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Specs2.CategoryTest">
+  <component name="RunManager" selected="Specs2.TypelessSetMorphismTest">
     <configuration name="&lt;template&gt;" type="TestNG" default="true" selected="false">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" value="-ea" />
@@ -552,9 +612,9 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CategorTest" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true">
+    <configuration name="PoSetTest" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true">
       <module name="Categories" />
-      <setting name="path" value="math.cat.CategorTest" />
+      <setting name="path" value="math.cat.PoSetTest" />
       <setting name="vmparams" value="" />
       <setting name="params" value="" />
       <setting name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -564,14 +624,14 @@
       <setting name="useUiWithSbt" value="false" />
       <envs />
       <setting name="testKind" value="Class" />
-      <setting name="path" value="math.cat.CategorTest" />
+      <setting name="path" value="math.cat.PoSetTest" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CategoryBadTest" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true">
+    <configuration name="SetMorphismTest" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true">
       <module name="Categories" />
-      <setting name="path" value="math.cat.CategoryBadTest" />
+      <setting name="path" value="math.cat.SetMorphismTest" />
       <setting name="vmparams" value="" />
       <setting name="params" value="" />
       <setting name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -581,24 +641,7 @@
       <setting name="useUiWithSbt" value="false" />
       <envs />
       <setting name="testKind" value="Class" />
-      <setting name="path" value="math.cat.CategoryBadTest" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="CategoryTest" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true">
-      <module name="Categories" />
-      <setting name="path" value="math.cat.CategoryTest" />
-      <setting name="vmparams" value="" />
-      <setting name="params" value="" />
-      <setting name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <setting name="searchForTest" value="Across module dependencies" />
-      <setting name="showProgressMessages" value="true" />
-      <setting name="useSbt" value="false" />
-      <setting name="useUiWithSbt" value="false" />
-      <envs />
-      <setting name="testKind" value="Class" />
-      <setting name="path" value="math.cat.CategoryTest" />
+      <setting name="path" value="math.cat.SetMorphismTest" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -620,9 +663,26 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="math.cat.CategoryTest::regression from 6/9/15" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true" nameIsGenerated="true">
+    <configuration name="TypelessSetMorphismTest" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true">
       <module name="Categories" />
-      <setting name="path" value="math.cat.CategoryTest" />
+      <setting name="path" value="math.cat.TypelessSetMorphismTest" />
+      <setting name="vmparams" value="" />
+      <setting name="params" value="" />
+      <setting name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <setting name="searchForTest" value="Across module dependencies" />
+      <setting name="showProgressMessages" value="true" />
+      <setting name="useSbt" value="false" />
+      <setting name="useUiWithSbt" value="false" />
+      <envs />
+      <setting name="testKind" value="Class" />
+      <setting name="path" value="math.cat.TypelessSetMorphismTest" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="math.cat.PoSetTest::PoSet" type="Specs2RunConfiguration" factoryName="Specs2" temporary="true" nameIsGenerated="true">
+      <module name="Categories" />
+      <setting name="path" value="math.cat.PoSetTest" />
       <setting name="vmparams" value="" />
       <setting name="params" value="" />
       <setting name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -632,26 +692,26 @@
       <setting name="useUiWithSbt" value="false" />
       <envs />
       <setting name="testKind" value="Test name" />
-      <setting name="path" value="math.cat.CategoryTest" />
-      <setting name="testName" value="regression from 6/9/15" />
+      <setting name="path" value="math.cat.PoSetTest" />
+      <setting name="testName" value="PoSet" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
       <item itemvalue="Specs2.SetsTest" />
-      <item itemvalue="Specs2.CategoryTest" />
-      <item itemvalue="Specs2.math.cat.CategoryTest::regression from 6/9/15" />
-      <item itemvalue="Specs2.CategorTest" />
-      <item itemvalue="Specs2.CategoryBadTest" />
+      <item itemvalue="Specs2.math.cat.PoSetTest::PoSet" />
+      <item itemvalue="Specs2.PoSetTest" />
+      <item itemvalue="Specs2.SetMorphismTest" />
+      <item itemvalue="Specs2.TypelessSetMorphismTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Specs2.CategoryTest" />
-        <item itemvalue="Specs2.CategoryBadTest" />
-        <item itemvalue="Specs2.CategorTest" />
+        <item itemvalue="Specs2.TypelessSetMorphismTest" />
+        <item itemvalue="Specs2.SetMorphismTest" />
+        <item itemvalue="Specs2.PoSetTest" />
+        <item itemvalue="Specs2.math.cat.PoSetTest::PoSet" />
         <item itemvalue="Specs2.SetsTest" />
-        <item itemvalue="Specs2.math.cat.CategoryTest::regression from 6/9/15" />
       </list>
     </recent_temporary>
   </component>
@@ -721,46 +781,46 @@
     </option>
   </component>
   <component name="TestHistory">
-    <history-entry file="CategoryTest - 2018.10.25 at 23h 14m 07s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 17h 57m 07s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.26 at 18h 59m 03s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 18h 02m 18s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 33m 15s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 18h 04m 42s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 33m 30s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 18h 04m 59s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 33m 58s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 18h 05m 17s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 39m 22s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 18h 06m 17s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 39m 35s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 18h 07m 20s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 40m 08s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="SetMorphismTest - 2018.10.27 at 18h 08m 08s.xml">
+      <configuration name="SetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 40m 27s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="TypelessSetMorphismTest - 2018.10.27 at 18h 12m 51s.xml">
+      <configuration name="TypelessSetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
-    <history-entry file="CategoryTest - 2018.10.27 at 10h 40m 44s.xml">
-      <configuration name="CategoryTest" configurationId="Specs2RunConfiguration" />
+    <history-entry file="TypelessSetMorphismTest - 2018.10.27 at 18h 15m 10s.xml">
+      <configuration name="TypelessSetMorphismTest" configurationId="Specs2RunConfiguration" />
     </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="19" y="23" width="1413" height="874" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1502553" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26331145" />
       <window_info id="Structure" order="1" side_tool="true" />
       <window_info id="Designer" order="2" />
       <window_info id="Favorites" order="3" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="0" weight="0.42951253" />
+      <window_info active="true" anchor="bottom" id="Run" order="0" visible="true" weight="0.3135705" />
       <window_info anchor="bottom" id="TODO" order="1" />
       <window_info anchor="bottom" id="sbt-shell-toolwindow" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.47299078" />
@@ -768,7 +828,8 @@
       <window_info anchor="bottom" id="Version Control" order="5" weight="0.32930514" />
       <window_info anchor="bottom" id="Build" order="6" weight="0.32930514" />
       <window_info anchor="bottom" id="Find" order="7" weight="0.35177866" />
-      <window_info active="true" anchor="bottom" id="Messages" order="8" visible="true" weight="0.32806325" />
+      <window_info anchor="bottom" id="Messages" order="8" weight="0.32806325" />
+      <window_info anchor="right" id="Coverage" side_tool="true" weight="0.32968637" />
       <window_info anchor="right" id="Palette&#9;" order="0" />
       <window_info anchor="right" id="sbt" order="1" />
     </layout>
@@ -876,6 +937,12 @@
           <line>209</line>
           <properties />
           <option name="timeStamp" value="57" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="scala-line">
+          <url>file://$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismTest.scala</url>
+          <line>33</line>
+          <properties />
+          <option name="timeStamp" value="58" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/j/math/cat/SetDiagramTest.java</url>
@@ -994,63 +1061,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/BinaryRelationship.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="40" column="48" selection-start-line="40" selection-start-column="48" selection-end-line="40" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BinaryRelationship.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="19" column="42" lean-forward="true" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Pair.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="81">
-          <caret line="5" column="9" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/PairTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="20" column="29" selection-start-line="20" selection-start-column="29" selection-end-line="20" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Pair.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="46" column="4" lean-forward="true" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/collection/GenSet.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="23" column="6" selection-start-line="23" selection-start-column="6" selection-end-line="23" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/collection/Set.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="23" column="6" selection-start-line="23" selection-start-column="6" selection-end-line="23" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/CategoriesTest.scala" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Base.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="700">
-          <caret line="35" column="35" selection-start-line="35" selection-start-column="35" selection-end-line="35" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/j/math/cat/SetDiagramTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="780">
@@ -1072,13 +1082,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="246">
           <caret line="37" column="9" selection-start-line="37" selection-start-column="9" selection-end-line="37" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/SetMorphism.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="32" column="20" selection-start-line="32" selection-start-column="20" selection-end-line="32" selection-end-column="20" />
         </state>
       </provider>
     </entry>
@@ -1108,16 +1111,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="15" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="5" selection-start-line="2" selection-end-line="5" />
-          <folding>
-            <element signature="e#18#45#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1159,13 +1152,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="960">
           <caret line="62" column="68" selection-start-line="62" selection-start-column="68" selection-end-line="62" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="13" selection-start-line="13" selection-end-line="13" />
         </state>
       </provider>
     </entry>
@@ -1218,16 +1204,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
           <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1600">
-          <caret line="85" column="6" selection-start-line="85" selection-start-column="6" selection-end-line="85" selection-end-column="6" />
-          <folding>
-            <element signature="e#18#44#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1286,13 +1262,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Categories.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="424" selection-start-line="424" selection-end-line="424" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Graph.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="199">
@@ -1338,34 +1307,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="58" column="3" lean-forward="true" selection-start-line="58" selection-start-column="3" selection-end-line="58" selection-end-column="3" />
-          <folding>
-            <element signature="e#18#39#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="672" column="17" lean-forward="true" selection-start-line="672" selection-start-column="17" selection-end-line="672" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/j/math/cat/CategoriesTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="270" column="10" selection-start-line="270" selection-start-column="10" selection-end-line="270" selection-end-column="10" />
-          <folding>
-            <element signature="e#7327#7328#0" expanded="true" />
-            <element signature="e#7380#7381#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalakittens/Result.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="163">
@@ -1375,11 +1316,143 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Category.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="861" column="23" selection-start-line="861" selection-start-column="23" selection-end-line="861" selection-end-column="23" />
+        <state relative-caret-position="94">
+          <caret line="856" column="34" lean-forward="true" selection-start-line="856" selection-start-column="34" selection-end-line="856" selection-end-column="34" />
           <folding>
             <element signature="e#18#39#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/FunctionsTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1020">
+          <caret line="51" column="24" selection-start-line="51" selection-start-column="24" selection-end-line="51" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/PairTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="12" column="27" selection-start-line="12" selection-start-column="27" selection-end-line="12" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Categories.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="297" column="48" selection-start-line="297" selection-start-column="48" selection-end-line="297" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Pair.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="10" column="33" lean-forward="true" selection-start-line="10" selection-start-column="33" selection-end-line="10" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/SetMorphism.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="254" column="72" selection-start-line="254" selection-start-column="67" selection-end-line="254" selection-end-column="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="80" column="9" selection-start-line="80" selection-start-column="6" selection-end-line="80" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphMorphismTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="29" column="103" lean-forward="true" selection-start-line="29" selection-start-column="103" selection-end-line="29" selection-end-column="103" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/GraphTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="117">
+          <caret line="115" selection-start-line="115" selection-end-line="115" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/PoSetMorphismTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="172">
+          <caret line="76" column="15" selection-start-line="76" selection-start-column="15" selection-end-line="76" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="92" column="24" selection-start-line="92" selection-start-column="24" selection-end-line="92" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="202">
+          <caret line="54" column="13" lean-forward="true" selection-start-line="54" selection-start-column="13" selection-end-line="54" selection-end-column="13" />
+          <folding>
+            <element signature="e#18#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/PoSetTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1616">
+          <caret line="93" column="16" lean-forward="true" selection-start-line="93" selection-start-column="16" selection-end-line="93" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-207">
+          <caret line="27" column="11" lean-forward="true" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
+          <folding>
+            <element signature="e#18#44#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/j/math/cat/CategoriesTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="270" column="30" selection-start-line="270" selection-start-column="30" selection-end-line="270" selection-end-column="30" />
+          <folding>
+            <element signature="e#7327#7328#0" expanded="true" />
+            <element signature="e#7380#7381#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="73">
+          <caret line="63" column="4" selection-start-line="63" selection-start-column="4" selection-end-line="63" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2346">
+          <caret line="55" selection-start-line="55" selection-end-line="55" />
+          <folding>
+            <element signature="e#18#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="146" column="34" lean-forward="true" selection-start-line="146" selection-start-column="34" selection-end-line="146" selection-end-column="34" />
         </state>
       </provider>
     </entry>

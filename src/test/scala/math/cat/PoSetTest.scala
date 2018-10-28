@@ -7,26 +7,18 @@ class PoSetTest extends Specification {
   "PoSet" >> {
     "parse" >> {
       val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x,y) => y contains x)
-      val actual: PoSet[String] = try {
+      val actual: PoSet[String] =
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})")
-      } catch {
-        case x: Exception =>
-          failure(s"Baaad: $x")
-          ???
-      }
-      val isEqual = expected.underlyingSet == actual.underlyingSet
-      val product = Sets.product2(expected.underlyingSet, expected.underlyingSet)
-      val fe = (isEqual /: product) ((bool, p) => bool && (expected.le(p) == actual.le(p)))
 
-      isEqual must beTrue
+      actual.underlyingSet === expected.underlyingSet
+      val product = Sets.product2(expected.underlyingSet, expected.underlyingSet)
+
       for {p <- product} {
-        expected.le(p) aka s"@$p" must_== actual.le(p)
+        // could not use `===`, something wrong with it in combination with `aka`
+        (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must_== expected.le(p)
       }
-      fe must beTrue
-      expected.equal(actual) must beTrue
-      actual.equal(expected) must beTrue
-      (expected == actual) aka actual.toString must beTrue
-      (actual == expected) aka actual.toString must beTrue
+      expected.equal(actual) must beTrue // here we check equality
+      actual.equal(expected) must beTrue // here we check equality again
     }
 
     "plain pairs" >> {
@@ -40,28 +32,17 @@ class PoSetTest extends Specification {
     }
 
     "Constructor_negativeTransitivity" >> {
-      try {
-        PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "c")))
-        failure("Validator should have thrown an exception")
-      } catch {
-        case e: IllegalArgumentException => true
-      }
-      true
+      PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "c"))) should throwA[IllegalArgumentException]
     }
 
     "Constructor_negativeAntireflexivity" >> {
-      try {
-        val sut = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "a")))
-        failure("Validator should have thrown an exception")
-      } catch {
-        case e: IllegalArgumentException => true
-      }
-      true
+        PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "a"))) should throwA[IllegalArgumentException]
     }
 
     "Equals_positive" >> {
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
       val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
+      (sut2 == sut1) must beTrue
       (sut1 == sut2) must beTrue
     }
 
@@ -96,19 +77,18 @@ class PoSetTest extends Specification {
 
     "UnderlyingSet" >> {
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-      sut.underlyingSet == Set("a", "b", "c") must beTrue
+      sut.underlyingSet === Set("a", "b", "c")
     }
 
     "Paarser" >> {
       val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
       val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})")
-      3 == actual.size must beTrue
-      println(actual)
-      actual.underlyingSet == Set("a", "b", "c") must beTrue
+      actual.size === 3
+      actual.underlyingSet === Set("a", "b", "c")
       actual.le("a", "b") must beTrue
       actual.le("b", "c") must beTrue
       actual.le("a", "c") must beTrue
-      expected == actual must beTrue
+      expected === actual
     }
 
     "Range" >> {

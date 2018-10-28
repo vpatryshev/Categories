@@ -13,8 +13,8 @@ class TypelessSetMorphismTest extends Specification {
 
     "building TypelessSetMorphism" >> {
       val sut = TypelessSetMorphism("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x)
-      (sut(1) == "x1") must beTrue
-      (sut("a") == "xa") must beTrue
+      sut(1) === "x1"
+      sut("a") === "xa"
       try {
         sut(3)
         failure("3 is not in domain")
@@ -31,8 +31,8 @@ class TypelessSetMorphismTest extends Specification {
       val f = new TypelessSetMorphism("f", x, y, (x: Any) => "x" + x)
       val g = new TypelessSetMorphism("g", y, z, (y: Any) => y.toString.length)
       val sut = f then g
-      (sut(1) == 2) must beTrue
-      (sut("a") == 2) must beTrue
+      sut(1) === 2
+      sut("a") === 2
       try {
         sut(z)
         failure("3 is not in domain")
@@ -49,11 +49,11 @@ class TypelessSetMorphismTest extends Specification {
       val f = new TypelessSetMorphism("f", x, y, (x: Any) => "x" + x)
       val g = new TypelessSetMorphism("g", y, z, (y: Any) => y.toString.length)
       val sut = g before f
-      (sut.d0 == x) must beTrue
-      (sut.d1 == z) must beTrue
-      (f(1) == "x1") must beTrue
-      (sut(1) == 2) must beTrue
-      (sut("a") == 2) must beTrue
+      sut.d0 === x
+      sut.d1 === z
+      f(1) === "x1"
+      sut(1) === 2
+      sut("a") === 2
       try {
         sut(z)
         failure("3 is not in domain")
@@ -67,8 +67,8 @@ class TypelessSetMorphismTest extends Specification {
       val s0 = Set(1, 2, "a")
       val s1 = Set("x1", "x2", "xa", 77)
       val sut = TypelessSetMorphism.constant(s0, s1, 77)
-      (sut.d0 == s0) must beTrue
-      (sut.d1 == s1) must beTrue
+      sut.d0 === s0
+      sut.d1 === s1
       for (x <- s0) (sut(x) == 77) must beTrue
       try {
         sut(3)
@@ -93,8 +93,8 @@ class TypelessSetMorphismTest extends Specification {
       val s0 = Set(1, 2, "a")
       val s1 = Set(0, 1, 2, "b", s0, "a")
       val sut = inclusion(s0, s1)
-      (sut.d0 == s0) must beTrue
-      (sut.d1 == s1) must beTrue
+      sut.d0 === s0
+      sut.d1 === s1
       for (x <- s0) (sut(x) == x) must beTrue
       try {
         sut("b")
@@ -109,8 +109,8 @@ class TypelessSetMorphismTest extends Specification {
       def predicate = (x: Any) => x.toString().charAt(0) == '1'
 
       val sut = inclusion(s, predicate)
-      (sut.d1 == s) must beTrue
-      (sut.d0 == (s filter predicate)) must beTrue
+      sut.d1 === s
+      sut.d0 === (s filter predicate)
       for (x <- List(1, "1xya2")) (sut(x) == x) must beTrue
       try {
         sut(2)
@@ -124,8 +124,8 @@ class TypelessSetMorphismTest extends Specification {
     "building a unit" >> {
       val s = Set(1, 2, "a")
       val sut = unit(s)
-      (sut.d0 == s) must beTrue
-      (sut.d1 == s) must beTrue
+      sut.d0 === s
+      sut.d1 === s
       for (x <- s) (sut(x) == x) must beTrue
       try {
         sut("b")
@@ -145,10 +145,10 @@ class TypelessSetMorphismTest extends Specification {
       val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
       val sut = forFactorset(factoring)
       val factor = Set(s(1), s(0))
-      (set == sut.d0) must beTrue
-      (factor == sut.d1) must beTrue
-      (s(0) == sut(8)) must beTrue
-      (s(1) == sut(5)) must beTrue
+      set === sut.d0
+      factor === sut.d1
+      s(0) === sut(8)
+      s(1) === sut(5)
     }
 
   }
