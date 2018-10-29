@@ -2,7 +2,7 @@ package math.cat
 
 import java.io.Reader
 
-import math.cat.Category.segment
+import j.math.cat.BasePair
 import math.cat.Sets._
 
 /**
@@ -10,12 +10,11 @@ import math.cat.Sets._
   *
   * @author vpatryshev
   */
-class Category[O, A](
-                      val g: Graph[O, A],
-                      val unit: O => A,
-                      val m: (A, A) => Option[A]
-                    ) extends Graph[O, A](g) {
+abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   def objects: Set[O] = nodes
+
+  val unit: O => A
+  val m: (A, A) => Option[A]
 
   def composablePairs: Iterable[(A, A)] = Category.composablePairs(this)
 
@@ -605,7 +604,7 @@ class Category[O, A](
   def buildBundles(objects: Set[O], arrows: Set[A]): SetMorphism[O, Set[A]] = SetMorphism(arrows, objects, d0).revert
 
   /**
-    * Builds a degree object (pow(x,n)) for a given object.
+    * Builds a degree object (X*X... n times) for a given object.
     *
     *
     * @param x the source object
@@ -681,7 +680,10 @@ trait CategoryFactory {
                    g: Graph[O, A],
                    units: O => A,
                    composition: (A, A) => Option[A]): Category[O, A] =
-    new Category[O, A](g, units, composition)
+    new Category[O, A](g) {
+      lazy val unit: O => A = units
+      lazy val m: (A, A) => Option[A] = composition
+    }
 
   /**
     * Creates an instance of Category given a graph and arrow composition table
@@ -903,74 +905,75 @@ object Category extends CategoryFactory {
   /**
     * Empty category
     */
-  val _0_ : Category[Int, (Int, Int)] = segment(0)
+  lazy val _0_ : Category[Int, (Int, Int)] = segment(0)
 
   /**
     * Singleton category
     */
-  val _1_ : Category[Int, (Int, Int)] = segment(1)
+  lazy val _1_ : Category[Int, (Int, Int)] = segment(1)
 
   /**
     * Discrete 2-object category
     */
-  val _1plus1_ = apply(Set("a", "b"))
+  lazy val _1plus1_ = apply(Set("a", "b"))
 
   /**
     * Category <b>2</b>: 2 objects linearly ordered
     */
-  val _2_ : Category[Int, (Int, Int)] = segment(2)
+  lazy val _2_ : Category[Int, (Int, Int)] = segment(2)
 
   /**
     * Category <b>3</b>: 3 objects linearly ordered
     */
-  val _3_ : Category[Int, (Int, Int)] = segment(3)
+  lazy val _3_ : Category[Int, (Int, Int)] = segment(3)
 
   /**
     * Category <b>4</b>: 4 objects linearly ordered
     */
-  val _4_ : Category[Int, (Int, Int)] = segment(4)
+  lazy val _4_ : Category[Int, (Int, Int)] = segment(4)
 
   /**
     * Category with 2 objects and 2 parallel arrows from one to another
     */
-  val ParallelPair = apply("({0, 1}, {a:0->1, b:0->1}, {})")
+  lazy val ParallelPair = apply("({0, 1}, {a:0->1, b:0->1}, {})")
 
   /**
     * Category <b>Z2</2> - a two-element monoid
     */
-  val Z2 = Category("({1}, {1: 1 -> 1, a: 1 -> 1}, {1 o 1 = 1, 1 o a = a, a o 1 = a, a o a = 1})")
+  lazy val Z2 = Category("({1}, {1: 1 -> 1, a: 1 -> 1}, {1 o 1 = 1, 1 o a = a, a o 1 = a, a o a = 1})")
 
   /**
     * "Split Monomorphism" category (see http://en.wikipedia.org/wiki/Morphism)
     * Two objects, and a split monomorphism from a to b
     */
-  val SplitMono =
+  lazy val SplitMono =
     Category("({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = bb, ab o ba = a, ab o bb = ab, bb o ba = ba, bb o bb = bb})")
+  
   /**
     * Commutative square category
     */
-  val Square = Category("({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d, ad: a -> d}, {bd o ab = ad, cd o ac = ad})")
+  lazy val Square = Category("({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d, ad: a -> d}, {bd o ab = ad, cd o ac = ad})")
 
   /**
     * Pullback category: a -> c <- b
     */
-  val Pullback = Category("({a,b,c}, {ac: a -> c, bc: b -> c}, {})")
+  lazy val Pullback = Category("({a,b,c}, {ac: a -> c, bc: b -> c}, {})")
 
   /**
     * Pushout category: b <- a -> c
     */
-  val Pushout = Category("({a,b,c}, {ab: a -> b, ac: a -> c}, {})")
+  lazy val Pushout = Category("({a,b,c}, {ab: a -> b, ac: a -> c}, {})")
 
   /**
     * Sample W-shaped category: a -> b <- c -> d <- e
     */
-  val W = Category("({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d}, {})")
+  lazy val W = Category("({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d}, {})")
 
   /**
     * Sample M-shaped category: a <- b -> c <- d -> e
     */
-  val M = Category("({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e}, {})")
+  lazy val M = Category("({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e}, {})")
 
-  val KnownCategories = Set(_0_, _1_, _2_, _3_, _4_, _1plus1_,
+  lazy val KnownCategories = Set(_0_, _1_, _2_, _3_, _4_, _1plus1_,
     M, ParallelPair, Pullback, Pushout, SplitMono, Square, W, Z2)
 }

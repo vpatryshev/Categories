@@ -17,22 +17,22 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
   // note: this function is a property of poset, not a property of its elements
   def le(x: T, y: T): Boolean = comparator(x, y)
   def le(p : (T, T)): Boolean = comparator(p._1, p._2)
-  validate
+  validate()
 
   override def contains(t: T): Boolean = underlyingSet contains t
   
   /**
    * Iterates over elements of this poset
    */
-  override def seq = underlyingSet
+  override def seq: Set[T] = underlyingSet
   override def iterator: Iterator[T] = underlyingSet.iterator
 
   /**
    * Size of this poset
    */
-  override def size = underlyingSet.size
+  override def size: Int = underlyingSet.size
 
-  override def hashCode = underlyingSet.hashCode * 1021 + comparator.hashCode
+  override def hashCode: Int = underlyingSet.hashCode * 1021 + comparator.hashCode
 
   override def equals(x: Any): Boolean = {
     x match {
@@ -41,7 +41,7 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
     }
   }
 
-  private def validate {
+  private def validate() {
     for(x <- underlyingSet) require(le(x, x), " reflexivity broken at " + x)
     
     for(x <- underlyingSet; y <- underlyingSet) {

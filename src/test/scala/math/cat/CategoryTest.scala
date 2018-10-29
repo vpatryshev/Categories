@@ -161,7 +161,8 @@ class CategoryTest extends Specification {
       sut.objects === Set("0", "1")
     }
 
-    val Z3 = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
+    lazy val Z3 = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
+    
     "Parse_3" >> {
       Z3.arrows === Set("0", "1", "2")
     }

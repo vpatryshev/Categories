@@ -36,12 +36,12 @@ class Graph[N, A] (
   }
 
   def validateGraph() {
-    require (arrows != null, "arrowset cannot be null")
-    require (nodes != null, "nodeset cannot be null")
+    require(arrows != null, "arrowset cannot be null")
+    require(nodes != null, "nodeset cannot be null")
 
     if (arrows.nonEmpty) {
-      require (d0 != null, "d0 cannot be null")
-      require (d1 != null, "d1 cannot be null")
+      require(d0 != null, "d0 cannot be null")
+      require(d1 != null, "d1 cannot be null")
     }
     for(a <- arrows) require(nodes contains d0(a), " d0 for " + a + " should be in set of nodes")
     for(a <- arrows) require(nodes contains d1(a), " d1 for " + a + " should be in set of nodes")
