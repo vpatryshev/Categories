@@ -5,7 +5,7 @@ import static j.math.cat.BasePair.Pair;
 import java.util.Set;
 
 /**
- * Java representation of binary relationship, that is, a two-parameter predicate.
+ * Java representation of binary relation, that is, a two-parameter predicate.
  * A predicate is a logical-valued function. Here in Java we use boolean for logical.
  * 
  * @author Vlad Patryshev
@@ -31,7 +31,7 @@ public abstract class BinaryRelation<X, Y> extends Predicate<Pair<X, Y>> {
   }
 
   /**
-   * Creates a relationship that checks against a set of given pairs.
+   * Creates a relation that checks against a set of given pairs.
    *
    * @param pairs the set
    * @return the predicate

@@ -16,37 +16,6 @@ class FunctionsTest extends Specification {
       n === 0
     }
 
-    "lazy pair should not call its function until asked" >> {
-      var n = 0
-      def f(x: Int) = {n += 1; x+1; throw new RuntimeException("If the pair were lazy, this exception would not happen")}
-      val p = LazyPair(123, f)
-      n === 0
-    }
-
-    "lazy pair should call its function once" >> {
-      var n = 0
-      def f(x: Int) = { n += 1; x+1}
-      val p = LazyPair(123, f)
-      n === 0
-      p._1 === 123
-      n === 0
-      p._2 === 124
-      n === 1
-      p._2 === 124
-      n === 1
-    }
-
-    "lazy pair should call its function just once" >> {
-      var n = 0
-      def f(x: Int) = { n += 1; x+1}
-      val p = LazyPair(123, f)
-      n === 0
-      p._2 === 124
-      n === 1
-      p._2 === 124
-      n === 1
-    }
-
     "injection applied to a set should produce a set of the same size" >> {
       val set = Set("a", "b", "cdef")
       val f = injection{s: String => s + "!"}

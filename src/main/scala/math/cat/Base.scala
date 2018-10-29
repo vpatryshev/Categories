@@ -121,20 +121,6 @@ object Base {
   def flattenList[T](listofLists: List[_ <: List[T]]): List[T] =
     listofLists.flatten
 
-  @deprecated
-  def flatten[T](listofLists: List[_ <: List[T]]): List[T] =
-    listofLists.flatten
-
-  /**
-    * Concatenates a sequence of iterables
-    *
-    * @tparam T       element type
-    * @param iterables the iterables to concatenate
-    * @return a flat iterable, listing elements of the given iterables
-    */
-  @deprecated
-  def concat[T](iterables: Iterable[T]*): Iterable[T] = iterables.flatten
-
   /**
     * Concatenates a vararg of lists.
     *

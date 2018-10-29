@@ -34,7 +34,8 @@ def map[U] (f: Functions.Bijection[T,U]) : BigSet[U] = BigSet((u: U) => this con
 
 object BigSet {
 
-  def apply[T](p: T => Boolean): BigSet[T] = new BigSet[T] with NotEnumerableSet[T] {
+  def apply[T](p: T => Boolean = (_:T) => true): BigSet[T] =
+    new BigSet[T] with NotEnumerableSet[T] {
     override def contains(t: T) = p(t)
   }
 
