@@ -140,7 +140,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: Set[Set[(XObjects, YArrows)]] = domain.objects map arrowsFromYtoFX
 
-    product(homsGroupedByX) flatMap cone(y)
+    val set: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
+    val result: Set[Cone] = set flatMap cone(y)
+    result
   }
 
   /**
@@ -230,7 +232,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: Set[Set[(XObjects, YArrows)]] = domain.objects map arrowsFromFXtoY
 
-    product(homsGroupedByX) flatMap cocone(y)
+    val set: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
+    val result: Set[Cocone] = set flatMap cocone(y)
+    result
   }
 
   /**

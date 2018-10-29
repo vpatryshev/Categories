@@ -170,7 +170,7 @@ public abstract class TypelessSetMorphism
 
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
-   * given a set and binary relationship. Factoring is done on the relationship's transitive closure.
+   * given a set and binary relation. Factoring is done on the relation's transitive closure.
    *
    * @param factorset the main set
    * @return factorset epimorphism
@@ -181,11 +181,11 @@ public abstract class TypelessSetMorphism
 
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
-   * given a set and binary relationship. Factoring is done on the relationship's transitive closure.
+   * given a set and binary relation. Factoring is done on the relation's transitive closure.
    * @param <T> set element type 
    *
    * @param set the main set
-   * @param r binary relationship (not necessarily equivalence relationship) that determines factoring
+   * @param r binary relation (not necessarily equivalence relation) that determines factoring
    * @return factorset epimorphism
    */
   public static <T> TypelessSetMorphism factorset(Set<T> set, BinaryRelation<T, T> r) {

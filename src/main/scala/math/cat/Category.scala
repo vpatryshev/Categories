@@ -605,7 +605,7 @@ class Category[O, A](
   def buildBundles(objects: Set[O], arrows: Set[A]): SetMorphism[O, Set[A]] = SetMorphism(arrows, objects, d0).revert
 
   /**
-    * Builds a degree object (x^n) for a given object.
+    * Builds a degree object (pow(x,n)) for a given object.
     *
     *
     * @param x the source object
@@ -642,7 +642,7 @@ class Category[O, A](
     * @return this<sup>op</sup>
     */
   def op: Category[O, A] = {
-    new Category[O, A](super.unary_~, unit, (f, g) => m(g, f))
+    Category[O, A](super.unary_~, unit, (f: A, g: A) => m(g, f))
   }
 }
 
@@ -701,7 +701,7 @@ trait CategoryFactory {
     val g = addUnitsToGraph(graph)
     val unit = (x: T) => x
 
-    new Category[T, T](g, unit, m)
+    Category[T, T](g, unit, m)
   }
 
   def composablePairs[O, A](graph: Graph[O, A]): Iterable[(A, A)] = {
@@ -745,7 +745,10 @@ trait CategoryFactory {
                    d0: A => O,
                    d1: A => O,
                    units: O => A,
-                   composition: (A, A) => Option[A]): Category[O, A] = apply(Graph(objects, arrows, d0, d1), units, composition)
+                   composition: (A, A) => Option[A]): Category[O, A] = {
+    val graph = Graph(objects, arrows, d0, d1)
+    Category(graph, units, composition)
+  }
 
   /**
     * This method helps fill in obvious choices for arrows composition.

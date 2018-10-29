@@ -79,7 +79,7 @@ public class CategoryTest extends TestCase {
     }
   }
 
-  private Integer Int(int n) { return Integer.valueOf(n); }
+  private Integer Int(int n) { return n; }
 
   public void test_4_() {
     for (int i = 0; i < 4; i++ ) {
@@ -112,8 +112,7 @@ public class CategoryTest extends TestCase {
   }
 
   public void testEqualizingArrows_none() {
-    Category<String, String> c = PARALLEL_PAIR;
-    assertTrue(c.allEqualizingArrows("a", "b").isEmpty());
+    assertTrue(PARALLEL_PAIR.allEqualizingArrows("a", "b").isEmpty());
   }
 
   @SuppressWarnings("unchecked")
@@ -136,8 +135,7 @@ public class CategoryTest extends TestCase {
   }
 
   public void testEqualizer_none() {
-    Category<String, String> c = PARALLEL_PAIR;
-    String eq = c.equalizer("a", "b");
+    String eq = PARALLEL_PAIR.equalizer("a", "b");
     assertNull(eq);
   }
 
@@ -152,24 +150,23 @@ public class CategoryTest extends TestCase {
   }
 
   public void testCoEqualizer_none() {
-    Category<String, String> c = PARALLEL_PAIR;
-    String coeq = c.coequalizer("a", "b");
+    String coeq = PARALLEL_PAIR.coequalizer("a", "b");
     assertNull(coeq);
   }
 
   @SuppressWarnings("unchecked")
   public void testCoEqualizer_plain() {
+    final Graph<String, String> graph = Graph(Sets.Set("0", "1", "2"), Map(array("coeq", "a", "b", "0.2"), array(Pair("1", "2"), Pair("0", "1"), Pair("0", "1"), Pair("0", "2"))));
     Category<String, String> c =
         Category(
-            Graph(Sets.Set("0", "1", "2"), Map(array("coeq", "a", "b", "0.2"), array(Pair("1", "2"), Pair("0", "1"), Pair("0", "1"), Pair("0", "2")))),
+            graph,
             Map(array(Pair("a", "coeq"), Pair("b", "coeq")), array("0.2", "0.2"))
         );
     assertEquals("coeq", c.coequalizer("a", "b"));
   }
 
   public void testProduct_none() {
-    Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.product("0", "1");
+    Pair<String, String> p = PARALLEL_PAIR.product("0", "1");
     assertNull(p);
   }
 
@@ -184,52 +181,44 @@ public class CategoryTest extends TestCase {
   }
 
   public void testUnion_none() {
-    Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.union("0", "1");
+    Pair<String, String> p = PARALLEL_PAIR.union("0", "1");
     assertNull(p);
   }
 
   public void testUnion_plain() {
-    Category<String, String> c = SQUARE;
-    assertEquals(Pair("bd", "cd"), c.union("b", "c"));
+    assertEquals(Pair("bd", "cd"), SQUARE.union("b", "c"));
   }
 
   public void testPullback_none() {
-    Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pullback("a", "b");
+    Pair<String, String> p = PARALLEL_PAIR.pullback("a", "b");
     assertNull(p);
   }
 
   public void testPullback_same() {
-    Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pullback("a", "a");
+    Pair<String, String> p = PARALLEL_PAIR.pullback("a", "a");
     assertNotNull(p);
     assertEquals(p.x(), "0");
     assertEquals(p.y(), "0");
   }
 
   public void testPullback_plain() {
-    Category<String, String> c = SQUARE;
-    assertEquals(Pair("ab", "ac"), c.pullback("bd", "cd"));
+    assertEquals(Pair("ab", "ac"), SQUARE.pullback("bd", "cd"));
   }
 
   public void testPushout_none() {
-    Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pushout("a", "b");
+    Pair<String, String> p = PARALLEL_PAIR.pushout("a", "b");
     assertNull(p);
   }
 
   public void testPushout_same() {
-    Category<String, String> c = PARALLEL_PAIR;
-    Pair<String, String> p = c.pushout("a", "a");
+    Pair<String, String> p = PARALLEL_PAIR.pushout("a", "a");
     assertNotNull(p);
     assertEquals(p.x(), "1");
     assertEquals(p.y(), "1");
   }
 
   public void testPushout_plain() {
-    Category<String, String> c = SQUARE;
-    assertEquals(Pair("bd", "cd"), c.pushout("ab", "ac"));
+    assertEquals(Pair("bd", "cd"), SQUARE.pushout("ab", "ac"));
   }
 
   public void testTerminal_none() {
