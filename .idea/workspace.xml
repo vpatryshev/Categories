@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="12a17725-0696-4471-a97e-f20dd5fd6c60" name="Default Changelist" comment="more small changes in Category&#10;(will make it an abstract class)">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala" afterDir="false" />
+    <list default="true" id="12a17725-0696-4471-a97e-f20dd5fd6c60" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/SetMorphismTest.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/TypelessSetMorphismTest.scala" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/project/project/target/" />
@@ -47,7 +46,7 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="JAVA" value="1181" />
-          <entry key="PLAIN_TEXT" value="775" />
+          <entry key="PLAIN_TEXT" value="835" />
           <entry key="Scala" value="10438" />
           <entry key="sbt" value="3" />
         </counts>
@@ -58,7 +57,7 @@
           <entry key="java" value="1181" />
           <entry key="sbt" value="3" />
           <entry key="scala" value="10438" />
-          <entry key="txt" value="761" />
+          <entry key="txt" value="821" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
@@ -110,7 +109,7 @@
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="162">
-              <caret line="17" column="17" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+              <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -182,8 +181,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
-              <caret line="52" column="28" lean-forward="true" selection-start-line="52" selection-start-column="28" selection-end-line="52" selection-end-column="28" />
+            <state relative-caret-position="381">
+              <caret line="54" column="28" lean-forward="true" selection-start-line="54" selection-start-column="28" selection-end-line="54" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -949,7 +948,8 @@
     <MESSAGE value="Uncommented test caes in CategoryTest&#10;Fixed some methods in Category (comparing composition)&#10;Added better reporting, via Result class" />
     <MESSAGE value="s/BinaryRelationship/BinaryRelation/" />
     <MESSAGE value="more small changes in Category&#10;(will make it an abstract class)" />
-    <option name="LAST_COMMIT_MESSAGE" value="more small changes in Category&#10;(will make it an abstract class)" />
+    <MESSAGE value="Category is an abstract class&#10;validate() has parentheses" />
+    <option name="LAST_COMMIT_MESSAGE" value="Category is an abstract class&#10;validate() has parentheses" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1224,7 +1224,7 @@
     <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/TypelessSetMorphism.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
-          <caret line="17" column="17" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
         </state>
       </provider>
     </entry>
@@ -1554,8 +1554,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="52" column="28" lean-forward="true" selection-start-line="52" selection-start-column="28" selection-end-line="52" selection-end-column="28" />
+        <state relative-caret-position="381">
+          <caret line="54" column="28" lean-forward="true" selection-start-line="54" selection-start-column="28" selection-end-line="54" selection-end-column="28" />
         </state>
       </provider>
     </entry>
