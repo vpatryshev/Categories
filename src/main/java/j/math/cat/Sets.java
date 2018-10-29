@@ -125,7 +125,7 @@ public class Sets {
         Iterable<XS> tail = pair.y();
         return appendComponentToProductOfIterable(head, calculateProduct(tail));
       }
-      return singleton(new ArrayList<X>());
+      return singleton(new ArrayList<>());
     }
 
     /**
@@ -136,7 +136,7 @@ public class Sets {
      */
     private Set<? extends List<X>> calculateProduct(final List<XS> xss) {
       if (xss.size() == 0) {
-        return singleton(new ArrayList<X>());
+        return singleton(new ArrayList<>());
       }
       Pair<XS, List<XS>> pair = Base.split(xss);
       XS head = pair.x();
@@ -310,8 +310,7 @@ public class Sets {
    */
   @SuppressWarnings({"unchecked"})
   public static <T> Set<T> Set(T... elements) {
-    Set<T> source = new HashSet<T>();
-    source.addAll(Arrays.asList(elements));
+    Set<T> source = new HashSet<T>(Arrays.asList(elements));
     return Set(source);
   }
 
@@ -437,7 +436,7 @@ public class Sets {
    */
   public static Set<String> parseSet(String s) {
     String[] content = s.substring(1, s.length() - 1).split(",\\s*");
-    Set<String> result = new HashSet<String>();
+    Set<String> result = new HashSet<>();
     for (String entry : content) {
       String trimmed = entry.trim();
       if (!trimmed.isEmpty()) {
@@ -461,7 +460,7 @@ public class Sets {
    * @return the map
    */
   public static <X, Y, P extends Pair<X, Y>> Map<X, Y> Map(final Iterable<P> pairs) {
-    final Injection<P, Entry<X, Y>> cast = new Inclusion<Entry<X, Y>, P>();
+    final Injection<P, Entry<X, Y>> cast = new Inclusion<>();
 
     return new AbstractMap<X, Y>() {
       @Override
@@ -490,7 +489,7 @@ public class Sets {
    * @return the (virtual) map
    */
   public static <X, Y, P extends Pair<X, Y>> Map<X, Y> Map(final Set<P> pairs) {
-    final Injection<P, Entry<X, Y>> cast = new Inclusion<Entry<X, Y>, P>();
+    final Injection<P, Entry<X, Y>> cast = new Inclusion<>();
 
     return new AbstractMap<X, Y>() {
       @Override
@@ -556,7 +555,7 @@ public class Sets {
   }
 
   /**
-   * Implements factorset functionality. A factorset may be built given a BinaryRelationship,
+   * Implements factorset functionality. A factorset may be built given a BinaryRelation,
    * or incrementally, when the client provides pairs of equivalent elements.
    * The factorset is not lazy; equivalence classes are stored in a map, and the resulting
    * factorset is returned as a new HashSet.
@@ -582,7 +581,7 @@ public class Sets {
     @SuppressWarnings("unchecked")
     public FactorSet(Set<X> set) {
       this.set = set;
-      equivalenceClasses = new HashMap<X, Set<X>>();
+      equivalenceClasses = new HashMap<>();
       for (X x : set) {
         equivalenceClasses.put(x, Set(x));
       }
@@ -594,18 +593,18 @@ public class Sets {
      * @param set base set
      * @param r   binary relationship
      */
-    public FactorSet(Set<X> set, BinaryRelationship<X, X> r) {
+    public FactorSet(Set<X> set, BinaryRelation<X, X> r) {
       this(set);
       factorByRelationship(r);
     }
 
     /**
-     * Given a <code>BinaryRelationship r</code>, merges equivalent classes if they
+     * Given a <code>BinaryRelation r</code>, merges equivalent classes if they
      * contain elements that are in <code>r</code>.
      *
      * @param r the binary relationship. Does not have to be symmetrical or transitive.
      */
-    public void factorByRelationship(BinaryRelationship<X, X> r) {
+    public void factorByRelationship(BinaryRelation<X, X> r) {
       for (X x1 : set) {
         for (X x2 : set) {
           if (x1 == x2) {
@@ -630,7 +629,7 @@ public class Sets {
     public void merge(X x1, X x2) {
       Set<X> class1 = equivalenceClasses.get(x1);
       Set<X> class2 = equivalenceClasses.get(x2);
-      Set<X> merged = class1 == null ? new HashSet<X>() : new HashSet<X>(class1);
+      Set<X> merged = class1 == null ? new HashSet<>() : new HashSet<>(class1);
       if (class2 != null) merged.addAll(class2);
 
       for (X x3 : merged) {
@@ -642,7 +641,7 @@ public class Sets {
      * @return the latest version of factorset built here.
      */
     public Set<Set<X>> factorset() {
-      return new HashSet<Set<X>>(equivalenceClasses.values());
+      return new HashSet<>(equivalenceClasses.values());
     }
 
     /**
@@ -684,7 +683,6 @@ public class Sets {
       @Override
       public Iterator<T> iterator() {
         final Iterator<? extends Iterable<T>> top = iterableOfSets.iterator();
-        assert top != null : "Top iterable's iterator() should not be null";
         return new Iterator<T>() {
           Iterator<T> current = Base.emptyIterator();
 
@@ -767,7 +765,7 @@ public class Sets {
      * @return the injection (which is an Injection which is a Function))
      */
     public Injection<T, Pair<Integer, T>> injection(int i) {
-      return BasePair.<Integer, T>withLeft(i);
+      return BasePair.withLeft(i);
     }
 
     /**
@@ -820,9 +818,9 @@ public class Sets {
    * @return the map
    */
   public static <X, Y> Map<Y, Set<X>> groupBy(Set<X> xs, Set<Y> ys, Function<X, Y> f) {
-    Map<Y, Set<X>> result = new HashMap<Y, Set<X>>();
+    Map<Y, Set<X>> result = new HashMap<>();
     for (Y y : ys) {
-      result.put(y, new HashSet<X>());
+      result.put(y, new HashSet<>());
     }
 
     for (X x : xs) {

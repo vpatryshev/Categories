@@ -341,7 +341,7 @@ class SetsTest extends Specification {
     "Factorset" >> {
       val set = setOf(1 to 10)
       def isOdd(x: Int) = x % 2 == 0
-      val br: BinaryRelationship[Int, Int] = (a: Int, b: Int) => isOdd(a) == isOdd(b)
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => isOdd(a) == isOdd(b)
       val factoring = new FactorSet(set, br)
 
       factoring.factorset must haveSize(2)
@@ -354,7 +354,7 @@ class SetsTest extends Specification {
 
     "Factorset by a diagonal" >> {
       val set = setOf(1 to 10)
-      val br: BinaryRelationship[Int, Int] = (a: Int, b: Int) => a == b
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
       val actual: SetMorphism[Int, Set[Int]] = factorset(set, br)
       val factor = setOf(for (i <- set) yield Set(i))
       actual === SetMorphism[Int, Set[Int]](set, factor, (i:Int) => Set(i))
@@ -362,7 +362,7 @@ class SetsTest extends Specification {
 
     "Factorset mod 2" >> {
       val set = setOf(1 to 10)
-      val br: BinaryRelationship[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
       val actual = factorset(set, br)
       val s = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val factor = Set(s(1), s(0))

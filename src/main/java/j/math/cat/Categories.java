@@ -314,8 +314,8 @@ public final class Categories {
             Pair<TypelessSetMorphism, TypelessSetMorphism> product =
                     product(f.domain(), g.domain());
 
-            BinaryRelationship<Object, Object> pairIsGood =
-                    new BinaryRelationship<Object, Object>() {
+            BinaryRelation<Object, Object> pairIsGood =
+                    new BinaryRelation<Object, Object>() {
                         @Override
                         public boolean eval(Pair<Object, Object> pair) {
                             return Base.equal(f.apply(pair.x()), g.apply(pair.y()));

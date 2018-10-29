@@ -17,7 +17,7 @@ import java.util.Set;
  * @param <X> first argument type
  * @param <Y> second argument type
  */
-public abstract class BinaryRelationship<X, Y> extends Predicate<Pair<X, Y>> {
+public abstract class BinaryRelation<X, Y> extends Predicate<Pair<X, Y>> {
   /**
    * Evaluates the predicate. You have to define this method in your specific predicate.
    * Calls <code>eval(Pair(x, y))</code> actually.
@@ -38,8 +38,8 @@ public abstract class BinaryRelationship<X, Y> extends Predicate<Pair<X, Y>> {
    * @param <X> first argument type
    * @param <Y> second argument type
    */
-  public static <X, Y> BinaryRelationship<X, Y> forPairs(final Set<Pair<X, Y>> pairs) {
-    return new BinaryRelationship<X, Y>() {
+  public static <X, Y> BinaryRelation<X, Y> forPairs(final Set<Pair<X, Y>> pairs) {
+    return new BinaryRelation<X, Y>() {
       @Override
       public boolean eval(Pair<X, Y> x) {
         return pairs.contains(x);

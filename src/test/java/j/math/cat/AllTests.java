@@ -38,7 +38,7 @@ public class AllTests {
   public static Test suite() {
     try {
       return suite("All Tests",
-          "Base, BinaryRelationship, Categories, Category, Functions, Functor, Graph, Maybe, Pair, PoSet, Predicate, SetDiagram, SetMorphism, Sets");
+          "Base, BinaryRelation, Categories, Category, Functions, Functor, Graph, Maybe, Pair, PoSet, Predicate, SetDiagram, SetMorphism, Sets");
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }

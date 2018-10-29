@@ -21,8 +21,8 @@ import junit.framework.TestCase;
 public class CategoriesTest extends TestCase {
   private final Set<String> setofAandB = Sets.Set("a", "b");
   private final Set<Boolean> setofTrueAndFalse = Sets.Set(true, false);
-  private final BinaryRelationship<Integer, Integer> distanceIs2 =
-      new BinaryRelationship<Integer, Integer>() {
+  private final BinaryRelation<Integer, Integer> distanceIs2 =
+      new BinaryRelation<Integer, Integer>() {
         @Override
         public boolean eval(Pair<Integer, Integer> p) {
           return p.x() - p.y() == 2;

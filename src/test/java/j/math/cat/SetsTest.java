@@ -88,7 +88,7 @@ public class SetsTest extends TestCase {
 
   @SuppressWarnings("unchecked")
   public void testDisjointUnion_withEmpty() {
-    Set<String> actual = Base.disjointUnion(new HashSet<String>(), Sets.Set("ab", "ac", "ad", "bd", "cd"), new HashSet(), Sets.Set("a", "b", "c", "d"), new HashSet());
+    Set<String> actual = Base.disjointUnion(new HashSet<>(), Sets.Set("ab", "ac", "ad", "bd", "cd"), new HashSet(), Sets.Set("a", "b", "c", "d"), new HashSet());
     Set<String> expected = Sets.Set("a", "b", "c", "d", "ab", "ac", "ad", "bd", "cd");
     assertEquals(expected, actual);
   }
@@ -163,7 +163,7 @@ public class SetsTest extends TestCase {
 
   @SuppressWarnings("unchecked")
   public void testProduct_singleEmpty() {
-    List<Set<Long>> oneEmptyComponent = new ArrayList<Set<Long>>();
+    List<Set<Long>> oneEmptyComponent = new ArrayList<>();
     oneEmptyComponent.add(Collections.EMPTY_SET);
     Iterable<? extends Iterable<Long>> actual = Sets.Cartesian.product(oneEmptyComponent);
     assertTrue(Sets.Set(actual).isEmpty());
@@ -216,7 +216,7 @@ public class SetsTest extends TestCase {
 
   @SuppressWarnings({ "serial", "unchecked" })
   public void testAllMaps_plain() {
-    Map<String, Integer> a1b1c1 = new HashMap<String, Integer>();
+    Map<String, Integer> a1b1c1 = new HashMap<>();
     a1b1c1.put("a", 1);
     a1b1c1.put("b", 1);
     a1b1c1.put("c", 1);
@@ -298,8 +298,8 @@ public class SetsTest extends TestCase {
   public void testFactorset1() {
     Set<Integer> set = Sets.Set(1, 2, 3, 4, 5);
     Set<Set<Integer>> expected = Sets.Set(Sets.Set(1, 3, 5), Sets.Set(2, 4));
-    final BinaryRelationship<Integer, Integer> relationship =
-            new BinaryRelationship<Integer, Integer>() {
+    final BinaryRelation<Integer, Integer> relationship =
+            new BinaryRelation<Integer, Integer>() {
       @Override
       public boolean eval(Pair<Integer, Integer> p) {
         return p.x() % 2 == p.y() % 2;
@@ -307,7 +307,7 @@ public class SetsTest extends TestCase {
     };
     assertTrue(relationship.eval(Pair(7, 17)));
     assertTrue(relationship.eval(Pair(2, 0)));
-    final Sets.FactorSet<Integer> factorSet = new Sets.FactorSet<Integer>(set, relationship);
+    final Sets.FactorSet<Integer> factorSet = new Sets.FactorSet<>(set, relationship);
     Set<Set<Integer>> actual = factorSet.factorset();
     mustBeEqual("Something does not work; eq classes are " + factorSet.equivalenceClasses, expected, actual);
   }
@@ -326,7 +326,7 @@ public class SetsTest extends TestCase {
   @SuppressWarnings("unchecked")
   public void testFactorset_emptyComponent() {
     Set<String> set = Sets.Set("a", "b", "c", "d");
-    Set<Set<String>> factorset = Sets.Set(Sets.Set("a", "b"), Sets.Set("c", "d"), new HashSet<String>());
+    Set<Set<String>> factorset = Sets.Set(Sets.Set("a", "b"), Sets.Set("c", "d"), new HashSet<>());
     try {
       Sets.factorset(set, factorset);
       fail("This is a bad factorset, should have thrown an error");
@@ -370,9 +370,9 @@ public class SetsTest extends TestCase {
 
   public void testFactorSet_tricky() {
     Set<Integer> set = Sets.Set(1, 2, 3, 4, 5);
-    Set<Set<Integer>> expected = new HashSet<Set<Integer>>();
+    Set<Set<Integer>> expected = new HashSet<>();
     expected.add(Sets.Set(1, 2, 3, 4, 5));
-    Set<Set<Integer>> actual = new Sets.FactorSet<Integer>(set, new BinaryRelationship<Integer, Integer>() {
+    Set<Set<Integer>> actual = new Sets.FactorSet<>(set, new BinaryRelation<Integer, Integer>() {
       @Override
       public boolean eval(Pair<Integer, Integer> p) {
         return (p.x() >= 3 && p.x() - 1 == p.y()) ||
@@ -386,7 +386,7 @@ public class SetsTest extends TestCase {
   public void testFactorSet_incremental() {
     Set<Integer> set = Sets.Set(1, 2, 3, 4, 5);
     Set<Set<Integer>> expected = Sets.Set(Sets.Set(1, 3, 5), Sets.Set(2, 4));
-    Sets.FactorSet<Integer> factorset = new Sets.FactorSet<Integer>(set);
+    Sets.FactorSet<Integer> factorset = new Sets.FactorSet<>(set);
     factorset.merge(1, 3);
     factorset.merge(3, 5);
     factorset.merge(4, 2);
@@ -420,7 +420,7 @@ public class SetsTest extends TestCase {
   @SuppressWarnings("unchecked")
   public void testUnion() {
     List<Set<String>> source = Base.List(Sets.parseSet("[a]"), Sets.parseSet("[b]"), Sets.parseSet("[a, b]"));
-    Sets.DisjointUnion<String> du = new Sets.DisjointUnion<String>(source);
+    Sets.DisjointUnion<String> du = new Sets.DisjointUnion<>(source);
     Set<Pair<Integer, String>> expected = Sets.Set(BasePair.Pair(0, "a"), BasePair.Pair(1, "b"), BasePair.Pair(2, "a"), BasePair.Pair(2, "b"));
     assertEquals("check2", BasePair.Pair(1, "b"), BasePair.Pair(du.unionSet(), du.injections()).y().get(1).apply("b"));
     assertEquals("check3", BasePair.Pair(2, "b"), BasePair.Pair(du.unionSet(), du.injections()).y().get(2).apply("b"));

@@ -188,7 +188,7 @@ public abstract class TypelessSetMorphism
    * @param r binary relationship (not necessarily equivalence relationship) that determines factoring
    * @return factorset epimorphism
    */
-  public static <T> TypelessSetMorphism factorset(Set<T> set, BinaryRelationship<T, T> r) {
+  public static <T> TypelessSetMorphism factorset(Set<T> set, BinaryRelation<T, T> r) {
     Sets.FactorSet<T> factorset = new Sets.FactorSet<T>(set, r);
     return forFunction(set, factorset.factorset(), factorset.asFunction());
   }

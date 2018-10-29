@@ -40,7 +40,7 @@ public class SetDiagram<Objects, Arrows>
   class Limit {
     Set<Objects> participantObjects = domain().allInitialObjects();
     Set<Arrows> participantArrows = domain().arrowsFromInitialObjects();
-    final List<Objects> listOfObjects = new ArrayList<Objects>(participantObjects);
+    final List<Objects> listOfObjects = new ArrayList<>(participantObjects);
     Function<Objects, Integer> index = new Function<Objects, Integer>() {
       @Override
       public Integer apply(Objects x) {
@@ -85,7 +85,7 @@ public class SetDiagram<Objects, Arrows>
     final Limit data = new Limit();
 
     // For each object of domain we have an arrow from one of the objects used in building the product
-    Map<Objects, Arrows> arrowFromImportantObject = new HashMap<Objects, Arrows>();
+    Map<Objects, Arrows> arrowFromImportantObject = new HashMap<>();
     for (Objects object : data.bundles.keySet()) {
       arrowFromImportantObject.put(object, domain().unit(object));
       for (Arrows arrow : data.bundles.get(object)) {
@@ -108,8 +108,7 @@ public class SetDiagram<Objects, Arrows>
       }
     }.toMap(domain().objects());
 //YObjects apex
-    Set<java.lang.Object> apex = new HashSet<Object>();
-    apex.addAll(data.apex);
+    Set<java.lang.Object> apex = new HashSet<>(data.apex);
     return new Cone(apex, coneMap);
   }
 
@@ -134,10 +133,10 @@ public class SetDiagram<Objects, Arrows>
    * @param point an element of Cartesian product
    * @return the predicate
    */
-  BinaryRelationship<Arrows, Arrows> arrowsAreCompatibleOnPoint(
+  BinaryRelation<Arrows, Arrows> arrowsAreCompatibleOnPoint(
           final Function<Objects, Function<List<Object>, Object>> projectionForObject, 
           final List<Object> point) {
-    return new BinaryRelationship<Arrows, Arrows>() {
+    return new BinaryRelation<Arrows, Arrows>() {
       @Override
       public boolean eval(Pair<Arrows, Arrows> pair) {
         Object fx = arrowActsOnAPoint(pair.x(), projectionForObject, point);
@@ -169,17 +168,17 @@ public class SetDiagram<Objects, Arrows>
     final Map<Objects, Set<Arrows>> bundles =
         domain().buildBundles(domain().objects(), participantArrows);
 
-    final List<Objects> listOfObjects = new ArrayList<Objects>(participantObjects);
+    final List<Objects> listOfObjects = new ArrayList<>(participantObjects);
     // Here we have a non-repeating collection of sets to use for building a union
     List<Set<Object>> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
     List<Set<Object>> setsToJoin = new Id().map(setsToUse);
-    Sets.DisjointUnion<Object> du = new Sets.DisjointUnion<Object>(setsToJoin);
+    Sets.DisjointUnion<Object> du = new Sets.DisjointUnion<>(setsToJoin);
 
     Map<Integer, Objects> directIndex = Base.toMap(listOfObjects);
     Function<Objects, Integer> reverseIndex = Functions.forMap(Base.inverse(directIndex));
     Function<Objects, Injection<Object, Pair<Integer, Object>>> objectToInjection = reverseIndex.then(Functions.forList(BasePair.Pair(du.unionSet(), du.injections()).y()));
     final Sets.FactorSet factorset = new Sets.FactorSet(BasePair.Pair(du.unionSet(), du.injections()).x());
-    Map<Objects, TypelessSetMorphism> canonicalTSMPerObject = new HashMap<Objects, TypelessSetMorphism>();
+    Map<Objects, TypelessSetMorphism> canonicalTSMPerObject = new HashMap<>();
     // have to factor the union by the equivalence relationship caused
     // by two morphisms mapping the same element to two possibly different.
     for (Objects o : domain().objects()) {

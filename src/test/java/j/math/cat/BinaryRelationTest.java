@@ -5,18 +5,18 @@ import static j.math.cat.Sets.Set;
 import junit.framework.TestCase;
 
 /**
- * Unittest for BinaryRelationship class
+ * Unittest for BinaryRelation class
  * 
  * @author Vlad Patryshev
  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  *
  */
-public class BinaryRelationshipTest extends TestCase {
+public class BinaryRelationTest extends TestCase {
 
   @SuppressWarnings("unchecked")
   public void testForPairs() {
-    BinaryRelationship<String, Integer> r =
-      BinaryRelationship.forPairs(Sets.Set(Pair("one", 1), Pair("two", 2)));
+    BinaryRelation<String, Integer> r =
+      BinaryRelation.forPairs(Sets.Set(Pair("one", 1), Pair("two", 2)));
     assertTrue(r.eval("one", 1));
     assertTrue(r.eval("two", 2));
     assertFalse(r.eval("two", 1));

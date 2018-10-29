@@ -148,7 +148,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
   /**
    * A predicate that checks if a pair of arrows is parallel
    */
-  public final BinaryRelationship<A, A> isParallelPair = new BinaryRelationship<A, A>() {
+  public final BinaryRelation<A, A> isParallelPair = new BinaryRelation<A, A>() {
     @Override
     public boolean eval(Pair<A, A> p) {
       return sameDomain(p.x(), p.y()) && sameCodomain(p.x(), p.y());
@@ -244,7 +244,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
   }
 
   // sets of arrows between two objects cached here; in classics it is called hom
-  private final Map<Pair<O, O>, Set<A>> hom = new HashMap<Pair<O, O>, Set<A>>();
+  private final Map<Pair<O, O>, Set<A>> hom = new HashMap<>();
 
   /**
    * Returns a cashed set of arrows from x to y.
@@ -260,7 +260,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
       return hom.get(key);
     }
 
-    Set<A> theArrows = new HashSet<A>();
+    Set<A> theArrows = new HashSet<>();
     for (A arrow : arrows()) {
       if (equal(d0(arrow), from) && equal(d1(arrow), to)) {
         theArrows.add(arrow);
@@ -270,7 +270,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
     return theArrows;
   }
 
-  private Map<A, A> inverse = new HashMap<A, A>();
+  private Map<A, A> inverse = new HashMap<>();
 
   /**
    * Returnes an inverse arrow. Returns null if none exists.
@@ -304,7 +304,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
     return inverse(arrow) != null; // there should be a better way to detect existence
   }
 
-  private final Map<A, Boolean> monomorphisms = new HashMap<A, Boolean>();
+  private final Map<A, Boolean> monomorphisms = new HashMap<>();
 
   /**
    * Checks whether an arrow is an monomorphism.
@@ -332,7 +332,7 @@ public abstract class Category<O, A> extends Graph<O, A> {
     return result;
   }
 
-  private final Map<A, Boolean> epimorphisms = new HashMap<A, Boolean>();
+  private final Map<A, Boolean> epimorphisms = new HashMap<>();
 
   /**
    * Checks whether an arrow is an epimorphism.
@@ -367,10 +367,10 @@ public abstract class Category<O, A> extends Graph<O, A> {
            final Map<O, A> units,
            final Map<Pair<A, A>, A> composition) {
 
-    final Map<A,O> unit2object = new HashMap<A, O>();
+    final Map<A,O> unit2object = new HashMap<>();
     for (O o : units.keySet()) unit2object.put(units.get(o), o);
 
-    final Set<A> allArrows = new HashSet<A>(unit2object.keySet());
+    final Set<A> allArrows = new HashSet<>(unit2object.keySet());
     allArrows.addAll(graph.arrows());
 
     class AllArrows implements Quiver<O, A> {

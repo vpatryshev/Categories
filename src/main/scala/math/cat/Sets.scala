@@ -176,7 +176,7 @@ object Sets {
     * @param r   binary relationship (not necessarily equivalence relationship) that determines factoring
     * @return factorset epimorphism
     */
-  def factorset[T](set: Set[T], r: BinaryRelationship[T, T]): SetMorphism[T, Set[T]] = {
+  def factorset[T](set: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
     val factorset = new FactorSet[T](set, r)
     SetMorphism(set, factorset.factorset, factorset.asFunction)
   }
@@ -313,7 +313,7 @@ object Sets {
   }
 
   /**
-    * Implements factorset functionality. A factorset may be built given a BinaryRelationship,
+    * Implements factorset functionality. A factorset may be built given a BinaryRelation,
     * or incrementally, when the client provides pairs of equivalent elements.
     * The factorset is not lazy; equivalence classes are stored in a map, and the resulting
     * factorset is returned as a new HashSet.
@@ -337,18 +337,18 @@ object Sets {
       * @param set base set
       * @param r   binary relationship
       */
-    def this(set: Set[X], r: BinaryRelationship[X, X]) {
+    def this(set: Set[X], r: BinaryRelation[X, X]) {
       this(set)
       factorByRelationship(r)
     }
 
     /**
-      * Given a <code>BinaryRelationship r</code>, merges equivalent classes if they
+      * Given a <code>BinaryRelation r</code>, merges equivalent classes if they
       * contain elements that are in <code>r</code>.
       *
       * @param r the binary relationship. Does not have to be symmetrical or transitive.
       */
-    def factorByRelationship(r: BinaryRelationship[X, X]): Unit =
+    def factorByRelationship(r: BinaryRelation[X, X]): Unit =
       for (
         x1 <- set;
         x2 <- set
