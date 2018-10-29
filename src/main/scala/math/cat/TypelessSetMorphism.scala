@@ -3,7 +3,6 @@ package math.cat
 import math.cat.Sets._
 
 /**
- * This opportunistic class does not seem to be used anywhere anymore.
  * The idea was to create something that would cover unresolved issues with type assignment
  * while building bigger categorical structures. I'll probably throw it out eventually.
  *
@@ -16,8 +15,22 @@ class TypelessSetMorphism(
     override val tag: String,
     override val d0: Set[Any],
     override val d1: Set[Any],
-    f: (Any => Any))
-        extends SetMorphism[Any, Any](tag, d0, d1, f) {
+    f: Any => Any)
+        extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
+
+  /**
+    * Composes two morphisms, optionally
+    *
+    * @param f first morphism: X -> Y
+    * @param g second morphism: Y -> Z
+    * @return their composition g o f: X -> Z
+    */
+  def compose(g: TypelessSetMorphism): Option[TypelessSetMorphism] = {
+    if (d1 equals g.d0) {
+      Some(new TypelessSetMorphism(tag + " o " + g.tag, d0, g.d1, (x: Any) => g(this(x))))
+    }
+    else None
+  }
 
   /**
    * Composes this morphism with the next one.
@@ -25,9 +38,10 @@ class TypelessSetMorphism(
    * @param g second morphism: Y -> Z
    * @return their composition g o f: X -> Z
    */
-  def then(g: TypelessSetMorphism): TypelessSetMorphism = {
-    require(d1.equals(g.d0), "Composition not defined")
-    new TypelessSetMorphism(tag + " o " + g.tag, d0, g.d1, (x: Any) => g(this(x)))
+  def andThen(g: TypelessSetMorphism): TypelessSetMorphism = {
+    compose(g) getOrElse(
+      throw new IllegalArgumentException(s"Composition not defined for $self and $g")
+      )
   }
 
   /**
@@ -36,7 +50,7 @@ class TypelessSetMorphism(
    * @param g first morphism: T -> X
    * @return their composition f o g: T -> Y
    */
-  def before(g: TypelessSetMorphism): TypelessSetMorphism = g then this
+  def before(g: TypelessSetMorphism): TypelessSetMorphism = g andThen this
 }
 
 /**
@@ -116,17 +130,8 @@ object TypelessSetMorphism {
   def unit(s: Set[Any]): TypelessSetMorphism = new TypelessSetMorphism("1", s, s, x => x)
 
   /**
-   * Composes two morphisms.
-   *
-   * @param f first morphism: X -> Y
-   * @param g second morphism: Y -> Z
-   * @return their composition g o f: X -> Z
-   */
-  def compose(f: TypelessSetMorphism, g: TypelessSetMorphism): TypelessSetMorphism = f then g
-
-  /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
-   * given a set and binary relationship. Factoring is done on the relationship's transitive closure.
+   * given a set and binary relation. Factoring is done on the relation's transitive closure.
    *
    * @param factorset the main set
    * @return factorset epimorphism

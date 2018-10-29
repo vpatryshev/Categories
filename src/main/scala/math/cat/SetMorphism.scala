@@ -34,9 +34,9 @@ class SetMorphism[X, Y] (val tag: String, val d0: Set[X], val d1: Set[Y], f : X 
     ((d0.equals(other.d0) && d1.equals(other.d1)) /: d0) ((eq, x) => eq & this(x) == other(x))
   }
   
-  def compose[Z](g: SetMorphism[Y, Z]): SetMorphism[X, Z] = {
-    require(d1 == g.d0, "Composition not defined")
-    SetMorphism[X, Z](d0, g.d1, (x: X) => g(this(x)))
+  def compose[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
+    if (d1 == g.d0) Some(SetMorphism[X, Z](d0, g.d1, (x: X) => g(this(x))))
+    else None
   }
   
   def revert = {

@@ -4,7 +4,7 @@ import org.specs2.mutable._
 import SetMorphism._
 
 class SetMorphismTest extends Specification {
-  val ints = Set[BigInt](1, 2, 3, 5, 8, 13)
+  val ints: Set[BigInt] = Set(1, 2, 3, 5, 8, 13)
   val strings = Set("even", "odd", "totally crazy")
 
   val testSetX = Set(1, 2, 3, 4, 5)
@@ -30,8 +30,8 @@ class SetMorphismTest extends Specification {
   }
 
   "UnitComposition()" >>  {
-    m.compose(unit(strings)) === m
-    unit(ints).compose(m) === m
+    m.compose(unit(strings)) === Some(m)
+    unit(ints).compose(m) === Some(m)
   }
 
  "Constructor2" >> {
@@ -62,7 +62,7 @@ class SetMorphismTest extends Specification {
     val g = SetMorphism(testSetX, testSetZ, (n: Int) => "#" + n)
     val h = f compose g
     
-    h === SetMorphism(x, testSetZ, (n: Int) => "#" + (n - 10))
+    h === Some(SetMorphism(x, testSetZ, (n: Int) => "#" + (n - 10)))
   }
 
   "Revert" >> {

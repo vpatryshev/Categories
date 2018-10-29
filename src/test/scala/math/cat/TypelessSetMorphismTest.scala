@@ -30,7 +30,7 @@ class TypelessSetMorphismTest extends Specification {
       val z = Set(2, 28, x)
       val f = new TypelessSetMorphism("f", x, y, (x: Any) => "x" + x)
       val g = new TypelessSetMorphism("g", y, z, (y: Any) => y.toString.length)
-      val sut = f then g
+      val sut = f andThen g
       sut(1) === 2
       sut("a") === 2
       try {
