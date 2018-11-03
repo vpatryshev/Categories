@@ -29,23 +29,10 @@ import SetCategory._
     // it IS a category
   }
 
-  override def toString: String
+  override def toString: String = "Category of all Scala Sets"
 
-  = {
-    "Category of all Java Sets"
-  }
-
-  override def hom(x: Set[Any], y: Set[Any]): Set[TypelessSetMorphism]
-
-  = {
+  override def hom(x: Set[Any], y: Set[Any]): Set[TypelessSetMorphism] =
     TypelessSetMorphism.exponent(x, y)
-  }
-
-  override def isIsomorphism(arrow: TypelessSetMorphism): Boolean
-
-  = {
-    super.isIsomorphism(arrow)
-  }
 
   override def isMonomorphism(f: TypelessSetMorphism): Boolean =
     f.d0.forall(x => f.d0.forall(y => !(f(x) == f(y)) || x == y))
@@ -69,8 +56,10 @@ import SetCategory._
     Option(TypelessSetMorphism.forFactorset(factorset))
   }
 
-  override val unit: Set[Any] => TypelessSetMorphism = ???
-  override val m: (TypelessSetMorphism, TypelessSetMorphism) => Option[TypelessSetMorphism] = ???
+  override val unit: Set[Any] => TypelessSetMorphism =
+    TypelessSetMorphism.unit
+  
+  override val m: (TypelessSetMorphism, TypelessSetMorphism) => Option[TypelessSetMorphism] = (f, g) => f compose g
 }
 
 object SetCategory {

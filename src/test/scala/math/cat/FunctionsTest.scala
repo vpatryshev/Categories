@@ -26,7 +26,7 @@ class FunctionsTest extends Specification {
       val f = injection{s: String => s + "!"}
       val g = injection{s: String => s + "?!"}
       val fg: Injection[String, String] = f andThen g
-      true
+      ok
     }
 
     "inclusion should be practically usable" >> {

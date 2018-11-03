@@ -5,7 +5,7 @@ import math.cat.TypelessSetMorphism._
 import org.specs2.mutable._
 
 /**
- * Test suite for Sets object
+ * Test suite for Typeless Set Morphisms object
  */
 
 class TypelessSetMorphismTest extends Specification {
@@ -22,6 +22,16 @@ class TypelessSetMorphismTest extends Specification {
         case e: Exception => // praise the Lord!
       }
       true
+    }
+    
+    "compositions" >> {
+      val x = Set(1, 2, "a")
+      val y = Set("x1", "x2", "xa", 77)
+      val z = Set(2, 28, x)
+      val f = new TypelessSetMorphism("f", x, y, (x: Any) => "x" + x)
+      val g = new TypelessSetMorphism("g", y, z, (y: Any) => y.toString.length)
+      g.compose(f) === None
+      f.compose(g).isDefined === true
     }
 
     "TypelessSetMorphism then another" >> {
@@ -151,6 +161,26 @@ class TypelessSetMorphismTest extends Specification {
       s(1) === sut(5)
     }
 
-  }
+    "exponent 2->2" >> {
+      val set1 = setOf[Any](1 to 2)
 
+      val sut = TypelessSetMorphism.exponent(set1, set1)
+      sut.size === 4
+      val check1 = sut.contains(TypelessSetMorphism.unit(set1))
+      check1 must beTrue
+    }
+
+    "exponent 3->5" >> {
+      val set1 = setOf[Any](3 to 5)
+      val set2 = setOf[Any](1 to 5)
+
+      val sut = TypelessSetMorphism.exponent(set1, set2)
+      sut.size === 125
+      for (i <- set2) {
+        val c = TypelessSetMorphism.constant(set1, set2, 1)
+        sut.contains(c) must beTrue
+      }
+      ok
+    }
+  }
 }

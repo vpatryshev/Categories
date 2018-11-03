@@ -399,14 +399,6 @@ class SetsTest extends Specification {
       FiniteSets.contains(Set("infinity")) must beTrue
       FiniteSets.contains(Set(1,2,3,42)) must beTrue
     }
-    /*
-        def doNotTestDownshift() {
-          val source: Set[Any] = Set("abc", 123, 4.56, Set("qqq"), "zzz")
-          val target: Set[String] = downshift(source)
-          target === Set("abc", "zzz")
-        }
-
-      */
   }
 }
 /*

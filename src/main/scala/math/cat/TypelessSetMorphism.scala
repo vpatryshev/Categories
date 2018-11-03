@@ -15,14 +15,13 @@ class TypelessSetMorphism(
     override val tag: String,
     override val d0: Set[Any],
     override val d1: Set[Any],
-    f: Any => Any)
+    val f: Any => Any)
         extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
 
   /**
-    * Composes two morphisms, optionally
+    * Composes with another morphism, optionally
     *
-    * @param f first morphism: X -> Y
-    * @param g second morphism: Y -> Z
+    * @param g next morphism: Y -> Z
     * @return their composition g o f: X -> Z
     */
   def compose(g: TypelessSetMorphism): Option[TypelessSetMorphism] = {
@@ -51,6 +50,16 @@ class TypelessSetMorphism(
    * @return their composition f o g: T -> Y
    */
   def before(g: TypelessSetMorphism): TypelessSetMorphism = g andThen this
+  
+  override def equals(o: Any): Boolean = o match {
+    case other: TypelessSetMorphism =>
+      d0 == other.d0 && d1 == other.d1 &&
+      d0.forall(x => f(x) == other.f(x))
+    case _ => false
+  }
+  
+  override lazy val hashCode: Int =
+    d1.hashCode + 2 * d0.map(x => (x, f(x))).hashCode
 }
 
 /**
@@ -75,17 +84,6 @@ object TypelessSetMorphism {
   // never mind, we may kick it all out eventually
   private def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): X1 => Y1 = {
     case x0: X0 => f(x0)
-  }
-
-  /**
-    * Casts a set to a set of values of a superclass.
-    * Not good for mutable.
-    * TODO: DON'T
-    */
-  private def upcast[X, Y >: X](s: Set[X]): Set[Y] = s.asInstanceOf[Set[Y]]
-
-  def apply[X, Y] (morphism: SetMorphism[X, Y]): TypelessSetMorphism = {
-    apply(morphism.tag, upcast(morphism.d0), upcast(morphism.d1), extend(morphism))
   }
 
   /**
