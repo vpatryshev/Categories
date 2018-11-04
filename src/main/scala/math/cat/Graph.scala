@@ -24,7 +24,7 @@ class Graph[N, A] (
   override def iterator: Iterator[N] = nodes.iterator
   override def contains(node: N): Boolean = nodes contains node
   override def size: Int = nodes.size
-  override def hashCode: Int = nodes.hashCode * 61 + arrows.hashCode
+  override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
   def -(x:N): Set[N] = requireImmutability
   def +(x:N): Set[N] = requireImmutability
 
@@ -128,7 +128,7 @@ object Graph {
   def second[N](p:(N,N)): N = p._2
 
   def apply[N] (poset: PoSet[N]): Graph[N, (N, N)] = {
-    val goodPairs:Set[(N,N)] = (for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)) toSet
+    val goodPairs:Set[(N,N)] = for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)
     lazy val size = goodPairs.size
 
     apply(poset.underlyingSet, goodPairs, first, second)

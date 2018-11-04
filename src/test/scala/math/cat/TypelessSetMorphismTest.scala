@@ -1,7 +1,7 @@
 package math.cat
 
 import math.cat.Sets._
-import math.cat.TypelessSetMorphism._
+import math.cat.SetFunction._
 import org.specs2.mutable._
 
 /**
@@ -12,7 +12,7 @@ class TypelessSetMorphismTest extends Specification {
   "TypelessSetMorphism" >> {
 
     "building TypelessSetMorphism" >> {
-      val sut = TypelessSetMorphism("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x)
+      val sut = SetFunction("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x)
       sut(1) === "x1"
       sut("a") === "xa"
       try {
@@ -28,8 +28,8 @@ class TypelessSetMorphismTest extends Specification {
       val x = Set(1, 2, "a")
       val y = Set("x1", "x2", "xa", 77)
       val z = Set(2, 28, x)
-      val f = new TypelessSetMorphism("f", x, y, (x: Any) => "x" + x)
-      val g = new TypelessSetMorphism("g", y, z, (y: Any) => y.toString.length)
+      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
+      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
       g.compose(f) === None
       f.compose(g).isDefined === true
     }
@@ -38,8 +38,8 @@ class TypelessSetMorphismTest extends Specification {
       val x = Set(1, 2, "a")
       val y = Set("x1", "x2", "xa", 77)
       val z = Set(2, 28, x)
-      val f = new TypelessSetMorphism("f", x, y, (x: Any) => "x" + x)
-      val g = new TypelessSetMorphism("g", y, z, (y: Any) => y.toString.length)
+      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
+      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
       val sut = f andThen g
       sut(1) === 2
       sut("a") === 2
@@ -56,8 +56,8 @@ class TypelessSetMorphismTest extends Specification {
       val x = Set(1, 2, "a")
       val y = Set("x1", "x2", "xa", 77)
       val z = Set(2, 28, x)
-      val f = new TypelessSetMorphism("f", x, y, (x: Any) => "x" + x)
-      val g = new TypelessSetMorphism("g", y, z, (y: Any) => y.toString.length)
+      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
+      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
       val sut = g before f
       sut.d0 === x
       sut.d1 === z
@@ -76,7 +76,7 @@ class TypelessSetMorphismTest extends Specification {
     "building a constant" >> {
       val s0 = Set(1, 2, "a")
       val s1 = Set("x1", "x2", "xa", 77)
-      val sut = TypelessSetMorphism.constant(s0, s1, 77)
+      val sut = SetFunction.constant(s0, s1, 77)
       sut.d0 === s0
       sut.d1 === s1
       for (x <- s0) (sut(x) == 77) must beTrue
@@ -91,7 +91,7 @@ class TypelessSetMorphismTest extends Specification {
 
     "building a nonexistent constant" >> {
       try {
-        val sut = TypelessSetMorphism.constant(Set(1, 2, "a"), Set("x1", "x2", "xa", 77), "xx")
+        val sut = SetFunction.constant(Set(1, 2, "a"), Set("x1", "x2", "xa", 77), "xx")
         failure("xx is not in codomain")
       } catch {
         case e: Exception => // praise the Lord!
@@ -164,9 +164,9 @@ class TypelessSetMorphismTest extends Specification {
     "exponent 2->2" >> {
       val set1 = setOf[Any](1 to 2)
 
-      val sut = TypelessSetMorphism.exponent(set1, set1)
+      val sut = SetFunction.exponent(set1, set1)
       sut.size === 4
-      val check1 = sut.contains(TypelessSetMorphism.unit(set1))
+      val check1 = sut.contains(SetFunction.unit(set1))
       check1 must beTrue
     }
 
@@ -174,10 +174,10 @@ class TypelessSetMorphismTest extends Specification {
       val set1 = setOf[Any](3 to 5)
       val set2 = setOf[Any](1 to 5)
 
-      val sut = TypelessSetMorphism.exponent(set1, set2)
+      val sut = SetFunction.exponent(set1, set2)
       sut.size === 125
       for (i <- set2) {
-        val c = TypelessSetMorphism.constant(set1, set2, 1)
+        val c = SetFunction.constant(set1, set2, 1)
         sut.contains(c) must beTrue
       }
       ok

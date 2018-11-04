@@ -11,7 +11,7 @@ import math.cat.Sets._
  * @param d1 codomain
  * @param f the function that implements the morphism
  */
-class TypelessSetMorphism(
+class SetFunction(
     override val tag: String,
     override val d0: Set[Any],
     override val d1: Set[Any],
@@ -24,9 +24,9 @@ class TypelessSetMorphism(
     * @param g next morphism: Y -> Z
     * @return their composition g o f: X -> Z
     */
-  def compose(g: TypelessSetMorphism): Option[TypelessSetMorphism] = {
+  def compose(g: SetFunction): Option[SetFunction] = {
     if (d1 equals g.d0) {
-      Some(new TypelessSetMorphism(tag + " o " + g.tag, d0, g.d1, (x: Any) => g(this(x))))
+      Some(new SetFunction(g.tag + " o " + tag, d0, g.d1, (x: Any) => g(this(x))))
     }
     else None
   }
@@ -37,10 +37,10 @@ class TypelessSetMorphism(
    * @param g second morphism: Y -> Z
    * @return their composition g o f: X -> Z
    */
-  def andThen(g: TypelessSetMorphism): TypelessSetMorphism = {
+  def andThen(g: SetFunction): SetFunction = {
     compose(g) getOrElse(
       throw new IllegalArgumentException(s"Composition not defined for $self and $g")
-      )
+    )
   }
 
   /**
@@ -49,10 +49,10 @@ class TypelessSetMorphism(
    * @param g first morphism: T -> X
    * @return their composition f o g: T -> Y
    */
-  def before(g: TypelessSetMorphism): TypelessSetMorphism = g andThen this
+  def before(g: SetFunction): SetFunction = g andThen this
   
   override def equals(o: Any): Boolean = o match {
-    case other: TypelessSetMorphism =>
+    case other: SetFunction =>
       d0 == other.d0 && d1 == other.d1 &&
       d0.forall(x => f(x) == other.f(x))
     case _ => false
@@ -69,7 +69,7 @@ class TypelessSetMorphism(
  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  *
  */
-object TypelessSetMorphism {
+object SetFunction {
 
   /**
    * Constructor
@@ -78,13 +78,7 @@ object TypelessSetMorphism {
    * @param d1 morphism codomain (a set)
    */
   def apply(tag: String, d0: Set[Any], d1: Set[Any], f: Any => Any) =
-    new TypelessSetMorphism(tag, d0, d1, f)
-
-  // this function is kind of stupid; it extends both domain and codomain, so it's supposed to crash on bad arguments
-  // never mind, we may kick it all out eventually
-  private def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): X1 => Y1 = {
-    case x0: X0 => f(x0)
-  }
+    new SetFunction(tag, d0, d1, f)
 
   /**
    * Factory method. Builds constant morphism from one set to another (constant function).
@@ -94,7 +88,7 @@ object TypelessSetMorphism {
    * @param value the value in <code>codom</code> that the morphism returns
    * @return constant morphism
    */
-  def constant(d0: Set[Any], d1: Set[Any], value: Any): TypelessSetMorphism =
+  def constant(d0: Set[Any], d1: Set[Any], value: Any): SetFunction =
     apply(value.toString, d0, d1, Functions.constant(value))
 
   /**
@@ -104,7 +98,7 @@ object TypelessSetMorphism {
    * @param set the set
    * @return inclusion monomorphism
    */
-  def inclusion(subset: Set[Any], set: Set[Any]): TypelessSetMorphism = {
+  def inclusion(subset: Set[Any], set: Set[Any]): SetFunction = {
     require(subset.subsetOf(set), "It is not an inclusion if it is not a subset.")
     apply("incl", subset, set, Functions.inclusion)
 }
@@ -116,7 +110,7 @@ object TypelessSetMorphism {
    * @param predicate defines the condition for elements to be included in the subset
    * @return inclusion monomorphism
    */
-  def inclusion(set: Set[Any], predicate: Any => Boolean): TypelessSetMorphism =
+  def inclusion(set: Set[Any], predicate: Any => Boolean): SetFunction =
     inclusion(set filter predicate, set)
 
   /**
@@ -125,7 +119,7 @@ object TypelessSetMorphism {
    * @param s the set
    * @return identity morphism on the given set
    */
-  def unit(s: Set[Any]): TypelessSetMorphism = new TypelessSetMorphism("1", s, s, x => x)
+  def unit(s: Set[Any]): SetFunction = new SetFunction("1", s, s, x => x)
 
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
@@ -134,8 +128,8 @@ object TypelessSetMorphism {
    * @param factorset the main set
    * @return factorset epimorphism
    */
-  def forFactorset(factorset: FactorSet[Any]): TypelessSetMorphism =
-    TypelessSetMorphism("Factorset",
+  def forFactorset(factorset: FactorSet[Any]): SetFunction =
+    SetFunction("Factorset",
       factorset.domain,
       factorset.factorset.asInstanceOf[Set[Any]], 
       factorset.asFunction)
@@ -147,6 +141,6 @@ object TypelessSetMorphism {
      * @param y base (the set to which all morphisms are)
      * @return y < sup > x, represented as a set of all morphisms.
      */
-  def exponent(x: Set[Any], y: Set[Any]): Set[TypelessSetMorphism] =
+  def exponent(x: Set[Any], y: Set[Any]): Set[SetFunction] =
     Sets.exponent(x, y) map { apply("exponent", x, y, _) }
   }

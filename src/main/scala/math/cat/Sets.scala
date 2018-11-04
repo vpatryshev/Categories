@@ -150,10 +150,14 @@ object Sets {
 
   def split[X](xs: Iterable[X]): (X, Iterable[X]) = (xs.iterator.next, xs drop 1)
 
-  def iterable[X](source: () => Iterator[X]): Iterable[X] = new Iterable[X] {
-    override def iterator = source()
-  }
-
+  /**
+    * Set of all possible maps from set xs to set ys
+    * @param xs domain of maps
+    * @param ys codomain of maps
+    * @tparam X type of domain elements
+    * @tparam Y type of codomain elements
+    * @return the set of all possible maps
+    */
   def exponent[X, Y](xs: Set[X], ys: Set[Y]): Set[Map[X, Y]] =
     setOf(exponentElements(ys, xs),
       pow(ys size, xs size),
@@ -168,8 +172,9 @@ object Sets {
     product2(xs, ys) filter (p => fx(p._1) == fy(p._2))
 
   /**
-    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
-    * given a set and binary relationship. Factoring is done on the relationship's transitive closure.
+    * Builds a factorset epimorphism that projects a set to its factorset,
+    * given a set and binary relationship.
+    * Factoring is done on the relationship's transitive closure.
     *
     * @tparam T set element type
     * @param set the main set
@@ -177,13 +182,11 @@ object Sets {
     * @return factorset epimorphism
     */
   def factorset[T](set: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
-    val factorset = new FactorSet[T](set, r)
-    SetMorphism(set, factorset.factorset, factorset.asFunction)
+    val factory = new FactorSet[T](set, r)
+    SetMorphism(set, factory.factorset, factory.asFunction)
   }
 
-  def idMap[X](xs: Set[X]): MapForFunction[X, X] = {
-    buildMap(xs, identity)
-  }
+  def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
 
   def buildMap[K, V](keys: Set[K], f: K => V) = new MapForFunction(keys, f)
 
@@ -281,17 +284,39 @@ object Sets {
     s
   }
 
+  /**
+    * set of numbers from 0 to n-1
+    * @param n size of the set
+    * @return the set of numbers
+    */
+  def numbers(n: Int): Set[Int] = numbers(0, n)
+
+  /**
+    * set of numbers from `from` to `to`
+    * @param from first element of numbers range
+    * @param to upper limit of the numbers in the range (exclusive)
+    * @return the set of numbers
+    */
+  def numbers(from: Int, to: Int): Set[Int] = numbers(from, to, 1)
+
+  /**
+    * set of numbers from `from` to `to`, step `step`
+    * @param from first element of numbers range
+    * @param to upper limit of the numbers in the range (exclusive)
+    * @param step range step
+    * @return the set of numbers
+    */
+  def numbers(from: Int, to: Int, step: Int): Set[Int] = setOf(range(from, to, step))
+  
   private def exponentElements[X, Y](ys: Iterable[Y], xs: Iterable[X]): Iterable[Map[X, Y]] = {
-    iterable(() => {
-      if (xs.iterator hasNext) {
-        val (x, tail) = split(xs)
-        for (y <- ys;
-             z <- exponentElements(ys, tail))
-          yield {
-            z + (x -> y)
-          }
-      } else List(Map[X, Y]())
-    } iterator)
+    if (xs.iterator hasNext) {
+      val (x, tail) = split(xs)
+      for (y <- ys;
+           z <- exponentElements(ys, tail))
+        yield {
+          z + (x -> y)
+        }
+    } else List(Map[X, Y]())
   }
 
   class InterleavingIterator[X, X1 <: X, X2 <: X](
@@ -325,11 +350,11 @@ object Sets {
     /**
       * @return the latest version of factorset built here.
       */
-    lazy val factorset: Set[Set[X]] = Set() ++ equivalenceClasses.values
+    lazy val factorset: Set[Set[X]] = equivalenceClasses.values.toSet
     /**
       * Maps elements of the main set to their equivalence classes (they constitute the factorset).
       */
-    var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: set) ((m, x) => m + (x -> Set(x)))
+    private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: set) ((m, x) => m + (x -> Set(x)))
 
     /**
       * Builds a factorset of a given set, by the transitive closure of a given relationship.
@@ -349,10 +374,10 @@ object Sets {
       * @param r the binary relationship. Does not have to be symmetrical or transitive.
       */
     def factorByRelationship(r: BinaryRelation[X, X]): Unit =
-      for (
-        x1 <- set;
+      for {
+        x1 <- set
         x2 <- set
-        if r(x1, x2) || r(x2, x1)) merge(x1, x2)
+        if r(x1, x2) || r(x2, x1)} merge(x1, x2)
 
     /**
       * Merges equivalence classes for two elements

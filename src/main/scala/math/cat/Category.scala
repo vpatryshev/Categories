@@ -2,7 +2,6 @@ package math.cat
 
 import java.io.Reader
 
-import j.math.cat.BasePair
 import math.cat.Sets._
 
 /**
@@ -85,6 +84,8 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
 
     isEqual
   }
+  
+  override def hashCode: Int = getClass.hashCode + objects.hashCode * 2 + arrows.hashCode * 5
 
   override def toString: String = "({" +
     objects.mkString(", ") + "}, {" +
