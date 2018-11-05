@@ -84,6 +84,8 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override lazy val initial: Option[Set[Any]] = Option(Set.empty[Any])
 
+  override lazy val terminal: Option[Set[Any]] = Option(Set(initial))
+
   override def product(x: Set[Any], y: Set[Any]): Option[(SetFunction, SetFunction)] = {
 
     val productSet: Set[Any] = Sets.product2(x, y).map(p => p)
@@ -93,7 +95,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
   }
 
   override def pullback(f: SetFunction, g: SetFunction):
-  Option[(SetFunction, SetFunction)] = {
+  Option[(SetFunction, SetFunction)] =
     for {
       prod <- product(f.d0, g.d0)
     } yield {
@@ -102,7 +104,23 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
       (pullbackInProduct andThen prod._1,
        pullbackInProduct andThen prod._2)
     }
+
+  override def union(x: Set[Any], y: Set[Any]): Option[(SetFunction, SetFunction)] = {
+    def tagX(x: Any) = ("x", x)
+    def tagY(y: Any) = ("y", y)
+    val taggedX: Set[Any] = x map tagX
+    val taggedY: Set[Any] = y map tagY
+    val unionSet: Set[Any] = Sets.union(taggedX, taggedY)
+    val ix = SetFunction("ix", x, taggedX, tagX).andThen(SetFunction.inclusion(taggedX, unionSet))
+    val iy = SetFunction("iy", y, taggedX, tagX).andThen(SetFunction.inclusion(taggedX, unionSet))
+    Option((ix, iy))
   }
+
+  override def pushout(f: SetFunction, g: SetFunction): Option[(SetFunction, SetFunction)] =
+    for {
+      (left, right) <- union(f.d1, g.d1)
+      coeq <- coequalizer(f andThen left, g andThen right)
+    } yield (left andThen coeq, right andThen coeq)
 
   override def hashCode: Int = getClass.hashCode * 7 + objects.hashCode
 
