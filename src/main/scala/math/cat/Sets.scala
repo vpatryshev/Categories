@@ -17,7 +17,7 @@ object Sets {
   /**
     * A big set of all finite sets in Java. This set is infinite, of course.
     */
-  val FiniteSets = BigSet((o: Set[_]) => o.size < Int.MaxValue)
+  val FiniteSets: BigSet[Set[Any]] = BigSet((o: Set[_]) => o.size < Int.MaxValue)
   
   def requireImmutability = throw new UnsupportedOperationException("Immutable class")
 

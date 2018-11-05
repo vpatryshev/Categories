@@ -47,10 +47,9 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     Option(SetFunction.forFactorset(factorset))
   }
 
-  override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): SetFunction = {
+  override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Option[SetFunction] = {
     if (!arrowsToEqualize.iterator.hasNext) {
-      val t = terminal.getOrElse(throw new IllegalArgumentException("Terminal set not found, oops"))
-      SetFunction.unit(t)
+      terminal map SetFunction.unit
     } else {
       val f = arrowsToEqualize.head
       val domain = f.d0
@@ -64,7 +63,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
       for (g <- arrowsToEqualize) {
         for (x <- g.d0) factorset.merge(f(x), g(x))
       }
-      SetFunction.forFactorset(factorset)
+      Option(SetFunction.forFactorset(factorset))
     }
   }
 
@@ -139,5 +138,5 @@ object SetCategory {
     new Graph[Set[Any], SetFunction](nodes, arrows, _.d0, _.d1)
   }
 
-  //  val Setf = new SetCategory(FiniteSets)
+  val Setf = new SetCategory(FiniteSets)
 }

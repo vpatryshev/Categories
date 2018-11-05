@@ -112,6 +112,7 @@ class Graph[N, A] (
 }
 
 object Graph {
+  
   def apply[N, A] (nodes: Set[N], arrows: Set[A], d0: A => N, d1: A => N): Graph[N, A] = {
     require (arrows != null)
     new Graph(nodes, arrows, d0, d1)

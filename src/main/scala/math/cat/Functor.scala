@@ -161,6 +161,10 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   def isLimit(candidate: Cone): Boolean =
     allCones.forall((anyCone: Cone) => candidate.factorsOnRight(anyCone))
 
+  /**
+    * @return this functor's limit
+    */
+  def limit: Option[Cone] = allCones find isLimit
 
   /**
     * Cocone class for this Functor. A cocone is an object y (called apex) and a bundle of arrows cx: F(x) -> y
@@ -170,7 +174,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     */
   case class Cocone(apex: YObjects, arrowTo: XObjects => YArrows) {
 
-    override def toString: String = "Cone[" + apex + "]"
+    override def toString: String = "Cocone[" + apex + "]"
 
     /**
       * A cone from y1 to F is factored by this cone (with apex y)
@@ -192,9 +196,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       */
     def isWellFormed: Boolean = domain.arrows.forall(
       (f: XArrows) => {
-        var yToFx0: YArrows = arrowTo(domain.d0(f))
-        var yToFx1: YArrows = arrowTo(domain.d1(f))
-        var F_f: YArrows = arrowsMorphism.apply(f)
+        var yToFx0 = arrowTo(domain.d0(f))
+        var yToFx1 = arrowTo(domain.d1(f))
+        var F_f = arrowsMorphism.apply(f)
         codomain.m(yToFx0, F_f).equals(yToFx1)
       }
     )
@@ -284,7 +288,7 @@ object Functor {
    */
   def unit[XObjects, XArrows] (c: Category[XObjects, XArrows]):
       Functor[XObjects, XArrows, XObjects, XArrows] =
-    new Functor[XObjects, XArrows, XObjects, XArrows] ("1", c, c, SetMorphism.unit(c.objects), SetMorphism.unit(c.arrows))
+    new Functor[XObjects, XArrows, XObjects, XArrows] ("id", c, c, SetMorphism.unit(c.objects), SetMorphism.unit(c.arrows))
 
   /**
    * Factory method. Builds constant functor from a category to an object in another.

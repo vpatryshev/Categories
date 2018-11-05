@@ -308,7 +308,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param arrows the arrows, all of which shold be coequalized
     * @return a coequalizer arrow
     */
-  def coequalizer(arrows: Iterable[A]): A = {
+  def coequalizer(arrows: Iterable[A]): Option[A] = {
     throw new UnsupportedOperationException("to be implemented later, maybe")
   }
 
@@ -662,10 +662,7 @@ trait CategoryFactory {
     * @param objects set of this category's objects
     * @return the category
     */
-  def apply[T](objects: Set[T]): Category[T, T] = {
-    val dg: Graph[T, T] = Graph(objects)
-    Category(dg)
-  }
+  def apply[T](objects: Set[T]): Category[T, T] = Category(Graph(objects))
 
   /**
     * Builds a category given a graph, composition table, and a list of unit arrows.
