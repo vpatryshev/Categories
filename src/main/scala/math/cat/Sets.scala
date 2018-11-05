@@ -21,10 +21,16 @@ object Sets {
   
   def requireImmutability = throw new UnsupportedOperationException("Immutable class")
 
-  def setOf[X](sourceIterator: => Iterator[X], sizeEvaluator: => Int, predicate: X => Boolean): Set[X] =
+  def setOf[X](
+    sourceIterator: => Iterator[X],
+    sizeEvaluator: => Int,
+    predicate: X => Boolean): Set[X] =
     setForIterator(sourceIterator, sizeEvaluator, predicate)
 
-  def setOf[X](source: Iterable[X], sizeEvaluator: => Int, predicate: X => Boolean): Set[X] =
+  def setOf[X](
+    source: Iterable[X],
+    sizeEvaluator: => Int,
+    predicate: X => Boolean): Set[X] =
     setForIterator(source.iterator, sizeEvaluator, predicate)
 
   def setOf[X](content: Iterable[X], predicate: X => Boolean): Set[X] =
@@ -35,22 +41,6 @@ object Sets {
 
   def range(first: Int, last1: Int, step: Int): Set[Int] =
     Range(first, last1, step).toSet
-
-  // this should not exist
-  /**
-    * Casts a set into a set of subtype (contravariance, that is)
-    * This method does not work, due to JVM type erasure.
-    * Actually, delegating the work to runtime would be a stupid idea anyway;
-    * so, is it a general problem with oop? Have to think.
-    *
-    * deprecated
-    * def downshift[A, B >: A] (source: Set[B]) : Set[A] = {
-    * val b2a: (B => A) = {case (a: A) => a}
-    * for (b <- source) { println("DS trying " + b + ": " + b.isInstanceOf[A])}
-    * val seq = {for (b <- source; if b.isInstanceOf[A]) yield b2a(b)}
-    * setOf(seq, source.size, source.contains _)
-    * }
-    */
 
   /**
     * Builds a union of two non-intersecting sets
