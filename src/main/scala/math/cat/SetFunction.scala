@@ -11,7 +11,7 @@ import math.cat.Sets._
  * @param d1 codomain
  * @param f the function that implements the morphism
  */
-class SetFunction(
+case class SetFunction(
     override val tag: String,
     override val d0: Set[Any],
     override val d1: Set[Any],
@@ -70,15 +70,6 @@ class SetFunction(
  *
  */
 object SetFunction {
-
-  /**
-   * Constructor
-   * @param tag morphism name
-   * @param d0 morphism domain (a set)
-   * @param d1 morphism codomain (a set)
-   */
-  def apply(tag: String, d0: Set[Any], d1: Set[Any], f: Any => Any) =
-    new SetFunction(tag, d0, d1, f)
 
   /**
    * Factory method. Builds constant morphism from one set to another (constant function).

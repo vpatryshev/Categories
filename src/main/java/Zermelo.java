@@ -1,14 +1,4 @@
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.IdentityHashMap;
-import java.util.LinkedList;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Comparator;
+import java.util.*;
 
 /**
  * http://en.wikipedia.org/wiki/Zermelo_set_theory
@@ -253,6 +243,8 @@ public class Zermelo {
       return other == this ||
           other instanceof Singleton && x == ((Singleton)other).x;
     }
+    
+    public int hashCode() { return Objects.hashCode(x) * 43 + 44; }
 
     public boolean isSubsetOf(SetZ s) {
       return s.contains(x);

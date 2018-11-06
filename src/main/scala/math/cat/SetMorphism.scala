@@ -6,8 +6,12 @@ import Sets._
  * Morphism class for sets, and the accompanying object.
  * @author vpatryshev
  */
-class SetMorphism[X, Y] (val tag: String, val d0: Set[X], val d1: Set[Y], f : X => Y)
-          extends Morphism[Set[X], Set[Y]] with Map[X, Y] {
+class SetMorphism[X, Y] (
+    val tag: String,
+    val d0: Set[X],
+    val d1: Set[Y],
+    val function: X => Y)
+  extends Morphism[Set[X], Set[Y]] with Map[X, Y] {
 
   // Validates set morphism.
   // All we need is that each d0 element is mapped to a d1 element.
@@ -51,7 +55,7 @@ class SetMorphism[X, Y] (val tag: String, val d0: Set[X], val d1: Set[Y], f : X 
   
   override def contains(x: X) = d0.contains(x)
 
-  def get(x: X) = if (contains(x)) Some(f(x)) else None
+  def get(x: X) = if (contains(x)) Some(function(x)) else None
 
   override def size = d0.size
 
@@ -59,8 +63,8 @@ class SetMorphism[X, Y] (val tag: String, val d0: Set[X], val d1: Set[Y], f : X 
   def +[Y1 >: Y] (kv: (X, Y1)) = requireImmutability
   def updates[B1 >: Y](x: X, y: B1) = requireImmutability
   def empty[PY] = throw new RuntimeException("No such thing exists as empty set morphism")
-  def iterator = d0.iterator map (x => (x, f(x)))
-  def product = exponent(d1, d0) filter(m => d1.forall(y => f(m(y)) == y))
+  def iterator = d0.iterator map (x => (x, function(x)))
+  def product = exponent(d1, d0) filter(m => d1.forall(y => function(m(y)) == y))
 }
 
 object SetMorphism {

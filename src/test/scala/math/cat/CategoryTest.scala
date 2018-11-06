@@ -576,32 +576,32 @@ class CategoryTest extends Specification {
     }
 
     "AllInitialObjects_byDefinition" >> {
-      ParallelPair.allInitialObjects_byDefinition === Set("0")
-      Square.allInitialObjects_byDefinition === Set("a")
-      Pullback.allInitialObjects_byDefinition === Set("a", "b")
-      M.allInitialObjects_byDefinition === Set("b", "d")
-      W.allInitialObjects_byDefinition === Set("a", "c", "e")
+      ParallelPair.allRootObjects_byDefinition === Set("0")
+      Square.allRootObjects_byDefinition === Set("a")
+      Pullback.allRootObjects_byDefinition === Set("a", "b")
+      M.allRootObjects_byDefinition === Set("b", "d")
+      W.allRootObjects_byDefinition === Set("a", "c", "e")
     }
 
     "AllInitialObjects_programmersShortcut" >> {
-      ParallelPair.allInitialObjects_programmersShortcut === Set("0")
-      Square.allInitialObjects_programmersShortcut === Set("a")
-      Pullback.allInitialObjects_programmersShortcut === Set("a", "b")
-      M.allInitialObjects_programmersShortcut === Set("b", "d")
-      W.allInitialObjects_programmersShortcut === Set("a", "c", "e")
+      ParallelPair.allRootObjects_programmersShortcut === Set("0")
+      Square.allRootObjects_programmersShortcut === Set("a")
+      Pullback.allRootObjects_programmersShortcut === Set("a", "b")
+      M.allRootObjects_programmersShortcut === Set("b", "d")
+      W.allRootObjects_programmersShortcut === Set("a", "c", "e")
     }
 
     "AllInitialObjects" >> {
-      ParallelPair.allInitialObjects === Set("0")
-      Square.allInitialObjects === Set("a")
-      Pullback.allInitialObjects === Set("a", "b")
-      M.allInitialObjects === Set("b", "d")
-      W.allInitialObjects === Set("a", "c", "e")
+      ParallelPair.allRootObjects === Set("0")
+      Square.allRootObjects === Set("a")
+      Pullback.allRootObjects === Set("a", "b")
+      M.allRootObjects === Set("b", "d")
+      W.allRootObjects === Set("a", "c", "e")
     }
 
     "AllInitialObjects_forKnownCategories" >> {
       KnownCategories.forall { c =>
-        c.allInitialObjects_programmersShortcut === c.allInitialObjects_byDefinition
+        c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
     // following are tests for accompanying object

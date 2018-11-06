@@ -128,7 +128,7 @@ public class SetDiagram<Objects, Arrows>
   }
 
   /**
-   * Builds a predicate that checks whether two arrows's action on a given point produce the same element. 
+   * Builds a predicate that checks whether two arrows action on a given point produce the same element. 
    * @param projectionForObject given an object, returns a function that maps a point to its component in the object image
    * @param point an element of Cartesian product
    * @return the predicate

@@ -570,14 +570,14 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   /**
     * an iterable of initial objects as defined
     */
-  lazy val allInitialObjects_byDefinition: Set[O] = objects filter (
+  lazy val allRootObjects_byDefinition: Set[O] = objects filter (
     x => arrows filter (d1(_) == x) forall (d0(_) == x)
     )
 
   /**
     * a cheap alternative for the iterable (actually, a set) of initial objects
     */
-  lazy val allInitialObjects_programmersShortcut: Set[O] = {
+  lazy val allRootObjects_programmersShortcut: Set[O] = {
     val wrongStuff = arrows filter (f => !isEndomorphism(f)) map d1
     Set() ++ objects -- wrongStuff // need this trick because objects is strictly immutable
   }
@@ -587,12 +587,12 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * Constructively, these are all such objects that if an arrow ends at such an object, it is an endomophism.
     * Since producing a lazy set is too heavy, I just build it in an old-fashion way.
     */
-  lazy val allInitialObjects: Set[O] = allInitialObjects_programmersShortcut
+  lazy val allRootObjects: Set[O] = allRootObjects_programmersShortcut
 
   /**
     * A set of all arrows that originate at initial objects (see allInitialObjects)
     */
-  lazy val arrowsFromInitialObjects: Set[A] = arrows filter (allInitialObjects contains d0(_))
+  lazy val arrowsFromRootObjects: Set[A] = arrows filter (allRootObjects contains d0(_))
 
   /**
     * Given a set of object and a set of arrows, build a map that maps each object to
