@@ -1,5 +1,8 @@
 package math.cat
 
+import math.cat.Functions._
+import math.cat.Sets._
+
 /**
   * Diagram from a category to Categories.SETF.
   *
@@ -15,11 +18,10 @@ package math.cat
   * @tparam Arrows  type of arrows of domain category
   */
 class SetDiagram[Objects, Arrows](
-                                   tag: String,
-                                   domain: Category[Objects, Arrows],
-                                   objectsMorphism: SetMorphism[Objects, Set[Any]],
-                                   arrowsMorphism: SetMorphism[Arrows, SetFunction])
-
+  tag: String,
+  domain: Category[Objects, Arrows],
+  objectsMorphism: SetMorphism[Objects, Set[Any]],
+  arrowsMorphism: SetMorphism[Arrows, SetFunction])
   extends Functor[Objects, Arrows, Set[Any], SetFunction](
     tag, domain, SetCategory.Setf, objectsMorphism, arrowsMorphism) {
 
@@ -76,9 +78,9 @@ class SetDiagram[Objects, Arrows](
     // Here we have a non-repeating collection of sets to use for building a limit
     private[cat] val setsToUse = listOfObjects map nodesMorphism
     // this is the product of these sets; will have to take a subset of this product
-    private[cat] val product: Set[List[Any]] = Sets.product(setsToUse)
+    private[cat] val prod: Set[List[Any]] = product(setsToUse)
     // for each domain object, a collection of arrows looking outside
-    final private[cat] val cobundles: SetMorphism[Objects, Set[Arrows]] =
+    final private[cat] val cobundles: Map[Objects, Set[Arrows]] =
       domain.op.buildBundles(domain.objects, participantArrows)
     // Have a product set; have to remove all the bad elements from it
     // this predicate leaves only compatible elements of product (which are lists)
@@ -88,10 +90,10 @@ class SetDiagram[Objects, Arrows](
       cobundles.values.forall(checkCompatibility)
     }
     // this is the limit object
-    final private[cat] val apex: Set[Any] = product filter isPoint map identity
+    final private[cat] val apex: Set[Any] = prod filter isPoint map identity
 
     // bundles maps each "initial" object to a set of arrows from it
-    final private[cat] val bundles: SetMorphism[Objects, Set[Arrows]] =
+    final private[cat] val bundles: Map[Objects, Set[Arrows]] =
       domain.buildBundles(participantObjects, participantArrows)
   }
 
@@ -123,6 +125,67 @@ class SetDiagram[Objects, Arrows](
       }
     //YObjects apex
     Option(Cone(data.apex, coneMap))
+  }
+
+  override def colimit: Option[Cocone] = {
+    val participantObjects = domain.op.allRootObjects
+    val participantArrows = domain.op.arrowsFromRootObjects
+    // for each object, a set of arrows starting at it object
+    val bundles: Objects => Set[Arrows] =
+      domain.buildBundles(domain.objects, participantArrows)
+    val listOfObjects = participantObjects.toList
+    // Here we have a non-repeating collection of sets to use for building a union
+    val setsToJoin: List[Set[Any]] = listOfObjects.map(nodesMorphism)
+    val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
+    val typelessUnion: Set[Any] = union.unionSet.map(identity)
+    val directIndex: Map[Int, Objects] = Base.toMap(listOfObjects)
+    val reverseIndex: Map[Objects, Int] = Base.inverse(directIndex)
+    
+    // for every object it gives the inclusion of the image of this object into the union
+    val objectToInjection: Map[Objects, Injection[Any, (Int, Any)]] =
+      reverseIndex mapValues union.injection
+
+    // All possible functions in the diagram, bundled with domain objects
+    val functionsToUnion: Set[(Objects, SetFunction)] = for {
+      o <- domain.objects
+      a <- bundles(o)
+      from: Set[Any] = nodesMorphism(o)
+      aAsMorphism = arrowsMorphism(a)
+      embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(domain.d1(a)))
+      g = aAsMorphism.andThen(embeddingToUnion) // do we need it?
+    } yield (o, g)
+
+    // Account for all canonical functions
+    val canonicalFunctionPerObject: Map[Objects, SetFunction] =
+      functionsToUnion.toMap
+
+    val factorset: FactorSet[Any] = new FactorSet(typelessUnion)
+
+    // have to factor the union by the equivalence relationship caused
+    // by two morphisms mapping the same element to two possibly different.
+    for (o <- domain.objects) {
+      val F_o = nodesMorphism(o) // the set to which `o` maps
+      val arrowsFrom_o = bundles(o).toList
+      
+      def inclusionToUnion(a: Arrows): Any => Any = {
+        arrowsMorphism(a).f andThen objectToInjection(domain.d1(a))
+      }
+
+      arrowsFrom_o match {
+        case a0::tail =>
+          val f = inclusionToUnion(a0)
+          for (a <- tail) {
+            val g = inclusionToUnion(a)
+            for (x <- F_o) {
+              factorset.merge(f(x), g(x))
+            }
+          }
+        case other => // do nothing
+      }
+    }
+    val factorMorphism: SetFunction = SetFunction.forFactorset(factorset)
+    val coconeMap: Objects => SetFunction = x => canonicalFunctionPerObject(x) andThen factorMorphism
+    Option(Cocone(factorset.content.map(identity), coconeMap))
   }
 
 }

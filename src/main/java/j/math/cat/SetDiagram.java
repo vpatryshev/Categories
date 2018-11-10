@@ -118,7 +118,9 @@ public class SetDiagram<Objects, Arrows>
    * @param point element of Cartesian product
    * @return the predicate
    */
-  Predicate<Set<Arrows>> allArrowsAreCompatibleOnPoint(final Function<Objects, Function<List<Object>, Object>> projectionForObject, final List<Object> point) {
+  private Predicate<Set<Arrows>> allArrowsAreCompatibleOnPoint(
+      final Function<Objects, Function<List<Object>, Object>> projectionForObject,
+      final List<Object> point) {
     return new Predicate<Set<Arrows>>() {
       @Override
       public boolean eval(final Set<Arrows> setOfArrows) {
@@ -165,26 +167,26 @@ public class SetDiagram<Objects, Arrows>
   public Functor<Objects, Arrows, Set<Object>, TypelessSetMorphism>.Cocone colimit() {
     Set<Objects> participantObjects = domain().op().allInitialObjects();
     Set<Arrows> participantArrows = domain().op().arrowsFromInitialObjects();
-    final Map<Objects, Set<Arrows>> bundles =
+    final Map<Objects, Set<Arrows>>   bundles =
         domain().buildBundles(domain().objects(), participantArrows);
 
     final List<Objects> listOfObjects = new ArrayList<>(participantObjects);
     // Here we have a non-repeating collection of sets to use for building a union
-    List<Set<Object>> setsToUse = nodesMorphism.asFunction().map(listOfObjects);
-    List<Set<Object>> setsToJoin = new Id().map(setsToUse);
+    List<Set<Object>> setsToJoin = nodesMorphism.asFunction().map(listOfObjects);
     Sets.DisjointUnion<Object> du = new Sets.DisjointUnion<>(setsToJoin);
 
     Map<Integer, Objects> directIndex = Base.toMap(listOfObjects);
     Function<Objects, Integer> reverseIndex = Functions.forMap(Base.inverse(directIndex));
-    Function<Objects, Injection<Object, Pair<Integer, Object>>> objectToInjection = reverseIndex.then(Functions.forList(BasePair.Pair(du.unionSet(), du.injections()).y()));
-    final Sets.FactorSet factorset = new Sets.FactorSet(BasePair.Pair(du.unionSet(), du.injections()).x());
+    Function<Objects, Injection<Object, Pair<Integer, Object>>> objectToInjection = reverseIndex.then(Functions.forList(du.injections()
+    ));
+    final Sets.FactorSet factorset = new Sets.FactorSet(du.unionSet());
+    
     Map<Objects, TypelessSetMorphism> canonicalTSMPerObject = new HashMap<>();
     // have to factor the union by the equivalence relationship caused
     // by two morphisms mapping the same element to two possibly different.
     for (Objects o : domain().objects()) {
       Set from = nodesMorphism.apply(o);
       TypelessSetMorphism f = null;
-      
       for (Arrows a : bundles.get(o)) {
         TypelessSetMorphism aAsMorphism = arrowsMorphism.apply(a);
         TypelessSetMorphism toUnion = TypelessSetMorphism.forFunction(aAsMorphism.codomain(), du.unionSet(), objectToInjection.apply(domain().d1(a)));  

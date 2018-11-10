@@ -349,10 +349,10 @@ class SetsTest extends Specification {
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => isOdd(a) == isOdd(b)
       val factoring = new FactorSet(set, br)
 
-      factoring.factorset must haveSize(2)
+      factoring.content must haveSize(2)
       val s = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val factor = Set(s(1), s(0))
-      factor === factoring.factorset
+      factor === factoring.content
       factoring.asFunction(6) === s(0)
       factoring.asFunction(7) === s(1)
     }
@@ -409,7 +409,9 @@ class SetsTest extends Specification {
       FiniteSets.contains(Set(1,2,3,42)) must beTrue
     }
   }
-  def spendNotMoreThan[T](time: Duration, extraTimePercent:Int = 1) = new {
+  def spendNotMoreThan[T](time: Duration, extraTimePercent:Int = 1): Object {
+    def on(op: => Result[T]): Result[T]
+  } = new {
     def on(op: => Result[T]): Result[T] = {
       import java.util.concurrent.locks.LockSupport._
       var res:Result[T] = Empty
@@ -417,7 +419,7 @@ class SetsTest extends Specification {
       val finalDeadline = System.currentTimeMillis + millis * (100 + extraTimePercent) / 100 + 1
       val done = new AtomicBoolean(false)
       val worker = new Thread {
-        override def run {
+        override def run(): Unit = {
           try {
             res = op
             done.set(true)
@@ -425,13 +427,13 @@ class SetsTest extends Specification {
         }
       }
       worker.setPriority(1)
-      worker.start
+      worker.start()
       worker.join(time.toMillis)
       if (worker.isAlive) {
-        worker.interrupt
+        worker.interrupt()
         parkUntil(finalDeadline)
       }
-      if (worker.isAlive) worker.stop
+      if (worker.isAlive) worker.stop()
       if (done.get) res else Result.error(s"Timeout after $time")
     }
   }

@@ -602,7 +602,10 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param arrows  arrows that participate in the bundles.
     * @return a map.
     */
-  def buildBundles(objects: Set[O], arrows: Set[A]): SetMorphism[O, Set[A]] = SetMorphism(arrows, objects, d0).revert
+  def buildBundles(objects: Set[O], arrows: Set[A]): Map[O, Set[A]] = {
+    val mor = SetMorphism(arrows, objects, d0).revert.function
+    objects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[A])
+  }
 
   /**
     * Builds a degree object (X*X... n times) for a given object.

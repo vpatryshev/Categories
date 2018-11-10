@@ -79,7 +79,7 @@ public abstract class TypelessSetMorphism
    * Composes a morphism with this morphism.
    *
    * @param g first morphism: T -> X
-   * @return their composition f o g: T -> Y
+   * @return their composition g o f: T -> Y
    */
   public TypelessSetMorphism before(TypelessSetMorphism g)
   {
@@ -189,7 +189,7 @@ public abstract class TypelessSetMorphism
    * @return factorset epimorphism
    */
   public static <T> TypelessSetMorphism factorset(Set<T> set, BinaryRelation<T, T> r) {
-    Sets.FactorSet<T> factorset = new Sets.FactorSet<T>(set, r);
+    Sets.FactorSet<T> factorset = new Sets.FactorSet<>(set, r);
     return forFunction(set, factorset.factorset(), factorset.asFunction());
   }
 

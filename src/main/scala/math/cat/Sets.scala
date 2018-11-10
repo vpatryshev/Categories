@@ -6,6 +6,7 @@ import java.io.Reader
 import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.util.parsing.combinator.RegexParsers
+import Functions._
 
 /**
   * Lazy sets functionality
@@ -39,6 +40,8 @@ object Sets {
   def setOf[X](content: Iterable[X]): Set[X] =
     setOf(content, x => content exists (_ == x))
 
+  def range(n: Int): Set[Int] = range(0, n, 1)
+  
   def range(first: Int, last1: Int, step: Int): Set[Int] =
     Range(first, last1, step).toSet
 
@@ -79,11 +82,48 @@ object Sets {
     result
   }
 
+  /**
+    * Encapsulates disjoint union of a list of sets. Disjoint means that even if the 
+    * sets contain common elements, the union will make them distinct by tagging all elements.
+    * The result consists of pairs, the first being list index, the second an element of a set.
+    * E.g. disjointUnion(LIst(singleton("a"), singleton("b")) returns
+    * Set(Pair(0, "a"), Pair(1, "b")).
+    *
+    * @tparam T the type of elements in the sets being joined. The same for all sets (it's Java...)
+    * @param sets the sets being joined
+    */
+  case class DisjointUnion[T](sets: List[Set[T]]) {
+
+    /**
+      * @return the (virtual) set that is the disjoint union of given sets
+      */
+    def unionSet: Set[(Int, T)] = {
+      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex map {
+        case (set, i) => set map (x => (i, x))
+      }
+
+      union(tagged)
+    }
+
+    /**
+      * Maps an i-th set into the union
+      *
+      * @param i index of the set to inject in the list of sets
+      * @return the injection (which is an Injection which is a Function))
+      */
+    def injection(i: Int): Injection[T, (Int, T)] = Functions.injection(t => (i, t))
+
+    /**
+      * @return the list of injections of original sets to their union
+      */
+    def injections: List[Injection[T, (Int, T)]] = sets.indices map injection toList
+  }
+
   def cantorIterator[X, Y](xs: Iterable[X], ys: Iterable[Y]): Iterator[(X, Y)] =
     new Iterator[(X, Y)] {
       private var iterators: mutable.Queue[Iterator[Y]] = mutable.Queue()
       private var xi = xs.iterator
-      var yi: Iterator[Iterator[Y]] = Iterator.empty
+      private var yi: Iterator[Iterator[Y]] = Iterator.empty
       private var shift = 0
 
       def next: (X, Y) = {
@@ -173,7 +213,7 @@ object Sets {
     */
   def factorset[T](set: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
     val factory = new FactorSet[T](set, r)
-    SetMorphism(set, factory.factorset, factory.asFunction)
+    SetMorphism(set, factory.content, factory.asFunction)
   }
 
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
@@ -266,7 +306,7 @@ object Sets {
         sizePlus(sizeEvaluator, +1),
         y => y == x || predicate(y))
 
-      def map[Y](f: Functions.Injection[X, Y]): Set[Y] = f.applyTo(this)
+      def map[Y](f: Injection[X, Y]): Set[Y] = f.applyTo(this)
 
       override def filter(p: X => Boolean): Set[X] =
         filteredSet(sourceIterator, (x: X) => predicate(x) && p(x))
@@ -340,7 +380,7 @@ object Sets {
     /**
       * @return the latest version of factorset built here.
       */
-    lazy val factorset: Set[Set[X]] = equivalenceClasses.values.toSet
+    lazy val content: Set[Set[X]] = equivalenceClasses.values.toSet
     /**
       * Maps elements of the main set to their equivalence classes (they constitute the factorset).
       */

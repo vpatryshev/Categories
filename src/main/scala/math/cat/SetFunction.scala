@@ -15,7 +15,7 @@ case class SetFunction(
     override val tag: String,
     override val d0: Set[Any],
     override val d1: Set[Any],
-    val f: Any => Any)
+    f: Any => Any)
         extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
 
   /**
@@ -122,7 +122,7 @@ object SetFunction {
   def forFactorset(factorset: FactorSet[Any]): SetFunction =
     SetFunction("Factorset",
       factorset.domain,
-      factorset.factorset.asInstanceOf[Set[Any]], 
+      factorset.content.map(identity), 
       factorset.asFunction)
 
     /**

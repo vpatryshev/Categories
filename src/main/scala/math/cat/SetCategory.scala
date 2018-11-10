@@ -68,17 +68,23 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
   }
 
   override def degree(x: Set[Any], n: Int): Option[(Set[Any], List[SetFunction])] = {
-    val allMaps: Set[Any] = Sets.exponent(Sets.numbers(n), x).map(m => m)
+    val allMaps = Sets.exponent(Sets.numbers(n), x)
+    val domain: Set[Any] = allMaps map identity
+    
+    def takeElementAt(i: Int)(obj: Any) = obj match {
+      case m: Map[Int, _] => m(i)
+    }
+
     val projections = for {
       i <- 0 until n
     } yield new SetFunction(
       tag = s"set^$n",
-      d0 = allMaps,
+      d0 = domain,
       d1 = x,
-      f = { case map: Map[Int, _] => map(i) }
+      f = takeElementAt(i)
     )
     
-    Option((allMaps, projections.toList))
+    Option((domain, projections.toList))
   }
 
   override lazy val initial: Option[Set[Any]] = Option(Set.empty[Any])

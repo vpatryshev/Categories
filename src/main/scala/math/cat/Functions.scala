@@ -150,6 +150,15 @@ object Functions {
   }
 
   /**
+    * Builds a function that, returns list element by its index.
+    *
+    * @tparam X list element type
+    * @param list the list
+    * @return the function
+    */
+  def forList[X](list: List[X]): Int => X = list
+
+  /**
    * Builds constant function
    * @tparam X domain type
    * @tparam Y codomain type
