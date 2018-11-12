@@ -16,7 +16,7 @@ import Functions._
 object Sets {
 
   /**
-    * A big set of all finite sets in Java. This set is infinite, of course.
+    * A big set of all finite sets in Scala. This set is infinite, of course.
     */
   val FiniteSets: BigSet[Set[Any]] = BigSet((o: Set[_]) => o.size < Int.MaxValue)
   

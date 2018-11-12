@@ -975,9 +975,9 @@ object Category extends CategoryFactory {
     */
   lazy val M = Category("({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e}, {})")
 
-  lazy val NaturalNumbers: Category[BigInt, BigInt] =
-    Category(Graph(PoSet.ofNaturalNumbers))
+  lazy val NaturalNumbers: Category[BigInt, (BigInt, BigInt)] =
+    Category(PoSet.ofNaturalNumbers)
   
   lazy val KnownCategories = Set(_0_, _1_, _2_, _3_, _4_, _1plus1_,
-    M, ParallelPair, Pullback, Pushout, SplitMono, Square, W, Z2)
+    M, ParallelPair, Pullback, Pushout, SplitMono, Square, W, Z2, NaturalNumbers)
 }
