@@ -16,10 +16,6 @@ class Graph[N, A] (
 
   validateGraph()
 
-  type Nodes = N
-  type Arrows = A
-  type MY_TYPE = this.type
-
   override def seq: Set[N] = nodes
   override def iterator: Iterator[N] = nodes.iterator
   override def contains(node: N): Boolean = nodes contains node

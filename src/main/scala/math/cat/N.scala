@@ -15,6 +15,5 @@ object N extends BigSet[BigInt] with EnumerableSet[BigInt] {
 
     override def next(): BigInt = { n += 1; n }
   }
-  
   override def contains(n: BigInt): Boolean = n >= 0
 }

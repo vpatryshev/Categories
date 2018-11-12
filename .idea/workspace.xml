@@ -3,17 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="12a17725-0696-4471-a97e-f20dd5fd6c60" name="Default Changelist" comment="SetDiagram.java - style mostly.&#10;TypelessSetMorphism.java - comments.&#10;Functions.scala - added `forList` (do we need it?)&#10;SetFunction.scala - a trick to get rid of asInstanceOf (use map, so you have a safe copy)&#10;Sets.scala - added disjoint union. Still WIP, too many `var`s.&#10;SetDiagram.scala - ported from Java.">
       <change afterPath="$PROJECT_DIR$/src/main/scala/math/ZFC.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/Categories.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/Categories.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/j/math/cat/SetDiagram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/j/math/cat/SetDiagram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/j/math/cat/TypelessSetMorphism.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/j/math/cat/TypelessSetMorphism.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/BigSet.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/BigSet.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/N.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/N.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/NotEnumerableSet.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/NonEnumerableSet.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/SetCategory.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/SetCategory.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/SetFunction.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/SetFunction.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/SetDiagram.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/math/cat/SetDiagram.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/project/project/target/" />
@@ -46,16 +44,17 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="java" value="64" />
+          <entry key="class" value="1" />
+          <entry key="java" value="65" />
           <entry key="sbt" value="1" />
-          <entry key="scala" value="151" />
+          <entry key="scala" value="162" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="JAVA" value="1336" />
           <entry key="PLAIN_TEXT" value="1347" />
-          <entry key="Scala" value="15675" />
+          <entry key="Scala" value="17243" />
           <entry key="sbt" value="3" />
         </counts>
       </usages-collector>
@@ -64,14 +63,15 @@
           <entry key="dummy" value="47" />
           <entry key="java" value="1336" />
           <entry key="sbt" value="3" />
-          <entry key="scala" value="15675" />
+          <entry key="scala" value="17243" />
           <entry key="txt" value="1300" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JAVA" value="64" />
-          <entry key="Scala" value="151" />
+          <entry key="CLASS" value="1" />
+          <entry key="JAVA" value="65" />
+          <entry key="Scala" value="162" />
           <entry key="sbt" value="1" />
         </counts>
       </usages-collector>
@@ -83,8 +83,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Category.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="139">
-              <caret line="604" column="67" selection-start-line="604" selection-start-column="67" selection-end-line="604" selection-end-column="67" />
+            <state relative-caret-position="302">
+              <caret line="978" column="4" selection-start-line="978" selection-start-column="4" selection-end-line="978" selection-end-column="4" />
               <folding>
                 <element signature="e#18#39#0" expanded="true" />
               </folding>
@@ -95,11 +95,50 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetCategory.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="77" column="27" lean-forward="true" selection-start-line="77" selection-start-column="27" selection-end-line="77" selection-end-column="27" />
+            <state relative-caret-position="149">
+              <caret line="73" column="14" selection-start-line="73" selection-start-column="14" selection-end-line="73" selection-end-column="14" />
               <folding>
                 <element signature="e#18#47#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="365">
+              <caret line="132" selection-start-line="132" selection-end-line="132" />
+              <folding>
+                <element signature="e#18#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetFunction.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="452">
+              <caret line="32" selection-start-line="26" selection-end-line="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="16" lean-forward="true" selection-start-column="16" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/N.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="17" selection-start-line="17" selection-end-line="17" />
             </state>
           </provider>
         </entry>
@@ -138,145 +177,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetFunction.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="149">
-              <caret line="17" column="4" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/TypelessSetMorphism.java">
+        <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home/lib/tools.jar!/com/sun/tools/javac/file/ZipFileIndexCache.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="137">
-              <caret line="81" column="36" selection-start-line="81" selection-start-column="36" selection-end-line="81" selection-end-column="36" />
-              <folding>
-                <element signature="e#679#680#0" expanded="true" />
-                <element signature="e#712#713#0" expanded="true" />
-                <element signature="e#1193#1194#0" expanded="true" />
-                <element signature="e#1247#1248#0" expanded="true" />
-                <element signature="e#2571#2788#0" expanded="true" />
-                <element signature="e#2787#2788#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetDiagram.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="187" column="34" selection-start-line="187" selection-start-column="34" selection-end-line="187" selection-end-column="34" />
-              <folding>
-                <element signature="e#18#45#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/j/math/cat/CategoriesTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2840">
-              <caret line="163" column="45" selection-start-line="163" selection-start-column="45" selection-end-line="163" selection-end-column="45" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="154">
-              <caret line="8" column="6" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Category.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="154">
-              <caret line="1298" column="17" selection-start-line="1298" selection-start-column="17" selection-end-line="1298" selection-end-column="17" />
-              <folding>
-                <element signature="e#1970#1971#0" expanded="true" />
-                <element signature="e#2026#2027#0" expanded="true" />
-                <element signature="e#2719#2720#0" expanded="true" />
-                <element signature="e#2755#2756#0" expanded="true" />
-                <element signature="e#3199#3200#0" expanded="true" />
-                <element signature="e#3235#3236#0" expanded="true" />
-                <element signature="e#3453#3454#0" expanded="true" />
-                <element signature="e#3489#3490#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/j/math/cat/CategoryTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3600">
-              <caret line="188" column="4" selection-start-line="188" selection-start-column="4" selection-end-line="188" selection-end-column="4" />
-              <folding>
-                <element signature="e#3579#3580#0" expanded="true" />
-                <element signature="e#3654#3655#0" expanded="true" />
-                <element signature="e#6063#6064#0" expanded="true" />
-                <element signature="e#6127#6128#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/Sets.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-438">
-              <caret line="581" column="11" selection-start-line="581" selection-start-column="11" selection-end-line="581" selection-end-column="11" />
-              <folding>
-                <element signature="e#20410#20411#0" expanded="true" />
-                <element signature="e#20473#20474#0" expanded="true" />
-                <element signature="e#20602#20603#0" expanded="true" />
-                <element signature="e#20659#20660#0" expanded="true" />
-                <element signature="e#20736#20737#0" expanded="true" />
-                <element signature="e#20760#20761#0" expanded="true" />
-                <element signature="method#union#1;class#Sets#0" />
-                <element signature="e#23509#23789#0" expanded="true" />
-                <element signature="e#23788#23789#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="215">
-              <caret line="122" column="13" selection-start-line="122" selection-start-column="13" selection-end-line="122" selection-end-column="13" />
-              <folding>
-                <element signature="e#18#66#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="382" column="20" selection-start-line="382" selection-start-column="20" selection-end-line="382" selection-end-column="20" />
-              <folding>
-                <element signature="e#18#44#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="158" column="48" selection-start-line="158" selection-start-column="48" selection-end-line="158" selection-end-column="48" />
+            <state relative-caret-position="100">
+              <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -284,8 +189,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="260" column="13" selection-start-line="260" selection-start-column="6" selection-end-line="260" selection-end-column="13" />
+            <state relative-caret-position="203">
+              <caret line="168" selection-start-line="156" selection-end-line="168" />
               <folding>
                 <element signature="e#18#31#0" expanded="true" />
               </folding>
@@ -309,10 +214,16 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Zermelo.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="78" column="24" selection-start-line="78" selection-start-column="24" selection-end-line="78" selection-end-column="24" />
+            <state relative-caret-position="97">
+              <caret line="214" column="34" selection-start-line="214" selection-start-column="34" selection-end-line="214" selection-end-column="34" />
               <folding>
+                <element signature="e#1939#2054#0" expanded="true" />
                 <element signature="e#2053#2054#0" expanded="true" />
+                <element signature="e#5127#5128#0" expanded="true" />
+                <element signature="e#5219#5220#0" expanded="true" />
+                <element signature="e#5331#5592#0" expanded="true" />
+                <element signature="e#5591#5592#0" expanded="true" />
+                <element signature="class#Singleton#0;class#Zermelo#0" />
               </folding>
             </state>
           </provider>
@@ -321,12 +232,41 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/math/ZFC.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="117" column="2" selection-start-line="117" selection-start-column="2" selection-end-line="117" selection-end-column="2" />
+            <state relative-caret-position="144">
+              <caret line="34" column="30" selection-start-line="34" selection-start-column="30" selection-end-line="34" selection-end-column="30" />
               <folding>
                 <element signature="e#14#30#0" expanded="true" />
-                <element signature="e#86#2710#1" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="89">
+              <caret line="20" column="6" selection-start-line="20" selection-start-column="6" selection-end-line="20" selection-end-column="6" />
+              <folding>
+                <element signature="e#18#44#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BigSet.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="292">
+              <caret line="42" column="32" selection-start-line="42" selection-start-column="32" selection-end-line="42" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/NonEnumerableSet.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="80">
+              <caret line="4" column="9" selection-start-line="4" selection-start-column="9" selection-end-line="4" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -342,36 +282,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>not han</find>
-      <find>pullback</find>
-      <find>projec</find>
-      <find>compatibleLists</find>
-      <find>def coequalizer</find>
-      <find>projectionFor</find>
-      <find>projectionForObject</find>
-      <find>index</find>
-      <find>projectionF</find>
-      <find>union</find>
-      <find>disj</find>
-      <find>ParallelIterable</find>
-      <find>ParallelIte</find>
-      <find>withLeft</find>
-      <find>forList</find>
-      <find>schw</find>
-      <find>.apply</find>
       <find>Set[Any]</find>
       <find>def ran</find>
       <find>Functions.</find>
       <find>DisjointU</find>
       <find>Sets.</find>
-      <find>forFu</find>
-      <find>colimit</find>
       <find>Disj</find>
-      <find>Zermelo#</find>
       <find>functions</find>
       <find>colimit(</find>
       <find>aas</find>
       <find>Factor</find>
+      <find>forFu</find>
+      <find>schw</find>
+      <find>domain</find>
+      <find>singletonH</find>
+      <find>sing</find>
+      <find>foreach</find>
+      <find>equals</find>
+      <find>exists</find>
+      <find>singleton</find>
+      <find>const</find>
+      <find>interse</find>
+      <find>Axiom I</find>
+      <find>def exists</find>
+      <find>union</find>
+      <find>_0_</find>
+      <find>_4</find>
+      <find>colimit</find>
+      <find>limit</find>
+      <find>Zermelo#</find>
+      <find>N</find>
     </findStrings>
     <replaceStrings>
       <replace>@tparam X</replace>
@@ -400,12 +340,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/BasePair.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Base.scala" />
         <option value="$PROJECT_DIR$/src/main/java/j/math/cat/Functor.java" />
         <option value="$PROJECT_DIR$/src/main/scala/scalakittens/Goodness.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSetMorphism.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalakittens/TimeReader.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/LazyPair.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/math/cat/CategorTest.scala" />
@@ -431,30 +368,33 @@
         <option value="$PROJECT_DIR$/src/test/java/j/math/cat/SetsTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/j/math/cat/Sets.java" />
         <option value="$PROJECT_DIR$/src/test/java/j/math/cat/CategoryTest.java" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/EnumerableSet.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/BigSet.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/N.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/math/cat/NaturalTransformation.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/SetMorphism.scala" />
-        <option value="$PROJECT_DIR$/src/main/java/Zermelo.java" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" />
-        <option value="$PROJECT_DIR$/src/main/java/j/math/cat/TypelessSetMorphism.java" />
         <option value="$PROJECT_DIR$/src/test/scala/math/cat/SetDiagram.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/ZFC.scala" />
         <option value="$PROJECT_DIR$/src/main/java/j/math/cat/SetDiagram.java" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/SetDiagram.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/math/cat/SetCategory.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/math/cat/SetFunction.scala" />
+        <option value="$PROJECT_DIR$/src/main/java/j/math/cat/TypelessSetMorphism.java" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala" />
+        <option value="$PROJECT_DIR$/src/main/java/Zermelo.java" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/SetCategory.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/NotEnumerableSet.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/NonEnumerableSet.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/N.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/Category.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/ZFC.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="29" />
     <option name="y" value="23" />
     <option name="width" value="1440" />
@@ -562,6 +502,27 @@
               <item name="Categories" type="b2602c69:ProjectViewProjectNode" />
               <item name="Categories" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="scala" type="462c0819:PsiDirectoryNode" />
+              <item name="math" type="462c0819:PsiDirectoryNode" />
+              <item name="cat" type="462c0819:PsiDirectoryNode" />
+              <item name="Category.scala" type="6117b065:FileNode" />
+            </path>
+            <path>
+              <item name="Categories" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Categories" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="scala" type="462c0819:PsiDirectoryNode" />
+              <item name="math" type="462c0819:PsiDirectoryNode" />
+              <item name="cat" type="462c0819:PsiDirectoryNode" />
+              <item name="Category.scala" type="6117b065:FileNode" />
+              <item name="Category$" type="ce8f04f3:TypeDefinitionNode" />
+            </path>
+            <path>
+              <item name="Categories" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Categories" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -619,6 +580,7 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="preferences.externalResources" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
@@ -877,7 +839,7 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="29" y="23" width="1440" height="877" extended-state="0" />
+    <frame x="10" y="23" width="1440" height="877" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28898427" />
@@ -948,7 +910,7 @@
           <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/math/cat/NotEnumerableSet.scala</url>
+          <url>file://$PROJECT_DIR$/src/main/scala/math/cat/NonEnumerableSet.scala</url>
           <line>6</line>
           <properties />
           <option name="timeStamp" value="16" />
@@ -1150,65 +1112,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="281">
-          <caret line="46" column="4" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
-          <folding>
-            <element signature="e#18#39#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.specs2/specs2-core_2.11/srcs/specs2-core_2.11-3.8.4-sources.jar!/org/specs2/specification/core/SpecStructure.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="148">
-          <caret line="25" column="11" selection-start-line="25" selection-start-column="11" selection-end-line="25" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/CategoryTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-12360">
-          <caret line="44" column="5" selection-start-line="44" selection-start-column="5" selection-end-line="44" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/EnumerableSet.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BigSet.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="34" column="15" selection-start-line="34" selection-start-column="15" selection-end-line="34" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/BaseTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="80">
-          <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/collection/SetLike.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="141" column="34" selection-start-line="141" selection-start-column="34" selection-end-line="141" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/collection/IterableLike.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
-          <caret line="71" column="4" selection-start-line="71" selection-start-column="4" selection-end-line="71" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/collection/Iterator.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="121">
@@ -1248,13 +1151,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="177">
           <caret line="10" column="8" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/N.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="10" column="66" selection-start-line="10" selection-start-column="66" selection-end-line="10" selection-end-column="66" />
         </state>
       </provider>
     </entry>
@@ -1306,13 +1202,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/Function1.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="54" column="32" selection-start-line="54" selection-start-column="32" selection-end-line="54" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home/src.zip!/java/util/Objects.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="167">
@@ -1338,16 +1227,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1304">
           <caret line="62" column="24" selection-start-line="62" selection-start-column="24" selection-end-line="62" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="122" column="13" selection-start-line="122" selection-start-column="13" selection-end-line="122" selection-end-column="13" />
-          <folding>
-            <element signature="e#18#66#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1380,20 +1259,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="270" column="42" selection-start-line="270" selection-start-column="42" selection-end-line="270" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/Predef.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="91" column="7" selection-start-line="91" selection-start-column="7" selection-end-line="91" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="158" column="48" selection-start-line="158" selection-start-column="48" selection-end-line="158" selection-end-column="48" />
         </state>
       </provider>
     </entry>
@@ -1436,31 +1301,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/TypelessSetMorphism.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="137">
-          <caret line="81" column="36" selection-start-line="81" selection-start-column="36" selection-end-line="81" selection-end-column="36" />
-          <folding>
-            <element signature="e#679#680#0" expanded="true" />
-            <element signature="e#712#713#0" expanded="true" />
-            <element signature="e#1193#1194#0" expanded="true" />
-            <element signature="e#1247#1248#0" expanded="true" />
-            <element signature="e#2571#2788#0" expanded="true" />
-            <element signature="e#2787#2788#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="260" column="13" selection-start-line="260" selection-start-column="6" selection-end-line="260" selection-end-column="13" />
-          <folding>
-            <element signature="e#18#31#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/j/math/topos/Categories.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="211">
@@ -1468,27 +1308,6 @@
           <folding>
             <element signature="e#2279#2280#0" expanded="true" />
             <element signature="e#2320#2321#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Zermelo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="159">
-          <caret line="78" column="24" selection-start-line="78" selection-start-column="24" selection-end-line="78" selection-end-column="24" />
-          <folding>
-            <element signature="e#2053#2054#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/ZFC.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="117" column="2" selection-start-line="117" selection-start-column="2" selection-end-line="117" selection-end-column="2" />
-          <folding>
-            <element signature="e#14#30#0" expanded="true" />
-            <element signature="e#86#2710#1" />
           </folding>
         </state>
       </provider>
@@ -1524,16 +1343,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Category.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="139">
-          <caret line="604" column="67" selection-start-line="604" selection-start-column="67" selection-end-line="604" selection-end-column="67" />
-          <folding>
-            <element signature="e#18#39#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/SetDiagram.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
@@ -1558,16 +1367,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="382" column="20" selection-start-line="382" selection-start-column="20" selection-end-line="382" selection-end-column="20" />
-          <folding>
-            <element signature="e#18#44#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/collection/MapLike.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="161">
@@ -1575,20 +1374,192 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/j/math/cat/TypelessSetMorphism.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="159">
+          <caret line="191" column="53" selection-start-line="191" selection-start-column="53" selection-end-line="191" selection-end-column="53" />
+          <folding>
+            <element signature="e#679#680#0" expanded="true" />
+            <element signature="e#712#713#0" expanded="true" />
+            <element signature="e#1193#1194#0" expanded="true" />
+            <element signature="e#1247#1248#0" expanded="true" />
+            <element signature="e#2571#2788#0" expanded="true" />
+            <element signature="e#2787#2788#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home/src.zip!/java/util/concurrent/locks/LockSupport.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="370" column="23" selection-start-line="370" selection-start-column="23" selection-end-line="370" selection-end-column="23" />
+          <folding>
+            <element signature="e#13575#13576#0" expanded="true" />
+            <element signature="e#13618#13619#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/math/cat/SetsTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="433" column="14" lean-forward="true" selection-start-line="433" selection-start-column="14" selection-end-line="433" selection-end-column="14" />
+          <folding>
+            <element signature="e#18#66#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functions.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="154" column="33" lean-forward="true" selection-start-line="154" selection-start-column="33" selection-end-line="154" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home/lib/tools.jar!/com/sun/tools/javac/file/ZipFileIndexCache.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Zermelo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="97">
+          <caret line="214" column="34" selection-start-line="214" selection-start-column="34" selection-end-line="214" selection-end-column="34" />
+          <folding>
+            <element signature="e#1939#2054#0" expanded="true" />
+            <element signature="e#2053#2054#0" expanded="true" />
+            <element signature="e#5127#5128#0" expanded="true" />
+            <element signature="e#5219#5220#0" expanded="true" />
+            <element signature="e#5331#5592#0" expanded="true" />
+            <element signature="e#5591#5592#0" expanded="true" />
+            <element signature="class#Singleton#0;class#Zermelo#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/Predef.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="167">
+          <caret line="94" column="7" selection-start-line="94" selection-start-column="7" selection-end-line="94" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/Function1.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="317">
+          <caret line="46" column="32" selection-start-line="46" selection-start-column="32" selection-end-line="46" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetFunction.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="452">
+          <caret line="32" selection-start-line="26" selection-end-line="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/BigSet.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="292">
+          <caret line="42" column="32" selection-start-line="42" selection-start-column="32" selection-end-line="42" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/NonEnumerableSet.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="80">
+          <caret line="4" column="9" selection-start-line="4" selection-start-column="9" selection-end-line="4" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Functor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="168" selection-start-line="156" selection-end-line="168" />
+          <folding>
+            <element signature="e#18#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Sets.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="89">
+          <caret line="20" column="6" selection-start-line="20" selection-start-column="6" selection-end-line="20" selection-end-column="6" />
+          <folding>
+            <element signature="e#18#44#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/reflect/NameTransformer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="19" column="6" selection-start-line="19" selection-start-column="6" selection-end-line="19" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.1-sources.jar!/scala/Enumeration.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1643">
+          <caret line="60" column="79" lean-forward="true" selection-start-line="60" selection-start-column="79" selection-end-line="60" selection-end-column="79" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/N.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Graph.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="365">
+          <caret line="132" selection-start-line="132" selection-end-line="132" />
+          <folding>
+            <element signature="e#18#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/Category.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="978" column="4" selection-start-line="978" selection-start-column="4" selection-end-line="978" selection-end-column="4" />
+          <folding>
+            <element signature="e#18#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/ZFC.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="34" column="30" selection-start-line="34" selection-start-column="30" selection-end-line="34" selection-end-column="30" />
+          <folding>
+            <element signature="e#14#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetCategory.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="77" column="27" lean-forward="true" selection-start-line="77" selection-start-column="27" selection-end-line="77" selection-end-column="27" />
+        <state relative-caret-position="149">
+          <caret line="73" column="14" selection-start-line="73" selection-start-column="14" selection-end-line="73" selection-end-column="14" />
           <folding>
             <element signature="e#18#47#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/SetFunction.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/math/cat/PoSet.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="149">
-          <caret line="17" column="4" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="4" />
+        <state>
+          <caret column="16" lean-forward="true" selection-start-column="16" selection-end-column="16" />
         </state>
       </provider>
     </entry>

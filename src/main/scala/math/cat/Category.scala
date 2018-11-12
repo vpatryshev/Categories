@@ -916,7 +916,7 @@ object Category extends CategoryFactory {
   /**
     * Discrete 2-object category
     */
-  lazy val _1plus1_ = apply(Set("a", "b"))
+  lazy val _1plus1_ = Category(Set("a", "b"))
 
   /**
     * Category <b>2</b>: 2 objects linearly ordered
@@ -936,7 +936,7 @@ object Category extends CategoryFactory {
   /**
     * Category with 2 objects and 2 parallel arrows from one to another
     */
-  lazy val ParallelPair = apply("({0, 1}, {a:0->1, b:0->1}, {})")
+  lazy val ParallelPair = Category("({0, 1}, {a:0->1, b:0->1}, {})")
 
   /**
     * Category <b>Z2</2> - a two-element monoid
@@ -975,6 +975,9 @@ object Category extends CategoryFactory {
     */
   lazy val M = Category("({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e}, {})")
 
+  lazy val NaturalNumbers: Category[BigInt, BigInt] =
+    Category(Graph(PoSet.ofNaturalNumbers))
+  
   lazy val KnownCategories = Set(_0_, _1_, _2_, _3_, _4_, _1plus1_,
     M, ParallelPair, Pullback, Pushout, SplitMono, Square, W, Z2)
 }

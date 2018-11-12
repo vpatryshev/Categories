@@ -40,7 +40,7 @@ object BigSet {
   }
 
   def apply[T](p: T => Boolean = (_:T) => true): BigSet[T] =
-    new BigSet[T] with NotEnumerableSet[T] {
+    new BigSet[T] with NonEnumerableSet[T] {
     override def contains(t: T) = p(t)
   }
 

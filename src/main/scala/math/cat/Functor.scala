@@ -15,11 +15,11 @@ import Functions._
  * @tparam YArrows type of arrows in the second category
  */
 class Functor[XObjects, XArrows, YObjects, YArrows]
-             (override val tag: String,
-              val domain: Category[XObjects, XArrows],
-              val codomain: Category[YObjects, YArrows],
-              val objectsMorphism: XObjects => YObjects,
-              override val arrowsMorphism: XArrows => YArrows) extends
+  (override val tag: String,
+   val domain: Category[XObjects, XArrows],
+   val codomain: Category[YObjects, YArrows],
+   val objectsMorphism: XObjects => YObjects,
+   override val arrowsMorphism: XArrows => YArrows) extends
       GraphMorphism[XObjects, XArrows, Category[XObjects, XArrows], YObjects, YArrows, Category[YObjects, YArrows]](
                     tag, domain, codomain, objectsMorphism, arrowsMorphism)
 {
@@ -65,7 +65,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     require(codomain == g.domain, "Composition not defined")
     val nm = g.nodesMorphism compose this.nodesMorphism
     val am = g.arrowsMorphism compose this.arrowsMorphism 
-    new Functor[XObjects, XArrows, ZObjects, ZArrows](this.tag +" o " + g.tag, domain, g.codomain, nm, am)
+    new Functor[XObjects, XArrows, ZObjects, ZArrows](
+      g.tag +" o " + this.tag, domain, g.codomain, nm, am)
   }
 
   /**

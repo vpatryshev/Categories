@@ -1,4 +1,4 @@
-package math.cat;
+package math.cat
 
 import java.io.Reader
 
@@ -143,4 +143,6 @@ object PoSet {
   def range(from: Int, to: Int, step: Int): PoSet[Int] = {
     new PoSet(Sets.range(from, to, step), (x: Int, y: Int) => x <= y)
   }
+  
+  lazy val ofNaturalNumbers: PoSet[BigInt] = PoSet(N, _ < _)
 }

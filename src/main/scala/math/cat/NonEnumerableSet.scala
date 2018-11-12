@@ -2,7 +2,7 @@ package math.cat
 
 import scala.reflect.ClassTag
 
-trait NotEnumerableSet[T] extends Set[T] {
+trait NonEnumerableSet[T] extends Set[T] {
   private def notEnumerable = 
     throw new UnsupportedOperationException("This set is not enumerable")
 

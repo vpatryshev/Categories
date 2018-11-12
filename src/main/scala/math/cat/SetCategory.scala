@@ -10,7 +10,6 @@ import math.cat.Sets._
   * @author vpatryshev
   */
 
-
 class SetCategory(objects: BigSet[Set[Any]]) extends
   Category[Set[Any], SetFunction](graphOfSets(objects)) {
 
