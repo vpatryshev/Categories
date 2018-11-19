@@ -5,12 +5,9 @@ import java.io.Reader
 /**
  * Implementation of partially ordered set.
  * 
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  * @tparam T poset element type
  * @param underlyingSet the set of elements
- * le a function that compares two elements a and b, returning true iff b >= a
+ * `le` a function that compares two elements a and b, returning true iff b >= a
  *
  */
 class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extends Set[T] {
@@ -41,7 +38,7 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
     }
   }
 
-  private def validate() {
+  protected def validate(): Unit = if (Sets.isFinite(underlyingSet)) {
     for(x <- underlyingSet) require(le(x, x), " reflexivity broken at " + x)
     
     for(x <- underlyingSet; y <- underlyingSet) {
@@ -70,15 +67,15 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
    *
    * @return a new poset with the order that is opposite to the original.
    */
-  def unary_~ = new PoSet[T](underlyingSet, ((x: T, y: T) => le(y, x)));
+  def unary_~ = new PoSet[T](underlyingSet, (x: T, y: T) => le(y, x))
 
-  override def toString = {
+  override def toString: String = {
     def orderedPairs = Sets.product2(underlyingSet, underlyingSet) filter ((p: (T, T)) => le(p))
     "({" + (underlyingSet mkString ", ") + "}, {" +
             ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "})"
   }
-  def -(x: T) = Sets.requireImmutability
-  def +(x: T) = Sets.requireImmutability
+  def -(x: T): Set[T] = Sets.requireImmutability
+  def +(x: T): Set[T] = Sets.requireImmutability
 }
 
 object PoSet {
@@ -99,7 +96,7 @@ object PoSet {
 
   def apply[T](theElements: Set[T], comparator: (T, T) => Boolean) = new PoSet(theElements, comparator)
 
-  def apply[T](comparator: (T, T) => Boolean, theElements: T*) = {
+  def apply[T](comparator: (T, T) => Boolean, theElements: T*): PoSet[T] = {
     val s: Set[T] = Set(theElements: _*)
     new PoSet(Set(theElements: _*), comparator)
   }
@@ -118,17 +115,17 @@ object PoSet {
       }
     }
 
-    override def read(input: CharSequence) = {
+    override def read(input: CharSequence): PoSet[String] = {
       val pr: ParseResult[PoSet[String]] = parseAll(poset, input)
       explain(pr)
     }
 
-    override def read(input: Reader) = explain(parseAll(poset, input))
+    override def read(input: Reader): PoSet[String] = explain(parseAll(poset, input))
   }
 
-  def apply(input: Reader) = (new Parser).read(input)
+  def apply(input: Reader): PoSet[String] = (new Parser).read(input)
 
-  def apply(input: CharSequence) = (new Parser).read(input)
+  def apply(input: CharSequence): PoSet[String] = (new Parser).read(input)
 
 
 
@@ -144,5 +141,10 @@ object PoSet {
     new PoSet(Sets.range(from, to, step), (x: Int, y: Int) => x <= y)
   }
   
-  lazy val ofNaturalNumbers: PoSet[BigInt] = PoSet(N, _ < _)
+  private val comparator: (BigInt, BigInt) => Boolean = _ <= _
+
+  lazy val ofNaturalNumbers: PoSet[BigInt] =
+    new PoSet(N, comparator) {
+    override def validate(): Unit = ()
+  }
 }

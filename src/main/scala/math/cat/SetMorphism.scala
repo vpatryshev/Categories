@@ -4,7 +4,6 @@ import Sets._
 
 /**
  * Morphism class for sets, and the accompanying object.
- * @author vpatryshev
  */
 class SetMorphism[X, Y] (
     val tag: String,
@@ -17,15 +16,16 @@ class SetMorphism[X, Y] (
   // All we need is that each d0 element is mapped to a d1 element.
   for (x <- d0) {
     val y = this(x)
-    require(d1 contains y, "Morphism value " + y + " for " + x + " should be in d1 " + d1)
+    val yInD1 = d1 contains y
+    require(yInD1, "Morphism value " + y + " for " + x + " should be in d1 " + d1)
   }
 
   override def toString: String = tag match {
-    case "" => "{" + (d0 map (x => x.toString + " -> " + this(x).toString) mkString(", "))  + "}"
+    case "" => "{" + (d0 map (x => x.toString + " -> " + this(x).toString) mkString ", ")  + "}"
     case _  => tag
   }
 
-  override def hashCode = d0.hashCode * 4/*random number*/ + d1.hashCode
+  override def hashCode: Int = d0.hashCode * 4/*random number*/ + d1.hashCode
   
   /**
    * Two set morphisms are equal if they have equal d0s and d1s and map d0 elements to the same values.
@@ -34,7 +34,7 @@ class SetMorphism[X, Y] (
    * @param other set morphism to compare
    * @return true iff they are equal
    */
-  def equals(other: SetMorphism[X, Y]) = {
+  def equals(other: SetMorphism[X, Y]): Boolean = {
     ((d0.equals(other.d0) && d1.equals(other.d1)) /: d0) ((eq, x) => eq & this(x) == other(x))
   }
   
@@ -43,7 +43,7 @@ class SetMorphism[X, Y] (
     else None
   }
   
-  def revert = {
+  def revert: SetMorphism[Y, Set[X]] = {
     val d1AsSet: Set[Y] = d1
     val d0AsSet: Set[X] = d0
     val d0ForRevert: Set[Set[X]] = Sets.powerset(d0AsSet)
@@ -53,18 +53,18 @@ class SetMorphism[X, Y] (
       Sets.groupBy(d0AsSet, d1AsSet, this))
   }  
   
-  override def contains(x: X) = d0.contains(x)
+  override def contains(x: X): Boolean = d0.contains(x)
 
-  def get(x: X) = if (contains(x)) Some(function(x)) else None
+  def get(x: X): Option[Y] = if (contains(x)) Some(function(x)) else None
 
-  override def size = d0.size
+  override def size: Int = d0.size
 
-  def - (x: X) = requireImmutability
-  def +[Y1 >: Y] (kv: (X, Y1)) = requireImmutability
-  def updates[B1 >: Y](x: X, y: B1) = requireImmutability
+  def - (x: X): Map[X, Y] = requireImmutability
+  def +[Y1 >: Y] (kv: (X, Y1)): Map[X, Y] = requireImmutability
+  override def updated[Y1 >: Y](x: X, y: Y1): Map[X, Y1] = requireImmutability
   def empty[PY] = throw new RuntimeException("No such thing exists as empty set morphism")
-  def iterator = d0.iterator map (x => (x, function(x)))
-  def product = exponent(d1, d0) filter(m => d1.forall(y => function(m(y)) == y))
+  def iterator: Iterator[(X, Y)] = d0.iterator map (x => (x, function(x)))
+  def product: Set[Map[Y, X]] = exponent(d1, d0) filter(m => d1.forall(y => function(m(y)) == y))
 }
 
 object SetMorphism {
@@ -89,7 +89,7 @@ object SetMorphism {
       setOf(morphisms, maps.size, predicate _)
   }
 
-  def pullback[X, Y, Z](f: SetMorphism[X, Z], g: SetMorphism[Y, Z]) = {
+  def pullback[X, Y, Z](f: SetMorphism[X, Z], g: SetMorphism[Y, Z]): (SetMorphism[(X, Y), X], SetMorphism[(X, Y), Y]) = {
     val pullbackSet = Sets.pullback(f.d0, g.d0, f, g)
     val p0 = (p: (X, Y)) => p._1
     val p1 = (p: (X, Y)) => p._2

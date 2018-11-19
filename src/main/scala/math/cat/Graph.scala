@@ -32,15 +32,10 @@ class Graph[N, A] (
   }
 
   def validateGraph() {
-    require(arrows != null, "arrowset cannot be null")
-    require(nodes != null, "nodeset cannot be null")
-
-    if (arrows.nonEmpty) {
-      require(d0 != null, "d0 cannot be null")
-      require(d1 != null, "d1 cannot be null")
-    }
+    if (Sets.isFinite(arrows)) {
     for(a <- arrows) require(nodes contains d0(a), " d0 for " + a + " should be in set of nodes")
     for(a <- arrows) require(nodes contains d1(a), " d1 for " + a + " should be in set of nodes")
+  }
   }
 
   /**
@@ -124,11 +119,13 @@ object Graph {
   def first[N](p:(N,N)): N = p._1
   def second[N](p:(N,N)): N = p._2
 
-  def apply[N] (poset: PoSet[N]): Graph[N, (N, N)] = {
-    val goodPairs:Set[(N,N)] = for(x <- poset; y <- poset if poset.le(x, y)) yield (x, y)
-    lazy val size = goodPairs.size
+  def apply[N](poset: PoSet[N]): Graph[N, (N, N)] = {
+    val nodes = poset.underlyingSet
 
-    apply(poset.underlyingSet, goodPairs, first, second)
+    val posetSquare = Sets.product2(nodes, nodes)
+    val goodPairs:Set[(N,N)] = Sets.filter(posetSquare, poset.le)
+
+    apply(nodes, goodPairs, first, second)
   }        
 
   class Parser extends Sets.Parser {

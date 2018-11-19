@@ -6,8 +6,6 @@ import Functions._
 /**
  * Functor class: functions for categories.
  *
- * @author Vlad Patryshev
- * All source code is stored at <a href="http://code.google.com/p/categories/">http://code.google.com/p/categories/</a>
  * TODO: have a decent factory, don't use the constructor, too many parameters, eh
  * @tparam XObjects type of nodes in the first category
  * @tparam XArrows type of arrows in the first category

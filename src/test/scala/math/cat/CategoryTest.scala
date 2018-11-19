@@ -2,10 +2,10 @@ package math.cat
 
 import org.specs2.mutable._
 import Category._
+import SetCategory._
 
 /**
  * Tests for Category class
- * @author vpatryshev
  */
 class CategoryTest extends Specification {
 
@@ -575,7 +575,7 @@ class CategoryTest extends Specification {
       _4_.initial === Some(0)
     }
 
-    "AllInitialObjects_byDefinition" >> {
+    "AllRootObjects_byDefinition" >> {
       ParallelPair.allRootObjects_byDefinition === Set("0")
       Square.allRootObjects_byDefinition === Set("a")
       Pullback.allRootObjects_byDefinition === Set("a", "b")
@@ -583,7 +583,7 @@ class CategoryTest extends Specification {
       W.allRootObjects_byDefinition === Set("a", "c", "e")
     }
 
-    "AllInitialObjects_programmersShortcut" >> {
+    "AllRootObjects_programmersShortcut" >> {
       ParallelPair.allRootObjects_programmersShortcut === Set("0")
       Square.allRootObjects_programmersShortcut === Set("a")
       Pullback.allRootObjects_programmersShortcut === Set("a", "b")
@@ -591,7 +591,7 @@ class CategoryTest extends Specification {
       W.allRootObjects_programmersShortcut === Set("a", "c", "e")
     }
 
-    "AllInitialObjects" >> {
+    "AllRootObjects" >> {
       ParallelPair.allRootObjects === Set("0")
       Square.allRootObjects === Set("a")
       Pullback.allRootObjects === Set("a", "b")
@@ -599,8 +599,8 @@ class CategoryTest extends Specification {
       W.allRootObjects === Set("a", "c", "e")
     }
 
-    "AllInitialObjects_forKnownCategories" >> {
-      KnownCategories.forall { c =>
+    "AllRootObjects_forKnownCategories" >> {
+      KnownCategories.filter(c => Sets.isFinite(c.objects)).forall { c =>
         c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
@@ -654,6 +654,23 @@ class CategoryTest extends Specification {
     "Segment" >> {
       def sut: Category[Int, (Int, Int)] = segment(3)
       sut === _3_
+    }
+  }
+  
+  "SetCategory" >> {
+    "have products" >> {
+      val first: Set[Any] = Sets.setOf("a", "b")
+      val second: Set[Any] = Sets.setOf(1, 2, 3)
+      val product = Setf.product(first, second)
+
+      product match {
+        case Some((x, y)) =>
+          x.d0 === Sets.setOf(
+            ("a", 1), ("a", 2), ("a", 3),
+            ("b", 1), ("b", 2), ("b", 3))
+        case otherwise => failure("product not found")
+      }
+      ok
     }
   }
 }

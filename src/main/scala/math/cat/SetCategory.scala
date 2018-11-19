@@ -6,8 +6,6 @@ import math.cat.Sets._
 
 /**
   * Category where objects are sets
-  *
-  * @author vpatryshev
   */
 
 class SetCategory(objects: BigSet[Set[Any]]) extends
@@ -70,6 +68,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     val allMaps = Sets.exponent(Sets.numbers(n), x)
     val domain: Set[Any] = allMaps map identity
     
+    // TODO: use Shapeless, get rid of warning
     def takeElementAt(i: Int)(obj: Any) = obj match {
       case m: Map[Int, _] => m(i)
     }
@@ -94,7 +93,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
     val productSet: Set[Any] = Sets.product2(x, y).map(p => p)
     val p1 = new SetFunction("p1", productSet, x, { case (a, b) => a })
-    val p2 = new SetFunction("p2", productSet, x, { case (a, b) => b })
+    val p2 = new SetFunction("p2", productSet, y, { case (a, b) => b })
     Option((p1, p2))
   }
 

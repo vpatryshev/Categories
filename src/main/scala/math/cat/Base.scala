@@ -7,10 +7,6 @@ import scala.collection.breakOut
   * This class, I hope, exists only temporarily, being translated from Java.
   * It will go once conversion to Scala is done.
   * Base tools used in this package.
-  *
-  * @author Vlad Patryshev
-  *         All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
-  *         Credits: http://antilamer.livejournal.com/245962.html
   */
 object Base {
 

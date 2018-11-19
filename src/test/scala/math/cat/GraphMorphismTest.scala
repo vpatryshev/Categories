@@ -4,7 +4,6 @@ import org.specs2.mutable._
 
 /**
  * Tests for GraphMorphism class
- * @author vpatryshev
  */
 class GraphMorphismTest extends Specification {
   "GraphMorphism" >> {

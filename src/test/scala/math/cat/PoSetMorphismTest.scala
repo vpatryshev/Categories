@@ -4,7 +4,6 @@ import org.specs2.mutable._
 
 /**
  * Test suite for PoSetMorphism class
- * @author vpatryshev
  */
 class PoSetMorphismTest extends Specification {
   private val intComparator = (x:Int, y:Int) => x <= y

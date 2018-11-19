@@ -8,8 +8,8 @@ import org.specs2.mutable._
  * Test suite for Typeless Set Morphisms object
  */
 
-class TypelessSetMorphismTest extends Specification {
-  "TypelessSetMorphism" >> {
+class SetFunctionTest extends Specification {
+  "SetFunction" >> {
 
     "building TypelessSetMorphism" >> {
       val sut = SetFunction("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x)
@@ -162,7 +162,7 @@ class TypelessSetMorphismTest extends Specification {
     }
 
     "exponent 2->2" >> {
-      val set1 = setOf[Any](1 to 2)
+      val set1 = setOf[Any](1, 2)
 
       val sut = SetFunction.exponent(set1, set1)
       sut.size === 4
@@ -171,8 +171,8 @@ class TypelessSetMorphismTest extends Specification {
     }
 
     "exponent 3->5" >> {
-      val set1 = setOf[Any](3 to 5)
-      val set2 = setOf[Any](1 to 5)
+      val set1 = setOf[Any](3, 4, 5)
+      val set2 = setOf[Any](1, 2, 3, 4, 5)
 
       val sut = SetFunction.exponent(set1, set2)
       sut.size === 125

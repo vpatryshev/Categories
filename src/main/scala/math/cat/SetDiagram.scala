@@ -150,7 +150,7 @@ class SetDiagram[Objects, Arrows](
       o <- domain.objects
       a <- bundles(o)
       from: Set[Any] = nodesMorphism(o)
-      aAsMorphism = arrowsMorphism(a)
+      aAsMorphism: SetFunction = arrowsMorphism(a)
       embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(domain.d1(a)))
       g = aAsMorphism.andThen(embeddingToUnion) // do we need it?
     } yield (o, g)

@@ -65,7 +65,6 @@ case class SetFunction(
 /**
  * Set morphism for typeless sets.
  *
- * @author Vlad Patryshev
  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  *
  */

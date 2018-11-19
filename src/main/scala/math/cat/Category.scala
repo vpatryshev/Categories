@@ -6,8 +6,6 @@ import math.cat.Sets._
 
 /**
   * Category class, and the accompanying object.
-  *
-  * @author vpatryshev
   */
 abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   def objects: Set[O] = nodes
@@ -21,13 +19,16 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
 
   def validate() {
     validateGraph()
-
+    if (Sets.isFinite(objects)) {
     for (x <- objects) {
       val ux = unit(x)
       require(d0(ux) == x, s"Domain of unit $ux should be $x")
       require(d1(ux) == x, s"Codomain of unit $ux should be $x")
     }
 
+    }
+      
+    if (Sets.isFinite(arrows)) {
     for (f <- arrows) {
       val u_f = m(unit(d0(f)), f)
       require(u_f contains f, s"Left unit law broken for ${unit(d0(f))} and $f: got $u_f")
@@ -63,6 +64,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
       }
     }
   }
+  }
 
   //@deprecated("category theory is not equational")
   // cannot elimitate this: too many tests rely on comparing categories...
@@ -85,7 +87,12 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     isEqual
   }
   
-  override def hashCode: Int = getClass.hashCode + objects.hashCode * 2 + arrows.hashCode * 5
+  override def hashCode: Int = {
+    val c1 = getClass.hashCode
+    val c2 = objects.hashCode
+    val c3 = arrows.hashCode
+    c1 + c2 * 2 + c3 * 5
+  }
 
   override def toString: String = "({" +
     objects.mkString(", ") + "}, {" +
@@ -590,7 +597,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   lazy val allRootObjects: Set[O] = allRootObjects_programmersShortcut
 
   /**
-    * A set of all arrows that originate at initial objects (see allInitialObjects)
+    * A set of all arrows that originate at initial objects (see allRootObjects)
     */
   lazy val arrowsFromRootObjects: Set[A] = arrows filter (allRootObjects contains d0(_))
 

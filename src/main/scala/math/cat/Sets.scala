@@ -10,15 +10,18 @@ import Functions._
 
 /**
   * Lazy sets functionality
-  *
-  * @author vpatryshev
   */
 object Sets {
+  val InfiniteSize: Int = Int.MaxValue
+  
+  val isInfinite: Set[_] => Boolean = _.size == InfiniteSize
+
+  def isFinite: Set[_] => Boolean = _.size != InfiniteSize
 
   /**
     * A big set of all finite sets in Scala. This set is infinite, of course.
     */
-  val FiniteSets: BigSet[Set[Any]] = BigSet((o: Set[_]) => o.size < Int.MaxValue)
+  val FiniteSets: BigSet[Set[Any]] = BigSet(isFinite)
   
   def requireImmutability = throw new UnsupportedOperationException("Immutable class")
 
@@ -40,6 +43,8 @@ object Sets {
   def setOf[X](content: Iterable[X]): Set[X] =
     setOf(content, x => content exists (_ == x))
 
+  def setOf[T](content: T*): Set[T] = setOf(content)
+
   def range(n: Int): Set[Int] = range(0, n, 1)
   
   def range(first: Int, last1: Int, step: Int): Set[Int] =
@@ -50,12 +55,7 @@ object Sets {
     */
   def union[X : ClassTag, X1 <: X : ClassTag, X2 <: X : ClassTag](set1: Set[X1], set2: Set[X2]): Set[X] = {
     lazy val parIterable: Iterable[X] = new ParallelIterable(set1, set2)
-    lazy val size = if (set1.size == Int.MaxValue ||
-      set2.size == Int.MaxValue) {
-      Int.MaxValue
-    } else {
-      set1.size + set2.size
-    }
+    lazy val size = if (isFinite(set1) && isFinite(set2)) set1.size + set2.size else InfiniteSize
 
     def inX1(x: X) = x match {
       case x1: X1 => set1(x1)
@@ -158,7 +158,7 @@ object Sets {
     val predicate = (p: (X, Y)) => xs.contains(p._1) && ys.contains(p._2)
     setOf(
       cantorIterator(xs, ys),
-      xs.size * ys.size,
+      if (isFinite(xs) && isFinite(ys)) xs.size * ys.size else InfiniteSize,
       predicate
     )
   }
@@ -269,6 +269,11 @@ object Sets {
     val source = List(Set("a", "b", "c"), Set("1", "2"), Set("Ebony", "Ivory"), Set("Hi", "Lo"))
     println(product(source))
   }
+  
+  def filter[X](set: Set[X], p: X => Boolean): Set[X] = {
+    if (isFinite(set)) filteredSet(set.iterator, p)
+    else setOf(set, InfiniteSize, p)
+  }
 
   private def filteredSet[X](i: => Iterator[X], p: X => Boolean): Set[X] = {
     def j = i filter p
@@ -279,9 +284,9 @@ object Sets {
   }
 
   private[Sets] def sizePlus(size: => Int, delta: Int): Int =
-    if (size == Int.MaxValue) size
+    if (size == InfiniteSize) size
     else if (delta < 0) Math.max(0, size + delta)
-    else delta + Math.min(size, Int.MaxValue - delta)
+    else delta + Math.min(size, InfiniteSize - delta)
 
   private def setForIterator[X](
     sourceIterator: => Iterator[X],
@@ -310,6 +315,23 @@ object Sets {
 
       override def filter(p: X => Boolean): Set[X] =
         filteredSet(sourceIterator, (x: X) => predicate(x) && p(x))
+
+      def sample: Set[X] = if (isInfinite(this)) take(3) else this
+      
+      override def hashCode: Int = if (isInfinite(this)) sample.hashCode else super.hashCode
+      
+      override def equals(other: Any): Boolean = other match {
+        case s: Set[_] => if (isInfinite(this)) this.eq(s) else super.equals(s)
+        case somethingelse => false
+      } 
+      
+      override def toString: String = {
+        if (isInfinite(this)) {
+          sample.mkString("infinite Set(", ",", ",...)")
+        } else {
+          super.toString
+        }
+      }
     }
     s
   }

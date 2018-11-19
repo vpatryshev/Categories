@@ -18,10 +18,6 @@ import java.util.Map.Entry;
 
 /**
  * All kinds of additional Set functionality.
- * 
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  */
 public class Sets {
 
@@ -310,7 +306,7 @@ public class Sets {
    */
   @SuppressWarnings({"unchecked"})
   public static <T> Set<T> Set(T... elements) {
-    Set<T> source = new HashSet<T>(Arrays.asList(elements));
+    Set<T> source = new HashSet<>(Arrays.asList(elements));
     return Set(source);
   }
 

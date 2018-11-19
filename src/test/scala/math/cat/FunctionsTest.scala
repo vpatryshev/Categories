@@ -5,7 +5,6 @@ import org.specs2.mutable._
 
 /**
  * Test suite for Functions object
- * @author vpatryshev
  */
 class FunctionsTest extends Specification {
 
