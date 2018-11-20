@@ -85,12 +85,12 @@ object Functions {
      * @param g another Injection
      * @return a composition
      */
-    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
+    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = Bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
 
     /**
      * Inverse to this bijection
      */
-    def inverse: Bijection[Y, X] = bijection(unapply, apply)
+    def inverse: Bijection[Y, X] = Bijection(unapply, apply)
 
     /**
      *  Composes this Bijection with another Bijection.
@@ -107,7 +107,7 @@ object Functions {
     }
   }
 
-  def bijection[X, Y] (f: X => Y, g: Y => X): Bijection[X, Y] =
+  def Bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
     new Bijection[X, Y] {
       def apply(x: X) = f(x)
       def unapply(y: Y) = g(y)
@@ -142,7 +142,7 @@ object Functions {
    */
   def schwartzianTransform[X,Y] (f: X => Y): Bijection[X, Product2[X, Y]] = {
     def first(p:Product2[X,Y]) = p._1 // patch for scala 2.8 compiler bug
-    bijection(
+    Bijection(
       (x: X) => (x, f(x)),
       first
     )
