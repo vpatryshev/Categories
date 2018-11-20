@@ -595,6 +595,16 @@ class CategoryTest extends Specification {
         c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
+    
+    "ArrowsFromRootObjects" >> {
+      M.arrowsFromRootObjects === Set("b", "ba", "bc", "d", "dc", "de")
+      W.arrowsFromRootObjects === Set("a", "ab", "c", "cb", "cd", "e", "ed")
+      ParallelPair.arrowsFromRootObjects === Set("0", "a", "b")
+      Pullback.arrowsFromRootObjects === Set("a", "ac", "b", "bc")
+      Pushout.arrowsFromRootObjects === Set("a", "ab", "ac")
+      Square.arrowsFromRootObjects === Set("a", "ab", "ac", "ad")
+    }
+    
     // following are tests for accompanying object
 
     "0" >> {
