@@ -96,38 +96,6 @@ object Base {
   }
 
   /**
-    * Flattens an Iterable of Iterables.
-    *
-    * @tparam T                 element type
-    * @param iterableOfIterables an Iterable that lists Iterables to join
-    * @return an Iterable that scans over elements of the listed Iterables
-    */
-  @deprecated
-  def flatten[T](iterableOfIterables: Iterable[_ <: Iterable[T]]): Iterable[T] =
-    iterableOfIterables.flatten
-
-  /**
-    * Flattens a list of lists.
-    *
-    * @tparam T         list element type
-    * @param listofLists a list of lists
-    * @return a list of elements of all the inner lists, in the right order.
-    */
-  @deprecated
-  def flattenList[T](listofLists: List[_ <: List[T]]): List[T] =
-    listofLists.flatten
-
-  /**
-    * Concatenates a vararg of lists.
-    *
-    * @tparam T   element type
-    * @param lists the lists to concatenate.
-    * @return the list produced by concatenating given lists
-    */
-  @deprecated
-  def concat[T](lists: List[T]*): List[T] = lists.toList.flatten
-
-  /**
     * Splits an Iterable into head and tail.
     *
     * @tparam T      element type
@@ -147,15 +115,6 @@ object Base {
     */
   @deprecated
   def split[T](list: List[T]): (Option[T], List[T]) = (list.headOption, list.tail)
-
-  /**
-    * Count entries in an Iterable.
-    *
-    * @param iterable the iterable to scan
-    * @return number of entries in the iterable
-    */
-  @deprecated
-  def countEntries(iterable: Iterable[_]): Int = iterable.size
 
   /**
     * Builds a (virtual) list of integers from 0 to n-1.
@@ -183,36 +142,6 @@ object Base {
     * @return the list
     */
   def range(a: Int, b: Int, c: Int): List[Int] = Range(a, b, c).toList
-
-  /**
-    * Zips two lists.
-    *
-    * @tparam A element type of first list
-    * @tparam B element type of second list
-    * @param as first list
-    * @param bs second list
-    * @return the list of pairs of parallel elements of as and bs.
-    */
-  @deprecated
-  def zip[A, B](as: List[A], bs: List[B]): List[(A, B)] =
-    (as zip bs) map { case (a, b) => (a, b)}
-
-  /**
-    * Checks if two objects are equal.
-    *
-    * @param a first object
-    * @param b second object
-    * @return true if objects are equal, in Java sense
-    */
-  @deprecated
-  protected def equal(a: Any, b: Any): Boolean = a == b
-
-  /**
-    * @{inheritDoc}
-    */
-  @deprecated
-  protected def hashCode(a: Any): Int = if (a == null) 0
-    else a.hashCode
 
   /**
     * Builds a map that returns a list element by its index.

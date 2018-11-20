@@ -44,7 +44,7 @@ class CategoryTest extends Specification {
       ok
     }
     
-    "parsing example" >> {
+    "parsing example1" >> {
       val d0d1 = Map(
         "0.1" -> ("0", "1"),
         "0.2" -> ("0", "2"), 
@@ -55,16 +55,7 @@ class CategoryTest extends Specification {
         "2.b" -> ("2", "2"),
         "2.swap" -> ("2", "2")
       )
-      
-      try {
-        val c = Category
-        println(c)
-      } catch {
-        case x: Exception =>
-          x.printStackTrace()
-          failure(x.toString)
-      }
-      
+      val c = Category
       
       val testCategory = Category.apply(
         Set("0", "1", "2"), // objects
