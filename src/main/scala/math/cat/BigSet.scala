@@ -14,17 +14,6 @@ abstract class BigSet[T] extends Set[T] {
 
   override def toString: String = whoami
 
-  // TODO: figure out whether to kick this out.
-  //  override def containsAll(c: Seq[T]): Boolean = c.forall(contains)
-  //
-  //  override def addAll(c: Seq[_ <: T]): Boolean = notMutable
-  //
-  //  override def retainAll(c: util.Collection[_]): Boolean = notMutable
-  //
-  //  override def removeAll(c: util.Collection[_]): Boolean = notMutable
-  //
-  //  override def clear(): Unit = notMutable
-
   def map[U](f: Functions.Bijection[T, U]): BigSet[U] = BigSet((u: U) => this contains (f unapply u))
 
   override def filter(p: T => Boolean): BigSet[T] = BigSet((t: T) => p(t) && (this contains t))
@@ -45,7 +34,7 @@ abstract class BigSet[T] extends Set[T] {
 object BigSet {
   def apply[T](set: Set[T]): BigSet[T] = new BigSet[T] with EnumerableSet[T] {
     override def contains(t: T) = set(t)
-    override def size = set.size
+    override def size: Int = set.size
     override def toString: String = set.toString
     override def iterator: Iterator[T] = set.iterator
   }

@@ -10,7 +10,7 @@ import org.specs2.mutable._
 
 class BigSetTest extends Specification {
 
-  "BigSetTest" should {
+  "BigSet" should {
 
     "get created from set" in {
       val sut = BigSet(Set("abc", "def"))

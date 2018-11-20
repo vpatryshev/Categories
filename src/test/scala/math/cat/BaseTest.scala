@@ -8,7 +8,7 @@ import org.specs2.mutable._
 
 class BaseTest extends Specification {
 
-  "BaseTest" should {
+  "Base" should {
 
     "inverse regular" in {
       val m = Map("I" -> 1, "II" -> 2, "III" -> 3, "IV" -> 4)
