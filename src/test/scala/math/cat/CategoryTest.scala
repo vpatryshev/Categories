@@ -84,6 +84,20 @@ class CategoryTest extends Specification {
       Category(string) === testCategory
     }
     
+    "composablePairs" >> {
+      M.composablePairs === Set(("d","d"), ("b","ba"), ("d","de"), ("d","dc"), ("a","a"),
+        ("b","bc"), ("bc","c"), ("c","c"), ("e","e"), ("de","e"), ("b","b"), ("dc","c"), ("ba","a"))
+      Square.composablePairs === Set(("d","d"), ("ac","c"), ("ab","b"), ("ac","cd"), ("cd","d"),
+        ("a","ac"), ("b","bd"), ("ab","bd"), ("a","ad"), ("ad","d"), ("bd","d"), ("a","a"),
+        ("c","c"), ("b","b"), ("a","ab"), ("c","cd"))
+    }
+    
+    "degree" >> {
+      segment(10).degree(4, 0) === Some(9, Nil)
+      segment(10).degree(4, 1) === Some(4, List((4,4)))
+      segment(10).degree(4, 5) === Some(4, List((4,4), (4,4), (4,4), (4,4), (4,4)))
+    }
+    
     "regression from 6/9/15" >> {
       val expected = Category(
         units = Set("0", "1", "2"),
@@ -101,11 +115,11 @@ class CategoryTest extends Specification {
 
     }
     
-    "Constructor_halfSimplicial" >> {
+    "constructor_halfSimplicial" >> {
       halfSimplicial.objects must haveSize(3)
     }
 
-    "Constructor_1_bare" >> {
+    "constructor_1_bare" >> {
       val sut: Category[String, String] = Category(Set("1"),
         Map(), // d0
         Map(), // d1
@@ -114,7 +128,7 @@ class CategoryTest extends Specification {
       sut.arrows must haveSize(1)
     }
 
-    "Constructor_1_full" >> {
+    "constructor_1_full" >> {
       val sut: Category[String, String] = Category(Set("1"),
         Map("1" -> "1"), // d0
         Map("1" -> "1"), // d1
@@ -123,7 +137,7 @@ class CategoryTest extends Specification {
       sut.arrows must haveSize(1)
     }
 
-    "Constructor_plain_withmap" >> {
+    "constructor_plain_withmap" >> {
       val objects = Set(1, 2, 3)
       val map = Map("1a" ->(1, 1), "1b" ->(1, 1), "2to1" ->(2, 1), "3to2" ->(3, 2), "1to3" ->(1, 3))
       val sut = Graph(objects, map)
@@ -137,28 +151,26 @@ class CategoryTest extends Specification {
       sut.d1("3to2") === 2
     }
 
-    "Parse_1" >> {
+    "parse_1" >> {
       val sut = Category("({0}, {}, {})")
       sut.objects === Set("0")
     }
 
-    "Parse_1_1" >> {
+    "parse_1_1" >> {
       val sut = Category("({1, 0}, {}, {})")
       sut.objects === Set("0", "1")
     }
 
-    "Parse_2" >> {
+    "parse_2" >> {
       val sut = Category("({1, 0}, {a: 0 -> 1}, {})")
       sut.objects === Set("0", "1")
     }
-
-    lazy val Z3 = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})")
     
-    "Parse_3" >> {
+    "parse_3" >> {
       Z3.arrows === Set("0", "1", "2")
     }
 
-    "Parse_negative" >> {
+    "parse_negative" >> {
       try {
         val expected: Category[String, String] = Category(Set("0", "1", "2"),
           Map("0_1" -> "0", "0_2" -> "0", "a" -> "1", "b" -> "1", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d0
@@ -173,7 +185,7 @@ class CategoryTest extends Specification {
       true
     }
 
-    "ToString_1" >> {
+    "toString_1" >> {
       val sut: Category[String, String] = Category(Set("1"),
         Map(), // d0
         Map(), // d1
@@ -183,7 +195,7 @@ class CategoryTest extends Specification {
       actual === "({1}, {1: 1->1}, {1 o 1 = 1})"
     }
 
-    "Parse_positive_0" >> {
+    "parse_positive_0" >> {
       val expected: Category[String, String] = Category(Set("1"),
         Map(), // d0
         Map(), // d1
@@ -196,19 +208,19 @@ class CategoryTest extends Specification {
       parsed === expected
     }
 
-    "Parse_positive_3" >> {
+    "parse_positive_3" >> {
       val source = "({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2 o 2_1 = 2_1})"
       val parsed = Category(source)
       parsed.objects.size === 2
     }
 
-    "Parse_positive_4" >> {
+    "parse_positive_4" >> {
       val source = "({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, {2 o 2_1 = 2_1, 2_a o 2_a = 2_a, 2 o 2_a = 2_a, 2_a o 2_1 = 2_1, 2_a o 2 = 2_a, 2 o 2 = 2, 1 o 1 = 1, 2_1 o 1 = 2_1})"
       val parsed = Category(source)
       parsed.objects.size === 2
     }
 
-    "Parse_positive_5" >> {
+    "parse_positive_5" >> {
       val expected: Category[String, String] = Category(Set("1", "2"),
         Map("2_1" -> "2"), // d0
         Map("2_1" -> "1"), // d1
@@ -221,7 +233,7 @@ class CategoryTest extends Specification {
       parsed === expected
     }
 
-    "Parse_positive_6" >> {
+    "parse_positive_6" >> {
       val expected: Category[String, String] = Category(Set("1", "2"),
         Map("2_1" -> "2", "2_a" -> "2"), // d0
         Map("2_1" -> "1", "2_a" -> "2"), // d1
@@ -234,7 +246,7 @@ class CategoryTest extends Specification {
       parsed === expected
     }
 
-    "Parse_positive_7" >> {
+    "parse_positive_7" >> {
       val expected: Category[String, String] = Category(Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
@@ -250,7 +262,7 @@ class CategoryTest extends Specification {
       parsed === expected
     }
 
-    "Parse_positive_8" >> {
+    "parse_positive_8" >> {
       val expected: Category[String, String] = Category(Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
@@ -266,7 +278,7 @@ class CategoryTest extends Specification {
       parsed === expected
     }
 
-    "Parse_positive" >> {
+    "parse_positive" >> {
       val expected = halfSimplicial
       val string = expected.toString()
       val parsed = Category(string)
@@ -332,30 +344,30 @@ class CategoryTest extends Specification {
       Z3.inverse("1") === Some("2")
     }
 
-    "IsIsomorphism_positive()" >> {
+    "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
     }
 
-    "IsIsomorphism_negative()" >> {
+    "isIsomorphism_negative()" >> {
       val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})")
       sut.isIsomorphism("2") must beFalse
     }
 
-    "IsMonomorphism_positive()" >> {
+    "isMonomorphism_positive()" >> {
       val sut = Z3
       sut.isMonomorphism("0") must beTrue
       sut.isMonomorphism("1") must beTrue
       sut.isMonomorphism("2") must beTrue
     }
 
-    "IsMonomorphism_negative()" >> {
+    "isMonomorphism_negative()" >> {
       val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})")
       sut.isMonomorphism("0") must beTrue
       sut.isMonomorphism("1") must beFalse
       sut.isMonomorphism("2") must beFalse
     }
 
-    "IsEpimorphism()" >> {
+    "isEpimorphism()" >> {
       val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 1, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})")
       sut.isEpimorphism("0") must beTrue
       sut.isEpimorphism("1") must beFalse
@@ -398,7 +410,7 @@ class CategoryTest extends Specification {
       sut.equalizes("0_1", "2_a")("0") must beFalse
     }
 
-    "Coqualizes" >> {
+    "coqualizes" >> {
       val sut = halfSimplicial
       sut.coequalizes("2_a", "2_b")("2_1") must beTrue
       sut.coequalizes("2_a", "2_b")("0_2") must beFalse
@@ -406,35 +418,35 @@ class CategoryTest extends Specification {
       sut.coequalizes("2_a", "2_b")("2") must beFalse
     }
 
-    "AllEqualizingArrows" >> {
+    "allEqualizingArrows" >> {
       halfSimplicial.allEqualizingArrows("2_a", "2_b") === Set("0_2")
     }
 
-    "IsEqualizer_positive" >> {
+    "isEqualizer_positive" >> {
       halfSimplicial.isEqualizer("2_a", "2_b")("0_2") must beTrue
     }
 
-    "IsEqualizer_negative" >> {
+    "isEqualizer_negative" >> {
       halfSimplicial.isEqualizer("2_a", "2_b")("2") must beFalse
     }
 
-    "Equalizer_positive" >> {
+    "equalizer_positive" >> {
       halfSimplicial.equalizer("2_a", "2_b") === Some("0_2")
     }
 
-    "Equalizer_negative" >> {
+    "equalizer_negative" >> {
       ParallelPair.equalizer("a", "b") === None
     }
 
-    "AllCoequalizingArrows" >> {
+    "allCoequalizingArrows" >> {
       halfSimplicial.allCoequalizingArrows("2_a", "2_b") === Set("2_a", "2_b", "2_1")
     }
 
-    "IsCoequalizer_positive" >> {
+    "isCoequalizer_positive" >> {
       halfSimplicial.isCoequalizer("2_a", "2_b")("2_1") must beTrue
     }
 
-    "IsCoequalizer_negative" >> {
+    "isCoequalizer_negative" >> {
       halfSimplicial.isCoequalizer("2_a", "2_b")("2") must beFalse
     }
 
@@ -492,7 +504,7 @@ class CategoryTest extends Specification {
       actual === Some(("bd", "cd"))
     }
 
-    "IsPullback" >> {
+    "isPullback" >> {
       val actual1 = Square.isPullback("bd", "cd")(("ab", "ab"))
       actual1 must beFalse
       val actual2 = Square.isPullback("bd", "cd")(("ab", "ac"))
@@ -522,7 +534,7 @@ class CategoryTest extends Specification {
       actual === Some(("1", "1"))
     }
 
-    "IsPushout_square" >> {
+    "isPushout_square" >> {
       val actual = Square.isPushout("ab", "ac")(("bd", "cd"))
       actual must beTrue
     }
@@ -537,12 +549,12 @@ class CategoryTest extends Specification {
       ParallelPair.terminal === None
     }
 
-    "IsTerminal_positive" >> {
+    "isTerminal_positive" >> {
       Square.isTerminal("d") must beTrue
       _4_.isTerminal(3) must beTrue
     }
 
-    "IsTerminal_negative" >> {
+    "isTerminal_negative" >> {
       Square.isTerminal("a") must beFalse
       Square.isTerminal("b") must beFalse
       _4_.isTerminal(0) must beFalse
@@ -566,7 +578,7 @@ class CategoryTest extends Specification {
       _4_.initial === Some(0)
     }
 
-    "AllRootObjects_byDefinition" >> {
+    "allRootObjects_byDefinition" >> {
       ParallelPair.allRootObjects_byDefinition === Set("0")
       Square.allRootObjects_byDefinition === Set("a")
       Pullback.allRootObjects_byDefinition === Set("a", "b")
@@ -574,7 +586,7 @@ class CategoryTest extends Specification {
       W.allRootObjects_byDefinition === Set("a", "c", "e")
     }
 
-    "AllRootObjects_programmersShortcut" >> {
+    "allRootObjects_programmersShortcut" >> {
       ParallelPair.allRootObjects_programmersShortcut === Set("0")
       Square.allRootObjects_programmersShortcut === Set("a")
       Pullback.allRootObjects_programmersShortcut === Set("a", "b")
@@ -582,7 +594,7 @@ class CategoryTest extends Specification {
       W.allRootObjects_programmersShortcut === Set("a", "c", "e")
     }
 
-    "AllRootObjects" >> {
+    "allRootObjects" >> {
       ParallelPair.allRootObjects === Set("0")
       Square.allRootObjects === Set("a")
       Pullback.allRootObjects === Set("a", "b")
@@ -590,19 +602,37 @@ class CategoryTest extends Specification {
       W.allRootObjects === Set("a", "c", "e")
     }
 
-    "AllRootObjects_forKnownCategories" >> {
+    "allRootObjects_forKnownCategories" >> {
       KnownCategories.filter(c => Sets.isFinite(c.objects)).forall { c =>
         c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
     
-    "ArrowsFromRootObjects" >> {
+    "arrowsFromRootObjects" >> {
       M.arrowsFromRootObjects === Set("b", "ba", "bc", "d", "dc", "de")
       W.arrowsFromRootObjects === Set("a", "ab", "c", "cb", "cd", "e", "ed")
       ParallelPair.arrowsFromRootObjects === Set("0", "a", "b")
       Pullback.arrowsFromRootObjects === Set("a", "ac", "b", "bc")
       Pushout.arrowsFromRootObjects === Set("a", "ab", "ac")
       Square.arrowsFromRootObjects === Set("a", "ab", "ac", "ad")
+    }
+
+    "buildBundles" >> {
+      M.buildBundles(Set("a", "d"), Set("a", "d", "dc", "de")) ===
+        Map("a" -> Set("a"), "d" -> Set("d", "dc", "de"))
+      W.buildBundles(Set("a", "d"), Set("a", "ab")) ===
+        Map("a" -> Set("a", "ab"), "d" -> Set())
+      ParallelPair.buildBundles(Set("0"), Set("0", "a", "b")) ===
+        Map("0" -> Set("0", "a", "b"))
+      ParallelPair.buildBundles(Set("1"), Set("0", "a", "b")) must throwA[IllegalArgumentException]
+      Pullback.buildBundles(Set("a", "c"), Set("a", "ac", "c")) ===
+        Map("a" -> Set("a", "ac"), "c" -> Set("c"))
+      Pushout.buildBundles(Set("a", "b"), Set("a", "ab", "ac", "b")) ===
+        Map("a" -> Set("a", "ab", "ac"), "b" -> Set("b"))
+      Square.buildBundles(Set("a"), Set("a", "ab", "ac", "ad")) ===
+        Map("a" -> Set("a", "ab", "ac", "ad"))
+      Square.buildBundles(Set("b", "c"), Set()) ===
+        Map("b" -> Set(), "c" -> Set())
     }
     
     // following are tests for accompanying object

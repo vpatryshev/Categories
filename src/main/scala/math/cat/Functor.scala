@@ -32,9 +32,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
    */
   def validate() {
     for (x <- domain.objects) {
-      val ux: XArrows = domain.unit(x)
+      val ux: XArrows = domain.id(x)
       val y: YObjects = nodesMorphism.apply(x)
-      val uy: YArrows = codomain.unit(y)
+      val uy: YArrows = codomain.id(y)
       require(uy == arrowsMorphism(ux), "Functor must preserve units (failed on " +x + ")")
     }
 
@@ -302,5 +302,5 @@ object Functor {
    * @return constant functor on X that takes maps all objects to y and all arrows to y's unit.
    */
   def const[XObjects, XArrows, YObjects, YArrows] (X: Category[XObjects, XArrows], Y: Category[YObjects, YArrows], y: YObjects): Functor[XObjects, XArrows, YObjects, YArrows] =
-    new Functor[XObjects, XArrows, YObjects, YArrows] (y.toString, X, Y, SetMorphism.const(X.objects, Y.objects, y), SetMorphism.const(X.arrows, Y.arrows, Y.unit (y)))
+    new Functor[XObjects, XArrows, YObjects, YArrows] (y.toString, X, Y, SetMorphism.const(X.objects, Y.objects, y), SetMorphism.const(X.arrows, Y.arrows, Y.id (y)))
 }

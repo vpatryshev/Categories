@@ -59,7 +59,7 @@ object NaturalTransformation {
     F: Functor[XObjects, XArrows, YObjects, YArrows]):
   NaturalTransformation[XObjects, XArrows, YObjects, YArrows] = {
 
-    def objectMap(x: XObjects): YArrows = F.codomain.unit(F.nodesMorphism(x))
+    def objectMap(x: XObjects): YArrows = F.codomain.id(F.nodesMorphism(x))
 
     val transformPerObject = new SetMorphism[XObjects, YArrows](
       "unit",

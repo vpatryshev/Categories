@@ -13,7 +13,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override val m: (SetFunction, SetFunction) => Option[SetFunction] =
     (f, g) => f compose g
-  override val unit: Set[Any] => SetFunction = SetFunction.unit
+  override val id: Set[Any] => SetFunction = SetFunction.unit
 
   override def validate(): Unit = {} // it IS a category
 
