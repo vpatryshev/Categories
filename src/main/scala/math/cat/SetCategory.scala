@@ -13,7 +13,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override val m: (SetFunction, SetFunction) => Option[SetFunction] =
     (f, g) => f compose g
-  override val id: Set[Any] => SetFunction = SetFunction.unit
+  override val id: Set[Any] => SetFunction = SetFunction.id
 
   override def validate(): Unit = {} // it IS a category
 
@@ -46,7 +46,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Option[SetFunction] = {
     if (!arrowsToEqualize.iterator.hasNext) {
-      terminal map SetFunction.unit
+      terminal map SetFunction.id
     } else {
       val f = arrowsToEqualize.head
       val domain = f.d0

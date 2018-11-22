@@ -82,7 +82,7 @@ class CategoryTest extends Specification {
     
     "regression from 6/9/15" >> {
       val expected = Category(
-        ids = Set("0", "1", "2"),
+        objects = Set("0", "1", "2"),
         domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
         codomain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "2", "b" -> "2"),
         compositionSource = Map[(String, String), String]()

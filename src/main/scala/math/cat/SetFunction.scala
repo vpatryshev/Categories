@@ -104,12 +104,12 @@ object SetFunction {
     inclusion(set filter predicate, set)
 
   /**
-   * Factory method. Builds unit morphism for a set (identity function).
+   * Factory method. Builds identity morphism for a set.
    *
    * @param s the set
    * @return identity morphism on the given set
    */
-  def unit(s: Set[Any]): SetFunction = new SetFunction("1", s, s, x => x)
+  def id(s: Set[Any]): SetFunction = new SetFunction("id", s, s, x => x)
 
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,

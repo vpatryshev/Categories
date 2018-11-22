@@ -26,8 +26,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   /**
    * Validates this functor.
    * A functor is valid if it is valid as a graph function, and besides,
-   * it preserves unit and arrows composition.
-   * That is, F(unit(x)) == unit(F(x)), and
+   * it preserves identities and arrows composition.
+   * That is, F(id(x)) == id(F(x)), and
    * F(g) o F(f) = F(g o f)
    */
   def validate() {
@@ -35,7 +35,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       val ux: XArrows = domain.id(x)
       val y: YObjects = nodesMorphism.apply(x)
       val uy: YArrows = codomain.id(y)
-      require(uy == arrowsMorphism(ux), "Functor must preserve units (failed on " +x + ")")
+      require(uy == arrowsMorphism(ux),
+        "Functor must preserve identities (failed on " +x + ")")
     }
 
     for {fx <- domain.arrows
@@ -278,16 +279,16 @@ object Functor {
     new Functor[XObjects, XArrows, YObjects, YArrows] ("", domain, codomain, objectsMorphism, arrowsMorphism)
 
   /**
-   * Factory method. Builds unit functor for a category (identity functor).
+   * Factory method. Builds identity functor for a category (identity functor).
    *
    * @tparam XObjects type of domain objects
    * @tparam XArrows type of domain arrows
    * @param c the category
    * @return identity functor on the given category
    */
-  def unit[XObjects, XArrows] (c: Category[XObjects, XArrows]):
+  def id[XObjects, XArrows](c: Category[XObjects, XArrows]):
       Functor[XObjects, XArrows, XObjects, XArrows] =
-    new Functor[XObjects, XArrows, XObjects, XArrows] ("id", c, c, SetMorphism.unit(c.objects), SetMorphism.unit(c.arrows))
+    new Functor[XObjects, XArrows, XObjects, XArrows] ("id", c, c, SetMorphism.id(c.objects), SetMorphism.id(c.arrows))
 
   /**
    * Factory method. Builds constant functor from a category to an object in another.
@@ -299,8 +300,13 @@ object Functor {
    * @param X the category
    * @param Y another category
    * @param y an object in category Y
-   * @return constant functor on X that takes maps all objects to y and all arrows to y's unit.
+   * @return constant functor on X that takes maps all objects to y and all arrows to y's identities.
    */
-  def const[XObjects, XArrows, YObjects, YArrows] (X: Category[XObjects, XArrows], Y: Category[YObjects, YArrows], y: YObjects): Functor[XObjects, XArrows, YObjects, YArrows] =
-    new Functor[XObjects, XArrows, YObjects, YArrows] (y.toString, X, Y, SetMorphism.const(X.objects, Y.objects, y), SetMorphism.const(X.arrows, Y.arrows, Y.id (y)))
+  def const[XObjects, XArrows, YObjects, YArrows] (
+      X: Category[XObjects, XArrows], Y: Category[YObjects, YArrows], y: YObjects):
+    Functor[XObjects, XArrows, YObjects, YArrows] =
+    new Functor[XObjects, XArrows, YObjects, YArrows](
+      y.toString, X, Y,
+      SetMorphism.const(X.objects, Y.objects, y),
+      SetMorphism.const(X.arrows, Y.arrows, Y.id(y)))
 }

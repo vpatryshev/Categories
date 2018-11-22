@@ -40,7 +40,7 @@ object PoSetMorphism {
   def apply[X, Y](domain: PoSet[X], codomain: PoSet[Y], function: X => Y) =
     new PoSetMorphism[X, Y]("", domain, codomain, function)
 
-  def unit[X](domain: PoSet[X]) =
+  def id[X](domain: PoSet[X]) =
             new PoSetMorphism[X, X]("1", domain, domain, x => x)
 
   def const[X, Y](domain: PoSet[X], codomain: PoSet[Y], value: Y) =

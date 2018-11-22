@@ -51,8 +51,9 @@ object GraphMorphism {
       GraphMorphism[XNodes, XArrows, Graph[XNodes, XArrows], YNodes, YArrows, Graph[YNodes, YArrows]] =
       apply(d0, d1, SetMorphism(d0.nodes, d1.nodes, f0), SetMorphism(d0.arrows, d1.arrows, f1))
 
-  def unit[XNodes, XArrows] = new {
-    def apply(d0: Graph[XNodes, XArrows]) =
-      new GraphMorphism[XNodes, XArrows, Graph[XNodes, XArrows], XNodes, XArrows, Graph[XNodes, XArrows]]("1", d0, d0, n => n, a => a)
-  }
+  def id[XNodes, XArrows](d0: Graph[XNodes, XArrows]) =
+      new GraphMorphism[
+        XNodes, XArrows, Graph[XNodes, XArrows],
+        XNodes, XArrows, Graph[XNodes, XArrows]](
+        "id", d0, d0, identity, identity)
 }

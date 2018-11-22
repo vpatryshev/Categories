@@ -46,23 +46,23 @@ class NaturalTransformation[
 object NaturalTransformation {
 
   /**
-    * Builds a unit natural transformation 1F: F -> F
+    * Builds a identity natural transformation 1F: F -> F
     *
     * @tparam XObjects domain object type
     * @tparam XArrows domain arrow type
     * @tparam YObjects codomain object type
     * @tparam YArrows codomain arrow type
-    * @param F the functor for which we are building the unit transformation
-    * @return unit (identity) natural transformation for the functor
+    * @param F the functor for which we are building the identity transformation
+    * @return identity natural transformation for the functor
     */
-  def unit[XObjects, XArrows, YObjects, YArrows](
+  def id[XObjects, XArrows, YObjects, YArrows](
     F: Functor[XObjects, XArrows, YObjects, YArrows]):
   NaturalTransformation[XObjects, XArrows, YObjects, YArrows] = {
 
     def objectMap(x: XObjects): YArrows = F.codomain.id(F.nodesMorphism(x))
 
     val transformPerObject = new SetMorphism[XObjects, YArrows](
-      "unit",
+      "id",
       F.domain.objects,
       F.codomain.arrows,
       objectMap)

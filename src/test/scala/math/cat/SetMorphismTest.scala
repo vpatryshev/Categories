@@ -30,8 +30,8 @@ class SetMorphismTest extends Specification {
   }
 
   "UnitComposition()" >>  {
-    m.compose(unit(strings)) === Some(m)
-    unit(ints).compose(m) === Some(m)
+    m.compose(id(strings)) === Some(m)
+    id(ints).compose(m) === Some(m)
   }
 
  "Constructor2" >> {
@@ -74,7 +74,7 @@ class SetMorphismTest extends Specification {
 
   "Unit" >> {
     val set = Set(1, "haha", 2.71828)
-    val sut = SetMorphism.unit(set)
+    val sut = SetMorphism.id(set)
     (Set(2.71828, 1, "haha") == sut.d0) must beTrue
     (Set(2.71828, 1, "haha") == sut.d1) must beTrue
     ("haha" == sut("haha")) must beTrue

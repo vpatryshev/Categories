@@ -34,7 +34,6 @@ class FunctionsTest extends Specification {
       f(0) === "uno"
       f(1) === "dos"
       f(2) === "tres"
-      f(3) should throwA[IndexOutOfBoundsException]
     }
   }
   

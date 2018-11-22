@@ -131,9 +131,9 @@ class SetFunctionTest extends Specification {
       true
     }
 
-    "building a unit" >> {
+    "building ai identity" >> {
       val s = Set(1, 2, "a")
-      val sut = unit(s)
+      val sut = id(s)
       sut.d0 === s
       sut.d1 === s
       for (x <- s) (sut(x) == x) must beTrue
@@ -166,7 +166,7 @@ class SetFunctionTest extends Specification {
 
       val sut = SetFunction.exponent(set1, set1)
       sut.size === 4
-      val check1 = sut.contains(SetFunction.unit(set1))
+      val check1 = sut.contains(SetFunction.id(set1))
       check1 must beTrue
     }
 

@@ -43,8 +43,8 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     if (isFinite(objects)) {
       for (x <- objects) {
         val ux = id(x)
-        require(d0(ux) == x, s"Domain of unit $ux should be $x")
-        require(d1(ux) == x, s"Codomain of unit $ux should be $x")
+        require(d0(ux) == x, s"Domain of id $ux should be $x")
+        require(d1(ux) == x, s"Codomain of id $ux should be $x")
       }
     }
 
@@ -99,9 +99,9 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   // @deprecated("is category theory equational? does not seem like it is...")
   private def equal(that: Category[O, A]): Boolean = {
     val objectsEqual = this.objects == that.objects && this.arrows == that.arrows
-    val unitsEqual = objectsEqual && objects.forall(x => this.id(x) == that.id(x))
+    val idsEqual = objectsEqual && objects.forall(x => this.id(x) == that.id(x))
 
-    val isEqual = unitsEqual &&
+    val isEqual = idsEqual &&
       arrows.forall(f => arrows.forall(g => !follows(f, g) || this.m(f, g) == that.m(f, g)))
 
     isEqual
@@ -677,7 +677,7 @@ private[cat] trait CategoryFactory {
     * TODO: do something about this fake composition!!!
     *
     * @tparam T graph element and arrow type (must be the same)
-    * @param g the underlying graph, with no units
+    * @param g the underlying graph, with no id arrows
     * @return new category
     */
   def apply[T](g: Graph[T, T]): Category[T, T] = apply(g, (f: T, g: T) => Some(f)) // map is meaningless here
@@ -698,20 +698,20 @@ private[cat] trait CategoryFactory {
     val m = (f: T, g: T) =>
       if (isUnit(f)) Some(g) else if (isUnit(g)) Some(f) else composition(f, g)
     val g = addUnitsToGraph(graph)
-    val unit = (x: T) => x
+    val id = (x: T) => x
 
-    Category[T, T](g, unit, m)
+    Category[T, T](g, id, m)
   }
 
   /**
-    * Creates a new instance of of category, given objects, arrows, units, and composition table.
+    * Creates a new instance of of category, given objects, arrows, ids, and composition table.
     *
     * @tparam O object type
     * @tparam A arrow type
     * @param objects     category's objects
     * @param d0          maps arrows to domains
     * @param d1          maps arrows to codomains
-    * @param units       maps objects to unit arrows
+    * @param ids       maps objects to identity arrows
     * @param composition composition table
     * @return a new category
     */
@@ -720,38 +720,38 @@ private[cat] trait CategoryFactory {
                    arrows: Set[A],
                    d0: A => O,
                    d1: A => O,
-                   units: O => A,
+                   ids: O => A,
                    composition: (A, A) => Option[A]): Category[O, A] = {
     val graph = Graph(objects, arrows, d0, d1)
-    Category(graph, units, composition)
+    Category(graph, ids, composition)
   }
 
   /**
     * Builds a category given a limited (but sufficient) amount of data.
-    * Objects have the same name as their units.
+    * Objects have the same name as their identity arrows.
     *
     * @tparam T arrow type
-    * @param ids             set of units (and objects)
+    * @param objects           set of objects (same as identity arrows)
     * @param domain            maps arrows to domains
     * @param codomain          maps arrows to codomain
     * @param compositionSource source table of arrows composition (may be incomplete)
     * @return a newly-built category
     */
   def apply[T](
-                ids: Set[T],
-                domain: Map[T, T],
-                codomain: Map[T, T],
-                compositionSource: Map[(T, T), T]): Category[T, T] = {
-    val g = Graph(ids, domain.keySet, domain, codomain)
+      objects: Set[T],
+      domain: Map[T, T],
+      codomain: Map[T, T],
+      compositionSource: Map[(T, T), T]): Category[T, T] = {
+    val g = Graph(objects, domain.keySet, domain, codomain)
     apply(g, compositionSource)
   }
 
   /**
     * Builds a category given a limited (but sufficient) amount of data.
-    * Objects have the same name as their units.
+    * Objects have the same name as their identities.
     *
     * @tparam T arrow and node type
-    * @param graph             the graph
+    * @param graph  he graph
     * @param compositionSource source table of arrows composition (may be incomplete)
     * @return a newly-built category
     */
@@ -768,21 +768,21 @@ private[cat] trait CategoryFactory {
   }
 
   /**
-    * Builds a category given a graph, composition table, and a list of unit arrows.
+    * Builds a category given a graph, composition table, and a mapping for identity arrows.
     *
     * @tparam O type of objects
     * @tparam A type of arrows
-    * @param g           the graph on which we are to create a category
-    * @param units       maps objects to unit arrows
+    * @param g the graph on which we are to create a category
+    * @param ids maps objects to identity arrows
     * @param composition defines composition
     * @return a category built based on the data above
     */
   def apply[O, A](
-                   g: Graph[O, A],
-                   units: O => A,
-                   composition: (A, A) => Option[A]): Category[O, A] =
+      g: Graph[O, A],
+      ids: O => A,
+      composition: (A, A) => Option[A]): Category[O, A] =
     new Category[O, A](g) {
-      lazy val id: O => A = units
+      lazy val id: O => A = ids
       lazy val m: (A, A) => Option[A] = composition
     }
 
@@ -806,8 +806,8 @@ private[cat] trait CategoryFactory {
     * @param compositionSource partially filled composition table
     */
   private def fillCompositionTable[O, A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
-    // First, add units
-    val addedUnits = (compositionSource /: graph.arrows) ((m, f) => m + ((graph.d0(f), f) -> f) + ((f, graph.d1(f)) -> f))
+    // First, add identities
+    val addedIds = (compositionSource /: graph.arrows) ((m, f) => m + ((graph.d0(f), f) -> f) + ((f, graph.d1(f)) -> f))
 
     // Second, add unique solutions
     def candidates(f: A, g: A) = graph.hom(graph.d0(f), graph.d1(g))
@@ -827,7 +827,7 @@ private[cat] trait CategoryFactory {
       hasUniqueCandidate(f, g)
     })
 
-    val addedUniqueSolutions: Map[(A, A), A] = (addedUnits /: pairsToScan) {
+    val addedUniqueSolutions: Map[(A, A), A] = (addedIds /: pairsToScan) {
       (m, p) => {
         val (f, g) = p
         m + ((f, g) -> candidate(f, g))
