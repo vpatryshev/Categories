@@ -85,12 +85,12 @@ object Functions {
      * @param g another Injection
      * @return a composition
      */
-    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = Bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
+    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
 
     /**
      * Inverse to this bijection
      */
-    def inverse: Bijection[Y, X] = Bijection(unapply, apply)
+    def inverse: Bijection[Y, X] = bijection(unapply, apply)
 
     /**
      *  Composes this Bijection with another Bijection.
@@ -107,7 +107,7 @@ object Functions {
     }
   }
 
-  def Bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
+  def bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
     new Bijection[X, Y] {
       def apply(x: X) = f(x)
       def unapply(y: Y) = g(y)
@@ -129,7 +129,7 @@ object Functions {
    * @param set domain
    * @return the identity function
    */
-  def id[T] (set: Set[T]): T => T = new Id[T]
+  def id[T] (set: Set[T]): Id[T] = new Id[T]
 
   /**
    * Given a function f, builds another function that for each x
@@ -142,7 +142,7 @@ object Functions {
    */
   def schwartzianTransform[X,Y] (f: X => Y): Bijection[X, Product2[X, Y]] = {
     def first(p:Product2[X,Y]) = p._1 // patch for scala 2.8 compiler bug
-    Bijection(
+    bijection(
       (x: X) => (x, f(x)),
       first
     )
@@ -167,7 +167,7 @@ object Functions {
   def constant[X, Y] (value: Y): X => Y = (x: X) => value
 
   // TODO(vlad): figure out if this makes any sense
-  def restrict[X, X1 <: X, Y](fun: X => Y): X1 => Y = (x1: X1) => fun(x1)
+//  def restrict[X, X1 <: X, Y](fun: X => Y): X1 => Y = (x1: X1) => fun(x1)
 
   // This should not even exist! What exception?! what extension? Be contravariant.
   /**

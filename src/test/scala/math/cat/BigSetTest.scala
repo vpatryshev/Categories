@@ -4,7 +4,7 @@ import java.util.Date
 
 import j.math.cat.Functions.Bijection
 import math.cat.Base._
-import math.cat.Functions.Bijection
+import math.cat.Functions.bijection
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable._
 
@@ -45,7 +45,7 @@ class BigSetTest extends Specification {
     }
 
     "map properly" in {
-      val iso = Functions.Bijection[String, String]((_:String).reverse, (_:String).reverse)
+      val iso = Functions.bijection[String, String]((_:String).reverse, (_:String).reverse)
       val sut =
         BigSet[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') map iso
       sut.size === Sets.InfiniteSize

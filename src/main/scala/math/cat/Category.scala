@@ -643,7 +643,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   }
 }
 
-trait CategoryFactory {
+private[cat] trait CategoryFactory {
   /**
     * Builds a category out of a segment of integers between 0 and n (not included).
     *

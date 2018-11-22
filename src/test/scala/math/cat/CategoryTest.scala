@@ -12,12 +12,10 @@ class CategoryTest extends Specification {
   "Category" >> {
 
     "have segments" >> {
-      val sut = new CategoryFactory {}
-      
       for {
         i <- 0 until 10
       } {
-        sut.segment(i)
+        Category.segment(i).arrows.size === i*(i+1)/2
       }
       ok
     }
