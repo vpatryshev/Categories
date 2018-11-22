@@ -40,16 +40,15 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
 
   def validate() {
     validateGraph()
-    if (Sets.isFinite(objects)) {
+    if (isFinite(objects)) {
       for (x <- objects) {
         val ux = id(x)
         require(d0(ux) == x, s"Domain of unit $ux should be $x")
         require(d1(ux) == x, s"Codomain of unit $ux should be $x")
       }
-
     }
 
-    if (Sets.isFinite(arrows)) {
+    if (isFinite(arrows)) {
       for (f <- arrows) {
         val u_f = m(id(d0(f)), f)
         require(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f")
@@ -331,7 +330,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @return a set of pairs of arrows with the same domain, ending at x and y.
     */
   def pairsWithTheSameDomain(x: O, y: O): Set[(A, A)] = setOf(
-    Sets.product2(arrows, arrows).
+    product2(arrows, arrows).
       filter(p => {
         val (px, py) = p
         sameDomain(px, py) &&
@@ -348,10 +347,8 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param y second object
     * @return true if this is a cartesian product
     */
-  def isProduct(x: O, y: O): Tuple2[A, A] => Boolean = (p: (A, A)) => {
-    val (px, py) = p
-    val prod = d0(px)
-    d0(py) == prod &&
+  def isProduct(x: O, y: O): ((A, A)) => Boolean = { case (px, py) =>
+    d0(anArrow(px)) == d0(anArrow(py)) &&
       d1(px) == x &&
       d1(py) == y &&
       pairsWithTheSameDomain(x, y).forall(factorUniquelyOnRight(px, py))
@@ -366,7 +363,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param y second object
     * @return a pair of arrows from product object to x and y, or null if none exists.
     */
-  def product(x: O, y: O): Option[(A, A)] = Sets.product2(arrows, arrows).find(isProduct(x, y))
+  def product(x: O, y: O): Option[(A, A)] = product2(arrows, arrows).find(isProduct(x, y))
 
   /**
     * Builds a union of two objects, if it exists. Returns null otherwise.
@@ -376,7 +373,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param y second object
     * @return a pair of arrows from a and b to their union, or null if none exists.
     */
-  def union(x: O, y: O): Option[(A, A)] = Sets.product2(arrows, arrows).find(isUnion(x, y))
+  def union(x: O, y: O): Option[(A, A)] = product2(arrows, arrows).find(isUnion(x, y))
 
   /**
     * Checks if i = (ix, iy) is a union of objects x and y.
@@ -387,7 +384,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     */
   def isUnion(x: O, y: O): Tuple2[A, A] => Boolean = (i: (A, A)) => {
     val (ix, iy) = i
-    d0(ix) == x && d0(iy) == y &&
+    d0(anArrow(ix)) == x && d0(anArrow(iy)) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
   }
 
@@ -432,14 +429,12 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @return a set of pairs of arrows with the same codomain, starting at x and y.
     */
   def pairsWithTheSameCodomain(x: O, y: O): Set[(A, A)] = setOf(
-    Sets.product2(arrows, arrows).
-      filter(p => {
-        val (px, py) = p
-        sameCodomain(px, py) &&
+    product2(arrows, arrows) filter {
+      case (px, py) =>
+          sameCodomain(px, py) &&
           d0(px) == x &&
           d0(py) == y
       }
-      )
   )
 
   /**
@@ -453,7 +448,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     */
   def pullback(f: A, g: A): Option[(A, A)] = {
     require(sameCodomain(f, g), s"Codomains of $f and $g should be the same")
-    Sets.product2(arrows, arrows).find(isPullback(f, g))
+    product2(arrows, arrows).find(isPullback(f, g))
   }
 
   /**
@@ -528,7 +523,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     */
   def pushout(f: A, g: A): Option[(A, A)] = {
     require(sameDomain(f, g), "Domains should be the same")
-    Sets.product2(arrows, arrows).find(isPushout(f, g))
+    product2(arrows, arrows).find(isPushout(f, g))
   }
 
   /**
@@ -586,8 +581,6 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   def isTerminal(t: O): Boolean = objects.forall((x: O) => isUnique(hom(x, t)))
 
   def objects: Set[O] = nodes
-
-  def isUnique[T](seq: Iterable[T]): Boolean = isSingleton(seq)
 
   /**
     * Checks if a given object (candidate) is an initial object (aka zero).
@@ -822,7 +815,7 @@ trait CategoryFactory {
     def hasUniqueCandidate(f: A, g: A) = {
       val iterator = candidates(f, g).iterator
       iterator.hasNext && ! {
-        iterator.next;
+        iterator.next
         iterator.hasNext
       }
     }

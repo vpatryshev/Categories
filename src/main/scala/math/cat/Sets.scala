@@ -230,7 +230,10 @@ object Sets {
     val i = ts.iterator
     i.hasNext && { i.next; !i.hasNext }
   }
-  
+
+  def isUnique[T](seq: Iterable[T]): Boolean = isSingleton(seq)
+
+
   def main(args: Array[String]) {
     val a = Set("a", "b", "c")
     val b = Set("x", "y")

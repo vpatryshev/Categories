@@ -468,48 +468,61 @@ class CategoryTest extends Specification {
       ParallelPair.coequalizer("a", "b") === None
     }
 
-    "PairsEqualizing" >> {
+    "pairsEqualizing" >> {
       val actual = HalfSimplicial.pairsEqualizing("a", "2_swap")
       val expected = Set(("0_1", "0_2"), ("2_1", "2_b"), ("1", "b"))
       actual === expected
     }
 
-    "PairsCoequalizing" >> {
+    "pairsCoequalizing" >> {
       val actual = HalfSimplicial.pairsCoequalizing("2_1", "2_swap")
       val expected = Set(("a", "2_a"), ("1", "2_1"), ("b", "2_b"))
       actual === expected
     }
 
-    "PairsCoequalizing_SQUARE" >> {
+    "pairsCoequalizing_SQUARE" >> {
       Square.pairsCoequalizing("ab", "ac") === Set(("bd", "cd"))
     }
 
-    "PairsWithTheSameDomain" >> {
+    "pairsWithTheSameDomain" >> {
       val actual = HalfSimplicial.pairsWithTheSameDomain("1", "2")
       val expected = Set(("1", "b"), ("2_1", "2_b"), ("2_1", "2"), ("2_1", "2_swap"), ("0_1", "0_2"), ("2_1", "2_a"), ("1", "a"))
       actual === expected
     }
 
-    "PairsWithTheSameCodomain" >> {
+    "pairsWithTheSameCodomain" >> {
       val actual = HalfSimplicial.pairsWithTheSameCodomain("0", "2")
       val expected = Set(("0_2", "2"), ("0_1", "2_1"), ("0_2", "2_swap"), ("0_2", "2_b"), ("0_2", "2_a"))
       actual === expected
     }
 
-    "Product_none" >> {
+    "isProduct" >> {
+      Square.isProduct("a", "c")(("ab", "ac")) === false
+      Square.isProduct("a", "b")(("ab", "ac")) === false
+      Square.isProduct("a", "a")(("ab", "ac")) === false
+      Square.isProduct("b", "c")(("ab", "ac")) === true
+    }
+    
+    "product_none" >> {
       ParallelPair.product("0", "1") === None
     }
 
-    "Product_plain" >> {
-      val actual = Square.product("b", "c")
-      actual === Some(("ab", "ac"))
+    "product_plain" >> {
+      Square.product("b", "c") === Some(("ab", "ac"))
     }
 
-    "Union_none" >> {
+    "isUnion" >> {
+      Square.isUnion("b", "c")(("bd", "cd")) === true
+      Square.isUnion("a", "c")(("ac", "c")) === true
+      Square.isUnion("a", "c")(("ac", "c")) === true
+      Square.isUnion("a", "c")(("ac", "a")) === false
+    }
+
+    "union_none" >> {
       ParallelPair.union("0", "1") === None
     }
 
-    "Union_plain" >> {
+    "union_plain" >> {
       val actual = Square.union("b", "c")
       actual === Some(("bd", "cd"))
     }
@@ -653,6 +666,13 @@ class CategoryTest extends Specification {
       HalfSimplicial.isInitial("2") === false
       ParallelPair.isInitial("0") === false
       Pullback.isInitial("a") === false
+    }
+    
+    "op" in {
+      val op3 = _3_.op
+      op3.arrows === _3_.arrows
+      op3.objects === _3_.objects
+      op3.d0((1,2)) === 2
     }
 
     // following are tests for accompanying object
