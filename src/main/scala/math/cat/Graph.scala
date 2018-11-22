@@ -47,13 +47,20 @@ class Graph[N, A] (
    */
   def hom(from: N, to: N): Set[A] = setOf(arrows filter ((f: A) => (d0(f) == from) && (d1(f) == to)))
 
+  def anArrow(f: A): A = {
+    require(arrows(f), s"Unknown arrow $f")
+    f
+  }
+  
   /**
    * Checks if one arrow follows another
    * @param f an arrow
    * @param g an arrow
    * @return true iff f follows g
    */
-  def follows(f: A, g: A): Boolean = d0(f) == d1(g)
+  def follows(f: A, g: A): Boolean = {
+    d0(anArrow(f)) == d1(anArrow(g))
+  }
 
   /**
    * Checks if two arrows have the same domain
@@ -61,7 +68,9 @@ class Graph[N, A] (
    * @param g an arrow
    * @return true iff g and f have the same domain
    */
-  def sameDomain(f: A, g: A): Boolean = d0(f) == d0(g)
+  def sameDomain(f: A, g: A): Boolean = {
+    d0(anArrow(f)) == d0(anArrow(g))
+  }
 
   /**
    * Checks if two arrows have the same codomain
@@ -69,7 +78,9 @@ class Graph[N, A] (
    * @param g an arrow
    * @return true iff g and f have the same codomain
    */
-  def sameCodomain(f: A, g: A): Boolean = d1(f) == d1(g)
+  def sameCodomain(f: A, g: A): Boolean = {
+    d1(anArrow(f)) == d1(anArrow(g))
+  }
 
   /**
    * Checks if two arrows are parallel

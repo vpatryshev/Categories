@@ -9,28 +9,6 @@ import SetCategory._
  */
 class CategoryTest extends Specification {
 
-  lazy val halfSimplicial: Category[String, String] = Category(Set("0", "1", "2"),
-    Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "a" -> "1", "b" -> "1", "2_swap" -> "2"), // d0
-    Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "a" -> "2", "b" -> "2", "2_swap" -> "2"), // d1
-    Map(("0_1", "a") -> "0_2",
-        ("0_1", "b") -> "0_2",
-        ("2_1", "a") -> "2_a",
-        ("2_1", "b") -> "2_b",
-        ("a", "2_swap") -> "b",
-        ("a", "2_a") -> "a",
-        ("b", "2_swap") -> "a",
-        ("b", "2_a") -> "a",
-        ("b", "2_b") -> "b",
-        ("2_swap", "2_swap") -> "2",
-        ("2_swap", "2_a") -> "2_a",
-        ("2_swap", "2_b") -> "2_b",
-        ("2_a", "2_a") -> "2_a",
-        ("2_b", "2_b") -> "2_b",
-        ("2_a", "2_swap") -> "2_b",
-        ("2_b", "2_swap") -> "2_a"
-      )
-    )
-
   "Category" >> {
 
     "have segments" >> {
@@ -98,9 +76,15 @@ class CategoryTest extends Specification {
       segment(10).degree(4, 5) === Some(4, List((4,4), (4,4), (4,4), (4,4), (4,4)))
     }
     
+    "id" >> {
+      _3_.id(2) === (2, 2)
+      ParallelPair.id("1") === "1"
+      NaturalNumbers.id(42) === (42, 42)
+    }
+    
     "regression from 6/9/15" >> {
       val expected = Category(
-        units = Set("0", "1", "2"),
+        ids = Set("0", "1", "2"),
         domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
         codomain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "2", "b" -> "2"),
         compositionSource = Map[(String, String), String]()
@@ -116,7 +100,7 @@ class CategoryTest extends Specification {
     }
     
     "constructor_halfSimplicial" >> {
-      halfSimplicial.objects must haveSize(3)
+      HalfSimplicial.objects must haveSize(3)
     }
 
     "constructor_1_bare" >> {
@@ -279,7 +263,7 @@ class CategoryTest extends Specification {
     }
 
     "parse_positive" >> {
-      val expected = halfSimplicial
+      val expected = HalfSimplicial
       val string = expected.toString()
       val parsed = Category(string)
       parsed.objects === expected.objects
@@ -288,15 +272,15 @@ class CategoryTest extends Specification {
     }
 
     "D0_positive()" >> {
-      halfSimplicial.d0("0") === "0"
-      halfSimplicial.d0("1") === "1"
-      halfSimplicial.d0("a") === "1"
-      halfSimplicial.d0("2_swap") === "2"
+      HalfSimplicial.d0("0") === "0"
+      HalfSimplicial.d0("1") === "1"
+      HalfSimplicial.d0("a") === "1"
+      HalfSimplicial.d0("2_swap") === "2"
     }
 
     "D0_negative()" >> {
       try {
-        val unknown = halfSimplicial.d0("qq")
+        val unknown = HalfSimplicial.d0("qq")
         failure("Should have failed")
       } catch {
         case e: Exception => // println("Got expected exception " + e) // as expected
@@ -306,13 +290,13 @@ class CategoryTest extends Specification {
     }
 
     "D1_positive()" >> {
-      halfSimplicial.d1("0") === "0"
-      halfSimplicial.d1("1") === "1"
-      halfSimplicial.d1("a") === "2"
-      halfSimplicial.d1("2_swap") === "2"
+      HalfSimplicial.d1("0") === "0"
+      HalfSimplicial.d1("1") === "1"
+      HalfSimplicial.d1("a") === "2"
+      HalfSimplicial.d1("2_swap") === "2"
     }
 
-    "Equals_positive_arrows()" >> {
+    "equals_positive_arrows()" >> {
       val c1 = Category("({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})")
       val c2 = Category("({1, 0}, {b: 0 -> 1, a: 0 -> 1}, {})")
       c1.objects === Set("0", "1")
@@ -321,13 +305,13 @@ class CategoryTest extends Specification {
       c1 === c2
     }
 
-    "Equals_negative_arrows()" >> {
+    "equals_negative_arrows()" >> {
       val c1 = Category("({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})")
       val c3 = Category("({1, 0}, {a: 0 -> 1, c: 0 -> 1}, {})")
       (c1 == c3) must beFalse
     }
 
-    "Equals_positive_mult()" >> {
+    "equals_positive_mult()" >> {
       val c1 = Category("({0, 1}, {a: 0 -> 1, b: 1 -> 1, c: 1 -> 1}, {a o b = a, a o c = c, b o b = b, b o c = c, c o b = b, c o c = c})")
       val c2 = Category("({1, 0}, {b: 1 -> 1, c: 1 -> 1, a: 0 -> 1}, {b o b = b, b o c = c, a o b = a, a o c = c, c o b = b, c o c = c})")
       (c1 == c2) must beTrue
@@ -374,8 +358,8 @@ class CategoryTest extends Specification {
       sut.isEpimorphism("2") must beFalse
     }
 
-    "FactorsOnLeft" >> {
-      val sut = halfSimplicial
+    "factorsOnLeft" >> {
+      val sut = HalfSimplicial
       val predicate = sut.factorsOnLeft(("a", "b"), ("2_a", "2_b"))
 
       predicate("2_1") must beTrue
@@ -384,26 +368,41 @@ class CategoryTest extends Specification {
       predicate("2") must beFalse
     }
 
-    "FactorsOnRight" >> {
-      val predicate = halfSimplicial.factorsOnRight(("2", "b"), ("2_b", "b"))
+    "factorsOnRight" >> {
+      val predicate = HalfSimplicial.factorsOnRight(("2", "b"), ("2_b", "b"))
       predicate("2_b") must beTrue
       predicate("2_a") must beFalse
     }
 
-    "FactorsUniquelyOnLeft" >> {
-      halfSimplicial.factorsUniquelyOnLeft("0_2")("2_swap") must beTrue
+    "factorsUniquelyOnLeft" >> {
+      HalfSimplicial.factorsUniquelyOnLeft("0_2")("2_swap") must beTrue
+      HalfSimplicial.factorsUniquelyOnLeft("a")("2_swap") must beTrue
+      HalfSimplicial.factorsUniquelyOnLeft("a")("2_b") must beFalse
     }
 
-    "FactorsUniquelyOnRight" >> {
-      val sut = halfSimplicial
+    "factorsUniquelyOnRight" >> {
+      val sut = HalfSimplicial
       val mustDo = sut.factorsUniquelyOnRight("0_1")("0_2")
       mustDo must beTrue
       sut.factorsUniquelyOnRight("2_swap")("2_a") must beFalse
       sut.factorsUniquelyOnRight("2_swap")("0_2") must beFalse
+      HalfSimplicial.factorsUniquelyOnRight("2_1")("2_swap") must beTrue
+      HalfSimplicial.factorsUniquelyOnLeft("a")("b") must beFalse
     }
 
-    "Equalizes" >> {
-      val sut = halfSimplicial
+    "factorUniquelyOnLeft" >> {
+      HalfSimplicial.factorUniquelyOnLeft("0_2", "2_swap")("0_2", "2_swap") must beTrue
+      HalfSimplicial.factorUniquelyOnLeft("a", "2_swap")("0_2", "2_swap") must beFalse
+    }
+
+    "factorUniquelyOnRight" >> {
+      val sut = HalfSimplicial
+      sut.factorUniquelyOnRight("0_1","0_2")("0_1","0_2") must beTrue
+      sut.factorUniquelyOnRight("2_swap", "2_a")("0_1","0_2") must beFalse
+    }
+
+    "equalizes" >> {
+      val sut = HalfSimplicial
       sut.equalizes("2_a", "2_b")("0_2") must beTrue
       sut.equalizes("2_a", "2_b")("2_1") must beFalse
       sut.equalizes("2_a", "2_b")("2") must beFalse
@@ -411,7 +410,7 @@ class CategoryTest extends Specification {
     }
 
     "coqualizes" >> {
-      val sut = halfSimplicial
+      val sut = HalfSimplicial
       sut.coequalizes("2_a", "2_b")("2_1") must beTrue
       sut.coequalizes("2_a", "2_b")("0_2") must beFalse
       sut.coequalizes("2_a", "2_b")("2_swap") must beFalse
@@ -419,19 +418,19 @@ class CategoryTest extends Specification {
     }
 
     "allEqualizingArrows" >> {
-      halfSimplicial.allEqualizingArrows("2_a", "2_b") === Set("0_2")
+      HalfSimplicial.allEqualizingArrows("2_a", "2_b") === Set("0_2")
     }
 
     "isEqualizer_positive" >> {
-      halfSimplicial.isEqualizer("2_a", "2_b")("0_2") must beTrue
+      HalfSimplicial.isEqualizer("2_a", "2_b")("0_2") must beTrue
     }
 
     "isEqualizer_negative" >> {
-      halfSimplicial.isEqualizer("2_a", "2_b")("2") must beFalse
+      HalfSimplicial.isEqualizer("2_a", "2_b")("2") must beFalse
     }
 
     "equalizer_positive" >> {
-      halfSimplicial.equalizer("2_a", "2_b") === Some("0_2")
+      HalfSimplicial.equalizer("2_a", "2_b") === Some("0_2")
     }
 
     "equalizer_negative" >> {
@@ -439,19 +438,19 @@ class CategoryTest extends Specification {
     }
 
     "allCoequalizingArrows" >> {
-      halfSimplicial.allCoequalizingArrows("2_a", "2_b") === Set("2_a", "2_b", "2_1")
+      HalfSimplicial.allCoequalizingArrows("2_a", "2_b") === Set("2_a", "2_b", "2_1")
     }
 
     "isCoequalizer_positive" >> {
-      halfSimplicial.isCoequalizer("2_a", "2_b")("2_1") must beTrue
+      HalfSimplicial.isCoequalizer("2_a", "2_b")("2_1") must beTrue
     }
 
     "isCoequalizer_negative" >> {
-      halfSimplicial.isCoequalizer("2_a", "2_b")("2") must beFalse
+      HalfSimplicial.isCoequalizer("2_a", "2_b")("2") must beFalse
     }
 
     "Coequalizer_positive" >> {
-      halfSimplicial.coequalizer("2_a", "2_b") === Some("2_1")
+      HalfSimplicial.coequalizer("2_a", "2_b") === Some("2_1")
     }
 
     "Coequalizer_negative" >> {
@@ -459,13 +458,13 @@ class CategoryTest extends Specification {
     }
 
     "PairsEqualizing" >> {
-      val actual = halfSimplicial.pairsEqualizing("a", "2_swap")
+      val actual = HalfSimplicial.pairsEqualizing("a", "2_swap")
       val expected = Set(("0_1", "0_2"), ("2_1", "2_b"), ("1", "b"))
       actual === expected
     }
 
     "PairsCoequalizing" >> {
-      val actual = halfSimplicial.pairsCoequalizing("2_1", "2_swap")
+      val actual = HalfSimplicial.pairsCoequalizing("2_1", "2_swap")
       val expected = Set(("a", "2_a"), ("1", "2_1"), ("b", "2_b"))
       actual === expected
     }
@@ -475,13 +474,13 @@ class CategoryTest extends Specification {
     }
 
     "PairsWithTheSameDomain" >> {
-      val actual = halfSimplicial.pairsWithTheSameDomain("1", "2")
+      val actual = HalfSimplicial.pairsWithTheSameDomain("1", "2")
       val expected = Set(("1", "b"), ("2_1", "2_b"), ("2_1", "2"), ("2_1", "2_swap"), ("0_1", "0_2"), ("2_1", "2_a"), ("1", "a"))
       actual === expected
     }
 
     "PairsWithTheSameCodomain" >> {
-      val actual = halfSimplicial.pairsWithTheSameCodomain("0", "2")
+      val actual = HalfSimplicial.pairsWithTheSameCodomain("0", "2")
       val expected = Set(("0_2", "2"), ("0_1", "2_1"), ("0_2", "2_swap"), ("0_2", "2_b"), ("0_2", "2_a"))
       actual === expected
     }
@@ -673,9 +672,8 @@ class CategoryTest extends Specification {
     }
 
     "SplitMono" >> {
-      val SPLIT_MONO =
-        Category("({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = bb, ab o ba = a, ab o bb = ab, bb o ba = ba, bb o bb = bb})")
-      SPLIT_MONO.objects === Set("a", "b")
+      SplitMono.objects === Set("a", "b")
+      SplitMono.arrows === Set("a", "b", "ab", "ba", "bb")
     }
 
     "M" >> {

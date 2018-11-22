@@ -130,7 +130,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param f an arrow to check
     * @return true iff f is an isomorphism
     */
-  def isIsomorphism(f: A): Boolean = inverse(f).isDefined
+  def isIsomorphism(f: A): Boolean = inverse(anArrow(f)).isDefined
 
   /**
     * Returnes an inverse arrow.
@@ -138,11 +138,11 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param f an arrow for which we are looking an inverse
     * @return inverse arrow
     */
-  def inverse(f: A): Option[A] = hom(d1(f), d0(f)) find (areInverse(f, _))
+  def inverse(f: A): Option[A] = hom(d1(anArrow(f)), d0(f)) find (areInverse(f, _))
 
-  def areInverse(f: A, g: A): Boolean = (m(f, g) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
+  def areInverse(f: A, g: A): Boolean = (m(anArrow(f), anArrow(g)) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
 
-  def isEndomorphism(f: A): Boolean = d0(f) == d1(f)
+  def isEndomorphism(f: A): Boolean = d0(anArrow(f)) == d1(f)
 
   /**
     * Checks whether an arrow is a monomorphism.
@@ -354,7 +354,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     d0(py) == prod &&
       d1(px) == x &&
       d1(py) == y &&
-      pairsWithTheSameDomain(x, y).forall(factorsUniquelyOnRight(px, py))
+      pairsWithTheSameDomain(x, y).forall(factorUniquelyOnRight(px, py))
   }
 
   /**
@@ -388,7 +388,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   def isUnion(x: O, y: O): Tuple2[A, A] => Boolean = (i: (A, A)) => {
     val (ix, iy) = i
     d0(ix) == x && d0(iy) == y &&
-      pairsWithTheSameCodomain(x, y).forall(factorsUniquelyOnLeft(ix, iy))
+      pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
   }
 
   /**
@@ -400,7 +400,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     *
     * @return true if q factors p uniquely on the left
     */
-  def factorsUniquelyOnLeft(f: A, g: A): Tuple2[A, A] => Boolean =
+  def factorUniquelyOnLeft(f: A, g: A): Tuple2[A, A] => Boolean =
     (q: (A, A)) => {
       val (qx, qy) = q
       isUnique(hom(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
@@ -467,7 +467,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     val (px, py) = p
     follows(f, px) && follows(g, py) &&
       m(px, f) == m(py, g) &&
-      pairsEqualizing(f, g).forall(factorsUniquelyOnRight(px, py))
+      pairsEqualizing(f, g).forall(factorUniquelyOnRight(px, py))
   }
 
   /**
@@ -477,13 +477,12 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     *
     * @return true if p factors q uniquely on the right
     */
-  def factorsUniquelyOnRight(px: A, py: A): Tuple2[A, A] => Boolean =
-    (q: (A, A)) => {
-      val (qx, qy) = q
-      d1(px) == d1(qx) &&
-        d1(py) == d1(qy) &&
-        isUnique(hom(d0(qx), d0(px)).filter((h: A) => (m(h, px) contains qx) && (m(h, py) contains qy)))
-    }
+  def factorUniquelyOnRight(px: A, py: A): Tuple2[A, A] => Boolean = {
+    case (qx, qy) =>
+      sameCodomain(px, qx) &&
+      sameCodomain(py, qy) &&
+      isUnique(hom(d0(qx), d0(px)).filter((h: A) => (m(h, px) contains qx) && (m(h, py) contains qy)))
+  }
 
   /**
     * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
@@ -546,7 +545,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
       follows(px, f) &&
       follows(py, g) &&
       m(f, px) == m(g, py) &&
-      pairsCoequalizing(f, g).forall(factorsUniquelyOnLeft(px, py))
+      pairsCoequalizing(f, g).forall(factorUniquelyOnLeft(px, py))
   }
 
   /**
@@ -739,18 +738,18 @@ trait CategoryFactory {
     * Objects have the same name as their units.
     *
     * @tparam T arrow type
-    * @param units             set of units (and objects)
+    * @param ids             set of units (and objects)
     * @param domain            maps arrows to domains
     * @param codomain          maps arrows to codomain
     * @param compositionSource source table of arrows composition (may be incomplete)
     * @return a newly-built category
     */
   def apply[T](
-                units: Set[T],
+                ids: Set[T],
                 domain: Map[T, T],
                 codomain: Map[T, T],
                 compositionSource: Map[(T, T), T]): Category[T, T] = {
-    val g = Graph(units, domain.keySet, domain, codomain)
+    val g = Graph(ids, domain.keySet, domain, codomain)
     apply(g, compositionSource)
   }
 
@@ -797,9 +796,9 @@ trait CategoryFactory {
   private def addUnitsToGraph[T](graph: Graph[T, T]) = {
     val nodes = graph.nodes.asInstanceOf[Set[T]] // this and the next casting is to cover up a weird bug somewhere in scala
     val allArrows: Set[T] = nodes ++ graph.arrows
-    val isUnit = (f: T) => graph.nodes contains f
-    val d0 = (f: T) => if (isUnit(f)) f else graph.d0(f)
-    val d1 = (f: T) => if (isUnit(f)) f else graph.d1(f)
+    val isIdentity = (f: T) => graph.nodes contains f
+    val d0 = (f: T) => if (isIdentity(f)) f else graph.d0(f)
+    val d1 = (f: T) => if (isIdentity(f)) f else graph.d1(f)
     Graph(graph.nodes, allArrows, d0, d1)
   }
 
@@ -980,9 +979,41 @@ object Category extends CategoryFactory {
     */
   lazy val M = Category("({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e}, {})")
 
+
+  /**
+    * A segment of simplicial category.
+    * Represents three sets (empty, singleton and two-point) and
+    * all their possible functions.
+    */
+  lazy val HalfSimplicial: Category[String, String] = Category(Set("0", "1", "2"),
+    Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "a" -> "1", "b" -> "1", "2_swap" -> "2"), // d0
+    Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "a" -> "2", "b" -> "2", "2_swap" -> "2"), // d1
+    Map(("0_1", "a") -> "0_2",
+      ("0_1", "b") -> "0_2",
+      ("2_1", "a") -> "2_a",
+      ("2_1", "b") -> "2_b",
+      ("a", "2_swap") -> "b",
+      ("a", "2_a") -> "a",
+      ("b", "2_swap") -> "a",
+      ("b", "2_a") -> "a",
+      ("b", "2_b") -> "b",
+      ("2_swap", "2_swap") -> "2",
+      ("2_swap", "2_a") -> "2_a",
+      ("2_swap", "2_b") -> "2_b",
+      ("2_a", "2_a") -> "2_a",
+      ("2_b", "2_b") -> "2_b",
+      ("2_a", "2_swap") -> "2_b",
+      ("2_b", "2_swap") -> "2_a"
+    )
+  )
+  
   lazy val NaturalNumbers: Category[BigInt, (BigInt, BigInt)] =
     Category(PoSet.ofNaturalNumbers)
 
-  lazy val KnownCategories = Set(_0_, _1_, _2_, _3_, _4_, _1plus1_,
-    M, ParallelPair, Pullback, Pushout, SplitMono, Square, W, Z2, Z3, NaturalNumbers)
+  lazy val KnownCategories = Set(
+    _0_, _1_, _2_, _3_, _4_, _1plus1_,
+    ParallelPair, Pullback, Pushout, SplitMono, Square,
+    M, W,
+    Z2, Z3,
+    HalfSimplicial, NaturalNumbers)
 }

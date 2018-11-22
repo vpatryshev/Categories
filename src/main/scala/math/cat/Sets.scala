@@ -463,7 +463,7 @@ object Sets {
     override def keys: Set[K] = xs
 
     override def apply(x: K): V =
-      if (xs contains x) f(x) else throw new RuntimeException("oops, no value")
+      if (xs contains x) f(x) else throw new RuntimeException(s"oops, $x is not in domain")
 
     override def +[V1 >: V](kv: (K, V1)): Map[K, V1] = requireImmutability
 
