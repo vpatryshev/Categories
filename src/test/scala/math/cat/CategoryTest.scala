@@ -330,6 +330,10 @@ class CategoryTest extends Specification {
 
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
+      _3_.arrows.forall { case a@ (x, y) => (x == y) === _3_.isIsomorphism(a)}
+
+      HalfSimplicial.arrows.filter(HalfSimplicial.isIsomorphism) ===
+        Set("0", "1", "2", "2_swap")
     }
 
     "isIsomorphism_negative()" >> {
@@ -356,6 +360,13 @@ class CategoryTest extends Specification {
       sut.isEpimorphism("0") must beTrue
       sut.isEpimorphism("1") must beFalse
       sut.isEpimorphism("2") must beFalse
+    }
+
+    "isEndomorphism" in {
+      _3_.arrows.forall { case a@ (x, y) => (x == y) === _3_.isEndomorphism(a)}
+
+      HalfSimplicial.arrows.filter(HalfSimplicial.isEndomorphism) ===
+        Set("0", "1", "2", "2_a", "2_b", "2_swap")
     }
 
     "factorsOnLeft" >> {
@@ -634,6 +645,16 @@ class CategoryTest extends Specification {
         Map("b" -> Set(), "c" -> Set())
     }
     
+    "isInitial" in {
+      _4_.isInitial(0) === true
+      _4_.isInitial(1) === false
+      HalfSimplicial.isInitial("0") === true
+      HalfSimplicial.isInitial("1") === false
+      HalfSimplicial.isInitial("2") === false
+      ParallelPair.isInitial("0") === false
+      Pullback.isInitial("a") === false
+    }
+
     // following are tests for accompanying object
 
     "0" >> {
