@@ -4,7 +4,6 @@ import org.specs2.mutable._
 import Category._
 
 class FunctorTest extends Specification {
-  sequential
   
   lazy val categorySquareWithTwoTopLeftCorners: Category[String, String] =
     Category("({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})")
@@ -166,10 +165,10 @@ class FunctorTest extends Specification {
     "colimit with two candidates" in {
       functorFrom1to2toDoubleSquare.colimit match {
         case Some(colimit) =>
-          colimit.apex == "d0"
-          colimit.arrowTo("a") === "ad0"
-          colimit.arrowTo("b") === "bd0"
-          colimit.arrowTo("c") === "cd0"
+          colimit.apex == "d1"
+          colimit.arrowFrom("a") === "ad1"
+          colimit.arrowFrom("b") === "bd1"
+          colimit.arrowFrom("c") === "cd1"
         case oops => failure("Could not build a colimit for " + 
                      functorFrom1to2toDoubleSquare.tag)
       }

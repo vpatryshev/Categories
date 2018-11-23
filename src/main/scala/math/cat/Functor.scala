@@ -25,10 +25,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
      tag, domain, codomain, objectsMorphism, arrowsMorphism)
 {
   
-  try {
-    validate()
-  } catch {
-    case x: Exception =>
+  try { validate() } catch { case x: Exception =>
       throw x
   }
 
@@ -189,48 +186,56 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     * Cocone class for this Functor. A cocone is an object y (called apex) and a bundle of arrows cx: F(x) -> y
     * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
     * @param apex the cone's apex object in Y
-    * @param arrowTo maps each object of x to an arrow from F(x) to the apex.
+    * @param arrowFrom maps each object of x to an arrow from F(x) to the apex.
     */
-  case class Cocone(apex: YObjects, arrowTo: XObjects => YArrows) {
+  case class Cocone(apex: YObjects, arrowFrom: XObjects => YArrows) {
 
     override def toString: String = "Cocone[" + apex + "]"
 
     /**
-      * A cone from y1 to F is factored by this cone (with apex y)
-      * if there is an h : y1 -> y such that each f1: y1 -> F(x) is equal to
-      * f o h, where f: y -> F(x).
+      * A cocone from F to y1 is factored by this cocone (from F to y)
+      * if there is an h : y -> y1 such that each f1: F(x) -> y1 is equal to
+      * h o f, where f: F(x) -> y.
       *
       * @param factored a cone that may be factored
       * @return true if it is so
       */
-    def factorsOnRight(factored: Cocone): Boolean =
-      codomain.hom(factored.apex, apex).exists(
-        (h: YArrows) =>
-          domain.objects.forall(
-            (x: XObjects) => codomain.m(h, arrowTo(x)) contains factored.arrowTo(x))
+    def factorsOnRight(factored: Cocone): Boolean = {
+      val hom = codomain.hom(factored.apex, apex)
+      val answer = hom exists(
+        (h: YArrows) => {
+          val failsOn = domain.objects.find(
+            (x: XObjects) => !(codomain.m(factored.arrowFrom(x), h) contains arrowFrom(x)))
+          val itWorks = failsOn.isEmpty
+          itWorks
+        }
       )
+      
+      answer
+    }
 
     /**
       * @return true if this actually a well-formed cone.
       */
     def isWellFormed: Boolean = domain.arrows.forall(
       (f: XArrows) => {
-        var yToFx0 = arrowTo(domain.d0(f))
-        var yToFx1 = arrowTo(domain.d1(f))
+        var Fx02y = arrowFrom(domain.d0(f))
+        var Fx12y = arrowFrom(domain.d1(f))
         var F_f = arrowsMorphism.apply(f)
-        codomain.m(yToFx0, F_f) contains yToFx1
+        val answer = codomain.m(F_f, Fx12y) contains Fx02y
+        answer
       }
     )
 
     override def equals(o: Any): Boolean = o match {
-        case other: Cone =>
+        case other: Cocone =>
           eq(other) || (
           apex == other.apex &&
-            domain.forall { x: XObjects => arrowTo(x) == other.arrowTo(x) })
+            domain.forall { x: XObjects => arrowFrom(x) == other.arrowFrom(x) })
         case somethingElse => false
       }
 
-    override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
+    override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowFrom(x).hashCode)
   }
 
   def cocone(apex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cocone] = {
@@ -247,9 +252,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     */
   def coconesTo (y: YObjects): Set[Cocone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
-    val arrowsFromFXtoY = injection (
-      (x: XObjects) => codomain.hom(y, nodesMorphism(x)) map { (x, _) }
-    )
+    def arrowsFromFXtoY(x: XObjects)=
+      codomain.hom(nodesMorphism(x), y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(XObjects, YArrows)]] = domain.objects.toList map arrowsFromFXtoY
