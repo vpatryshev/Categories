@@ -12,11 +12,12 @@ class GraphMorphism [XNodes, XArrows, GX <: Graph[XNodes, XArrows], YNodes, YArr
     val arrowsMorphism: XArrows => YArrows
 ) extends Morphism[GX, GY] {
 
-  for (arrowX <- d0.arrows) {
-     val xNode0 = d0.d0(arrowX)
-     val xNode1 = d0.d1(arrowX)
-     val arrowY = arrowsMorphism(arrowX)
-  }
+// what's the purpose of this?
+//  for (arrowX <- d0.arrows) {
+//     val xNode0 = d0.d0(arrowX)
+//     val xNode1 = d0.d1(arrowX)
+//     val arrowY = arrowsMorphism(arrowX)
+//  }
 
   /**
    * Two graph morphisms are equal if they have equal d0s and cod0s and both morphisms for nodes and arrows

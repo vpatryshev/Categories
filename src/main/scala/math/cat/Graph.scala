@@ -14,6 +14,9 @@ class Graph[N, A] (
   def this(source: Graph[N, A]) =
     this(source.nodes, source.arrows, source.d0, source.d1)
 
+  protected lazy val finiteNodes: Boolean = isFinite(nodes)
+  protected lazy val finiteArrows: Boolean = isFinite(arrows)
+
   validateGraph()
 
   override def seq: Set[N] = nodes
@@ -32,7 +35,7 @@ class Graph[N, A] (
   }
 
   def validateGraph() {
-    if (Sets.isFinite(arrows)) {
+    if (finiteArrows) {
     for(a <- arrows) require(nodes contains d0(a), " d0 for " + a + " should be in set of nodes")
     for(a <- arrows) require(nodes contains d1(a), " d1 for " + a + " should be in set of nodes")
   }

@@ -24,7 +24,12 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     Set() ++ objects -- wrongStuff // need this trick because objects is strictly immutable
   }
 
-  validate()
+  try {
+    validate()
+  } catch {
+    case t: Throwable =>
+      throw t
+  }
   /**
     * An iterable of all objects that do not have any non-endomorphic arrows pointing at them.
     * Constructively, these are all such objects that if an arrow ends at such an object, it is an endomophism.
@@ -40,7 +45,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
 
   def validate() {
     validateGraph()
-    if (isFinite(objects)) {
+    if (finiteNodes) {
       for (x <- objects) {
         val ux = id(x)
         require(d0(ux) == x, s"Domain of id $ux should be $x")
@@ -48,7 +53,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
       }
     }
 
-    if (isFinite(arrows)) {
+    if (finiteArrows) {
       for (f <- arrows) {
         val u_f = m(id(d0(f)), f)
         require(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f")
@@ -882,10 +887,19 @@ private[cat] trait CategoryFactory {
   class Parser extends Graph.Parser {
     override def all: Parser[Graph[String, String]] = "(" ~ graph ~ ")" ^^ { case "(" ~ g ~ ")" => g }
 
-    override def read(input: CharSequence): Category[String, String] =
+    override def read(input: CharSequence): Category[String, String] = try{
       parseAll(category, input).get
+    } catch {
+      case x: Exception =>
+        println(s"$x as ${x.getClass}")
+        throw x
+    }
 
-    def category: Parser[Category[String, String]] = "(" ~ graph ~ "," ~ multTable ~ ")" ^^ { case "(" ~ g ~ "," ~ m ~ ")" => Category(g, m) }
+    def category: Parser[Category[String, String]] =
+      "(" ~ graph ~ (("," ~ multTable)?) ~ ")" ^^ { case "(" ~ g ~ mOpt ~ ")" => mOpt match {
+        case Some("," ~ m) => Category(g, m)
+        case None => Category(g, Map.empty[(String, String), String])
+      } }
 
     def multTable: Parser[Map[(String, String), String]] = "{" ~ repsep(multiplication, ",") ~ "}" ^^ { case "{" ~ m ~ "}" => Map() ++ m }
 
@@ -931,7 +945,7 @@ object Category extends CategoryFactory {
   /**
     * Category with 2 objects and 2 parallel arrows from one to another
     */
-  lazy val ParallelPair = Category("({0, 1}, {a:0->1, b:0->1}, {})")
+  lazy val ParallelPair = Category("({0, 1}, {a:0->1, b:0->1})")
 
   /**
     * Category <b>Z2</2> - a two-element monoid
@@ -955,22 +969,22 @@ object Category extends CategoryFactory {
   /**
     * Pullback category: a -> c <- b
     */
-  lazy val Pullback = Category("({a,b,c}, {ac: a -> c, bc: b -> c}, {})")
+  lazy val Pullback = Category("({a,b,c}, {ac: a -> c, bc: b -> c})")
 
   /**
     * Pushout category: b <- a -> c
     */
-  lazy val Pushout = Category("({a,b,c}, {ab: a -> b, ac: a -> c}, {})")
+  lazy val Pushout = Category("({a,b,c}, {ab: a -> b, ac: a -> c})")
 
   /**
     * Sample W-shaped category: a -> b <- c -> d <- e
     */
-  lazy val W = Category("({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d}, {})")
+  lazy val W = Category("({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d})")
 
   /**
     * Sample M-shaped category: a <- b -> c <- d -> e
     */
-  lazy val M = Category("({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e}, {})")
+  lazy val M = Category("({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e})")
 
 
   /**

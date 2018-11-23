@@ -5,6 +5,12 @@ import org.specs2.mutable._
 class GraphTest extends Specification {
 
   "Graph" >> {
+//    "is immutable" >> {
+//      val sut = Graph(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x:Int) => x / 10 % 10, (x:Int) => x % 10)
+//      
+//      sut-1 should throwA[UnsupportedOperationException]
+//      sut+1 should throwA[UnsupportedOperationException]
+//    }
      "parse" >> {
        val nodes = Set("0", "1", "2")
        val arrows = Map(

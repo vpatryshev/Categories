@@ -2,6 +2,9 @@ package math.cat
 
 import Sets._
 import Functions._
+import scalakittens.Result
+
+import scala.util.Try
 
 /**
  * Functor class: functions for categories.
@@ -19,9 +22,15 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
    val objectsMorphism: XObjects => YObjects,
    override val arrowsMorphism: XArrows => YArrows) extends
       GraphMorphism[XObjects, XArrows, Category[XObjects, XArrows], YObjects, YArrows, Category[YObjects, YArrows]](
-                    tag, domain, codomain, objectsMorphism, arrowsMorphism)
+     tag, domain, codomain, objectsMorphism, arrowsMorphism)
 {
-  validate()
+  
+  try {
+    validate()
+  } catch {
+    case x: Exception =>
+      throw x
+  }
 
   /**
    * Validates this functor.
@@ -33,10 +42,18 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   def validate() {
     for (x <- domain.objects) {
       val ux: XArrows = domain.id(x)
-      val y: YObjects = nodesMorphism.apply(x)
+      val y: YObjects = try {
+        nodesMorphism(x)
+      } catch {
+        case x: Exception => throw new IllegalArgumentException(s"Arrow morphism not defined for $ux")
+      }
       val uy: YArrows = codomain.id(y)
-      require(uy == arrowsMorphism(ux),
-        "Functor must preserve identities (failed on " +x + ")")
+      val fux = try {
+        arrowsMorphism(ux)
+      } catch {
+        case x: Exception => throw new IllegalArgumentException(s"Arrow morphism not defined for $ux")
+      }
+      require(uy == fux, "Functor must preserve identities (failed on " +x + ")")
     }
 
     for {fx <- domain.arrows
@@ -92,7 +109,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       codomain.hom(factored.apex, apex).exists(
         (h: YArrows) =>
           domain.objects.forall(
-            (x: XObjects) => codomain.m(h, arrowTo(x)).equals(factored.arrowTo(x)))
+            (x: XObjects) => codomain.m(h, arrowTo(x)) contains factored.arrowTo(x))
       )
 
     /**
@@ -102,18 +119,19 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       (f: XArrows) => {
         var yToFx0: YArrows = arrowTo(domain.d0(f))
         var yToFx1: YArrows = arrowTo(domain.d1(f))
-        var F_f: YArrows = arrowsMorphism.apply(f)
-        codomain.m(yToFx0, F_f).equals(yToFx1)
+        var F_f: YArrows = arrowsMorphism(f)
+        codomain.m(yToFx0, F_f) contains yToFx1
       }
     )
 
     override def equals(o: Any): Boolean = {
-      this == o || (o match {
-        case other: Cone =>
-          apex == other.apex &&
-            domain.forall { x: XObjects => arrowTo(x) == other.arrowTo(x) }
+      o match {
+        case other: Cone => eq(other) ||
+          (apex == other.apex &&
+            domain.forall { x: XObjects =>
+              Result.forValue(arrowTo(x) == other.arrowTo(x)).getOrElse(false) })
         case somethingElse => false
-      })
+      }
     }
 
     override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
@@ -137,8 +155,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       (x: XObjects) => codomain.hom(y, nodesMorphism(x)) map { (x, _) }
     )
 
+    val listOfDomainObjects = domain.objects.toList
     // group (x, f: y->F[x]) by x
-    val homsGroupedByX: Set[Set[(XObjects, YArrows)]] = domain.objects map arrowsFromYtoFX
+    val homsGroupedByX: List[Set[(XObjects, YArrows)]] = listOfDomainObjects map arrowsFromYtoFX
 
     val set: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
     val result: Set[Cone] = set flatMap cone(y)
@@ -188,7 +207,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       codomain.hom(factored.apex, apex).exists(
         (h: YArrows) =>
           domain.objects.forall(
-            (x: XObjects) => codomain.m(h, arrowTo(x)).equals(factored.arrowTo(x)))
+            (x: XObjects) => codomain.m(h, arrowTo(x)) contains factored.arrowTo(x))
       )
 
     /**
@@ -199,18 +218,17 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
         var yToFx0 = arrowTo(domain.d0(f))
         var yToFx1 = arrowTo(domain.d1(f))
         var F_f = arrowsMorphism.apply(f)
-        codomain.m(yToFx0, F_f).equals(yToFx1)
+        codomain.m(yToFx0, F_f) contains yToFx1
       }
     )
 
-    override def equals(o: Any): Boolean = {
-      this == o || (o match {
+    override def equals(o: Any): Boolean = o match {
         case other: Cone =>
+          eq(other) || (
           apex == other.apex &&
-            domain.forall { x: XObjects => arrowTo(x) == other.arrowTo(x) }
+            domain.forall { x: XObjects => arrowTo(x) == other.arrowTo(x) })
         case somethingElse => false
-      })
-    }
+      }
 
     override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
@@ -234,7 +252,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     )
 
     // group (x, f: y->F[x]) by x
-    val homsGroupedByX: Set[Set[(XObjects, YArrows)]] = domain.objects map arrowsFromFXtoY
+    val homsGroupedByX: List[Set[(XObjects, YArrows)]] = domain.objects.toList map arrowsFromFXtoY
 
     val set: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
     val result: Set[Cocone] = set flatMap cocone(y)
