@@ -118,20 +118,15 @@ class Graph[N, A] (
 
 object Graph {
   
-  def apply[N, A] (nodes: Set[N], arrows: Set[A], d0: A => N, d1: A => N): Graph[N, A] = {
-    require (arrows != null)
+  def apply[N, A](nodes: Set[N], arrows: Set[A], d0: A => N, d1: A => N): Graph[N, A] = {
     new Graph(nodes, arrows, d0, d1)
   }
 
   def apply[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Graph[N, A] = {
-    require (arrows.keySet != null)
     apply(nodes, arrows.keySet, a => arrows(a)._1,  (a: A) => arrows(a)._2)
   }
 
-  def apply[N] (nodes: Set[N]): Graph[N, N] = apply(nodes, Set.empty[N], (a: N) => a, (a: N) => a)
-
-  def first[N](p:(N,N)): N = p._1
-  def second[N](p:(N,N)): N = p._2
+  def apply[N](nodes: Set[N]): Graph[N, N] = apply(nodes, Set.empty[N], (a: N) => a, (a: N) => a)
 
   def apply[N](poset: PoSet[N]): Graph[N, (N, N)] = {
     val nodes = poset.underlyingSet
@@ -139,7 +134,7 @@ object Graph {
     val posetSquare = Sets.product2(nodes, nodes)
     val goodPairs:Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 
-    apply(nodes, goodPairs, first, second)
+    apply(nodes, goodPairs, _._1, _._2)
   }        
 
   class Parser extends Sets.Parser {

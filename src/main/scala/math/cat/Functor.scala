@@ -18,9 +18,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
    val domain: Category[XObjects, XArrows],
    val codomain: Category[YObjects, YArrows],
    val objectsMorphism: XObjects => YObjects,
-   override val arrowsMorphism: XArrows => YArrows) extends
-      GraphMorphism[XObjects, XArrows, Category[XObjects, XArrows], YObjects, YArrows, Category[YObjects, YArrows]](
-     tag, domain, codomain, objectsMorphism, arrowsMorphism)
+   override val arrowsMapping: XArrows => YArrows) extends
+      GraphMorphism[XObjects, XArrows, YObjects, YArrows](
+     tag, domain, codomain, objectsMorphism, arrowsMapping)
 {
   
   try { validate() } catch { case x: Exception =>
@@ -38,13 +38,13 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     for (x <- domain.objects) {
       val ux: XArrows = domain.id(x)
       val y: YObjects = try {
-        nodesMorphism(x)
+        nodesMapping(x)
       } catch {
         case x: Exception => throw new IllegalArgumentException(s"Arrow morphism not defined for $ux")
       }
       val uy: YArrows = codomain.id(y)
       val fux = try {
-        arrowsMorphism(ux)
+        arrowsMapping(ux)
       } catch {
         case x: Exception => throw new IllegalArgumentException(s"Arrow morphism not defined for $ux")
       }
@@ -54,12 +54,12 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     for {fx <- domain.arrows
          gx <- domain.arrows
          gx_fx <- domain.m(fx, gx)
-         fy = arrowsMorphism(fx)
-         gy = arrowsMorphism(gx)
+         fy = arrowsMapping(fx)
+         gy = arrowsMapping(gx)
          gy_fy <- codomain.m(fy, gy)
     }
-      require(gy_fy == arrowsMorphism(gx_fx),
-          s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy, ${arrowsMorphism(gx_fx)})")
+      require(gy_fy == arrowsMapping(gx_fx),
+          s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy, ${arrowsMapping(gx_fx)})")
   }
 
   /**
@@ -74,8 +74,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     g: Functor[YObjects, YArrows, ZObjects, ZArrows]):
        Functor[XObjects, XArrows, ZObjects, ZArrows] = {
     require(codomain == g.domain, "Composition not defined")
-    val nm = g.nodesMorphism compose this.nodesMorphism
-    val am = g.arrowsMorphism compose this.arrowsMorphism 
+    val nm = g.nodesMapping compose this.nodesMapping
+    val am = g.arrowsMapping compose this.arrowsMapping 
     new Functor[XObjects, XArrows, ZObjects, ZArrows](
       g.tag +" o " + this.tag, domain, g.codomain, nm, am)
   }
@@ -113,7 +113,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       (f: XArrows) => {
         var yToFx0: YArrows = arrowTo(domain.d0(f))
         var yToFx1: YArrows = arrowTo(domain.d1(f))
-        var F_f: YArrows = arrowsMorphism(f)
+        var F_f: YArrows = arrowsMapping(f)
         codomain.m(yToFx0, F_f) contains yToFx1
       }
     )
@@ -146,7 +146,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   def conesFrom (y: YObjects): Set[Cone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     val arrowsFromYtoFX = injection (
-      (x: XObjects) => codomain.hom(y, nodesMorphism(x)) map { (x, _) }
+      (x: XObjects) => codomain.hom(y, nodesMapping(x)) map { (x, _) }
     )
 
     val listOfDomainObjects = domain.objects.toList
@@ -218,7 +218,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       (f: XArrows) => {
         var Fx02y = arrowFrom(domain.d0(f))
         var Fx12y = arrowFrom(domain.d1(f))
-        var F_f = arrowsMorphism.apply(f)
+        var F_f = arrowsMapping.apply(f)
         val answer = codomain.m(F_f, Fx12y) contains Fx02y
         answer
       }
@@ -228,7 +228,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
         case other: Cocone =>
           eq(other) || (
           apex == other.apex &&
-            domain.forall { x: XObjects => arrowFrom(x) == other.arrowFrom(x) })
+          domain.forall { x: XObjects => arrowFrom(x) == other.arrowFrom(x) })
         case somethingElse => false
       }
 
@@ -250,7 +250,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   def coconesTo (y: YObjects): Set[Cocone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     def arrowsFromFXtoY(x: XObjects)=
-      codomain.hom(nodesMorphism(x), y) map { (x, _) }
+      codomain.hom(nodesMapping(x), y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(XObjects, YArrows)]] = domain.objects.toList map arrowsFromFXtoY

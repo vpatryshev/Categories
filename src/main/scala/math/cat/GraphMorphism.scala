@@ -2,59 +2,58 @@ package math.cat
 
 
 /**
- * Morphism for graphs.
- */
-class GraphMorphism [XNodes, XArrows, GX <: Graph[XNodes, XArrows], YNodes, YArrows, GY <: Graph[YNodes, YArrows]] (
-    val tag: String,
-    val d0: GX,
-    val d1: GY,
-    val nodesMorphism: XNodes => YNodes,
-    val arrowsMorphism: XArrows => YArrows
-) extends Morphism[GX, GY] {
-
-// what's the purpose of this?
-//  for (arrowX <- d0.arrows) {
-//     val xNode0 = d0.d0(arrowX)
-//     val xNode1 = d0.d1(arrowX)
-//     val arrowY = arrowsMorphism(arrowX)
-//  }
+  * Morphism for graphs.
+  */
+class GraphMorphism[XNodes, XArrows, YNodes, YArrows](
+   val tag: String,
+   val d0: Graph[XNodes, XArrows],
+   val d1: Graph[YNodes, YArrows],
+   val nodesMapping: XNodes => YNodes,
+   val arrowsMapping: XArrows => YArrows
+) extends Morphism[Graph[XNodes, XArrows], Graph[YNodes, YArrows]] {
 
   /**
-   * Two graph morphisms are equal if they have equal d0s and cod0s and both morphisms for nodes and arrows
-   * are equal respectively.
-   *
-   * @param other morphism to compare
-   * @return true iff they are equal
-   */
-  def equals(other: this.type) =
-    d0 == other.d0 &&
-    d1 == other.d1 &&
-    nodesMorphism == other.nodesMorphism &&
-    arrowsMorphism == other.arrowsMorphism
+    * Two graph morphisms are equal if they have equal d0s and cod0s and both morphisms for nodes and arrows
+    * are equal respectively.
+    *
+    * @param x morphism to compare
+    * @return true iff they are equal
+    */
+  override def equals(x: Any): Boolean = x match {
+    case other: GraphMorphism[XNodes, XArrows, YNodes, YArrows] =>
+      d0 == other.d0 &&
+      d1 == other.d1 &&
+      d0.nodes.forall(x => nodesMapping(x) == other.nodesMapping(x)) &&
+      d0.arrows.forall(x => arrowsMapping(x) == other.arrowsMapping(x))
+    case otherwise => false
+  }
 
-    override def toString: String = "(" + nodesMorphism.toString + "," + arrowsMorphism.toString + ")"
+  override def hashCode: Int = d0.hashCode | d1.hashCode*2
+  
+  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
-  def compose[ZNodes, ZArrows, GZ <: Graph[ZNodes, ZArrows]]
-      (g: GraphMorphism[YNodes, YArrows, GY, ZNodes, ZArrows, GZ]) = {
+  def compose[ZNodes, ZArrows]
+  (g: GraphMorphism[YNodes, YArrows, ZNodes, ZArrows]):
+      GraphMorphism[XNodes, XArrows, ZNodes, ZArrows] = {
     require(d1 == g.d0, "Composition not defined")
-    val nm = (x: XNodes) => g.nodesMorphism(this.nodesMorphism(x))
-    val am = g.arrowsMorphism compose this.arrowsMorphism 
-    new GraphMorphism[XNodes, XArrows, GX, ZNodes, ZArrows, GZ](this.tag +" o " + g.tag, d0, g.d1, nm, am)
+    val nm = (x: XNodes) => g.nodesMapping(this.nodesMapping(x))
+    val am = g.arrowsMapping compose this.arrowsMapping
+    new GraphMorphism[XNodes, XArrows, ZNodes, ZArrows](this.tag + " o " + g.tag, d0, g.d1, nm, am)
   }
 }
 
 object GraphMorphism {
-  def apply[XNodes, XArrows, YNodes, YArrows] (
-    d0: Graph[XNodes, XArrows],
-    d1: Graph[YNodes, YArrows],
-    f0: XNodes => YNodes,
-    f1: XArrows => YArrows):
-      GraphMorphism[XNodes, XArrows, Graph[XNodes, XArrows], YNodes, YArrows, Graph[YNodes, YArrows]] =
-      apply(d0, d1, SetMorphism(d0.nodes, d1.nodes, f0), SetMorphism(d0.arrows, d1.arrows, f1))
+  def apply[XNodes, XArrows, YNodes, YArrows](
+      d0: Graph[XNodes, XArrows],
+      d1: Graph[YNodes, YArrows],
+      f0: XNodes => YNodes,
+      f1: XArrows => YArrows):
+  GraphMorphism[XNodes, XArrows, YNodes, YArrows] =
+    apply(d0, d1, SetMorphism(d0.nodes, d1.nodes, f0), SetMorphism(d0.arrows, d1.arrows, f1))
 
   def id[XNodes, XArrows](d0: Graph[XNodes, XArrows]) =
-      new GraphMorphism[
-        XNodes, XArrows, Graph[XNodes, XArrows],
-        XNodes, XArrows, Graph[XNodes, XArrows]](
-        "id", d0, d0, identity, identity)
+    new GraphMorphism[
+      XNodes, XArrows,
+      XNodes, XArrows](
+      "id", d0, d0, identity, identity)
 }

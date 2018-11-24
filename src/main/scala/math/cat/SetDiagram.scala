@@ -76,7 +76,7 @@ class SetDiagram[Objects, Arrows](
     private[cat] def projectionForObject(x: Objects)(xs: List[Objects]): Objects = xs(index(x))
 
     // Here we have a non-repeating collection of sets to use for building a limit
-    private[cat] val setsToUse = listOfObjects map nodesMorphism
+    private[cat] val setsToUse = listOfObjects map nodesMapping
     // this is the product of these sets; will have to take a subset of this product
     private[cat] val prod: Set[List[Any]] = product(setsToUse)
     // for each domain object, a collection of arrows looking outside
@@ -135,7 +135,7 @@ class SetDiagram[Objects, Arrows](
       domain.buildBundles(domain.objects, participantArrows)
     val listOfObjects = participantObjects.toList
     // Here we have a non-repeating collection of sets to use for building a union
-    val setsToJoin: List[Set[Any]] = listOfObjects.map(nodesMorphism)
+    val setsToJoin: List[Set[Any]] = listOfObjects.map(nodesMapping)
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
     val typelessUnion: Set[Any] = union.unionSet.map(identity)
     val directIndex: Map[Int, Objects] = Base.toMap(listOfObjects)
@@ -149,7 +149,7 @@ class SetDiagram[Objects, Arrows](
     val functionsToUnion: Set[(Objects, SetFunction)] = for {
       o <- domain.objects
       a <- bundles(o)
-      from: Set[Any] = nodesMorphism(o)
+      from: Set[Any] = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMorphism(a)
       embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(domain.d1(a)))
       g = aAsMorphism.andThen(embeddingToUnion) // do we need it?
@@ -164,7 +164,7 @@ class SetDiagram[Objects, Arrows](
     // have to factor the union by the equivalence relationship caused
     // by two morphisms mapping the same element to two possibly different.
     for (o <- domain.objects) {
-      val F_o = nodesMorphism(o) // the set to which `o` maps
+      val F_o = nodesMapping(o) // the set to which `o` maps
       val arrowsFrom_o = bundles(o).toList
       
       def inclusionToUnion(a: Arrows): Any => Any = {
