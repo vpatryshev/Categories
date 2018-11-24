@@ -894,6 +894,7 @@ private[cat] trait CategoryFactory {
     def category: Parser[Category[String, String]] =
       "(" ~ graph ~ (("," ~ multTable)?) ~ ")" ^^ { case "(" ~ g ~ mOpt ~ ")" => mOpt match {
         case Some("," ~ m) => Category(g, m)
+        case Some(other) => throw new IllegalArgumentException(s"not a comp table: $other")
         case None => Category(g, Map.empty[(String, String), String])
       } }
 
