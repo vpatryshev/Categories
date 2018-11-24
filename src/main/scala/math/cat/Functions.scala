@@ -39,7 +39,7 @@ object Functions {
     def applyTo(set: Set[X]): Set[Y] = {
       val source: Iterable[X] = set
       val target: Iterable[Y] = source.map(this)
-      val predicate: Y => Boolean = (y: Y) => set.iterator.exists(self.apply(_) == y)
+      val predicate: Y => Boolean = (y: Y) => set.iterator exists {self(_) == y}
       Sets.setOf(target, set.size, predicate)
     }
   }

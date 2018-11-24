@@ -26,7 +26,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     f.d0.forall(x => f.d0.forall(y => !(f(x) == f(y)) || x == y))
 
   override def isEpimorphism(arrow: SetFunction): Boolean =
-    arrow.d1.forall(y => arrow.d0.exists(x => y == arrow(x)))
+    arrow.d1 forall {y => arrow.d0 exists {y == arrow(_)}}
 
   //  @Override
   override def equalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {

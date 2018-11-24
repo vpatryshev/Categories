@@ -233,7 +233,8 @@ object Sets {
 
   def isUnique[T](seq: Iterable[T]): Boolean = isSingleton(seq)
 
-
+  def existsUnique[T](seq: Iterable[T], p: T => Boolean): Boolean = isSingleton(seq filter p take 2)
+  
   def main(args: Array[String]) {
     val a = Set("a", "b", "c")
     val b = Set("x", "y")

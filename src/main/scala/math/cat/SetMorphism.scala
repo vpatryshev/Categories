@@ -64,7 +64,7 @@ class SetMorphism[X, Y] (
   override def updated[Y1 >: Y](x: X, y: Y1): Map[X, Y1] = requireImmutability
   def empty[PY] = throw new RuntimeException("No such thing exists as empty set morphism")
   def iterator: Iterator[(X, Y)] = d0.iterator map (x => (x, function(x)))
-  def product: Set[Map[Y, X]] = exponent(d1, d0) filter(m => d1.forall(y => function(m(y)) == y))
+  def product: Set[Map[Y, X]] = exponent(d1, d0) filter(m => d1 forall {y => function(m(y)) == y})
 }
 
 object SetMorphism {

@@ -4,8 +4,6 @@ import Sets._
 import Functions._
 import scalakittens.Result
 
-import scala.util.Try
-
 /**
  * Functor class: functions for categories.
  *
@@ -103,11 +101,10 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       * @return true if it is so
       */
     def factorsOnRight(factored: Cone): Boolean =
-      codomain.hom(factored.apex, apex).exists(
-        (h: YArrows) =>
+      codomain.hom(factored.apex, apex) exists { h =>
           domain.objects.forall(
-            (x: XObjects) => codomain.m(h, arrowTo(x)) contains factored.arrowTo(x))
-      )
+            x => codomain.m(h, arrowTo(x)) contains factored.arrowTo(x))
+      }
 
     /**
       * @return true if this actually a well-formed cone.

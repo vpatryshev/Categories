@@ -67,17 +67,17 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
       for (f <- arrows; g <- arrows if follows(g, f)) {
         val h = m(f, g)
         require(h.isDefined, s"composition must be defined for $f and $g")
-        h.foreach(gf => {
+        h foreach { gf => {
           require(sameDomain(gf, f), s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)}")
           require(sameCodomain(gf, g), s"Wrong composition $gf of %f and %g: its d1 is %{d1(gf)}, must be ${d1(g)}")
         }
-        )
+        }
       }
 
       for (f <- arrows; g <- arrows if follows(g, f)) {
         val gfOpt = m(f, g)
         require(gfOpt.isDefined, s"Composition of $f and $g must be defined")
-        gfOpt.foreach { gf =>
+        gfOpt foreach { gf =>
           for (h <- arrows if follows(h, g)) {
             val hgOpt = m(g, h)
             require(hgOpt.isDefined, s"Composition of $g and $h must be defined")
@@ -104,10 +104,10 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   // @deprecated("is category theory equational? does not seem like it is...")
   private def equal(that: Category[O, A]): Boolean = {
     val objectsEqual = this.objects == that.objects && this.arrows == that.arrows
-    val idsEqual = objectsEqual && objects.forall(x => this.id(x) == that.id(x))
+    val idsEqual = objectsEqual && (objects forall {x => id(x) == that.id(x)})
 
     val isEqual = idsEqual &&
-      arrows.forall(f => arrows.forall(g => !follows(f, g) || this.m(f, g) == that.m(f, g)))
+      (arrows forall {f => arrows forall {g => !follows(f, g) || this.m(f, g) == that.m(f, g)}})
 
     isEqual
   }
@@ -238,12 +238,10 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param g second arrow
     * @return a predicate that checks if an arrow is an equalizer of f and g
     */
-  def isEqualizer(f: A, g: A): A => Boolean = {
-    h: A =>
+  def isEqualizer(f: A, g: A)(h: A): Boolean =
       areParallel(f, g) &&
-        equalizes(f, g)(h) &&
-        allEqualizingArrows(f, g).forall(factorsUniquelyOnLeft(h))
-  }
+      equalizes(f, g)(h) &&
+      allEqualizingArrows(f, g).forall(factorsUniquelyOnLeft(h))
 
   /**
     * Builds a predicate that checks if arrow g: y -> z
@@ -253,11 +251,9 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * @param f arrow being factored
     * @return the specified predicate
     */
-  def factorsUniquelyOnLeft(f: A): A => Boolean =
-    (g: A) => {
+  def factorsUniquelyOnLeft(f: A)(g: A): Boolean =
       sameCodomain(g, f) &&
-        isUnique(hom(d0(f), d0(g)).filter(m(_, g) contains f))
-    }
+      existsUnique(hom(d0(f), d0(g)), (h:A) => m(h, g) contains f)
 
   /**
     * Builds a set of all arrows that equalize f: A -> B and g: A -> B, that is,
