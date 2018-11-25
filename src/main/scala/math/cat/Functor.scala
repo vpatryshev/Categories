@@ -17,15 +17,19 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   (override val tag: String,
    val domain: Category[XObjects, XArrows],
    val codomain: Category[YObjects, YArrows],
-   val objectsMorphism: XObjects => YObjects,
+   val objectsMapping: XObjects => YObjects,
    override val arrowsMapping: XArrows => YArrows) extends
       GraphMorphism[XObjects, XArrows, YObjects, YArrows](
-     tag, domain, codomain, objectsMorphism, arrowsMapping)
+     tag, domain, codomain, objectsMapping, arrowsMapping)
 {
+  override val d0: Category[XObjects, XArrows] = domain
+  override val d1: Category[YObjects, YArrows] = codomain
   
   try { validate() } catch { case x: Exception =>
       throw x
   }
+  
+  override def toString: String = s"Functor $tag"
 
   /**
    * Validates this functor.

@@ -940,6 +940,11 @@ object Category extends CategoryFactory {
   lazy val _4_ : Category[Int, (Int, Int)] = segment(4)
 
   /**
+    * Category <b>5</b>: 5 objects linearly ordered
+    */
+  lazy val _5_ : Category[Int, (Int, Int)] = segment(5)
+
+  /**
     * Category with 2 objects and 2 parallel arrows from one to another
     */
   lazy val ParallelPair = Category("({0, 1}, {a:0->1, b:0->1})")
@@ -1015,7 +1020,7 @@ object Category extends CategoryFactory {
     Category(PoSet.ofNaturalNumbers)
 
   lazy val KnownCategories = Set(
-    _0_, _1_, _2_, _3_, _4_, _1plus1_,
+    _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
     ParallelPair, Pullback, Pushout, SplitMono, Square,
     M, W,
     Z2, Z3,
