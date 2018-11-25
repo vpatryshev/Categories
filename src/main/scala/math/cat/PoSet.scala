@@ -21,7 +21,7 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
   /**
    * Iterates over elements of this poset
    */
-  override def seq: Set[T] = underlyingSet
+//  override def seq: Set[T] = underlyingSet
   override def iterator: Iterator[T] = underlyingSet.iterator
 
   /**
@@ -33,9 +33,21 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
 
   override def equals(x: Any): Boolean = {
     x match {
-      case other: PoSet[_] => other.asInstanceOf[PoSet[T]].equal(this)
+      case other: PoSet[T] => equal(other)
       case _ => false
     }
+  }
+
+  /**
+    * Two posets are equal if they have the same elements and partial order is the same.
+    *
+    * @param other other poset to compare
+    * @return true if these two posets are equal
+    */
+  private[cat] def equal(other: PoSet[T]): Boolean = {
+    val isEqual = underlyingSet == other.underlyingSet
+    val product = Sets.product2(underlyingSet, underlyingSet)
+    (isEqual /: product) ((bool, p) => bool && (le(p) == other.le(p)))
   }
 
   protected def validate(): Unit = if (Sets.isFinite(underlyingSet)) {
@@ -48,18 +60,6 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
     for(x <- underlyingSet; y <- underlyingSet; z <- underlyingSet) {
       if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
     }
-  }
-  
-  /**
-   * Two posets are equal if they have the same elements and partial order is the same.
-   *
-   * @param other other poset to compare
-   * @return true if these two posets are equal
-   */
-  private[cat] def equal(other: PoSet[T]): Boolean = {
-    val isEqual = underlyingSet == other.underlyingSet
-    val product = Sets.product2(underlyingSet, underlyingSet)
-    (isEqual /: product) ((bool, p) => bool && (le(p) == other.le(p)))
   }
   
   /**

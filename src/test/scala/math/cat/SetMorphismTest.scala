@@ -29,7 +29,7 @@ class SetMorphismTest extends Specification {
     true
   }
 
-  "UnitComposition()" >>  {
+  "Composition with id" >>  {
     m.compose(id(strings)) === Some(m)
     id(ints).compose(m) === Some(m)
   }
@@ -72,7 +72,7 @@ class SetMorphismTest extends Specification {
     (sut2 == sut1.revert) must beTrue
   }
 
-  "Unit" >> {
+  "id" >> {
     val set = Set(1, "haha", 2.71828)
     val sut = SetMorphism.id(set)
     (Set(2.71828, 1, "haha") == sut.d0) must beTrue

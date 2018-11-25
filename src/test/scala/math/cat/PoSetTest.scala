@@ -98,5 +98,17 @@ class PoSetTest extends Specification {
       sut.le(0, 2) must beTrue
       sut.le(0, 1) must beTrue
     }
+    
+    "~" >> {
+      val sut = ~PoSet.range(0, 3, 1)
+      sut.le(1, 2) must beFalse
+      sut.le(0, 2) must beFalse
+      sut.le(0, 1) must beFalse
+
+      sut.le(2, 1) must beTrue
+      sut.le(2, 0) must beTrue
+      sut.le(1, 0) must beTrue
+      
+    }
   }
 }

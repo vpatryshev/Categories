@@ -9,7 +9,7 @@ package math.cat
   * @tparam YArrows functors codomain arrow type
   * @param f        first functor
   * @param g        second functor
-  * @param transformPerObject a set morphism that for each domain object x returns F(x) -> G(x)
+  * @param transformPerObject a set morphism that for each domain object x returns f(x) -> g(x)
   *                  
   * The following three requirements are checked:
   * f and g are from the same category
