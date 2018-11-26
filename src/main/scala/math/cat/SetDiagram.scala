@@ -1,7 +1,9 @@
 package math.cat
 
-import math.cat.Functions._
-import math.cat.Sets._
+import math.Base
+import math.sets.FactorSet
+import math.sets.Functions._
+import math.sets.Sets._
 
 /**
   * Diagram from a category to Categories.SETF.

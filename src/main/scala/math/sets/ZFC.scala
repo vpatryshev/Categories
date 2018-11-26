@@ -1,7 +1,4 @@
-package math
-
-import java.util
-import java.util.Comparator
+package math.sets
 
 import scala.collection.mutable.ListBuffer
 

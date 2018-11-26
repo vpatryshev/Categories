@@ -1,11 +1,7 @@
-package math.cat
+package math.sets
 
-import java.util.Date
-
-import math.cat.Base._
-import org.specs2.matcher.MatchResult
+import math.sets.Sets._
 import org.specs2.mutable._
-import Sets._
 
 class BinaryRelationTest extends Specification {
 

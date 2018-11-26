@@ -1,5 +1,6 @@
 package math.cat
 
+import math.sets.{PoSet, Sets}
 import org.specs2.mutable._
 
 class GraphTest extends Specification {

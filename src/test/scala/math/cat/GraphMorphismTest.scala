@@ -1,5 +1,6 @@
 package math.cat
 
+import math.sets.PoSet
 import org.specs2.mutable._
 
 /**

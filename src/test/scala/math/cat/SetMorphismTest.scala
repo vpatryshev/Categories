@@ -2,6 +2,7 @@ package math.cat
 
 import org.specs2.mutable._
 import SetMorphism._
+import math.sets.{N, Sets}
 
 class SetMorphismTest extends Specification {
   val ints: Set[BigInt] = Set(1, 2, 3, 5, 8, 13)

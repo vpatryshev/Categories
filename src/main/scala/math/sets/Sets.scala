@@ -1,12 +1,13 @@
-package math.cat
+package math.sets
 
-import language.postfixOps
 import java.io.Reader
+
+import Functions.Injection
+import math.cat.SetMorphism
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.util.parsing.combinator.RegexParsers
-import Functions._
 
 /**
   * Lazy sets functionality
@@ -23,7 +24,7 @@ object Sets {
     */
   val FiniteSets: BigSet[Set[Any]] = BigSet(isFinite)
   
-  def requireImmutability = throw new UnsupportedOperationException("Immutable class")
+  def itsImmutable = throw new UnsupportedOperationException("Immutable class")
 
   def setOf[X](
     sourceIterator: => Iterator[X],
@@ -245,8 +246,8 @@ object Sets {
     println("Union size=" + u.size)
     println("Union itself is " + u)
     println("Trying to compare sets")
-    println(a == b)
-    println(u == b)
+    println(s"Is $a equal to $b? ${a == b}")
+    println(s"Is $u equal to $b? ${u == b}")
     println("Making a lazy copy")
     val newb = setOf(b, 2, (x: String) => b contains x)
     println("same size? " + (newb.size == b.size))
@@ -261,8 +262,9 @@ object Sets {
     println(a2b)
     val q = parse("{a, b, c}")
     println(q)
-    println(Set("c", "b", "a") == q)
-    println(q.contains("a"))
+    val r = Set("c", "b", "a")
+    println(s"Is $r equal to $q? ${r == q}")
+    println(s"Does $q contain $a? ${q.contains("a")}")
     val tuples = for (arg <- Set(1, 2, 3)) yield {
       ("key" + arg, "v" + arg)
     }
@@ -393,87 +395,17 @@ object Sets {
     def iterator = new InterleavingIterator(iterable1.iterator, iterable2.iterator)
   }
 
-  /**
-    * Implements factorset functionality. A factorset may be built given a BinaryRelation,
-    * or incrementally, when the client provides pairs of equivalent elements.
-    * The factorset is not lazy; equivalence classes are stored in a map, and the resulting
-    * factorset is returned as a new HashSet.
-    *
-    * @tparam X element type
-    */
-  class FactorSet[X](set: Set[X]) {
-
-    /**
-      * @return the latest version of factorset built here.
-      */
-    lazy val content: Set[Set[X]] = equivalenceClasses.values.toSet
-    /**
-      * Maps elements of the main set to their equivalence classes (they constitute the factorset).
-      */
-    private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: set) ((m, x) => m + (x -> Set(x)))
-
-    /**
-      * Builds a factorset of a given set, by the transitive closure of a given relationship.
-      *
-      * @param set base set
-      * @param r   binary relationship
-      */
-    def this(set: Set[X], r: BinaryRelation[X, X]) {
-      this(set)
-      factorByRelationship(r)
-    }
-
-    /**
-      * Given a <code>BinaryRelation r</code>, merges equivalent classes if they
-      * contain elements that are in <code>r</code>.
-      *
-      * @param r the binary relationship. Does not have to be symmetrical or transitive.
-      */
-    def factorByRelationship(r: BinaryRelation[X, X]): Unit =
-      for {
-        x1 <- set
-        x2 <- set
-        if r(x1, x2) || r(x2, x1)} merge(x1, x2)
-
-    /**
-      * Merges equivalence classes for two elements
-      *
-      * @param x1 first element
-      * @param x2 second element
-      */
-    def merge(x1: X, x2: X) {
-      for (
-        class1 <- equivalenceClasses.get(x1);
-        class2 <- equivalenceClasses.get(x2)) {
-        val merged: Set[X] = class1 ++ class2
-        for (x3 <- merged) {
-          equivalenceClasses = equivalenceClasses + (x3 -> merged)
-        }
-      }
-    }
-
-    /**
-      * @return the domain set.
-      */
-    def domain: Set[X] = set
-
-    /**
-      * @return the function from the domain set to the factorset.
-      */
-    def asFunction: Function[X, Set[X]] = equivalenceClasses
-  }
-
   class MapForFunction[K, +V](xs: Set[K], f: K => V) extends Map[K, V] {
     override def keys: Set[K] = xs
 
     override def apply(x: K): V =
       if (xs contains x) f(x) else throw new RuntimeException(s"oops, $x is not in domain")
 
-    override def +[V1 >: V](kv: (K, V1)): Map[K, V1] = requireImmutability
+    override def +[V1 >: V](kv: (K, V1)): Map[K, V1] = itsImmutable
 
-    override def -(x: K): Map[K, V] = requireImmutability
+    override def -(x: K): Map[K, V] = itsImmutable
 
-    override def updated[V1 >: V](x: K, y: V1): Map[K, V1] = requireImmutability
+    override def updated[V1 >: V](x: K, y: V1): Map[K, V1] = itsImmutable
 
     override def get(x: K): Option[V] = if (xs contains x) Some(f(x)) else None
 

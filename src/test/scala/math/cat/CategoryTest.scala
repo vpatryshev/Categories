@@ -3,6 +3,7 @@ package math.cat
 import org.specs2.mutable._
 import Category._
 import SetCategory._
+import math.sets.Sets
 
 /**
  * Tests for Category class

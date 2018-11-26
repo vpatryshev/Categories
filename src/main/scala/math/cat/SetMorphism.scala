@@ -1,6 +1,7 @@
 package math.cat
 
-import Sets._
+import math.sets.Sets
+import math.sets.Sets._
 
 /**
  * Morphism class for sets, and the accompanying object.
@@ -17,12 +18,12 @@ class SetMorphism[X, Y] (
   for (x <- d0) {
     val y = this(x)
     val yInD1 = d1 contains y
-    require(yInD1, "Morphism value " + y + " for " + x + " should be in d1 " + d1)
+    require(yInD1, "Value " + y + " for " + x + " should be in d1 " + d1)
   }
 
   override def toString: String = tag match {
-    case "" => "{" + (d0 map (x => x.toString + " -> " + this(x).toString) mkString ", ")  + "}"
-    case _  => tag
+    case "" => "{" + (d0 map (x => s"$x -> ${this(x)}") mkString ", ")  + "}"
+    case _  => s"$tag: ${d0.size} elements -> ${d1.size} elements"
   }
 
   override def hashCode: Int = d0.hashCode * 4/*random number*/ + d1.hashCode
@@ -59,9 +60,9 @@ class SetMorphism[X, Y] (
 
   override def size: Int = d0.size
 
-  def - (x: X): Map[X, Y] = requireImmutability
-  def +[Y1 >: Y] (kv: (X, Y1)): Map[X, Y] = requireImmutability
-  override def updated[Y1 >: Y](x: X, y: Y1): Map[X, Y1] = requireImmutability
+  def - (x: X): Map[X, Y] = itsImmutable
+  def +[Y1 >: Y] (kv: (X, Y1)): Map[X, Y] = itsImmutable
+  override def updated[Y1 >: Y](x: X, y: Y1): Map[X, Y1] = itsImmutable
   def empty[PY] = throw new RuntimeException("No such thing exists as empty set morphism")
   def iterator: Iterator[(X, Y)] = d0.iterator map (x => (x, function(x)))
   def product: Set[Map[Y, X]] = exponent(d1, d0) filter(m => d1 forall {y => function(m(y)) == y})

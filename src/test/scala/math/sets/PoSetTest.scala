@@ -1,4 +1,4 @@
-package math.cat
+package math.sets
 
 import org.specs2.mutable._
 
@@ -53,7 +53,7 @@ class PoSetTest extends Specification {
       (sut1 == sut2) must beFalse
     }
 
-    "Equals_differentTypes" >> {
+    "Equals_differentTypes (will issue warning)" >> {
       val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
       val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
       (sut1 == sut2) must beFalse

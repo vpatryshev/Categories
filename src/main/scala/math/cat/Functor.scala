@@ -1,7 +1,8 @@
 package math.cat
 
-import Sets._
-import Functions._
+import math.sets.Sets._
+import math.sets.Functions._
+import math.sets.Sets
 import scalakittens.Result
 
 /**

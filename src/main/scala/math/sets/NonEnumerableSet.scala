@@ -1,4 +1,4 @@
-package math.cat
+package math.sets
 
 import scala.reflect.ClassTag
 

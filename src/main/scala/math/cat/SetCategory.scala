@@ -2,7 +2,8 @@ package math.cat
 
 import math.cat.SetFunction._
 import math.cat.SetCategory._
-import math.cat.Sets._
+import math.sets.{BigSet, FactorSet, Sets}
+import math.sets.Sets._
 
 /**
   * Category where objects are sets
@@ -28,43 +29,42 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
   override def isEpimorphism(arrow: SetFunction): Boolean =
     arrow.d1 forall {y => arrow.d0 exists {y == arrow(_)}}
 
-  //  @Override
   override def equalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {
     require((f.d0 eq g.d0) && (f.d1 eq g.d1))
     Option(SetFunction.inclusion(f.d0, x => f(x) == g(x)))
   }
 
   override def coequalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {
-    require(areParallel(f, g))
-    val factorset: Sets.FactorSet[Any] = new Sets.FactorSet[Any](f.d1)
+    require(areParallel(f, g), s"Arrows $f and $g must be parallel")
+    val factorset: FactorSet[Any] = new FactorSet[Any](f.d1)
+    
+    if (contains(factorset.map(identity))) {
+      for (x <- f.d0) {
+        factorset.merge(f(x), g(x))
+      }
+      Option(SetFunction.forFactorset(factorset))
+    } else None
+  }
 
-    for (x <- f.d0) {
-      factorset.merge(f(x), g(x))
+  override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Option[SetFunction] = {
+    require(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer")
+    val f = arrowsToEqualize.head
+    val domain = f.d0
+    val codomain = f.d1
+    for (f <- arrowsToEqualize) {
+      require(f.d0 == domain, s"Domain should be $domain")
+      require(f.d1 == codomain, s"Codomain should be $codomain")
+    }
+    val factorset: FactorSet[Any] = new FactorSet(codomain)
+
+    for (g <- arrowsToEqualize) {
+      for (x <- g.d0) factorset.merge(f(x), g(x))
     }
     Option(SetFunction.forFactorset(factorset))
   }
 
-  override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Option[SetFunction] = {
-    if (!arrowsToEqualize.iterator.hasNext) {
-      terminal map SetFunction.id
-    } else {
-      val f = arrowsToEqualize.head
-      val domain = f.d0
-      val codomain = f.d1
-      for (f <- arrowsToEqualize) {
-        require(f.d0 == domain, s"Domain should be $domain")
-        require(f.d1 == codomain, s"Codomain should be $codomain")
-      }
-      val factorset: Sets.FactorSet[Any] = new FactorSet(codomain)
-
-      for (g <- arrowsToEqualize) {
-        for (x <- g.d0) factorset.merge(f(x), g(x))
-      }
-      Option(SetFunction.forFactorset(factorset))
-    }
-  }
-
   override def degree(x: Set[Any], n: Int): Option[(Set[Any], List[SetFunction])] = {
+    require(n >= 0, s"Degree of $n can't be calculated")
     val allMaps = Sets.exponent(Sets.numbers(n), x)
     val domain: Set[Any] = allMaps map identity
     
@@ -134,9 +134,8 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 }
 
 object SetCategory {
-  private type Sets = BigSet[Set[Any]]
 
-  private def graphOfSets(nodes: Sets): Graph[Set[Any], SetFunction] = {
+  private[cat] def graphOfSets(nodes: BigSet[Set[Any]]): Graph[Set[Any], SetFunction] = {
     val arrows = BigSet[SetFunction]()
 
     new Graph[Set[Any], SetFunction](nodes, arrows, _.d0, _.d1)

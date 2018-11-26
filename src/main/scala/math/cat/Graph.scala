@@ -2,7 +2,8 @@ package math.cat
 
 import java.io.Reader
 
-import Sets._
+import math.sets.{PoSet, Sets}
+import math.sets.Sets._
 
 class Graph[N, A] (
         val nodes: Set[N],
@@ -24,8 +25,8 @@ class Graph[N, A] (
   override def contains(node: N): Boolean = nodes contains node
   override def size: Int = nodes.size
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
-  def -(x:N): Set[N] = requireImmutability
-  def +(x:N): Set[N] = requireImmutability
+  def -(x:N): Set[N] = itsImmutable
+  def +(x:N): Set[N] = itsImmutable
 
   override def equals(x: Any): Boolean = {
     x match {

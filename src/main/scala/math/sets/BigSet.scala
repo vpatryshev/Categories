@@ -1,4 +1,4 @@
-package math.cat
+package math.sets
 
 /**
   * An implementation of a large Set, can be non-enumerable.
@@ -7,7 +7,6 @@ package math.cat
   * @tparam T element type
   */
 abstract class BigSet[T] extends Set[T] {
-  thisOne =>
   override def size: Int = Sets.InfiniteSize
 
   def whoami: String = "A BIG SET"

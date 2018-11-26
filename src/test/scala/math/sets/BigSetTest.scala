@@ -1,11 +1,5 @@
-package math.cat
+package math.sets
 
-import java.util.Date
-
-import j.math.cat.Functions.Bijection
-import math.cat.Base._
-import math.cat.Functions.bijection
-import org.specs2.matcher.MatchResult
 import org.specs2.mutable._
 
 class BigSetTest extends Specification {

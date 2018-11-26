@@ -1,7 +1,8 @@
 package math.cat
 
-import math.cat.Sets._
+import math.sets.Sets._
 import math.cat.SetFunction._
+import math.sets.{BinaryRelation, FactorSet}
 import org.specs2.mutable._
 
 /**

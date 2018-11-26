@@ -1,10 +1,11 @@
-package math.cat
+package math.sets
 
 import java.util.concurrent.atomic.AtomicBoolean
 
-import org.specs2.mutable._
-import Sets._
+import math.cat.SetMorphism
+import math.sets.Sets._
 import org.specs2.execute.Failure
+import org.specs2.mutable._
 import scalakittens.{Empty, Result}
 
 import scala.concurrent.duration.Duration

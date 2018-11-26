@@ -2,7 +2,8 @@ package math.cat
 
 import java.io.Reader
 
-import math.cat.Sets._
+import math.sets.PoSet
+import math.sets.Sets._
 
 /**
   * Category class, and the accompanying object.

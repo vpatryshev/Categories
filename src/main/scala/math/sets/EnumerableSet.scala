@@ -1,6 +1,4 @@
-package math.cat
-
-import scala.reflect.ClassTag
+package math.sets
 
 trait EnumerableSet[T] extends Set[T] { thisOne: BigSet[T] =>
 

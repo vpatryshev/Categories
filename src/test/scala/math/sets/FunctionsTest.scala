@@ -1,6 +1,6 @@
-package math.cat
+package math.sets
 
-import math.cat.Functions._
+import math.sets.Functions._
 import org.specs2.mutable._
 
 /**

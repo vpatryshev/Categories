@@ -1,4 +1,4 @@
-package math.cat
+package math
 
 import org.specs2.mutable._
 

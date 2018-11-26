@@ -1,6 +1,5 @@
-package math.cat
+package math
 
-import language.postfixOps
 import scala.collection.breakOut
 
 /**
@@ -39,7 +38,7 @@ object Base {
     * @return a set that contains all elements of those collections
     */
   @deprecated("neither the old one nor the new one check for disjunction, so there")
-  private[cat] def disjointUnion[A](collections: Seq[A]*): Set[A] =
+  private[math] def disjointUnion[A](collections: Seq[A]*): Set[A] =
     (Set.empty[A] /: collections)(_ ++ _)
 
   /**

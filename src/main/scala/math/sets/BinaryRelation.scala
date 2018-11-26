@@ -1,4 +1,4 @@
-package math.cat
+package math.sets
 
 /**
  * Representing binary relationships here

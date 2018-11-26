@@ -1,6 +1,7 @@
 package math.cat
 
-import math.cat.Sets._
+import math.sets.{FactorSet, Functions, Sets}
+import math.sets.Sets._
 
 /**
  * The idea was to create something that would cover unresolved issues with type assignment

@@ -1,8 +1,8 @@
-package math.cat
+package math
 
 import java.util.Date
 
-import math.cat.Base._
+import math.Base._
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable._
 

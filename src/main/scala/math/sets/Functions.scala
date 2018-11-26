@@ -1,4 +1,4 @@
-package math.cat
+package math.sets
 
 /**
  * Contains some functions and operations.

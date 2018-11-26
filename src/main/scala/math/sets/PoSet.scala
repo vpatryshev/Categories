@@ -1,4 +1,4 @@
-package math.cat
+package math.sets
 
 import java.io.Reader
 
@@ -44,7 +44,7 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
     * @param other other poset to compare
     * @return true if these two posets are equal
     */
-  private[cat] def equal(other: PoSet[T]): Boolean = {
+  private[sets] def equal(other: PoSet[T]): Boolean = {
     val isEqual = underlyingSet == other.underlyingSet
     val product = Sets.product2(underlyingSet, underlyingSet)
     (isEqual /: product) ((bool, p) => bool && (le(p) == other.le(p)))
@@ -74,8 +74,8 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
     "({" + (underlyingSet mkString ", ") + "}, {" +
             ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "})"
   }
-  def -(x: T): Set[T] = Sets.requireImmutability
-  def +(x: T): Set[T] = Sets.requireImmutability
+  def -(x: T): Set[T] = Sets.itsImmutable
+  def +(x: T): Set[T] = Sets.itsImmutable
 }
 
 object PoSet {
