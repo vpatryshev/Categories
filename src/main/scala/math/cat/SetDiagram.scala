@@ -4,6 +4,7 @@ import math.Base
 import math.sets.FactorSet
 import math.sets.Functions._
 import math.sets.Sets._
+import language.postfixOps
 
 /**
   * Diagram from a category to Categories.SETF.
@@ -22,9 +23,9 @@ import math.sets.Sets._
 class SetDiagram[Objects, Arrows](
   tag: String,
   domain: Category[Objects, Arrows],
-  objectsMorphism: SetMorphism[Objects, Set[Any]],
+  objectsMorphism: SetMorphism[Objects, Untyped],
   arrowsMorphism: SetMorphism[Arrows, SetFunction])
-  extends Functor[Objects, Arrows, Set[Any], SetFunction](
+  extends Functor[Objects, Arrows, Untyped, SetFunction](
     tag, domain, SetCategory.Setf, objectsMorphism, arrowsMorphism) {
 
   // for each original object select a value in the diagram
@@ -92,7 +93,7 @@ class SetDiagram[Objects, Arrows](
       cobundles.values.forall(checkCompatibility)
     }
     // this is the limit object
-    final private[cat] val apex: Set[Any] = prod filter isPoint map identity
+    final private[cat] val apex: Untyped = prod filter isPoint map identity
 
     // bundles maps each "initial" object to a set of arrows from it
     final private[cat] val bundles: Map[Objects, Set[Arrows]] =
@@ -139,7 +140,7 @@ class SetDiagram[Objects, Arrows](
     // Here we have a non-repeating collection of sets to use for building a union
     val setsToJoin: List[Set[Any]] = listOfObjects.map(nodesMapping)
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
-    val typelessUnion: Set[Any] = union.unionSet.map(identity)
+    val typelessUnion: Untyped = union.unionSet.map(identity)
     val directIndex: Map[Int, Objects] = Base.toMap(listOfObjects)
     val reverseIndex: Map[Objects, Int] = Base.inverse(directIndex)
     
@@ -151,7 +152,7 @@ class SetDiagram[Objects, Arrows](
     val functionsToUnion: Set[(Objects, SetFunction)] = for {
       o <- domain.objects
       a <- bundles(o)
-      from: Set[Any] = nodesMapping(o)
+      from: Untyped = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMorphism(a)
       embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(domain.d1(a)))
       g = aAsMorphism.andThen(embeddingToUnion) // do we need it?

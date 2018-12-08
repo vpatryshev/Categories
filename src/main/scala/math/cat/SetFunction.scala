@@ -14,8 +14,8 @@ import math.sets.Sets._
  */
 case class SetFunction(
     override val tag: String,
-    override val d0: Set[Any],
-    override val d1: Set[Any],
+    override val d0: Untyped,
+    override val d1: Untyped,
     f: Any => Any)
         extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
 
@@ -79,7 +79,7 @@ object SetFunction {
    * @param value the value in <code>codom</code> that the morphism returns
    * @return constant morphism
    */
-  def constant(d0: Set[Any], d1: Set[Any], value: Any): SetFunction =
+  def constant(d0: Untyped, d1: Untyped, value: Any): SetFunction =
     apply(value.toString, d0, d1, Functions.constant(value))
 
   /**
@@ -89,7 +89,7 @@ object SetFunction {
    * @param set the set
    * @return inclusion monomorphism
    */
-  def inclusion(subset: Set[Any], set: Set[Any]): SetFunction = {
+  def inclusion(subset: Untyped, set: Untyped): SetFunction = {
     require(subset.subsetOf(set), "It is not an inclusion if it is not a subset.")
     apply("incl", subset, set, Functions.inclusion)
 }
@@ -101,7 +101,7 @@ object SetFunction {
    * @param predicate defines the condition for elements to be included in the subset
    * @return inclusion monomorphism
    */
-  def inclusion(set: Set[Any], predicate: Any => Boolean): SetFunction =
+  def inclusion(set: Untyped, predicate: Any => Boolean): SetFunction =
     inclusion(set filter predicate, set)
 
   /**
@@ -110,7 +110,7 @@ object SetFunction {
    * @param s the set
    * @return identity morphism on the given set
    */
-  def id(s: Set[Any]): SetFunction = new SetFunction("id", s, s, x => x)
+  def id(s: Untyped): SetFunction = new SetFunction("id", s, s, x => x)
 
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
@@ -132,6 +132,6 @@ object SetFunction {
      * @param y base (the set to which all morphisms are)
      * @return y < sup > x, represented as a set of all morphisms.
      */
-  def exponent(x: Set[Any], y: Set[Any]): Set[SetFunction] =
+  def exponent(x: Untyped, y: Untyped): Set[SetFunction] =
     Sets.exponent(x, y) map { apply("exponent", x, y, _) }
   }

@@ -4,6 +4,7 @@ import org.specs2.mutable._
 import Category._
 import SetCategory._
 import math.sets.Sets
+import Sets._
 
 /**
  * Tests for Category class
@@ -728,8 +729,8 @@ class CategoryTest extends Specification {
   
   "SetCategory" >> {
     "have products" >> {
-      val first: Set[Any] = Sets.setOf("a", "b")
-      val second: Set[Any] = Sets.setOf(1, 2, 3)
+      val first: Untyped = Sets.setOf("a", "b")
+      val second: Untyped = Sets.setOf(1, 2, 3)
       val product = Setf.product(first, second)
 
       product match {

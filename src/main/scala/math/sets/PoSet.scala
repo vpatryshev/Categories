@@ -101,7 +101,7 @@ object PoSet {
     new PoSet(Set(theElements: _*), comparator)
   }
 
-  def apply[T](set: Set[T]): PoSet[T] = apply(set, Set.empty[(T, T)])
+  def apply[T](s: Set[T]): PoSet[T] = apply(s, Set.empty[(T, T)])
 
   class Parser extends Sets.Parser {
     def poset: Parser[PoSet[String]] = "("~set~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)}

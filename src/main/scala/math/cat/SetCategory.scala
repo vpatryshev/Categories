@@ -14,13 +14,13 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override val m: (SetFunction, SetFunction) => Option[SetFunction] =
     (f, g) => f compose g
-  override val id: Set[Any] => SetFunction = SetFunction.id
+  override val id: Untyped => SetFunction = SetFunction.id
 
   override def validate(): Unit = {} // it IS a category
 
   override def toString: String = "Category of all Scala Sets"
 
-  override def hom(x: Set[Any], y: Set[Any]): Set[SetFunction] =
+  override def hom(x: Untyped, y: Untyped): Set[SetFunction] =
     SetFunction.exponent(x, y)
 
   override def isMonomorphism(f: SetFunction): Boolean =
@@ -31,7 +31,8 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override def equalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {
     require((f.d0 eq g.d0) && (f.d1 eq g.d1))
-    Option(SetFunction.inclusion(f.d0, x => f(x) == g(x)))
+    val inclusion = SetFunction.inclusion(f.d0, x => f(x) == g(x))
+    Option(inclusion) filter { i => objects.contains(i.d0) }
   }
 
   override def coequalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {
@@ -63,10 +64,10 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     Option(SetFunction.forFactorset(factorset))
   }
 
-  override def degree(x: Set[Any], n: Int): Option[(Set[Any], List[SetFunction])] = {
+  override def degree(x: Untyped, n: Int): Option[(Set[Any], List[SetFunction])] = {
     require(n >= 0, s"Degree of $n can't be calculated")
     val allMaps = Sets.exponent(Sets.numbers(n), x)
-    val domain: Set[Any] = allMaps map identity
+    val domain: Untyped = allMaps map identity
     
     // TODO: use Shapeless, get rid of warning
     def takeElementAt(i: Int)(obj: Any) = obj match {
@@ -89,9 +90,9 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override lazy val terminal: Option[Set[Any]] = Option(Set(initial))
 
-  override def product(x: Set[Any], y: Set[Any]): Option[(SetFunction, SetFunction)] = {
+  override def product(x: Untyped, y: Untyped): Option[(SetFunction, SetFunction)] = {
 
-    val productSet: Set[Any] = Sets.product2(x, y).map(p => p)
+    val productSet: Untyped = Sets.product2(x, y).map(p => p)
     val p1 = new SetFunction("p1", productSet, x, { case (a, b) => a })
     val p2 = new SetFunction("p2", productSet, y, { case (a, b) => b })
     Option((p1, p2))
@@ -108,12 +109,12 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
        pullbackInProduct andThen prod._2)
     }
 
-  override def union(x: Set[Any], y: Set[Any]): Option[(SetFunction, SetFunction)] = {
+  override def union(x: Untyped, y: Untyped): Option[(SetFunction, SetFunction)] = {
     def tagX(x: Any) = ("x", x)
     def tagY(y: Any) = ("y", y)
-    val taggedX: Set[Any] = x map tagX
-    val taggedY: Set[Any] = y map tagY
-    val unionSet: Set[Any] = Sets.union(taggedX, taggedY)
+    val taggedX: Untyped = x map tagX
+    val taggedY: Untyped = y map tagY
+    val unionSet: Untyped = Sets.union(taggedX, taggedY)
     val ix = SetFunction("ix", x, taggedX, tagX).andThen(SetFunction.inclusion(taggedX, unionSet))
     val iy = SetFunction("iy", y, taggedX, tagX).andThen(SetFunction.inclusion(taggedX, unionSet))
     Option((ix, iy))

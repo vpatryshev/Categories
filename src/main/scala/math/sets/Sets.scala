@@ -13,12 +13,18 @@ import scala.util.parsing.combinator.RegexParsers
   * Lazy sets functionality
   */
 object Sets {
+  type Untyped = Set[Any]
+  
   val InfiniteSize: Int = Int.MaxValue
   
   val isInfinite: Set[_] => Boolean = _.size == InfiniteSize
 
   def isFinite: Set[_] => Boolean = _.size != InfiniteSize
 
+  val Empty: Untyped = Set.empty[Any]
+  
+  val Unit: Untyped = Set(Empty)
+  
   /**
     * A big set of all finite sets in Scala. This set is infinite, of course.
     */
