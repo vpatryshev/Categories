@@ -234,13 +234,12 @@ class SetCategoryTest extends Specification {
       ok
     }
 
-
     "build pullback 3x3" in {
       val a: Untyped = Set(1, 2, 3)
       val b: Untyped = Set(2, 3, 4)
       val c: Untyped = Set(0, 1)
       val f = SetFunction("f", a, c, _.toString.toInt % 2)
-      val g = SetFunction("f", b, c, x => (x.toString.toInt + 1) % 2)
+      val g = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
 
       Setf.pullback(f, g) match {
         case None => failure("Where's my pullback?")
@@ -251,6 +250,31 @@ class SetCategoryTest extends Specification {
           val sut = p1.d0
           sut.size === 5
           for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === ((i+j) %2 == 1)
+      }
+      ok
+    }
+
+    "build pushout 3+3" in {
+      val a: Untyped = Set(1, 2, 3)
+      val b: Untyped = Set(2, 3, 4)
+      val c: Untyped = Set(0, 1)
+      val f = SetFunction("f", c, a, _.toString.toInt + 1)
+      val g = SetFunction("g", c, b, x => x.toString.toInt + 2)
+
+      Setf.pushout(f, g) match {
+        case None => failure("Where's my pushout?")
+        case Some((p1, p2)) =>
+          p1.d0 === a
+          p2.d0 === b
+          p1.d1 === p2.d1
+          val sut = p1.d1
+          val expected = Set(
+            Set(("x", 1), ("y", 2)),
+            Set(("x", 2), ("y", 3)),
+            Set(("x", 3)),
+            Set(("y", 4)))
+          
+          sut === expected
       }
       ok
     }

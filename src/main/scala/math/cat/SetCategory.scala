@@ -117,7 +117,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     val taggedY: Untyped = y map tagY
     val unionSet: Untyped = Sets.union(taggedX, taggedY)
     val ix = SetFunction("ix", x, taggedX, tagX).andThen(SetFunction.inclusion(taggedX, unionSet))
-    val iy = SetFunction("iy", y, taggedX, tagX).andThen(SetFunction.inclusion(taggedX, unionSet))
+    val iy = SetFunction("iy", y, taggedY, tagY).andThen(SetFunction.inclusion(taggedY, unionSet))
     Option((ix, iy))
   }
 
