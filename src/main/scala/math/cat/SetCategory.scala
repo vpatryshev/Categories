@@ -86,7 +86,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     Option((domain, projections.toList))
   }
 
-  override lazy val initial: Option[Set[Any]] = Option(Set.empty[Any])
+  override lazy val initial: Option[Set[Any]] = Option(Set.empty[Any]) filter (this contains)
 
   override lazy val terminal: Option[Set[Any]] = Option(Set(initial))
 
@@ -103,7 +103,8 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     for {
       prod <- product(f.d0, g.d0)
     } yield {
-      val pullbackInProduct = inclusion(prod._1.d0, predicate = { case (a, b) => f(a) == g(a) })
+      val s = prod._1.d0
+      val pullbackInProduct = inclusion(s, predicate = { case (a, b) => f(a) == g(b) })
       
       (pullbackInProduct andThen prod._1,
        pullbackInProduct andThen prod._2)

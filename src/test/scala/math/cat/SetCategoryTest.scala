@@ -1,10 +1,10 @@
 package math.cat
 
-import org.specs2.mutable._
-import SetCategory._
-import SetFunction._
+import math.cat.SetCategory._
+import math.cat.SetFunction._
 import math.sets.Sets.Untyped
 import math.sets.{BigSet, Sets}
+import org.specs2.mutable._
 
 /**
   * Prototype for all tests
@@ -14,6 +14,8 @@ class SetCategoryTest extends Specification {
   val s2: Untyped = Sets.range(0, 7, 1).map(identity)
   val s3: Untyped = Set("hello", "cruel", "world").map(identity)
   val s4: Untyped = Set("hello", "goodbye", "cruel", "world").map(identity)
+  val evenSets: SetCategory = new SetCategory(BigSet(_.size % 2 == 0))
+  val oddSets: SetCategory = new SetCategory(BigSet(_.size % 2 == 1))
 
   "SetCategory" should {
     "buildGraph" in {
@@ -28,8 +30,7 @@ class SetCategoryTest extends Specification {
       val f = SetFunction("f", s1, s2, _ => 3)
       val g = SetFunction("g", s1, s2, _ => 5)
       new SetCategory(BigSet(Set(s1, s2, s3))).coequalizer(f, g) === None
-      val c2 = new SetCategory(BigSet(_.size % 2 == 0))
-      val v2 = c2.coequalizer(f, g)
+      val v2 = evenSets.coequalizer(f, g)
       v2 === None
     }
 
@@ -131,22 +132,19 @@ class SetCategoryTest extends Specification {
       }
       ok
     }
-    
+
     "produce no equalizer if it's not in the category" in {
       // the category of even-sized sets
-      val sut = new SetCategory(BigSet(_.size % 2 == 0))
       val f = SetFunction("f", s2, s4, n => if (n.toString.toInt < 3) "hello" else "goodbye")
       val g = SetFunction("g", s2, s4, n => if (n.toString.toInt < 1) "hello" else "goodbye")
-      val eq = sut.equalizer(f, g)
+      val eq = evenSets.equalizer(f, g)
       eq === None
     }
 
     "produce an empty equalizer if it exists" in {
-      // the category of even-sized sets
-      val sut = new SetCategory(BigSet(_.size % 2 == 0))
       val f = SetFunction("f", s2, s4, n => if (n.toString.toInt < 3) "hello" else "goodbye")
       val g = SetFunction("g", s2, s4, n => if (n.toString.toInt < 4) "cruel" else "world")
-      sut.equalizer(f, g) match {
+      evenSets.equalizer(f, g) match {
         case Some(inclusion) =>
           inclusion.d0 === Sets.Empty
           inclusion.d1 === s2
@@ -170,5 +168,92 @@ class SetCategoryTest extends Specification {
       }
       ok
     }
+
+    "have an id" in {
+      for {
+        obj <- s4
+      } Setf.id(s4)(obj) === obj
+
+      ok
+    }
+
+    "have a 0" in {
+      Setf.initial === Some(Sets.Empty)
+      evenSets.initial === Some(Sets.Empty)
+      oddSets.initial === None
+    }
+
+    "check for epi" in {
+      val sut1 = SetFunction("inclusion", s3, s4, x => x)
+      Setf.isEpimorphism(sut1) === false
+      val sut2 = SetFunction("covering", s4, s3,
+        {
+          case "goodbye" => "hello"
+          case x => x
+        })
+      Setf.isEpimorphism(sut2) === true
+      Setf.isEpimorphism(Setf.id(s4)) === true
+    }
+
+    "check for mono" in {
+      val sut1 = SetFunction("inclusion", s3, s4, x => x)
+      Setf.isMonomorphism(sut1) === true
+      val sut2 = SetFunction("covering", s4, s3,
+        {
+          case "goodbye" => "hello"
+          case x => x
+        })
+      Setf.isMonomorphism(sut2) === false
+      Setf.isMonomorphism(Setf.id(s4)) === true
+    }
+
+    "build product 3x3" in {
+      Setf.product(Set(1, 2, 3), Set(2, 3, 4)) match {
+        case None => failure("Where's my product?")
+        case Some((p1, p2)) =>
+          p1.d1 === Set(1, 2, 3)
+          p2.d1 === Set(2, 3, 4)
+          p1.d0 === p2.d0
+          val sut = p1.d0
+          sut.size === 9
+          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === true
+      }
+      ok
+    }
+
+    "build product 0x3" in {
+      val sut = Setf.initial flatMap (empty => Setf.product(empty, Set(2, 3, 4)))
+      sut match {
+        case None => failure("Where's my product?")
+        case Some((p1, p2)) =>
+          p1.d1 === Sets.Empty
+          p2.d1 === Set(2, 3, 4)
+          p1.d0 === p2.d0
+          p1.d0.isEmpty === true
+      }
+      ok
+    }
+
+
+    "build pullback 3x3" in {
+      val a: Untyped = Set(1, 2, 3)
+      val b: Untyped = Set(2, 3, 4)
+      val c: Untyped = Set(0, 1)
+      val f = SetFunction("f", a, c, _.toString.toInt % 2)
+      val g = SetFunction("f", b, c, x => (x.toString.toInt + 1) % 2)
+
+      Setf.pullback(f, g) match {
+        case None => failure("Where's my pullback?")
+        case Some((p1, p2)) =>
+          p1.d1 === a
+          p2.d1 === b
+          p1.d0 === p2.d0
+          val sut = p1.d0
+          sut.size === 5
+          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === ((i+j) %2 == 1)
+      }
+      ok
+    }
+
   }
 }

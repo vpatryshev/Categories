@@ -16,7 +16,7 @@ import language.postfixOps
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
   *
   * @author Vlad Patryshev
-  *         All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
+  *
   * @tparam Objects type of objects of domain category
   * @tparam Arrows  type of arrows of domain category
   */
