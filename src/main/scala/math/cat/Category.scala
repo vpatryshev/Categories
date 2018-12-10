@@ -44,7 +44,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
   val id: O => A
   val m: (A, A) => Option[A]
 
-  def validate() {
+  protected def validate() {
     validateGraph()
     if (finiteNodes) {
       for (x <- objects) {

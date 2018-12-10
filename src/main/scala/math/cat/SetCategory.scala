@@ -16,7 +16,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     (f, g) => f compose g
   override val id: Untyped => SetFunction = SetFunction.id
 
-  override def validate(): Unit = {} // it IS a category
+  override protected def validate(): Unit = {} // it IS a category
 
   override def toString: String = "Category of all Scala Sets"
 

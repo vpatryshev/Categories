@@ -221,6 +221,14 @@ class SetCategoryTest extends Specification {
       ok
     }
 
+    "have initial" in {
+      Setf.initial.isDefined === true
+    }
+
+    "have terminal" in {
+      Setf.terminal.isDefined === true
+    }
+    
     "build product 0x3" in {
       val sut = Setf.initial flatMap (empty => Setf.product(empty, Set(2, 3, 4)))
       sut match {
