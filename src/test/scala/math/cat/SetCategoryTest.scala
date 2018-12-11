@@ -286,6 +286,25 @@ class SetCategoryTest extends Specification {
       }
       ok
     }
+    
+    "have union" in {
+      val a: Untyped = Set(1, 2, 3)
+      val b: Untyped = Set(3, 4)
+      Setf.union(a, b) match {
+        case None => failure(s"Oops, failed to build a union of $a and $b")
+        case Some((ix, iy)) =>
+          ix.d0 === a
+          iy.d0 === b
+          val expected = Set(("x", 1), ("x", 2), ("x", 3), ("y", 3), ("y", 4))
+          ix.d1 === expected
+          iy.d1 === expected
+          ix(2) === ("x", 2)
+          ix(3) === ("x", 3)
+          iy(3) === ("y", 3)
+          iy(4) === ("y", 4)
+      }
+      ok
+    }
 
   }
 }
