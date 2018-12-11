@@ -74,8 +74,8 @@ class SetMorphismTest extends Specification {
   }
 
   "id" >> {
-    val set = Set(1, "haha", 2.71828)
-    val sut = SetMorphism.id(set)
+    val s = Set(1, "haha", 2.71828)
+    val sut = SetMorphism.id(s)
     (Set(2.71828, 1, "haha") == sut.d0) must beTrue
     (Set(2.71828, 1, "haha") == sut.d1) must beTrue
     ("haha" == sut("haha")) must beTrue

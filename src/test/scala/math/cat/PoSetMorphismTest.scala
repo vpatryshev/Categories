@@ -56,8 +56,8 @@ class PoSetMorphismTest extends Specification {
     }
 
     "id" >> {
-      val set = PoSet(stringComparator, "1", "haha", "2.71828")
-      val sut = PoSetMorphism.id(set)
+      val s = PoSet(stringComparator, "1", "haha", "2.71828")
+      val sut = PoSetMorphism.id(s)
       (PoSet(stringComparator, "2.71828", "1", "haha") == sut.d0) must beTrue
       (PoSet(stringComparator, "2.71828", "1", "haha") == sut.d1) must beTrue
       sut("haha") === "haha"

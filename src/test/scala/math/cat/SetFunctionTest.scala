@@ -149,14 +149,14 @@ class SetFunctionTest extends Specification {
 
     "for factorset" >> {
       val set0: Set[Int] = setOf(1 to 10)
-      val set = set0.map(i => i:Any)
+      val set1 = set0.map(i => i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
       val br: BinaryRelation[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)
-      val factoring = new FactorSet[Any](set, br)
+      val factoring = new FactorSet[Any](set1, br)
       val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
       val sut = forFactorset(factoring)
       val factor = Set(s(1), s(0))
-      set === sut.d0
+      set1 === sut.d0
       factor === sut.d1
       s(0) === sut(8)
       s(1) === sut(5)

@@ -63,9 +63,9 @@ class FunctionsTest extends Specification {
   
   "Injection" >> {
     "applied to a set should produce a set of the same size" >> {
-      val set = Set("a", "b", "cdef")
+      val s = Set("a", "b", "cdef")
       val f = injection{s: String => s + "!"}
-      f.applyTo(set) === Set("a!", "b!", "cdef!")
+      f.applyTo(s) === Set("a!", "b!", "cdef!")
     }
 
     "composition with an injection is still an injection" >> {

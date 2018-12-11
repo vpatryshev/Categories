@@ -85,8 +85,8 @@ object SetFunction {
   /**
    * Factory method. Builds an inclusion monomorphism that injects one set to another.
    *
-   * @param subset the subset
-   * @param set the set
+   * @param subset domain of the inclusion
+   * @param s codomain of the inclusion
    * @return inclusion monomorphism
    */
   def inclusion(subset: Untyped, set: Untyped): SetFunction = {

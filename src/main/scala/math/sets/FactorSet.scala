@@ -11,7 +11,7 @@ import Sets.itsImmutable
   *
   * @tparam X element type
   */
-class FactorSet[X](set: Set[X]) extends Set[Set[X]] {
+class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
 
   /**
     * @return the latest version of factorset built here.
@@ -20,7 +20,7 @@ class FactorSet[X](set: Set[X]) extends Set[Set[X]] {
   /**
     * Maps elements of the main set to their equivalence classes (they constitute the factorset).
     */
-  private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: set) ((m, x) => m + (x -> Set(x)))
+  private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: s) ((m, x) => m + (x -> Set(x)))
 
   /**
     * Builds a factorset of a given set, by the transitive closure of a given relationship.
@@ -41,8 +41,8 @@ class FactorSet[X](set: Set[X]) extends Set[Set[X]] {
     */
   def factorByRelationship(r: BinaryRelation[X, X]): Unit =
     for {
-      x1 <- set
-      x2 <- set
+      x1 <- s
+      x2 <- s
       if r(x1, x2) || r(x2, x1)} merge(x1, x2)
 
   /**
@@ -65,7 +65,7 @@ class FactorSet[X](set: Set[X]) extends Set[Set[X]] {
   /**
     * @return the domain set.
     */
-  def domain: Set[X] = set
+  def domain: Set[X] = s
 
   /**
     * @return the function from the domain set to the factorset.

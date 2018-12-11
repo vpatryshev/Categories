@@ -106,7 +106,7 @@ object Sets {
       */
     def unionSet: Set[(Int, T)] = {
       val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex map {
-        case (set, i) => set map (x => (i, x))
+        case (s, i) => s map (x => (i, x))
       }
 
       union(tagged)

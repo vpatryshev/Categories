@@ -7,6 +7,7 @@ import math.sets.Sets._
 import org.specs2.execute.Failure
 import org.specs2.mutable._
 import scalakittens.{Empty, Result}
+import scalaz.std.function
 
 import scala.concurrent.duration.Duration
 
@@ -346,34 +347,34 @@ class SetsTest extends Specification {
     }
 
     "Factorset" >> {
-      val set = setOf[Int](1 to 10)
+      val s = setOf[Int](1 to 10)
       def isOdd(x: Int) = x % 2 == 0
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => isOdd(a) == isOdd(b)
-      val factoring = new FactorSet(set, br)
+      val factoring = new FactorSet(s, br)
 
       factoring.content must haveSize(2)
-      val s = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
-      val factor = Set(s(1), s(0))
+      val twoSets = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
+      val factor = Set(twoSets(1), twoSets(0))
       factor === factoring.content
-      factoring.asFunction(6) === s(0)
-      factoring.asFunction(7) === s(1)
+      factoring.asFunction(6) === twoSets(0)
+      factoring.asFunction(7) === twoSets(1)
     }
 
     "Factorset by a diagonal" >> {
-      val set = setOf[Int](1 to 10)
+      val s = setOf[Int](1 to 10)
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
-      val actual: SetMorphism[Int, Set[Int]] = factorset(set, br)
-      val factor = setOf[Set[Int]](for (i <- set) yield Set(i))
-      actual === SetMorphism[Int, Set[Int]](set, factor, (i:Int) => Set(i))
+      val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
+      val factor = setOf[Set[Int]](for (i <- s) yield Set(i))
+      actual === SetMorphism[Int, Set[Int]](s, factor, (i:Int) => Set(i))
     }
 
     "Factorset mod 2" >> {
-      val set = setOf[Int](1 to 10)
+      val s0 = setOf[Int](1 to 10)
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
-      val actual = factorset(set, br)
-      val s = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
-      val factor = Set(s(1), s(0))
-      actual === SetMorphism[Int, Set[Int]](d0 = set, d1 = factor, function = (i:Int) => s(i % 2))
+      val actual = factorset(s0, br)
+      val sets = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
+      val factor = Set(sets(1), sets(0))
+      actual === SetMorphism[Int, Set[Int]](d0 = s0, d1 = factor, function = (i:Int) => sets(i % 2))
     }
 
     "Set(iterable, size, filter) should not return false positives" >> {
