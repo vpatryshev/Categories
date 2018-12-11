@@ -10,7 +10,7 @@ import math.sets.Sets._
   */
 
 class SetCategory(objects: BigSet[Set[Any]]) extends
-  Category[Set[Any], SetFunction](graphOfSets(objects)) {
+  Category[Untyped, SetFunction](graphOfSets(objects)) {
 
   override val m: (SetFunction, SetFunction) => Option[SetFunction] =
     (f, g) => f compose g
@@ -64,7 +64,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     Option(SetFunction.forFactorset(factorset))
   }
 
-  override def degree(x: Untyped, n: Int): Option[(Set[Any], List[SetFunction])] = {
+  override def degree(x: Untyped, n: Int): Option[(Untyped, List[SetFunction])] = {
     require(n >= 0, s"Degree of $n can't be calculated")
     val allMaps = Sets.exponent(Sets.numbers(n), x)
     val domain: Untyped = allMaps map identity
@@ -86,9 +86,9 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     Option((domain, projections.toList))
   }
 
-  override lazy val initial: Option[Set[Any]] = Option(Set.empty[Any]) filter (this contains)
+  override lazy val initial: Option[Untyped] = Option(Sets.Empty) filter (this contains)
 
-  override lazy val terminal: Option[Set[Any]] = Option(Set(initial))
+  override lazy val terminal: Option[Untyped] = Option(Set(initial))
 
   override def product(x: Untyped, y: Untyped): Option[(SetFunction, SetFunction)] = {
 
@@ -138,10 +138,10 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
 object SetCategory {
 
-  private[cat] def graphOfSets(nodes: BigSet[Set[Any]]): Graph[Set[Any], SetFunction] = {
+  private[cat] def graphOfSets(nodes: BigSet[Untyped]): Graph[Untyped, SetFunction] = {
     val arrows = BigSet[SetFunction]()
 
-    new Graph[Set[Any], SetFunction](nodes, arrows, _.d0, _.d1)
+    new Graph[Untyped, SetFunction](nodes, arrows, _.d0, _.d1)
   }
 
   val Setf = new SetCategory(FiniteSets)

@@ -381,7 +381,7 @@ class SetsTest extends Specification {
       def predicate = (x:Any) => x == 2
       val sut = setOf(s, 1, predicate)
       sut contains 1 must beFalse
-      val collected = (Set.empty[Any] /: sut.iterator) (_+_)
+      val collected = (Sets.Empty /: sut.iterator) (_+_)
       collected === Set(2)
     }
 
@@ -406,7 +406,7 @@ class SetsTest extends Specification {
     }
 
     "Finite Sets should contain various finite sets" >> {
-      FiniteSets.contains(Set[Any]()) must beTrue
+      FiniteSets.contains(Sets.Empty) must beTrue
       FiniteSets.contains(Set("infinity")) must beTrue
       FiniteSets.contains(Set(1,2,3,42)) must beTrue
     }

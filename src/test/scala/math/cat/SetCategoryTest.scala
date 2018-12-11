@@ -117,7 +117,7 @@ class SetCategoryTest extends Specification {
       val sut = Setf.degree(source, 4).map(_._1)
 
       sut match {
-        case Some(s: Set[Any]) =>
+        case Some(s: Untyped) =>
           s.size === 81
           for {
             a <- source
