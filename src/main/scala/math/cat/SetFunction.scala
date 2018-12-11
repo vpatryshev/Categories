@@ -86,31 +86,31 @@ object SetFunction {
    * Factory method. Builds an inclusion monomorphism that injects one set to another.
    *
    * @param subset domain of the inclusion
-   * @param s codomain of the inclusion
+   * @param containerSet codomain of the inclusion
    * @return inclusion monomorphism
    */
-  def inclusion(subset: Untyped, set: Untyped): SetFunction = {
-    require(subset.subsetOf(set), "It is not an inclusion if it is not a subset.")
-    apply("incl", subset, set, Functions.inclusion)
+  def inclusion(subset: Untyped, containerSet: Untyped): SetFunction = {
+    require(subset.subsetOf(containerSet), "It is not an inclusion if it is not a subset.")
+    apply("incl", subset, containerSet, Functions.inclusion)
 }
   /**
    * Factory method. Builds an inclusion monomorphism that injects one set to another.
    * Subset is defined by a predicate.
    *
-   * @param set the set
+   * @param containerSet the set
    * @param predicate defines the condition for elements to be included in the subset
    * @return inclusion monomorphism
    */
-  def inclusion(set: Untyped, predicate: Any => Boolean): SetFunction =
-    inclusion(set filter predicate, set)
+  def inclusion(containerSet: Untyped, predicate: Any => Boolean): SetFunction =
+    inclusion(containerSet filter predicate, containerSet)
 
   /**
    * Factory method. Builds identity morphism for a set.
    *
-   * @param s the set
+   * @param domain the set
    * @return identity morphism on the given set
    */
-  def id(s: Untyped): SetFunction = new SetFunction("id", s, s, x => x)
+  def id(domain: Untyped): SetFunction = new SetFunction("id", domain, domain, x => x)
 
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,

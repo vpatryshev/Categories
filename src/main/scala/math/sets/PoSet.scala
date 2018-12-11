@@ -97,14 +97,13 @@ object PoSet {
   def apply[T](theElements: Set[T], comparator: (T, T) => Boolean) = new PoSet(theElements, comparator)
 
   def apply[T](comparator: (T, T) => Boolean, theElements: T*): PoSet[T] = {
-    val s: Set[T] = Set(theElements: _*)
     new PoSet(Set(theElements: _*), comparator)
   }
 
-  def apply[T](s: Set[T]): PoSet[T] = apply(s, Set.empty[(T, T)])
+  def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Set.empty[(T, T)])
 
   class Parser extends Sets.Parser {
-    def poset: Parser[PoSet[String]] = "("~set~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)}
+    def poset: Parser[PoSet[String]] = "("~setRepr~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)}
     def pair: Parser[(String, String)] = member~"<="~member ^^ {case x~"<="~y => (x, y)}
 
     private def explain(pr: ParseResult[PoSet[String]]): PoSet[String] = {

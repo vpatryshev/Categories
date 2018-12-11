@@ -158,8 +158,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(XObjects, YArrows)]] = listOfDomainObjects map arrowsFromYtoFX
 
-    val set: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
-    val result: Set[Cone] = set flatMap cone(y)
+    val coneCandidates: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
+    val result: Set[Cone] = coneCandidates flatMap cone(y)
     result
   }
 
@@ -167,8 +167,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     * @return all possible cones to this functor.
     */
   def allCones: Set[Cone] = {
-    val s: Set[Set[Cone]] = codomain.objects map conesFrom
-    Sets.union(s)
+    val conesGroupedByX: Set[Set[Cone]] = codomain.objects map conesFrom
+    Sets.union(conesGroupedByX)
   }
 
   /**
@@ -260,8 +260,8 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(XObjects, YArrows)]] = domain.objects.toList map arrowsFromFXtoY
 
-    val set: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
-    val result: Set[Cocone] = set flatMap cocone(y)
+    val coconeCandidates: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
+    val result: Set[Cocone] = coconeCandidates flatMap cocone(y)
     result
   }
 
@@ -269,9 +269,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     * @return all possible cones to this functor.
     */
   def allCocones: Set[Cocone] = {
-    val s: Set[Set[Cocone]] = codomain.objects map coconesTo
+    val coconesGrouped: Set[Set[Cocone]] = codomain.objects map coconesTo
     
-    Sets.union(s)
+    Sets.union(coconesGrouped)
   }
 
   /**

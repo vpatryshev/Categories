@@ -214,13 +214,13 @@ object Sets {
     * Factoring is done on the relationship's transitive closure.
     *
     * @tparam T set element type
-    * @param set the main set
+    * @param sourceSet the main set
     * @param r   binary relationship (not necessarily equivalence relationship) that determines factoring
     * @return factorset epimorphism
     */
-  def factorset[T](set: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
-    val factory = new FactorSet[T](set, r)
-    SetMorphism(set, factory.content, factory.asFunction)
+  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
+    val factory = new FactorSet[T](sourceSet, r)
+    SetMorphism(sourceSet, factory.content, factory.asFunction)
   }
 
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
@@ -282,9 +282,9 @@ object Sets {
     println(product(source))
   }
   
-  def filter[X](set: Set[X], p: X => Boolean): Set[X] = {
-    if (isFinite(set)) filteredSet(set.iterator, p)
-    else setOf(set, InfiniteSize, p)
+  def filter[X](sourceSet: Set[X], p: X => Boolean): Set[X] = {
+    if (isFinite(sourceSet)) filteredSet(sourceSet.iterator, p)
+    else setOf(sourceSet, InfiniteSize, p)
   }
 
   private def filteredSet[X](i: => Iterator[X], p: X => Boolean): Set[X] = {
@@ -423,12 +423,12 @@ object Sets {
   }
 
   class Parser extends RegexParsers {
-    def read(input: CharSequence): Set[String] = parseAll(set, input).get
+    def read(input: CharSequence): Set[String] = parseAll(setRepr, input).get
 
-    def set: Parser[Set[String]] = "{" ~ repsep(member, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
+    def setRepr: Parser[Set[String]] = "{" ~ repsep(member, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
 
     def member: Parser[String] = regex("""[\w\\.]+""".r)
 
-    def read(input: Reader): Set[String] = parseAll(set, input).get
+    def read(input: Reader): Set[String] = parseAll(setRepr, input).get
   }
 }

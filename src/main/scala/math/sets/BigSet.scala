@@ -31,11 +31,11 @@ abstract class BigSet[T] extends Set[T] {
 }
 
 object BigSet {
-  def apply[T](s: Set[T]): BigSet[T] = new BigSet[T] with EnumerableSet[T] {
-    override def contains(t: T) = s(t)
-    override def size: Int = s.size
-    override def toString: String = s.toString
-    override def iterator: Iterator[T] = s.iterator
+  def apply[T](source: Set[T]): BigSet[T] = new BigSet[T] with EnumerableSet[T] {
+    override def contains(t: T) = source(t)
+    override def size: Int = source.size
+    override def toString: String = source.toString
+    override def iterator: Iterator[T] = source.iterator
   }
 
   def apply[T](p: T => Boolean = (_: T) => true): BigSet[T] =

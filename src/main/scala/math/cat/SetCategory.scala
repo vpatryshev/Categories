@@ -103,8 +103,9 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     for {
       prod <- product(f.d0, g.d0)
     } yield {
-      val s = prod._1.d0
-      val pullbackInProduct = inclusion(s, predicate = { case (a, b) => f(a) == g(b) })
+      val productSet = prod._1.d0
+      val pullbackInProduct =
+        inclusion(productSet, predicate = { case (a, b) => f(a) == g(b) })
       
       (pullbackInProduct andThen prod._1,
        pullbackInProduct andThen prod._2)

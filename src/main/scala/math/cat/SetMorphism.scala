@@ -78,7 +78,7 @@ object SetMorphism {
 //  implicit def include[X, Y >: X](d0: Set[X]) =
 //    apply(d0, d1 asInstanceOf Set[Y], source.function)
 
-  def id[X](s: Set[X]) = new SetMorphism[X, X]("1", s, s, x => x)
+  def id[X](domain: Set[X]) = new SetMorphism[X, X]("1", domain, domain, x => x)
 
   def const[X, Y](d0: Set[X], d1: Set[Y], value: Y) =
     new SetMorphism[X, Y]("`" + value + "`", d0, d1, _ => value)

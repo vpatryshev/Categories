@@ -101,9 +101,9 @@ object Functions {
      */
     def andThen[Z](g: Bijection[Y, Z]): Bijection[X, Z] = g compose this
 
-    override def applyTo(set: Set[X]): Set[Y] = {
-      val target: Iterable[Y] = set.map(this)
-      Sets.setOf(target, set.size, (y:Y) => set contains unapply(y))
+    override def applyTo(s: Set[X]): Set[Y] = {
+      val target: Iterable[Y] = s.map(this)
+      Sets.setOf(target, s.size, (y:Y) => s contains unapply(y))
     }
   }
 
@@ -126,10 +126,10 @@ object Functions {
    * Builds an identity function
    * @tparam T domain type
    *
-   * @param set domain
+   * @param domain domain
    * @return the identity function
    */
-  def id[T] (set: Set[T]): Id[T] = new Id[T]
+  def id[T] (domain: Set[T]): Id[T] = new Id[T]
 
   /**
    * Given a function f, builds another function that for each x

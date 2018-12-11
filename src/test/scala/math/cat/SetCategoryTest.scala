@@ -39,8 +39,8 @@ class SetCategoryTest extends Specification {
       case _ => false
     }
 
-    def whereIn(set: Untyped)(point: Any): Any =
-      set find contains(point) getOrElse Sets.Empty
+    def whereIn(s: Untyped)(point: Any): Any =
+      s find contains(point) getOrElse Sets.Empty
 
 
     "produce coequalizer of two" in {
@@ -113,20 +113,20 @@ class SetCategoryTest extends Specification {
     }
 
     "produce 4th degree of an object" in {
-      val s: Untyped = Sets.setOf(1, 2, 3)
-      val sut = Setf.degree(s, 4).map(_._1)
+      val source: Untyped = Sets.setOf(1, 2, 3)
+      val sut = Setf.degree(source, 4).map(_._1)
 
       sut match {
-        case Some(set: Set[Any]) =>
-          set.size === 81
+        case Some(s: Set[Any]) =>
+          s.size === 81
           for {
-            a <- s
-            b <- s
-            c <- s
-            d <- s
+            a <- source
+            b <- source
+            c <- source
+            d <- source
           } {
             val point = Map(0 -> a, 1 -> b, 2 -> c, 3 -> d)
-            set(point) === true
+            s(point) === true
           }
         case None => failure("must have built a 4th degree")
       }

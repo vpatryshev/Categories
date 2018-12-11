@@ -7,7 +7,6 @@ import math.sets.Sets._
 import org.specs2.execute.Failure
 import org.specs2.mutable._
 import scalakittens.{Empty, Result}
-import scalaz.std.function
 
 import scala.concurrent.duration.Duration
 
@@ -58,8 +57,8 @@ class SetsTest extends Specification {
 
     "building from a list should work" >> {
       val source = List("one", "two", "three", "")
-      val actual: Set[String] = setOf[String](source, (s: String) => source.contains(s))
       val expected = Set("one", "two", "three", "")
+      val actual: Set[String] = setOf[String](source,  expected)
       actual === expected
     }
 
@@ -91,12 +90,12 @@ class SetsTest extends Specification {
         }
       }
 
-      val set = setOf(iterable, (n: Int) => true)
-      set.contains(42) must beTrue
-// the following matcher does not work, because our set is infinite, and the test tries to build a vector      
-//      set must contain(42)
+      val s = setOf(iterable, (n: Int) => true)
+      // the following matcher does not work, because our set is infinite, and the test tries to build a vector      
+      //      s must contain(42)
+      s.contains(42) must beTrue
       var n = 0
-      for (i <- set take 10) {
+      for (i <- s take 10) {
         n += 1
       }
       n === 10
@@ -231,9 +230,9 @@ class SetsTest extends Specification {
     }
 
     "powerset of a 3-element set should give 8 elements" >> {
-      val set = Set("a", "b", "c")
-      val actual = powerset(set)
-      val expected = Set(Set.empty, Set("a"), Set("b"), Set("c"), Set("a", "b"), Set("a", "c"), Set("b", "c"), set)
+      val s = Set("a", "b", "c")
+      val actual = powerset(s)
+      val expected = Set(Set.empty, Set("a"), Set("b"), Set("c"), Set("a", "b"), Set("a", "c"), Set("b", "c"), s)
       actual === expected
     }
 

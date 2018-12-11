@@ -21,7 +21,7 @@ class ZFC {
 
   type Predicate = Any => Boolean
 
-  private def exists(s: SetZ) = register(s)
+  private def exists(aSet: SetZ) = register(aSet)
 
   private def exists(p: Predicate): Boolean = domain exists p
 

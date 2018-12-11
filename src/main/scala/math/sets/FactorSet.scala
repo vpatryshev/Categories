@@ -25,11 +25,11 @@ class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
   /**
     * Builds a factorset of a given set, by the transitive closure of a given relationship.
     *
-    * @param set base set
+    * @param sourceSet base set
     * @param r   binary relationship
     */
-  def this(set: Set[X], r: BinaryRelation[X, X]) {
-    this(set)
+  def this(sourceSet: Set[X], r: BinaryRelation[X, X]) {
+    this(sourceSet)
     factorByRelationship(r)
   }
 
