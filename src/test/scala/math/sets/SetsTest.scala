@@ -371,9 +371,9 @@ class SetsTest extends Specification {
       val s0 = setOf[Int](1 to 10)
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
       val actual = factorset(s0, br)
-      val sets = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
-      val factor = Set(sets(1), sets(0))
-      actual === SetMorphism[Int, Set[Int]](d0 = s0, d1 = factor, function = (i:Int) => sets(i % 2))
+      val listofClasses = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
+      val setOfClasses = Set(listofClasses(0), listofClasses(1))
+      actual === SetMorphism[Int, Set[Int]](d0 = s0, d1 = setOfClasses, function = (i:Int) => listofClasses(i % 2))
     }
 
     "Set(iterable, size, filter) should not return false positives" >> {

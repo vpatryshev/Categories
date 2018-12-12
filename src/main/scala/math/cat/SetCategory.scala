@@ -10,17 +10,17 @@ import math.sets.Sets._
   */
 
 class SetCategory(objects: BigSet[Set[Any]]) extends
-  Category[Untyped, SetFunction](graphOfSets(objects)) {
+  Category[set, SetFunction](graphOfSets(objects)) {
 
   override val m: (SetFunction, SetFunction) => Option[SetFunction] =
     (f, g) => f compose g
-  override val id: Untyped => SetFunction = SetFunction.id
+  override val id: set => SetFunction = SetFunction.id
 
   override protected def validate(): Unit = {} // it IS a category
 
   override def toString: String = "Category of all Scala Sets"
 
-  override def hom(x: Untyped, y: Untyped): Set[SetFunction] =
+  override def hom(x: set, y: set): Set[SetFunction] =
     SetFunction.exponent(x, y)
 
   override def isMonomorphism(f: SetFunction): Boolean =
@@ -37,13 +37,13 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override def coequalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {
     require(areParallel(f, g), s"Arrows $f and $g must be parallel")
-    val factorset: FactorSet[Any] = new FactorSet[Any](f.d1)
+    val theFactorset: factorset = new FactorSet[Any](f.d1)
     
-    if (contains(factorset.map(identity))) {
+    if (contains(theFactorset untyped)) {
       for (x <- f.d0) {
-        factorset.merge(f(x), g(x))
+        theFactorset.merge(f(x), g(x))
       }
-      Option(SetFunction.forFactorset(factorset))
+      Option(SetFunction.forFactorset(theFactorset))
     } else None
   }
 
@@ -56,18 +56,17 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
       require(f.d0 == domain, s"Domain should be $domain")
       require(f.d1 == codomain, s"Codomain should be $codomain")
     }
-    val factorset: FactorSet[Any] = new FactorSet(codomain)
+    val theFactorset: factorset = new FactorSet(codomain)
 
     for (g <- arrowsToEqualize) {
-      for (x <- g.d0) factorset.merge(f(x), g(x))
+      for (x <- g.d0) theFactorset.merge(f(x), g(x))
     }
-    Option(SetFunction.forFactorset(factorset))
+    Option(SetFunction.forFactorset(theFactorset))
   }
 
-  override def degree(x: Untyped, n: Int): Option[(Untyped, List[SetFunction])] = {
+  override def degree(x: set, n: Int): Option[(set, List[SetFunction])] = {
     require(n >= 0, s"Degree of $n can't be calculated")
-    val allMaps = Sets.exponent(Sets.numbers(n), x)
-    val domain: Untyped = allMaps map identity
+    val domain: set = Sets.exponent(Sets.numbers(n), x) untyped
     
     // TODO: use Shapeless, get rid of warning
     def takeElementAt(i: Int)(obj: Any) = obj match {
@@ -86,13 +85,16 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     Option((domain, projections.toList))
   }
 
-  override lazy val initial: Option[Untyped] = Option(Sets.Empty) filter (this contains)
+  override lazy val initial: Option[set] = Option(Sets.Empty) filter (this contains)
 
-  override lazy val terminal: Option[Untyped] = Option(Set(initial))
+  override lazy val terminal: Option[set] = {
+    val option1: Option[set] = Option(setOf(initial))
+    option1 filter (this contains)
+  }
 
-  override def product(x: Untyped, y: Untyped): Option[(SetFunction, SetFunction)] = {
+  override def product(x: set, y: set): Option[(SetFunction, SetFunction)] = {
 
-    val productSet: Untyped = Sets.product2(x, y).map(p => p)
+    val productSet: set = Sets.product2(x, y) untyped
     val p1 = new SetFunction("p1", productSet, x, { case (a, b) => a })
     val p2 = new SetFunction("p2", productSet, y, { case (a, b) => b })
     Option((p1, p2))
@@ -111,12 +113,12 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
        pullbackInProduct andThen prod._2)
     }
 
-  override def union(x: Untyped, y: Untyped): Option[(SetFunction, SetFunction)] = {
+  override def union(x: set, y: set): Option[(SetFunction, SetFunction)] = {
     def tagX(x: Any) = ("x", x)
     def tagY(y: Any) = ("y", y)
-    val taggedX: Untyped = x map tagX
-    val taggedY: Untyped = y map tagY
-    val unionSet: Untyped = Sets.union(taggedX, taggedY)
+    val taggedX: set = x map tagX
+    val taggedY: set = y map tagY
+    val unionSet: set = Sets.union(taggedX, taggedY)
     val ix = SetFunction("ix", x, taggedX, tagX).andThen(SetFunction.inclusion(taggedX, unionSet))
     val iy = SetFunction("iy", y, taggedY, tagY).andThen(SetFunction.inclusion(taggedY, unionSet))
     Option((ix, iy))
@@ -138,10 +140,10 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
 object SetCategory {
 
-  private[cat] def graphOfSets(nodes: BigSet[Untyped]): Graph[Untyped, SetFunction] = {
+  private[cat] def graphOfSets(nodes: BigSet[set]): Graph[set, SetFunction] = {
     val arrows = BigSet[SetFunction]()
 
-    new Graph[Untyped, SetFunction](nodes, arrows, _.d0, _.d1)
+    new Graph[set, SetFunction](nodes, arrows, _.d0, _.d1)
   }
 
   val Setf = new SetCategory(FiniteSets)

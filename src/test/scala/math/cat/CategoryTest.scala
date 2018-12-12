@@ -729,8 +729,8 @@ class CategoryTest extends Specification {
   
   "SetCategory" >> {
     "have products" >> {
-      val first: Untyped = Sets.setOf("a", "b")
-      val second: Untyped = Sets.setOf(1, 2, 3)
+      val first: set = Sets.setOf("a", "b")
+      val second: set = Sets.setOf(1, 2, 3)
       val product = Setf.product(first, second)
 
       product match {

@@ -2,18 +2,19 @@ package math.cat
 
 import math.cat.SetCategory._
 import math.cat.SetFunction._
-import math.sets.Sets.Untyped
+import math.sets.Sets._
 import math.sets.{BigSet, Sets}
 import org.specs2.mutable._
+
 
 /**
   * Prototype for all tests
   */
 class SetCategoryTest extends Specification {
-  val s1: Untyped = Set[Int](42).map(identity)
-  val s2: Untyped = Sets.range(0, 7, 1).map(identity)
-  val s3: Untyped = Set("hello", "cruel", "world").map(identity)
-  val s4: Untyped = Set("hello", "goodbye", "cruel", "world").map(identity)
+  val s1: set = Set[Int](42) untyped
+  val s2: set = Sets.range(0, 7, 1) untyped
+  val s3: set = Set("hello", "cruel", "world") untyped
+  val s4: set = Set("hello", "goodbye", "cruel", "world") untyped
   val evenSets: SetCategory = new SetCategory(BigSet(_.size % 2 == 0))
   val oddSets: SetCategory = new SetCategory(BigSet(_.size % 2 == 1))
 
@@ -39,7 +40,7 @@ class SetCategoryTest extends Specification {
       case _ => false
     }
 
-    def whereIn(s: Untyped)(point: Any): Any =
+    def whereIn(s: set)(point: Any): Any =
       s find contains(point) getOrElse Sets.Empty
 
 
@@ -47,7 +48,7 @@ class SetCategoryTest extends Specification {
       val f = SetFunction("f", s1, s2, _ => 3)
       val g = SetFunction("g", s1, s2, _ => 5)
       val actual = Setf.coequalizer(f, g)
-      val expectedSet: Untyped = Set(Set(0), Set(1), Set(2), Set(3, 5), Set(4), Set(6))
+      val expectedSet: set = Set(Set(0), Set(1), Set(2), Set(3, 5), Set(4), Set(6))
 
       def where(x: Any): Any = whereIn(expectedSet)(x)
 
@@ -65,7 +66,7 @@ class SetCategoryTest extends Specification {
       val g = SetFunction("g", s1, s2, _ => 5)
       val h = SetFunction("h", s1, s2, _ => 1)
       val actual = Setf.coequalizer(f :: g :: h :: Nil)
-      val expectedSet: Untyped = Set(Set(0), Set(2), Set(1, 3, 5), Set(4), Set(6))
+      val expectedSet: set = Set(Set(0), Set(2), Set(1, 3, 5), Set(4), Set(6))
 
       def where(x: Any): Any = whereIn(expectedSet)(x)
 
@@ -75,7 +76,7 @@ class SetCategoryTest extends Specification {
 
       def singleton(x: Any): Any = Set(x)
 
-      val singletons: Untyped = s2 map singleton
+      val singletons: set = s2 map singleton
       Setf.coequalizer(f :: Nil) === Some(SetFunction("Factorset", s2, singletons, singleton))
       Setf.coequalizer(List.empty[SetFunction]) should throwA[IllegalArgumentException]
       Setf.coequalizer(f :: id(s3) :: Nil) should throwA[IllegalArgumentException]
@@ -113,11 +114,11 @@ class SetCategoryTest extends Specification {
     }
 
     "produce 4th degree of an object" in {
-      val source: Untyped = Sets.setOf(1, 2, 3)
+      val source: set = Sets.setOf(1, 2, 3)
       val sut = Setf.degree(source, 4).map(_._1)
 
       sut match {
-        case Some(s: Untyped) =>
+        case Some(s: set) =>
           s.size === 81
           for {
             a <- source
@@ -243,9 +244,9 @@ class SetCategoryTest extends Specification {
     }
 
     "build pullback 3x3" in {
-      val a: Untyped = Set(1, 2, 3)
-      val b: Untyped = Set(2, 3, 4)
-      val c: Untyped = Set(0, 1)
+      val a: set = Set(1, 2, 3)
+      val b: set = Set(2, 3, 4)
+      val c: set = Set(0, 1)
       val f = SetFunction("f", a, c, _.toString.toInt % 2)
       val g = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
 
@@ -263,9 +264,9 @@ class SetCategoryTest extends Specification {
     }
 
     "build pushout 3+3" in {
-      val a: Untyped = Set(1, 2, 3)
-      val b: Untyped = Set(2, 3, 4)
-      val c: Untyped = Set(0, 1)
+      val a: set = Set(1, 2, 3)
+      val b: set = Set(2, 3, 4)
+      val c: set = Set(0, 1)
       val f = SetFunction("f", c, a, _.toString.toInt + 1)
       val g = SetFunction("g", c, b, x => x.toString.toInt + 2)
 
@@ -288,8 +289,8 @@ class SetCategoryTest extends Specification {
     }
     
     "have union" in {
-      val a: Untyped = Set(1, 2, 3)
-      val b: Untyped = Set(3, 4)
+      val a: set = Set(1, 2, 3)
+      val b: set = Set(3, 4)
       Setf.union(a, b) match {
         case None => failure(s"Oops, failed to build a union of $a and $b")
         case Some((ix, iy)) =>

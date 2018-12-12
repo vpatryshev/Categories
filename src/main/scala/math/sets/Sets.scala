@@ -13,7 +13,12 @@ import scala.util.parsing.combinator.RegexParsers
   * Lazy sets functionality
   */
 object Sets {
-  type Untyped = Set[Any]
+  type set = Set[Any]
+  type factorset = FactorSet[Any]
+  
+  implicit class converter[T](s: Set[T]) {
+    def untyped: set = s map identity
+  }
   
   val InfiniteSize: Int = Int.MaxValue
   
@@ -21,9 +26,9 @@ object Sets {
 
   def isFinite: Set[_] => Boolean = _.size != InfiniteSize
 
-  val Empty: Untyped = Set.empty[Any]
+  val Empty: set = Set.empty[Any]
   
-  val Unit: Untyped = Set(Empty)
+  val Unit: set = Set(Empty)
   
   /**
     * A big set of all finite sets in Scala. This set is infinite, of course.
@@ -219,8 +224,7 @@ object Sets {
     * @return factorset epimorphism
     */
   def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
-    val factory = new FactorSet[T](sourceSet, r)
-    SetMorphism(sourceSet, factory.content, factory.asFunction)
+    new FactorSet[T](sourceSet, r).asMorphism
   }
 
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
@@ -423,12 +427,12 @@ object Sets {
   }
 
   class Parser extends RegexParsers {
-    def read(input: CharSequence): Set[String] = parseAll(setRepr, input).get
+    def read(input: CharSequence): Set[String] = parseAll(parserOfSet, input).get
 
-    def setRepr: Parser[Set[String]] = "{" ~ repsep(member, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
+    def parserOfSet: Parser[Set[String]] = "{" ~ repsep(member, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
 
     def member: Parser[String] = regex("""[\w\\.]+""".r)
 
-    def read(input: Reader): Set[String] = parseAll(setRepr, input).get
+    def read(input: Reader): Set[String] = parseAll(parserOfSet, input).get
   }
 }

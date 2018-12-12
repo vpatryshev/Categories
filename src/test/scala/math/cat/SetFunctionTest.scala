@@ -2,7 +2,7 @@ package math.cat
 
 import math.sets.Sets._
 import math.cat.SetFunction._
-import math.sets.{BinaryRelation, FactorSet}
+import math.sets.{BinaryRelation, FactorSet, Sets}
 import org.specs2.mutable._
 
 /**
@@ -152,9 +152,8 @@ class SetFunctionTest extends Specification {
       val set1 = set0.map(i => i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
       val br: BinaryRelation[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)
-      val factoring = new FactorSet[Any](set1, br)
       val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
-      val sut = forFactorset(factoring)
+      val sut = Sets.factorset(set1, br)
       val factor = Set(s(1), s(0))
       set1 === sut.d0
       factor === sut.d1

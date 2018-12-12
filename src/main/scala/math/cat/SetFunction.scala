@@ -13,10 +13,10 @@ import math.sets.Sets._
  * @param f the function that implements the morphism
  */
 case class SetFunction(
-    override val tag: String,
-    override val d0: Untyped,
-    override val d1: Untyped,
-    f: Any => Any)
+                        override val tag: String,
+                        override val d0: set,
+                        override val d1: set,
+                        f: Any => Any)
         extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
 
   /**
@@ -79,7 +79,7 @@ object SetFunction {
    * @param value the value in <code>codom</code> that the morphism returns
    * @return constant morphism
    */
-  def constant(d0: Untyped, d1: Untyped, value: Any): SetFunction =
+  def constant(d0: set, d1: set, value: Any): SetFunction =
     apply(value.toString, d0, d1, Functions.constant(value))
 
   /**
@@ -89,7 +89,7 @@ object SetFunction {
    * @param containerSet codomain of the inclusion
    * @return inclusion monomorphism
    */
-  def inclusion(subset: Untyped, containerSet: Untyped): SetFunction = {
+  def inclusion(subset: set, containerSet: set): SetFunction = {
     require(subset.subsetOf(containerSet), "It is not an inclusion if it is not a subset.")
     apply("incl", subset, containerSet, Functions.inclusion)
 }
@@ -101,7 +101,7 @@ object SetFunction {
    * @param predicate defines the condition for elements to be included in the subset
    * @return inclusion monomorphism
    */
-  def inclusion(containerSet: Untyped, predicate: Any => Boolean): SetFunction =
+  def inclusion(containerSet: set, predicate: Any => Boolean): SetFunction =
     inclusion(containerSet filter predicate, containerSet)
 
   /**
@@ -110,20 +110,20 @@ object SetFunction {
    * @param domain the set
    * @return identity morphism on the given set
    */
-  def id(domain: Untyped): SetFunction = new SetFunction("id", domain, domain, x => x)
+  def id(domain: set): SetFunction = new SetFunction("id", domain, domain, x => x)
 
   /**
    * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
    * given a set and binary relation. Factoring is done on the relation's transitive closure.
    *
-   * @param factorset the main set
+   * @param theFactorset the main set
    * @return factorset epimorphism
    */
-  def forFactorset(factorset: FactorSet[Any]): SetFunction =
+  def forFactorset(theFactorset: factorset): SetFunction =
     SetFunction("Factorset",
-      factorset.domain,
-      factorset.content.map(identity), 
-      factorset.asFunction)
+      theFactorset.domain,
+      theFactorset.content.untyped, 
+      theFactorset.asFunction)
 
     /**
      * Builds a set of all morphisms from one set to another.
@@ -132,6 +132,6 @@ object SetFunction {
      * @param y base (the set to which all morphisms are)
      * @return y < sup > x, represented as a set of all morphisms.
      */
-  def exponent(x: Untyped, y: Untyped): Set[SetFunction] =
+  def exponent(x: set, y: set): Set[SetFunction] =
     Sets.exponent(x, y) map { apply("exponent", x, y, _) }
   }

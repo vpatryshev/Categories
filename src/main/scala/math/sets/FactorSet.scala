@@ -1,7 +1,7 @@
 package math.sets
 
 import Sets.itsImmutable
-
+import math.cat.{SetFunction, SetMorphism}
 
 /**
   * Implements factorset functionality. A factorset may be built given a BinaryRelation,
@@ -11,7 +11,7 @@ import Sets.itsImmutable
   *
   * @tparam X element type
   */
-class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
+class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
 
   /**
     * @return the latest version of factorset built here.
@@ -20,7 +20,7 @@ class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
   /**
     * Maps elements of the main set to their equivalence classes (they constitute the factorset).
     */
-  private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: s) ((m, x) => m + (x -> Set(x)))
+  private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: base) ((m, x) => m + (x -> Set(x)))
 
   /**
     * Builds a factorset of a given set, by the transitive closure of a given relationship.
@@ -39,10 +39,10 @@ class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
     *
     * @param r the binary relationship. Does not have to be symmetrical or transitive.
     */
-  def factorByRelationship(r: BinaryRelation[X, X]): Unit =
+  private def factorByRelationship(r: BinaryRelation[X, X]): Unit =
     for {
-      x1 <- s
-      x2 <- s
+      x1 <- base
+      x2 <- base
       if r(x1, x2) || r(x2, x1)} merge(x1, x2)
 
   /**
@@ -54,7 +54,7 @@ class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
   def merge(x1: X, x2: X) {
     for (
       class1 <- equivalenceClasses.get(x1);
-      class2 <- equivalenceClasses.get(x2)) {
+      class2 <- equivalenceClasses.get(x2) if x1 != x2) {
       val merged: Set[X] = class1 ++ class2
       for (x3 <- merged) {
         equivalenceClasses = equivalenceClasses + (x3 -> merged)
@@ -65,7 +65,7 @@ class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
   /**
     * @return the domain set.
     */
-  def domain: Set[X] = s
+  def domain: Set[X] = base
 
   /**
     * @return the function from the domain set to the factorset.
@@ -79,4 +79,9 @@ class FactorSet[X](s: Set[X]) extends Set[Set[X]] {
   override def -(elem: Set[X]): Set[Set[X]] = itsImmutable
 
   override def iterator: Iterator[Set[X]] = equivalenceClasses.values.iterator
+  
+  def asMorphism: SetMorphism[X, Set[X]] = {
+    SetMorphism(base, content, asFunction)
+
+  }
 }

@@ -21,11 +21,11 @@ import scala.language.postfixOps
   * @tparam Arrows  type of arrows of domain category
   */
 case class SetDiagram[Objects, Arrows](
-  override val tag: String,
-  override val domain: Category[Objects, Arrows],
-  override val objectsMapping: Objects => Untyped,
-  override val arrowsMapping: Arrows => SetFunction)
-  extends Functor[Objects, Arrows, Untyped, SetFunction](
+                                        override val tag: String,
+                                        override val domain: Category[Objects, Arrows],
+                                        override val objectsMapping: Objects => set,
+                                        override val arrowsMapping: Arrows => SetFunction)
+  extends Functor[Objects, Arrows, set, SetFunction](
     tag, domain, SetCategory.Setf, objectsMapping, arrowsMapping) {
 
   // for each original object select a value in the diagram
@@ -73,9 +73,9 @@ case class SetDiagram[Objects, Arrows](
       domain.buildBundles(domain.objects, participantArrows)
     val listOfObjects = participantObjects.toList
     // Here we have a non-repeating collection of sets to use for building a union
-    val setsToJoin: List[Set[Any]] = listOfObjects.map(nodesMapping)
+    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
-    val typelessUnion: Untyped = union.unionSet.map(identity)
+    val typelessUnion: set = union.unionSet untyped
     val directIndex: Map[Int, Objects] = Base.toMap(listOfObjects)
     val reverseIndex: Map[Objects, Int] = Base.inverse(directIndex)
 
@@ -87,7 +87,7 @@ case class SetDiagram[Objects, Arrows](
     val functionsToUnion: Set[(Objects, SetFunction)] = for {
       o <- domain.objects
       a <- bundles(o)
-      from: Untyped = nodesMapping(o)
+      from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
       embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(domain.d1(a)))
       g = aAsMorphism.andThen(embeddingToUnion) // do we need it?
@@ -97,7 +97,7 @@ case class SetDiagram[Objects, Arrows](
     val canonicalFunctionPerObject: Map[Objects, SetFunction] =
       functionsToUnion.toMap
 
-    val factorset: FactorSet[Any] = new FactorSet(typelessUnion)
+    val theFactorset: factorset = new FactorSet(typelessUnion)
 
     // have to factor the union by the equivalence relationship caused
     // by two morphisms mapping the same element to two possibly different.
@@ -115,15 +115,15 @@ case class SetDiagram[Objects, Arrows](
           for (a <- tail) {
             val g = inclusionToUnion(a)
             for (x <- F_o) {
-              factorset.merge(f(x), g(x))
+              theFactorset.merge(f(x), g(x))
             }
           }
         case other => // do nothing
       }
     }
-    val factorMorphism: SetFunction = SetFunction.forFactorset(factorset)
+    val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
     val coconeMap: Objects => SetFunction = x => canonicalFunctionPerObject(x) andThen factorMorphism
-    Option(Cocone(factorset.content.map(identity), coconeMap))
+    Option(Cocone(theFactorset.content.untyped, coconeMap))
   }
 
   /**
@@ -174,7 +174,7 @@ case class SetDiagram[Objects, Arrows](
     final private[cat] val cobundles: Map[Objects, Set[Arrows]] =
       domain.op.buildBundles(domain.objects, participantArrows)
     // this is the limit object
-    final private[cat] val apex: Untyped = prod filter isPoint map identity
+    final private[cat] val apex: set = prod filter isPoint untyped
     // bundles maps each "initial" object to a set of arrows from it
     final private[cat] val bundles: Map[Objects, Set[Arrows]] =
       domain.buildBundles(participantObjects, participantArrows)

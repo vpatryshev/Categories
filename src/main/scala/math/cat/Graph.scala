@@ -140,7 +140,7 @@ object Graph {
 
   class Parser extends Sets.Parser {
     def all: Parser[Graph[String, String]] = "("~graph~")" ^^ {case "("~g~")" => g}
-    def graph: Parser[Graph[String, String]] = setRepr~","~arrows ^^ {case s~","~a => Graph(s, a)}
+    def graph: Parser[Graph[String, String]] = parserOfSet~","~arrows ^^ {case s~","~a => Graph(s, a)}
     def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
     def arrow: Parser[(String, (String, String))] = member~":"~member~"->"~member ^^ {case f~":"~x~"->"~y => (f, (x, y))}
     private def explain(pr: ParseResult[Graph[String, String]]): Graph[String, String] = {

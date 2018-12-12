@@ -47,7 +47,7 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
   private[sets] def equal(other: PoSet[T]): Boolean = {
     val isEqual = underlyingSet == other.underlyingSet
     val product = Sets.product2(underlyingSet, underlyingSet)
-    (isEqual /: product) ((bool, p) => bool && (le(p) == other.le(p)))
+    isEqual && product.forall(p => le(p) == other.le(p))
   }
 
   protected def validate(): Unit = if (Sets.isFinite(underlyingSet)) {
@@ -103,7 +103,7 @@ object PoSet {
   def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Set.empty[(T, T)])
 
   class Parser extends Sets.Parser {
-    def poset: Parser[PoSet[String]] = "("~setRepr~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)}
+    def poset: Parser[PoSet[String]] = "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)}
     def pair: Parser[(String, String)] = member~"<="~member ^^ {case x~"<="~y => (x, y)}
 
     private def explain(pr: ParseResult[PoSet[String]]): PoSet[String] = {
