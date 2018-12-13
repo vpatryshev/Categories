@@ -19,12 +19,23 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
    val domain: Category[XObjects, XArrows],
    val codomain: Category[YObjects, YArrows],
    val objectsMapping: XObjects => YObjects,
-   override val arrowsMapping: XArrows => YArrows) extends
+   val arrowsMappingCandidate: XArrows => YArrows) extends
       GraphMorphism[XObjects, XArrows, YObjects, YArrows](
-     tag, domain, codomain, objectsMapping, arrowsMapping)
+     tag, domain, codomain, objectsMapping, arrowsMappingCandidate)
 {
   override val d0: Category[XObjects, XArrows] = domain
   override val d1: Category[YObjects, YArrows] = codomain
+  
+  override val arrowsMapping: XArrows => YArrows = (a: XArrows) => {
+    val d0 = domain.d0(a)
+    try {
+      if (domain.id(d0) == a) codomain.id(objectsMapping(d0)) else arrowsMappingCandidate(a)
+    } catch {
+      case x: Exception =>
+        throw new IllegalArgumentException(
+          s"Arrow mapping not found for $a: $d0 -> ${domain.d1(a)}")
+    }
+  }
   
   try { validate() } catch { case x: Exception =>
       throw x
@@ -41,19 +52,11 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
    */
   def validate() {
     for (x <- domain.objects) {
-      val ux: XArrows = domain.id(x)
-      val y: YObjects = try {
+      try {
         nodesMapping(x)
       } catch {
-        case x: Exception => throw new IllegalArgumentException(s"Arrow morphism not defined for $ux")
+        case x: Exception => throw new IllegalArgumentException(s"Object morphism not defined for $x")
       }
-      val uy: YArrows = codomain.id(y)
-      val fux = try {
-        arrowsMapping(ux)
-      } catch {
-        case x: Exception => throw new IllegalArgumentException(s"Arrow morphism not defined for $ux")
-      }
-      require(uy == fux, "Functor must preserve identities (failed on " +x + ")")
     }
 
     for {fx <- domain.arrows
@@ -86,19 +89,19 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   }
 
   /**
-    * Cone class for this Functor. A cone is an object y (called apex) and a bundle of arrows cx: y -> F(x)
+    * Cone class for this Functor. A cone is an object y (called vertex) and a bundle of arrows cx: y -> F(x)
     * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
-    * @param apex the cone's apex object in Y
-    * @param arrowTo maps each object of x to an arrow from F(x) to the apex.
+    * @param vertex the cone's vertex object in Y
+    * @param arrowTo maps each object of x to an arrow from F(x) to the vertex.
     */
-  case class Cone(apex: YObjects, arrowTo: XObjects => YArrows) {
-    require(apex != null, "an apex of a cone can't be null")
+  case class Cone(vertex: YObjects, arrowTo: XObjects => YArrows) {
+    require(vertex != null, "an vertex of a cone can't be null")
     require(arrowTo != null, "a map of arrows of a cone can't be null")
 
-    override def toString: String = "Cone[" + apex + "]"
+    override def toString: String = "Cone[" + vertex + "]"
 
     /**
-      * A cone from y1 to F is factored by this cone (with apex y)
+      * A cone from y1 to F is factored by this cone (with vertex y)
       * if there is an h : y1 -> y such that each f1: y1 -> F(x) is equal to
       * f o h, where f: y -> F(x).
       *
@@ -106,7 +109,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       * @return true if it is so
       */
     def factorsOnRight(factored: Cone): Boolean =
-      codomain.hom(factored.apex, apex) exists { h =>
+      codomain.hom(factored.vertex, vertex) exists { h =>
           domain.objects.forall(
             x => codomain.m(h, arrowTo(x)) contains factored.arrowTo(x))
       }
@@ -126,18 +129,18 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     override def equals(o: Any): Boolean = {
       o match {
         case other: Cone => eq(other) ||
-          (apex == other.apex &&
+          (vertex == other.vertex &&
             domain.forall { x: XObjects =>
               Result.forValue(arrowTo(x) == other.arrowTo(x)).getOrElse(false) })
         case somethingElse => false
       }
     }
 
-    override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
+    override def hashCode: Int = (vertex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
 
-  def cone(apex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cone] = {
-    Option(Cone(apex, arrowTo.toMap)) filter (_.isWellFormed)
+  def cone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cone] = {
+    Option(Cone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
   }
 
   /**
@@ -185,14 +188,14 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   def limit: Option[Cone] = allCones find isLimit
 
   /**
-    * Cocone class for this Functor. A cocone is an object y (called apex) and a bundle of arrows cx: F(x) -> y
+    * Cocone class for this Functor. A cocone is an object y (called vertex) and a bundle of arrows cx: F(x) -> y
     * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
-    * @param apex the cone's apex object in Y
-    * @param arrowFrom maps each object of x to an arrow from F(x) to the apex.
+    * @param vertex the cone's vertex object in Y
+    * @param arrowFrom maps each object of x to an arrow from F(x) to the vertex.
     */
-  case class Cocone(apex: YObjects, arrowFrom: XObjects => YArrows) {
+  case class Cocone(vertex: YObjects, arrowFrom: XObjects => YArrows) {
 
-    override def toString: String = "Cocone[" + apex + "]"
+    override def toString: String = "Cocone[" + vertex + "]"
 
     /**
       * A cocone from F to y1 is factored by this cocone (from F to y)
@@ -203,7 +206,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       * @return true if it is so
       */
     def factorsOnRight(factored: Cocone): Boolean = {
-      val hom = codomain.hom(factored.apex, apex)
+      val hom = codomain.hom(factored.vertex, vertex)
       val answer = hom exists(
         (h: YArrows) => {
           val failsOn = domain.objects.find(
@@ -232,16 +235,16 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     override def equals(o: Any): Boolean = o match {
         case other: Cocone =>
           eq(other) || (
-          apex == other.apex &&
+          vertex == other.vertex &&
           domain.forall { x: XObjects => arrowFrom(x) == other.arrowFrom(x) })
         case somethingElse => false
       }
 
-    override def hashCode: Int = (apex.hashCode /: domain)((hash, x) => hash * 13 + arrowFrom(x).hashCode)
+    override def hashCode: Int = (vertex.hashCode /: domain)((hash, x) => hash * 13 + arrowFrom(x).hashCode)
   }
 
-  def cocone(apex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cocone] = {
-    Option(Cocone(apex, arrowTo.toMap)) filter (_.isWellFormed)
+  def cocone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cocone] = {
+    Option(Cocone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
   }
 
   /**

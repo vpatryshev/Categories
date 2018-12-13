@@ -21,16 +21,16 @@ import scala.language.postfixOps
   * @tparam Arrows  type of arrows of domain category
   */
 case class SetDiagram[Objects, Arrows](
-                                        override val tag: String,
-                                        override val domain: Category[Objects, Arrows],
-                                        override val objectsMapping: Objects => set,
-                                        override val arrowsMapping: Arrows => SetFunction)
+  override val tag: String,
+  override val domain: Category[Objects, Arrows],
+  override val objectsMapping: Objects => set,
+  override val arrowsMappingCandidate: Arrows => SetFunction)
   extends Functor[Objects, Arrows, set, SetFunction](
-    tag, domain, SetCategory.Setf, objectsMapping, arrowsMapping) {
+    tag, domain, SetCategory.Setf, objectsMapping, arrowsMappingCandidate) {
 
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
-  type PointLike = Map[Objects, Any]
+  private type PointLike = Map[Objects, Any]
 
   /**
     * Calculates this diagram's limit
@@ -39,8 +39,9 @@ case class SetDiagram[Objects, Arrows](
     */
   override def limit: Option[Cone] = {
     val data: Limit = new Limit
-    // For each object of domain we have an arrow from one of the objects used in building the product
 
+    // For each object of domain we have an arrow from one of the objects used in building the product
+    // TODO: ignore identities
     val arrowsInvolved = for {
       obj <- data.bundles.keySet
       arrow <- data.bundles.get(obj).toSet.flatten
@@ -53,16 +54,13 @@ case class SetDiagram[Objects, Arrows](
     def setFunctionForObject(obj: Objects): SetFunction = arrowsMapping(arrowFromImportantObject(obj))
 
     def coneMap(x: Objects): SetFunction = {
+      val projections: List[Any] => Any = data.projectionForObject(x)
       val f: SetFunction = setFunctionForObject(x)
-      SetFunction("apex to F[x]", data.apex, f.d1,
-        { case point: List[Objects] =>
-          val obj = data.projectionForObject(x)(point)
-          val arrow = arrowFromImportantObject(obj)
-          arrowsMapping(arrow).function
-        })
+      SetFunction(s"vertex to ($tag)[$x]", data.vertex, f.d1,
+        { case point: List[Any] => projections(point) })
     }
-    //YObjects apex
-    Option(Cone(data.apex, coneMap))
+    //YObjects vertex
+    Option(Cone(data.vertex, coneMap))
   }
 
   override def colimit: Option[Cocone] = {
@@ -162,26 +160,26 @@ case class SetDiagram[Objects, Arrows](
     arrowsMapping(a)(point(domain.d0(a)))
 
   private[cat] class Limit {
-    private val participantObjects = domain.allRootObjects
-    private val participantArrows = domain.arrowsFromRootObjects
+    private lazy val participantObjects = domain.allRootObjects
+    private lazy val participantArrows = domain.arrowsFromRootObjects
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
-    final private[cat] val listOfObjects = participantObjects.toList
+    final private[cat] lazy val listOfObjects = participantObjects.toList
     // Here we have a non-repeating collection of sets to use for building a limit
-    private[cat] val setsToUse = listOfObjects map nodesMapping
+    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping
     // this is the product of these sets; will have to take a subset of this product
-    private[cat] val prod: Set[List[Any]] = product(setsToUse)
+    final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
     // for each domain object, a collection of arrows looking outside
-    final private[cat] val cobundles: Map[Objects, Set[Arrows]] =
+    final lazy private[cat] val cobundles: Map[Objects, Set[Arrows]] =
       domain.op.buildBundles(domain.objects, participantArrows)
     // this is the limit object
-    final private[cat] val apex: set = prod filter isPoint untyped
+    final private[cat] lazy val vertex: set = prod filter isPoint untyped
     // bundles maps each "initial" object to a set of arrows from it
-    final private[cat] val bundles: Map[Objects, Set[Arrows]] =
+    final private[cat] lazy val bundles: Map[Objects, Set[Arrows]] =
       domain.buildBundles(participantObjects, participantArrows)
 
     // this function takes an object and returns a projection set function; we have to compose each such projection
     // with the right arrow from important object to the image of our object
-    private[cat] def projectionForObject(x: Objects)(xs: List[Objects]): Objects = xs(index(x))
+    private[cat] def projectionForObject(x: Objects)(xs: List[Any]): Any = xs(index(x))
 
     private def index(x: Objects): Int = listOfObjects.indexOf(x)
 

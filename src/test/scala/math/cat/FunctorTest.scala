@@ -129,7 +129,7 @@ class FunctorTest extends Specification {
     "limit with two candidates" in {
       functorFromPullbackToDoubleSquare.limit match {
         case Some(limit) =>
-          limit.apex == "a1"
+          limit.vertex == "a1"
           limit.arrowTo("a") == "a1b"
           limit.arrowTo("b") == "a1c"
         case oops => failure("no limit?")
@@ -165,7 +165,7 @@ class FunctorTest extends Specification {
     "colimit with two candidates" in {
       functorFrom1to2toDoubleSquare.colimit match {
         case Some(colimit) =>
-          colimit.apex == "d1"
+          colimit.vertex == "d1"
           colimit.arrowFrom("a") === "ad1"
           colimit.arrowFrom("b") === "bd1"
           colimit.arrowFrom("c") === "cd1"

@@ -13,11 +13,11 @@ import math.sets.Sets._
  * @param f the function that implements the morphism
  */
 case class SetFunction(
-                        override val tag: String,
-                        override val d0: set,
-                        override val d1: set,
-                        f: Any => Any)
-        extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
+  override val tag: String,
+  override val d0: set,
+  override val d1: set,
+  f: Any => Any)
+    extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
 
   /**
     * Composes with another morphism, optionally

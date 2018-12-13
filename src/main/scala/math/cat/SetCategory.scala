@@ -146,5 +146,5 @@ object SetCategory {
     new Graph[set, SetFunction](nodes, arrows, _.d0, _.d1)
   }
 
-  val Setf = new SetCategory(FiniteSets)
+  object Setf extends SetCategory(FiniteSets)
 }
