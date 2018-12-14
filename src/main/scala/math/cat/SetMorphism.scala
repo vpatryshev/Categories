@@ -18,9 +18,6 @@ class SetMorphism[X, Y] (
   for (x <- d0) {
     val y = function(x)
     val yInD1 = d1 contains y
-    if (!yInD1) {
-      println("something wrong for $x and $y")
-    }
     require(yInD1, s"$tag: Value $y for $x should be in d1 $d1")
   }
 

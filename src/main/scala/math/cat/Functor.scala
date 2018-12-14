@@ -55,8 +55,34 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       try {
         nodesMapping(x)
       } catch {
-        case x: Exception => throw new IllegalArgumentException(s"Object morphism not defined for $x")
+        case x: Exception => throw new IllegalArgumentException(s"Object mapping not defined for $x")
       }
+    }
+    
+    for (f <- domain.arrows) {
+      val ff = try {
+        arrowsMapping(f)
+      } catch {
+        case x: Exception =>
+          throw new IllegalArgumentException(s"Arrow mapping not defined for $f")
+      }
+      val d0Actual = codomain.d0(ff)
+      val d1Actual = codomain.d1(ff)
+      val d0Expected = nodesMapping(domain.d0(f))
+      val d1Expected = nodesMapping(domain.d1(f))
+      require(d0Actual == d0Expected, s"Inconsistent mapping for d0($f)")
+      require(d1Actual == d1Expected, s"Inconsistent mapping for d1($f)")
+    }
+    
+    for (x <- domain.objects) {
+      val xx = nodesMapping(x)
+      val id = domain.id(x)
+      val mappedId = try {
+        arrowsMapping(id)
+      } catch {
+        case x: Exception => throw new IllegalArgumentException(s"Arrow mapping undefined for id($x)")
+      }
+      require(mappedId == codomain.id(xx), s"Arrow mapping inconsistent for id($x)")
     }
 
     for {fx <- domain.arrows

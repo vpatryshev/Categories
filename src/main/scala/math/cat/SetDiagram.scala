@@ -47,17 +47,16 @@ case class SetDiagram[Objects, Arrows](
       arrow <- data.bundles.get(obj).toSet.flatten
     } yield arrow
 
-    val arrowFromImportantObject: Map[Objects, Arrows] =
+    val arrowFromRootObject: Map[Objects, Arrows] =
       arrowsInvolved.groupBy(domain.d1).mapValues(_.head) // does not matter which one, in this case
 
-    // takes an object, returns an arrow from an important object to the image of object in SETF
-    def setFunctionForObject(obj: Objects): SetFunction = arrowsMapping(arrowFromImportantObject(obj))
-
     def coneMap(x: Objects): SetFunction = {
-      val projections: List[Any] => Any = data.projectionForObject(x)
-      val f: SetFunction = setFunctionForObject(x)
+      val arrowToX: Arrows = arrowFromRootObject(x)
+      val rootObject: Objects = domain.d0(arrowToX)
+      val f: SetFunction = arrowsMapping(arrowToX)
+      val projections: List[Any] => Any = data.projectionForObject(rootObject)
       SetFunction(s"vertex to ($tag)[$x]", data.vertex, f.d1,
-        { case point: List[Any] => projections(point) })
+        { case point: List[Any] => f(projections(point)) })
     }
     //YObjects vertex
     Option(Cone(data.vertex, coneMap))
@@ -177,9 +176,13 @@ case class SetDiagram[Objects, Arrows](
     final private[cat] lazy val bundles: Map[Objects, Set[Arrows]] =
       domain.buildBundles(participantObjects, participantArrows)
 
-    // this function takes an object and returns a projection set function; we have to compose each such projection
-    // with the right arrow from important object to the image of our object
-    private[cat] def projectionForObject(x: Objects)(xs: List[Any]): Any = xs(index(x))
+    // this function takes an object and returns a projection set function;
+    // we have to compose each such projection
+    // with the right arrow from root object to the image of our object
+    private[cat] def projectionForObject(x: Objects)(xs: List[Any]): Any = {
+      val i = index(x)
+      xs(i)
+    }
 
     private def index(x: Objects): Int = listOfObjects.indexOf(x)
 
