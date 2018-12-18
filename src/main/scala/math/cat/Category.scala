@@ -22,7 +22,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     */
   lazy val allRootObjects_programmersShortcut: Set[O] = {
     val wrongStuff = arrows filter (f => !isEndomorphism(f)) map d1
-    Set() ++ objects -- wrongStuff // need this trick because objects is strictly immutable
+    objects -- wrongStuff
   }
 
   try {
@@ -91,6 +91,8 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
       }
     }
   }
+  
+  def isIdentity(a: A): Boolean = a == id(d0(a))
 
   //@deprecated("category theory is not equational")
   // cannot elimitate this: too many tests rely on comparing categories...
@@ -718,12 +720,12 @@ private[cat] trait CategoryFactory {
     * @return a new category
     */
   def apply[O, A](
-                   objects: Set[O],
-                   arrows: Set[A],
-                   d0: A => O,
-                   d1: A => O,
-                   ids: O => A,
-                   composition: (A, A) => Option[A]): Category[O, A] = {
+    objects: Set[O],
+    arrows: Set[A],
+    d0: A => O,
+    d1: A => O,
+    ids: O => A,
+    composition: (A, A) => Option[A]): Category[O, A] = {
     val graph = Graph(objects, arrows, d0, d1)
     Category(graph, ids, composition)
   }
@@ -758,8 +760,8 @@ private[cat] trait CategoryFactory {
     * @return a newly-built category
     */
   def apply[T](
-                graph: Graph[T, T],
-                compositionSource: Map[(T, T), T]): Category[T, T] = {
+    graph: Graph[T, T],
+    compositionSource: Map[(T, T), T]): Category[T, T] = {
     val graphWithUnits = addUnitsToGraph(graph)
 
     val composition = fillCompositionTable(graphWithUnits, compositionSource)

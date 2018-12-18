@@ -38,13 +38,13 @@ case class SetDiagram[Objects, Arrows](
     * @return this functor's limit
     */
   override def limit: Option[Cone] = {
-    val data: Limit = new Limit
+    val data = limitBuilder
 
     // For each object of domain we have an arrow from one of the objects used in building the product
-    // TODO: ignore identities
+    // TODO: ignore identities? (four tests fail)
     val arrowsInvolved = for {
       obj <- data.bundles.keySet
-      arrow <- data.bundles.get(obj).toSet.flatten
+      arrow <- data.bundles.get(obj).toSet.flatten // if (!domain.isIdentity(arrow))
     } yield arrow
 
     val arrowFromRootObject: Map[Objects, Arrows] =
@@ -131,7 +131,9 @@ case class SetDiagram[Objects, Arrows](
     */
   private[cat] def allArrowsAreCompatibleOnPoint(point: PointLike): Set[Arrows] => Boolean =
     (setOfArrows: Set[Arrows]) => {
-      setOfArrows.forall(f => setOfArrows.forall(g => arrowsAreCompatibleOnPoint(point)(f, g)))
+      setOfArrows.forall(f => setOfArrows.forall(g => {
+        arrowsAreCompatibleOnPoint(point)(f, g)
+      }))
     }
 
   /**
@@ -158,11 +160,11 @@ case class SetDiagram[Objects, Arrows](
   private def arrowActionOnPoint(a: Arrows, point: PointLike): Any =
     arrowsMapping(a)(point(domain.d0(a)))
 
-  private[cat] class Limit {
+  private[cat] object limitBuilder {
     private lazy val participantObjects = domain.allRootObjects
     private lazy val participantArrows = domain.arrowsFromRootObjects
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
-    final private[cat] lazy val listOfObjects = participantObjects.toList
+    final private[cat] lazy val listOfObjects = participantObjects.toList.sortBy(_.toString)
     // Here we have a non-repeating collection of sets to use for building a limit
     final private[cat] lazy val setsToUse = listOfObjects map nodesMapping
     // this is the product of these sets; will have to take a subset of this product
@@ -191,7 +193,9 @@ case class SetDiagram[Objects, Arrows](
     private[cat] def isPoint(candidate: List[Any]): Boolean = {
       val point: PointLike = listOfObjects zip candidate toMap
       val checkCompatibility = allArrowsAreCompatibleOnPoint(point)
-      cobundles.values.forall(checkCompatibility)
+      val arrowSets = cobundles.values
+      val setsToCheck = arrowSets filterNot (_.forall(domain.isIdentity))
+      setsToCheck.forall(checkCompatibility)
     }
   }
 

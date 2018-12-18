@@ -131,6 +131,95 @@ class SetDiagramTest extends Specification {
       }
       ok
     }
+
+    "have a limit of W, regular data" in {
+      val a: set = Set("a00", "a01", "a10", "a11")
+      val b: set = Set("0", "1")
+      val c: set = Set("c00", "c01", "c10", "c11")
+      val d: set = Set("0", "1")
+      val e: set = Set("e00", "e01", "e10", "e11")
+      val ab = SetFunction("ab", a, b, _.toString.substring(2))
+      val cb = SetFunction("cb", c, b, _.toString.substring(2))
+      val cd = SetFunction("cd", c, d, _.toString.substring(1, 2))
+      val ed = SetFunction("ed", e, d, _.toString.substring(1, 2))
+      val sut = SetDiagram(
+        "W", Category.W,
+        Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
+        Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
+      )
+      sut.limit match {
+        case None => failure("We expected a limit")
+        case Some(sut.Cone(vertex, arrowTo)) =>
+          vertex.size === 16
+          val ara = arrowTo("a")
+          val arb = arrowTo("b")
+          val arc = arrowTo("c")
+          val ard = arrowTo("d")
+          val are = arrowTo("e")
+
+          for {i <- a; j <- c; k <- e} {
+            val element = i :: j :: k :: Nil
+            if (vertex(element)) {
+              (i, j, k, ara(element)) === (i, j, k, i)
+              (i, j, k, arc(element)) === (i, j, k, j)
+              (i, j, k, are(element)) === (i, j, k, k)
+              (i, j, k, arb(element)) === (i, j, k, ab(i))
+              (i, j, k, arb(element)) === (i, j, k, cb(j))
+              (i, j, k, ard(element)) === (i, j, k, cd(j))
+              (i, j, k, ard(element)) === (i, j, k, ed(k))
+            }
+          }
+      }
+      ok
+    }
+
+    "have a limit of W, weird data" in {
+      val a: set = Set(1, 2, 3)
+      val b: set = Set(2, 3, 4)
+      val c: set = Set(0, 1, 2, 3, 4, 5)
+      val d: set = Set(0, 1, 2)
+      val e: set = Set(1, 2, 3, 4)
+      val ab = SetFunction("ab", a, b, _.toString.toInt + 1)
+      val cb = SetFunction("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt)))
+      val cd = SetFunction("cd", c, d, _.toString.toInt % 3)
+      val ed = SetFunction("ed", e, d, x => (x.toString.toInt + 1) % 2)
+      val sut = SetDiagram(
+        "W", Category.W,
+        Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
+        Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
+      )
+
+      sut.limit match {
+        case None => failure("We expected a limit")
+        case Some(sut.Cone(vertex, arrowTo)) =>
+          vertex.size === 8
+          val ara = arrowTo("a")
+          val arb = arrowTo("b")
+          val arc = arrowTo("c")
+          val ard = arrowTo("d")
+          val are = arrowTo("e")
+          val points = sut.limitBuilder
+
+          for {i <- a; j <- c; k <- e} {
+            val element = i :: j :: k :: Nil
+            val eq1 = ab(i) == cb(j)
+            val eq2 = cd(j) == ed(k)
+            (i, j, k, eq1, eq2, points.isPoint(element)) === (i, j, k, eq1, eq2, eq1 && eq2)
+            
+            (i, j, k, eq1, eq2, vertex(element)) === (i, j, k, eq1, eq2, eq1 && eq2)
+            if (vertex(element)) {
+              (i, j, k, ara(element)) === (i, j, k, i)
+              (i, j, k, arc(element)) === (i, j, k, j)
+              (i, j, k, are(element)) === (i, j, k, k)
+              (i, j, k, arb(element)) === (i, j, k, ab(i))
+              (i, j, k, arb(element)) === (i, j, k, cb(j))
+              (i, j, k, ard(element)) === (i, j, k, cd(j))
+              (i, j, k, ard(element)) === (i, j, k, ed(k))
+            }
+          }
+      }
+      ok
+    }
   }
 
 }
