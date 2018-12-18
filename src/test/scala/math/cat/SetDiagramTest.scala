@@ -132,6 +132,23 @@ class SetDiagramTest extends Specification {
       ok
     }
 
+    "have a limit of a monoid Z3" in {
+      val a: set = Set(0, 1, 2)
+      val f1 = SetFunction("f1", a, a, x => (x.toString.toInt + 1) % 3)
+      val f2 = SetFunction("f2", a, a, x => (x.toString.toInt + 2) % 3)
+      val sut = SetDiagram(
+        "ParallelPair", Category.Z3,
+        Map("0" -> a),
+        Map("1" -> f1, "2" -> f2)
+      )
+      sut.limit match {
+        case None => failure("We expected a limit")
+        case Some(sut.Cone(vertex, arrowTo)) =>
+          vertex.size === 0 // yes, the limit has to be empty
+      }
+      ok
+    }
+
     "have a limit of W, regular data" in {
       val a: set = Set("a00", "a01", "a10", "a11")
       val b: set = Set("0", "1")
@@ -220,6 +237,8 @@ class SetDiagramTest extends Specification {
       }
       ok
     }
+    
+    
   }
 
 }

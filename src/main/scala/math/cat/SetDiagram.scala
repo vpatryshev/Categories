@@ -38,28 +38,28 @@ case class SetDiagram[Objects, Arrows](
     * @return this functor's limit
     */
   override def limit: Option[Cone] = {
-    val data = limitBuilder
-
     // For each object of domain we have an arrow from one of the objects used in building the product
-    // TODO: ignore identities? (four tests fail)
     val arrowsInvolved = for {
-      obj <- data.bundles.keySet
-      arrow <- data.bundles.get(obj).toSet.flatten // if (!domain.isIdentity(arrow))
+      obj <- limitBuilder.bundles.keySet
+      arrow <- limitBuilder.bundles.get(obj).toSet.flatten if !domain.isIdentity(arrow)
     } yield arrow
 
-    val arrowFromRootObject: Map[Objects, Arrows] =
+    val fromRootObjects: Map[Objects, Arrows] =
       arrowsInvolved.groupBy(domain.d1).mapValues(_.head) // does not matter which one, in this case
 
+    def arrowFromRootObject(x: Objects) =
+      if (limitBuilder.rootObjects(x)) domain.id(x) else fromRootObjects(x)
+    
     def coneMap(x: Objects): SetFunction = {
       val arrowToX: Arrows = arrowFromRootObject(x)
       val rootObject: Objects = domain.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
-      val projections: List[Any] => Any = data.projectionForObject(rootObject)
-      SetFunction(s"vertex to ($tag)[$x]", data.vertex, f.d1,
+      val projections: List[Any] => Any = limitBuilder.projectionForObject(rootObject)
+      SetFunction(s"vertex to ($tag)[$x]", limitBuilder.vertex, f.d1,
         { case point: List[Any] => f(projections(point)) })
     }
     //YObjects vertex
-    Option(Cone(data.vertex, coneMap))
+    Option(Cone(limitBuilder.vertex, coneMap))
   }
 
   override def colimit: Option[Cocone] = {
@@ -161,10 +161,10 @@ case class SetDiagram[Objects, Arrows](
     arrowsMapping(a)(point(domain.d0(a)))
 
   private[cat] object limitBuilder {
-    private lazy val participantObjects = domain.allRootObjects
+    lazy val rootObjects: Set[Objects] = domain.allRootObjects
     private lazy val participantArrows = domain.arrowsFromRootObjects
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
-    final private[cat] lazy val listOfObjects = participantObjects.toList.sortBy(_.toString)
+    final private[cat] lazy val listOfObjects = rootObjects.toList.sortBy(_.toString)
     // Here we have a non-repeating collection of sets to use for building a limit
     final private[cat] lazy val setsToUse = listOfObjects map nodesMapping
     // this is the product of these sets; will have to take a subset of this product
@@ -176,7 +176,7 @@ case class SetDiagram[Objects, Arrows](
     final private[cat] lazy val vertex: set = prod filter isPoint untyped
     // bundles maps each "initial" object to a set of arrows from it
     final private[cat] lazy val bundles: Map[Objects, Set[Arrows]] =
-      domain.buildBundles(participantObjects, participantArrows)
+      domain.buildBundles(rootObjects, participantArrows)
 
     // this function takes an object and returns a projection set function;
     // we have to compose each such projection
