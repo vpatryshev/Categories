@@ -90,10 +90,12 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
          gx_fx <- domain.m(fx, gx)
          fy = arrowsMapping(fx)
          gy = arrowsMapping(gx)
+         expected = arrowsMapping(gx_fx)
          gy_fy <- codomain.m(fy, gy)
+    } {
+      require(gy_fy == expected,
+        s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy, $expected)")
     }
-      require(gy_fy == arrowsMapping(gx_fx),
-          s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy, ${arrowsMapping(gx_fx)})")
   }
 
   /**

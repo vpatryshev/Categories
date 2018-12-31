@@ -63,12 +63,12 @@ case class SetDiagram[Objects, Arrows](
   }
 
   override def colimit: Option[Cocone] = {
-    val participantObjects = domain.op.allRootObjects
-    val participantArrows = domain.op.arrowsFromRootObjects
+    val op = domain.op
+    val participantArrows = op.arrowsFromRootObjects // filterNot domain.isIdentity
     // for each object, a set of arrows starting at it object
     val bundles: Objects => Set[Arrows] =
       domain.buildBundles(domain.objects, participantArrows)
-    val listOfObjects = participantObjects.toList
+    val listOfObjects = op.listOfRootObjects
     // Here we have a non-repeating collection of sets to use for building a union
     val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
@@ -119,7 +119,9 @@ case class SetDiagram[Objects, Arrows](
       }
     }
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
-    val coconeMap: Objects => SetFunction = x => canonicalFunctionPerObject(x) andThen factorMorphism
+    def coconeMap(x: Objects): SetFunction = {
+      canonicalFunctionPerObject(x) andThen factorMorphism
+    }
     Option(Cocone(theFactorset.content.untyped, coconeMap))
   }
 
@@ -130,11 +132,10 @@ case class SetDiagram[Objects, Arrows](
     * @return the predicate
     */
   private[cat] def allArrowsAreCompatibleOnPoint(point: PointLike): Set[Arrows] => Boolean =
-    (setOfArrows: Set[Arrows]) => {
-      setOfArrows.forall(f => setOfArrows.forall(g => {
+    arrows => arrows.forall(f => arrows.forall(g => {
         arrowsAreCompatibleOnPoint(point)(f, g)
       }))
-    }
+    
 
   /**
     * Checks whether two arrows action on a given point produce the same element. 

@@ -37,6 +37,9 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
     * Since producing a lazy set is too heavy, I just build it in an old-fashion way.
     */
   lazy val allRootObjects: Set[O] = allRootObjects_programmersShortcut
+
+  private[cat] lazy val listOfRootObjects = allRootObjects.toList.sortBy(_.toString)
+
   /**
     * A set of all arrows that originate at initial objects (see allRootObjects)
     */
