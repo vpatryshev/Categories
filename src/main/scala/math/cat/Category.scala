@@ -1,7 +1,6 @@
 package math.cat
 
 import java.io.Reader
-import java.util.Objects
 
 import math.sets.PoSet
 import math.sets.Sets._
@@ -10,6 +9,7 @@ import math.sets.Sets._
   * Category class, and the accompanying object.
   */
 abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
+  type Objects = O
   def nodes: Set[O] = g.nodes
   def arrows: Set[A] = g.arrows
   def d0: A => O = g.d0
