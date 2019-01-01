@@ -1,6 +1,7 @@
 package math.cat
 
 import java.io.Reader
+import java.util.Objects
 
 import math.sets.PoSet
 import math.sets.Sets._
@@ -15,12 +16,15 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
   def d1: A => O = g.d1
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
+  
+  private def arrowsEndingAt(x: O): Set[A] = arrows filter (d1(_) == x)
   /**
     * an iterable of initial objects as defined
     */
-  lazy val allRootObjects_byDefinition: Set[O] = objects filter (
-    x => arrows filter (d1(_) == x) forall (d0(_) == x)
-    )
+  lazy val allRootObjects_byDefinition: Set[O] = objects filter {
+      arrowsEndingAt(_) forall isEndomorphism
+    }
+  
   /**
     * a cheap alternative for the iterable (actually, a set) of initial objects
     */
@@ -795,6 +799,8 @@ private[cat] trait CategoryFactory {
     new Category[O, A](g) {
       lazy val id: O => A = ids
       lazy val m: (A, A) => Option[A] = composition
+      override def d0(f: A): O = g.d0(f)
+      override def d1(f: A): O = g.d1(f)
     }
 
   private def addUnitsToGraph[T](graph: Graph[T, T]) = {

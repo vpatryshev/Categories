@@ -13,6 +13,10 @@ import math.sets.Sets._
 class SetCategory(objects: BigSet[Set[Any]]) extends
   Category[set, SetFunction](graphOfSets(objects)) {
 
+  override def d0(f: SetFunction): set = f.d0
+
+  override def d1(f: SetFunction): set = f.d1
+
   override val m: (SetFunction, SetFunction) => Option[SetFunction] =
     (f, g) => f compose g
   override val id: set => SetFunction = SetFunction.id
@@ -146,8 +150,8 @@ object SetCategory {
     new Graph[set, SetFunction] {
       def nodes: BigSet[set] = nodes0
       def arrows: BigSet[SetFunction] = BigSet[SetFunction]()
-      def d0: SetFunction => set = _.d0
-      def d1: SetFunction => set = _.d1
+      def d0(f: SetFunction): set = f.d0
+      def d1(f: SetFunction): set = f.d1
     }
   }
 

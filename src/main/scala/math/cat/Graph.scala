@@ -6,10 +6,15 @@ import math.sets.{PoSet, Sets}
 import math.sets.Sets._
 
 abstract class Graph[N, A] { graph =>
-  def nodes: Set[N]
-  def arrows: Set[A]
-  def d0: A => N
-  def d1: A => N
+  type Nodes = N
+  type Arrows = A
+
+  def nodes: Set[Nodes]
+  def arrows: Set[Arrows]
+  def d0(f: Arrows): Nodes
+  def d1(f: Arrows): Nodes
+
+  def forAllNodes(predicate: Nodes => Boolean): Boolean = nodes forall predicate
 
   protected lazy val finiteNodes: Boolean = isFinite(nodes)
   protected lazy val finiteArrows: Boolean = isFinite(arrows)
@@ -112,8 +117,8 @@ abstract class Graph[N, A] { graph =>
   def unary_~ : Graph[N, A] = new Graph[N, A] {
     def nodes: Set[N] = graph.nodes
     def arrows: Set[A] = graph.arrows
-    def d0: A => N = graph.d1
-    def d1: A => N = graph.d0
+    def d0(f: A): N = graph.d1(f)
+    def d1(f: A): N = graph.d0(f)
   }
 }
 
@@ -125,8 +130,8 @@ object Graph {
     new Graph[N, A] {
       def nodes: Set[N] = nodes0
       def arrows: Set[A] = arrows0
-      def d0: A => N = d00
-      def d1: A => N = d10
+      def d0(f: A): N = d00(f)
+      def d1(f: A): N = d10(f)
     }
   }
 
