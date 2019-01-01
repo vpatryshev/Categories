@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import j.math.topos.*;
-import j.math.topos.Category;
 import junit.framework.TestCase;
 
 /**
