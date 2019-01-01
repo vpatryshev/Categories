@@ -158,13 +158,13 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       o match {
         case other: Cone => eq(other) ||
           (vertex == other.vertex &&
-            domain.forall { x: XObjects =>
+            domain.objects.forall { x: XObjects =>
               Result.forValue(arrowTo(x) == other.arrowTo(x)).getOrElse(false) })
         case somethingElse => false
       }
     }
 
-    override def hashCode: Int = (vertex.hashCode /: domain)((hash, x) => hash * 13 + arrowTo(x).hashCode)
+    override def hashCode: Int = (vertex.hashCode /: domain.objects)((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
 
   def cone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cone] = {
@@ -264,11 +264,14 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
         case other: Cocone =>
           eq(other) || (
           vertex == other.vertex &&
-          domain.forall { x: XObjects => arrowFrom(x) == other.arrowFrom(x) })
+          domain.objects.forall {
+            x: XObjects => arrowFrom(x) == other.arrowFrom(x)
+          })
         case somethingElse => false
       }
 
-    override def hashCode: Int = (vertex.hashCode /: domain)((hash, x) => hash * 13 + arrowFrom(x).hashCode)
+    override def hashCode: Int =
+      (vertex.hashCode /: domain.objects)((hash, x) => hash * 13 + arrowFrom(x).hashCode)
   }
 
   def cocone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cocone] = {

@@ -8,7 +8,11 @@ import math.sets.Sets._
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A](g) {
+abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
+  def nodes: Set[O] = g.nodes
+  def arrows: Set[A] = g.arrows
+  def d0: A => O = g.d0
+  def d1: A => O = g.d1
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
   /**
@@ -876,7 +880,7 @@ private[cat] trait CategoryFactory {
     * @param input input to parse
     * @return the category
     */
-  def apply(input: Reader): Category[String, String] = (new Parser).read(input)
+  def apply(input: Reader): Category[String, String] = (new Parser).readCategory(input)
 
   /**
     * Factory method. Parses a string and builds a category from it.
@@ -884,12 +888,12 @@ private[cat] trait CategoryFactory {
     * @param input the string to parse
     * @return the category
     */
-  def apply(input: CharSequence): Category[String, String] = (new Parser).read(input)
+  def apply(input: CharSequence): Category[String, String] = (new Parser).readCategory(input)
 
   class Parser extends Graph.Parser {
     override def all: Parser[Graph[String, String]] = "(" ~ graph ~ ")" ^^ { case "(" ~ g ~ ")" => g }
 
-    override def read(input: CharSequence): Category[String, String] = try{
+    def readCategory(input: CharSequence): Category[String, String] = try{
       parseAll(category, input).get
     } catch {
       case x: Exception =>
@@ -908,7 +912,7 @@ private[cat] trait CategoryFactory {
 
     def multiplication: Parser[((String, String), String)] = member ~ "o" ~ member ~ "=" ~ member ^^ { case f ~ "o" ~ g ~ "=" ~ h => ((f, g), h) }
 
-    override def read(input: Reader): Category[String, String] =
+    def readCategory(input: Reader): Category[String, String] =
       parseAll(category, input).get
   }
 }

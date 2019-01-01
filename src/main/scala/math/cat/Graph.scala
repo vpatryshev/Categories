@@ -5,25 +5,20 @@ import java.io.Reader
 import math.sets.{PoSet, Sets}
 import math.sets.Sets._
 
-class Graph[N, A] (
-        val nodes: Set[N],
-        val arrows: Set[A],
-        val d0: A => N,
-        val d1: A => N
-      ) extends Set[N] {
-
-  def this(source: Graph[N, A]) =
-    this(source.nodes, source.arrows, source.d0, source.d1)
+abstract class Graph[N, A] { graph =>
+  def nodes: Set[N]
+  def arrows: Set[A]
+  def d0: A => N
+  def d1: A => N
 
   protected lazy val finiteNodes: Boolean = isFinite(nodes)
   protected lazy val finiteArrows: Boolean = isFinite(arrows)
 
   validateGraph()
 
-  override def seq: Set[N] = nodes
-  override def iterator: Iterator[N] = nodes.iterator
-  override def contains(node: N): Boolean = nodes contains node
-  override def size: Int = nodes.size
+  def contains(node: N): Boolean = nodes contains node
+  def size: Int = nodes.size
+  
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
   def -(x:N): Set[N] = itsImmutable
   def +(x:N): Set[N] = itsImmutable
@@ -114,13 +109,25 @@ class Graph[N, A] (
     s"({$nodess}, {$arrowss})"
   }
 
-  def unary_~ = new Graph[N, A](nodes, arrows, d1, d0)
+  def unary_~ : Graph[N, A] = new Graph[N, A] {
+    def nodes: Set[N] = graph.nodes
+    def arrows: Set[A] = graph.arrows
+    def d0: A => N = graph.d1
+    def d1: A => N = graph.d0
+  }
 }
 
 object Graph {
   
-  def apply[N, A](nodes: Set[N], arrows: Set[A], d0: A => N, d1: A => N): Graph[N, A] = {
-    new Graph(nodes, arrows, d0, d1)
+  def apply[N, A](
+    nodes0: Set[N],
+    arrows0: Set[A], d00: A => N, d10: A => N): Graph[N, A] = {
+    new Graph[N, A] {
+      def nodes: Set[N] = nodes0
+      def arrows: Set[A] = arrows0
+      def d0: A => N = d00
+      def d1: A => N = d10
+    }
   }
 
   def apply[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Graph[N, A] = {
@@ -140,9 +147,13 @@ object Graph {
 
   class Parser extends Sets.Parser {
     def all: Parser[Graph[String, String]] = "("~graph~")" ^^ {case "("~g~")" => g}
+
     def graph: Parser[Graph[String, String]] = parserOfSet~","~arrows ^^ {case s~","~a => Graph(s, a)}
+
     def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
+
     def arrow: Parser[(String, (String, String))] = member~":"~member~"->"~member ^^ {case f~":"~x~"->"~y => (f, (x, y))}
+
     private def explain(pr: ParseResult[Graph[String, String]]): Graph[String, String] = {
       pr match {
         case Success(graph:Graph[String, String], _) => graph
@@ -150,15 +161,15 @@ object Graph {
       }
     }
 
-    override def read(input: CharSequence): Graph[String, String] = {
+    def readGraph(input: CharSequence): Graph[String, String] = {
       val pr: ParseResult[Graph[String, String]] = parseAll(all, input)
       explain(pr)
     }
 
-    override def read(input: Reader): Graph[String, String] = explain(parseAll(all, input))
+    def readGraph(input: Reader): Graph[String, String] = explain(parseAll(all, input))
   }
 
-  def apply(input: Reader): Graph[String, String] = (new Parser).read(input)
+  def apply(input: Reader): Graph[String, String] = (new Parser).readGraph(input)
 
-  def apply(input: CharSequence): Graph[String, String] = (new Parser).read(input)
+  def apply(input: CharSequence): Graph[String, String] = (new Parser).readGraph(input)
 }

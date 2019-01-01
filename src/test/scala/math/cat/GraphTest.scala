@@ -109,12 +109,6 @@ class GraphTest extends Specification {
       sut.d1(32) === 2
     }
 
-    "CopyConstructor" >> {
-      val source = Graph(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-      val sut = new Graph(source)
-      source === sut
-    }
-
     "Constructor_negativeBadD0" >> {
       try {
         val sut = Graph(Set(1, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)

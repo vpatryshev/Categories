@@ -42,8 +42,8 @@ class GraphMorphismTest extends Specification {
     "compose" >> {
       val same = (i: Int) => i
       val g1: Graph[Int, (Int, Int)] = Graph(PoSet.range(0, 6, 1))
-      val g6: Graph[Int, Int] = Graph[Int, Int](nodes = Set(1,2,3,4,5,6), arrows = Set(1,2,3,4,5,6), same, (i:Int) => i%6 + 1)
-      val g3 = Graph[Int, Int](nodes = Set(1,2,3), arrows = Set(1,2,3), same, (i:Int) => i%3+1)
+      val g6: Graph[Int, Int] = Graph[Int, Int](Set(1,2,3,4,5,6), Set(1,2,3,4,5,6), same, (i:Int) => i%6 + 1)
+      val g3 = Graph[Int, Int](Set(1,2,3), Set(1,2,3), same, (i:Int) => i%3+1)
       
       def mod3(i: Int) = 1+(i-1)%3
       

@@ -8,6 +8,7 @@ import scala.collection.breakOut
   * Base tools used in this package.
   */
 object Base {
+  type IntMap[X] = Map[Int, X]
 
   /**
     * An empty iterator. This is a factory method,
@@ -149,7 +150,7 @@ object Base {
     * @param list the list
     * @return the
     */
-  def toMap[X](list: List[X]): Map[Int, X] =
+  def toMap[X](list: List[X]): IntMap[X] =
     list.zipWithIndex map { case (x, i) => i -> x } toMap
 
   def id[T](set: Set[T]): Map[T, T] = set.map(t => t -> t)(breakOut)

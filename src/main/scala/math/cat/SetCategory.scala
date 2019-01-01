@@ -1,5 +1,6 @@
 package math.cat
 
+import math.Base.IntMap
 import math.cat.SetFunction._
 import math.cat.SetCategory._
 import math.sets.{BigSet, FactorSet, Sets}
@@ -70,7 +71,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     
     // TODO: use Shapeless, get rid of warning
     def takeElementAt(i: Int)(obj: Any) = obj match {
-      case m: Map[Int, _] => m(i)
+      case m: IntMap[_] => m(i)
     }
 
     val projections = for {
@@ -140,10 +141,14 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
 object SetCategory {
 
-  private[cat] def graphOfSets(nodes: BigSet[set]): Graph[set, SetFunction] = {
-    val arrows = BigSet[SetFunction]()
+  private[cat] def graphOfSets(nodes0: BigSet[set]): Graph[set, SetFunction] = {
 
-    new Graph[set, SetFunction](nodes, arrows, _.d0, _.d1)
+    new Graph[set, SetFunction] {
+      def nodes: BigSet[set] = nodes0
+      def arrows: BigSet[SetFunction] = BigSet[SetFunction]()
+      def d0: SetFunction => set = _.d0
+      def d1: SetFunction => set = _.d1
+    }
   }
 
   object Setf extends SetCategory(FiniteSets)

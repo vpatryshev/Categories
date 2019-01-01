@@ -1,6 +1,7 @@
 package math.cat
 
 import math.Base
+import math.Base._
 import math.sets.FactorSet
 import math.sets.Functions._
 import math.sets.Sets._
@@ -73,7 +74,7 @@ case class SetDiagram[Objects, Arrows](
     val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
     val typelessUnion: set = union.unionSet untyped
-    val directIndex: Map[Int, Objects] = Base.toMap(listOfObjects)
+    val directIndex: IntMap[Objects] = Base.toMap(listOfObjects)
     val reverseIndex: Map[Objects, Int] = Base.inverse(directIndex)
 
     // for every object it gives the inclusion of the image of this object into the union
