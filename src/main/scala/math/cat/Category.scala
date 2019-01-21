@@ -9,15 +9,20 @@ import math.sets.Sets._
   * Category class, and the accompanying object.
   */
 abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
-  type Objects = O
-  def nodes: Set[O] = g.nodes
-  def arrows: Set[A] = g.arrows
-  def d0: A => O = g.d0
-  def d1: A => O = g.d1
+  type Objects = Node
+  def nodes: Set[Objects] = g.nodes
+  def arrows: Set[Arrow] = g.arrows
+  def d0: Arrow => Objects = g.d0
+  def d1: Arrow => Node = g.d1
+  def d11: Arrow => Objects = g.d1
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
   
-  private def arrowsEndingAt(x: O): Set[A] = arrows filter (d1(_) == x)
+  private def arrowsEndingAt(x: Objects): Set[Arrow] =
+    arrows filter {
+      a: Arrow => x == null && d11(a) == null // d1(a) == x
+    }
+
   /**
     * an iterable of initial objects as defined
     */
@@ -595,7 +600,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     */
   def isTerminal(t: O): Boolean = objects.forall((x: O) => isUnique(hom(x, t)))
 
-  def objects: Set[O] = nodes
+  def objects: Set[Objects] = nodes
 
   /**
     * Checks if a given object (candidate) is an initial object (aka zero).

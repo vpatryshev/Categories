@@ -9,24 +9,22 @@ import scalakittens.Result
  * Functor class: functions for categories.
  *
  * TODO: have a decent factory, don't use the constructor, too many parameters, eh
- * @tparam XObjects type of nodes in the first category
- * @tparam XArrows type of arrows in the first category
- * @tparam YObjects type of nodes in the second category
- * @tparam YArrows type of arrows in the second category
+ * @tparam X the first category type 
+ * @tparam Y the second category type
  */
-class Functor[XObjects, XArrows, YObjects, YArrows]
-  (override val tag: String,
-   val domain: Category[XObjects, XArrows],
-   val codomain: Category[YObjects, YArrows],
-   val objectsMapping: XObjects => YObjects,
-   val arrowsMappingCandidate: XArrows => YArrows) extends
-      GraphMorphism[XObjects, XArrows, YObjects, YArrows](
-     tag, domain, codomain, objectsMapping, arrowsMappingCandidate)
-{
-  override val d0: Category[XObjects, XArrows] = domain
-  override val d1: Category[YObjects, YArrows] = codomain
+class Functor[X <: Category[_, _], Y <: Category[_, _]]
+  (val tag: String,
+   val domain: X,
+   val codomain: Y,
+   val objectsMapping: X#Objects => Y#Objects,
+   val arrowsMappingCandidate: X#Arrow => Y#Arrow) extends
+      GraphMorphism[X, Y] {
+  type XObjects = X#Objects
+  type YObjects = Y#Objects
+  override val d0: X = domain
+  override val d1: Y = codomain
   
-  override val arrowsMapping: XArrows => YArrows = (a: XArrows) => {
+  override val arrowsMapping: XArrow => YArrow = (a: X#Arrow) => {
     val d0 = domain.d0(a)
     try {
       if (domain.id(d0) == a) codomain.id(objectsMapping(d0)) else arrowsMappingCandidate(a)
@@ -101,18 +99,17 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
   /**
    * Composes two functors
    *
-   * @tparam ZObjects nodes type for the third category in the chain
-   * @tparam ZArrows arrows type for the third category in the chain
+   * @tparam Z the third category in the chain
    * @param g : Y -> Z - second functor
    * @return g o this : X -> Z - composition of this functor with functor g
    */
-  def compose[ZObjects, ZArrows](
-    g: Functor[YObjects, YArrows, ZObjects, ZArrows]):
-       Functor[XObjects, XArrows, ZObjects, ZArrows] = {
+  def compose[Z <: Category[_, _]](
+    g: Functor[Y, Z]):
+       Functor[X, Z] = {
     require(codomain == g.domain, "Composition not defined")
     val nm = g.nodesMapping compose this.nodesMapping
     val am = g.arrowsMapping compose this.arrowsMapping 
-    new Functor[XObjects, XArrows, ZObjects, ZArrows](
+    new Functor[X, Z](
       g.tag +" o " + this.tag, domain, g.codomain, nm, am)
   }
 
@@ -122,7 +119,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     * @param vertex the cone's vertex object in Y
     * @param arrowTo maps each object of x to an arrow from F(x) to the vertex.
     */
-  case class Cone(vertex: YObjects, arrowTo: XObjects => YArrows) {
+  case class Cone(vertex: YObjects, arrowTo: XObjects => YArrow) {
     require(vertex != null, "an vertex of a cone can't be null")
     require(arrowTo != null, "a map of arrows of a cone can't be null")
 
@@ -146,10 +143,10 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       * @return true if this actually a well-formed cone.
       */
     def isWellFormed: Boolean = domain.arrows.forall(
-      (f: XArrows) => {
-        var yToFx0: YArrows = arrowTo(domain.d0(f))
-        var yToFx1: YArrows = arrowTo(domain.d1(f))
-        var F_f: YArrows = arrowsMapping(f)
+      (f: XArrow) => {
+        var yToFx0: YArrow = arrowTo(domain.d0(f))
+        var yToFx1: YArrow = arrowTo(domain.d1(f))
+        var F_f: YArrow = arrowsMapping(f)
         codomain.m(yToFx0, F_f) contains yToFx1
       }
     )
@@ -167,7 +164,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     override def hashCode: Int = (vertex.hashCode /: domain.objects)((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
 
-  def cone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cone] = {
+  def cone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrow)]): Option[Cone] = {
     Option(Cone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
   }
 
@@ -187,9 +184,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
 
     val listOfDomainObjects = domain.objects.toList
     // group (x, f: y->F[x]) by x
-    val homsGroupedByX: List[Set[(XObjects, YArrows)]] = listOfDomainObjects map arrowsFromYtoFX
+    val homsGroupedByX: List[Set[(XObjects, YArrow)]] = listOfDomainObjects map arrowsFromYtoFX
 
-    val coneCandidates: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
+    val coneCandidates: Set[List[(XObjects, YArrow)]] = product(homsGroupedByX)
     val result: Set[Cone] = coneCandidates flatMap cone(y)
     result
   }
@@ -221,7 +218,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     * @param vertex the cone's vertex object in Y
     * @param arrowFrom maps each object of x to an arrow from F(x) to the vertex.
     */
-  case class Cocone(vertex: YObjects, arrowFrom: XObjects => YArrows) {
+  case class Cocone(vertex: YObjects, arrowFrom: XObjects => YArrow) {
 
     override def toString: String = "Cocone[" + vertex + "]"
 
@@ -236,7 +233,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
     def factorsOnRight(factored: Cocone): Boolean = {
       val hom = codomain.hom(factored.vertex, vertex)
       val answer = hom exists(
-        (h: YArrows) => {
+        (h: YArrow) => {
           val failsOn = domain.objects.find(
             (x: XObjects) => !(codomain.m(factored.arrowFrom(x), h) contains arrowFrom(x)))
           val itWorks = failsOn.isEmpty
@@ -251,7 +248,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       * @return true if this actually a well-formed cone.
       */
     def isWellFormed: Boolean = domain.arrows.forall(
-      (f: XArrows) => {
+      (f: XArrow) => {
         var Fx02y = arrowFrom(domain.d0(f))
         var Fx12y = arrowFrom(domain.d1(f))
         var F_f = arrowsMapping.apply(f)
@@ -274,7 +271,7 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       (vertex.hashCode /: domain.objects)((hash, x) => hash * 13 + arrowFrom(x).hashCode)
   }
 
-  def cocone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrows)]): Option[Cocone] = {
+  def cocone(vertex: YObjects)(arrowTo: Iterable[(XObjects, YArrow)]): Option[Cocone] = {
     Option(Cocone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
   }
 
@@ -292,9 +289,9 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
       codomain.hom(nodesMapping(x), y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
-    val homsGroupedByX: List[Set[(XObjects, YArrows)]] = domain.objects.toList map arrowsFromFXtoY
+    val homsGroupedByX: List[Set[(XObjects, YArrow)]] = domain.objects.toList map arrowsFromFXtoY
 
-    val coconeCandidates: Set[List[(XObjects, YArrows)]] = product(homsGroupedByX)
+    val coconeCandidates: Set[List[(XObjects, YArrow)]] = product(homsGroupedByX)
     val result: Set[Cocone] = coconeCandidates flatMap cocone(y)
     result
   }
@@ -321,14 +318,14 @@ class Functor[XObjects, XArrows, YObjects, YArrows]
 }
 
 object Functor {
-  def apply[XObjects, XArrows, YObjects, YArrows] (
-            tag: String,
-            domain: Category[XObjects, XArrows],
-            codomain: Category[YObjects, YArrows],
-            objectsMorphism: XObjects => YObjects,
-            arrowsMorphism: XArrows => YArrows) =
-    new Functor[XObjects, XArrows, YObjects, YArrows] (tag, domain, codomain, objectsMorphism, arrowsMorphism)
-
+  def apply[X <: Category[_, _], Y <: Category[_, _]] (
+                                                        tag: String,
+                                                        domain: Category[X#Objects, X#Arrow],
+                                                        codomain: Category[Y#Objects, Y#Arrow],
+                                                        objectsMorphism: X#Objects => Y#Objects,
+                                                        arrowsMorphism: X#Arrow => Y#Arrow) =
+    new Functor[X, Y] (tag, domain, codomain, objectsMorphism, arrowsMorphism)
+    
   def apply[XObjects, XArrows, YObjects, YArrows] (
             domain: Category[XObjects, XArrows],
             codomain: Category[YObjects, YArrows],
@@ -344,9 +341,9 @@ object Functor {
    * @param c the category
    * @return identity functor on the given category
    */
-  def id[XObjects, XArrows](c: Category[XObjects, XArrows]):
-      Functor[XObjects, XArrows, XObjects, XArrows] =
-    new Functor[XObjects, XArrows, XObjects, XArrows] ("id", c, c, SetMorphism.id(c.objects), SetMorphism.id(c.arrows))
+  def id[X <: Category[_, _]](c: X):
+      Functor[X, X] =
+    new Functor[X, X] ("id", c, c, SetMorphism.id(c.objects), SetMorphism.id(c.arrows))
 
   /**
    * Factory method. Builds constant functor from a category to an object in another.

@@ -6,22 +6,24 @@ import math.sets.{PoSet, Sets}
 import math.sets.Sets._
 
 abstract class Graph[N, A] { graph =>
-  type Nodes = N
-  type Arrows = A
+  final type Node = N
+  type Nodes = Iterable[Node]
+  final type Arrow = A
+  type Arrows = Set[Arrow]
+  
+  def nodes: Nodes
+  def arrows: Arrows
+  def d0(f: Arrow): Node
+  def d1(f: Arrow): Node
 
-  def nodes: Set[Nodes]
-  def arrows: Set[Arrows]
-  def d0(f: Arrows): Nodes
-  def d1(f: Arrows): Nodes
+  def forAllNodes(predicate: Node => Boolean): Boolean = nodes forall predicate
 
-  def forAllNodes(predicate: Nodes => Boolean): Boolean = nodes forall predicate
-
-  protected lazy val finiteNodes: Boolean = isFinite(nodes)
+//  protected lazy val finiteNodes: Boolean = isFinite(nodes)
   protected lazy val finiteArrows: Boolean = isFinite(arrows)
 
   validateGraph()
 
-  def contains(node: N): Boolean = nodes contains node
+//  def contains(node: N): Boolean = nodes contains node
   def size: Int = nodes.size
   
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode

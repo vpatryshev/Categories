@@ -3,7 +3,6 @@ package math.sets
 import java.io.Reader
 
 import Functions.Injection
-import math.cat.SetMorphism
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
@@ -223,9 +222,9 @@ object Sets {
     * @param r   binary relationship (not necessarily equivalence relationship) that determines factoring
     * @return factorset epimorphism
     */
-  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
-    new FactorSet[T](sourceSet, r).asMorphism
-  }
+//  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
+//    new FactorSet[T](sourceSet, r).asMorphism
+//  }
 
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
 
@@ -327,7 +326,12 @@ object Sets {
         sizePlus(sizeEvaluator, +1),
         y => y == x || predicate(y))
 
-      def map[Y](f: Injection[X, Y]): Set[Y] = f.applyTo(this)
+      def map[Y](f: Injection[X, Y]): Set[Y] = {
+        val source: Iterable[X] = this
+        val target: Iterable[Y] = source.map(f)
+        val predicate: Y => Boolean = (y: Y) => iterator exists {f(_) == y}
+        Sets.setOf(target, size, predicate)
+      }
 
       override def filter(p: X => Boolean): Set[X] =
         filteredSet(sourceIterator, (x: X) => predicate(x) && p(x))
