@@ -197,9 +197,9 @@ class GraphTest extends Specification {
 
     "hom" >> {
       val sut = Graph("({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})")
-      val hom = sut.hom("1", "1")
+      val hom = sut.arrowsBetween("1", "1")
       hom === Sets.parse("{1a, 1b}")
-      sut.hom("3", "2") === Sets.parse("{3to2}")
+      sut.arrowsBetween("3", "2") === Sets.parse("{3to2}")
     }
     
     "~" >> {

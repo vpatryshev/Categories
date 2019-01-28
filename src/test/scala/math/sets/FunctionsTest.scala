@@ -22,7 +22,10 @@ class FunctionsTest extends Specification {
 
     "Schwartzian transform as defined in Wikipedia" >> {
       val f = schwartzianTransform {s: String => s.toUpperCase}
-      Set("aX", "mmm").map(f) === Set(("aX", "AX"), ("mmm", "MMM"))
+      val actual = Set("aX", "mmm").map(f)
+      val expected = Set(("aX", "AX"), ("mmm", "MMM"))
+      actual == expected
+      actual === expected
     }
 
     "constant is constant" >> {

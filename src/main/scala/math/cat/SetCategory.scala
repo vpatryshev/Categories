@@ -25,7 +25,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
 
   override def toString: String = "Category of all Scala Sets"
 
-  override def hom(x: set, y: set): Set[SetFunction] =
+  override def arrowsBetween(x: set, y: set): Set[SetFunction] =
     SetFunction.exponent(x, y)
 
   override def isMonomorphism(f: SetFunction): Boolean =

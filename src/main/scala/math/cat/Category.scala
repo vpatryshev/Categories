@@ -1,7 +1,6 @@
 package math.cat
 
 import java.io.Reader
-
 import math.sets.PoSet
 import math.sets.Sets._
 
@@ -9,24 +8,27 @@ import math.sets.Sets._
   * Category class, and the accompanying object.
   */
 abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
-  type Objects = Node
-  def nodes: Set[Objects] = g.nodes
-  def arrows: Set[Arrow] = g.arrows
-  def d0: Arrow => Objects = g.d0
-  def d1: Arrow => Node = g.d1
-  def d11: Arrow => Objects = g.d1
-  lazy val terminal: Option[O] = objects.find(isTerminal)
-  lazy val initial: Option[O] = objects.find(isInitial)
+  type Object = Node
+  type Objects = Set[Object]
+  def nodes: Objects = g.nodes
+  def arrows: Arrows = g.arrows
+  def d0(a: Arrow): Object = g.d0(a)
+  def d1(a: Arrow): Object = g.d1(a)
+  lazy val terminal: Option[Object] = objects.find(isTerminal)
+  lazy val initial: Option[Object] = objects.find(isInitial)
   
-  private def arrowsEndingAt(x: Objects): Set[Arrow] =
-    arrows filter {
-      a: Arrow => x == null && d11(a) == null // d1(a) == x
-    }
+  def compositions: Iterable[(Arrow, Arrow, Arrow)] =
+    for {f <- arrows
+         g <- arrows
+         h <- m(f, g)} yield (f,g,h)
+
+    private def arrowsEndingAt(x: Object): Arrows =
+    arrows filter { x == d1(_) }
 
   /**
     * an iterable of initial objects as defined
     */
-  lazy val allRootObjects_byDefinition: Set[O] = objects filter {
+  lazy val allRootObjects_byDefinition: Objects = objects filter {
       arrowsEndingAt(_) forall isEndomorphism
     }
   
@@ -56,9 +58,9 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
   /**
     * A set of all arrows that originate at initial objects (see allRootObjects)
     */
-  lazy val arrowsFromRootObjects: Set[A] = arrows filter (allRootObjects contains d0(_))
-  val id: O => A
-  val m: (A, A) => Option[A]
+  lazy val arrowsFromRootObjects: Set[Arrow] = arrows filter (allRootObjects contains d0(_))
+  val id: Object => Arrow
+  def m(f: Arrow, g: Arrow): Option[Arrow]
 
   protected def validate() {
     validateGraph()
@@ -148,6 +150,16 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
   def composablePairs: Iterable[(A, A)] = Category.composablePairs(this)
 
   /**
+    * Produces a collection of arrows from x to y.
+    *
+    * @param from first object
+    * @param to   second object
+    * @return the set of all arrows from x to y
+    */
+  def hom(from: Object, to: Object): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
+
+
+  /**
     * Checks whether an arrow is an isomorphism.
     *
     * @param f an arrow to check
@@ -161,7 +173,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     * @param f an arrow for which we are looking an inverse
     * @return inverse arrow
     */
-  def inverse(f: A): Option[A] = hom(d1(anArrow(f)), d0(f)) find (areInverse(f, _))
+  def inverse(f: A): Option[A] = arrowsBetween(d1(anArrow(f)), d0(f)) find (areInverse(f, _))
 
   def areInverse(f: A, g: A): Boolean = (m(anArrow(f), anArrow(g)) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
 
@@ -272,7 +284,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     */
   def factorsUniquelyOnLeft(f: A)(g: A): Boolean =
       sameCodomain(g, f) &&
-      existsUnique(hom(d0(f), d0(g)), (h:A) => m(h, g) contains f)
+      existsUnique(arrowsBetween(d0(f), d0(g)), (h:A) => m(h, g) contains f)
 
   /**
     * Builds a set of all arrows that equalize f: A -> B and g: A -> B, that is,
@@ -318,7 +330,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
   def factorsUniquelyOnRight(f: A): A => Boolean =
     (g: A) => {
       sameDomain(g, f) &&
-        isUnique(hom(d1(g), d1(f)).filter(m(g, _) contains f))
+        isUnique(arrowsBetween(d1(g), d1(f)).filter(m(g, _) contains f))
     }
 
   /**
@@ -420,7 +432,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
   def factorUniquelyOnLeft(f: A, g: A): Tuple2[A, A] => Boolean =
     (q: (A, A)) => {
       val (qx, qy) = q
-      isUnique(hom(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
+      isUnique(arrowsBetween(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
     }
 
   /**
@@ -496,7 +508,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     case (qx, qy) =>
       sameCodomain(px, qx) &&
       sameCodomain(py, qy) &&
-      isUnique(hom(d0(qx), d0(px)).filter((h: A) => (m(h, px) contains qx) && (m(h, py) contains qy)))
+      isUnique(arrowsBetween(d0(qx), d0(px)).filter((h: A) => (m(h, px) contains qx) && (m(h, py) contains qy)))
   }
 
   /**
@@ -598,15 +610,16 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     * Checks if a given object (candidate) is a terminal object (aka unit).
     * Terminal object is the one which has just one arrow from every other object.
     */
-  def isTerminal(t: O): Boolean = objects.forall((x: O) => isUnique(hom(x, t)))
+  def isTerminal(t: Object): Boolean =
+    objects.forall((x: O) => isUnique(arrowsBetween(x, t)))
 
-  def objects: Set[Objects] = nodes
+  def objects: Objects = nodes
 
   /**
     * Checks if a given object (candidate) is an initial object (aka zero).
     * Initial object is the one which has just one arrow to every other object.
     */
-  def isInitial(i: O): Boolean = objects.forall((x: O) => isUnique(hom(i, x)))
+  def isInitial(i: O): Boolean = objects.forall((x: O) => isUnique(arrowsBetween(i, x)))
 
   /**
     * Given a set of objects and a set of arrows, build a map that maps each object to
@@ -803,7 +816,7 @@ private[cat] trait CategoryFactory {
       composition: (A, A) => Option[A]): Category[O, A] =
     new Category[O, A](g) {
       lazy val id: O => A = ids
-      lazy val m: (A, A) => Option[A] = composition
+      def m(f: A, g: A): Option[A] = composition(f, g)
       override def d0(f: A): O = g.d0(f)
       override def d1(f: A): O = g.d1(f)
     }
@@ -832,7 +845,7 @@ private[cat] trait CategoryFactory {
     val addedIds = (compositionSource /: graph.arrows) ((m, f) => m + ((graph.d0(f), f) -> f) + ((f, graph.d1(f)) -> f))
 
     // Second, add unique solutions
-    def candidates(f: A, g: A) = graph.hom(graph.d0(f), graph.d1(g))
+    def candidates(f: A, g: A) = graph.arrowsBetween(graph.d0(f), graph.d1(g))
 
     def hasUniqueCandidate(f: A, g: A) = {
       val iterator = candidates(f, g).iterator

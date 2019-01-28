@@ -23,17 +23,15 @@ package math.cat
   *    g[a]: g[x] ---> g[y]
   */
 case class NaturalTransformation[
-    XObjects, // type of nodes in the first category (like Alksnis?) 
-    XArrows, // type of arrows in the first category  
-    YObjects, // type of nodes in the second category 
-    YArrows // type of arrows in the second category   
+    X <: Category[_, _],
+    Y <: Category[_, _],
   ](
-     f: Functor[XObjects, XArrows, YObjects, YArrows],
-     g: Functor[XObjects, XArrows, YObjects, YArrows],
-     transformPerObject: XObjects => YArrows
+     f: Functor[X, Y],
+     g: Functor[X, Y])(
+     transformPerObject: f.XObject => f.YArrows
  ) extends Morphism[
-  Functor[XObjects, XArrows, YObjects, YArrows],
-  Functor[XObjects, XArrows, YObjects, YArrows]] {
+  Functor[X, Y],
+  Functor[X, Y]] {
   override val d0: Functor[XObjects, XArrows, YObjects, YArrows] = f
   override val d1: Functor[XObjects, XArrows, YObjects, YArrows] = g
   def domainCategory: Category[XObjects, XArrows] = f.domain

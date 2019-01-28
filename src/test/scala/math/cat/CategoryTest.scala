@@ -698,7 +698,7 @@ class CategoryTest extends Specification {
       val expected = Set((0, 0), (1, 1), (0, 1))
       val arrows = sut.arrows
       arrows === expected
-      sut.hom(0, 1).size === 1
+      sut.arrowsBetween(0, 1).size === 1
     }
 
     "3" >> {

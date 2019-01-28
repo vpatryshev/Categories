@@ -2,12 +2,12 @@ package math.cat
 
 import java.io.Reader
 
-import math.sets.{PoSet, Sets}
 import math.sets.Sets._
+import math.sets.{PoSet, Sets}
 
 abstract class Graph[N, A] { graph =>
   final type Node = N
-  type Nodes = Iterable[Node]
+  type Nodes = Set[Node]
   final type Arrow = A
   type Arrows = Set[Arrow]
   
@@ -18,12 +18,12 @@ abstract class Graph[N, A] { graph =>
 
   def forAllNodes(predicate: Node => Boolean): Boolean = nodes forall predicate
 
-//  protected lazy val finiteNodes: Boolean = isFinite(nodes)
+  protected lazy val finiteNodes: Boolean = isFinite(nodes)
   protected lazy val finiteArrows: Boolean = isFinite(arrows)
 
   validateGraph()
 
-//  def contains(node: N): Boolean = nodes contains node
+  def contains(node: N): Boolean = nodes contains node
   def size: Int = nodes.size
   
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
@@ -37,23 +37,21 @@ abstract class Graph[N, A] { graph =>
     }
   }
 
-  def validateGraph() {
-    if (finiteArrows) {
+  def validateGraph(): Unit = if (finiteArrows) {
     for(a <- arrows) require(nodes contains d0(a), " d0 for " + a + " should be in set of nodes")
     for(a <- arrows) require(nodes contains d1(a), " d1 for " + a + " should be in set of nodes")
   }
-  }
 
   /**
-   * Returned a collection of arrows from x to y.
-   *
-   * @param from first node
-   * @param to   second node
-   * @return the set of all arrows from x to y
-   */
-  def hom(from: N, to: N): Set[A] = setOf(arrows filter ((f: A) => (d0(f) == from) && (d1(f) == to)))
+    * Produces a collection of arrows from x to y.
+    *
+    * @param from first node
+    * @param to   second node
+    * @return the set of all arrows from x to y
+    */
+  def arrowsBetween(from: Node, to: Node): Set[Arrow] = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
-  def anArrow(f: A): A = {
+  def anArrow(f: Arrow): Arrow = {
     require(arrows(f), s"Unknown arrow $f")
     f
   }
