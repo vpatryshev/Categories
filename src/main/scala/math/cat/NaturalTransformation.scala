@@ -3,13 +3,10 @@ package math.cat
 /**
   * Natural transformation class: morphisms for functors.
   *
-  * @tparam XObjects functors domain object type
-  * @tparam XArrows functors domain arrow type
-  * @tparam YObjects functors codomain object type
-  * @tparam YArrows functors codomain arrow type
+  * @tparam X functors domain category type
+  * @tparam Y functors codomain category type
   * @param f        first functor
   * @param g        second functor
-  * @param transformPerObject a set morphism that for each domain object x returns f(x) -> g(x)
   *                  
   * The following three requirements are checked:
   * f and g are from the same category
@@ -22,20 +19,18 @@ package math.cat
   *            V         V
   *    g[a]: g[x] ---> g[y]
   */
-case class NaturalTransformation[
+abstract class NaturalTransformation[
     X <: Category[_, _],
-    Y <: Category[_, _],
-  ](
-     f: Functor[X, Y],
-     g: Functor[X, Y])(
-     transformPerObject: f.XObject => f.YArrows
- ) extends Morphism[
-  Functor[X, Y],
-  Functor[X, Y]] {
-  override val d0: Functor[XObjects, XArrows, YObjects, YArrows] = f
-  override val d1: Functor[XObjects, XArrows, YObjects, YArrows] = g
-  def domainCategory: Category[XObjects, XArrows] = f.domain
-  def codomainCategory: Category[YObjects, YArrows] = f.codomain
+    Y <: Category[_, _]
+  ](val f: Functor[X, Y],
+    val g: Functor[X, Y]) extends Morphism[Functor[X, Y], Functor[X, Y]] {
+  
+  def transformPerObject(x: f.XObject): f.YArrow
+
+  override val d0: Functor[X, Y] = f
+  override val d1: Functor[X, Y] = g
+  def domainCategory: X = f.d0
+  def codomainCategory: Y = f.d1
   
   def validate(): Unit = {
     require(domainCategory == g.d0, s"Functors must be defined on the same categories")
@@ -43,41 +38,49 @@ case class NaturalTransformation[
     for {
       a <- f.d0.arrows
     } {
-      val x0: XObjects = f.d0.d0(a)
-      val x1: XObjects = f.d0.d1(a)
-      val fa: YArrows = f.arrowsMapping(a)
-      val ga: YArrows = g.arrowsMapping(a)
-      val tx0: YArrows = transformPerObject(x0)
-      val tx1: YArrows = transformPerObject(x1)
-      val rightdown: Option[YArrows] = codomainCategory.m(fa, tx1)
-      val downright: Option[YArrows] = codomainCategory.m(tx0, ga)
+      val x0: f.XObject = f.d0.d0(a)
+      val x1: f.XObject = f.d0.d1(a)
+      val fa: f.YArrow = f.arrowsMapping(a)
+      val ga: g.YArrow = g.arrowsMapping(a.asInstanceOf[g.XArrow]) // same thing
+      val tx0: f.YArrow = transformPerObject(x0)
+      val tx1: f.YArrow = transformPerObject(x1)
+      val rightdown: Option[f.YArrow] = f.d1.m(fa, tx1)
+      val downright: Option[f.YArrow] = f.d1.m(tx0, ga.asInstanceOf[f.d1.Arrow])
       require(rightdown == downright, s"Nat'l transform law broken for $a")
     }
   }
 
   def compose(
-    next: NaturalTransformation[XObjects, XArrows, YObjects, YArrows]
-  ): NaturalTransformation[XObjects, XArrows, YObjects, YArrows] = {
+    next: NaturalTransformation[X, Y]
+  ): NaturalTransformation[X, Y] = {
+
+    val first: Functor[X, Y] = f
     val targetCategory = g.codomain
-    def comp(x: XObjects) = {
-      val fHere = transformPerObject(x)
-      val fThere = next.transformPerObject(x)
-      val compOpt = targetCategory.m(fHere, fThere)
+    
+    def comp(x: first.XObject): targetCategory.Arrow = {
+      val fHere: targetCategory.Arrow =
+        transformPerObject(x.asInstanceOf[f.XObject]).asInstanceOf[targetCategory.Arrow]
+      val fThere: targetCategory.Arrow =
+        next.transformPerObject(x.asInstanceOf[next.f.XObject]).asInstanceOf[targetCategory.Arrow]
+      val compOpt: Option[targetCategory.Arrow] = targetCategory.m(fHere, fThere)
       compOpt getOrElse(
           throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere"))
     }
     
-    new NaturalTransformation[XObjects, XArrows, YObjects, YArrows](f, next.g, comp)
+    new NaturalTransformation[X, Y](first, next.g) {
+      override def transformPerObject(x: first.XObject): first.YArrow = comp(x).asInstanceOf[first.YArrow]
+    }
   }
 
   validate()
   
-  private lazy val asMap: Map[XObjects, YArrows] = domainCategory.objects map (o => o -> transformPerObject(o)) toMap
+  private lazy val asMap: Map[f.XObject, f.YArrow] =
+    (f.d0.objects map (o => o -> transformPerObject(o)) toMap) .asInstanceOf[Map[f.XObject, f.YArrow]]
   
   override lazy val hashCode: Int = f.hashCode | g.hashCode*17 | asMap.hashCode*31
   
   override def equals(x: Any): Boolean = x match {
-    case other: NaturalTransformation[XObjects, XArrows, YObjects, YArrows] =>
+    case other: NaturalTransformation[X, Y] =>
       f == other.f && g == other.g && asMap == other.asMap
     case otherwise => false
   }
@@ -86,29 +89,22 @@ case class NaturalTransformation[
 object NaturalTransformation {
 
   /**
-    * Builds a identity natural transformation 1F: F -> F
+    * Builds a identity natural transformation id[f]: f -> f
     *
-    * @tparam XObjects domain object type
-    * @tparam XArrows domain arrow type
-    * @tparam YObjects codomain object type
-    * @tparam YArrows codomain arrow type
-    * @param F the functor for which we are building the identity transformation
+    * @param functor the functor for which we are building the identity transformation
     * @return identity natural transformation for the functor
     */
-  def id[XObjects, XArrows, YObjects, YArrows](
-    F: Functor[XObjects, XArrows, YObjects, YArrows]):
-  NaturalTransformation[XObjects, XArrows, YObjects, YArrows] = {
+  def id[Dom <: Category[_,_], Codom <: Category[_,_]](functor: Functor[Dom, Codom]):
+  NaturalTransformation[Dom, Codom] = {
 
-    def objectMap(x: XObjects): YArrows = F.codomain.id(F.nodesMapping(x))
+    def objectMap(x: functor.XObject): functor.codomain.Arrow =
+      functor.codomain.id(functor.objectsMapping(x).asInstanceOf[functor.codomain.Object])
 
-    val transformPerObject = new SetMorphism[XObjects, YArrows](
-      "id",
-      F.domain.objects,
-      F.codomain.arrows,
-      objectMap)
-
-    new NaturalTransformation[XObjects, XArrows, YObjects, YArrows](
-      F, F, transformPerObject)
+    new NaturalTransformation[Dom, Codom](
+      functor, functor) {
+      override def transformPerObject(x: f.XObject): f.YArrow =
+        objectMap(x.asInstanceOf[functor.XObject]).asInstanceOf[f.YArrow]
+    }
   }
 
 }
