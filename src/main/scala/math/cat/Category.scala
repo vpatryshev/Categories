@@ -110,7 +110,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     }
   }
   
-  def isIdentity(a: A): Boolean = a == id(d0(a))
+  def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 
   //@deprecated("category theory is not equational")
   // cannot elimitate this: too many tests rely on comparing categories...
