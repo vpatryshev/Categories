@@ -1,6 +1,7 @@
 package math.sets
 
 import Sets.itsImmutable
+import math.cat.SetMorphism
 
 /**
   * Implements factorset functionality. A factorset may be built given a BinaryRelation,
@@ -79,7 +80,7 @@ class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
 
   override def iterator: Iterator[Set[X]] = equivalenceClasses.values.iterator
   
-//  def asMorphism: SetMorphism[X, Set[X]] = {
-//    SetMorphism(base, content, asFunction)
-//  }
+  def asMorphism: SetMorphism[X, Set[X]] = {
+    SetMorphism(base, content, asFunction)
+  }
 }

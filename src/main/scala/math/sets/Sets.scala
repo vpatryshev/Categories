@@ -3,6 +3,7 @@ package math.sets
 import java.io.Reader
 
 import Functions.Injection
+import math.cat.SetMorphism
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
@@ -222,9 +223,9 @@ object Sets {
     * @param r   binary relationship (not necessarily equivalence relationship) that determines factoring
     * @return factorset epimorphism
     */
-//  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
-//    new FactorSet[T](sourceSet, r).asMorphism
-//  }
+  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
+    new FactorSet[T](sourceSet, r).asMorphism
+  }
 
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
 

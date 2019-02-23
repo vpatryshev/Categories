@@ -10,15 +10,16 @@ import math.sets.Sets._
   * Category where objects are sets
   */
 
-class SetCategory(objects: BigSet[Set[Any]]) extends
-  Category[set, SetFunction](graphOfSets(objects)) {
+class SetCategory(objects: BigSet[Set[Any]])
+  extends Category[set, SetFunction](graphOfSets(objects)) {
+//  override type Arrow = SetFunction
 
   override def d0(f: SetFunction): set = f.d0
 
   override def d1(f: SetFunction): set = f.d1
 
-  override val m: (SetFunction, SetFunction) => Option[SetFunction] =
-    (f, g) => f compose g
+  override def m(f: Arrow, g: Arrow): Option[Arrow] = f compose g
+
   override val id: set => SetFunction = SetFunction.id
 
   override protected def validate(): Unit = {} // it IS a category
@@ -141,6 +142,7 @@ class SetCategory(objects: BigSet[Set[Any]]) extends
     case sc: SetCategory => objects == sc.objects
     case other => false
   }
+
 }
 
 object SetCategory {

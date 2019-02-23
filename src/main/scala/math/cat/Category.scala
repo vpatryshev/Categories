@@ -629,8 +629,8 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     * @param arrows  arrows that participate in the bundles.
     * @return a map.
     */
-  def buildBundles(objects: Set[O], arrows: Set[A]): Map[O, Set[A]] = {
-    val badArrows: Set[A] = arrows.filterNot(a => objects(d0(a)))
+  def buildBundles(objects: Objects, arrows: Arrows): Map[Object, Arrows] = {
+    val badArrows: Arrows = arrows.filterNot(a => objects(d0(a)))
 
     require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")}")
 
@@ -671,7 +671,7 @@ abstract class Category[O, A](val g: Graph[O, A]) extends Graph[O, A] {
     *
     * @return this<sup>op</sup>
     */
-  def op: Category[O, A] = {
+  lazy val op: Category[O, A] = {
     Category[O, A](super.unary_~, id, (f: A, g: A) => m(g, f))
   }
 }
