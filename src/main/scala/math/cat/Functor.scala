@@ -12,34 +12,28 @@ import scalakittens.Result
  * @tparam X the first category type 
  * @tparam Y the second category type
  */
-abstract class Functor[X <: Category[_, _], Y <: Category[_, _]]
-  (val tag: String,
-   val domain: X,
-   val codomain: Y
-  ) extends GraphMorphism[X, Y] {
+abstract class Functor[X <: Category[_, _], Y <: Category[_, _]] private()
+  extends GraphMorphism[X, Y] {
 
-  val d0: X = domain
-  val d1: Y = codomain
+  val tag: String
+  val d0: X
+  val d1: Y
 
   def objectsMapping(x: d0.Object): d1.Object
   def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow
   
   override def arrowsMapping(a: d0.Arrow): d1.Arrow = {
-    val d0X: d0.Object = d0.d0(a)
+    val domainX: d0.Object = d0.d0(a)
     try {
-      if (d0.id(d0X) == a) {
-        val d0Y: d1.Object = objectsMapping(d0X)
-        d1.id(d0Y)
+      if (d0.id(domainX) == a) {
+        val domainY: d1.Object = objectsMapping(domainX)
+        d1.id(domainY)
       } else arrowsMappingCandidate(a)
     } catch {
       case x: Exception =>
         throw new IllegalArgumentException(
-          s"Arrow mapping not found for $a: $d0X -> ${d0.d1(a)}")
+          s"Arrow mapping not found for $a: $domainX -> ${d0.d1(a)}")
     }
-  }
-  
-  try { validate() } catch { case x: Exception =>
-      throw x
   }
   
   override def toString: String = s"Functor $tag"
@@ -51,7 +45,7 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]]
    * That is, F(id(x)) == id(F(x)), and
    * F(g) o F(f) = F(g o f)
    */
-  def validate() {
+  def validate(): Functor[X, Y] = {
     for (x <- d0.objects) {
       try {
         objectsMapping(x)
@@ -67,11 +61,11 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]]
         case x: Exception =>
           throw new IllegalArgumentException(s"Arrow mapping not defined for $f")
       }
-      val d0Actual = d1.d0(ff)
+      val domainActual = d1.d0(ff)
       val d1Actual = d1.d1(ff)
-      val d0Expected = objectsMapping(d0.d0(f))
+      val domainExpected = objectsMapping(d0.d0(f))
       val d1Expected = objectsMapping(d0.d1(f))
-      require(d0Actual == d0Expected, s"Inconsistent mapping for d0($f)")
+      require(domainActual == domainExpected, s"Inconsistent mapping for domain($f)")
       require(d1Actual == d1Expected, s"Inconsistent mapping for d1($f)")
     }
     
@@ -98,6 +92,8 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]]
       require(gy_fy == expected,
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
     }
+    
+    this
   }
 
   /**
@@ -112,22 +108,24 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]]
        Functor[X, Z] = {
     require(d1 == g.d0, "Composition not defined")
     val f = this
-    new Functor[X, Z](
-      g.tag +" o " + this.tag, domain, g.codomain) { comp: Functor[X, Z] =>
-      override def objectsMapping(x: d0.Object): comp.d1.Object = {
-        val y: g.d0.Object = objectsMapping(x).asInstanceOf[g.d0.Object] // somehow Scala does not deduce it
-        g.objectsMapping(y).asInstanceOf[comp.d1.Object]
+    new Functor[X, Z]() {comp: Functor[X, Z] =>
+
+      val tag: String = g.tag +" o " + this.tag 
+      val d0: X = f.d0
+      val d1: Z = g.d1
+
+      override def objectsMapping(x: d0.Object): d1.Object = {
+        val y: g.d0.Object = f.objectsMapping(x.asInstanceOf[f.d0.Object]).asInstanceOf[g.d0.Object] // somehow Scala does not deduce it
+        g.objectsMapping(y).asInstanceOf[d1.Object]
       }
 
-      override def arrowsMappingCandidate(a: d0.Arrow): comp.d1.Arrow = {
-        g.arrowsMapping(f.arrowsMapping(a.asInstanceOf[f.d0.Arrow]).asInstanceOf[g.d0.Arrow]).asInstanceOf[comp.d1.Arrow] // we either need dependent types, or...
-      }
+      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
+        g.arrowsMapping(f.arrowsMapping(a.asInstanceOf[f.d0.Arrow]).asInstanceOf[g.d0.Arrow]).asInstanceOf[d1.Arrow]
 
-      // TODO(vlad): get rid of this naming problem
       // the following override is not required, because it's just another name for object mapping
-      override def nodesMapping(x: d0.Node): comp.d1.Node = {
-        val y: g.d0.Node = nodesMapping(x).asInstanceOf[g.d0.Node] // somehow Scala does not deduce it
-        g.nodesMapping(y).asInstanceOf[comp.d1.Node]
+      override def nodesMapping(n: d0.Node): d1.Node = {
+        val y: g.d0.Node = f.nodesMapping(n.asInstanceOf[f.d0.Object]).asInstanceOf[g.d0.Node] // somehow Scala does not deduce it
+        g.nodesMapping(y).asInstanceOf[d1.Node]
       }
     }
   }
@@ -338,33 +336,38 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]]
 
 object Functor {
   def apply[X <: Category[_, _], Y <: Category[_, _]] (
-    tag: String,
+    atag: String,
     dom: X,
     codom: Y)(
     objectsMorphism: dom.Object => codom.Object,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
-    new Functor[X, Y] (tag, dom, codom) {
+    new Functor[X, Y]() {
+      val tag = atag
+      val d0 = dom
+      val d1 = codom
       override def objectsMapping(x: d0.Object): d1.Object =
         objectsMorphism(x.asInstanceOf[dom.Object]).asInstanceOf[d1.Object]
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
       override def nodesMapping(n: d0.Node): d1.Node =
         objectsMorphism(n.asInstanceOf[dom.Node]).asInstanceOf[d1.Node]
-    }
+    } validate()
     
   def apply[X <: Category[_,_], Y <: Category[_,_]] (
             dom: X, codom: Y)(
             objectsMorphism: dom.Object => codom.Object,
             arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
-    new Functor[X, Y] (
-      "", dom, codom) {
+    new Functor[X, Y]() {
+      val tag = ""
+      val d0: X = dom
+      val d1: Y = codom
       override def objectsMapping(x: d0.Object): d1.Object =
         objectsMorphism(x.asInstanceOf[dom.Object]).asInstanceOf[d1.Object]
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
       override def nodesMapping(n: d0.Node): d1.Node =
         objectsMorphism(n.asInstanceOf[dom.Node]).asInstanceOf[d1.Node]
-    }
+    } validate()
 
   /**
    * Factory method. Builds identity functor for a category (identity functor).
@@ -375,7 +378,10 @@ object Functor {
    */
   def id[X <: Category[_, _]](c: X):
       Functor[X, X] =
-    new Functor[X, X] ("id", c, c) {
+    new Functor[X, X]() {
+      val tag = "id"
+      val d0 = c
+      val d1 = c
       override def objectsMapping(x: d0.Object): d1.Object = x.asInstanceOf[d1.Object]
 
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a.asInstanceOf[d1.Arrow]
