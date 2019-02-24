@@ -12,13 +12,14 @@ class NaturalTransformationTest extends Specification {
   "natural transformation" should {
     val c = _2_
     val d = _5_
-    type F = Functor[Int, (Int, Int), Int, (Int, Int)]
-    type NT = NaturalTransformation[Int, (Int, Int), Int, (Int, Int)]
-    lazy val f: F = Functor("f", c, d, (i: Int) => i*2, p => (p._1*2, p._2*2))
-    lazy val g: F = Functor("g", c, d, (i: Int) => i+1, p => (p._1+1, p._2+1))
-    lazy val h: F = Functor("h", c, d, (i: Int) => i+2, p => (p._1+2, p._2+2))
-    lazy val fg: NT = NaturalTransformation(f, g, Map(0 -> (0, 1), 1 -> (2, 2)))
-    lazy val gh: NT = NaturalTransformation(g, h, Map(0 -> (1, 2), 1 -> (2, 3)))
+    type C = Category[Int, (Int, Int)]
+    type F = Functor[C, C]
+    type NT = NaturalTransformation[C, C]
+    lazy val f: F = Functor("f", c, d)((i: Int) => i*2, p => (p._1*2, p._2*2))
+    lazy val g: F = Functor("g", c, d)((i: Int) => i+1, p => (p._1+1, p._2+1))
+    lazy val h: F = Functor("h", c, d)((i: Int) => i+2, p => (p._1+2, p._2+2))
+    lazy val fg: NT = NaturalTransformation(f, g)(Map(0 -> (0, 1), 1 -> (2, 2)))
+    lazy val gh: NT = NaturalTransformation(g, h)(Map(0 -> (1, 2), 1 -> (2, 3)))
 
     "compose" in {
       val fgh = fg compose gh
