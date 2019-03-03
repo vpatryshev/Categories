@@ -10,6 +10,11 @@ import sun.security.provider.certpath.Vertex
   * Prototype for all tests
   */
 class SetDiagramTest extends Specification {
+  lazy val Empty = SetDiagram(
+    "empty", Category._0_)(
+    Map[Int, set](),
+    Map[(Int, Int), SetFunction]()
+  )
 
   "SetDiagram" should {
     "get validated - positive" in {
@@ -19,12 +24,12 @@ class SetDiagramTest extends Specification {
       val ac = SetFunction("f", a, c, _.toString.toInt % 2)
       val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
       val sut = SetDiagram(
-        "pullback", Category.Pullback,
+        "pullback", Category.Pullback)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ac" -> ac, "bc" -> bc)
       )
-      sut.domain === Category.Pullback
-      sut.codomain === Setf
+      sut.d0 === Category.Pullback
+      sut.d1 === Setf
     }
 
     "get validated - negative" in {
@@ -32,8 +37,8 @@ class SetDiagramTest extends Specification {
       val b: set = Set(0, 1, 2)
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", b, b, x => x.toString.toInt % 3)
-      SetDiagram(
-        "ParallelPair", Category.ParallelPair,
+      val sut0 = SetDiagram(
+        "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)
       ) must throwA(new IllegalArgumentException(
@@ -44,13 +49,9 @@ class SetDiagramTest extends Specification {
     
   "SetDiagram limit" should {
     "exist for an empty diagram" in {
-      val sut = SetDiagram(
-        "terminal", Category._0_,
-        Map(),
-        Map()
-      )
-      sut.domain === Category._0_
-      sut.codomain === Setf
+      val sut = Empty
+      sut.d0 === Category._0_
+      sut.d1 === Setf
       sut.limit match {
         case None => failure("We expected a limit")
         case Some(sut.Cone(vertex, arrowTo)) =>
@@ -61,13 +62,9 @@ class SetDiagramTest extends Specification {
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      val sut = SetDiagram(
-        "terminal", Category._1_,
-        Map(0 -> x),
-        Map()
-      )
-      sut.domain === Category._1_
-      sut.codomain === Setf
+      val sut = Empty
+      sut.d0 === Category._1_
+      sut.d1 === Setf
       sut.limit match {
         case None => failure("We expected a limit")
         case Some(sut.Cone(vertex, arrowTo)) =>
@@ -83,7 +80,7 @@ class SetDiagramTest extends Specification {
       val ac = SetFunction("f", a, c, _.toString.toInt % 2)
       val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
       val sut = SetDiagram(
-        "pullback", Category.Pullback,
+        "pullback", Category.Pullback)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ac" -> ac, "bc" -> bc)
       )
@@ -112,7 +109,7 @@ class SetDiagramTest extends Specification {
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", a, b, x => x.toString.toInt % 3)
       val sut = SetDiagram(
-        "ParallelPair", Category.ParallelPair,
+        "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)
       )
@@ -141,7 +138,7 @@ class SetDiagramTest extends Specification {
       val f1 = SetFunction("f1", a, a, x => (x.toString.toInt + 1) % 3)
       val f2 = SetFunction("f2", a, a, x => (x.toString.toInt + 2) % 3)
       val sut = SetDiagram(
-        "ParallelPair", Category.Z3,
+        "ParallelPair", Category.Z3)(
         Map("0" -> a),
         Map("1" -> f1, "2" -> f2)
       )
@@ -164,7 +161,7 @@ class SetDiagramTest extends Specification {
       val cd = SetFunction("cd", c, d, _.toString.substring(1, 2))
       val ed = SetFunction("ed", e, d, _.toString.substring(1, 2))
       val sut = SetDiagram(
-        "W", Category.W,
+        "W", Category.W)(
         Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
         Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
       )
@@ -205,7 +202,7 @@ class SetDiagramTest extends Specification {
       val cd = SetFunction("cd", c, d, _.toString.toInt % 3)
       val ed = SetFunction("ed", e, d, x => (x.toString.toInt + 1) % 2)
       val sut = SetDiagram(
-        "W", Category.W,
+        "W", Category.W)(
         Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
         Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
       )
@@ -245,13 +242,9 @@ class SetDiagramTest extends Specification {
 
   "SetDiagram colimit" should {  
     "exist for a empty diagram" in {
-      val sut = SetDiagram(
-        "initial", Category._0_,
-        Map(),
-        Map()
-      )
-      sut.domain === Category._0_
-      sut.codomain === Setf
+      val sut = Empty
+      sut.d0 === Category._0_
+      sut.d1 === Setf
       sut.colimit match {
         case Some(sut.Cocone(Sets.Empty, arrowTo)) => ok
         case x => failure(s"We expected a colimit, got $x")
@@ -261,13 +254,9 @@ class SetDiagramTest extends Specification {
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      val sut = SetDiagram(
-        "terminal", Category._1_,
-        Map(0 -> x),
-        Map()
-      )
-      sut.domain === Category._1_
-      sut.codomain === Setf
+      val sut = Empty
+      sut.d0 === Category._1_
+      sut.d1 === Setf
       sut.colimit match {
         case None => failure("We expected a colimit")
         case Some(sut.Cocone(vertex, arrowFrom)) =>
@@ -283,7 +272,7 @@ class SetDiagramTest extends Specification {
       val ab = SetFunction("f", a, b, _.toString.toInt + 1)
       val ac = SetFunction("g", a, c, _.toString.toInt % 2)
       val sut = SetDiagram(
-        "pushout", Category.Pushout,
+        "pushout", Category.Pushout)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ab" -> ab, "ac" -> ac)
       )
@@ -313,7 +302,7 @@ class SetDiagramTest extends Specification {
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", a, b, x => x.toString.toInt % 3)
       val sut = SetDiagram(
-        "ParallelPair", Category.ParallelPair,
+        "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)
       )
@@ -337,7 +326,7 @@ class SetDiagramTest extends Specification {
       val f1 = SetFunction("f1", a, a, x => f(1)(x.toString.toInt))
       val f2 = SetFunction("f2", a, a, x => f(2)(x.toString.toInt))
       val sut = SetDiagram(
-        "Z3", Category.Z3,
+        "Z3", Category.Z3)(
         Map("0" -> a),
         Map("1" -> f1, "2" -> f2)
       )
@@ -360,7 +349,7 @@ class SetDiagramTest extends Specification {
       val dc = SetFunction("dc", d, c, "c1" +)
       val de = SetFunction("de", d, e, "e1" +)
       val sut = SetDiagram(
-        "M", Category.M,
+        "M", Category.M)(
         Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
         Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
       )
@@ -391,5 +380,4 @@ class SetDiagramTest extends Specification {
     }
     
   }
-
 }

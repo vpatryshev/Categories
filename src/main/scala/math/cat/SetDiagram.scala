@@ -25,15 +25,15 @@ abstract class SetDiagram[C <: Category[_, _]](
   val d0: C)
   extends Functor[C, SetCategory] {
   val d1: SetCategory = SetCategory.Setf
-  type XObject = d0.Object
-  type XObjects = Set[d0.Object]
+  type XObject = d0.O
+  type XObjects = Set[d0.O]
   type YObject = set
   type XArrow = d0.Arrow
   type XArrows = Set[d0.Arrow]
   type YArrow = SetFunction
 
-  override def objectsMapping(x: XObject): set
-  override def arrowsMappingCandidate(a: XArrow): YArrow
+//  override def objectsMapping(x: XObject): set
+//  override def arrowsMappingCandidate(a: XArrow): YArrow
 
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
@@ -186,7 +186,7 @@ abstract class SetDiagram[C <: Category[_, _]](
     // this is the limit object
     final private[cat] lazy val vertex: set = prod filter isPoint untyped
     // bundles maps each "initial" object to a set of arrows from it
-    final private[cat] lazy val bundles: Map[d0.Object, XArrows] =
+    final private[cat] lazy val bundles: Map[d0.O, XArrows] =
       d0.buildBundles(rootObjects, participantArrows)
 
     // this function takes an object and returns a projection set function;
@@ -216,12 +216,29 @@ object SetDiagram {
   def apply[C <: Category[_, _]](
     tag: String,
     dom: C)(
-    objectsMap: dom.Object => set,
-    arrowMap: dom.Arrow => SetFunction) =  new SetDiagram[C](tag, dom) {
-    override def objectsMapping(x: XObject): set =
-      objectsMap(x.asInstanceOf[dom.Object])
+    objectsMap: dom.O => set,
+    arrowMap: dom.Arrow => SetFunction) = {
+    
+    val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
+      override def objectsMapping(x: d0.O): set = {
+        println(s"objectMapping got $x")
+        null      
+      }
 
-    override def arrowsMappingCandidate(a: XArrow): YArrow =
-      arrowMap(a.asInstanceOf[dom.Arrow])
-  }
+      override def arrowsMappingCandidate(a: XArrow): YArrow =
+        arrowMap(a.asInstanceOf[dom.Arrow])
+    }
+    val dc = diagram.getClass
+    val meths = dc.getMethods
+    val m0 = meths.head
+    for {
+      x <- diagram.d0.objects
+    } {
+      val y = diagram.objectsMapping(x)
+      println(s"$x -> $y")
+    }
+    diagram.validate()
+    
+    diagram
+  } 
 }

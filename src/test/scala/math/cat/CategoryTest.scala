@@ -5,11 +5,20 @@ import Category._
 import SetCategory._
 import math.sets.Sets
 import Sets._
+import scalakittens.{Good, Result}
 
 /**
  * Tests for Category class
  */
 class CategoryTest extends Specification {
+
+
+  def check[N, A](g: Result[Category[N, A]], op: Category[N, A] => Unit): Unit = {
+    g match {
+      case Good(sut) => op
+      case bad => failure(bad.toString)
+    }
+  }
 
   "Category" >> {
 
@@ -35,7 +44,7 @@ class CategoryTest extends Specification {
       )
       val c = Category
       
-      val testCategory = Category.apply(
+      val sut = Category.build(
         Set("0", "1", "2"), // objects
         d0d1.mapValues(_._1), // d0
         d0d1.mapValues(_._2), // d1
@@ -58,8 +67,12 @@ class CategoryTest extends Specification {
           ("2.swap", "2.b") -> "2.b",
           ("2.swap", "2.swap") -> "2") // composition map
        )
-      val string = testCategory.toString
-      Category(string) === testCategory
+      
+      sut match {
+        case Good(c) =>
+          val string = c.toString
+          Category.read(string) === sut
+      }
     }
     
     "composablePairs" >> {
@@ -83,18 +96,17 @@ class CategoryTest extends Specification {
     }
     
     "regression from 6/9/15" >> {
-      val expected = Category(
+      val expected = Category.build(
         objects = Set("0", "1", "2"),
         domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
         codomain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "2", "b" -> "2"),
         compositionSource = Map[(String, String), String]()
-      )
-      val source1 = "({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {0 o a = a})"
-      val sample1 = Category(source1)
+      ).getOrElse(throw new InstantiationException("You have a bug"))
+      
+      val sample1 = category"({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {0 o a = a})"
       sample1 === expected
 
-      val source2 = "({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
-      val sample2 = Category(source1)
+      val sample2 = category"({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
       sample2 === expected
 
     }
@@ -104,16 +116,18 @@ class CategoryTest extends Specification {
     }
 
     "constructor_1_bare" >> {
-      val sut: Category[String, String] = Category(Set("1"),
-        Map(), // d0
-        Map(), // d1
-        Map()
+      val sut = Category.build(
+        objects = Set("1"),
+        domain = Map[String, String](),
+        codomain = Map[String, String](),
+        compositionSource = Map[(String, String), String]()
       )
+      
       sut.arrows must haveSize(1)
     }
 
     "constructor_1_full" >> {
-      val sut: Category[String, String] = Category(Set("1"),
+      val sut = Category.build(Set("1"),
         Map("1" -> "1"), // d0
         Map("1" -> "1"), // d1
         Map(("1", "1") -> "1")
@@ -136,17 +150,17 @@ class CategoryTest extends Specification {
     }
 
     "parse_1" >> {
-      val sut = Category("({0}, {}, {})")
+      val sut = Category.build("({0}, {}, {})")
       sut.objects === Set("0")
     }
 
     "parse_1_1" >> {
-      val sut = Category("({1, 0}, {}, {})")
+      val sut = Category.build("({1, 0}, {}, {})")
       sut.objects === Set("0", "1")
     }
 
     "parse_2" >> {
-      val sut = Category("({1, 0}, {a: 0 -> 1}, {})")
+      val sut = Category.build("({1, 0}, {a: 0 -> 1}, {})")
       sut.objects === Set("0", "1")
     }
     
@@ -156,7 +170,7 @@ class CategoryTest extends Specification {
 
     "parse_negative" >> {
       try {
-        val expected: Category[String, String] = Category(Set("0", "1", "2"),
+        val expected = Category.build(Set("0", "1", "2"),
           Map("0_1" -> "0", "0_2" -> "0", "a" -> "1", "b" -> "1", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d0
           Map("0_1" -> "1", "0_2" -> "2", "a" -> "1", "b" -> "1", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d1
           Map(("0_1", "a") -> "0_2", ("0_1", "b") -> "0_2", ("2_1", "a") -> "2_a", ("2_1", "b") -> "2_b", ("a", "2_swap") -> "b", ("b", "2_swap") -> "a", ("2_swap", "2_swap") -> "2"))
@@ -170,7 +184,7 @@ class CategoryTest extends Specification {
     }
 
     "toString_1" >> {
-      val sut: Category[String, String] = Category(Set("1"),
+      val sut = Category.build(Set("1"),
         Map(), // d0
         Map(), // d1
         Map()
@@ -180,58 +194,56 @@ class CategoryTest extends Specification {
     }
 
     "parse_positive_0" >> {
-      val expected: Category[String, String] = Category(Set("1"),
+      val expected = Category.build(Set("1"),
         Map(), // d0
         Map(), // d1
         Map()
       )
       val string = expected.toString()
-      val parsed = Category(string)
+      val parsed = Category.build(string)
       parsed.objects === expected.objects
       parsed.arrows === expected.arrows
       parsed === expected
     }
 
     "parse_positive_3" >> {
-      val source = "({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2 o 2_1 = 2_1})"
-      val parsed = Category(source)
+      val parsed = category"({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2 o 2_1 = 2_1})"
       parsed.objects.size === 2
     }
 
     "parse_positive_4" >> {
-      val source = "({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, {2 o 2_1 = 2_1, 2_a o 2_a = 2_a, 2 o 2_a = 2_a, 2_a o 2_1 = 2_1, 2_a o 2 = 2_a, 2 o 2 = 2, 1 o 1 = 1, 2_1 o 1 = 2_1})"
-      val parsed = Category(source)
+      val parsed = category"({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, {2 o 2_1 = 2_1, 2_a o 2_a = 2_a, 2 o 2_a = 2_a, 2_a o 2_1 = 2_1, 2_a o 2 = 2_a, 2 o 2 = 2, 1 o 1 = 1, 2_1 o 1 = 2_1})"
       parsed.objects.size === 2
     }
 
     "parse_positive_5" >> {
-      val expected: Category[String, String] = Category(Set("1", "2"),
+      val expected = Category.build(Set("1", "2"),
         Map("2_1" -> "2"), // d0
         Map("2_1" -> "1"), // d1
         Map()
       )
       val string = expected.toString()
-      val parsed = Category(string)
+      val parsed = Category.read(string)
       parsed.objects === expected.objects
       parsed.arrows === expected.arrows
       parsed === expected
     }
 
     "parse_positive_6" >> {
-      val expected: Category[String, String] = Category(Set("1", "2"),
+      val expected = Category.build(Set("1", "2"),
         Map("2_1" -> "2", "2_a" -> "2"), // d0
         Map("2_1" -> "1", "2_a" -> "2"), // d1
         Map(("2_a", "2_a") -> "2_a")
       )
       val string = expected.toString()
-      val parsed = Category(string)
+      val parsed = Category.read(string)
       parsed.objects === expected.objects
       parsed.arrows === expected.arrows
       parsed === expected
     }
 
     "parse_positive_7" >> {
-      val expected: Category[String, String] = Category(Set("0", "1", "2"),
+      val expected = Category.build(Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
         Map(("0_1", "a") -> "0_2",
@@ -240,14 +252,14 @@ class CategoryTest extends Specification {
         )
       )
       val string = expected.toString()
-      val parsed = Category(string)
+      val parsed = Category.read(string)
       parsed.objects === expected.objects
       parsed.arrows === expected.arrows
       parsed === expected
     }
 
     "parse_positive_8" >> {
-      val expected: Category[String, String] = Category(Set("0", "1", "2"),
+      val expected = Category.build(Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
         Map(("0_1", "a") -> "0_2",
@@ -256,7 +268,7 @@ class CategoryTest extends Specification {
         )
       )
       val string = expected.toString()
-      val parsed = Category(string)
+      val parsed = Category.read(string)
       parsed.objects === expected.objects
       parsed.arrows === expected.arrows
       parsed === expected
@@ -265,7 +277,7 @@ class CategoryTest extends Specification {
     "parse_positive" >> {
       val expected = HalfSimplicial
       val string = expected.toString()
-      val parsed = Category(string)
+      val parsed = Category.read(string)
       parsed.objects === expected.objects
       parsed.arrows === expected.arrows
       parsed === expected
@@ -297,8 +309,8 @@ class CategoryTest extends Specification {
     }
 
     "equals_positive_arrows()" >> {
-      val c1 = Category("({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})")
-      val c2 = Category("({1, 0}, {b: 0 -> 1, a: 0 -> 1}, {})")
+      val c1 = category"({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})"
+      val c2 = category"({1, 0}, {b: 0 -> 1, a: 0 -> 1}, {})"
       c1.objects === Set("0", "1")
       c2.objects === c1.objects
       c2.arrows === c1.arrows
@@ -306,14 +318,14 @@ class CategoryTest extends Specification {
     }
 
     "equals_negative_arrows()" >> {
-      val c1 = Category("({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})")
-      val c3 = Category("({1, 0}, {a: 0 -> 1, c: 0 -> 1}, {})")
+      val c1 = category"({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})"
+      val c3 = category"({1, 0}, {a: 0 -> 1, c: 0 -> 1}, {})"
       (c1 == c3) must beFalse
     }
 
     "equals_positive_mult()" >> {
-      val c1 = Category("({0, 1}, {a: 0 -> 1, b: 1 -> 1, c: 1 -> 1}, {a o b = a, a o c = c, b o b = b, b o c = c, c o b = b, c o c = c})")
-      val c2 = Category("({1, 0}, {b: 1 -> 1, c: 1 -> 1, a: 0 -> 1}, {b o b = b, b o c = c, a o b = a, a o c = c, c o b = b, c o c = c})")
+      val c1 = category"({0, 1}, {a: 0 -> 1, b: 1 -> 1, c: 1 -> 1}, {a o b = a, a o c = c, b o b = b, b o c = c, c o b = b, c o c = c})"
+      val c2 = category"({1, 0}, {b: 1 -> 1, c: 1 -> 1, a: 0 -> 1}, {b o b = b, b o c = c, a o b = a, a o c = c, c o b = b, c o c = c})"
       (c1 == c2) must beTrue
     }
 
@@ -337,7 +349,7 @@ class CategoryTest extends Specification {
     }
 
     "isIsomorphism_negative()" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})")
+      val sut = category"({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})"
       sut.isIsomorphism("2") must beFalse
     }
 
@@ -349,14 +361,14 @@ class CategoryTest extends Specification {
     }
 
     "isMonomorphism_negative()" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})")
+      val sut = category"({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})"
       sut.isMonomorphism("0") must beTrue
       sut.isMonomorphism("1") must beFalse
       sut.isMonomorphism("2") must beFalse
     }
 
     "isEpimorphism()" >> {
-      val sut = Category("({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 1, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})")
+      val sut = category"({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 1, 1 o 2 = 2, 2 o 1 = 2, 2 o 2 = 2})"
       sut.isEpimorphism("0") must beTrue
       sut.isEpimorphism("1") must beFalse
       sut.isEpimorphism("2") must beFalse

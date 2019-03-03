@@ -20,9 +20,7 @@ class SetCategory(objects: BigSet[Set[Any]])
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = f compose g
 
-  override val id: set => SetFunction = SetFunction.id
-
-  override protected def validate(): Unit = {} // it IS a category
+  override def id(s: set): SetFunction = SetFunction.id(s)
 
   override def toString: String = "Category of all Scala Sets"
 
@@ -148,14 +146,12 @@ class SetCategory(objects: BigSet[Set[Any]])
 object SetCategory {
 
   private[cat] def graphOfSets(nodes0: BigSet[set]): Graph[set, SetFunction] = {
-
-    new Graph[set, SetFunction] {
-      def nodes: BigSet[set] = nodes0
-      def arrows: BigSet[SetFunction] = BigSet[SetFunction]()
-      def d0(f: SetFunction): set = f.d0
-      def d1(f: SetFunction): set = f.d1
-    }
-  }
+    Graph.build[set, SetFunction](
+      nodes0,
+      BigSet[SetFunction](),
+      (f: SetFunction) => f.d0,
+      (f: SetFunction) => f.d1)
+  }.getOrElse(throw new InstantiationException("This graph should exist"))
 
   object Setf extends SetCategory(FiniteSets)
 }
