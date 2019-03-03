@@ -119,12 +119,11 @@ private[cat] abstract class GraphCandidate[N, A] {
 
   def validateGraph(): Result[GraphCandidate[N, A]] =
     OKif(!finiteArrows) orElse {
-      Result.traverse(arrows map {
+      Result.fold(arrows map {
         a =>
           OKif(nodes contains d0(a), " d0 for " + a + " should be in set of nodes") andAlso
-          OKif(nodes contains d1(a), " d1 for " + a + " should be in set of nodes")
+          OKif(nodes contains d1(a), " d1 for " + a + " should be in set of nodes") returning ()
       })
-      Oops("shit")
     } returning this
 }
 
@@ -141,7 +140,7 @@ object Graph {
       def d1(f: A): N = d10(f)
     }
 
-    candidate.validateGraph() returning
+    candidate.validateGraph returning
       new Graph[N, A] {
         def nodes: Set[N] = candidate.nodes
         def arrows: Set[A] = candidate.arrows
@@ -157,7 +156,7 @@ object Graph {
   def discrete[N](points: Set[N]): Graph[N, N] =
     new Graph[N, N] {
       def nodes: Set[N] = points
-      def arrows: Set[N] = points
+      def arrows: Set[N] = Set.empty
       def d0(f: N): N = f
       def d1(f: N): N = f
     }
@@ -214,7 +213,8 @@ object Graph {
       }
       Graph.read(buf) match {
         case Good(g) => g
-        case bad => throw new InstantiationException(bad.errorDetails.mkString)
+        case bad => 
+          throw new InstantiationException(bad.errorDetails.mkString)
       }
     }
   }

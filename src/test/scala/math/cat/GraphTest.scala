@@ -9,7 +9,7 @@ class GraphTest extends Specification {
   
   def check[N, A](g: Result[Graph[N, A]], op: Graph[N, A] => Unit): Unit = {
     g match {
-      case Good(sut) => op
+      case Good(sut) => op(sut)
       case bad => failure(bad.toString)
     }
   }
@@ -189,11 +189,20 @@ class GraphTest extends Specification {
     }
 
     "UnaryOp" >> {
-      val sutOpt = Graph(Set(1, 2, 3), Set(11, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      val sutOpt = Graph.build(
+        Set(1, 2, 3),
+        Set(11, 21, 32, 13),
+        (x: Int) => x / 10 % 10,
+        (x: Int) => x % 10)
+      
       check(sutOpt, (sut: Graph[Int, Int]) => {
         sut.d0(32) === 3
         val opsut = ~sut
-        val expected = Graph(Set(1, 2, 3), Set(11, 21, 32, 13), (x: Int) => x % 10, (x: Int) => x / 10 % 10)
+        val expected = Graph.build(
+          Set(1, 2, 3),
+          Set(11, 21, 32, 13),
+          (x: Int) => x % 10,
+          (x: Int) => x / 10 % 10).getOrElse(throw new InstantiationException("oops"))
         opsut === expected
         sut === ~opsut
       }); ok
@@ -201,7 +210,7 @@ class GraphTest extends Specification {
 
     "Discrete" >> {
       val sut = Graph.discrete(Set(1, 2, 3))
-      val expected = Graph.build(Set(1, 2, 3), Set[Int](), (x: Int) => x % 10, (x: Int) => x / 10 % 10)
+      val expected = Graph.build(Set(1, 2, 3), Set[Int](), (x: Int) => x, (x: Int) => x)
       Good(sut) === expected
       sut === ~sut
     }

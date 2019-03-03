@@ -7,7 +7,7 @@ class FunctorTest extends Specification {
   type CSS = Category[String, String]
   
   lazy val categorySquareWithTwoTopLeftCorners: CSS =
-    Category("({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})")
+    category"({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
 
   lazy val functorFromPullbackToDoubleSquare: Functor[CSS, CSS] =
     Functor(
@@ -18,10 +18,10 @@ class FunctorTest extends Specification {
   )
 
   lazy val categorySquareWithTwoRightCorners =
-    Category("({a,b,c, d0, d1}"
-      + ",{ab: a -> b, ac: a -> c, ad0: a -> d0, bd0: b -> d0, cd0: c -> d0, ad1: a -> d1, bd1: b -> d1, cd1: c -> d1, d0d1: d0 -> d1}"
-      +",{bd0 o ab = ad0, cd0 o ac = ad0, bd1 o ab = ad1, cd1 o ac = ad1, d0d1 o ad0 = ad1, d0d1 o bd0 = bd1,d0d1 o bd0 = bd1, d0d1 o cd0 = cd1}"
-      + ")")
+    category"""({a,b,c, d0, d1}
+      ,{ab: a -> b, ac: a -> c, ad0: a -> d0, bd0: b -> d0, cd0: c -> d0, ad1: a -> d1, bd1: b -> d1, cd1: c -> d1, d0d1: d0 -> d1}
+      ,{bd0 o ab = ad0, cd0 o ac = ad0, bd1 o ab = ad1, cd1 o ac = ad1, d0d1 o ad0 = ad1, d0d1 o bd0 = bd1,d0d1 o bd0 = bd1, d0d1 o cd0 = cd1}
+      )"""
 
   lazy val functorFrom1to2toDoubleSquare: Functor[CSS, CSS] =
     Functor("From1to2toDoubleSquare",
@@ -86,7 +86,7 @@ class FunctorTest extends Specification {
 
   "functor" should {
     "produce cartesian product" in {
-      val from = Category(Set(0, 1))
+      val from = Category.discrete(Set(0, 1))
       val to = Square
       val map = Map(0 -> "b", 1 -> "c")
       val f = Functor("sample product", from, to)(map, map)
