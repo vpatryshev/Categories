@@ -10,7 +10,7 @@ import scalakittens.{Good, Result}
 /**
  * Tests for Category class
  */
-class CategoryTest extends Specification {
+class CategoryTest extends Specification with CategoryFactory {
 
 
   def check(g: Result[Category[String, String]], op: Category[String, String] => Unit): Unit = {
@@ -108,7 +108,7 @@ class CategoryTest extends Specification {
         compositionSource = EmptyComposition
       ).getOrElse(throw new InstantiationException("You have a bug"))
       
-      val sample1 = category"({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {0 o a = a})"
+      val sample1 = category"({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {a o 0 = a})"
       sample1 === expected
 
       val sample2 = category"({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
@@ -166,6 +166,7 @@ class CategoryTest extends Specification {
       val actual = Category.build(Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "a" -> "1", "b" -> "1", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "a" -> "1", "b" -> "1", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d1
+        // breaking laws
         Map(("0_1", "a") -> "0_2", ("0_1", "b") -> "0_2", ("2_1", "a") -> "2_a", ("2_1", "b") -> "2_b", ("a", "2_swap") -> "b", ("b", "2_swap") -> "a", ("2_swap", "2_swap") -> "2"))
 
       actual.isGood === false
@@ -202,12 +203,16 @@ class CategoryTest extends Specification {
     }
 
     "parse_positive_3" >> {
-      val parsed = category"({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2 o 2_1 = 2_1})"
+      val parsed = category"({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2_1 o 2 = 2_1})"
       parsed.objects.size === 2
     }
 
     "parse_positive_4" >> {
-      val parsed = category"({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, {2 o 2_1 = 2_1, 2_a o 2_a = 2_a, 2 o 2_a = 2_a, 2_a o 2_1 = 2_1, 2_a o 2 = 2_a, 2 o 2 = 2, 1 o 1 = 1, 2_1 o 1 = 2_1})"
+      val parsed = category"""(
+        {1, 2},
+        {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, 
+        {2_1 o 2 = 2_1, 2_a o 2_a = 2_a, 2 o 2_a = 2_a, 2_1 o 2_a = 2_1, 2_a o 2 = 2_a, 2 o 2 = 2, 1 o 1 = 1, 1 o 2_1 = 2_1}
+      )"""
       parsed.objects.size === 2
     }
 
@@ -300,8 +305,8 @@ class CategoryTest extends Specification {
     }
 
     "equals_positive_mult()" >> {
-      val c1 = category"({0, 1}, {a: 0 -> 1, b: 1 -> 1, c: 1 -> 1}, {a o b = a, a o c = c, b o b = b, b o c = c, c o b = b, c o c = c})"
-      val c2 = category"({1, 0}, {b: 1 -> 1, c: 1 -> 1, a: 0 -> 1}, {b o b = b, b o c = c, a o b = a, a o c = c, c o b = b, c o c = c})"
+      val c1 = category"({0, 1}, {a: 0 -> 1, b: 1 -> 1, c: 1 -> 1}, {b o a = a, c o a = c, b o b = b, c o b = c, b o c = b, c o c = c})"
+      val c2 = category"({1, 0}, {b: 1 -> 1, c: 1 -> 1, a: 0 -> 1}, {b o b = b, c o b = c, b o a = a, c o a = c, b o c = b, c o c = c})"
       (c1 == c2) must beTrue
     }
 
@@ -703,6 +708,58 @@ class CategoryTest extends Specification {
     "SplitMono" >> {
       SplitMono.objects === Set("a", "b")
       SplitMono.arrows === Set("a", "b", "ab", "ba", "bb")
+    }
+    
+    "Detailed Composition Table Build" >> {
+      import Graph._
+      val graph = graph"({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b})"
+      val composition: Map[(String, String), String] = Map(
+        ("ab", "ba") -> "bb",
+        ("ba", "ab") -> "bb",
+        ("ab", "bb") -> "ab",
+        ("bb", "ba") -> "ba",
+        ("bb", "bb") -> "bb"
+      )
+      
+      val graphWithUnits = addUnitsToGraph(graph)
+      val candidate1 = defineCompositionWithIdentities(graphWithUnits, composition)
+      candidate1.keySet must not contain ("bb", "a")
+      candidate1.keySet must not contain ("a", "bb")
+      candidate1.get(("ba", "ab")) === Some("bb")
+
+      val candidate2 = addUniqueCompositions(graphWithUnits, candidate1)
+      candidate2.keySet must not contain ("bb", "a")
+      candidate2.keySet must not contain ("a", "bb")
+      candidate2.get(("ba", "ab")) === Some("bb")
+      
+      val candidate3 = deduceCompositions(graphWithUnits, candidate2)
+      candidate3.keySet must not contain ("bb", "a")
+      candidate3.keySet must not contain ("a", "bb")
+
+      val newComposition = fillCompositionTable(graphWithUnits, composition)
+      newComposition.keySet must not contain ("bb", "a")
+      newComposition.keySet must not contain ("a", "bb")
+      
+      val sut1 = Category.build(graph, composition)
+      
+      sut1 match {
+        case Good(c) => ok
+        case oops => oops.errorDetails match {
+          case Some(errors) => failure(errors)
+          case None => failure("What happened?!")
+        }
+      }
+
+      val text = "({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = bb, ab o ba = bb, bb o ab = ab, ba o bb = ba, bb o bb = bb})"
+      Category.read(text) match {
+        case Good(c) => ok
+        case oops => oops.errorDetails match {
+          case Some(errors) => failure(errors)
+          case None => failure("What happened?!")
+        }
+      }
+      
+      ok
     }
 
     "M" >> {

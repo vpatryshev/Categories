@@ -6,12 +6,13 @@ import math.sets.PoSet
 import math.sets.Sets._
 import scalakittens.{Good, Result}
 import Result.{Oops, _}
+import j.math.cat.N
 
 /**
   * Category class, and the accompanying object.
   */
 abstract class Category[Obj, A](override val g: Graph[Obj, A])
-  extends CategoryCandidate[Obj, A](g) {
+  extends CategoryData[Obj, A](g) {
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
   
@@ -86,7 +87,7 @@ abstract class Category[Obj, A](override val g: Graph[Obj, A])
     objects.mkString(", ") + "}, {" +
     (arrows map (a => s"$a: ${d0(a)}->${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect { case (first, second) =>
-      s"$first o $second = ${m(first, second).get}"
+      s"$second o $first = ${m(first, second).get}"
     }).mkString(", ") + "})"
 
   def composablePairs: Iterable[(A, A)] = Category.composablePairs(this)
@@ -624,7 +625,7 @@ abstract class Category[Obj, A](override val g: Graph[Obj, A])
   }
 }
 
-private[cat] abstract class CategoryCandidate [Obj, A](val g: Graph[Obj, A]) extends Graph[Obj, A] {
+private[cat] abstract class CategoryData [Obj, A](val g: Graph[Obj, A]) extends Graph[Obj, A] {
   type O = Node
   type Objects = Set[O]
   def nodes: Objects = g.nodes
@@ -635,9 +636,7 @@ private[cat] abstract class CategoryCandidate [Obj, A](val g: Graph[Obj, A]) ext
   def id(o: O): Arrow
   def m(f: Arrow, g: Arrow): Option[Arrow]
 
-  protected def validate(): Result[CategoryCandidate[Obj, A]] = {
-    val graphOK = validateGraph()
-    
+  override def validate: Result[CategoryData[Obj, A]] = {
     val objectsHaveIds = OKif(!finiteNodes) orElse {
       Result.traverse(objects map {
         x =>
@@ -647,7 +646,7 @@ private[cat] abstract class CategoryCandidate [Obj, A](val g: Graph[Obj, A]) ext
       })
     }
 
-    val idsAreNeutral = OKif(finiteArrows) orElse {
+    val idsAreNeutral = OKif(!finiteArrows) orElse {
       Result.traverse(arrows map { f =>
         val u_f = m(id(d0(f)), f)
         val f_u = m(f, id(d1(f)))
@@ -655,22 +654,30 @@ private[cat] abstract class CategoryCandidate [Obj, A](val g: Graph[Obj, A]) ext
         OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u")
       })
     }
-
-    val compositionsAreDefined = OKif(finiteArrows) orElse {
+// "ba" followed by "a" not defined?
+    val compositionsAreDefined = idsAreNeutral andThen OKif(!finiteArrows) orElse {
       Result.traverse {
         for {
           f <- arrows
-          g <- arrows if follows(g, f)
+          g <- arrows
           h = m(f, g)
-        } yield
-          Result(h) orCommentTheError s"composition must be defined for $f and $g" flatMap { gf => 
-            OKif(sameDomain(gf, f), s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)}") andAlso
-            OKif(sameCodomain(gf, g), s"Wrong composition $gf of %f and %g: its d1 is %{d1(gf)}, must be ${d1(g)}")
+        } yield {
+          if (follows(g, f)) {
+            Result(h) orCommentTheError s"composition must be defined for $f and $g" flatMap { gf =>
+              OKif(sameDomain(gf, f),
+                s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)}") andAlso
+              OKif(sameCodomain(gf, g),
+                s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)}")
+            } returning()
+          }
+          else {
+            OKif(h.isEmpty, s"Wrongly defined composition of $f and $g")
+          }
         }
       }
     }
 
-    val compositionIsAssociative = OKif(finiteArrows) orElse {
+    val compositionIsAssociative = compositionsAreDefined andThen (OKif(!finiteArrows) orElse {
       Result.traverse {
         for {
           f <- arrows
@@ -678,12 +685,20 @@ private[cat] abstract class CategoryCandidate [Obj, A](val g: Graph[Obj, A]) ext
           h <- arrows
           gf <- m(f, g)
           hg <- m(g, h)
-        } yield
-          OKif(m(gf, h) == m(f, hg), s"Associativity broken for $f, $g and $h")
+        } yield {
+          val h_gf = m(gf, h)
+          val hg_f = m(f, hg)
+// the following is for debugging
+          val f0 = "" + f + ""
+          if (h_gf != hg_f) {
+            println(s"$f, $g, $h, $gf, $hg, $h_gf, $hg_f")
+          }
+          OKif(h_gf == hg_f, s"Associativity broken for $f, $g and $h, got $h_gf vs $hg_f")
         }
-      }
+        }
+      })
     
-      graphOK andAlso objectsHaveIds andAlso idsAreNeutral andAlso compositionsAreDefined andAlso compositionIsAssociative returning this
+      objectsHaveIds andAlso compositionIsAssociative returning this
   }
 
 }
@@ -742,17 +757,15 @@ private[cat] trait CategoryFactory {
     * @param composition arrows composition table
     * @return new category
     */
-
   def build[T](graph: Graph[T, T],
                composition: (T, T) => Option[T]): Result[Category[T, T]] = {
     val isUnit = (f: T) => graph.nodes contains f
     val m = (f: T, g: T) =>
       if (isUnit(f)) Some(g) else if (isUnit(g)) Some(f) else composition(f, g)
-    val g: Result[Graph[T, T]] = addUnitsToGraph(graph)
+    val g: Graph[T, T] = addUnitsToGraph(graph)
     val id = (x: T) => x
-    g flatMap { build(_, id, m) }
+    build(g, id, m)
   }
-
   
   /**
     * Creates a new instance of of category, given objects, arrows, ids, and composition table.
@@ -807,15 +820,13 @@ private[cat] trait CategoryFactory {
     */
   def build[T](
     graph: Graph[T, T],
-    compositionSource: Map[(T, T), T]): Result[Category[T, T]] = for {
-    graphWithUnits <- addUnitsToGraph(graph)
-    composition = fillCompositionTable(graphWithUnits, compositionSource)
-    category <- {
-      def compositionFunction(f: T, g: T): Option[T] = composition.get((f, g))
-
-      build(graphWithUnits, idMap(graph.nodes), compositionFunction)
-    }
-  } yield category
+    compositionSource: Map[(T, T), T]): Result[Category[T, T]] = {
+    val graphWithUnits = addUnitsToGraph(graph)
+    val composition = fillCompositionTable(graphWithUnits, compositionSource)
+    def compositionFunction(f: T, g: T): Option[T] = composition.get((f, g))
+    val result = build(graphWithUnits, idMap(graph.nodes), compositionFunction)
+    result
+  }
 
   /**
     * Builds a category given a graph, composition table, and a mapping for identity arrows.
@@ -830,38 +841,42 @@ private[cat] trait CategoryFactory {
   def build[O, A](
       g: Graph[O, A],
       ids: O => A,
-      composition: (A, A) => Option[A]): Result[Category[O, A]] =
-    scalakittens.Good(
-    new Category[O, A](g) {
-      def id(o: O): A = ids(o)
-      def m(f: A, g: A): Option[A] = composition(f, g)
-      override def d0(f: A): O = g.d0(f)
-      override def d1(f: A): O = g.d1(f)
-    })
-
-  private def addUnitsToGraph[T](graph: Graph[T, T]) = {
-    val nodes = graph.nodes.asInstanceOf[Set[T]] // this and the next casting is to cover up a weird bug somewhere in scala
-    val allArrows: Set[T] = nodes ++ graph.arrows
-    val isIdentity = (f: T) => graph.nodes contains f
-    val d0 = (f: T) => if (isIdentity(f)) f else graph.d0(f)
-    val d1 = (f: T) => if (isIdentity(f)) f else graph.d1(f)
-    Graph.build(graph.nodes, allArrows, d0, d1)
+      composition: (A, A) => Option[A]): Result[Category[O, A]] = {
+    val data = new CategoryData[O, A](g) {
+      override def id(o: O): Arrow = ids(o)
+      override def m(f: Arrow, g: Arrow): Option[Arrow] = composition(f, g)
+    }
+    
+    data.validate returning
+      new Category[O, A](g) {
+        def id(o: O): A = ids(o)
+        def m(f: A, g: A): Option[A] = composition(f, g)
+        override def d0(f: A): O = g.d0(f)
+        override def d1(f: A): O = g.d1(f)
+      }
   }
 
-  /**
-    * This method helps fill in obvious choices for arrows composition.
-    * Case 1. There's an arrow f:a->b, and an arrow g:b->c; and there's just one arrow h:a->c.
-    * What would be the composition of f and g? h is the only choice.
-    * <p/>
-    * Case 2. h o (g o f) = k; what is (h o g) o f? It is k. and vice versa.
-    *
-    * @param graph             - the graph of this category
-    * @param compositionSource partially filled composition table
-    */
-  private def fillCompositionTable[O, A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
-    // First, add identities
-    val addedIds = (compositionSource /: graph.arrows) ((m, f) => m + ((graph.d0(f), f) -> f) + ((f, graph.d1(f)) -> f))
-
+  private[cat] def addUnitsToGraph[T](graph: Graph[T, T]): Graph[T, T] = {
+    val nodes = graph.nodes.asInstanceOf[Set[T]] // this and the next casting is to cover up a weird bug somewhere in scala
+    val allArrows: Set[T] = nodes ++ graph.arrows
+    def isIdentity(f: T): Boolean = graph.nodes contains f
+    new Graph[T, T] {
+      def nodes: Set[T] = graph.nodes
+      def arrows: Set[T] = allArrows
+      def d0(f: T): T = if (isIdentity(f)) f else graph.d0(f)
+      def d1(f: T): T = if (isIdentity(f)) f else graph.d1(f)
+    }
+  }
+  
+  // adding composition with identities to a composition table
+  protected def defineCompositionWithIdentities[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
+    (compositionSource /: graph.arrows) ((m, f) => {
+      m + ((graph.d0(f), f) -> f) + ((f, graph.d1(f)) -> f)
+    })
+  }
+  
+  // adding unique available compositions
+  protected def addUniqueCompositions[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
     // Second, add unique solutions
     def candidates(f: A, g: A) = graph.arrowsBetween(graph.d0(f), graph.d1(g))
 
@@ -880,26 +895,36 @@ private[cat] trait CategoryFactory {
       hasUniqueCandidate(f, g)
     })
 
-    val addedUniqueSolutions: Map[(A, A), A] = (addedIds /: pairsToScan) {
+    val solutions: Map[(A, A), A] = (compositionSource /: pairsToScan) {
       (m, p) => {
         val (f, g) = p
         m + ((f, g) -> candidate(f, g))
       }
     }
+    solutions
+  }
 
-    val triplesToScan = for {
+  // this is a technical method to list all possible triples that have compositions defined pairwise
+  protected def composableTriples[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Set[(A, A, A)] = {
+    val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
       f <- graph.arrows
       g <- graph.arrows if compositionSource.contains(f, g)
       h <- graph.arrows if compositionSource.contains(g, h)
     } yield (f, g, h)
+    
+    triples
+  }
 
+  // adding composition that are deduced from associativity law
+  protected def deduceCompositions[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
+    val triplesToScan = composableTriples(graph, compositionSource)
 
-    val addedDeducedCompositions: Map[(A, A), A] = (addedUniqueSolutions /: triplesToScan) {
+    val compositions: Map[(A, A), A] = (compositionSource /: triplesToScan) {
       (m, t) => {
         val (f, g, h) = t
         val gf = m((f, g))
         val hg = m((g, h))
-        if ((m contains(gf, h)) && !(m contains(f, hg))) {
+        if ((m contains (gf, h)) && !(m contains(f, hg))) {
           m + ((f, hg) -> m((gf, h)))
         } else if ((m contains(f, hg)) && !(m contains(gf, h))) {
           m + ((gf, h) -> m((f, hg)))
@@ -908,6 +933,28 @@ private[cat] trait CategoryFactory {
         }
       }
     }
+    compositions
+  }
+
+  /**
+    * This method helps fill in obvious choices for arrows composition.
+    * Case 1. There's an arrow f:a->b, and an arrow g:b->c; and there's just one arrow h:a->c.
+    * What would be the composition of f and g? h is the only choice.
+    * <p/>
+    * Case 2. h o (g o f) = k; what is (h o g) o f? It is k. and vice versa.
+    *
+    * @param graph             - the graph of this category
+    * @param compositionSource partially filled composition table
+    */
+  protected def fillCompositionTable[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
+    // First, add identities
+    val addedIds = defineCompositionWithIdentities(graph, compositionSource)
+
+    // Second, add unique solutions
+    val addedUniqueSolutions: Map[(A, A), A] = addUniqueCompositions(graph, addedIds)
+
+    // Third, deduce compositions from associativity law
+    val addedDeducedCompositions: Map[(A, A), A] = deduceCompositions(graph, addedUniqueSolutions)
 
     addedDeducedCompositions
   }
@@ -934,11 +981,6 @@ private[cat] trait CategoryFactory {
 
   class Parser extends Graph.Parser {
 
-    def readCategory(input: CharSequence): Result[Category[String, String]] = {
-      val parseResult = parseAll(category, input)
-      explain(parseResult)
-    }
-
     def category: Parser[Result[Category[String, String]]] =
       "(" ~ graph ~ (("," ~ multTable)?) ~ ")" ^^ { case "(" ~ g ~ mOpt ~ ")" => mOpt match {
         case Some("," ~ m) => g flatMap (build(_, m))
@@ -948,21 +990,21 @@ private[cat] trait CategoryFactory {
 
     def multTable: Parser[Map[(String, String), String]] = "{" ~ repsep(multiplication, ",") ~ "}" ^^ { case "{" ~ m ~ "}" => Map() ++ m }
 
-    def multiplication: Parser[((String, String), String)] = member ~ "o" ~ member ~ "=" ~ member ^^ { case f ~ "o" ~ g ~ "=" ~ h => ((f, g), h) }
+    def multiplication: Parser[((String, String), String)] = member ~ "o" ~ member ~ "=" ~ member ^^ { case g ~ "o" ~ f ~ "=" ~ h => ((f, g), h) }
+
+    def readCategory(input: CharSequence): Result[Category[String, String]] = {
+      val parseResult = parseAll(category, input)
+      explain(parseResult)
+    }
 
     def readCategory(input: Reader): Result[Category[String, String]] = {
-      val value = parseAll(category, input)
-      explain(value)
+      val parseResult = parseAll(category, input)
+      explain(parseResult)
     }
   }
 }
 
 object Category extends CategoryFactory {
-
-  private def desa(source: String) = read(source) match {
-    case Good(c) => c
-    case bad => bad.errorDetails.foreach(text => throw new IllegalArgumentException(text))
-  }
   
   /**
     * Empty category
@@ -977,7 +1019,7 @@ object Category extends CategoryFactory {
   /**
     * Discrete 2-object category
     */
-  lazy val _1plus1_ = Category.discrete(Set("a", "b"))
+  lazy val _1plus1_ : Category[String, String] = Category.discrete(Set("a", "b"))
 
   /**
     * Category <b>2</b>: 2 objects linearly ordered
@@ -1016,7 +1058,7 @@ object Category extends CategoryFactory {
     * Two objects, and a split monomorphism from a to b
     */
   lazy val SplitMono =
-    category"({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = bb, ab o ba = a, ab o bb = ab, bb o ba = ba, bb o bb = bb})"
+    category"({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = a, ab o ba = bb, bb o ab = ab, ba o bb = ba, bb o bb = bb})"
 
   /**
     * Commutative square category

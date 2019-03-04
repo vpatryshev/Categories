@@ -8,7 +8,7 @@ import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-abstract class Graph[N, A] extends GraphCandidate[N, A] { graph =>
+abstract class Graph[N, A] extends GraphData[N, A] { graph =>
   def contains(node: N): Boolean = nodes contains node
   def size: Int = nodes.size
 
@@ -103,7 +103,7 @@ abstract class Graph[N, A] extends GraphCandidate[N, A] { graph =>
   }
 }
 
-private[cat] abstract class GraphCandidate[N, A] {
+private[cat] abstract class GraphData[N, A] {
   final type Node = N
   type Nodes = Set[Node]
   final type Arrow = A
@@ -117,7 +117,7 @@ private[cat] abstract class GraphCandidate[N, A] {
   protected lazy val finiteNodes: Boolean = isFinite(nodes)
   protected lazy val finiteArrows: Boolean = isFinite(arrows)
 
-  def validateGraph(): Result[GraphCandidate[N, A]] =
+  def validate: Result[GraphData[N, A]] =
     OKif(!finiteArrows) orElse {
       Result.fold(arrows map {
         a =>
@@ -133,19 +133,19 @@ object Graph {
     arrows0: Set[A],
     d00: A => N,
     d10: A => N): Result[Graph[N, A]] = {
-    val candidate = new GraphCandidate[N, A] {
+    val data = new GraphData[N, A] {
       def nodes: Set[N] = nodes0
       def arrows: Set[A] = arrows0
       def d0(f: A): N = d00(f)
       def d1(f: A): N = d10(f)
     }
 
-    candidate.validateGraph returning
+    data.validate returning
       new Graph[N, A] {
-        def nodes: Set[N] = candidate.nodes
-        def arrows: Set[A] = candidate.arrows
-        def d0(f: A): N = candidate.d0(f)
-        def d1(f: A): N = candidate.d1(f)
+        def nodes: Set[N] = data.nodes
+        def arrows: Set[A] = data.arrows
+        def d0(f: A): N = data.d0(f)
+        def d1(f: A): N = data.d1(f)
       }
   }
 
