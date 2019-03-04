@@ -3,7 +3,8 @@ package math.cat
 import math.sets.Functions._
 import math.sets.Sets
 import math.sets.Sets._
-import scalakittens.Result
+import scalakittens.{Good, Result}
+import scalakittens.Result._
 
 /**
   * Functor class: functions for categories.
@@ -25,82 +26,6 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
   def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow
 
   override def toString: String = s"Functor $tag"
-
-  /**
-    * Validates this functor.
-    * A functor is valid if it is valid as a graph function, and besides,
-    * it preserves identities and arrows composition.
-    * That is, F(id(x)) == id(F(x)), and
-    * F(g) o F(f) = F(g o f)
-    */
-  def validate(): Functor[X, Y] = {
-    for (x <- d0.objects) {
-      try {
-        objectsMapping(x)
-      } catch {
-        case ex: Exception => throw new IllegalArgumentException(s"Object mapping not defined for $x")
-        case th: Throwable =>
-//          th.printStackTrace()
-          val cl = getClass
-          val methods = cl.getMethods.toList
-//          val m1 = methods.fi
-          //            val xxx = m0.invoke(this, new java.lang.Object)
-          //            println(xxx)
-          val m0 = methods.head
-          try {
-            val zz = this.objectsMapping(x)
-            println(zz)
-          } catch {
-            case th2: Throwable =>
-              th2.printStackTrace()
-              println(th2)
-          }
-          println(m0)
-          throw th
-      }
-    }
-
-    for (f <- d0.arrows) {
-      val ff: d1.Arrow = try {
-        arrowsMapping(f)
-      } catch {
-        case x: Exception =>
-          throw new IllegalArgumentException(s"Arrow mapping not defined for $f")
-      }
-      val domainActual = d1.d0(ff)
-      val codomainActual = d1.d1(ff)
-      val domainExpected = objectsMapping(d0.d0(f))
-      val codomainExpected = objectsMapping(d0.d1(f))
-      require(domainActual == domainExpected, s"Inconsistent mapping for domain($f)")
-      require(codomainActual == codomainExpected, s"Inconsistent mapping for d1($f)")
-    }
-
-    for (x <- d0.objects) {
-      val xx: d1.O = objectsMapping(x)
-      val id: d0.Arrow = d0.id(x)
-      val mappedId = try {
-        arrowsMapping(id)
-      } catch {
-        case x: Exception => throw new IllegalArgumentException(s"Arrow mapping undefined for id($x)")
-      }
-      require(mappedId == d1.id(xx), s"Arrow mapping inconsistent for id($x)")
-    }
-
-    for {
-      fx: d0.Arrow <- d0.arrows
-      gx: d0.Arrow <- d0.arrows
-      gx_fx: d0.Arrow <- d0.m(fx, gx)
-      fy: d1.Arrow = arrowsMapping(fx)
-      gy: d1.Arrow = arrowsMapping(gx)
-      expected = arrowsMapping(gx_fx)
-      gy_fy <- d1.m(fy, gy)
-    } {
-      require(gy_fy == expected,
-        s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
-    }
-
-    this
-  }
 
   override def arrowsMapping(a: d0.Arrow): d1.Arrow = {
     val domainX: d0.O = d0.d0(a)
@@ -365,11 +290,11 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
 }
 
 object Functor {
-  def apply[X <: Category[_, _], Y <: Category[_, _]](
+  def build[X <: Category[_, _], Y <: Category[_, _]](
     dom: X, codom: Y)(
     objectsMorphism: dom.O => codom.O,
-    arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
-    new Functor[X, Y]() {
+    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
+    validate(new Functor[X, Y]() {
       val tag = ""
       val d0: X = dom
       val d1: Y = codom
@@ -382,7 +307,7 @@ object Functor {
 
       override def nodesMapping(n: d0.Node): d1.Node =
         objectsMorphism(n.asInstanceOf[dom.Node]).asInstanceOf[d1.Node]
-    } validate()
+    })
 
   /**
     * Factory method. Builds identity functor for a category (identity functor).
@@ -395,8 +320,8 @@ object Functor {
   Functor[X, X] =
     new Functor[X, X]() {
       val tag = "id"
-      val d0 = c
-      val d1 = c
+      val d0: X = c
+      val d1: X = c
 
       override def objectsMapping(x: d0.O): d1.O = x.asInstanceOf[d1.O]
 
@@ -417,12 +342,12 @@ object Functor {
     */
   def const[X <: Category[_, _], Y <: Category[_, _]](x: X, y: Y)(y0: y.O):
   Functor[X, Y] =
-    apply[X, Y](
+    unsafeBuild[X, Y]( // won't fail? Check y0, at least
       y.toString, x, y)(
       SetMorphism.const(x.objects, y.objects, y0),
       SetMorphism.const(x.arrows, y.arrows, y.id(y0)))
 
-  def apply[X <: Category[_, _], Y <: Category[_, _]](
+  private def unsafeBuild[X <: Category[_, _], Y <: Category[_, _]](
     atag: String,
     dom: X,
     codom: Y)(
@@ -439,7 +364,95 @@ object Functor {
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
 
-//      override def nodesMapping(n: d0.Node): d1.Node =
-//        objectsMorphism(n.asInstanceOf[dom.Object]).asInstanceOf[d1.Node]
-    } validate()
+      //      override def nodesMapping(n: d0.Node): d1.Node =
+      //        objectsMorphism(n.asInstanceOf[dom.Object]).asInstanceOf[d1.Node]
+    }
+
+  def build[X <: Category[_, _], Y <: Category[_, _]](
+    atag: String,
+    dom: X,
+    codom: Y)(
+    objectsMorphism: dom.O => codom.O,
+    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
+    validate[X, Y](unsafeBuild[X, Y](atag, dom, codom)(objectsMorphism,arrowsMorphism))
+
+  /**
+    * Validates a functor candidate.
+    * A functor is valid if it is valid as a graph function, and besides,
+    * it preserves identities and arrows composition.
+    * That is, F(id(x)) == id(F(x)), and
+    * F(g) o F(f) = F(g o f)
+    */
+  def validate[X <: Category[_, _], Y <: Category[_, _]](f: Functor[X, Y]): Result[Functor[X, Y]] = for {
+    _ <- checkObjectMapping(f)
+    _ <- checkArrowMapping(f)
+    _ <- checkCompositionPreservation(f) andAlso checkCompositionPreservation(f)
+  } yield f
+  
+  private def checkIdentityPreservation[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
+    for (x <- f.d0.objects) yield {
+      val y: f.d1.O = f.objectsMapping(x)
+      OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
+    }
+
+  } andThen OK
+
+  private def checkCompositionPreservation[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
+    for {
+      fx: f.d0.Arrow <- f.d0.arrows
+      gx: f.d0.Arrow <- f.d0.arrows
+      gx_fx: f.d0.Arrow <- f.d0.m(fx, gx)
+      fy: f.d1.Arrow = f.arrowsMapping(fx)
+      gy: f.d1.Arrow = f.arrowsMapping(gx)
+      expected = f.arrowsMapping(gx_fx)
+      gy_fy <- f.d1.m(fy, gy)
+    } yield {
+      OKif(gy_fy == expected,
+        s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
+    }
+  } andThen OK
+  
+    private def checkArrowMapping[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
+    for (a <- f.d0.arrows) yield {
+      Result.forValue(f.arrowsMapping(a)) flatMap {
+        aa =>
+          val domainActual = f.d1.d0(aa)
+          val codomainActual = f.d1.d1(aa)
+          val domainExpected = f.objectsMapping(f.d0.d0(a))
+          val codomainExpected = f.objectsMapping(f.d0.d1(a))
+          OKif(domainActual == domainExpected, s"Inconsistent mapping for domain($a)") andAlso
+          OKif(codomainActual == codomainExpected, s"Inconsistent mapping for d1($a)")
+      }
+    }
+    
+  } andThen OK
+  
+  private def checkObjectMapping[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome =
+    Result.forValue {
+    for (x <- f.d0.objects) {
+      try {
+        f.objectsMapping(x)
+      } catch {
+        case ex: Exception => throw new IllegalArgumentException(s"Object mapping not defined for $x")
+        case th: Throwable =>
+          //          th.printStackTrace()
+          val cl = getClass
+          val methods = cl.getMethods.toList
+          //          val m1 = methods.fi
+          //            val xxx = m0.invoke(this, new java.lang.Object)
+          //            println(xxx)
+          val m0 = methods.head
+          try {
+            val zz = f.objectsMapping(x)
+            println(zz)
+          } catch {
+            case th2: Throwable =>
+              th2.printStackTrace()
+              println(th2)
+          }
+          println(m0)
+          throw th
+      }
+    }
+  } andThen OK
 }

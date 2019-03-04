@@ -237,7 +237,7 @@ object SetDiagram {
       val y = diagram.objectsMapping(x)
       println(s"$x -> $y")
     }
-    diagram.validate()
+    Functor.validate(diagram)
     
     diagram
   } 

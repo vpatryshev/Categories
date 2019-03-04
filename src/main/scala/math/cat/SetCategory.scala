@@ -70,12 +70,13 @@ class SetCategory(objects: BigSet[Set[Any]])
 
   override def degree(x: set, n: Int): Option[(set, List[SetFunction])] = {
     require(n >= 0, s"Degree of $n can't be calculated")
-    val domain: set = Sets.exponent(Sets.numbers(n), x) untyped
+    
+    val actualDomain: Set[Map[Int, Any]] = Sets.exponent(Sets.numbers(n), x)
+    
+    val domain: set = actualDomain untyped
     
     // TODO: use Shapeless, get rid of warning
-    def takeElementAt(i: Int)(obj: Any) = obj match {
-      case m: IntMap[_] => m(i)
-    }
+    def takeElementAt(i: Int)(obj: Any) = obj.asInstanceOf[Map[Int, Any]](i)
 
     val projections = for {
       i <- 0 until n
