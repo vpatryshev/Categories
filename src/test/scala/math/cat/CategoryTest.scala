@@ -1,25 +1,19 @@
 package math.cat
 
+import math.Test
 import math.cat.Category._
 import math.cat.SetCategory._
 import math.sets.Sets
 import math.sets.Sets._
-import org.specs2.mutable._
+import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
 
 /**
  * Tests for Category class
  */
-class CategoryTest extends Specification with CategoryFactory {
-
-
-  def check(g: Result[Category[String, String]], op: Category[String, String] => Unit): Unit = {
-    g match {
-      case Good(sut) => op(sut)
-      case bad => failure(bad.toString)
-    }
-  }
-
+class CategoryTest extends Test with CategoryFactory {
+  type SUT = Category[String, String]
+  
   val EmptyComposition: Map[(String, String), String] = Map()
   val EmptyMap: Map[String, String] = Map()
   
@@ -133,14 +127,15 @@ class CategoryTest extends Specification with CategoryFactory {
     }
 
     "constructor_1_full" >> {
-      val sutOpt = Category.build(Set("1"),
-        Map("1" -> "1"), // d0
-        Map("1" -> "1"), // d1
-        Map(("1", "1") -> "1")
-      )
-      check(sutOpt, sut => {
+      testWith(sut => {
         sut.arrows must haveSize(1)
-      }); ok
+      })(
+        Category.build(Set("1"),
+          Map("1" -> "1"), // d0
+          Map("1" -> "1"), // d1
+          Map(("1", "1") -> "1")
+        )
+      )
     }
 
     "parse_1" >> {
@@ -172,25 +167,22 @@ class CategoryTest extends Specification with CategoryFactory {
       actual.isGood === false
     }
 
-    def checkParsing(catOpt: Result[Category[String, String]]): Unit = {
-      check(catOpt, sut => {
+    def checkParsing(catOpt: Result[Category[String, String]]): MatchResult[Any] =
+      testWith(sut => {
         val string = sut.toString
         val parsed = Category.read(string)
         parsed === catOpt
-      })
-      ok
-    }
+      })(catOpt)
     
     "toString_1" >> {
-      val sutOpt = Category.build(Set("1"),
-        EmptyMap, // d0
-        EmptyMap, // d1
-        EmptyComposition
-      )
-      check(sutOpt, sut => {
+      testWith(sut => {
         sut.toString === "({1}, {1: 1->1}, {1 o 1 = 1})"
-      })
-      ok
+      })(
+        Category.build(Set("1"),
+          EmptyMap, // d0
+          EmptyMap, // d1
+          EmptyComposition
+        )      )
     }
 
     "parse_positive_0" >> {
@@ -199,7 +191,7 @@ class CategoryTest extends Specification with CategoryFactory {
         EmptyMap, // d1
         EmptyComposition
       )
-      checkParsing(sutOpt); ok
+      checkParsing(sutOpt)
     }
 
     "parse_positive_3" >> {
@@ -223,17 +215,15 @@ class CategoryTest extends Specification with CategoryFactory {
         EmptyComposition
       )
 
-      checkParsing(sutOpt); ok
+      checkParsing(sutOpt)
     }
 
     "parse_positive_6" >> {
-      val sutOpt = Category.build(Set("1", "2"),
+      checkParsing(Category.build(Set("1", "2"),
         Map("2_1" -> "2", "2_a" -> "2"), // d0
         Map("2_1" -> "1", "2_a" -> "2"), // d1
         Map(("2_a", "2_a") -> "2_a")
-      )
-
-      checkParsing(sutOpt); ok
+      ))
     }
 
     "parse_positive_7" >> {
@@ -245,7 +235,7 @@ class CategoryTest extends Specification with CategoryFactory {
           ("2_a", "2_a") -> "2_a"
         )
       )
-      checkParsing(sutOpt); ok
+      checkParsing(sutOpt)
     }
 
     "parse_positive_8" >> {

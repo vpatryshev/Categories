@@ -1,89 +1,77 @@
 package math.cat
 
+import math.Test
 import math.sets.{PoSet, Sets}
 import org.specs2.mutable._
 import scalakittens.{Good, Result}
 
-class GraphTest extends Specification {
+class GraphTest extends Test {
   import Graph._
-  
-  def check[N, A](g: Result[Graph[N, A]], op: Graph[N, A] => Unit): Unit = {
-    g match {
-      case Good(sut) => op(sut)
-      case bad => failure(bad.toString)
-    }
-  }
 
+  type SUT = Graph[Int, Int]
+  
   "Graph" >> {
     "is immutable" >> {
-      val sutOpt = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
         sut - 1 should throwA[UnsupportedOperationException]
         sut + 1 should throwA[UnsupportedOperationException]
-      })
-
-      ok
+      })(
+        Graph.build(
+          Set(1, 2, 3),
+          Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
     }
 
     "checks its arrows" >> {
-      val sutOpt = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
         sut.anArrow(111) === 111
         sut.anArrow(112) should throwA[IllegalArgumentException]
-      })
-
-      ok
+      })(
+        Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
     }
 
     "are parallel" >> {
-      val sutOpt = Graph.build(
-        Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
         sut.areParallel(13, 113) === true
         sut.areParallel(21, 32) === false
-      })
-      ok
+      })(
+        Graph.build(
+          Set(1, 2, 3),
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      )
     }
 
     "same domain" >> {
-      val sutOpt = Graph.build(
-        Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-      
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
         sut.sameDomain(11, 113) === true
         sut.sameDomain(13, 113) === true
         sut.sameDomain(21, 32) === false
-      })
-      ok
+      })(Graph.build(
+        Set(1, 2, 3),
+        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      )
     }
 
     "same codomain" >> {
-      val sutOpt = Graph.build(
-        Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-      
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
         sut.sameCodomain(13, 113) === true
         sut.sameCodomain(21, 111) === true
         sut.sameCodomain(21, 32) === false
-      })
-      ok
+      })(
+        Graph.build(
+          Set(1, 2, 3),
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      )
     }
 
     "contains" >> {
-      val sutOpt = Graph.build(
-        Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-      
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
       (sut contains 2) === true
       (sut contains 7) === false
-      })
-      ok
+      })(
+        Graph.build(
+          Set(1, 2, 3),
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      )
     }
 
     "equal" >> {
@@ -99,12 +87,14 @@ class GraphTest extends Specification {
     }
 
     "follows" >> {
-      val sutOpt = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
       sut.follows(113, 111) === true
       sut.follows(111, 113) === false
-      })
-      ok
+      })(
+        Graph.build(
+          Set(1, 2, 3),
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      )
     }
 
     "parse" >> {
@@ -148,16 +138,16 @@ class GraphTest extends Specification {
     }
 
     "Constructor_plain_withFunctions" >> {
-      val sutOpt = Graph.build(
-        Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
-
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
       sut.d0(111) === 1
       sut.d0(13) === 1
       sut.d1(13) === 3
       sut.d1(32) === 2
-      }); ok
+      })(
+        Graph.build(
+          Set(1, 2, 3),
+          Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      )
     }
 
     "Constructor_negativeBadD0" >> {
@@ -195,7 +185,7 @@ class GraphTest extends Specification {
         (x: Int) => x / 10 % 10,
         (x: Int) => x % 10)
       
-      check(sutOpt, (sut: Graph[Int, Int]) => {
+      testWith(sut => {
         sut.d0(32) === 3
         val opsut = ~sut
         val expected = Graph.build(
@@ -205,7 +195,12 @@ class GraphTest extends Specification {
           (x: Int) => x / 10 % 10).getOrElse(throw new InstantiationException("oops"))
         opsut === expected
         sut === ~opsut
-      }); ok
+      })(
+        Graph.build(
+          Set(1, 2, 3),
+          Set(11, 21, 32, 13),
+          (x: Int) => x / 10 % 10,
+          (x: Int) => x % 10)      )
     }
 
     "Discrete" >> {
@@ -265,7 +260,4 @@ class GraphTest extends Specification {
     }
 
   }
-}
-
-object GraphTest {
 }
