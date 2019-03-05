@@ -127,7 +127,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "constructor_1_full" >> {
-      testWith(sut => {
+      expect(sut => {
         sut.arrows must haveSize(1)
       })(
         Category.build(Set("1"),
@@ -168,14 +168,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     def checkParsing(catOpt: Result[Category[String, String]]): MatchResult[Any] =
-      testWith(sut => {
+      expect(sut => {
         val string = sut.toString
         val parsed = Category.read(string)
         parsed === catOpt
       })(catOpt)
     
     "toString_1" >> {
-      testWith(sut => {
+      expect(sut => {
         sut.toString === "({1}, {1: 1->1}, {1 o 1 = 1})"
       })(
         Category.build(Set("1"),

@@ -1,11 +1,8 @@
 package math
 
-import j.math.cat.N
-import math.cat.Graph
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
-import scalakittens.{Good, Result}
-import scalaz.Alpha.T
+import scalakittens._
 
 class Test extends Specification {
   type SUT
@@ -18,6 +15,14 @@ class Test extends Specification {
     ok
   }
 
-  def testWith(op: SUT => Unit)(sutOpt: Result[SUT]): MatchResult[Any] = check[SUT](sutOpt, op)
+  def expect(op: SUT => Unit)(sutOpt: Result[SUT]): MatchResult[Any] = check[SUT](sutOpt, op)
+  
+  def checkError[T](op: String => Boolean, sutOpt: Result[T]): MatchResult[_] = {
+    sutOpt match {
+      case Good(bad) => failure(s"Expected failure, go $bad")
+      case nogood => (nogood.errorDetails exists op) === true
+    }
+    ok
+  }
   
 }

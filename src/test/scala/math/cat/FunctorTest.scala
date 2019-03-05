@@ -2,20 +2,23 @@ package math.cat
 
 import org.specs2.mutable._
 import Category._
+import math.Test
 
-class FunctorTest extends Specification {
+class FunctorTest extends Test {
   type CSS = Category[String, String]
+  type FSS = Functor[CSS, CSS]
+  type SUT = FSS
   
   lazy val categorySquareWithTwoTopLeftCorners: CSS =
     category"({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
 
-  lazy val functorFromPullbackToDoubleSquare: Functor[CSS, CSS] =
-    Functor(
+  lazy val functorFromPullbackToDoubleSquare: FSS =
+    Functor.build(
       "From2to1toDoubleSquare",
       Pullback, categorySquareWithTwoTopLeftCorners)(
       Map("a" -> "b", "b" -> "c", "c" -> "d"),
       Map("a" -> "b", "b" -> "c", "c" -> "d", "ac" -> "bd", "bc" -> "cd")
-  )
+  ) getOrElse (throw new InstantiationException("Something wrong with `From2to1toDoubleSquare`"))
 
   lazy val categorySquareWithTwoRightCorners =
     category"""({a,b,c, d0, d1}
@@ -23,27 +26,29 @@ class FunctorTest extends Specification {
       ,{bd0 o ab = ad0, cd0 o ac = ad0, bd1 o ab = ad1, cd1 o ac = ad1, d0d1 o ad0 = ad1, d0d1 o bd0 = bd1,d0d1 o bd0 = bd1, d0d1 o cd0 = cd1}
       )"""
 
-  lazy val functorFrom1to2toDoubleSquare: Functor[CSS, CSS] =
-    Functor("From1to2toDoubleSquare",
+  lazy val functorFrom1to2toDoubleSquare: FSS =
+    Functor.build("From1to2toDoubleSquare",
       Pushout, categorySquareWithTwoRightCorners)(
       Map("a" -> "a", "b" -> "b", "c" -> "c"),
       Map("a" -> "a", "b" -> "b", "c" -> "c", "ab" -> "ab", "ac" -> "ac")
-    )
+    ).getOrElse(throw new InstantiationException("wtf wit functor on line 29?"))
   
   "Constructor" should {
 
     "report missing object mappings" in {
-      Functor("failing test",
+      checkError(_ contains "shit", 
+      Functor.build("failing test",
         _4_, _4_)(
         Map(0 -> 1),
-        Map.empty[(Int, Int), (Int, Int)]) should throwA[IllegalArgumentException]
+        Map.empty[(Int, Int), (Int, Int)]))
     }
 
     "report missing arrows mappings" in {
-      Functor("failing test",
+      checkError(_ contains "shit",
+        Functor.build("failing test",
         _4_, _4_)(
         Map(0 -> 1, 1 -> 2, 2 -> 3, 3 -> 3),
-        Map.empty[(Int, Int), (Int, Int)]) should throwA[IllegalArgumentException]
+        Map.empty[(Int, Int), (Int, Int)]))
     }
 
     "report missing arrows mappings" in {
@@ -60,8 +65,8 @@ class FunctorTest extends Specification {
         (2, 3) -> (3, 3),
         (3, 3) -> (3, 3)
       )
-      Functor("id mapping broken", _4_, _4_)(objectMapping, arrowMapping) should
-        throwA[IllegalArgumentException]
+      checkError(_ contains "shit",
+        Functor.build("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
     }
     
     "report a failure" in {
@@ -78,8 +83,9 @@ class FunctorTest extends Specification {
         (2, 3) -> (3, 3),
         (3, 3) -> (3, 3)
       )
-      Functor("something wrong here", _4_, _4_)(objectMapping, arrowMapping) should
-        throwA[IllegalArgumentException]
+
+      checkError(_ contains "shit",
+        Functor.build("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
     
   }
@@ -89,16 +95,18 @@ class FunctorTest extends Specification {
       val from = Category.discrete(Set(0, 1))
       val to = Square
       val map = Map(0 -> "b", 1 -> "c")
-      val f = Functor("sample product", from, to)(map, map)
-      val limitOpt = f.limit
-      
-      limitOpt match {
-        case Some(limit) =>
-          limit.arrowTo(0) == "ab"
-          limit.arrowTo(1) == "ac"
-        case _ => failure(s"Could not build a limit of $f")
-      }
-      ok
+      val fOpt = Functor.build("sample product", from, to)(map, map)
+      check[Functor[Category[Int, Int], CSS]](fOpt,
+        (f:Functor[Category[Int, Int], CSS]) => {
+        val limitOpt = f.limit
+
+        limitOpt match {
+          case Some(limit) =>
+            limit.arrowTo(0) == "ab"
+            limit.arrowTo(1) == "ac"
+          case _ => failure(s"Could not build a limit of $f")
+        }
+      })
     }
     
     "cones from" in {

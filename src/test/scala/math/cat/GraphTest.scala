@@ -12,7 +12,7 @@ class GraphTest extends Test {
   
   "Graph" >> {
     "is immutable" >> {
-      testWith(sut => {
+      expect(sut => {
         sut - 1 should throwA[UnsupportedOperationException]
         sut + 1 should throwA[UnsupportedOperationException]
       })(
@@ -22,7 +22,7 @@ class GraphTest extends Test {
     }
 
     "checks its arrows" >> {
-      testWith(sut => {
+      expect(sut => {
         sut.anArrow(111) === 111
         sut.anArrow(112) should throwA[IllegalArgumentException]
       })(
@@ -30,7 +30,7 @@ class GraphTest extends Test {
     }
 
     "are parallel" >> {
-      testWith(sut => {
+      expect(sut => {
         sut.areParallel(13, 113) === true
         sut.areParallel(21, 32) === false
       })(
@@ -41,7 +41,7 @@ class GraphTest extends Test {
     }
 
     "same domain" >> {
-      testWith(sut => {
+      expect(sut => {
         sut.sameDomain(11, 113) === true
         sut.sameDomain(13, 113) === true
         sut.sameDomain(21, 32) === false
@@ -52,7 +52,7 @@ class GraphTest extends Test {
     }
 
     "same codomain" >> {
-      testWith(sut => {
+      expect(sut => {
         sut.sameCodomain(13, 113) === true
         sut.sameCodomain(21, 111) === true
         sut.sameCodomain(21, 32) === false
@@ -64,7 +64,7 @@ class GraphTest extends Test {
     }
 
     "contains" >> {
-      testWith(sut => {
+      expect(sut => {
       (sut contains 2) === true
       (sut contains 7) === false
       })(
@@ -87,7 +87,7 @@ class GraphTest extends Test {
     }
 
     "follows" >> {
-      testWith(sut => {
+      expect(sut => {
       sut.follows(113, 111) === true
       sut.follows(111, 113) === false
       })(
@@ -138,7 +138,7 @@ class GraphTest extends Test {
     }
 
     "Constructor_plain_withFunctions" >> {
-      testWith(sut => {
+      expect(sut => {
       sut.d0(111) === 1
       sut.d0(13) === 1
       sut.d1(13) === 3
@@ -185,7 +185,7 @@ class GraphTest extends Test {
         (x: Int) => x / 10 % 10,
         (x: Int) => x % 10)
       
-      testWith(sut => {
+      expect(sut => {
         sut.d0(32) === 3
         val opsut = ~sut
         val expected = Graph.build(
