@@ -374,7 +374,7 @@ object Functor {
     codom: Y)(
     objectsMorphism: dom.O => codom.O,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
-    validate[X, Y](unsafeBuild[X, Y](atag, dom, codom)(objectsMorphism,arrowsMorphism))
+    validate[X, Y](unsafeBuild[X, Y](atag, dom, codom)(objectsMorphism, arrowsMorphism))
 
   /**
     * Validates a functor candidate.

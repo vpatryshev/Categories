@@ -10,7 +10,8 @@ class Test extends Specification {
   def check[T](g: Result[T], op: T => Unit): MatchResult[Any] = {
     g match {
       case Good(sut) => op(sut)
-      case bad => failure(bad.toString)
+      case bad => 
+        failure(bad.toString)
     }
     ok
   }
@@ -20,7 +21,9 @@ class Test extends Specification {
   def checkError[T](op: String => Boolean, sutOpt: Result[T]): MatchResult[_] = {
     sutOpt match {
       case Good(bad) => failure(s"Expected failure, go $bad")
-      case nogood => (nogood.errorDetails exists op) === true
+      case nogood =>
+        val details = nogood.errorDetails
+        (details exists op) aka details.getOrElse("???") must beTrue
     }
     ok
   }

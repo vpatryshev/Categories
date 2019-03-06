@@ -36,7 +36,7 @@ class FunctorTest extends Test {
   "Constructor" should {
 
     "report missing object mappings" in {
-      checkError(_ contains "shit", 
+      checkError(_ contains "Object mapping not defined for 1", 
       Functor.build("failing test",
         _4_, _4_)(
         Map(0 -> 1),
@@ -44,7 +44,7 @@ class FunctorTest extends Test {
     }
 
     "report missing arrows mappings" in {
-      checkError(_ contains "shit",
+      checkError(_ contains "Arrow mapping not found for (0,1): 0 -> 1",
         Functor.build("failing test",
         _4_, _4_)(
         Map(0 -> 1, 1 -> 2, 2 -> 3, 3 -> 3),
@@ -65,7 +65,7 @@ class FunctorTest extends Test {
         (2, 3) -> (3, 3),
         (3, 3) -> (3, 3)
       )
-      checkError(_ contains "shit",
+      checkError(_ contains "Object mapping not defined for 2",
         Functor.build("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
     }
     
@@ -84,7 +84,7 @@ class FunctorTest extends Test {
         (3, 3) -> (3, 3)
       )
 
-      checkError(_ contains "shit",
+      checkError(_ contains "Object mapping not defined for 2",
         Functor.build("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
     
