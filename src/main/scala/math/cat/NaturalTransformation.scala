@@ -1,5 +1,8 @@
 package math.cat
 
+import scalakittens.Result
+import scalakittens.Result.Outcome
+
 /**
   * Natural transformation class: morphisms for functors.
   *
@@ -32,24 +35,6 @@ abstract class NaturalTransformation[
   def domainCategory: X = f.d0
   def codomainCategory: Y = f.d1
   
-  def validate(): Unit = {
-    require(domainCategory == g.d0, s"Functors must be defined on the same categories")
-    require(codomainCategory == g.d1, s"Functors must map to the same categories")
-    for {
-      a <- f.d0.arrows
-    } {
-      val x0: f.d0.O = f.d0.d0(a)
-      val x1: f.d0.O = f.d0.d1(a)
-      val fa: f.d1.Arrow = f.arrowsMapping(a)
-      val ga: g.d1.Arrow = g.arrowsMapping(a.asInstanceOf[g.d0.Arrow]) // same thing
-      val tx0: f.d1.Arrow = transformPerObject(x0)
-      val tx1: f.d1.Arrow = transformPerObject(x1)
-      val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1)
-      val downright: Option[f.d1.Arrow] = f.d1.m(tx0, ga.asInstanceOf[f.d1.Arrow])
-      require(rightdown == downright, s"Nat'l transform law broken for $a")
-    }
-  }
-
   def compose(
     next: NaturalTransformation[X, Y]
   ): NaturalTransformation[X, Y] = {
@@ -72,8 +57,6 @@ abstract class NaturalTransformation[
         comp(x.asInstanceOf[first.d0.O]).asInstanceOf[f.d1.Arrow]
     }
   }
-
-  validate()
   
   private lazy val asMap: Map[f.d0.O, f.d1.Arrow] =
     (f.d0.objects map (o => o -> transformPerObject(o)) toMap) .asInstanceOf[Map[f.d0.O, f.d1.Arrow]]
@@ -88,21 +71,49 @@ abstract class NaturalTransformation[
 }
 
 object NaturalTransformation {
+
+  def validate[
+  X <: Category[_, _],
+  Y <: Category[_, _]
+  ](
+    f: Functor[X, Y], g: Functor[X, Y], domainCategory: X, codomainCategory: Y)(
+    transformPerObject: f.d0.O => f.d1.Arrow
+  ): Outcome = Result.forValue {
+    require(domainCategory == g.d0, s"Functors must be defined on the same categories")
+    require(codomainCategory == g.d1, s"Functors must map to the same categories")
+    for {
+      a <- f.d0.arrows
+    } {
+      val x0: f.d0.O = f.d0.d0(a)
+      val x1: f.d0.O = f.d0.d1(a)
+      val fa: f.d1.Arrow = f.arrowsMapping(a)
+      val ga: g.d1.Arrow = g.arrowsMapping(a.asInstanceOf[g.d0.Arrow]) // same thing
+      val tx0: f.d1.Arrow = transformPerObject(x0)
+      val tx1: f.d1.Arrow = transformPerObject(x1)
+      val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1)
+      val downright: Option[f.d1.Arrow] = f.d1.m(tx0, ga.asInstanceOf[f.d1.Arrow])
+      require(rightdown == downright, s"Nat'l transform law broken for $a")
+    }
+  }
+
+
+
   /**
    * @tparam X functors domain category type
    * @tparam Y functors codomain category type
-   * @param f        first functor
-   * @param g        second functor
+   * @param from first functor
+   * @param to   second functor
    * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
    */
-  def apply[
+  def build[
     X <: Category[_, _],
     Y <: Category[_, _]
   ](from: Functor[X, Y],
     to: Functor[X, Y])
   (
-    mappings: from.d0.O => to.d1.Arrow
-  ): NaturalTransformation[X, Y] = {
+    mappings: from.d0.O => from.d1.Arrow
+  ): Result[NaturalTransformation[X, Y]] = {
+    validate[X, Y](from, to, from.d0, from.d1)(mappings) returning 
     new NaturalTransformation[X, Y](from, to) {
       override def transformPerObject(x: f.d0.O): f.d1.Arrow =
         mappings(x.asInstanceOf[from.d0.O]).asInstanceOf[f.d1.Arrow]

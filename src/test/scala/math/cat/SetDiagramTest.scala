@@ -7,7 +7,7 @@ import org.specs2.mutable._
 import sun.security.provider.certpath.Vertex
 
 /**
-  * Prototype for all tests
+  * Test for set diagrams (functors with codomain=sets)
   */
 class SetDiagramTest extends Specification {
   lazy val Empty = SetDiagram(

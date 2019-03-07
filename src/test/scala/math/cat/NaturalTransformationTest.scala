@@ -22,12 +22,14 @@ class NaturalTransformationTest extends Test {
     lazy val fgOpt: Result[NT] = for {
       f <- fOpt
       g <- gOpt
-    } yield NaturalTransformation(f, g)(Map(0 -> (0, 1), 1 -> (2, 2)))
+      nt <- NaturalTransformation.build(f, g)(Map(0 -> (0, 1), 1 -> (2, 2)))
+    } yield nt
 
     lazy val ghOpt: Result[NT] = for {
       g <- gOpt
       h <- hOpt
-    } yield NaturalTransformation(g, h)(Map(0 -> (1, 2), 1 -> (2, 3)))
+      nt <- NaturalTransformation.build(g, h)(Map(0 -> (1, 2), 1 -> (2, 3)))
+    } yield nt
 
     "compose" in {
       expect { case ((((f, g), h), fg), gh) =>
