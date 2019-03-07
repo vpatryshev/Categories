@@ -1,6 +1,7 @@
 package math.cat
 
 import scalakittens.Result
+import Result._
 import scalakittens.Result.Outcome
 
 /**
@@ -78,21 +79,27 @@ object NaturalTransformation {
   ](
     f: Functor[X, Y], g: Functor[X, Y], domainCategory: X, codomainCategory: Y)(
     transformPerObject: f.d0.O => f.d1.Arrow
-  ): Outcome = Result.forValue {
-    require(domainCategory == g.d0, s"Functors must be defined on the same categories")
-    require(codomainCategory == g.d1, s"Functors must map to the same categories")
+  ): Outcome =
+    OKif(domainCategory == g.d0, s"Functors must be defined on the same categories") andAlso
+    OKif(codomainCategory == g.d1, s"Functors must map to the same categories") andAlso
+    Result.traverse {
     for {
       a <- f.d0.arrows
-    } {
+    } yield {
       val x0: f.d0.O = f.d0.d0(a)
       val x1: f.d0.O = f.d0.d1(a)
-      val fa: f.d1.Arrow = f.arrowsMapping(a)
-      val ga: g.d1.Arrow = g.arrowsMapping(a.asInstanceOf[g.d0.Arrow]) // same thing
-      val tx0: f.d1.Arrow = transformPerObject(x0)
-      val tx1: f.d1.Arrow = transformPerObject(x1)
-      val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1)
-      val downright: Option[f.d1.Arrow] = f.d1.m(tx0, ga.asInstanceOf[f.d1.Arrow])
-      require(rightdown == downright, s"Nat'l transform law broken for $a")
+      val rr = for {
+        fa: f.d1.Arrow <- forValue(f.arrowsMapping(a))
+        ga: g.d1.Arrow <- forValue(g.arrowsMapping(a.asInstanceOf[g.d0.Arrow])) // same thing
+      } yield Result.forValue {
+        val tx0: f.d1.Arrow = transformPerObject(x0)
+        val tx1: f.d1.Arrow = transformPerObject(x1)
+        val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1)
+        val downright: Option[f.d1.Arrow] = f.d1.m(tx0, ga.asInstanceOf[f.d1.Arrow])
+        require(rightdown == downright, s"Nat'l transform law broken for $a")
+      }
+      
+      rr.flatten
     }
   }
 

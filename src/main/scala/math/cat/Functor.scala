@@ -363,9 +363,6 @@ object Functor {
 
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
-
-      //      override def nodesMapping(n: d0.Node): d1.Node =
-      //        objectsMorphism(n.asInstanceOf[dom.Object]).asInstanceOf[d1.Node]
     }
 
   def build[X <: Category[_, _], Y <: Category[_, _]](
@@ -428,31 +425,11 @@ object Functor {
   } andThen OK
   
   private def checkObjectMapping[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome =
-    Result.forValue {
-    for (x <- f.d0.objects) {
-      try {
-        f.objectsMapping(x)
-      } catch {
-        case ex: Exception => throw new IllegalArgumentException(s"Object mapping not defined for $x")
-        case th: Throwable =>
-          //          th.printStackTrace()
-          val cl = getClass
-          val methods = cl.getMethods.toList
-          //          val m1 = methods.fi
-          //            val xxx = m0.invoke(this, new java.lang.Object)
-          //            println(xxx)
-          val m0 = methods.head
-          try {
-            val zz = f.objectsMapping(x)
-            println(zz)
-          } catch {
-            case th2: Throwable =>
-              th2.printStackTrace()
-              println(th2)
-          }
-          println(m0)
-          throw th
-      }
+    Result.traverse {
+    for (x <- f.d0.objects) yield {
+      val someY: Result[f.d1.O] =
+        Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
+      someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
     }
   } andThen OK
 }
