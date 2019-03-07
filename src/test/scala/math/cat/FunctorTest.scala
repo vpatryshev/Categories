@@ -1,6 +1,5 @@
 package math.cat
 
-import org.specs2.mutable._
 import Category._
 import math.Test
 
