@@ -8,9 +8,6 @@ import java.util.Set;
 /**
  * GraphMorphism class: morphisms for graphs.
  * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  * @param <XNodes>  domain node type
  * @param <XArrows> domain arrow type
  * @param <XType> type of domain graph

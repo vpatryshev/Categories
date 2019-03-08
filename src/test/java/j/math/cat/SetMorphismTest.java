@@ -1,7 +1,6 @@
 package j.math.cat;
 
-import static j.math.cat.SetMorphism.compose;
-import static j.math.cat.SetMorphism.unit;
+import static j.math.cat.SetMorphism.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,10 +10,6 @@ import junit.framework.TestCase;
 
 /**
  * Unittest for SetMorphism class
- * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  */
 @SuppressWarnings({"rawtypes","unchecked"})
 public class SetMorphismTest extends TestCase {

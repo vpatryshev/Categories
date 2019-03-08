@@ -10,10 +10,6 @@ import junit.framework.TestCase;
 
 /**
  * Unittest for Functor class.
- * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- *
  */
 public class FunctorTest extends TestCase {
   private final Category<String, String> categoryTwoToOne =

@@ -20,6 +20,7 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
   val tag: String
   val d0: X
   val d1: Y
+  def domainObjects: d0.Objects = d0.objects
 
   def objectsMapping(x: d0.O): d1.O
 
@@ -98,7 +99,7 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
       (x: d0.O) => d1.arrowsBetween(y, objectsMapping(x)) map { (x, _) }
     )
 
-    val listOfDomainObjects: List[d0.O] = d0.objects.toList
+    val listOfDomainObjects: List[d0.O] = domainObjects.toList
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(d0.O, d1.Arrow)]] = listOfDomainObjects map arrowsFromYtoFX
 
@@ -147,7 +148,7 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
       d1.arrowsBetween(objectsMapping(x), y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
-    val homsGroupedByX: List[Set[(d0.O, d1.Arrow)]] = d0.objects.toList map arrowsFromFXtoY
+    val homsGroupedByX: List[Set[(d0.O, d1.Arrow)]] = domainObjects.toList map arrowsFromFXtoY
 
     val coconeCandidates: Set[List[(d0.O, d1.Arrow)]] = product(homsGroupedByX)
     val result: Set[Cocone] = coconeCandidates flatMap cocone(y)
@@ -197,7 +198,7 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
       */
     def factorsOnRight(factored: Cone): Boolean =
       d1.hom(factored.vertex, vertex) exists { h =>
-        d0.objects.forall(
+        domainObjects.forall(
           x => d1.m(h, arrowTo(x)) contains factored.arrowTo(x))
       }
 
@@ -217,14 +218,14 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
       o match {
         case other: Cone => eq(other) ||
           (vertex == other.vertex &&
-            d0.objects.forall { x: d0.O =>
+            domainObjects.forall { x: d0.O =>
               Result.forValue(arrowTo(x) == other.arrowTo(x)).getOrElse(false)
             })
         case somethingElse => false
       }
     }
 
-    override def hashCode: Int = (vertex.hashCode /: d0.objects) ((hash, x) => hash * 13 + arrowTo(x).hashCode)
+    override def hashCode: Int = (vertex.hashCode /: domainObjects) ((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
 
   /**
@@ -250,7 +251,7 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
       val hom = d1.hom(factored.vertex, vertex)
       val answer = hom exists (
         (h: d1.Arrow) => {
-          val failsOn = d0.objects.find(
+          val failsOn = domainObjects.find(
             (x: d0.O) => !(d1.m(factored.arrowFrom(x), h) contains arrowFrom(x)))
           val itWorks = failsOn.isEmpty
           itWorks
@@ -277,14 +278,14 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
       case other: Cocone =>
         eq(other) || (
           vertex == other.vertex &&
-            d0.objects.forall {
+            domainObjects.forall {
               x: d0.O => arrowFrom(x) == other.arrowFrom(x)
             })
       case somethingElse => false
     }
 
     override def hashCode: Int =
-      (vertex.hashCode /: d0.objects) ((hash, x) => hash * 13 + arrowFrom(x).hashCode)
+      (vertex.hashCode /: domainObjects) ((hash, x) => hash * 13 + arrowFrom(x).hashCode)
   }
 
 }
@@ -387,7 +388,7 @@ object Functor {
   } yield f
   
   private def checkIdentityPreservation[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
-    for (x <- f.d0.objects) yield {
+    for (x <- f.domainObjects) yield {
       val y: f.d1.O = f.objectsMapping(x)
       OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
     }
@@ -426,10 +427,16 @@ object Functor {
   
   private def checkObjectMapping[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome =
     Result.traverse {
-    for (x <- f.d0.objects) yield {
-      val someY: Result[f.d1.O] =
-        Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
-      someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
+    for (x <- f.domainObjects) yield {
+      try {
+        val someY: Result[f.d1.O] =
+          Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
+        someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
+      } catch {
+        case ame: AbstractMethodError =>
+          ame.printStackTrace()
+          throw ame
+      }
     }
   } andThen OK
 }

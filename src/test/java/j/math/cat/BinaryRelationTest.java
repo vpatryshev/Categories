@@ -6,10 +6,6 @@ import junit.framework.TestCase;
 
 /**
  * Unittest for BinaryRelation class
- * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- *
  */
 public class BinaryRelationTest extends TestCase {
 

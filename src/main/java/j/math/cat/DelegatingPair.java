@@ -4,9 +4,6 @@ package j.math.cat;
  * Delegating pair class. An implementation of Pair that delegates
  * everything to another pair.
  * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  * @param <X> first component type
  * @param <Y> second component type
  */

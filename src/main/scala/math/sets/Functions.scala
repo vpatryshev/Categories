@@ -2,9 +2,6 @@ package math.sets
 
 /**
  * Contains some functions and operations.
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- *
  */
 
 object Functions {

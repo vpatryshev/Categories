@@ -163,7 +163,7 @@ class CategoryTest extends Test with CategoryFactory {
         Map("0_1" -> "1", "0_2" -> "2", "a" -> "1", "b" -> "1", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d1
         // breaking laws
         Map(("0_1", "a") -> "0_2", ("0_1", "b") -> "0_2", ("2_1", "a") -> "2_a", ("2_1", "b") -> "2_b", ("a", "2_swap") -> "b", ("b", "2_swap") -> "a", ("2_swap", "2_swap") -> "2"))
-
+      checkError(_.contains("composition must be defined for 2_swap and 2_a"), actual)
       actual.isGood === false
     }
 

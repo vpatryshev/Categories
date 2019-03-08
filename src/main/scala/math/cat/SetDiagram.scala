@@ -5,6 +5,7 @@ import math.Base._
 import math.sets.FactorSet
 import math.sets.Functions._
 import math.sets.Sets._
+import scalakittens.Result
 
 import scala.language.postfixOps
 
@@ -20,7 +21,7 @@ import scala.language.postfixOps
   *
   * @tparam C type of the domain category
   */
-abstract class SetDiagram[C <: Category[_, _]](
+abstract class SetDiagram[C <: Category[_, _]] private(
   override val tag: String,
   val d0: C)
   extends Functor[C, SetCategory] {
@@ -217,7 +218,7 @@ object SetDiagram {
     tag: String,
     dom: C)(
     objectsMap: dom.O => set,
-    arrowMap: dom.Arrow => SetFunction) = {
+    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[C]] = {
     
     val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
       override def objectsMapping(x: d0.O): set = {
@@ -235,7 +236,7 @@ object SetDiagram {
     for {
       x <- diagram.d0.objects
     } {
-      val y = diagram.objectsMapping(x)
+      val y = objectsMap(x.asInstanceOf[dom.O])
       println(s"$x -> $y")
     }
     Functor.validate(diagram) returning diagram

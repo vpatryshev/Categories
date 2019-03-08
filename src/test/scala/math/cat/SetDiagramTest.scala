@@ -1,5 +1,7 @@
 package math.cat
 
+import javax.swing.text.html.CSS
+import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
@@ -9,27 +11,46 @@ import sun.security.provider.certpath.Vertex
 /**
   * Test for set diagrams (functors with codomain=sets)
   */
-class SetDiagramTest extends Specification {
-  lazy val Empty = SetDiagram(
-    "empty", Category._0_)(
+class SetDiagramTest extends Test {
+  type SUT = SetDiagram[Category[String, String]]
+
+  lazy val Empty = SetDiagram.build("empty", Category._0_)(
     Map[Int, set](),
     Map[(Int, Int), SetFunction]()
-  )
+  ).getOrElse(throw new InstantiationException("Could not build empty diagram"))
 
   "SetDiagram" should {
-    "get validated - positive" in {
-      val a: set = Set(1, 2, 3)
-      val b: set = Set(2, 3, 4)
-      val c: set = Set(0, 1)
-      val ac = SetFunction("f", a, c, _.toString.toInt % 2)
-      val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
-      val sut = SetDiagram(
-        "pullback", Category.Pullback)(
-        Map("a" -> a, "b" -> b, "c" -> c),
+    val s0: set = Set(1, 2, 3)
+    val s1: set = Set(2, 3, 4)
+    val s2: set = Set(0, 1)
+    val ac = SetFunction("f", s0, s2, _.toString.toInt % 2)
+    val bc = SetFunction("g", s1, s2, x => (x.toString.toInt + 1) % 2)
+
+    "validate as a functor with Set as domain" in {
+      val sutOpt = Functor.build[Category[String, String], SetCategory](
+        "pullback", Category.Pullback, SetCategory.Setf)(
+        Map("a" -> s0, "b" -> s1, "c" -> s2),
         Map("ac" -> ac, "bc" -> bc)
       )
-      sut.d0 === Category.Pullback
-      sut.d1 === Setf
+
+      check[Functor[Category[String, String], SetCategory]](sutOpt,
+        sut => {
+          sut.d0 === Category.Pullback
+          sut.d1 === Setf
+        }
+      )
+    }
+
+  "get validated - positive" in {
+      val sutOpt = SetDiagram.build(
+        "pullback", Category.Pullback)(
+        Map("a" -> s0, "b" -> s1, "c" -> s2),
+        Map("ac" -> ac, "bc" -> bc)
+      )
+      expect( sut => {
+        sut.d0 === Category.Pullback
+        sut.d1 === Setf
+      })(sutOpt)
     }
 
     "get validated - negative" in {
@@ -37,13 +58,13 @@ class SetDiagramTest extends Specification {
       val b: set = Set(0, 1, 2)
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", b, b, x => x.toString.toInt % 3)
-      val sut0 = SetDiagram(
+      checkError("requirement failed: Inconsistent mapping for d0(b)"==,
+        SetDiagram.build(
         "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)
-      ) must throwA(new IllegalArgumentException(
-        "requirement failed: Inconsistent mapping for d0(b)"))
-      ok
+      )
+      )
     }
   }  
     
@@ -79,11 +100,12 @@ class SetDiagramTest extends Specification {
       val c: set = Set(0, 1)
       val ac = SetFunction("f", a, c, _.toString.toInt % 2)
       val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "pullback", Category.Pullback)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ac" -> ac, "bc" -> bc)
       )
+      expect( sut =>
       sut.limit match {
         case None => failure("We expected a limit")
         case Some(sut.Cone(vertex, arrowTo)) =>
@@ -99,8 +121,7 @@ class SetDiagramTest extends Specification {
               (i, j, arb(element)) === (i, j, j)
             }
           }
-      }
-      ok
+      })(sutOpt)
     }
 
     "exist for an equalizer" in {
@@ -108,11 +129,12 @@ class SetDiagramTest extends Specification {
       val b: set = Set(0, 1, 2)
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", a, b, x => x.toString.toInt % 3)
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)
       )
+      expect( sut =>
       sut.limit match {
         case None => failure("We expected a limit")
         case Some(sut.Cone(vertex, arrowTo)) =>
@@ -129,25 +151,24 @@ class SetDiagramTest extends Specification {
             (element, ar0(element)) === (element, i)
             (element, ar1(element)) === (element, i % 3)
           }
-      }
-      ok
+      })(sutOpt)
     }
 
     "exist for a monoid Z3" in {
       val a: set = Set(0, 1, 2)
       val f1 = SetFunction("f1", a, a, x => (x.toString.toInt + 1) % 3)
       val f2 = SetFunction("f2", a, a, x => (x.toString.toInt + 2) % 3)
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "ParallelPair", Category.Z3)(
         Map("0" -> a),
         Map("1" -> f1, "2" -> f2)
       )
+      expect( sut =>
       sut.limit match {
         case None => failure("We expected a limit")
         case Some(sut.Cone(vertex, arrowTo)) =>
           vertex.size === 0 // yes, the limit has to be empty
-      }
-      ok
+      })(sutOpt)
     }
 
     "exist for a W, regular data" in {
@@ -160,11 +181,13 @@ class SetDiagramTest extends Specification {
       val cb = SetFunction("cb", c, b, _.toString.substring(2))
       val cd = SetFunction("cd", c, d, _.toString.substring(1, 2))
       val ed = SetFunction("ed", e, d, _.toString.substring(1, 2))
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "W", Category.W)(
         Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
         Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
       )
+      
+      expect(sut =>
       sut.limit match {
         case None => failure("We expected a limit")
         case Some(sut.Cone(vertex, arrowTo)) =>
@@ -188,7 +211,7 @@ class SetDiagramTest extends Specification {
             }
           }
       }
-      ok
+      )(sutOpt)
     }
 
     "exist for a W, weird data" in {
@@ -201,12 +224,12 @@ class SetDiagramTest extends Specification {
       val cb = SetFunction("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt)))
       val cd = SetFunction("cd", c, d, _.toString.toInt % 3)
       val ed = SetFunction("ed", e, d, x => (x.toString.toInt + 1) % 2)
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "W", Category.W)(
         Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
         Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
       )
-
+      expect( sut =>
       sut.limit match {
         case None => failure("We expected a limit")
         case Some(sut.Cone(vertex, arrowTo)) =>
@@ -235,8 +258,7 @@ class SetDiagramTest extends Specification {
               (i, j, k, ard(element)) === (i, j, k, ed(k))
             }
           }
-      }
-      ok
+      })(sutOpt)
     }
   }
 
@@ -271,37 +293,39 @@ class SetDiagramTest extends Specification {
       val c: set = Set(0, 1)
       val ab = SetFunction("f", a, b, _.toString.toInt + 1)
       val ac = SetFunction("g", a, c, _.toString.toInt % 2)
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "pushout", Category.Pushout)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ab" -> ab, "ac" -> ac)
       )
+
       val v0 = Set((0,4), (0,2), (1,1))
       val v1 = Set((0,3), (1,0))
       val ExpectedVertex: set = Set(v0, v1)
-      
-      sut.colimit match {
-        case Some(sut.Cocone(ExpectedVertex, arrowFrom)) =>
-          val list = v0::v1::v0::Nil
-          val ara = arrowFrom("a")
-          val arb = arrowFrom("b")
-          for {i <- 1 to 3} {
-            ara(i) == list(i-1)
-          }
-          for {i <- 2 to 4} {
-            arb(i) == list(i-2)
-          }
-        case x => failure(s"We expected a good colimit, got $x")
-      }
-      ok
-    }
+      expect( sut =>
+        sut.colimit match {
+          case Some(sut.Cocone(ExpectedVertex, arrowFrom)) =>
+            val list = v0::v1::v0::Nil
+            val ara = arrowFrom("a")
+            val arb = arrowFrom("b")
+            for {i <- 1 to 3} {
+              ara(i) == list(i-1)
+            }
+            for {i <- 2 to 4} {
+              arb(i) == list(i-2)
+            }
+          case x => failure(s"We expected a good colimit, got $x")
+        }
+    )(sutOpt)
+  }
 
-    "exist for a coequalizer" in {
+
+  "exist for a coequalizer" in {
       val a: set = Set(1, 2, 3, 4)
       val b: set = Set(0, 1, 2)
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", a, b, x => x.toString.toInt % 3)
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)
@@ -309,6 +333,7 @@ class SetDiagramTest extends Specification {
       val element = Set((0,0), (0,1), (0,2))
       val Vertex: set = Set(element)
 
+    expect( sut =>
       sut.colimit match {
         case Some(sut.Cocone(Vertex, arrowFrom)) =>
           val ar0 = arrowFrom("0")
@@ -317,7 +342,7 @@ class SetDiagramTest extends Specification {
           b.foreach (ar1(_) === element)
         case bad => failure(s"We expected a colimit, got $bad")
       }
-      ok
+    )(sutOpt)
     }
 
     "exist for a monoid Z3" in {
@@ -325,17 +350,19 @@ class SetDiagramTest extends Specification {
       def f(i: Int) = (n:Int) => if (n == 3) n else (n+i)%3
       val f1 = SetFunction("f1", a, a, x => f(1)(x.toString.toInt))
       val f2 = SetFunction("f2", a, a, x => f(2)(x.toString.toInt))
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "Z3", Category.Z3)(
         Map("0" -> a),
         Map("1" -> f1, "2" -> f2)
       )
+
+      expect( sut =>
       sut.colimit match {
         case None => failure("We expected a colimit")
         case Some(sut.Cocone(vertex, arrowFrom)) =>
           vertex === Set(Set((0,0), (0,1), (0,2)), Set((0,3)))
       }
-      ok
+      )(sutOpt)
     }
 
     "exist for M, regular data" in {
@@ -348,11 +375,13 @@ class SetDiagramTest extends Specification {
       val bc = SetFunction("bc", b, c, "c0" +)
       val dc = SetFunction("dc", d, c, "c1" +)
       val de = SetFunction("de", d, e, "e1" +)
-      val sut = SetDiagram(
+      val sutOpt = SetDiagram.build(
         "M", Category.M)(
         Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
         Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
       )
+
+      expect( sut =>
       sut.colimit match {
         case None => failure("We expected a colimit")
         case Some(sut.Cocone(vertex, arrowFrom)) =>
@@ -376,7 +405,7 @@ class SetDiagramTest extends Specification {
             }
           }
       }
-      ok
+      )(sutOpt)
     }
     
   }

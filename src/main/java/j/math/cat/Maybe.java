@@ -2,7 +2,6 @@ package j.math.cat;
 
 /**
  * Base maybe monad class. Functionally, the option of having null as a value is the same. 
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
 public class Maybe<T> {
   private final T value;

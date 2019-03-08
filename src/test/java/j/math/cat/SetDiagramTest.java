@@ -19,10 +19,6 @@ import static j.math.cat.Sets.*;
 
 /**
  * Unittest for SetDiagram class
- *
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- *
  */
 @SuppressWarnings({"rawtypes","unchecked"})
 public class SetDiagramTest extends TestCase {

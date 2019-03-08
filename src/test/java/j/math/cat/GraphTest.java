@@ -7,10 +7,6 @@ import junit.framework.TestCase;
 
 /**
  * Unittest for Graph class
- * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  */
 public class GraphTest extends TestCase {
   @SuppressWarnings("unchecked")

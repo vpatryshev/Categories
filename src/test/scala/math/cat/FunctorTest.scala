@@ -2,10 +2,13 @@ package math.cat
 
 import Category._
 import math.Test
+import math.cat.SetCategory.Setf
+import math.sets.Sets.set
 
 class FunctorTest extends Test {
   type CSS = Category[String, String]
   type FSS = Functor[CSS, CSS]
+
   type SUT = FSS
   
   lazy val categorySquareWithTwoTopLeftCorners: CSS =
@@ -190,6 +193,26 @@ class FunctorTest extends Test {
                      functorFrom1to2toDoubleSquare.tag)
       }
       ok
+    }
+
+    "validate with Set as domain" in {
+      val a: set = Set(1, 2, 3)
+      val b: set = Set(2, 3, 4)
+      val c: set = Set(0, 1)
+      val ac = SetFunction("f", a, c, _.toString.toInt % 2)
+      val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
+      val sutOpt = Functor.build[Category[String, String], SetCategory](
+        "pullback", Category.Pullback, SetCategory.Setf)(
+        Map("a" -> a, "b" -> b, "c" -> c),
+        Map("ac" -> ac, "bc" -> bc)
+      )
+      
+      check[Functor[Category[String, String], SetCategory]](sutOpt,
+        sut => {
+          sut.d0 === Category.Pullback
+          sut.d1 === Setf
+        }
+      )
     }
   }
 

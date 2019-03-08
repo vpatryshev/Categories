@@ -5,11 +5,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests for Pair class.
- * 
  *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
- * <p/>
  * Note. Please set "-ea" to your vm parameters, to enable assertions.
  */
 public class PairTest extends TestCase {

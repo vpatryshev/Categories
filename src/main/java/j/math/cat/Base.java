@@ -2,12 +2,8 @@ package j.math.cat;
 
 import java.util.*;
 
-
 /**
  * Base tools used in this package.
- *
- *         All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- *         Credits: http://antilamer.livejournal.com/245962.html
  */
 
 public class Base {

@@ -13,9 +13,6 @@ import static j.math.cat.Base.*;
  * Diagram from a category to Categories.SETF.
  * @param <Objects> type of objects of domain category
  * @param <Arrows> type of arrows of domain category
- * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
 @SuppressWarnings({"rawtypes","unchecked"})
 public class SetDiagram<Objects, Arrows>

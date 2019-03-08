@@ -10,10 +10,6 @@ import junit.framework.TestCase;
 
 /**
  * Unittest for Category class
- * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  */
 public class CategoryTest extends TestCase {
   

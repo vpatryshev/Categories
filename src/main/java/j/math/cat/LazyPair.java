@@ -7,9 +7,6 @@ import j.math.cat.Functions.Function;
  * Given a Function<X, Y> f, and an X x, lazily stores a pair (x, f(x)).
  * Laziness means that f(x) is not calculated until requested.
  * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  * @param <X> first component type
  * @param <Y> second component type
  */

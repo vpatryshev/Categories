@@ -8,9 +8,6 @@ import java.util.Set;
  * An implementation of Set that cannot enumerate its elements.
  * AC is also optional here.
  * @param <T> element type
- *
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
 public abstract class BigSet<T> implements Set<T> {
   @Override

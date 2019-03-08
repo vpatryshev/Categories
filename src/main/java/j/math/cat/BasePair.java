@@ -5,9 +5,6 @@ package j.math.cat;
  * are given explicitly.
  * @param <X> first component type
  * @param <Y> second component type
- * 
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
 public class BasePair<X, Y> extends Pair<X, Y> {
   private final X x;
