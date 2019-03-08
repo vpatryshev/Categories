@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 /**
  * Tests for Base class
  * 
- * @author Vlad Patryshev
+ *
  * All source code is stored  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
 
  * 

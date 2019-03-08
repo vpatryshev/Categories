@@ -17,7 +17,7 @@ import scala.language.postfixOps
   * singleton diagram. It must have been a mapping from objects of the base category to values
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
   *
-  * @author Vlad Patryshev
+  *
   * @tparam C type of the domain category
   */
 abstract class SetDiagram[C <: Category[_, _]](
@@ -213,7 +213,7 @@ abstract class SetDiagram[C <: Category[_, _]](
 
 object SetDiagram {
 
-  def apply[C <: Category[_, _]](
+  def build[C <: Category[_, _]](
     tag: String,
     dom: C)(
     objectsMap: dom.O => set,
@@ -228,6 +228,7 @@ object SetDiagram {
       override def arrowsMappingCandidate(a: XArrow): YArrow =
         arrowMap(a.asInstanceOf[dom.Arrow])
     }
+    
     val dc = diagram.getClass
     val meths = dc.getMethods
     val m0 = meths.head
@@ -237,8 +238,6 @@ object SetDiagram {
       val y = diagram.objectsMapping(x)
       println(s"$x -> $y")
     }
-    Functor.validate(diagram)
-    
-    diagram
+    Functor.validate(diagram) returning diagram
   } 
 }

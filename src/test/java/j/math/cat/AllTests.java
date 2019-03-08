@@ -7,7 +7,7 @@ import junit.framework.TestSuite;
 /**
  * Wraps all tests to run (have to list manually).
  * 
- * @author Vlad Patryshev
+ *
  *  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
 
  * 

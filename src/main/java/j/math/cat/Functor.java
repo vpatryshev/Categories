@@ -18,7 +18,7 @@ import static j.math.cat.Sets.Set;
  * @param <XArrows>  type of arrows in the first category
  * @param <YObjects> type of nodes in the second category
  * @param <YArrows>  type of arrows in the second category
- * @author Vlad Patryshev
+ *
  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  */
 public class Functor<

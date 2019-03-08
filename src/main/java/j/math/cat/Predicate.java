@@ -14,7 +14,7 @@ import java.util.Set;
  * <p/>
  * A bunch of helpful methods apply predicates to sets, producing virtual derivative sets.
  * 
- * @author Vlad Patryshev
+ *
  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  * @param <X> predicate parameter type

@@ -619,9 +619,6 @@ abstract class Category[Obj, A](override val g: Graph[Obj, A])
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] = src.m(f, g)
     }
-    
-//    super.unary_~
-//    , (id _), (f: A, g: A) => m(g, f))
   }
 }
 

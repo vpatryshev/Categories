@@ -10,7 +10,7 @@ import java.util.HashMap;
  * <p>Description: Categories, Functors, Topologies</p>
  * <p>Copyright: Copyright (c) 2003 Vlad Patryshev</p>
  * <p>Company: </p>
- * @author Vlad Patryshev
+ *
  * @version 1.0
  */
 

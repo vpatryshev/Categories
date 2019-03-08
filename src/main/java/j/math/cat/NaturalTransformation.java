@@ -5,7 +5,7 @@ import java.util.Set;
 /**
  * Natural transformation class: morphisms for functors.
  * 
- * @author Vlad Patryshev
+ *
  * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
  * 
  * @param <XObjects> functors domain object type
