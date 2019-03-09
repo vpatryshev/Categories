@@ -14,15 +14,19 @@ import scalakittens.Result._
   * @tparam X the first category type 
   * @tparam Y the second category type
   */
-trait Functor[X <: Category[_, _], Y <: Category[_, _]]
+abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
+  val d0: X, val d1: Y
+)
   extends GraphMorphism[X, Y] {
 
+  type Domain = X
+  type Codomain = Y
   val tag: String
-  val d0: X
-  val d1: Y
   def domainObjects: d0.Objects = d0.objects
+  def fxy(x: d0.O): String
+  def fxyz(x: d0.O): d1.O
 
-  def objectsMapping(x: d0.O): d1.O
+  val objectsMapping: d0.O => d1.O
 
   def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow
 
@@ -52,18 +56,20 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
   def compose[Z <: Category[_, _]](g: Functor[Y, Z]): Option[Functor[X, Z]] = {
     if (d1 != g.d0) None else Some {
       val f = this
-      new Functor[X, Z]() {
+      val objectMap = (x: d0.O) => {
+        val y: g.d0.O = objectsMapping(x).asInstanceOf[g.d0.O] // somehow 
+        // Scala does not deduce it
+        val z: g.d1.O = g.objectsMapping(y)
+        z
+      }
+      new Functor[X, Z](f.d0, g.d1) {
         comp: Functor[X, Z] =>
 
         val tag: String = g.tag + " o " + this.tag
-        val d0: X = f.d0
-        val d1: Z = g.d1
 
-        override def objectsMapping(x: d0.O): d1.O = {
-          val y: g.d0.O = f.objectsMapping(x.asInstanceOf[f.d0.O]).asInstanceOf[g.d0.O] // somehow 
-          // Scala does not deduce it
-          g.objectsMapping(y).asInstanceOf[d1.O]
-        }
+        override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
+
+        override val objectsMapping: d0.O => d1.O = objectMap.asInstanceOf[d0.O => d1.O]
 
         override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
           g.arrowsMapping(f.arrowsMapping(a.asInstanceOf[f.d0.Arrow]).asInstanceOf[g.d0.Arrow]).asInstanceOf[d1.Arrow]
@@ -74,6 +80,8 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
           // does not deduce it
           g.nodesMapping(y).asInstanceOf[d1.Node]
         }
+
+        override def fxy(x: d0.O): String = ???
       }
     }
   }
@@ -96,7 +104,7 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
   def conesFrom(y: d1.O): Set[Cone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     val arrowsFromYtoFX: Injection[d0.O, Set[(d0.O, d1.Arrow)]] = injection(
-      (x: d0.O) => d1.arrowsBetween(y, objectsMapping(x)) map { (x, _) }
+      (x: d0.O) => d1.arrowsBetween(y.asInstanceOf[d1.Node], objectsMapping(x)) map { (x, _) }
     )
 
     val listOfDomainObjects: List[d0.O] = domainObjects.toList
@@ -145,7 +153,7 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
   def coconesTo(y: d1.O): Set[Cocone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     def arrowsFromFXtoY(x: d0.O): Set[(d0.O, d1.Arrow)] =
-      d1.arrowsBetween(objectsMapping(x), y) map { (x, _) }
+      d1.arrowsBetween(objectsMapping(x).asInstanceOf[d1.Node], y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(d0.O, d1.Arrow)]] = domainObjects.toList map arrowsFromFXtoY
@@ -291,23 +299,24 @@ trait Functor[X <: Category[_, _], Y <: Category[_, _]]
 }
 
 object Functor {
+  
   def build[X <: Category[_, _], Y <: Category[_, _]](
     dom: X, codom: Y)(
     objectsMorphism: dom.O => codom.O,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
-    validate(new Functor[X, Y]() {
+    validate(new Functor[X, Y](dom, codom) {
       val tag = ""
-      val d0: X = dom
-      val d1: Y = codom
+      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
 
-      override def objectsMapping(x: d0.O): d1.O =
-        objectsMorphism(x.asInstanceOf[dom.O]).asInstanceOf[d1.O]
+      override val objectsMapping: d0.O => d1.O = objectsMorphism.asInstanceOf[d0.O => d1.O]
 
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
 
       override def nodesMapping(n: d0.Node): d1.Node =
         objectsMorphism(n.asInstanceOf[dom.Node]).asInstanceOf[d1.Node]
+
+      override def fxy(x: d0.O): String = ???
     })
 
   /**
@@ -319,16 +328,17 @@ object Functor {
     */
   def id[X <: Category[_, _]](c: X):
   Functor[X, X] =
-    new Functor[X, X]() {
+    new Functor[X, X](c, c) {
       val tag = "id"
-      val d0: X = c
-      val d1: X = c
 
-      override def objectsMapping(x: d0.O): d1.O = x.asInstanceOf[d1.O]
+      override val objectsMapping: d0.O => d1.O = ((x: d0.O) => x).asInstanceOf[d0.O => d1.O]
 
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a.asInstanceOf[d1.Arrow]
 
       override def nodesMapping(n: d0.Node): d1.Node = n.asInstanceOf[d1.Node]
+
+      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
+      override def fxy(x: d0.O): String = s"id.fxy($x)"
     }
 
   /**
@@ -354,16 +364,16 @@ object Functor {
     codom: Y)(
     objectsMorphism: dom.O => codom.O,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
-    new Functor[X, Y]() {
+    new Functor[X, Y](dom, codom) {
       val tag: String = atag
-      val d0: X = dom
-      val d1: Y = codom
+      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
 
-      override def objectsMapping(x: d0.O): d1.O =
-        objectsMorphism(x.asInstanceOf[dom.O]).asInstanceOf[d1.O]
+      override val objectsMapping: d0.O => d1.O = objectsMorphism.asInstanceOf[d0.O => d1.O]
 
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
+
+      override def fxy(x: d0.O): String = s"REMOVE THIS METHOD($x)"
     }
 
   def build[X <: Category[_, _], Y <: Category[_, _]](
@@ -435,6 +445,7 @@ object Functor {
       } catch {
         case ame: AbstractMethodError =>
           ame.printStackTrace()
+          println(s"Object mapping crashed on $x")
           throw ame
       }
     }

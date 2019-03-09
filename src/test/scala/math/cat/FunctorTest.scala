@@ -4,6 +4,7 @@ import Category._
 import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
+import scalakittens.Result
 
 class FunctorTest extends Test {
   type CSS = Category[String, String]
@@ -211,6 +212,10 @@ class FunctorTest extends Test {
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
+          sut.objectsMapping("a") === a
+          sut.objectsMapping("b") === b
+          sut.objectsMapping("c") === c
+          sut.arrowsMapping("ac") === ac
         }
       )
     }

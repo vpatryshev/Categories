@@ -21,11 +21,10 @@ import scala.language.postfixOps
   *
   * @tparam C type of the domain category
   */
-abstract class SetDiagram[C <: Category[_, _]] private(
+abstract class SetDiagram[C <: Category[_, _]](
   override val tag: String,
-  val d0: C)
-  extends Functor[C, SetCategory] {
-  val d1: SetCategory = SetCategory.Setf
+  override val d0: C)
+  extends Functor[C, SetCategory](d0, SetCategory.Setf) {
   type XObject = d0.O
   type XObjects = Set[d0.O]
   type YObject = set
@@ -221,13 +220,13 @@ object SetDiagram {
     arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[C]] = {
     
     val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
-      override def objectsMapping(x: d0.O): set = {
-        println(s"objectMapping got $x")
-        null      
-      }
+      override val objectsMapping: d0.O => set = objectsMap.asInstanceOf[d0.O => set]
 
       override def arrowsMappingCandidate(a: XArrow): YArrow =
         arrowMap(a.asInstanceOf[dom.Arrow])
+
+      override def fxy(x: d0.O): String = ???
+      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"SD.fxyz($x)")
     }
     
     val dc = diagram.getClass
