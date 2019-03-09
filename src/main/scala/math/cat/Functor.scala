@@ -23,12 +23,9 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
   type Codomain = Y
   val tag: String
   def domainObjects: d0.Objects = d0.objects
-  def fxy(x: d0.O): String
-  def fxyz(x: d0.O): d1.O
 
   val objectsMapping: d0.O => d1.O
-
-  def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow
+  val arrowsMappingCandidate: d0.Arrow => d1.Arrow
 
   override def toString: String = s"Functor $tag"
 
@@ -67,12 +64,10 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
 
         val tag: String = g.tag + " o " + this.tag
 
-        override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
-
         override val objectsMapping: d0.O => d1.O = objectMap.asInstanceOf[d0.O => d1.O]
 
-        override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-          g.arrowsMapping(f.arrowsMapping(a.asInstanceOf[f.d0.Arrow]).asInstanceOf[g.d0.Arrow]).asInstanceOf[d1.Arrow]
+        override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = ((a: d0.Arrow) =>
+          g.arrowsMapping(f.arrowsMapping(a.asInstanceOf[f.d0.Arrow]).asInstanceOf[g.d0.Arrow]).asInstanceOf[d1.Arrow]).asInstanceOf[d0.Arrow => d1.Arrow]
 
         // the following override is not required, because it's just another name for object mapping
         override def nodesMapping(n: d0.Node): d1.Node = {
@@ -80,8 +75,6 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
           // does not deduce it
           g.nodesMapping(y).asInstanceOf[d1.Node]
         }
-
-        override def fxy(x: d0.O): String = ???
       }
     }
   }
@@ -306,17 +299,13 @@ object Functor {
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
     validate(new Functor[X, Y](dom, codom) {
       val tag = ""
-      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
-
       override val objectsMapping: d0.O => d1.O = objectsMorphism.asInstanceOf[d0.O => d1.O]
 
-      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = ((a: d0.Arrow) =>
+        arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]).asInstanceOf[d0.Arrow => d1.Arrow]
 
       override def nodesMapping(n: d0.Node): d1.Node =
         objectsMorphism(n.asInstanceOf[dom.Node]).asInstanceOf[d1.Node]
-
-      override def fxy(x: d0.O): String = ???
     })
 
   /**
@@ -333,12 +322,10 @@ object Functor {
 
       override val objectsMapping: d0.O => d1.O = ((x: d0.O) => x).asInstanceOf[d0.O => d1.O]
 
-      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a.asInstanceOf[d1.Arrow]
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
+        ((a: d0.Arrow) => a).asInstanceOf[d0.Arrow => d1.Arrow]
 
       override def nodesMapping(n: d0.Node): d1.Node = n.asInstanceOf[d1.Node]
-
-      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
-      override def fxy(x: d0.O): String = s"id.fxy($x)"
     }
 
   /**
@@ -366,14 +353,9 @@ object Functor {
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
     new Functor[X, Y](dom, codom) {
       val tag: String = atag
-      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"No fxyz($x)")
-
       override val objectsMapping: d0.O => d1.O = objectsMorphism.asInstanceOf[d0.O => d1.O]
 
-      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]
-
-      override def fxy(x: d0.O): String = s"REMOVE THIS METHOD($x)"
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = arrowsMorphism.asInstanceOf[d0.Arrow => d1.Arrow]
     }
 
   def build[X <: Category[_, _], Y <: Category[_, _]](

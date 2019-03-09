@@ -4,6 +4,7 @@ import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
+import scalakittens.Result
 
 /**
   * Test for set diagrams (functors with codomain=sets)
@@ -16,6 +17,12 @@ class SetDiagramTest extends Test {
     Map[(Int, Int), SetFunction]()
   ).getOrElse(throw new InstantiationException("Could not build empty diagram"))
 
+  def point(x: set): Result[SetDiagram[Category[Int, (Int, Int)]]] =
+    SetDiagram.build(s"point $x", Category._1_)(
+      Map[Int, set](0 -> x),
+      Map[(Int, Int), SetFunction]()
+    )
+
   "SetDiagram" should {
     val sa: set = Set(1, 2, 3)
     val sb: set = Set(2, 3, 4)
@@ -23,11 +30,14 @@ class SetDiagramTest extends Test {
     val ac = SetFunction("f", sa, sc, _.toString.toInt % 2)
     val bc = SetFunction("g", sb, sc, x => (x.toString.toInt + 1) % 2)
 
+    val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
+    val am = Map("ac" -> ac, "bc" -> bc)
+
     "validate as a functor with Set as domain" in {
       val sutOpt = Functor.build[Category[String, String], SetCategory](
         "pullback", Category.Pullback, SetCategory.Setf)(
-        Map("a" -> sa, "b" -> sb, "c" -> sc),
-        Map("ac" -> ac, "bc" -> bc)
+        om,
+        am
       )
 
       check[Functor[Category[String, String], SetCategory]](sutOpt,
@@ -42,34 +52,26 @@ class SetDiagramTest extends Test {
       val dom = Category.Pullback
       val sut1Opt = Functor.build[Category[String, String], SetCategory](
         "pullback", dom, SetCategory.Setf)(
-        Map("a" -> sa, "b" -> sb, "c" -> sc),
-        Map("ac" -> ac, "bc" -> bc)
+        om,
+        am
       )
       val sut1 = sut1Opt.getOrElse(throw new InstantiationException("alas..."))
       sut1.objectsMapping("b") === sb
-      sut1.fxy("or else") === "REMOVE THIS METHOD(or else)"
 
       val diagram: SetDiagram[Category[String, String]] =
         new SetDiagram[Category[String, String]]("Test", dom) {
-          def fxy(x: d0.O): String = s"fuck you $x"
-          override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"SD.fxyz($x)")
-
-          //        override def objectsMapping(x: d0.O): set = null
-          //
-          //        override def arrowsMappingCandidate(a: XArrow): YArrow = null
-          override val objectsMapping: d0.O => d1.O = (x: d0.O) => null
-
-          override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
+          override val objectsMapping: d0.O => d1.O = (x: d0.O) => om(x)
+          override val arrowsMappingCandidate = (a: d0.Arrow) => am(a)
         }
       val res = Functor.validate(diagram)
-      res === null
+      res.isGood must beTrue
     }
 
     "get validated - positive" in {
       val sutOpt = SetDiagram.build(
         "pullback", Category.Pullback)(
-        Map("a" -> sa, "b" -> sb, "c" -> sc),
-        Map("ac" -> ac, "bc" -> bc)
+        om,
+        am
       )
       expect(sut => {
         sut.d0 === Category.Pullback
@@ -82,7 +84,7 @@ class SetDiagramTest extends Test {
       val b: set = Set(0, 1, 2)
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", b, b, x => x.toString.toInt % 3)
-      checkError("requirement failed: Inconsistent mapping for d0(b)" ==,
+      checkError("Inconsistent mapping for domain(b)" ==,
         SetDiagram.build(
           "ParallelPair", Category.ParallelPair)(
           Map("0" -> a, "1" -> b),
@@ -94,28 +96,28 @@ class SetDiagramTest extends Test {
 
   "SetDiagram limit" should {
     "exist for an empty diagram" in {
-      val sut = Empty
-      sut.d0 === Category._0_
-      sut.d1 === Setf
-      sut.limit match {
-        case None => failure("We expected a limit")
-        case Some(sut.Cone(vertex, arrowTo)) =>
-          vertex.size === 1
-      }
-      ok
+      check[SetDiagram[Category[Int, (Int, Int)]]](point(Set("a", "b")),
+        sut => {
+          sut.d0 === Category._1_
+          sut.d1 === Setf
+          sut.objectsMapping(0) === Set("a", "b")
+        }
+      )
     }
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      val sut = Empty
-      sut.d0 === Category._1_
-      sut.d1 === Setf
-      sut.limit match {
-        case None => failure("We expected a limit")
-        case Some(sut.Cone(vertex, arrowTo)) =>
-          vertex.size === x.size
-      }
-      ok
+      check[SetDiagram[Category[Int, (Int, Int)]]](point(x),
+        sut => {
+          sut.d0 === Category._1_
+          sut.d1 === Setf
+          sut.limit match {
+            case None => failure("We expected a limit")
+            case Some(sut.Cone(vertex, arrowTo)) =>
+              vertex.size === x.size
+          }
+        }
+      )
     }
 
     "exist for a pullback" in {
@@ -313,15 +315,16 @@ class SetDiagramTest extends Test {
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      val sut = Empty
-      sut.d0 === Category._1_
-      sut.d1 === Setf
-      sut.colimit match {
-        case None => failure("We expected a colimit")
-        case Some(sut.Cocone(vertex, arrowFrom)) =>
-          vertex.size === x.size
-      }
-      ok
+      check[SetDiagram[Category[Int, (Int, Int)]]](point(x),
+        sut => {
+          sut.d0 === Category._1_
+          sut.d1 === Setf
+          sut.colimit match {
+            case None => failure("We expected a colimit")
+            case Some(sut.Cocone(vertex, arrowFrom)) =>
+              vertex.size === x.size
+          }
+        })
     }
 
     "exist for a pushout" in {

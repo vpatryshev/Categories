@@ -222,11 +222,8 @@ object SetDiagram {
     val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
       override val objectsMapping: d0.O => set = objectsMap.asInstanceOf[d0.O => set]
 
-      override def arrowsMappingCandidate(a: XArrow): YArrow =
-        arrowMap(a.asInstanceOf[dom.Arrow])
-
-      override def fxy(x: d0.O): String = ???
-      override def fxyz(x: d0.O): d1.O = throw new UnsupportedOperationException(s"SD.fxyz($x)")
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
+        ((a: XArrow) => arrowMap(a.asInstanceOf[dom.Arrow])).asInstanceOf[d0.Arrow => d1.Arrow]
     }
     
     val dc = diagram.getClass
