@@ -7,9 +7,6 @@ import static j.math.cat.Functions.*;
 /**
  * Sample Implementation of category.
  *
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- *
  * @param <O> object type
  * @param <A> arrow type
  */

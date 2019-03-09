@@ -13,9 +13,6 @@ import java.util.Set;
 /**
  * SetMorphism class: morphisms for sets.
  * 
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  * @param <X> domain element type
  * @param <PX> domain set type
  * @param <Y> codomain element type

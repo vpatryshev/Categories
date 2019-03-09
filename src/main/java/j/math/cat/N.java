@@ -5,10 +5,6 @@ import java.util.Iterator;
 
 /**
  * Natural numbers class.
- *
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  */
 public class N extends AbstractSet<Integer> {
   @Override

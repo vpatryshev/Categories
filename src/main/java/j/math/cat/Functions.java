@@ -14,10 +14,6 @@ import java.util.Set;
 
 /**
  * Contains function objects and operations.
- * 
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  */
 public class Functions {
 

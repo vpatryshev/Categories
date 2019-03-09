@@ -2,9 +2,6 @@ package math.sets
 
 /**
  * Contains some functions and operations.
- *
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- *
  */
 
 object Functions {
@@ -19,31 +16,24 @@ object Functions {
   trait Injection[X, Y] extends Function[X, Y] {
     self =>
     /**
-     * Composes this Injection with another Injection.
-     * (f compose g)(x) ==  f(g(x))
-     *
-     * @param g another Injection
-     * @return a composition
-     */
-    def compose[T](g: Injection[T, X]): Injection[T, Y] = injection { t: T => apply(g(t))} 
+      * Composes this Injection with another Injection.
+      * (f compose g)(x) ==  f(g(x))
+      *
+      * @param g another Injection
+      * @return a composition
+      */
+    def compose[T](g: Injection[T, X]): Injection[T, Y] = injection { t: T => apply(g(t)) }
 
     /**
-     * Composes this Injection with another Injection.
-     * (f andThen g)(x) ==  g(f(x))
-     *
-     * @param g another Injection
-     * @return a composition
-     */
+      * Composes this Injection with another Injection.
+      * (f andThen g)(x) ==  g(f(x))
+      *
+      * @param g another Injection
+      * @return a composition
+      */
     def andThen[Z](g: Injection[Y, Z]): Injection[X, Z] = g compose this
-
-    def applyTo(set: Set[X]): Set[Y] = {
-      val source: Iterable[X] = set
-      val target: Iterable[Y] = source.map(this)
-      val predicate: Y => Boolean = (y: Y) => set.iterator exists {self(_) == y}
-      Sets.setOf(target, set.size, predicate)
-    }
   }
-
+  
   def injection[X, Y] (f: X => Y): Injection[X, Y] = new Injection[X, Y] { def apply(x: X) = f(x) }
 
 /**
@@ -101,10 +91,10 @@ object Functions {
      */
     def andThen[Z](g: Bijection[Y, Z]): Bijection[X, Z] = g compose this
 
-    override def applyTo(s: Set[X]): Set[Y] = {
-      val target: Iterable[Y] = s.map(this)
-      Sets.setOf(target, s.size, (y:Y) => s contains unapply(y))
-    }
+//    override def applyTo(s: Set[X]): Set[Y] = {
+//      val target: Iterable[Y] = s.map(this)
+//      Sets.setOf(target, s.size, (y:Y) => s contains unapply(y))
+//    }
   }
 
   def bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =

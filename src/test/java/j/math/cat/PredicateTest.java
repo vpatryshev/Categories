@@ -8,10 +8,6 @@ import junit.framework.TestCase;
 
 /**
  * Tests for Predicate class
- * 
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  */
 public class PredicateTest extends TestCase {
   private static Predicate<Integer> divisibleBy(final int d) {

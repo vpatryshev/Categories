@@ -327,7 +327,12 @@ object Sets {
         sizePlus(sizeEvaluator, +1),
         y => y == x || predicate(y))
 
-      def map[Y](f: Injection[X, Y]): Set[Y] = f.applyTo(this)
+      def map[Y](f: Injection[X, Y]): Set[Y] = {
+        val source: Iterable[X] = this
+        val target: Iterable[Y] = source.map(f)
+        val predicate: Y => Boolean = (y: Y) => iterator exists {f(_) == y}
+        Sets.setOf(target, size, predicate)
+      }
 
       override def filter(p: X => Boolean): Set[X] =
         filteredSet(sourceIterator, (x: X) => predicate(x) && p(x))

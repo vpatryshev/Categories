@@ -22,7 +22,10 @@ class FunctionsTest extends Specification {
 
     "Schwartzian transform as defined in Wikipedia" >> {
       val f = schwartzianTransform {s: String => s.toUpperCase}
-      f.applyTo(Set("aX", "mmm")) === Set(("aX", "AX"), ("mmm", "MMM"))
+      val actual = Set("aX", "mmm").map(f)
+      val expected = Set(("aX", "AX"), ("mmm", "MMM"))
+      actual == expected
+      actual === expected
     }
 
     "constant is constant" >> {
@@ -45,10 +48,11 @@ class FunctionsTest extends Specification {
       fg(7) === 50
       fg.unapply(7) == -36
     }
+    
     "applyTo" >> {
       val f = bijection[Int, Int](_ + 42, _ - 42)
-      f.applyTo(Set.empty) === Set.empty[Int]
-      f.applyTo(Set(768, 87, 21)) == Set(810, 129, 63)
+      Set.empty.map(f) === Set.empty[Int]
+      Set(768, 87, 21).map(f) == Set(810, 129, 63)
     }
     "inverse" >> {
       val f = bijection[Int, Int](_ + 2, _ - 2)
@@ -65,7 +69,7 @@ class FunctionsTest extends Specification {
     "applied to a set should produce a set of the same size" >> {
       val s = Set("a", "b", "cdef")
       val f = injection{s: String => s + "!"}
-      f.applyTo(s) === Set("a!", "b!", "cdef!")
+      s.map(f) === Set("a!", "b!", "cdef!")
     }
 
     "composition with an injection is still an injection" >> {

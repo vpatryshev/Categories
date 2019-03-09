@@ -10,9 +10,6 @@ import static j.math.cat.Base.*;
  * Implementations should implement two methods, and may be lazy or regular.
  * But in any case this is an unmodifiable pair.
  * 
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * 
  * @param <X> first component type
  * @param <Y> second component type
  */

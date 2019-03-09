@@ -329,11 +329,11 @@ object Result {
   def traverse[T](results: TraversableOnce[Result[T]]): Result[Traversable[T]] = {
     val (goodOnes, badOnes) = partition(results)
 
-    if (goodOnes.isEmpty || badOnes.nonEmpty) badOrEmpty(badOnes.flatten)
+    if (badOnes.nonEmpty) badOrEmpty(badOnes.flatten)
     else Good(goodOnes.reverse)
   }
 
-  def fold(results:Traversable[Outcome]):Outcome = ((OK:Outcome) /: results)(_<*>_)
+  def fold(results:Iterable[Outcome]):Outcome = ((OK:Outcome) /: results)(_<*>_)
 
   def zip[X1,X2](r1: Result[X1], r2: Result[X2]): Result[(X1, X2)] = r1 andAlso r2
 

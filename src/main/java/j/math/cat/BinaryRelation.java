@@ -7,12 +7,7 @@ import java.util.Set;
 /**
  * Java representation of binary relation, that is, a two-parameter predicate.
  * A predicate is a logical-valued function. Here in Java we use boolean for logical.
- * 
- * @author Vlad Patryshev
- * All source code is stored at <a href="https://github.com/vpatryshev/Categories">https://github.com/vpatryshev/Categories</a>
- * Special thanks to Eugene Kirpichov (antilamer.livejournal.com) for inspirational ideas.
- * <p/>
- * <p/>
+ *
  * A bunch of helpful methods that apply predicates to sets, producing virtual derivative sets will be added later.
  * @param <X> first argument type
  * @param <Y> second argument type
