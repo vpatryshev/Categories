@@ -34,8 +34,8 @@ class NaturalTransformationTest extends Test {
     "compose" in {
       expect { case ((((f, g), h), fg), gh) =>
         val fgh = fg compose gh
-        fgh.f === f
-        fgh.g === h
+        fgh.from === f
+        fgh.to === h
         fgh.transformPerObject(0) === (0, 2)
         fgh.transformPerObject(1) === (2, 3)
       }(fOpt andAlso gOpt andAlso hOpt andAlso fgOpt andAlso ghOpt)

@@ -4,43 +4,18 @@ import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
-import scalakittens.Result
 
 /**
   * Test for set diagrams (functors with codomain=sets)
   */
-class SetDiagramTest extends Test {
+class SetDiagramTest extends Test with TestDiagrams {
   type SUT = SetDiagram[Category[String, String]]
-
-  lazy val Empty = SetDiagram.build("empty", Category._0_)(
-    Map[Int, set](),
-    Map[(Int, Int), SetFunction]()
-  ).getOrElse(throw new InstantiationException("Could not build empty diagram"))
-
-  def point(x: set): Result[SetDiagram[Category[Int, (Int, Int)]]] =
-    SetDiagram.build(s"point $x", Category._1_)(
-      Map[Int, set](0 -> x),
-      Map[(Int, Int), SetFunction]()
-    )
-
+  
   "SetDiagram" should {
-    val sa: set = Set(1, 2, 3)
-    val sb: set = Set(2, 3, 4)
-    val sc: set = Set(0, 1)
-    val ac = SetFunction("f", sa, sc, _.toString.toInt % 2)
-    val bc = SetFunction("g", sb, sc, x => (x.toString.toInt + 1) % 2)
-
-    val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
-    val am = Map("ac" -> ac, "bc" -> bc)
 
     "validate as a functor with Set as domain" in {
-      val sutOpt = Functor.build[Category[String, String], SetCategory](
-        "pullback", Category.Pullback, SetCategory.Setf)(
-        om,
-        am
-      )
 
-      check[Functor[Category[String, String], SetCategory]](sutOpt,
+      check[Functor[Category[String, String], SetCategory]](SamplePullbackDiagram.asFunctor,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
@@ -50,33 +25,26 @@ class SetDiagramTest extends Test {
 
     "test build" in {
       val dom = Category.Pullback
-      val sut1Opt = Functor.build[Category[String, String], SetCategory](
-        "pullback", dom, SetCategory.Setf)(
-        om,
-        am
-      )
-      val sut1 = sut1Opt.getOrElse(throw new InstantiationException("alas..."))
-      sut1.objectsMapping("b") === sb
+      val sut1 = SamplePullbackDiagram.asFunctor.
+        getOrElse(throw new InstantiationException("alas..."))
+      sut1.objectsMapping("b") === SamplePullbackDiagram.sb
 
       val diagram: SetDiagram[Category[String, String]] =
         new SetDiagram[Category[String, String]]("Test", dom) {
-          override val objectsMapping: d0.O => d1.O = (x: d0.O) => om(x)
-          override val arrowsMappingCandidate = (a: d0.Arrow) => am(a)
+          override val objectsMapping: d0.O => d1.O =
+            (x: d0.O) => SamplePullbackDiagram.om(x)
+          override val arrowsMappingCandidate: d0.Arrow => YArrow =
+            (a: d0.Arrow) => SamplePullbackDiagram.am(a)
         }
       val res = Functor.validate(diagram)
       res.isGood must beTrue
     }
 
     "get validated - positive" in {
-      val sutOpt = SetDiagram.build(
-        "pullback", Category.Pullback)(
-        om,
-        am
-      )
       expect(sut => {
         sut.d0 === Category.Pullback
         sut.d1 === Setf
-      })(sutOpt)
+      })(SamplePullbackDiagram.asDiagram)
     }
 
     "get validated - negative" in {
@@ -91,6 +59,10 @@ class SetDiagramTest extends Test {
           Map("a" -> f, "b" -> g)
         )
       )
+    }
+    "validate empty diagram" in {
+      EmptyDiagram.d0 === Category._0_
+      EmptyDiagram.d1 === Setf
     }
   }
 
@@ -121,16 +93,6 @@ class SetDiagramTest extends Test {
     }
 
     "exist for a pullback" in {
-      val a: set = Set(1, 2, 3)
-      val b: set = Set(2, 3, 4)
-      val c: set = Set(0, 1)
-      val ac = SetFunction("f", a, c, _.toString.toInt % 2)
-      val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
-      val sutOpt = SetDiagram.build(
-        "pullback", Category.Pullback)(
-        Map("a" -> a, "b" -> b, "c" -> c),
-        Map("ac" -> ac, "bc" -> bc)
-      )
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
@@ -140,7 +102,7 @@ class SetDiagramTest extends Test {
             val arb = arrowTo("b")
 
             for {
-              i <- 1 to 3;
+              i <- 1 to 3
               j <- 2 to 4
             } {
               val element = i :: j :: Nil
@@ -150,19 +112,10 @@ class SetDiagramTest extends Test {
                 (i, j, arb(element)) === (i, j, j)
               }
             }
-        })(sutOpt)
+        })(SamplePullbackDiagram.asDiagram)
     }
 
     "exist for an equalizer" in {
-      val a: set = Set(1, 2, 3, 4, 5)
-      val b: set = Set(0, 1, 2)
-      val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
-      val g = SetFunction("g", a, b, x => x.toString.toInt % 3)
-      val sutOpt = SetDiagram.build(
-        "ParallelPair", Category.ParallelPair)(
-        Map("0" -> a, "1" -> b),
-        Map("a" -> f, "b" -> g)
-      )
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
@@ -182,41 +135,20 @@ class SetDiagramTest extends Test {
               (element, ar0(element)) === (element, i)
               (element, ar1(element)) === (element, i % 3)
             }
-        })(sutOpt)
+        })(SampleParallelPairDiagram.asDiagram)
     }
 
     "exist for a monoid Z3" in {
-      val a: set = Set(0, 1, 2)
-      val f1 = SetFunction("f1", a, a, x => (x.toString.toInt + 1) % 3)
-      val f2 = SetFunction("f2", a, a, x => (x.toString.toInt + 2) % 3)
-      val sutOpt = SetDiagram.build(
-        "ParallelPair", Category.Z3)(
-        Map("0" -> a),
-        Map("1" -> f1, "2" -> f2)
-      )
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
           case Some(sut.Cone(vertex, arrowTo)) =>
-            vertex.size === 0 // yes, the limit has to be empty
-        })(sutOpt)
+            vertex === Set(List(3))
+            arrowTo("0")(List(3)) === 3
+        })(SampleZ3Diagram.asDiagram)
     }
 
     "exist for a W, regular data" in {
-      val a: set = Set("a00", "a01", "a10", "a11")
-      val b: set = Set("0", "1")
-      val c: set = Set("c00", "c01", "c10", "c11")
-      val d: set = Set("0", "1")
-      val e: set = Set("e00", "e01", "e10", "e11")
-      val ab = SetFunction("ab", a, b, _.toString.substring(2))
-      val cb = SetFunction("cb", c, b, _.toString.substring(2))
-      val cd = SetFunction("cd", c, d, _.toString.substring(1, 2))
-      val ed = SetFunction("ed", e, d, _.toString.substring(1, 2))
-      val sutOpt = SetDiagram.build(
-        "W", Category.W)(
-        Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
-        Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
-      )
 
       expect(sut =>
         sut.limit match {
@@ -230,23 +162,23 @@ class SetDiagramTest extends Test {
             val are = arrowTo("e")
 
             for {
-              i <- a;
-              j <- c;
-              k <- e
+              i <- SampleWDiagram.a
+              j <- SampleWDiagram.c
+              k <- SampleWDiagram.e
             } {
               val element = i :: j :: k :: Nil
               if (vertex(element)) {
                 (i, j, k, ara(element)) === (i, j, k, i)
                 (i, j, k, arc(element)) === (i, j, k, j)
                 (i, j, k, are(element)) === (i, j, k, k)
-                (i, j, k, arb(element)) === (i, j, k, ab(i))
-                (i, j, k, arb(element)) === (i, j, k, cb(j))
-                (i, j, k, ard(element)) === (i, j, k, cd(j))
-                (i, j, k, ard(element)) === (i, j, k, ed(k))
+                (i, j, k, arb(element)) === (i, j, k, SampleWDiagram.ab(i))
+                (i, j, k, arb(element)) === (i, j, k, SampleWDiagram.cb(j))
+                (i, j, k, ard(element)) === (i, j, k, SampleWDiagram.cd(j))
+                (i, j, k, ard(element)) === (i, j, k, SampleWDiagram.ed(k))
               }
             }
         }
-      )(sutOpt)
+      )(SampleWDiagram.asDiagram)
     }
 
     "exist for a W, weird data" in {
@@ -277,8 +209,8 @@ class SetDiagramTest extends Test {
             val points = sut.limitBuilder
 
             for {
-              i <- a;
-              j <- c;
+              i <- a
+              j <- c
               k <- e
             } {
               val element = i :: j :: k :: Nil
@@ -303,7 +235,7 @@ class SetDiagramTest extends Test {
 
   "SetDiagram colimit" should {
     "exist for a empty diagram" in {
-      val sut = Empty
+      val sut = EmptyDiagram
       sut.d0 === Category._0_
       sut.d1 === Setf
       sut.colimit match {
@@ -390,42 +322,16 @@ class SetDiagramTest extends Test {
     }
 
     "exist for a monoid Z3" in {
-      val a: set = Set(0, 1, 2, 3)
-
-      def f(i: Int) = (n: Int) => if (n == 3) n else (n + i) % 3
-
-      val f1 = SetFunction("f1", a, a, x => f(1)(x.toString.toInt))
-      val f2 = SetFunction("f2", a, a, x => f(2)(x.toString.toInt))
-      val sutOpt = SetDiagram.build(
-        "Z3", Category.Z3)(
-        Map("0" -> a),
-        Map("1" -> f1, "2" -> f2)
-      )
-
       expect(sut =>
         sut.colimit match {
           case None => failure("We expected a colimit")
           case Some(sut.Cocone(vertex, arrowFrom)) =>
             vertex === Set(Set((0, 0), (0, 1), (0, 2)), Set((0, 3)))
         }
-      )(sutOpt)
+      )(SampleZ3Diagram.asDiagram)
     }
 
     "exist for M, regular data" in {
-      val a: set = Set("a00", "a01", "a10", "a11")
-      val b: set = Set("0", "1")
-      val c: set = Set("c00", "c01", "c10", "c11")
-      val d: set = Set("0", "1")
-      val e: set = Set("e00", "e01", "e10", "e11")
-      val ba = SetFunction("ba", b, a, "a0" +)
-      val bc = SetFunction("bc", b, c, "c0" +)
-      val dc = SetFunction("dc", d, c, "c1" +)
-      val de = SetFunction("de", d, e, "e1" +)
-      val sutOpt = SetDiagram.build(
-        "M", Category.M)(
-        Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
-        Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
-      )
 
       expect(sut =>
         sut.colimit match {
@@ -439,23 +345,23 @@ class SetDiagramTest extends Test {
             val are = arrowFrom("e")
 
             for {
-              i <- a;
-              j <- c;
-              k <- e
+              i <- SampleMDiagram.a
+              j <- SampleMDiagram.c
+              k <- SampleMDiagram.e
             } {
               val element = i :: j :: k :: Nil
               if (vertex(element)) {
                 (i, j, k, ara(element)) === (i, j, k, i)
                 (i, j, k, arc(element)) === (i, j, k, j)
                 (i, j, k, are(element)) === (i, j, k, k)
-                (i, j, k, arb(element)) === (i, j, k, ba(i))
-                (i, j, k, arb(element)) === (i, j, k, bc(j))
-                (i, j, k, ard(element)) === (i, j, k, dc(j))
-                (i, j, k, ard(element)) === (i, j, k, de(k))
+                (i, j, k, arb(element)) === (i, j, k, SampleMDiagram.ba(i))
+                (i, j, k, arb(element)) === (i, j, k, SampleMDiagram.bc(j))
+                (i, j, k, ard(element)) === (i, j, k, SampleMDiagram.dc(j))
+                (i, j, k, ard(element)) === (i, j, k, SampleMDiagram.de(k))
               }
             }
         }
-      )(sutOpt)
+      )(SampleMDiagram.asDiagram)
     }
 
   }
