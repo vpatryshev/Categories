@@ -52,7 +52,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       val b: set = Set(0, 1, 2)
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", b, b, x => x.toString.toInt % 3)
-      checkError("Inconsistent mapping for d0(b)" ==,
+      checkError("Inconsistent mapping for d0(b) - Set(0, 1, 2) vs Set(5, 1, 2, 3, 4)" ==,
         SetDiagram.build(
           "ParallelPair", Category.ParallelPair)(
           Map("0" -> a, "1" -> b),
