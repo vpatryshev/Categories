@@ -6,7 +6,15 @@ import math.sets._
 
 class Diagrams[C <: Category[_, _]](site: C)
   extends Category[Diagram[C], DiagramArrow[C]](graphOfDiagrams[C]) {
-  override def id(o: O): Arrow = NaturalTransformation.id(o).asInstanceOf[Arrow]
+  override def id(o: O): Arrow = {
+    def objectMap(x: o.d0.O): o.d1.Arrow =
+      o.d1.id(o.objectsMapping(x).asInstanceOf[o.d1.O])
+
+    new DiagramArrow[C](o, o) {
+      override def transformPerObject(x: from.d0.O): from.d1.Arrow =
+        objectMap(x.asInstanceOf[o.d0.O]).asInstanceOf[from.d1.Arrow]
+    }
+  }
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
     val fArrow = f.asInstanceOf[DiagramArrow[C]]
@@ -27,11 +35,11 @@ class Diagrams[C <: Category[_, _]](site: C)
   } else None
 }
 
-abstract class DiagramArrow[C <: Category[_, _]](override val from: Diagram[C], to: Diagram[C])
-  extends NaturalTransformation[C, SetCategory](from, to)
-
 object Diagrams {
   type Diagram[C <: Category[_, _]] = SetDiagram[C]
+  
+  type DiagramArrow[C <: Category[_, _]] = NaturalTransformation[C, SetCategory]
+  
   def graphOfDiagrams[C <: Category[_, _]]: Graph[Diagram[C], DiagramArrow[C]] =
     new Graph[Diagram[C], DiagramArrow[C]] {
       override def nodes: Nodes = BigSet[Diagram[C]]()
