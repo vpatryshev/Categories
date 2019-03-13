@@ -22,3 +22,6 @@ What we have now:
 - set diagrams, that is, functors with a set category as a codomain
 
 Plans: presheaves, sheaves, subobject classifiers, logic, Grothendieck topologies
+
+TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
+

@@ -4,15 +4,13 @@ import Category._
 import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
-import scalakittens.Result
 
 class FunctorTest extends Test {
-  type CSS = Category[String, String]
-  type FSS = Functor[CSS, CSS]
+  type FSS = Functor[Cat, Cat]
 
   type SUT = FSS
   
-  lazy val categorySquareWithTwoTopLeftCorners: CSS =
+  lazy val categorySquareWithTwoTopLeftCorners: Cat =
     category"({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
 
   lazy val functorFromPullbackToDoubleSquare: FSS =
@@ -42,60 +40,60 @@ class FunctorTest extends Test {
       checkError(_ contains "Object mapping fails for 1", 
       Functor.build("failing test",
         _4_, _4_)(
-        Map(0 -> 1),
-        Map.empty[(Int, Int), (Int, Int)]))
+        Map("0" -> "1"),
+        Map.empty[String, String]))
     }
 
     "report incorrect object mappings" in {
       checkError(_ contains "Object mapping defined incorrectly for 1",
         Functor.build("failing test",
           _2_, _2_)(
-          Map(0 -> 1, 1 -> 3),
-          Map.empty[(Int, Int), (Int, Int)]))
+          Map("0" -> "1", "1" -> "3"),
+          Map.empty[String, String]))
     }
 
     "report missing arrows mappings" in {
-      checkError(_ contains "Arrow mapping not found for (0,1): 0 -> 1",
+      checkError(_ contains "failing test: arrow mapping not found for 0.2: 0 -> 2",
         Functor.build("failing test",
         _4_, _4_)(
-        Map(0 -> 1, 1 -> 2, 2 -> 3, 3 -> 3),
-        Map.empty[(Int, Int), (Int, Int)]))
+        Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
+          Map.empty[String, String]))
     }
 
     "report missing arrows mappings" in {
-      val objectMapping = Map(0 -> 1, 1 -> 2, 2 -> 3 -> 3 -> 3)
+      val objectMapping = Map("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
       val arrowMapping = Map(
-        (0, 0) -> (1, 1),
-        (0, 1) -> (1, 2),
-        (0, 2) -> (1, 3),
-        (0, 3) -> (1, 3),
-        (1, 1) -> (2, 3),
-        (1, 2) -> (2, 3),
-        (1, 3) -> (2, 3),
-        (2, 2) -> (3, 3),
-        (2, 3) -> (3, 3),
-        (3, 3) -> (3, 3)
+        "0.0" -> "1.1",
+        "0.1" -> "1.2",
+        "0.2" -> "1.3",
+        "0.3" -> "1.3",
+        "1.1" -> "2.3",
+        "1.2" -> "2.3",
+        "1.3" -> "2.3",
+        "2.2" -> "3.3",
+        "2.3" -> "3.3",
+        "3.3" -> "3.3"
       )
-      checkError(_ contains "Object mapping fails for 2",
+      checkError(_ contains "Inconsistent mapping for d1(0.2)",
         Functor.build("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
     }
     
     "report a failure" in {
-      val objectMapping = Map(0 -> 1, 1 -> 2, 2 -> 3 -> 3 -> 3)
+      val objectMapping = Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
       val arrowMapping = Map(
-        (0, 0) -> (1, 1),
-        (0, 1) -> (1, 2),
-        (0, 2) -> (1, 3),
-        (0, 3) -> (1, 3),
-        (1, 1) -> (2, 2),
-        (1, 2) -> (2, 3),
-        (1, 3) -> (2, 3),
-        (2, 2) -> (3, 3),
-        (2, 3) -> (3, 3),
-        (3, 3) -> (3, 3)
+        "0.0" -> "1.1",
+        "0.1" -> "1.2",
+        "0.2" -> "1.3",
+        "0.3" -> "1.3",
+        "1.1" -> "2.2",
+        "1.2" -> "2.3",
+        "1.3" -> "2.3",
+        "2.2" -> "3.3",
+        "2.3" -> "3.3",
+        "3.3" -> "3.3"
       )
 
-      checkError(_ contains "Object mapping fails for 2",
+      checkError(_ contains "Object mapping defined incorrectly for 3",
         Functor.build("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
     
@@ -107,8 +105,8 @@ class FunctorTest extends Test {
       val to = Square
       val map = Map(0 -> "b", 1 -> "c")
       val fOpt = Functor.build("sample product", from, to)(map, map)
-      check[Functor[Category[Int, Int], CSS]](fOpt,
-        (f:Functor[Category[Int, Int], CSS]) => {
+      check[Functor[Category[Int, Int], Cat]](fOpt,
+        (f:Functor[Category[Int, Int], Cat]) => {
         val limitOpt = f.limit
 
         limitOpt match {

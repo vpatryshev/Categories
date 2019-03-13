@@ -8,7 +8,7 @@ import org.specs2.mutable._
 
 
 /**
-  * Prototype for all tests
+  * Set Category tests
   */
 class SetCategoryTest extends Specification {
   val s1: set = Set[Int](42) untyped

@@ -39,7 +39,7 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
     } catch {
       case x: Exception =>
         throw new IllegalArgumentException(
-          s"Arrow mapping not found for $a: $domainX -> ${d0.d1(a)}")
+          s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}")
     }
   }
 
@@ -410,8 +410,10 @@ object Functor {
           val codomainActual = f.d1.d1(aa)
           val domainExpected = f.objectsMapping(f.d0.d0(a))
           val codomainExpected = f.objectsMapping(f.d0.d1(a))
-          OKif(domainActual == domainExpected, s"Inconsistent mapping for domain($a)") andAlso
-          OKif(codomainActual == codomainExpected, s"Inconsistent mapping for d1($a)")
+          OKif(domainActual == domainExpected, 
+            s"Inconsistent mapping for d0($a) - $domainActual vs $domainExpected") andAlso
+          OKif(codomainActual == codomainExpected, 
+            s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected")
       }
     }
     

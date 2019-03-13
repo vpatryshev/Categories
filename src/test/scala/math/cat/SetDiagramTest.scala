@@ -9,7 +9,7 @@ import math.sets.Sets.set
   * Test for set diagrams (functors with codomain=sets)
   */
 class SetDiagramTest extends Test with TestDiagrams {
-  type SUT = SetDiagram[Category[String, String]]
+  type SUT = SmallDiagram
   
   "SetDiagram" should {
 
@@ -52,7 +52,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       val b: set = Set(0, 1, 2)
       val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
       val g = SetFunction("g", b, b, x => x.toString.toInt % 3)
-      checkError("Inconsistent mapping for domain(b)" ==,
+      checkError("Inconsistent mapping for d0(b)" ==,
         SetDiagram.build(
           "ParallelPair", Category.ParallelPair)(
           Map("0" -> a, "1" -> b),
@@ -68,18 +68,18 @@ class SetDiagramTest extends Test with TestDiagrams {
 
   "SetDiagram limit" should {
     "exist for an empty diagram" in {
-      check[SetDiagram[Category[Int, (Int, Int)]]](point(Set("a", "b")),
+      check[SmallDiagram](point(Set("a", "b")),
         sut => {
           sut.d0 === Category._1_
           sut.d1 === Setf
-          sut.objectsMapping(0) === Set("a", "b")
+          sut.objectsMapping("0") === Set("a", "b")
         }
       )
     }
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      check[SetDiagram[Category[Int, (Int, Int)]]](point(x),
+      check[SmallDiagram](point(x),
         sut => {
           sut.d0 === Category._1_
           sut.d1 === Setf
@@ -247,7 +247,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      check[SetDiagram[Category[Int, (Int, Int)]]](point(x),
+      check[SmallDiagram](point(x),
         sut => {
           sut.d0 === Category._1_
           sut.d1 === Setf

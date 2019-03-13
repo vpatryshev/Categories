@@ -2,17 +2,19 @@ package math.cat
 
 import java.io.Reader
 
-import math.sets.PoSet
+import math.cat.Category.Cat
 import math.sets.Sets._
+import math.sets.{PoSet, Sets}
+import scalakittens.Result._
 import scalakittens.{Good, Result}
-import Result.{Oops, _}
-import j.math.cat.N
 
 /**
   * Category class, and the accompanying object.
   */
 abstract class Category[Obj, A](override val g: Graph[Obj, A])
   extends CategoryData[Obj, A](g) {
+  def isFinite: Boolean = Sets.isFinite(objects) && Sets.isFinite(arrows)
+  
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
   
@@ -701,13 +703,45 @@ private[cat] abstract class CategoryData [Obj, A](val g: Graph[Obj, A]) extends 
 }
 
 private[cat] trait CategoryFactory {
+  def convert2Cat[O, A](
+    source: Category[O, A],
+    object2string: O => String = (_:O).toString,
+    arrow2string: A => String = (_:A).toString): Result[Cat] = {
+    val objectStrings = source.objects map (o => o -> object2string(o))
+    val osMap = objectStrings toMap
+    val soMap = objectStrings map (_.swap) toMap
+    val arrowStrings = source.arrows map (a => a -> arrow2string(a))
+    val asMap = arrowStrings toMap
+    val saMap = arrowStrings map (_.swap) toMap
+    val objects = soMap.keySet
+    val arrows = saMap.keySet
+    val d0 = (f: String) => osMap(source.d0(saMap(f)))
+    val d1 = (f: String) => osMap(source.d1(saMap(f)))
+    val ids = (o: String) => asMap(source.id(soMap(o)))
+    val composition = (f: String, g: String) => source.m(saMap(f), saMap(g)) map asMap
+    
+
+    for {
+      _ <- OKif(source.isFinite, "Need a finite category")
+      _ <- OKif (osMap.size == objectStrings.size, "some objects have the same string repr")
+      _ <- OKif (asMap.size == arrowStrings.size, "some arrows have the same string repr")
+      c <- Category.build(objects, arrows, d0, d1, ids, composition)
+    } yield c
+  }
+  
   /**
     * Builds a category out of a segment of integers between 0 and n (not included).
     *
     * @param n number of elements
     * @return a new category
     */
-  def segment(n: Int): Category[Int, (Int, Int)] = fromPoset(PoSet.range(0, n, 1))
+  def segment(n: Int): Cat = {
+    val numbers = fromPoset(PoSet.range(0, n, 1))
+    val maybeSegment = convert2Cat(numbers,
+      (_:Int).toString,
+      (p:(Int, Int)) => s"${p._1}.${p._2}" )
+    maybeSegment.fold(identity, err => throw new InstantiationException(err.toString))
+  }
 
   /**
     * Builds a category out of a poset. Arrows are pairs (x,y) where x <= y.
@@ -966,7 +1000,7 @@ private[cat] trait CategoryFactory {
     * @param input input to parse
     * @return the category
     */
-  def read(input: Reader): Result[Category[String, String]] = (new Parser).readCategory(input)
+  def read(input: Reader): Result[Cat] = (new Parser).readCategory(input)
 
   /**
     * Factory method. Parses a string and builds a category from it.
@@ -974,11 +1008,11 @@ private[cat] trait CategoryFactory {
     * @param input the string to parse
     * @return the category
     */
-  def read(input: CharSequence): Result[Category[String, String]] = (new Parser).readCategory(input)
+  def read(input: CharSequence): Result[Cat] = (new Parser).readCategory(input)
 
   class Parser extends Graph.Parser {
 
-    def category: Parser[Result[Category[String, String]]] =
+    def category: Parser[Result[Cat]] =
       "(" ~ graph ~ (("," ~ multTable)?) ~ ")" ^^ { case "(" ~ g ~ mOpt ~ ")" => mOpt match {
         case Some("," ~ m) => g flatMap (build(_, m))
         case Some(garbage) => Result.error(s"bad data: $garbage")
@@ -989,12 +1023,12 @@ private[cat] trait CategoryFactory {
 
     def multiplication: Parser[((String, String), String)] = member ~ "o" ~ member ~ "=" ~ member ^^ { case g ~ "o" ~ f ~ "=" ~ h => ((f, g), h) }
 
-    def readCategory(input: CharSequence): Result[Category[String, String]] = {
+    def readCategory(input: CharSequence): Result[Cat] = {
       val parseResult = parseAll(category, input)
       explain(parseResult)
     }
 
-    def readCategory(input: Reader): Result[Category[String, String]] = {
+    def readCategory(input: Reader): Result[Cat] = {
       val parseResult = parseAll(category, input)
       explain(parseResult)
     }
@@ -1002,41 +1036,43 @@ private[cat] trait CategoryFactory {
 }
 
 object Category extends CategoryFactory {
-  
+
+  type Cat = Category[String, String]
+
   /**
     * Empty category
     */
-  lazy val _0_ : Category[Int, (Int, Int)] = segment(0)
+  lazy val _0_ : Cat = segment(0)
 
   /**
     * Singleton category
     */
-  lazy val _1_ : Category[Int, (Int, Int)] = segment(1)
+  lazy val _1_ : Cat = segment(1)
 
   /**
     * Discrete 2-object category
     */
-  lazy val _1plus1_ : Category[String, String] = Category.discrete(Set("a", "b"))
+  lazy val _1plus1_ : Cat = Category.discrete(Set("a", "b"))
 
   /**
     * Category <b>2</b>: 2 objects linearly ordered
     */
-  lazy val _2_ : Category[Int, (Int, Int)] = segment(2)
+  lazy val _2_ : Cat = segment(2)
 
   /**
     * Category <b>3</b>: 3 objects linearly ordered
     */
-  lazy val _3_ : Category[Int, (Int, Int)] = segment(3)
+  lazy val _3_ : Cat = segment(3)
 
   /**
     * Category <b>4</b>: 4 objects linearly ordered
     */
-  lazy val _4_ : Category[Int, (Int, Int)] = segment(4)
+  lazy val _4_ : Cat = segment(4)
 
   /**
     * Category <b>5</b>: 5 objects linearly ordered
     */
-  lazy val _5_ : Category[Int, (Int, Int)] = segment(5)
+  lazy val _5_ : Cat = segment(5)
 
   /**
     * Category with 2 objects and 2 parallel arrows from one to another
@@ -1088,7 +1124,7 @@ object Category extends CategoryFactory {
     * Represents three sets (empty, singleton and two-point) and
     * all their possible functions.
     */
-  lazy val HalfSimplicial: Category[String, String] =
+  lazy val HalfSimplicial: Cat =
     Category.build(Set("0", "1", "2"),
     Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "a" -> "1", "b" -> "1", "2_swap" -> "2"), // d0
     Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "a" -> "2", "b" -> "2", "2_swap" -> "2"), // d1
@@ -1123,7 +1159,7 @@ object Category extends CategoryFactory {
 
 
   implicit class CategoryString(val sc: StringContext) extends AnyVal {
-    def category(args: Any*): Category[String, String] = {
+    def category(args: Any*): Cat = {
       val strings = sc.parts.iterator
       val expressions = args.iterator
       var buf = new StringBuffer(strings.next)

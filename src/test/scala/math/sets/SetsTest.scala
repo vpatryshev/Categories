@@ -326,7 +326,7 @@ class SetsTest extends Specification {
       s === Set("1", "2", "3")
     }
 
-    "NNO's 10 element should be 9" >> {
+    "NNO's 10th element should be 9" >> {
       N.contains(1001590) must beTrue
       val first10 = N.take(10)
 

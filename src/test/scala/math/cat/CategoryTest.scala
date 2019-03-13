@@ -12,6 +12,7 @@ import scalakittens.{Good, Result}
  * Tests for Category class
  */
 class CategoryTest extends Test with CategoryFactory {
+
   type SUT = Category[String, String]
   
   val EmptyComposition: Map[(String, String), String] = Map()
@@ -83,13 +84,13 @@ class CategoryTest extends Test with CategoryFactory {
     }
     
     "degree" >> {
-      segment(10).degree(4, 0) === Some(9, Nil)
-      segment(10).degree(4, 1) === Some(4, List((4,4)))
-      segment(10).degree(4, 5) === Some(4, List((4,4), (4,4), (4,4), (4,4), (4,4)))
+      segment(10).degree("4", 0) === Some("9", Nil)
+      segment(10).degree("4", 1) === Some("4", List("4.4"))
+      segment(10).degree("4", 5) === Some("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))
     }
     
     "id" >> {
-      _3_.id(2) === (2, 2)
+      _3_.id("2") === "2.2"
       ParallelPair.id("1") === "1"
       NaturalNumbers.id(42) === (42, 42)
     }
@@ -313,7 +314,10 @@ class CategoryTest extends Test with CategoryFactory {
 
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
-      _3_.arrows.forall { case a@ (x, y) => (x == y) === _3_.isIsomorphism(a)}
+      _3_.arrows.forall { 
+        case a@PairRegex(x, y) => (x == y) === _3_.isIsomorphism(a)
+        case s => failure(s"$s does not look like an arrow in a poset"); false
+      }
 
       HalfSimplicial.arrows.filter(HalfSimplicial.isIsomorphism) ===
         Set("0", "1", "2", "2_swap")
@@ -346,7 +350,10 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "isEndomorphism" in {
-      _3_.arrows.forall { case a@ (x, y) => (x == y) === _3_.isEndomorphism(a)}
+      _3_.arrows.forall {
+        case a@PairRegex(x, y) => (x == y) === _3_.isEndomorphism(a)
+        case s => failure(s"$s does not look like an arrow in a poset"); false
+      }
 
       HalfSimplicial.arrows.filter(HalfSimplicial.isEndomorphism) ===
         Set("0", "1", "2", "2_a", "2_b", "2_swap")
@@ -557,21 +564,21 @@ class CategoryTest extends Test with CategoryFactory {
 
     "isTerminal_positive" >> {
       Square.isTerminal("d") must beTrue
-      _4_.isTerminal(3) must beTrue
+      _4_.isTerminal("3") must beTrue
     }
 
     "isTerminal_negative" >> {
       Square.isTerminal("a") must beFalse
       Square.isTerminal("b") must beFalse
-      _4_.isTerminal(0) must beFalse
-      _4_.isTerminal(1) must beFalse
+      _4_.isTerminal("0") must beFalse
+      _4_.isTerminal("1") must beFalse
       ParallelPair.isTerminal("0") must beFalse
       ParallelPair.isTerminal("1") must beFalse
     }
 
     "Terminal_misc" >> {
       Square.terminal === Some("d")
-      _4_.terminal === Some(3)
+      _4_.terminal === Some("3")
     }
 
     "Initial_none" >> {
@@ -581,7 +588,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "Initial_misc" >> {
       Square.initial === Some("a")
-      _4_.initial === Some(0)
+      _4_.initial === Some("0")
     }
 
     "allRootObjects_byDefinition" >> {
@@ -642,8 +649,8 @@ class CategoryTest extends Test with CategoryFactory {
     }
     
     "isInitial" in {
-      _4_.isInitial(0) === true
-      _4_.isInitial(1) === false
+      _4_.isInitial("0") === true
+      _4_.isInitial("1") === false
       HalfSimplicial.isInitial("0") === true
       HalfSimplicial.isInitial("1") === false
       HalfSimplicial.isInitial("2") === false
@@ -655,7 +662,7 @@ class CategoryTest extends Test with CategoryFactory {
       val op3 = _3_.op
       op3.arrows === _3_.arrows
       op3.objects === _3_.objects
-      op3.d0((1,2)) === 2
+      op3.d0("1.2") === "2"
     }
 
     // following are tests for accompanying object
@@ -669,24 +676,24 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "1" >> {
-      _1_.objects === Set(0)
-      _1_.arrows === Set((0, 0))
-        _1_.objects.size === 1
+      _1_.objects === Set("0")
+      _1_.arrows === Set("0.0")
+      _1_.objects.size === 1
       _1_.arrows.size === 1
     }
 
     "2" >> {
       val sut = _2_
-      sut.objects === Set(0, 1)
-      val expected = Set((0, 0), (1, 1), (0, 1))
+      sut.objects === Set("0", "1")
+      val expected = Set("0.0", "0.1", "1.1")
       val arrows = sut.arrows
       arrows === expected
-      sut.arrowsBetween(0, 1).size === 1
+      sut.arrowsBetween("0", "1").size === 1
     }
 
     "3" >> {
-      _3_.objects === Set(0, 1, 2)
-      val expected = Set((0, 0), (1, 1), (2, 2), (0, 1), (0, 2), (1, 2))
+      _3_.objects === Set("0", "1", "2")
+      val expected = Set("0.0", "1.1", "2.2", "0.1", "0.2", "1.2")
       expected === _3_.arrows
     }
 
@@ -757,7 +764,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "Segment" >> {
-      def sut: Category[Int, (Int, Int)] = segment(3)
+      def sut: Cat = segment(3)
       sut === _3_
     }
   }

@@ -5,6 +5,12 @@ import org.specs2.mutable.Specification
 import scalakittens._
 
 class Test extends Specification {
+  val NumberRegex = "(\\d+)".r
+  val PairRegex = "(\\d+)\\.(\\d+)".r
+  implicit class Regex(sc: StringContext) {
+    def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
+  }
+
   type SUT
   
   def check[T](g: Result[T], op: T => Unit): MatchResult[Any] = {
@@ -20,7 +26,7 @@ class Test extends Specification {
   
   def checkError[T](op: String => Boolean, sutOpt: Result[T]): MatchResult[_] = {
     sutOpt match {
-      case Good(bad) => failure(s"Expected failure, go $bad")
+      case Good(bad) => failure(s"Expected failure, got a $bad")
       case nogood =>
         val details = nogood.errorDetails
         (details exists op) aka details.getOrElse("???") must beTrue

@@ -4,7 +4,7 @@ import math.cat._
 import Diagrams._
 import math.sets._
 
-class Diagrams[C <: Category[_, _]]
+class Diagrams[C <: Category[_, _]](site: C)
   extends Category[Diagram[C], DiagramArrow[C]](graphOfDiagrams[C]) {
   override def id(o: O): Arrow = NaturalTransformation.id(o).asInstanceOf[Arrow]
 

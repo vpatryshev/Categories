@@ -5,30 +5,36 @@ import math.cat.Category._
 import scalakittens.Result
 
 /**
-  * Prototype for all tests
+  * Natural transformations tests
   */
 class NaturalTransformationTest extends Test {
-  type C = Category[Int, (Int, Int)]
-  type F = Functor[C, C]
-  type NT = NaturalTransformation[C, C]
+  type F = Functor[Cat, Cat]
+  type NT = NaturalTransformation[Cat, Cat]
   type SUT = ((((F, F), F), NT), NT)
 
   "natural transformation" should {
     val c = _2_
     val d = _5_
-    lazy val fOpt: Result[F] = Functor.build("f", c, d)((i: Int) => i * 2, p => (p._1 * 2, p._2 * 2))
-    lazy val gOpt: Result[F] = Functor.build("g", c, d)((i: Int) => i + 1, p => (p._1 + 1, p._2 + 1))
-    lazy val hOpt: Result[F] = Functor.build("h", c, d)((i: Int) => i + 2, p => (p._1 + 2, p._2 + 2))
+    
+    def buildFunctor(name: String, op: Int => Int) =
+      Functor.build(name, c, d)(
+        { case s => op(s.toInt).toString },
+        { case PairRegex(x, y) => s"${op(x.toInt)}.${op(y.toInt)}" })
+    
+    lazy val fOpt: Result[F] = buildFunctor("f", 2*)
+    lazy val gOpt: Result[F] = buildFunctor("g", 1+)
+    lazy val hOpt: Result[F] = buildFunctor("g", 2+)
+    
     lazy val fgOpt: Result[NT] = for {
       f <- fOpt
       g <- gOpt
-      nt <- NaturalTransformation.build(f, g)(Map(0 -> (0, 1), 1 -> (2, 2)))
+      nt <- NaturalTransformation.build(f, g)(Map("0" -> "0.1", "1" -> "2.2"))
     } yield nt
 
     lazy val ghOpt: Result[NT] = for {
       g <- gOpt
       h <- hOpt
-      nt <- NaturalTransformation.build(g, h)(Map(0 -> (1, 2), 1 -> (2, 3)))
+      nt <- NaturalTransformation.build(g, h)(Map("0" -> "1.2", "1" -> "2.3"))
     } yield nt
 
     "compose" in {
@@ -36,8 +42,8 @@ class NaturalTransformationTest extends Test {
         val fgh = fg compose gh
         fgh.from === f
         fgh.to === h
-        fgh.transformPerObject(0) === (0, 2)
-        fgh.transformPerObject(1) === (2, 3)
+        fgh.transformPerObject("0") === "0.2"
+        fgh.transformPerObject("1") === "2.3"
       }(fOpt andAlso gOpt andAlso hOpt andAlso fgOpt andAlso ghOpt)
     }
 
