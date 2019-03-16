@@ -91,8 +91,8 @@ abstract class SetDiagram[C <: Category[_, _]](
 
     // All possible functions in the diagram, bundled with domain objects
     val functionsToUnion: Set[(XObject, SetFunction)] = for {
-      o:XObject <- d0.objects
-      a:XArrow <- bundles(o)
+      o <- d0.objects
+      a <- bundles(o)
       from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
       embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a)))
@@ -235,6 +235,6 @@ object SetDiagram {
       val y = objectsMap(x.asInstanceOf[dom.O])
       println(s"$x -> $y")
     }
-    Functor.validate(diagram) returning diagram
+    Functor.validateFunctor(diagram) returning diagram
   } 
 }

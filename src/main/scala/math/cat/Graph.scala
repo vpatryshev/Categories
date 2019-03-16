@@ -8,9 +8,11 @@ import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-abstract class Graph[N, A] extends GraphData[N, A] { graph =>
-  def contains(node: N): Boolean = nodes contains node
+abstract class Graph[N, A] extends GraphData { graph =>
+  def contains(node: Node): Boolean = nodes contains node
   def size: Int = nodes.size
+  
+  implicit def pairOfNodes(p: (N, N)): (Node, Node) = (node(p._1), node(p._2))
 
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
   def -(x:N): Set[N] = itsImmutable
@@ -33,13 +35,17 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     */
   private def equal(that: Graph[_, A]) = {
     val isEqual = this.nodes == that.nodes && this.arrows == that.arrows
-    (isEqual /: arrows) ((bool: Boolean, a: A) => bool && (this.d0(a) == that.d0(a)) && (this.d1(a) == that.d1(a)))
+    (isEqual /: arrows) (
+      (bool: Boolean, aHere: this.Arrow) => {
+        val aThere = aHere.asInstanceOf[that.Arrow]
+        bool && (d0(aHere) == that.d0(aThere)) && (d1(aHere) == that.d1(aThere))
+      })
   }
 
   override def toString: String = {
     val nodess = nodes.mkString(", ")
     val arrowss =
-      arrows map ((a: A) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
+      arrows map ((a: Arrow) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
     s"({$nodess}, {$arrowss})"
   }
 
@@ -63,7 +69,7 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff f follows g
     */
-  def follows(f: A, g: A): Boolean = {
+  def follows(f: Arrow, g: Arrow): Boolean = {
     d0(anArrow(f)) == d1(anArrow(g))
   }
 
@@ -73,7 +79,7 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff g and f have the same domain
     */
-  def sameDomain(f: A, g: A): Boolean = {
+  def sameDomain(f: Arrow, g: Arrow): Boolean = {
     d0(anArrow(f)) == d0(anArrow(g))
   }
 
@@ -83,7 +89,7 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff g and f have the same codomain
     */
-  def sameCodomain(f: A, g: A): Boolean = {
+  def sameCodomain(f: Arrow, g: Arrow): Boolean = {
     d1(anArrow(f)) == d1(anArrow(g))
   }
 
@@ -93,20 +99,20 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff g and f have the same domain and codomain
     */
-  def areParallel(f: A, g: A): Boolean = sameDomain(f, g) && sameCodomain(f, g)
+  def areParallel(f: Arrow, g: Arrow): Boolean = sameDomain(f, g) && sameCodomain(f, g)
 
-  def unary_~ : Graph[N, A] = new Graph[N, A] {
-    def nodes: Set[N] = graph.nodes
-    def arrows: Set[A] = graph.arrows
-    def d0(f: A): N = graph.d1(f)
-    def d1(f: A): N = graph.d0(f)
+  def unary_~ : Graph[Node, Arrow] = new Graph[Node, Arrow] {
+    def nodes: Set[Node] = graph.nodes.asInstanceOf[Nodes]
+    def arrows: Set[Arrow] = graph.arrows.asInstanceOf[Arrows]
+    def d0(f: Arrow): Node = graph.d1(f.asInstanceOf[Graph.this.Arrow]).asInstanceOf[Node]
+    def d1(f: Arrow): Node = graph.d0(f.asInstanceOf[Graph.this.Arrow]).asInstanceOf[Node]
   }
 }
 
-private[cat] abstract class GraphData[N, A] {
-  final type Node = N
+private[cat] abstract class GraphData {
+  type Node
+  type Arrow
   type Nodes = Set[Node]
-  final type Arrow = A
   type Arrows = Set[Arrow]
   
   def nodes: Nodes
@@ -114,10 +120,22 @@ private[cat] abstract class GraphData[N, A] {
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
+  implicit def node(x: Any): Node = x match {
+    case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
+  }
+
+  implicitly[Any => Node](node)
+
+  implicit def arrow(a: Any): Arrow = a match {
+    case _ if arrows contains a.asInstanceOf[Arrow] => a.asInstanceOf[Arrow]
+  }
+  
+  implicitly[Any => Arrow](arrow)
+
   protected lazy val finiteNodes: Boolean = isFinite(nodes)
   protected lazy val finiteArrows: Boolean = isFinite(arrows)
 
-  def validate: Result[GraphData[N, A]] =
+  def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {
       Result.fold(arrows map {
         a =>
@@ -133,19 +151,23 @@ object Graph {
     arrows0: Set[A],
     d00: A => N,
     d10: A => N): Result[Graph[N, A]] = {
-    val data = new GraphData[N, A] {
-      def nodes: Set[N] = nodes0
-      def arrows: Set[A] = arrows0
-      def d0(f: A): N = d00(f)
-      def d1(f: A): N = d10(f)
+    val data = new GraphData {
+      override type Node = N
+      override type Arrow = A
+      def nodes: Nodes = nodes0.asInstanceOf[Nodes]
+      def arrows: Arrows = arrows0.asInstanceOf[Arrows]
+      def d0(f: Arrow): Node = d00(f.asInstanceOf[A]).asInstanceOf[Node]
+      def d1(f: Arrow): Node = d10(f.asInstanceOf[A]).asInstanceOf[Node]
     }
 
     data.validate returning
       new Graph[N, A] {
-        def nodes: Set[N] = data.nodes
-        def arrows: Set[A] = data.arrows
-        def d0(f: A): N = data.d0(f)
-        def d1(f: A): N = data.d1(f)
+        def nodes: Nodes = data.nodes.asInstanceOf[Nodes]
+        def arrows: Arrows = data.arrows.asInstanceOf[Arrows]
+        override type Node = N
+        override type Arrow = A
+        override def d0(f: Arrow): Node = data.d0(f.asInstanceOf[data.Arrow]).asInstanceOf[Node]
+        override def d1(f: Arrow): Node = data.d1(f.asInstanceOf[data.Arrow]).asInstanceOf[Node]
       }
   }
 
@@ -155,10 +177,10 @@ object Graph {
 
   def discrete[N](points: Set[N]): Graph[N, N] =
     new Graph[N, N] {
-      def nodes: Set[N] = points
-      def arrows: Set[N] = Set.empty
-      def d0(f: N): N = f
-      def d1(f: N): N = f
+      def nodes: Nodes = points.asInstanceOf[Nodes]
+      def arrows: Arrows = Set.empty
+      def d0(f: Arrow): Node = Map.empty(f) // there's nothing there, but we need a signature
+      def d1(f: Arrow): Node = Map.empty(f)
     }
 
   def ofPoset[N](poset: PoSet[N]): Graph[N, (N, N)] = {
@@ -167,10 +189,10 @@ object Graph {
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 
     new Graph[N, (N, N)] {
-      def nodes: Set[N] = points
-      def arrows: Arrows = goodPairs
-      def d0(f: (N, N)): N = f._1
-      def d1(f: (N, N)): N = f._2
+      def nodes: Nodes = points.asInstanceOf[Nodes]
+      def arrows: Arrows = goodPairs.asInstanceOf[Arrows]
+      def d0(f: Arrow): Node = f.asInstanceOf[(N, N)]._1.asInstanceOf[Node]
+      def d1(f: Arrow): Node = f.asInstanceOf[(N, N)]._2.asInstanceOf[Node]
     }
   }        
 

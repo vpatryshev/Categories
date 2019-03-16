@@ -98,8 +98,8 @@ object SetFunction {
    * @param predicate defines the condition for elements to be included in the subset
    * @return inclusion monomorphism
    */
-  def inclusion(containerSet: set, predicate: Any => Boolean): SetFunction =
-    inclusion(containerSet filter predicate, containerSet)
+  def filterByPredicate(containerSet: set)(predicate: Any => Boolean): SetFunction =
+    apply("filter", containerSet filter predicate, containerSet, Functions.inclusion)
 
   /**
    * Factory method. Builds identity morphism for a set.

@@ -1,5 +1,6 @@
 package math.cat
 
+import math.cat.Functor.validateFunctor
 import math.sets.Functions._
 import math.sets.Sets
 import math.sets.Sets._
@@ -297,7 +298,7 @@ object Functor {
     dom: X, codom: Y)(
     objectsMorphism: dom.O => codom.O,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
-    validate(new Functor[X, Y](dom, codom) {
+    validateFunctor(new Functor[X, Y](dom, codom) {
       val tag = ""
       override val objectsMapping: d0.O => d1.O = objectsMorphism.asInstanceOf[d0.O => d1.O]
 
@@ -363,8 +364,10 @@ object Functor {
     dom: X,
     codom: Y)(
     objectsMorphism: dom.O => codom.O,
-    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
-    validate[X, Y](unsafeBuild[X, Y](atag, dom, codom)(objectsMorphism, arrowsMorphism))
+    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] = {
+    import codom._
+    validateFunctor[X, Y](unsafeBuild[X, Y](atag, dom, codom)(objectsMorphism, arrowsMorphism))
+  }
 
   /**
     * Validates a functor candidate.
@@ -373,7 +376,7 @@ object Functor {
     * That is, F(id(x)) == id(F(x)), and
     * F(g) o F(f) = F(g o f)
     */
-  def validate[X <: Category[_, _], Y <: Category[_, _]](f: Functor[X, Y]): Result[Functor[X, Y]] = for {
+  def validateFunctor[X <: Category[_, _], Y <: Category[_, _]](f: Functor[X, Y]): Result[Functor[X, Y]] = for {
     _ <- checkObjectMapping(f)
     _ <- checkArrowMapping(f)
     _ <- checkCompositionPreservation(f) andAlso checkCompositionPreservation(f)
@@ -389,11 +392,11 @@ object Functor {
 
   private def checkCompositionPreservation[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
     for {
-      fx: f.d0.Arrow <- f.d0.arrows
-      gx: f.d0.Arrow <- f.d0.arrows
-      gx_fx: f.d0.Arrow <- f.d0.m(fx, gx)
-      fy: f.d1.Arrow = f.arrowsMapping(fx)
-      gy: f.d1.Arrow = f.arrowsMapping(gx)
+      fx <- f.d0.arrows
+      gx <- f.d0.arrows
+      gx_fx <- f.d0.m(fx, gx)
+      fy = f.arrowsMapping(fx)
+      gy = f.arrowsMapping(gx)
       expected = f.arrowsMapping(gx_fx)
       gy_fy <- f.d1.m(fy, gy)
     } yield {

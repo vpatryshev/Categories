@@ -1,10 +1,9 @@
 package math.cat
 
-import math.Base.IntMap
-import math.cat.SetFunction._
 import math.cat.SetCategory._
-import math.sets.{BigSet, FactorSet, Sets}
+import math.cat.SetFunction._
 import math.sets.Sets._
+import math.sets.{BigSet, FactorSet, Sets}
 
 /**
   * Category where objects are sets
@@ -12,7 +11,8 @@ import math.sets.Sets._
 
 class SetCategory(objects: BigSet[Set[Any]])
   extends Category[set, SetFunction](graphOfSets(objects)) {
-//  override type Arrow = SetFunction
+  type Node = set
+  type Arrow = SetFunction
 
   override def d0(f: SetFunction): set = f.d0
 
@@ -35,7 +35,7 @@ class SetCategory(objects: BigSet[Set[Any]])
 
   override def equalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {
     require((f.d0 eq g.d0) && (f.d1 eq g.d1))
-    val inclusion = SetFunction.inclusion(f.d0, x => f(x) == g(x))
+    val inclusion = SetFunction.inclusion(f.d0, (x: set) => f(x) == g(x))
     Option(inclusion) filter { i => objects.contains(i.d0) }
   }
 
@@ -69,32 +69,32 @@ class SetCategory(objects: BigSet[Set[Any]])
   }
 
   override def degree(x: set, n: Int): Option[(set, List[SetFunction])] = {
-    require(n >= 0, s"Degree of $n can't be calculated")
-    
-    val actualDomain: Set[Map[Int, Any]] = Sets.exponent(Sets.numbers(n), x)
-    
-    val domain: set = actualDomain untyped
-    
-    // TODO: use Shapeless, get rid of warning
-    def takeElementAt(i: Int)(obj: Any) = obj.asInstanceOf[Map[Int, Any]](i)
+    if (n < 0) None else {
+      val actualDomain: Set[Map[Int, Any]] = Sets.exponent(Sets.numbers(n), x.asInstanceOf[set])
 
-    val projections = for {
-      i <- 0 until n
-    } yield new SetFunction(
-      tag = s"set^$n",
-      d0 = domain,
-      d1 = x,
-      f = takeElementAt(i)
-    )
-    
-    Option((domain, projections.toList))
+      val domain: set = actualDomain untyped
+
+      // TODO: use Shapeless, get rid of warning
+      def takeElementAt(i: Int)(obj: Any) = obj.asInstanceOf[Map[Int, Any]](i)
+
+      val projections = for {
+        i <- 0 until n
+      } yield new SetFunction(
+        tag = s"set^$n",
+        d0 = domain,
+        d1 = x,
+        f = takeElementAt(i)
+      )
+
+      Option((domain, projections.toList))
+    }
   }
 
-  override lazy val initial: Option[set] = Option(Sets.Empty) filter (this contains)
+  override lazy val initial: Option[set] = Option(Sets.Empty) filter contains
 
   override lazy val terminal: Option[set] = {
     val option1: Option[set] = Option(setOf(initial))
-    option1 filter (this contains)
+    option1 filter contains
   }
 
   override def product(x: set, y: set): Option[(SetFunction, SetFunction)] = {
@@ -112,7 +112,7 @@ class SetCategory(objects: BigSet[Set[Any]])
     } yield {
       val productSet = prod._1.d0
       val pullbackInProduct =
-        inclusion(productSet, predicate = { case (a, b) => f(a) == g(b) })
+        filterByPredicate(productSet)(predicate = { case (a, b) => f(a) == g(b) })
       
       (pullbackInProduct andThen prod._1,
        pullbackInProduct andThen prod._2)

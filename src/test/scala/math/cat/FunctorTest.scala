@@ -13,13 +13,15 @@ class FunctorTest extends Test {
   lazy val categorySquareWithTwoTopLeftCorners: Cat =
     category"({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
 
-  lazy val functorFromPullbackToDoubleSquare: FSS =
+  lazy val functorFromPullbackToDoubleSquare: FSS = {
+    import categorySquareWithTwoTopLeftCorners._
     Functor.build(
       "From2to1toDoubleSquare",
       Pullback, categorySquareWithTwoTopLeftCorners)(
       Map("a" -> "b", "b" -> "c", "c" -> "d"),
       Map("a" -> "b", "b" -> "c", "c" -> "d", "ac" -> "bd", "bc" -> "cd")
-  ) getOrElse (throw new InstantiationException("Something wrong with `From2to1toDoubleSquare`"))
+    ) getOrElse (throw new InstantiationException("Something wrong with `From2to1toDoubleSquare`"))
+  }
 
   lazy val categorySquareWithTwoRightCorners =
     category"""({a,b,c, d0, d1}
@@ -27,16 +29,20 @@ class FunctorTest extends Test {
       ,{bd0 o ab = ad0, cd0 o ac = ad0, bd1 o ab = ad1, cd1 o ac = ad1, d0d1 o ad0 = ad1, d0d1 o bd0 = bd1,d0d1 o bd0 = bd1, d0d1 o cd0 = cd1}
       )"""
 
-  lazy val functorFrom1to2toDoubleSquare: FSS =
+  lazy val functorFrom1to2toDoubleSquare: FSS = {
+    import categorySquareWithTwoRightCorners._
+
     Functor.build("From1to2toDoubleSquare",
       Pushout, categorySquareWithTwoRightCorners)(
       Map("a" -> "a", "b" -> "b", "c" -> "c"),
       Map("a" -> "a", "b" -> "b", "c" -> "c", "ab" -> "ab", "ac" -> "ac")
     ).getOrElse(throw new InstantiationException("wtf wit functor on line 29?"))
+  }
   
   "Constructor" should {
 
     "report missing object mappings" in {
+      import _4_._
       checkError(_ contains "Object mapping fails for 1", 
       Functor.build("failing test",
         _4_, _4_)(
@@ -45,6 +51,7 @@ class FunctorTest extends Test {
     }
 
     "report incorrect object mappings" in {
+      import _2_._
       checkError(_ contains "Object mapping defined incorrectly for 1",
         Functor.build("failing test",
           _2_, _2_)(
@@ -53,6 +60,7 @@ class FunctorTest extends Test {
     }
 
     "report missing arrows mappings" in {
+      import _4_._
       checkError(_ contains "failing test: arrow mapping not found for 0.2: 0 -> 2",
         Functor.build("failing test",
         _4_, _4_)(
@@ -61,8 +69,10 @@ class FunctorTest extends Test {
     }
 
     "report missing arrows mappings" in {
-      val objectMapping = Map("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
-      val arrowMapping = Map(
+      import _4_._
+      val objectMapping: _4_.Node => _4_.Node =
+        Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
+      val arrowMapping: _4_.Arrow => _4_.Arrow = Map[_4_.Arrow, _4_.Arrow](
         "0.0" -> "1.1",
         "0.1" -> "1.2",
         "0.2" -> "1.3",
@@ -79,7 +89,9 @@ class FunctorTest extends Test {
     }
     
     "report a failure" in {
-      val objectMapping = Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
+      import _4_._
+      val objectMapping: _4_.Node => _4_.Node =
+        Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
       val arrowMapping = Map(
         "0.0" -> "1.1",
         "0.1" -> "1.2",
@@ -96,23 +108,29 @@ class FunctorTest extends Test {
       checkError(_ contains "Object mapping defined incorrectly for 3",
         Functor.build("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
-    
   }
 
   "functor" should {
     "produce cartesian product" in {
       val from = Category.discrete(Set(0, 1))
       val to = Square
-      val map = Map(0 -> "b", 1 -> "c")
-      val fOpt = Functor.build("sample product", from, to)(map, map)
+
+      val mapA: from.Arrow => to.Arrow =
+        Map(from.arrow(0) -> to.arrow("b"), from.arrow(1) -> to.arrow("c"))
+
+      type toO = to.O
+      val mapO: from.O => to.O =
+        Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
+      
+      val fOpt = Functor.build("sample product", from, to)(mapO, mapA)
       check[Functor[Category[Int, Int], Cat]](fOpt,
         (f:Functor[Category[Int, Int], Cat]) => {
         val limitOpt = f.limit
 
         limitOpt match {
           case Some(limit) =>
-            limit.arrowTo(0) == "ab"
-            limit.arrowTo(1) == "ac"
+            limit.arrowTo(f.d0.obj(0)) == "ab"
+            limit.arrowTo(f.d0.obj(1)) == "ac"
           case _ => failure(s"Could not build a limit of $f")
         }
       })
@@ -200,20 +218,20 @@ class FunctorTest extends Test {
       val c: set = Set(0, 1)
       val ac = SetFunction("f", a, c, _.toString.toInt % 2)
       val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
-      val sutOpt = Functor.build[Category[String, String], SetCategory](
+      val sutOpt = Functor.build[Cat, SetCategory](
         "pullback", Category.Pullback, SetCategory.Setf)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ac" -> ac, "bc" -> bc)
       )
       
-      check[Functor[Category[String, String], SetCategory]](sutOpt,
+      check[Functor[Cat, SetCategory]](sutOpt,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
-          sut.objectsMapping("a") === a
-          sut.objectsMapping("b") === b
-          sut.objectsMapping("c") === c
-          sut.arrowsMapping("ac") === ac
+          sut.objectsMapping(sut.d0.obj("a")) === a
+          sut.objectsMapping(sut.d0.obj("b")) === b
+          sut.objectsMapping(sut.d0.obj("c")) === c
+          sut.arrowsMapping(sut.d0.arrow("ac")) === ac
         }
       )
     }

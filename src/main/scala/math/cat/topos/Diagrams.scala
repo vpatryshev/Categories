@@ -2,10 +2,13 @@ package math.cat.topos
 
 import math.cat._
 import Diagrams._
+import math.cat
 import math.sets._
 
 class Diagrams[C <: Category[_, _]](site: C)
   extends Category[Diagram[C], DiagramArrow[C]](graphOfDiagrams[C]) {
+  type Node = Diagram[C]
+  type Arrow = DiagramArrow[C]
   override def id(o: O): Arrow = {
     def objectMap(x: o.d0.O): o.d1.Arrow =
       o.d1.id(o.objectsMapping(x).asInstanceOf[o.d1.O])
@@ -42,12 +45,15 @@ object Diagrams {
   
   def graphOfDiagrams[C <: Category[_, _]]: Graph[Diagram[C], DiagramArrow[C]] =
     new Graph[Diagram[C], DiagramArrow[C]] {
-      override def nodes: Nodes = BigSet[Diagram[C]]()
+      type Node = Diagram[C]
+      type Arrow = DiagramArrow[C]
 
-      override def arrows: Arrows = BigSet[DiagramArrow[C]]()
+      override def nodes: Nodes = BigSet[Node]().asInstanceOf[Nodes]
 
-      override def d0(f: Arrow): Node = f.d0.asInstanceOf[Node]
+      override def arrows: Arrows = BigSet[Arrow]().asInstanceOf[Arrows]
 
-      override def d1(f: Arrow): Node = f.d1.asInstanceOf[Node]
+      def d0(f: Arrow): Node = f.d0.asInstanceOf[Diagram[C]]
+
+      def d1(f: Arrow): Node = f.d1.asInstanceOf[Diagram[C]]
     }
 }

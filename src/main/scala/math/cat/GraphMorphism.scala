@@ -56,12 +56,14 @@ trait GraphMorphism[X <: Graph[_, _], Y <: Graph[_, _]]
   (g: GraphMorphism[Y, Z]):
   GraphMorphism[X, Z] = {
     require(this.d1 == g.d0, "Composition not defined")
-    def nm(x: d0.Node): g.d1.Node = g.nodesMapping(this.nodesMapping(x).asInstanceOf[g.d0.Node]) // casting is redundant, intellij says
-    def am(a: d0.Arrow): g.d1.Arrow = g.arrowsMapping(this.arrowsMapping(a).asInstanceOf[g.d0.Arrow])
+    val nm: d0.Node => g.d1.Node = x => g.nodesMapping(nodesMapping(x).asInstanceOf[g.d0.Node]) // casting is redundant, intellij says
+    val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(arrowsMapping(a).asInstanceOf[g.d0.Arrow])
     
     GraphMorphism[X, Z](
       m.tag + " o " + g.tag,
-      m.d0, g.d1)(nm, am)
+      m.d0, g.d1)(
+      nm,
+      am)
   }
 }
 

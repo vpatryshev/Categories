@@ -23,6 +23,7 @@ class GraphTest extends Test {
 
     "checks its arrows" >> {
       expect(sut => {
+        import sut._
         sut.anArrow(111) === 111
         sut.anArrow(112) should throwA[IllegalArgumentException]
       })(
@@ -31,6 +32,7 @@ class GraphTest extends Test {
 
     "are parallel" >> {
       expect(sut => {
+        import sut._
         sut.areParallel(13, 113) === true
         sut.areParallel(21, 32) === false
       })(
@@ -42,6 +44,7 @@ class GraphTest extends Test {
 
     "same domain" >> {
       expect(sut => {
+        import sut._
         sut.sameDomain(11, 113) === true
         sut.sameDomain(13, 113) === true
         sut.sameDomain(21, 32) === false
@@ -53,6 +56,7 @@ class GraphTest extends Test {
 
     "same codomain" >> {
       expect(sut => {
+        import sut._
         sut.sameCodomain(13, 113) === true
         sut.sameCodomain(21, 111) === true
         sut.sameCodomain(21, 32) === false
@@ -65,6 +69,7 @@ class GraphTest extends Test {
 
     "contains" >> {
       expect(sut => {
+        import sut._
       (sut contains 2) === true
       (sut contains 7) === false
       })(
@@ -88,6 +93,7 @@ class GraphTest extends Test {
 
     "follows" >> {
       expect(sut => {
+        import sut._
       sut.follows(113, 111) === true
       sut.follows(111, 113) === false
       })(
@@ -127,6 +133,7 @@ class GraphTest extends Test {
       val sutOpt = Graph.build(objects, map)
 
       check(sutOpt, (sut: Graph[Int, String]) => {
+        import sut._
         sut.nodes === Set(3, 1, 2)
         sut.d0("2to1") === 2
         sut.d1("2to1") === 1
@@ -139,6 +146,7 @@ class GraphTest extends Test {
 
     "Constructor_plain_withFunctions" >> {
       expect(sut => {
+        import sut._
       sut.d0(111) === 1
       sut.d0(13) === 1
       sut.d1(13) === 3
@@ -186,6 +194,7 @@ class GraphTest extends Test {
         (x: Int) => x % 10)
       
       expect(sut => {
+        import sut._
         sut.d0(32) === 3
         val opsut = ~sut
         val expected = Graph.build(
@@ -213,10 +222,11 @@ class GraphTest extends Test {
     "FromPoset" >> {
       val nodes = Set("a", "b", "c")
       val sut = Graph.ofPoset(PoSet(nodes, (a: String, b: String) => a <= b))
+      import sut._
       val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
       val expected = Graph.build(nodes, arrows).getOrElse(throw new IllegalArgumentException)
       sut.nodes === expected.nodes
-      sut.arrows ==== expected.arrows
+      sut.arrows === expected.arrows
       sut === expected
     }
 
@@ -241,14 +251,16 @@ class GraphTest extends Test {
         ("1", "3"))
       val expected = Graph.build(objects, map).getOrElse(throw new IllegalArgumentException)
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
+      import sut._
 
-      sut.nodes ==== expected.nodes
+      sut.nodes === expected.nodes
       sut.arrows === expected.arrows
       sut === expected
     }
 
     "hom" >> {
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
+      import sut._
       val hom = sut.arrowsBetween("1", "1")
       hom === Sets.parse("{1a, 1b}")
       sut.arrowsBetween("3", "2") === Sets.parse("{3to2}")

@@ -89,8 +89,8 @@ object NaturalTransformation {
       val x0: f.d0.O = f.d0.d0(a)
       val x1: f.d0.O = f.d0.d1(a)
       val rr = for {
-        fa: f.d1.Arrow <- forValue(f.arrowsMapping(a))
-        ga: g.d1.Arrow <- forValue(g.arrowsMapping(a.asInstanceOf[g.d0.Arrow])) // same thing
+        fa <- forValue(f.arrowsMapping(a))
+        ga <- forValue(g.arrowsMapping(a.asInstanceOf[g.d0.Arrow])) // same thing
       } yield Result.forValue {
         val tx0: f.d1.Arrow = transformPerObject(x0)
         val tx1: f.d1.Arrow = transformPerObject(x1)

@@ -1,6 +1,7 @@
 package math.cat
 
 import math.Test
+import math.cat.Category.Cat
 import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
@@ -15,7 +16,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "validate as a functor with Set as domain" in {
 
-      check[Functor[Category[String, String], SetCategory]](SamplePullbackDiagram.asFunctor,
+      check[Functor[Cat, SetCategory]](SamplePullbackDiagram.asFunctor,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
@@ -29,14 +30,14 @@ class SetDiagramTest extends Test with TestDiagrams {
         getOrElse(throw new InstantiationException("alas..."))
       sut1.objectsMapping("b") === SamplePullbackDiagram.sb
 
-      val diagram: SetDiagram[Category[String, String]] =
-        new SetDiagram[Category[String, String]]("Test", dom) {
+      val diagram: SetDiagram[Cat] =
+        new SetDiagram[Cat]("Test", dom) {
           override val objectsMapping: d0.O => d1.O =
             (x: d0.O) => SamplePullbackDiagram.om(x)
           override val arrowsMappingCandidate: d0.Arrow => YArrow =
             (a: d0.Arrow) => SamplePullbackDiagram.am(a)
         }
-      val res = Functor.validate(diagram)
+      val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
     }
 

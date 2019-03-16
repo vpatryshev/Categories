@@ -84,15 +84,26 @@ class CategoryTest extends Test with CategoryFactory {
     }
     
     "degree" >> {
-      segment(10).degree("4", 0) === Some("9", Nil)
-      segment(10).degree("4", 1) === Some("4", List("4.4"))
-      segment(10).degree("4", 5) === Some("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))
+      val sut = segment(10)
+      import sut._
+      sut.degree("4", 0) === Some("9", Nil)
+      sut.degree("4", 1) === Some("4", List("4.4"))
+      sut.degree("4", 5) === Some("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))
     }
     
-    "id" >> {
+    "id case 1" >> {
+      import _3_._
       _3_.id("2") === "2.2"
+    }
+
+    "id case 2" >> {
+      import ParallelPair._
       ParallelPair.id("1") === "1"
-      NaturalNumbers.id(42) === (42, 42)
+    }
+
+    "id case 3" >> {
+      import NaturalNumbers._
+      id(BigInt(42)) === (BigInt(42), BigInt(42))
     }
     
     "regression from 6/9/15" >> {
@@ -475,18 +486,21 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "pairsWithTheSameDomain" >> {
+      import HalfSimplicial._
       val actual = HalfSimplicial.pairsWithTheSameDomain("1", "2")
       val expected = Set(("1", "b"), ("2_1", "2_b"), ("2_1", "2"), ("2_1", "2_swap"), ("0_1", "0_2"), ("2_1", "2_a"), ("1", "a"))
       actual === expected
     }
 
     "pairsWithTheSameCodomain" >> {
+      import HalfSimplicial._
       val actual = HalfSimplicial.pairsWithTheSameCodomain("0", "2")
       val expected = Set(("0_2", "2"), ("0_1", "2_1"), ("0_2", "2_swap"), ("0_2", "2_b"), ("0_2", "2_a"))
       actual === expected
     }
 
     "isProduct" >> {
+      import Square._
       Square.isProduct("a", "c")(("ab", "ac")) === false
       Square.isProduct("a", "b")(("ab", "ac")) === false
       Square.isProduct("a", "a")(("ab", "ac")) === false
@@ -494,14 +508,17 @@ class CategoryTest extends Test with CategoryFactory {
     }
     
     "product_none" >> {
+      import ParallelPair._
       ParallelPair.product("0", "1") === None
     }
 
     "product_plain" >> {
+      import Square._
       Square.product("b", "c") === Some(("ab", "ac"))
     }
 
     "isUnion" >> {
+      import Square._
       Square.isUnion("b", "c")(("bd", "cd")) === true
       Square.isUnion("a", "c")(("ac", "c")) === true
       Square.isUnion("a", "c")(("ac", "c")) === true
@@ -509,15 +526,18 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "union_none" >> {
+      import ParallelPair._
       ParallelPair.union("0", "1") === None
     }
 
     "union_plain" >> {
+      import Square._
       val actual = Square.union("b", "c")
       actual === Some(("bd", "cd"))
     }
 
     "isPullback" >> {
+      import Square._
       val actual1 = Square.isPullback("bd", "cd")(("ab", "ab"))
       actual1 must beFalse
       val actual2 = Square.isPullback("bd", "cd")(("ab", "ac"))
@@ -525,34 +545,41 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "Pullback_none" >> {
+      import ParallelPair._
       ParallelPair.pullback("a", "b") === None
     }
 
     "Pullback_same" >> {
+      import ParallelPair._
       val actual = ParallelPair.pullback("a", "a")
       actual === Some(("0", "0"))
     }
 
     "Pullback_plain" >> {
+      import Square._
       val actual = Square.pullback("bd", "cd")
       actual === Some(("ab", "ac"))
     }
 
     "Pushout_none" >> {
+      import ParallelPair._
       ParallelPair.pushout("a", "b") === None
     }
 
     "Pushout_same" >> {
+      import ParallelPair._
       val actual = ParallelPair.pushout("a", "a")
       actual === Some(("1", "1"))
     }
 
     "isPushout_square" >> {
+      import Square._
       val actual = Square.isPushout("ab", "ac")(("bd", "cd"))
       actual must beTrue
     }
 
     "Pushout_plain" >> {
+      import Square._
       val actual = Square.pushout("ab", "ac")
       actual === Some(("bd", "cd"))
     }
@@ -562,16 +589,30 @@ class CategoryTest extends Test with CategoryFactory {
       ParallelPair.terminal === None
     }
 
-    "isTerminal_positive" >> {
+    "isTerminal_positive_Square" >> {
+      import Square._
       Square.isTerminal("d") must beTrue
+    }
+
+    "isTerminal_positive _4_" >> {
+      import _4_._
       _4_.isTerminal("3") must beTrue
     }
 
-    "isTerminal_negative" >> {
+    "isTerminal_negative Square" >> {
+      import Square._
       Square.isTerminal("a") must beFalse
       Square.isTerminal("b") must beFalse
+    }
+
+    "isTerminal_negative _4_" >> {
+      import _4_._
       _4_.isTerminal("0") must beFalse
       _4_.isTerminal("1") must beFalse
+    }
+
+    "isTerminal_negative ParallelPair" >> {
+      import ParallelPair._
       ParallelPair.isTerminal("0") must beFalse
       ParallelPair.isTerminal("1") must beFalse
     }
@@ -630,36 +671,71 @@ class CategoryTest extends Test with CategoryFactory {
       Square.arrowsFromRootObjects === Set("a", "ab", "ac", "ad")
     }
 
-    "buildBundles" >> {
+    "buildBundles M" >> {
+      import M._
       M.buildBundles(Set("a", "d"), Set("a", "d", "dc", "de")) ===
         Map("a" -> Set("a"), "d" -> Set("d", "dc", "de"))
+    }
+
+    "buildBundles W" >> {
+      import W._
       W.buildBundles(Set("a", "d"), Set("a", "ab")) ===
         Map("a" -> Set("a", "ab"), "d" -> Set())
+    }
+
+    "buildBundles ParallelPair" >> {
+      import ParallelPair._
       ParallelPair.buildBundles(Set("0"), Set("0", "a", "b")) ===
         Map("0" -> Set("0", "a", "b"))
       ParallelPair.buildBundles(Set("1"), Set("0", "a", "b")) must throwA[IllegalArgumentException]
+    }
+
+    "buildBundles Pullback" >> {
+      import Pullback._
       Pullback.buildBundles(Set("a", "c"), Set("a", "ac", "c")) ===
         Map("a" -> Set("a", "ac"), "c" -> Set("c"))
+    }
+
+    "buildBundles Pushout" >> {
+      import Pushout._
       Pushout.buildBundles(Set("a", "b"), Set("a", "ab", "ac", "b")) ===
         Map("a" -> Set("a", "ab", "ac"), "b" -> Set("b"))
+    }
+    
+    "buildBundles Square" >> {
+      import Square._
       Square.buildBundles(Set("a"), Set("a", "ab", "ac", "ad")) ===
         Map("a" -> Set("a", "ab", "ac", "ad"))
       Square.buildBundles(Set("b", "c"), Set()) ===
         Map("b" -> Set(), "c" -> Set())
     }
-    
-    "isInitial" in {
+
+    "isInitial _4_" in {
+      import _4_._
       _4_.isInitial("0") === true
       _4_.isInitial("1") === false
+    }
+    
+    "isInitial in HalfSimplicial" in {
+      import HalfSimplicial._
       HalfSimplicial.isInitial("0") === true
       HalfSimplicial.isInitial("1") === false
       HalfSimplicial.isInitial("2") === false
+    }
+
+    "isInitial in ParallelPair" in {
+      import ParallelPair._
       ParallelPair.isInitial("0") === false
+    }
+
+    "isInitial in Pullback" in {
+      import Pullback._
       Pullback.isInitial("a") === false
     }
     
     "op" in {
       val op3 = _3_.op
+      import op3._
       op3.arrows === _3_.arrows
       op3.objects === _3_.objects
       op3.d0("1.2") === "2"
@@ -684,6 +760,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "2" >> {
       val sut = _2_
+      import sut._
       sut.objects === Set("0", "1")
       val expected = Set("0.0", "0.1", "1.1")
       val arrows = sut.arrows
@@ -737,7 +814,7 @@ class CategoryTest extends Test with CategoryFactory {
       newComposition.keySet must not contain ("bb", "a")
       newComposition.keySet must not contain ("a", "bb")
       
-      val sut1 = Category.build(graph, composition)
+      val sut1 = Category.buildFromPartialData(graph, composition)
       
       sut1 match {
         case Good(c) => ok

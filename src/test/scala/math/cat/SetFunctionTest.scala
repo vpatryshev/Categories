@@ -119,7 +119,7 @@ class SetFunctionTest extends Specification {
       val s = Set(1, 2, 77, 90, 42, "1xya2")
       def predicate = (x: Any) => x.toString.charAt(0) == '1'
 
-      val sut = inclusion(s, predicate)
+      val sut = filterByPredicate(s)(predicate)
       sut.d1 === s
       sut.d0 === (s filter predicate)
       for (x <- List(1, "1xya2")) (sut(x) == x) must beTrue
