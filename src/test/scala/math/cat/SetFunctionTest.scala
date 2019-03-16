@@ -53,27 +53,6 @@ class SetFunctionTest extends Specification {
       true
     }
 
-    "TypelessSetMorphism before another" >> {
-      val x = Set(1, 2, "a")
-      val y = Set("x1", "x2", "xa", 77)
-      val z = Set(2, 28, x)
-      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
-      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
-      val sut = g before f
-      sut.d0 === x
-      sut.d1 === z
-      f(1) === "x1"
-      sut(1) === 2
-      sut("a") === 2
-      try {
-        sut(z)
-        failure("3 is not in domain")
-      } catch {
-        case e: Exception => // praise the Lord
-      }
-      true
-    }
-
     "building a constant" >> {
       val s0 = Set(1, 2, "a")
       val s1 = Set("x1", "x2", "xa", 77)

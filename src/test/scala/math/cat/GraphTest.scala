@@ -8,18 +8,9 @@ import scalakittens.{Good, Result}
 class GraphTest extends Test {
   import Graph._
 
-  type SUT = Graph[Int, Int]
+  type SUT = Graph
   
   "Graph" >> {
-    "is immutable" >> {
-      expect(sut => {
-        sut - 1 should throwA[UnsupportedOperationException]
-        sut + 1 should throwA[UnsupportedOperationException]
-      })(
-        Graph.build(
-          Set(1, 2, 3),
-          Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
-    }
 
     "checks its arrows" >> {
       expect(sut => {
@@ -117,7 +108,7 @@ class GraphTest extends Test {
         "2.a" -> ("2", "2"),
         "2.b" -> ("2", "2"),
         "2.swap" -> ("2", "2"))
-      val testGraph = Graph.build(nodes, arrows)
+      val testGraph = Graph.fromArrowMap(nodes, arrows)
       testGraph === testGraph.flatMap(g => Graph.read(g.toString))
     }
 
@@ -130,9 +121,9 @@ class GraphTest extends Test {
     "Constructor_plain_withmap" >> {
       val objects = Set(1, 2, 3)
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
-      val sutOpt = Graph.build(objects, map)
+      val sutOpt = Graph.fromArrowMap(objects, map)
 
-      check(sutOpt, (sut: Graph[Int, String]) => {
+      check(sutOpt, (sut: Graph) => {
         import sut._
         sut.nodes === Set(3, 1, 2)
         sut.d0("2to1") === 2
@@ -175,7 +166,7 @@ class GraphTest extends Test {
 
     "Equals_positive" >> {
       val map = Map(11 -> (1, 1), 111 -> (1, 1), 21 -> (2, 1), 32 -> (3, 2), 13 -> (1, 3))
-      val sut1 = Graph.build(Set(1, 2, 3), map)
+      val sut1 = Graph.fromArrowMap(Set(1, 2, 3), map)
       val sut2 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       sut1 === sut2
     }
@@ -224,7 +215,7 @@ class GraphTest extends Test {
       val sut = Graph.ofPoset(PoSet(nodes, (a: String, b: String) => a <= b))
       import sut._
       val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
-      val expected = Graph.build(nodes, arrows).getOrElse(throw new IllegalArgumentException)
+      val expected = Graph.fromArrowMap(nodes, arrows).getOrElse(throw new IllegalArgumentException)
       sut.nodes === expected.nodes
       sut.arrows === expected.arrows
       sut === expected
@@ -249,7 +240,7 @@ class GraphTest extends Test {
       val objects = Set("1", "2", "3")
       val map = Map("1a" -> ("1", "1"), "1b" -> ("1", "1"), "2to1" -> ("2", "1"), "3to2" -> ("3", "2"), "1to3" ->
         ("1", "3"))
-      val expected = Graph.build(objects, map).getOrElse(throw new IllegalArgumentException)
+      val expected = Graph.fromArrowMap(objects, map).getOrElse(throw new IllegalArgumentException)
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
       import sut._
 

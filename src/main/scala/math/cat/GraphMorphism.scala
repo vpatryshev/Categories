@@ -4,7 +4,7 @@ package math.cat
 /**
   * Morphism for graphs.
   */
-trait GraphMorphism[X <: Graph[_, _], Y <: Graph[_, _]]
+trait GraphMorphism[X <: Graph, Y <: Graph]
   extends Morphism[X, Y] { m =>
   val tag: String
   val d0: X
@@ -52,7 +52,7 @@ trait GraphMorphism[X <: Graph[_, _], Y <: Graph[_, _]]
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
-  def compose[Z <: Graph[_, _]]
+  def compose[Z <: Graph]
   (g: GraphMorphism[Y, Z]):
   GraphMorphism[X, Z] = {
     require(this.d1 == g.d0, "Composition not defined")
@@ -68,7 +68,7 @@ trait GraphMorphism[X <: Graph[_, _], Y <: Graph[_, _]]
 }
 
 object GraphMorphism {
-  def apply[X <: Graph[_, _], Y <: Graph[_, _]](
+  def apply[X <: Graph, Y <: Graph](
     taggedAs: String,
     domain: X,
     codomain: Y)(
@@ -86,13 +86,13 @@ object GraphMorphism {
       f1(a.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
   }
 
-//  def apply[X <: Graph[_, _], Y <: Graph[_, _]]
+//  def apply[X <: Graph, Y <: Graph]
 //    (d0: X, d1: Y)
 //    (f0: d0.Node => d1.Node,
 //     f1: d0.Arrow => d1.Arrow): GraphMorphism[X, Y] =
 //    apply("_", d0, d1)(f0, f1)
 
-  def id[G <: Graph[_, _]](graph: G): GraphMorphism[G, G] =
+  def id[G <: Graph](graph: G): GraphMorphism[G, G] =
     new GraphMorphism[G, G] {
       val tag = "id"
       val d0: G = graph

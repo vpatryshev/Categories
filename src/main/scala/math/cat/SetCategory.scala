@@ -146,7 +146,7 @@ class SetCategory(objects: BigSet[Set[Any]])
 
 object SetCategory {
 
-  private[cat] def graphOfSets(nodes0: BigSet[set]): Graph[set, SetFunction] = {
+  private[cat] def graphOfSets(nodes0: BigSet[set]): Graph = {
     Graph.build[set, SetFunction](
       nodes0,
       BigSet[SetFunction](),

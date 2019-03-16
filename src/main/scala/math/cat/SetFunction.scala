@@ -43,21 +43,6 @@ case class SetFunction(
       throw new IllegalArgumentException(s"Composition not defined for $self and $g")
     )
   }
-
-  /**
-   * Composes a morphism with this morphism.
-   * TODO: probably get rid of it
-   * @param g first morphism: T -> X
-   * @return their composition f o g: T -> Y
-   */
-  def before(g: SetFunction): SetFunction = g andThen this
-  
-  override def equals(o: Any): Boolean = o match {
-    case other: SetFunction =>
-      d0 == other.d0 && d1 == other.d1 &&
-      d0.forall(x => f(x) == other.f(x))
-    case _ => false
-  }
   
   override lazy val hashCode: Int =
     d1.hashCode + 2 * d0.map(x => (x, f(x))).hashCode

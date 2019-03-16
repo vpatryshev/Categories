@@ -43,8 +43,8 @@ object Diagrams {
   
   type DiagramArrow[C <: Category[_, _]] = NaturalTransformation[C, SetCategory]
   
-  def graphOfDiagrams[C <: Category[_, _]]: Graph[Diagram[C], DiagramArrow[C]] =
-    new Graph[Diagram[C], DiagramArrow[C]] {
+  def graphOfDiagrams[C <: Category[_, _]]: Graph =
+    new Graph {
       type Node = Diagram[C]
       type Arrow = DiagramArrow[C]
 

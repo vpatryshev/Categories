@@ -11,7 +11,7 @@ import scalakittens.{Good, Result}
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category[Obj, A](override val graph: Graph[Obj, A])
+abstract class Category[Obj, A](override val graph: Graph)
   extends CategoryData[Obj, A](graph) {
 
   implicit def obj(x: Any): O = x match {
@@ -660,7 +660,7 @@ abstract class Category[Obj, A](override val graph: Graph[Obj, A])
     arrows filter { x == d1(_) }
 }
 
-private[cat] abstract class CategoryData[Obj, A](val graph: Graph[Obj, A]) extends Graph[Obj, A] {
+private[cat] abstract class CategoryData[Obj, A](val graph: Graph) extends Graph {
   type O = Node
   type Objects = Set[O]
 
@@ -805,7 +805,7 @@ private[cat] trait CategoryFactory {
     d1: A => O,
     ids: O => A,
     composition: (A, A) => Option[A]): Result[Category[O, A]] = {
-    val graph: Result[Graph[O, A]] = Graph.build(objects, arrows, d0, d1)
+    val graph: Result[Graph] = Graph.build(objects, arrows, d0, d1)
     graph flatMap { buildFromGraphWithIdentity(_, ids, composition) }
   }
 
@@ -817,7 +817,7 @@ private[cat] trait CategoryFactory {
     * @return category based on he poset
     */
   def fromPoset[T](poset: PoSet[T]): Category[T, (T, T)] = {
-    new Category(Graph.ofPoset(poset)) {
+    new Category[T, (T, T)](Graph.ofPoset(poset)) {
       type Node = T
       type Arrow = (T, T)
 
@@ -837,7 +837,7 @@ private[cat] trait CategoryFactory {
     * @param objects set of this category's objects
     * @return the category
     */
-  def discrete[T](objects: Set[T]): Category[T, T] = new Category(Graph.discrete(objects)) {
+  def discrete[T](objects: Set[T]): Category[T, T] = new Category[T, T](Graph.discrete[T](objects)) {
     override def id(obj: O): Arrow = obj.asInstanceOf[Arrow]
 
     override def m(f: Arrow, g: Arrow): Option[Arrow] = Option(f) filter (g ==) // everything is an identity
@@ -851,8 +851,8 @@ private[cat] trait CategoryFactory {
     * @param g the underlying graph, with no id arrows
     * @return new category
     */
-  def fromGraph[T](g: Graph[T, T]): Result[Category[T, T]] =
-    build(g, (f: T, g: T) => None)
+  def fromGraph[T](g: Graph): Result[Category[T, T]] =
+    build[T](g, (f: T, g: T) => None)
 
   /**
     * Creates an instance of Category given a graph and arrow composition table
@@ -862,12 +862,12 @@ private[cat] trait CategoryFactory {
     * @param composition arrows composition table
     * @return new category
     */
-  def build[T](graph: Graph[T, T],
+  def build[T](graph: Graph,
     composition: (T, T) => Option[T]): Result[Category[T, T]] = {
     val isUnit = (f: T) => graph.nodes(f.asInstanceOf[graph.Node])
     val m = (f: T, g: T) =>
       if (isUnit(f)) Some(g) else if (isUnit(g)) Some(f) else composition(f, g)
-    val g: Graph[T, T] = addUnitsToGraph(graph)
+    val g: Graph = addUnitsToGraph(graph)
     val id = (x: T) => x
     buildFromGraphWithIdentity(g, id, m)
   }
@@ -901,7 +901,7 @@ private[cat] trait CategoryFactory {
     * @return a newly-built category
     */
   def buildFromPartialData[T](
-    graph: Graph[T, T],
+    graph: Graph,
     compositionSource: Map[(T, T), T]): Result[Category[T, T]] = {
     val graphWithUnits = addUnitsToGraph(graph)
     val composition = fillCompositionTable(graphWithUnits, compositionSource)
@@ -928,7 +928,7 @@ private[cat] trait CategoryFactory {
     *         TODO: eliminate code duplication
     */
   def buildFromGraphWithIdentity[Obj, A](
-    g: Graph[Obj, A],
+    g: Graph,
     ids: Obj => A,
     composition: (A, A) => Option[A]): Result[Category[Obj, A]] = {
     val data = new CategoryData[Obj, A](g) {
@@ -951,16 +951,15 @@ private[cat] trait CategoryFactory {
       }
   }
 
-  private[cat] def addUnitsToGraph[T](graph: Graph[T, T]): Graph[T, T] = {
+  private[cat] def addUnitsToGraph[T](graph: Graph): Graph = {
     val nodes = graph.nodes.asInstanceOf[Set[T]] // this and the next casting is to cover up a weird bug somewhere in
     // scala
     val allArrows: Set[T] = nodes ++ graph.arrows.asInstanceOf[Set[T]]
 
     def isIdentity(f: T): Boolean = graph.nodes contains f.asInstanceOf[graph.Node]
 
-    new Graph[T, T] {
+    new Graph {
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
-
       def arrows: Arrows = allArrows.asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node =
@@ -983,7 +982,7 @@ private[cat] trait CategoryFactory {
     * @param graph             - the graph of this category
     * @param compositionSource partially filled composition table
     */
-  protected def fillCompositionTable[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
+  protected def fillCompositionTable[A](graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
     // First, add identities
     val addedIds = defineCompositionWithIdentities(graph, compositionSource)
 
@@ -997,7 +996,7 @@ private[cat] trait CategoryFactory {
   }
 
   // adding composition with identities to a composition table
-  protected def defineCompositionWithIdentities[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A)
+  protected def defineCompositionWithIdentities[A](graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A)
     , A] = {
     (compositionSource /: graph.arrows) ((m, f) => {
       val fA = f.asInstanceOf[A]
@@ -1008,7 +1007,7 @@ private[cat] trait CategoryFactory {
   }
 
   // adding unique available compositions
-  protected def addUniqueCompositions[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
+  protected def addUniqueCompositions[A](graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
     // Second, add unique solutions
     def candidates(f: A, g: A) =
       graph.arrowsBetween(
@@ -1040,12 +1039,12 @@ private[cat] trait CategoryFactory {
     solutions
   }
 
-  def composablePairs(graph: Graph[_, _]): Iterable[(graph.Arrow, graph.Arrow)] = {
+  def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] = {
     for (f <- graph.arrows; g <- graph.arrows if graph.follows(g, f)) yield (f, g)
   }
 
   // adding composition that are deduced from associativity law
-  protected def deduceCompositions[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
+  protected def deduceCompositions[A](graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
     val triplesToScan = composableTriples(graph, compositionSource)
 
     val compositions: Map[(A, A), A] = (compositionSource /: triplesToScan) {
@@ -1066,7 +1065,7 @@ private[cat] trait CategoryFactory {
   }
 
   // this is a technical method to list all possible triples that have compositions defined pairwise
-  protected def composableTriples[A](graph: Graph[A, A], compositionSource: Map[(A, A), A]): Set[(A, A, A)] = {
+  protected def composableTriples[A](graph: Graph, compositionSource: Map[(A, A), A]): Set[(A, A, A)] = {
     val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
       f <- graph.arrows
       g <- graph.arrows if compositionSource.contains((f, g).asInstanceOf[(A, A)])

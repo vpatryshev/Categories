@@ -8,19 +8,17 @@ import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-abstract class Graph[N, A] extends GraphData { graph =>
+abstract class Graph extends GraphData { graph =>
   def contains(node: Node): Boolean = nodes contains node
   def size: Int = nodes.size
   
-  implicit def pairOfNodes(p: (N, N)): (Node, Node) = (node(p._1), node(p._2))
+  implicit def pairOfNodes(p: (_, _)): (Node, Node) = (node(p._1), node(p._2))
 
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
-  def -(x:N): Set[N] = itsImmutable
-  def +(x:N): Set[N] = itsImmutable
 
   override def equals(x: Any): Boolean = {
     x match {
-      case other: Graph[_, A] => other.equal(this)
+      case other: Graph => other.equal(this)
       case _ => false
     }
   }
@@ -33,7 +31,7 @@ abstract class Graph[N, A] extends GraphData { graph =>
     * @param that another graph
     * @return true if they are equal.
     */
-  private def equal(that: Graph[_, A]) = {
+  private def equal(that: Graph) = {
     val isEqual = this.nodes == that.nodes && this.arrows == that.arrows
     (isEqual /: arrows) (
       (bool: Boolean, aHere: this.Arrow) => {
@@ -101,7 +99,7 @@ abstract class Graph[N, A] extends GraphData { graph =>
     */
   def areParallel(f: Arrow, g: Arrow): Boolean = sameDomain(f, g) && sameCodomain(f, g)
 
-  def unary_~ : Graph[Node, Arrow] = new Graph[Node, Arrow] {
+  def unary_~ : Graph = new Graph {
     def nodes: Set[Node] = graph.nodes.asInstanceOf[Nodes]
     def arrows: Set[Arrow] = graph.arrows.asInstanceOf[Arrows]
     def d0(f: Arrow): Node = graph.d1(f.asInstanceOf[Graph.this.Arrow]).asInstanceOf[Node]
@@ -150,7 +148,7 @@ object Graph {
     nodes0: Set[N],
     arrows0: Set[A],
     d00: A => N,
-    d10: A => N): Result[Graph[N, A]] = {
+    d10: A => N): Result[Graph] = {
     val data = new GraphData {
       override type Node = N
       override type Arrow = A
@@ -161,7 +159,7 @@ object Graph {
     }
 
     data.validate returning
-      new Graph[N, A] {
+      new Graph {
         def nodes: Nodes = data.nodes.asInstanceOf[Nodes]
         def arrows: Arrows = data.arrows.asInstanceOf[Arrows]
         override type Node = N
@@ -171,24 +169,24 @@ object Graph {
       }
   }
 
-  def build[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph[N, A]] = {
-    build(nodes, arrows.keySet, a => arrows(a)._1,  (a: A) => arrows(a)._2)
+  def fromArrowMap[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] = {
+    build(nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
   }
 
-  def discrete[N](points: Set[N]): Graph[N, N] =
-    new Graph[N, N] {
+  def discrete[N](points: Set[N]): Graph =
+    new Graph {
       def nodes: Nodes = points.asInstanceOf[Nodes]
       def arrows: Arrows = Set.empty
       def d0(f: Arrow): Node = Map.empty(f) // there's nothing there, but we need a signature
       def d1(f: Arrow): Node = Map.empty(f)
     }
 
-  def ofPoset[N](poset: PoSet[N]): Graph[N, (N, N)] = {
+  def ofPoset[N](poset: PoSet[N]): Graph = {
     val points = poset.underlyingSet
     val posetSquare = Sets.product2(points, points)
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 
-    new Graph[N, (N, N)] {
+    new Graph {
       def nodes: Nodes = points.asInstanceOf[Nodes]
       def arrows: Arrows = goodPairs.asInstanceOf[Arrows]
       def d0(f: Arrow): Node = f.asInstanceOf[(N, N)]._1.asInstanceOf[Node]
@@ -197,9 +195,9 @@ object Graph {
   }        
 
   class Parser extends Sets.Parser {
-    def all: Parser[Result[Graph[String, String]]] = "("~graph~")" ^^ {case "("~g~")" => g}
+    def all: Parser[Result[Graph]] = "("~graph~")" ^^ {case "("~g~")" => g}
 
-    def graph: Parser[Result[Graph[String, String]]] = parserOfSet~","~arrows ^^ {case s~","~a => Graph.build(s, a)}
+    def graph: Parser[Result[Graph]] = parserOfSet~","~arrows ^^ {case s~","~a => Graph.fromArrowMap(s, a)}
 
     def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
 
@@ -212,20 +210,20 @@ object Graph {
       }
     }
 
-    def readGraph(input: CharSequence): Result[Graph[String, String]] = {
-      val pr: ParseResult[Result[Graph[String, String]]] = parseAll(all, input)
+    def readGraph(input: CharSequence): Result[Graph] = {
+      val pr: ParseResult[Result[Graph]] = parseAll(all, input)
       explain(pr)
     }
 
-    def readGraph(input: Reader): Result[Graph[String, String]] = explain(parseAll(all, input))
+    def readGraph(input: Reader): Result[Graph] = explain(parseAll(all, input))
   }
 
-  def read(input: Reader): Result[Graph[String, String]] = (new Parser).readGraph(input)
+  def read(input: Reader): Result[Graph] = (new Parser).readGraph(input)
 
-  def read(input: CharSequence): Result[Graph[String, String]] = (new Parser).readGraph(input)
+  def read(input: CharSequence): Result[Graph] = (new Parser).readGraph(input)
 
   implicit class GraphString(val sc: StringContext) extends AnyVal {
-    def graph(args: Any*): Graph[String, String] = {
+    def graph(args: Any*): Graph = {
       val strings = sc.parts.iterator
       val expressions = args.iterator
       var buf = new StringBuffer(strings.next)

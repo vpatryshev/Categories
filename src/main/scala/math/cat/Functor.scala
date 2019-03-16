@@ -10,8 +10,6 @@ import scalakittens.Result._
 /**
   * Functor class: functions for categories.
   *
-  * TODO: have a decent factory, don't use the constructor, too many parameters, eh
-  *
   * @tparam X the first category type 
   * @tparam Y the second category type
   */
