@@ -9,7 +9,9 @@ import scalakittens.{Good, Result}
 import scalakittens.Result._
 
 abstract class Graph extends GraphData { graph =>
-  def contains(node: Node): Boolean = nodes contains node
+  
+  def contains(any: Any): Boolean = try { nodes contains any } catch { case _ => false }
+
   def size: Int = nodes.size
   
   implicit def pairOfNodes(p: (_, _)): (Node, Node) = (node(p._1), node(p._2))
@@ -34,10 +36,11 @@ abstract class Graph extends GraphData { graph =>
   private def equal(that: Graph) = {
     val isEqual = this.nodes == that.nodes && this.arrows == that.arrows
     (isEqual /: arrows) (
-      (bool: Boolean, aHere: this.Arrow) => {
+      (bool: Boolean, aHere: this.Arrow) => try {
         val aThere = that.arrow(aHere)
         bool && (d0(aHere) == that.d0(aThere)) && (d1(aHere) == that.d1(aThere))
-      })
+      } catch { case _: Exception => false }
+    )
   }
 
   override def toString: String = {
@@ -56,11 +59,6 @@ abstract class Graph extends GraphData { graph =>
     */
   def arrowsBetween(from: Node, to: Node): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
-  def anArrow(f: Arrow): Arrow = {
-    require(arrows(f), s"Unknown arrow $f")
-    f
-  }
-
   /**
     * Checks if one arrow follows another
     * @param f an arrow
@@ -68,7 +66,7 @@ abstract class Graph extends GraphData { graph =>
     * @return true iff f follows g
     */
   def follows(f: Arrow, g: Arrow): Boolean = {
-    d0(anArrow(f)) == d1(anArrow(g))
+    d0(arrow(f)) == d1(arrow(g))
   }
 
   /**
@@ -78,7 +76,7 @@ abstract class Graph extends GraphData { graph =>
     * @return true iff g and f have the same domain
     */
   def sameDomain(f: Arrow, g: Arrow): Boolean = {
-    d0(anArrow(f)) == d0(anArrow(g))
+    d0(arrow(f)) == d0(arrow(g))
   }
 
   /**
@@ -88,7 +86,7 @@ abstract class Graph extends GraphData { graph =>
     * @return true iff g and f have the same codomain
     */
   def sameCodomain(f: Arrow, g: Arrow): Boolean = {
-    d1(anArrow(f)) == d1(anArrow(g))
+    d1(arrow(f)) == d1(arrow(g))
   }
 
   /**
@@ -104,8 +102,8 @@ abstract class Graph extends GraphData { graph =>
     type Arrow = graph.Arrow
     def nodes: Nodes = graph.nodes
     def arrows: Arrows = graph.arrows
-    def d0(f: Arrow): Node = graph.d0(f)
-    def d1(f: Arrow): Node = graph.d1(f)
+    def d0(f: Arrow): Node = graph.d1(f)
+    def d1(f: Arrow): Node = graph.d0(f)
   }
 }
 
@@ -147,7 +145,7 @@ object Graph {
     arrows0: Set[A],
     d00: A => N,
     d10: A => N): Result[Graph] = {
-    val data = new GraphData {
+    val data: GraphData = new GraphData {
       override type Node = N
       override type Arrow = A
       def nodes: Nodes = nodes0
@@ -158,12 +156,12 @@ object Graph {
 
     data.validate returning
       new Graph {
-        def nodes: Nodes = data.nodes
-        def arrows: Arrows = data.arrows
+        def nodes: Nodes = data.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
+        def arrows: Arrows = data.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
         override type Node = N
         override type Arrow = A
-        override def d0(f: Arrow): Node = data.d0(f)
-        override def d1(f: Arrow): Node = data.d1(f)
+        override def d0(f: Arrow): Node = data.d0(data.arrow(f))
+        override def d1(f: Arrow): Node = data.d1(data.arrow(f))
       }
   }
 

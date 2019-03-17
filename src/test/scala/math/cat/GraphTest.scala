@@ -15,8 +15,8 @@ class GraphTest extends Test {
     "checks its arrows" >> {
       expect(sut => {
         import sut._
-        sut.anArrow(111) === 111
-        sut.anArrow(112) should throwA[IllegalArgumentException]
+        sut.arrow(111) === 111
+        sut.arrow(112) should throwA[MatchError]
       })(
         Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
     }

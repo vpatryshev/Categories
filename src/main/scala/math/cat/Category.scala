@@ -127,7 +127,7 @@ abstract class Category(override val graph: Graph)
     * @param f an arrow to check
     * @return true iff f is an isomorphism
     */
-  def isIsomorphism(f: Arrow): Boolean = inverse(anArrow(f)).isDefined
+  def isIsomorphism(f: Arrow): Boolean = inverse(arrow(f)).isDefined
 
   /**
     * Returnes an inverse arrow.
@@ -135,12 +135,12 @@ abstract class Category(override val graph: Graph)
     * @param f an arrow for which we are looking an inverse
     * @return inverse arrow
     */
-  def inverse(f: Arrow): Option[Arrow] = arrowsBetween(d1(anArrow(f)), d0(f)) find (areInverse(f, _))
+  def inverse(f: Arrow): Option[Arrow] = arrowsBetween(d1(arrow(f)), d0(f)) find (areInverse(f, _))
 
   def areInverse(f: Arrow, g: Arrow): Boolean =
-    (m(anArrow(f), anArrow(g)) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
+    (m(arrow(f), arrow(g)) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
 
-  def isEndomorphism(f: Arrow): Boolean = d0(anArrow(f)) == d1(f)
+  def isEndomorphism(f: Arrow): Boolean = d0(arrow(f)) == d1(f)
 
   /**
     * Checks whether an arrow is a monomorphism.
@@ -344,7 +344,7 @@ abstract class Category(override val graph: Graph)
     */
   def isProduct(x: O, y: O): ((Arrow, Arrow)) => Boolean = {
     case (px, py) =>
-      d0(anArrow(px)) == d0(anArrow(py)) &&
+      d0(arrow(px)) == d0(arrow(py)) &&
         d1(px) == x &&
         d1(py) == y &&
         pairsWithTheSameDomain(x, y).forall(factorUniquelyOnRight(px, py))
@@ -382,7 +382,7 @@ abstract class Category(override val graph: Graph)
     */
   def isUnion(x: O, y: O): ((Arrow, Arrow)) => Boolean = (i: (Arrow, Arrow)) => {
     val (ix, iy) = i
-    d0(anArrow(ix)) == x && d0(anArrow(iy)) == y &&
+    d0(arrow(ix)) == x && d0(arrow(iy)) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
   }
 

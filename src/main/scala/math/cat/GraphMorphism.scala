@@ -33,7 +33,12 @@ trait GraphMorphism
         d0 == other.d0 &&
         d1 == other.d1 && {
           def sameNodesMapping(x: d0.Node): Boolean = {
-            nodesMapping(x) == other.nodesMapping(x.asInstanceOf[other.d0.Node])
+            x match {
+              case y: other.d0.Node => nodesMapping(x) == y
+              case _ => false
+            }
+            
+ //           nodesMapping(x) == other.nodesMapping(x.asInstanceOf[other.d0.Node])
           }
           val sameNodes: Boolean = d0.nodes forall sameNodesMapping
 
