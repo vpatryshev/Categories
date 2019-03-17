@@ -32,18 +32,17 @@ trait GraphMorphism
       case other: GraphMorphism =>
         d0 == other.d0 &&
         d1 == other.d1 && {
-          def sameNodesMapping(x: d0.Node): Boolean = x match {
-            case y: other.d0.Node => nodesMapping(x) == other.nodesMapping(y)
-            case _ => false
-          }
+          def sameNodesMapping(x: d0.Node): Boolean = try {
+            other.nodesMapping(other.d0.node(x)) == nodesMapping(x)
+          } catch { case _: Exception => false }
+
           val sameNodes: Boolean = d0.nodes forall sameNodesMapping
 
-          def sameArrowssMapping(a: d0.Arrow): Boolean = a match {
-            case b: other.d0.Arrow => arrowsMapping(a) == other.arrowsMapping(b)
-            case _ => false
-          }
+          def sameArrowsMapping(a: d0.Arrow): Boolean = try {
+            other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a)
+          } catch { case _: Exception => false }
 
-          val sameArrows: Boolean = d0.arrows forall sameArrowssMapping
+          val sameArrows: Boolean = d0.arrows forall sameArrowsMapping
           
           sameNodes && sameArrows
         }
@@ -57,30 +56,28 @@ trait GraphMorphism
 
   def compose(g: GraphMorphism): GraphMorphism = {
     require(this.d1 == g.d0, "Composition not defined")
-    val nm: d0.Node => g.d1.Node = x => g.nodesMapping(nodesMapping(x).asInstanceOf[g.d0.Node]) // casting is redundant, intellij says
-    val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(arrowsMapping(a).asInstanceOf[g.d0.Arrow])
+    val nm: d0.Node => g.d1.Node = x => g.nodesMapping(g.d0.node(nodesMapping(x)))
+    val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
     
     GraphMorphism(m.tag + " o " + g.tag, m.d0, g.d1)(nm, am)
   }
 }
 
 object GraphMorphism {
-  def apply[X <: Graph, Y <: Graph](
+  def apply(
     taggedAs: String,
-    domain: X,
-    codomain: Y)(
+    domain: Graph,
+    codomain: Graph)(
     f0: domain.Node => codomain.Node,
     f1: domain.Arrow => codomain.Arrow):
   GraphMorphism = new GraphMorphism {
     val tag: String = taggedAs
-    val d0: X = domain
-    val d1: Y = codomain
+    val d0: Graph = domain
+    val d1: Graph = codomain
 
-    override def nodesMapping(n: d0.Node): d1.Node =
-      f0(n.asInstanceOf[domain.Node]).asInstanceOf[d1.Node]
+    override def nodesMapping(n: d0.Node): d1.Node = d1.node(f0(domain.node(n)))
 
-    override def arrowsMapping(a: d0.Arrow): d1.Arrow =
-      d1.arrow(f1(domain.arrow(a)))
+    override def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(f1(domain.arrow(a)))
   }
 
   def id(graph: Graph): GraphMorphism =
@@ -89,8 +86,7 @@ object GraphMorphism {
       val d0: Graph = graph
       val d1: Graph = graph
 
-      def nodesMapping(n: d0.Node): d1.Node = n.asInstanceOf[d1.Node] // d1==d0
-
-      def arrowsMapping(a: d0.Arrow): d1.Arrow = a.asInstanceOf[d1.Arrow] // d1==d0
+      def nodesMapping(n: d0.Node): d1.Node = d1.node(n)
+      def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(a)
     }
 }
