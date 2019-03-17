@@ -123,8 +123,8 @@ class FunctorTest extends Test {
         Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
       
       val fOpt = Functor.build("sample product", from, to)(mapO, mapA)
-      check[Functor[Category[Int, Int], Cat]](fOpt,
-        (f:Functor[Category[Int, Int], Cat]) => {
+      check[Functor[Category, Cat]](fOpt,
+        (f:Functor[Category, Cat]) => {
         val limitOpt = f.limit
 
         limitOpt match {

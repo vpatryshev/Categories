@@ -5,8 +5,8 @@ import Diagrams._
 import math.cat
 import math.sets._
 
-class Diagrams[C <: Category[_, _]](site: C)
-  extends Category[Diagram[C], DiagramArrow[C]](graphOfDiagrams[C]) {
+class Diagrams[C <: Category](site: C)
+  extends Category(graphOfDiagrams[C]) {
   type Node = Diagram[C]
   type Arrow = DiagramArrow[C]
   override def id(o: O): Arrow = {
@@ -39,11 +39,11 @@ class Diagrams[C <: Category[_, _]](site: C)
 }
 
 object Diagrams {
-  type Diagram[C <: Category[_, _]] = SetDiagram[C]
+  type Diagram[C <: Category] = SetDiagram[C]
   
-  type DiagramArrow[C <: Category[_, _]] = NaturalTransformation[C, SetCategory]
+  type DiagramArrow[C <: Category] = NaturalTransformation[C, SetCategory]
   
-  def graphOfDiagrams[C <: Category[_, _]]: Graph =
+  def graphOfDiagrams[C <: Category]: Graph =
     new Graph {
       type Node = Diagram[C]
       type Arrow = DiagramArrow[C]

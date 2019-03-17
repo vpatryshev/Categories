@@ -10,7 +10,7 @@ import math.sets.{BigSet, FactorSet, Sets}
   */
 
 class SetCategory(objects: BigSet[Set[Any]])
-  extends Category[set, SetFunction](graphOfSets(objects)) {
+  extends Category(graphOfSets(objects)) {
   type Node = set
   type Arrow = SetFunction
 

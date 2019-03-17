@@ -36,7 +36,7 @@ class GraphMorphismTest extends Specification {
       val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
       val graph = Graph.fromArrowMap(objects, map).getOrElse(throw new InstantiationException("oops"))
-      val sut: GraphMorphism[Graph, Graph] = GraphMorphism.id(graph)
+      val sut: GraphMorphism = GraphMorphism.id(graph)
       sut.d0 === graph
       sut.d1 === graph
       sut.arrowsMapping("1a".asInstanceOf[sut.d0.Arrow]) === "1a"
@@ -63,10 +63,10 @@ class GraphMorphismTest extends Specification {
       
       val mod3 = (i: Int) => 1+(i-1)%3
       
-      val sut1 = GraphMorphism[Graph, Graph]("linear to loop", g1, g6)(
+      val sut1 = GraphMorphism("linear to loop", g1, g6)(
         same, (p:g1.Arrow) => g6.arrow(p.asInstanceOf[(Int, Int)]._1))
       
-      val sut2: GraphMorphism[Graph, Graph] = GraphMorphism("6 to 3", g6, g3)(
+      val sut2: GraphMorphism = GraphMorphism("6 to 3", g6, g3)(
         mod3.asInstanceOf[g6.Node => g3.Node], mod3.asInstanceOf[g6.Arrow => g3.Arrow])
       
       val expected = GraphMorphism("linear to 3", g1, g3)(

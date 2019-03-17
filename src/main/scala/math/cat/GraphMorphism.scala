@@ -4,11 +4,11 @@ package math.cat
 /**
   * Morphism for graphs.
   */
-trait GraphMorphism[X <: Graph, Y <: Graph]
-  extends Morphism[X, Y] { m =>
+trait GraphMorphism
+  extends Morphism[Graph, Graph] { m =>
   val tag: String
-  val d0: X
-  val d1: Y
+  val d0: Graph
+  val d1: Graph
   
   def nodesMapping(n: d0.Node): d1.Node
 
@@ -29,7 +29,7 @@ trait GraphMorphism[X <: Graph, Y <: Graph]
   override def equals(gm: Any): Boolean = {
 
     gm match {
-      case other: GraphMorphism[X, Y] =>
+      case other: GraphMorphism =>
         d0 == other.d0 &&
         d1 == other.d1 && {
           def sameNodesMapping(x: d0.Node): Boolean = {
@@ -52,18 +52,12 @@ trait GraphMorphism[X <: Graph, Y <: Graph]
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
-  def compose[Z <: Graph]
-  (g: GraphMorphism[Y, Z]):
-  GraphMorphism[X, Z] = {
+  def compose(g: GraphMorphism): GraphMorphism = {
     require(this.d1 == g.d0, "Composition not defined")
     val nm: d0.Node => g.d1.Node = x => g.nodesMapping(nodesMapping(x).asInstanceOf[g.d0.Node]) // casting is redundant, intellij says
     val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(arrowsMapping(a).asInstanceOf[g.d0.Arrow])
     
-    GraphMorphism[X, Z](
-      m.tag + " o " + g.tag,
-      m.d0, g.d1)(
-      nm,
-      am)
+    GraphMorphism(m.tag + " o " + g.tag, m.d0, g.d1)(nm, am)
   }
 }
 
@@ -74,7 +68,7 @@ object GraphMorphism {
     codomain: Y)(
     f0: domain.Node => codomain.Node,
     f1: domain.Arrow => codomain.Arrow):
-  GraphMorphism[X, Y] = new GraphMorphism[X, Y] {
+  GraphMorphism = new GraphMorphism {
     val tag: String = taggedAs
     val d0: X = domain
     val d1: Y = codomain
@@ -86,17 +80,11 @@ object GraphMorphism {
       f1(a.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
   }
 
-//  def apply[X <: Graph, Y <: Graph]
-//    (d0: X, d1: Y)
-//    (f0: d0.Node => d1.Node,
-//     f1: d0.Arrow => d1.Arrow): GraphMorphism[X, Y] =
-//    apply("_", d0, d1)(f0, f1)
-
-  def id[G <: Graph](graph: G): GraphMorphism[G, G] =
-    new GraphMorphism[G, G] {
+  def id(graph: Graph): GraphMorphism =
+    new GraphMorphism {
       val tag = "id"
-      val d0: G = graph
-      val d1: G = graph
+      val d0: Graph = graph
+      val d1: Graph = graph
 
       def nodesMapping(n: d0.Node): d1.Node = n.asInstanceOf[d1.Node] // d1==d0
 

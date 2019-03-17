@@ -24,8 +24,8 @@ import scalakittens.Result.Outcome
   *    g[a]: g[x] ---> g[y]
   */
 abstract class NaturalTransformation[
-    X <: Category[_, _],
-    Y <: Category[_, _]
+    X <: Category,
+    Y <: Category
   ](val from: Functor[X, Y],
     val to: Functor[X, Y]) extends Morphism[Functor[X, Y], Functor[X, Y]] {
   
@@ -74,8 +74,8 @@ abstract class NaturalTransformation[
 object NaturalTransformation {
 
   def validate[
-  X <: Category[_, _],
-  Y <: Category[_, _]
+  X <: Category,
+  Y <: Category
   ](
     f: Functor[X, Y], g: Functor[X, Y], domainCategory: X, codomainCategory: Y)(
     transformPerObject: f.d0.O => f.d1.Arrow
@@ -113,8 +113,8 @@ object NaturalTransformation {
    * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
    */
   def build[
-    X <: Category[_, _],
-    Y <: Category[_, _]
+    X <: Category,
+    Y <: Category
   ](from0: Functor[X, Y],
     to0: Functor[X, Y])
   (
@@ -133,7 +133,7 @@ object NaturalTransformation {
     * @param functor the functor for which we are building the identity transformation
     * @return identity natural transformation for the functor
     */
-  def id[X <: Category[_, _], Y <: Category[_, _]](functor: Functor[X, Y]):
+  def id[X <: Category, Y <: Category](functor: Functor[X, Y]):
   NaturalTransformation[X, Y] = {
 
     def objectMap(x: functor.d0.O): functor.d1.Arrow =

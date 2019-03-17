@@ -13,7 +13,7 @@ import scalakittens.{Good, Result}
  */
 class CategoryTest extends Test with CategoryFactory {
 
-  type SUT = Category[String, String]
+  type SUT = Category
   
   val EmptyComposition: Map[(String, String), String] = Map()
   val EmptyMap: Map[String, String] = Map()
@@ -133,13 +133,14 @@ class CategoryTest extends Test with CategoryFactory {
         codomain = EmptyMap,
         compositionSource = EmptyComposition
       )
-      check(sutOpt, (sut: Category[String, String]) => {
+      check(sutOpt, (sut: Category) => {
         sut.arrows must haveSize(1)
       }); ok
     }
 
     "constructor_1_full" >> {
       expect(sut => {
+        import sut._
         sut.arrows must haveSize(1)
       })(
         Category.build(Set("1"),
@@ -179,7 +180,7 @@ class CategoryTest extends Test with CategoryFactory {
       actual.isGood === false
     }
 
-    def checkParsing(catOpt: Result[Category[String, String]]): MatchResult[Any] =
+    def checkParsing(catOpt: Result[Category]): MatchResult[Any] =
       expect(sut => {
         val string = sut.toString
         val parsed = Category.read(string)

@@ -21,7 +21,7 @@ import scala.language.postfixOps
   *
   * @tparam C type of the domain category
   */
-abstract class SetDiagram[C <: Category[_, _]](
+abstract class SetDiagram[C <: Category](
   override val tag: String,
   override val d0: C)
   extends Functor[C, SetCategory](d0, SetCategory.Setf) {
@@ -213,7 +213,7 @@ abstract class SetDiagram[C <: Category[_, _]](
 
 object SetDiagram {
 
-  def build[C <: Category[_, _]](
+  def build[C <: Category](
     tag: String,
     dom: C)(
     objectsMap: dom.O => set,

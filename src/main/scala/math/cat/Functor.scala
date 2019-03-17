@@ -13,10 +13,10 @@ import scalakittens.Result._
   * @tparam X the first category type 
   * @tparam Y the second category type
   */
-abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
+abstract class Functor[X <: Category, Y <: Category](
   val d0: X, val d1: Y
 )
-  extends GraphMorphism[X, Y] {
+  extends GraphMorphism {
 
   type Domain = X
   type Codomain = Y
@@ -49,7 +49,7 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
     * @param g : Y -> Z - second functor
     * @return g o this : X -> Z - composition of this functor with functor g
     */
-  def compose[Z <: Category[_, _]](g: Functor[Y, Z]): Option[Functor[X, Z]] = {
+  def compose[Z <: Category](g: Functor[Y, Z]): Option[Functor[X, Z]] = {
     if (d1 != g.d0) None else Some {
       val f = this
       val objectMap = (x: d0.O) => {
@@ -292,7 +292,7 @@ abstract class Functor[X <: Category[_, _], Y <: Category[_, _]](
 
 object Functor {
   
-  def build[X <: Category[_, _], Y <: Category[_, _]](
+  def build[X <: Category, Y <: Category](
     dom: X, codom: Y)(
     objectsMorphism: dom.O => codom.O,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
@@ -314,7 +314,7 @@ object Functor {
     * @param c the category
     * @return identity functor on the given category
     */
-  def id[X <: Category[_, _]](c: X):
+  def id[X <: Category](c: X):
   Functor[X, X] =
     new Functor[X, X](c, c) {
       val tag = "id"
@@ -337,14 +337,14 @@ object Functor {
     * @param y0 an object in category Y
     * @return constant functor on x that takes maps all objects to y0 and all arrows to y0's identities.
     */
-  def const[X <: Category[_, _], Y <: Category[_, _]](x: X, y: Y)(y0: y.O):
+  def const[X <: Category, Y <: Category](x: X, y: Y)(y0: y.O):
   Functor[X, Y] =
     unsafeBuild[X, Y]( // won't fail? Check y0, at least
       y.toString, x, y)(
       SetMorphism.const(x.objects, y.objects, y0),
       SetMorphism.const(x.arrows, y.arrows, y.id(y0)))
 
-  private def unsafeBuild[X <: Category[_, _], Y <: Category[_, _]](
+  private def unsafeBuild[X <: Category, Y <: Category](
     atag: String,
     dom: X,
     codom: Y)(
@@ -357,7 +357,7 @@ object Functor {
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = arrowsMorphism.asInstanceOf[d0.Arrow => d1.Arrow]
     }
 
-  def build[X <: Category[_, _], Y <: Category[_, _]](
+  def build[X <: Category, Y <: Category](
     atag: String,
     dom: X,
     codom: Y)(
@@ -374,13 +374,13 @@ object Functor {
     * That is, F(id(x)) == id(F(x)), and
     * F(g) o F(f) = F(g o f)
     */
-  def validateFunctor[X <: Category[_, _], Y <: Category[_, _]](f: Functor[X, Y]): Result[Functor[X, Y]] = for {
+  def validateFunctor[X <: Category, Y <: Category](f: Functor[X, Y]): Result[Functor[X, Y]] = for {
     _ <- checkObjectMapping(f)
     _ <- checkArrowMapping(f)
     _ <- checkCompositionPreservation(f) andAlso checkCompositionPreservation(f)
   } yield f
   
-  private def checkIdentityPreservation[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
+  private def checkIdentityPreservation[Y <: Category, X <: Category](f: Functor[X, Y]): Outcome = Result.traverse {
     for (x <- f.domainObjects) yield {
       val y: f.d1.O = f.objectsMapping(x)
       OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
@@ -388,7 +388,7 @@ object Functor {
 
   } andThen OK
 
-  private def checkCompositionPreservation[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
+  private def checkCompositionPreservation[Y <: Category, X <: Category](f: Functor[X, Y]): Outcome = Result.traverse {
     for {
       fx <- f.d0.arrows
       gx <- f.d0.arrows
@@ -403,7 +403,7 @@ object Functor {
     }
   } andThen OK
   
-    private def checkArrowMapping[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome = Result.traverse {
+    private def checkArrowMapping[Y <: Category, X <: Category](f: Functor[X, Y]): Outcome = Result.traverse {
     for (a <- f.d0.arrows) yield {
       Result.forValue(f.arrowsMapping(a)) flatMap {
         aa =>
@@ -420,7 +420,7 @@ object Functor {
     
   } andThen OK
   
-  private def checkObjectMapping[Y <: Category[_, _], X <: Category[_, _]](f: Functor[X, Y]): Outcome =
+  private def checkObjectMapping[Y <: Category, X <: Category](f: Functor[X, Y]): Outcome =
     Result.traverse {
     for (x <- f.domainObjects) yield {
       try {

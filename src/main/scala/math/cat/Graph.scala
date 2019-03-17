@@ -35,7 +35,7 @@ abstract class Graph extends GraphData { graph =>
     val isEqual = this.nodes == that.nodes && this.arrows == that.arrows
     (isEqual /: arrows) (
       (bool: Boolean, aHere: this.Arrow) => {
-        val aThere = aHere.asInstanceOf[that.Arrow]
+        val aThere = that.arrow(aHere)
         bool && (d0(aHere) == that.d0(aThere)) && (d1(aHere) == that.d1(aThere))
       })
   }
@@ -54,7 +54,7 @@ abstract class Graph extends GraphData { graph =>
     * @param to   second node
     * @return the set of all arrows from x to y
     */
-  def arrowsBetween(from: Node, to: Node): Set[Arrow] = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
+  def arrowsBetween(from: Node, to: Node): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
   def anArrow(f: Arrow): Arrow = {
     require(arrows(f), s"Unknown arrow $f")
@@ -100,10 +100,12 @@ abstract class Graph extends GraphData { graph =>
   def areParallel(f: Arrow, g: Arrow): Boolean = sameDomain(f, g) && sameCodomain(f, g)
 
   def unary_~ : Graph = new Graph {
-    def nodes: Set[Node] = graph.nodes.asInstanceOf[Nodes]
-    def arrows: Set[Arrow] = graph.arrows.asInstanceOf[Arrows]
-    def d0(f: Arrow): Node = graph.d1(f.asInstanceOf[Graph.this.Arrow]).asInstanceOf[Node]
-    def d1(f: Arrow): Node = graph.d0(f.asInstanceOf[Graph.this.Arrow]).asInstanceOf[Node]
+    type Node = graph.Node
+    type Arrow = graph.Arrow
+    def nodes: Nodes = graph.nodes
+    def arrows: Arrows = graph.arrows
+    def d0(f: Arrow): Node = graph.d0(f)
+    def d1(f: Arrow): Node = graph.d1(f)
   }
 }
 
@@ -122,13 +124,9 @@ private[cat] abstract class GraphData {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
   }
 
-  implicitly[Any => Node](node)
-
   implicit def arrow(a: Any): Arrow = a match {
     case _ if arrows contains a.asInstanceOf[Arrow] => a.asInstanceOf[Arrow]
   }
-  
-  implicitly[Any => Arrow](arrow)
 
   protected lazy val finiteNodes: Boolean = isFinite(nodes)
   protected lazy val finiteArrows: Boolean = isFinite(arrows)
@@ -152,20 +150,20 @@ object Graph {
     val data = new GraphData {
       override type Node = N
       override type Arrow = A
-      def nodes: Nodes = nodes0.asInstanceOf[Nodes]
-      def arrows: Arrows = arrows0.asInstanceOf[Arrows]
-      def d0(f: Arrow): Node = d00(f.asInstanceOf[A]).asInstanceOf[Node]
-      def d1(f: Arrow): Node = d10(f.asInstanceOf[A]).asInstanceOf[Node]
+      def nodes: Nodes = nodes0
+      def arrows: Arrows = arrows0
+      def d0(f: Arrow): Node = d00(f)
+      def d1(f: Arrow): Node = d10(f)
     }
 
     data.validate returning
       new Graph {
-        def nodes: Nodes = data.nodes.asInstanceOf[Nodes]
-        def arrows: Arrows = data.arrows.asInstanceOf[Arrows]
+        def nodes: Nodes = data.nodes
+        def arrows: Arrows = data.arrows
         override type Node = N
         override type Arrow = A
-        override def d0(f: Arrow): Node = data.d0(f.asInstanceOf[data.Arrow]).asInstanceOf[Node]
-        override def d1(f: Arrow): Node = data.d1(f.asInstanceOf[data.Arrow]).asInstanceOf[Node]
+        override def d0(f: Arrow): Node = data.d0(f)
+        override def d1(f: Arrow): Node = data.d1(f)
       }
   }
 
@@ -175,7 +173,9 @@ object Graph {
 
   def discrete[N](points: Set[N]): Graph =
     new Graph {
-      def nodes: Nodes = points.asInstanceOf[Nodes]
+      type Node = N
+      type Arrow = N
+      def nodes: Nodes = points
       def arrows: Arrows = Set.empty
       def d0(f: Arrow): Node = Map.empty(f) // there's nothing there, but we need a signature
       def d1(f: Arrow): Node = Map.empty(f)
@@ -187,10 +187,12 @@ object Graph {
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 
     new Graph {
-      def nodes: Nodes = points.asInstanceOf[Nodes]
-      def arrows: Arrows = goodPairs.asInstanceOf[Arrows]
-      def d0(f: Arrow): Node = f.asInstanceOf[(N, N)]._1.asInstanceOf[Node]
-      def d1(f: Arrow): Node = f.asInstanceOf[(N, N)]._2.asInstanceOf[Node]
+      type Node = N
+      type Arrow = (N, N)
+      def nodes: Nodes = points
+      def arrows: Arrows = goodPairs
+      def d0(f: Arrow): Node = f._1
+      def d1(f: Arrow): Node = f._2
     }
   }        
 

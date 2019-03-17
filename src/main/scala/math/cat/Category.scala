@@ -11,14 +11,12 @@ import scalakittens.{Good, Result}
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category[Obj, A](override val graph: Graph)
-  extends CategoryData[Obj, A](graph) {
+abstract class Category(override val graph: Graph)
+  extends CategoryData(graph) {
 
   implicit def obj(x: Any): O = x match {
     case _ if objects contains x.asInstanceOf[O] => x.asInstanceOf[O]
   }
-
-  implicitly[Obj => O](obj)
 
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
@@ -51,9 +49,9 @@ abstract class Category[Obj, A](override val graph: Graph)
     *
     * @return this<sup>op</sup>
     */
-  lazy val op: Category[graph.Node, graph.Arrow] = {
+  lazy val op: Category = {
     val src = this
-    new Category[graph.Node, graph.Arrow](~graph) {
+    new Category(~graph) {
       override def id(o: O): Arrow = src.id(o.asInstanceOf[src.O]).asInstanceOf[Arrow]
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -76,13 +74,13 @@ abstract class Category[Obj, A](override val graph: Graph)
   override def equals(x: Any): Boolean = // error ("category theory is not equational")
   {
     x match {
-      case other: Category[_, _] => other.asInstanceOf[Category[O, Arrow]].equal(this)
+      case other: Category => other.asInstanceOf[Category].equal(this)
       case _ => false
     }
   }
 
   // @deprecated("is category theory equational? does not seem like it is...")
-  private def equal(that: Category[_, _]): Boolean = {
+  private def equal(that: Category): Boolean = {
     val objectsEqual = this.objects == that.objects && this.arrows == that.arrows
     val idsEqual = objectsEqual && (objects forall { x => id(x) == that.id(x.asInstanceOf[that.O]) })
 
@@ -660,7 +658,7 @@ abstract class Category[Obj, A](override val graph: Graph)
     arrows filter { x == d1(_) }
 }
 
-private[cat] abstract class CategoryData[Obj, A](val graph: Graph) extends Graph {
+private[cat] abstract class CategoryData(val graph: Graph) extends Graph {
   type O = Node
   type Objects = Set[O]
 
@@ -668,7 +666,7 @@ private[cat] abstract class CategoryData[Obj, A](val graph: Graph) extends Graph
 
   def m(f: Arrow, g: Arrow): Option[Arrow]
 
-  override def validate: Result[CategoryData[Obj, A]] = {
+  override def validate: Result[CategoryData] = {
     val objectsHaveIds = OKif(!finiteNodes) orElse {
       Result.traverse(objects map {
         x =>
@@ -761,7 +759,7 @@ private[cat] trait CategoryFactory {
   }
 
   def convert2Cat[O, A](
-    source: Category[O, A])(
+    source: Category)(
     object2string: source.O => String = (_: source.O).toString,
     arrow2string: source.Arrow => String = (_: source.Arrow).toString): Result[Cat] = {
     val objectStrings = source.objects map (o => o -> object2string(o))
@@ -804,7 +802,7 @@ private[cat] trait CategoryFactory {
     d0: A => O,
     d1: A => O,
     ids: O => A,
-    composition: (A, A) => Option[A]): Result[Category[O, A]] = {
+    composition: (A, A) => Option[A]): Result[Category] = {
     val graph: Result[Graph] = Graph.build(objects, arrows, d0, d1)
     graph flatMap { buildFromGraphWithIdentity(_, ids, composition) }
   }
@@ -816,8 +814,8 @@ private[cat] trait CategoryFactory {
     * @param poset original poset
     * @return category based on he poset
     */
-  def fromPoset[T](poset: PoSet[T]): Category[T, (T, T)] = {
-    new Category[T, (T, T)](Graph.ofPoset(poset)) {
+  def fromPoset[T](poset: PoSet[T]): Category = {
+    new Category(Graph.ofPoset(poset)) {
       type Node = T
       type Arrow = (T, T)
 
@@ -837,7 +835,7 @@ private[cat] trait CategoryFactory {
     * @param objects set of this category's objects
     * @return the category
     */
-  def discrete[T](objects: Set[T]): Category[T, T] = new Category[T, T](Graph.discrete[T](objects)) {
+  def discrete[T](objects: Set[T]): Category = new Category(Graph.discrete[T](objects)) {
     override def id(obj: O): Arrow = obj.asInstanceOf[Arrow]
 
     override def m(f: Arrow, g: Arrow): Option[Arrow] = Option(f) filter (g ==) // everything is an identity
@@ -851,7 +849,7 @@ private[cat] trait CategoryFactory {
     * @param g the underlying graph, with no id arrows
     * @return new category
     */
-  def fromGraph[T](g: Graph): Result[Category[T, T]] =
+  def fromGraph[T](g: Graph): Result[Category] =
     build[T](g, (f: T, g: T) => None)
 
   /**
@@ -863,7 +861,7 @@ private[cat] trait CategoryFactory {
     * @return new category
     */
   def build[T](graph: Graph,
-    composition: (T, T) => Option[T]): Result[Category[T, T]] = {
+    composition: (T, T) => Option[T]): Result[Category] = {
     val isUnit = (f: T) => graph.nodes(f.asInstanceOf[graph.Node])
     val m = (f: T, g: T) =>
       if (isUnit(f)) Some(g) else if (isUnit(g)) Some(f) else composition(f, g)
@@ -887,7 +885,7 @@ private[cat] trait CategoryFactory {
     objects: Set[T],
     domain: Map[T, T],
     codomain: Map[T, T],
-    compositionSource: Map[(T, T), T]): Result[Category[T, T]] = {
+    compositionSource: Map[(T, T), T]): Result[Category] = {
     Graph.build(objects, domain.keySet, domain, codomain) flatMap (buildFromPartialData(_, compositionSource))
   }
 
@@ -902,7 +900,7 @@ private[cat] trait CategoryFactory {
     */
   def buildFromPartialData[T](
     graph: Graph,
-    compositionSource: Map[(T, T), T]): Result[Category[T, T]] = {
+    compositionSource: Map[(T, T), T]): Result[Category] = {
     val graphWithUnits = addUnitsToGraph(graph)
     val composition = fillCompositionTable(graphWithUnits, compositionSource)
 
@@ -930,8 +928,8 @@ private[cat] trait CategoryFactory {
   def buildFromGraphWithIdentity[Obj, A](
     g: Graph,
     ids: Obj => A,
-    composition: (A, A) => Option[A]): Result[Category[Obj, A]] = {
-    val data = new CategoryData[Obj, A](g) {
+    composition: (A, A) => Option[A]): Result[Category] = {
+    val data = new CategoryData(g) {
       override def id(o: O): Arrow = ids(o.asInstanceOf[Obj]).asInstanceOf[Arrow]
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -939,7 +937,7 @@ private[cat] trait CategoryFactory {
     }
 
     data.validate returning
-      new Category[Obj, A](g) {
+      new Category(g) {
         def id(o: O): Arrow = ids(o.asInstanceOf[Obj]).asInstanceOf[Arrow]
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -1126,7 +1124,7 @@ private[cat] trait CategoryFactory {
 
 object Category extends CategoryFactory {
 
-  type Cat = Category[String, String] {
+  type Cat = Category {
     type Node = String
     type Arrow = String
   }
@@ -1243,7 +1241,7 @@ object Category extends CategoryFactory {
       getOrElse(throw new InstantiationException("Bad semisimplicial?")).
       asInstanceOf[Cat]
 
-  lazy val NaturalNumbers: Category[BigInt, (BigInt, BigInt)] =
+  lazy val NaturalNumbers: Category =
     Category.fromPoset(PoSet.ofNaturalNumbers)
 
   lazy val KnownCategories = Set(
