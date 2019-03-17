@@ -16,7 +16,7 @@ class GraphTest extends Test {
       expect(sut => {
         import sut._
         sut.arrow(111) === 111
-        sut.arrow(112) should throwA[MatchError]
+        sut.arrow(112) should throwA[IllegalArgumentException]
       })(
         Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
     }
@@ -261,6 +261,18 @@ class GraphTest extends Test {
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
       ~sut === graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 1 -> 2, 3to2: 2 -> 3, 1to3: 3 -> 1})"
     }
+    
+    "be finite" >> {
 
+      val g3 = Graph.build(
+        Set(1,2,3),
+        Set(1,2,3),
+        identity[Int],
+        (i:Int) => i%3+1
+      ).getOrElse(throw new InstantiationException("oops"))
+      
+      g3.isFinite === true
+    }
+    
   }
 }

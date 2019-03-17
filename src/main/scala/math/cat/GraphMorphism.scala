@@ -32,19 +32,17 @@ trait GraphMorphism
       case other: GraphMorphism =>
         d0 == other.d0 &&
         d1 == other.d1 && {
-          def sameNodesMapping(x: d0.Node): Boolean = {
-            x match {
-              case y: other.d0.Node => nodesMapping(x) == y
-              case _ => false
-            }
-            
- //           nodesMapping(x) == other.nodesMapping(x.asInstanceOf[other.d0.Node])
+          def sameNodesMapping(x: d0.Node): Boolean = x match {
+            case y: other.d0.Node => nodesMapping(x) == other.nodesMapping(y)
+            case _ => false
           }
           val sameNodes: Boolean = d0.nodes forall sameNodesMapping
 
-          def sameArrowssMapping(a: d0.Arrow): Boolean = {
-            arrowsMapping(a) == other.arrowsMapping(a.asInstanceOf[other.d0.Arrow])
+          def sameArrowssMapping(a: d0.Arrow): Boolean = a match {
+            case b: other.d0.Arrow => arrowsMapping(a) == other.arrowsMapping(b)
+            case _ => false
           }
+
           val sameArrows: Boolean = d0.arrows forall sameArrowssMapping
           
           sameNodes && sameArrows
@@ -82,7 +80,7 @@ object GraphMorphism {
       f0(n.asInstanceOf[domain.Node]).asInstanceOf[d1.Node]
 
     override def arrowsMapping(a: d0.Arrow): d1.Arrow =
-      f1(a.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
+      d1.arrow(f1(domain.arrow(a)))
   }
 
   def id(graph: Graph): GraphMorphism =

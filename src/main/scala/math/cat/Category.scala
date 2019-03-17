@@ -60,8 +60,6 @@ abstract class Category(override val graph: Graph)
   }
   private[cat] lazy val listOfRootObjects = allRootObjects.toList.sortBy(_.toString)
 
-  def isFinite: Boolean = Sets.isFinite(objects) && Sets.isFinite(arrows)
-
   def compositions: Iterable[(Arrow, Arrow, Arrow)] =
     for {f <- arrows
          g <- arrows

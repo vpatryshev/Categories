@@ -10,7 +10,7 @@ import scalakittens.Result._
 
 abstract class Graph extends GraphData { graph =>
   
-  def contains(any: Any): Boolean = try { nodes contains any } catch { case _ => false }
+  def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception => false }
 
   def size: Int = nodes.size
   
@@ -120,14 +120,20 @@ private[cat] abstract class GraphData {
 
   implicit def node(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
+    case other =>
+      throw new IllegalArgumentException(s"<<$other>> is not a node")
   }
 
   implicit def arrow(a: Any): Arrow = a match {
     case _ if arrows contains a.asInstanceOf[Arrow] => a.asInstanceOf[Arrow]
+    case other =>
+      throw new IllegalArgumentException(s"<<$other>> is not an arrow")
   }
 
-  protected lazy val finiteNodes: Boolean = isFinite(nodes)
-  protected lazy val finiteArrows: Boolean = isFinite(arrows)
+  protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
+  protected lazy val finiteArrows: Boolean = Sets.isFinite(arrows)
+  
+  def isFinite = finiteNodes && finiteArrows
 
   def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {

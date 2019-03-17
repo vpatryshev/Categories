@@ -60,19 +60,22 @@ class GraphMorphismTest extends Specification {
         same,
         (i:Int) => i%3+1
       ).getOrElse(throw new InstantiationException("oops"))
+
+      g3.isFinite === true
       
       val mod3 = (i: Int) => 1+(i-1)%3
       
       val sut1 = GraphMorphism("linear to loop", g1, g6)(
-        same, (p:g1.Arrow) => g6.arrow(p.asInstanceOf[(Int, Int)]._1))
+        same, (p:g1.Arrow) => g6.arrow(p.asInstanceOf[(Int, Int)]._1 + 1))
       
       val sut2: GraphMorphism = GraphMorphism("6 to 3", g6, g3)(
         mod3.asInstanceOf[g6.Node => g3.Node], mod3.asInstanceOf[g6.Arrow => g3.Arrow])
       
       val expected = GraphMorphism("linear to 3", g1, g3)(
-        mod3.asInstanceOf[g1.Node => g3.Node], (p:g1.Arrow) => g3.arrow(mod3(p.asInstanceOf[(Int, Int)]._1)))
+        mod3.asInstanceOf[g1.Node => g3.Node], (p:g1.Arrow) => g3.arrow(mod3(p.asInstanceOf[(Int, Int)]._1 + 1)))
 
-      val sameThing = (sut1 compose sut2) == expected
+      val actual = sut1 compose sut2
+      val sameThing = actual == expected
       sameThing === true
     }
 
