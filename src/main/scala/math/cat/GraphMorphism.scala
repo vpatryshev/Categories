@@ -15,6 +15,48 @@ trait GraphMorphism
   def arrowsMapping(a: d0.Arrow): d1.Arrow
 
   /**
+    * Good for testing
+    * @param other another graph morphism
+    * @param x a node
+    * @return true or false
+    */
+  private[cat] def sameNodesMapping(other: GraphMorphism)(x: d0.Node): Boolean = try {
+    other.nodesMapping(other.d0.node(x)) == nodesMapping(x)
+  } catch {case _: Exception => false}
+
+  /**
+    * Good for testing
+    * @param other another graph morphism
+    * @return true or false
+    */
+  private[cat] def sameNodes(other: GraphMorphism): Boolean = {
+    d0 == other.d0 && d1 == other.d1 && {
+      d0.nodes forall sameNodesMapping(other)
+    }
+  }
+
+  /**
+    * Good for testing
+    * @param other another graph
+    * @param a arrow to compare
+    * @return true or false
+    */
+  def sameArrowsMapping(other: GraphMorphism)(a: d0.Arrow): Boolean = try {
+    other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a)
+  } catch { case _: Exception => false }
+
+  /**
+    * Good for testing
+    * @param other another graph
+    * @return true or false
+    */
+  private[cat] def sameArrows(other: GraphMorphism): Boolean = {
+    d1 == other.d1 && {
+      d0.arrows forall sameArrowsMapping(other)
+    }    
+  }
+  
+  /**
     * Two graph morphisms are equal if they have equal d0s and cod0s and both morphisms for nodes and arrows
     * are equal respectively.
     * 
@@ -30,22 +72,7 @@ trait GraphMorphism
 
     gm match {
       case other: GraphMorphism =>
-        d0 == other.d0 &&
-        d1 == other.d1 && {
-          def sameNodesMapping(x: d0.Node): Boolean = try {
-            other.nodesMapping(other.d0.node(x)) == nodesMapping(x)
-          } catch { case _: Exception => false }
-
-          val sameNodes: Boolean = d0.nodes forall sameNodesMapping
-
-          def sameArrowsMapping(a: d0.Arrow): Boolean = try {
-            other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a)
-          } catch { case _: Exception => false }
-
-          val sameArrows: Boolean = d0.arrows forall sameArrowsMapping
-          
-          sameNodes && sameArrows
-        }
+        sameNodes(other) && sameArrows(other)
       case otherwise => false
     }
   }

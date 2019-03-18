@@ -62,20 +62,43 @@ class GraphMorphismTest extends Specification {
       ).getOrElse(throw new InstantiationException("oops"))
 
       g3.isFinite === true
-      
-      val mod3 = (i: Int) => 1+(i-1)%3
+
+      val add1 = (i: Int) => 1+i
+      val mod3 = (i: Int) => 1+(i+2)%3
+      val add1mod3 = (i: Int) => 1+i%3
       
       val sut1 = GraphMorphism("linear to loop", g1, g6)(
-        same, (p:g1.Arrow) => g6.arrow(p.asInstanceOf[(Int, Int)]._1 + 1))
+        add1.asInstanceOf[g1.Node => g6.Node],
+        (p:g1.Arrow) => g6.arrow(p.asInstanceOf[(Int, Int)]._1 + 1))
       
       val sut2: GraphMorphism = GraphMorphism("6 to 3", g6, g3)(
-        mod3.asInstanceOf[g6.Node => g3.Node], mod3.asInstanceOf[g6.Arrow => g3.Arrow])
+        mod3.asInstanceOf[g6.Node => g3.Node],
+        mod3.asInstanceOf[g6.Arrow => g3.Arrow])
       
       val expected = GraphMorphism("linear to 3", g1, g3)(
-        mod3.asInstanceOf[g1.Node => g3.Node], (p:g1.Arrow) => g3.arrow(mod3(p.asInstanceOf[(Int, Int)]._1 + 1)))
+        add1mod3.asInstanceOf[g1.Node => g3.Node],
+        (p:g1.Arrow) => g3.arrow(add1mod3(p.asInstanceOf[(Int, Int)]._1)))
 
       val actual = sut1 compose sut2
-      val sameThing = actual == expected
+      actual.d0 === expected.d0
+      actual.d1 === expected.d1
+      val nodeDiff: List[expected.d0.Node] = expected.d0.nodes.filterNot(expected.sameNodesMapping(actual)).toList
+      
+      val nodeDiffVals = nodeDiff map
+        ((x:expected.d0.Node) => (x, actual.nodesMapping(actual.d0.node(x)), expected.nodesMapping(expected.d0.node(x))))
+
+      nodeDiffVals === Nil
+      expected.sameNodes(actual) === true
+
+      val arrowDiff: List[expected.d0.Arrow] = expected.d0.arrows.filterNot(expected.sameArrowsMapping(actual)).toList
+
+      val arrowDiffVals = arrowDiff map
+        ((x:expected.d0.Arrow) => (x, actual.arrowsMapping(actual.d0.arrow(x)), expected.arrowsMapping(expected.d0.arrow(x))))
+
+      arrowDiffVals === Nil
+
+      expected.sameArrows(actual) === true
+      val sameThing = expected == actual
       sameThing === true
     }
 

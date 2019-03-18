@@ -53,8 +53,7 @@ abstract class Functor[X <: Category, Y <: Category](
     if (d1 != g.d0) None else Some {
       val f = this
       val objectMap = (x: d0.O) => {
-        val y: g.d0.O = objectsMapping(x).asInstanceOf[g.d0.O] // somehow 
-        // Scala does not deduce it
+        val y: g.d0.O = g.d0.obj(objectsMapping(x))
         val z: g.d1.O = g.objectsMapping(y)
         z
       }
@@ -63,23 +62,23 @@ abstract class Functor[X <: Category, Y <: Category](
 
         val tag: String = g.tag + " o " + this.tag
 
-        override val objectsMapping: d0.O => d1.O = objectMap.asInstanceOf[d0.O => d1.O]
+        override val objectsMapping: d0.O => d1.O =
+          (x:d0.O) => d1.obj(objectMap(Functor.this.d0.obj(x)))
 
-        override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = ((a: d0.Arrow) =>
-          g.arrowsMapping(f.arrowsMapping(a.asInstanceOf[f.d0.Arrow]).asInstanceOf[g.d0.Arrow]).asInstanceOf[d1.Arrow]).asInstanceOf[d0.Arrow => d1.Arrow]
+        override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
+          (a: d0.Arrow) => d1.arrow(g.arrowsMapping(g.d0.arrow(f.arrowsMapping(f.d0.arrow(a)))))
 
         // the following override is not required, because it's just another name for object mapping
         override def nodesMapping(n: d0.Node): d1.Node = {
-          val y: g.d0.Node = f.nodesMapping(n.asInstanceOf[f.d0.O]).asInstanceOf[g.d0.Node] // somehow Scala 
-          // does not deduce it
-          g.nodesMapping(y).asInstanceOf[d1.Node]
+          val y: g.d0.Node = g.d0.node(f.nodesMapping(f.d0.obj(n))) 
+          d1.obj(g.nodesMapping(y))
         }
       }
     }
   }
 
   override def nodesMapping(n: d0.Node): d1.Node =
-    objectsMapping(n.asInstanceOf[d0.O]).asInstanceOf[d1.Node]
+    d1.obj(objectsMapping(d0.obj(n)))
 
   def cone(vertex: d1.O)(arrowTo: Iterable[(d0.O, d1.Arrow)]): Option[Cone] = {
     Option(Cone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
@@ -96,7 +95,7 @@ abstract class Functor[X <: Category, Y <: Category](
   def conesFrom(y: d1.O): Set[Cone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     val arrowsFromYtoFX: Injection[d0.O, Set[(d0.O, d1.Arrow)]] = injection(
-      (x: d0.O) => d1.arrowsBetween(y.asInstanceOf[d1.Node], objectsMapping(x)) map { (x, _) }
+      (x: d0.O) => d1.arrowsBetween(d1.obj(y), objectsMapping(x)) map { (x, _) }
     )
 
     val listOfDomainObjects: List[d0.O] = domainObjects.toList
@@ -145,7 +144,7 @@ abstract class Functor[X <: Category, Y <: Category](
   def coconesTo(y: d1.O): Set[Cocone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     def arrowsFromFXtoY(x: d0.O): Set[(d0.O, d1.Arrow)] =
-      d1.arrowsBetween(objectsMapping(x).asInstanceOf[d1.Node], y) map { (x, _) }
+      d1.arrowsBetween(d1.obj(objectsMapping(x)), y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(d0.O, d1.Arrow)]] = domainObjects.toList map arrowsFromFXtoY
@@ -298,13 +297,13 @@ object Functor {
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
     validateFunctor(new Functor[X, Y](dom, codom) {
       val tag = ""
-      override val objectsMapping: d0.O => d1.O = objectsMorphism.asInstanceOf[d0.O => d1.O]
+      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(objectsMorphism(dom.obj(x)))
 
-      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = ((a: d0.Arrow) =>
-        arrowsMorphism(a.asInstanceOf[dom.Arrow]).asInstanceOf[d1.Arrow]).asInstanceOf[d0.Arrow => d1.Arrow]
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (a: d0.Arrow) =>
+        d1.arrow(arrowsMorphism(dom.arrow(a)))
 
       override def nodesMapping(n: d0.Node): d1.Node =
-        objectsMorphism(n.asInstanceOf[dom.Node]).asInstanceOf[d1.Node]
+        d1.obj(objectsMorphism(dom.obj(n)))
     })
 
   /**
@@ -319,12 +318,12 @@ object Functor {
     new Functor[X, X](c, c) {
       val tag = "id"
 
-      override val objectsMapping: d0.O => d1.O = ((x: d0.O) => x).asInstanceOf[d0.O => d1.O]
-
+      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(x)
+      
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-        ((a: d0.Arrow) => a).asInstanceOf[d0.Arrow => d1.Arrow]
+        (a: d0.Arrow) => d1.arrow(a)
 
-      override def nodesMapping(n: d0.Node): d1.Node = n.asInstanceOf[d1.Node]
+      override def nodesMapping(n: d0.Node): d1.Node = d1.node(n)
     }
 
   /**
@@ -352,9 +351,10 @@ object Functor {
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
     new Functor[X, Y](dom, codom) {
       val tag: String = atag
-      override val objectsMapping: d0.O => d1.O = objectsMorphism.asInstanceOf[d0.O => d1.O]
+      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(objectsMorphism(dom.obj(x)))
 
-      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = arrowsMorphism.asInstanceOf[d0.Arrow => d1.Arrow]
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
+        (a: d0.Arrow) => d1.arrow(arrowsMorphism(dom.arrow(a)))
     }
 
   def build[X <: Category, Y <: Category](
