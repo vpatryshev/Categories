@@ -108,6 +108,7 @@ abstract class Graph extends GraphData { graph =>
 }
 
 private[cat] abstract class GraphData {
+  val name: String = "a graph"
   type Node
   type Arrow
   type Nodes = Set[Node]
@@ -121,19 +122,19 @@ private[cat] abstract class GraphData {
   implicit def node(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
     case other =>
-      throw new IllegalArgumentException(s"<<$other>> is not a node")
+      throw new IllegalArgumentException(s"<<$other>> is not a node in $name")
   }
 
   implicit def arrow(a: Any): Arrow = a match {
     case _ if arrows contains a.asInstanceOf[Arrow] => a.asInstanceOf[Arrow]
     case other =>
-      throw new IllegalArgumentException(s"<<$other>> is not an arrow")
+      throw new IllegalArgumentException(s"<<$other>> is not an arrow of $name")
   }
 
   protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
   protected lazy val finiteArrows: Boolean = Sets.isFinite(arrows)
   
-  def isFinite = finiteNodes && finiteArrows
+  def isFinite: Boolean = finiteNodes && finiteArrows
 
   def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {
@@ -207,7 +208,7 @@ object Graph {
 
     def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
 
-    def arrow: Parser[(String, (String, String))] = member~":"~member~"->"~member ^^ {case f~":"~x~"->"~y => (f, (x, y))}
+    def arrow: Parser[(String, (String, String))] = word~":"~word~"->"~word ^^ {case f~":"~x~"->"~y => (f, (x, y))}
 
     def explain[T](pr: ParseResult[Result[T]]): Result[T] = {
       pr match {

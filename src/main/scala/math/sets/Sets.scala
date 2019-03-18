@@ -434,9 +434,9 @@ object Sets {
   class Parser extends RegexParsers {
     def read(input: CharSequence): Set[String] = parseAll(parserOfSet, input).get
 
-    def parserOfSet: Parser[Set[String]] = "{" ~ repsep(member, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
+    def parserOfSet: Parser[Set[String]] = "{" ~ repsep(word, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
 
-    def member: Parser[String] = regex("""[\w\\.]+""".r)
+    def word: Parser[String] = regex("""[\w\\.]+""".r)
 
     def read(input: Reader): Set[String] = parseAll(parserOfSet, input).get
   }

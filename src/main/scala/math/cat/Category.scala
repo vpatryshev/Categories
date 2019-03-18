@@ -11,8 +11,8 @@ import scalakittens.{Good, Result}
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category(override val graph: Graph)
-  extends CategoryData(graph) {
+abstract class Category(name: String, override val graph: Graph)
+  extends CategoryData(name, graph) {
 
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
@@ -47,7 +47,7 @@ abstract class Category(override val graph: Graph)
     */
   lazy val op: Category = {
     val src = this
-    new Category(~graph) {
+    new Category(s"~$name", ~graph) {
       override def id(o: O): Arrow = arrow(src.id(src.obj(o)))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -96,7 +96,7 @@ abstract class Category(override val graph: Graph)
     c1 + c2 * 2 + c3 * 5
   }
 
-  override def toString: String = "({" +
+  override def toString: String = s"${if (name.isEmpty) "" else {name + ":"}}({" +
     objects.mkString(", ") + "}, {" +
     (arrows map (a => s"$a: ${d0(a)}->${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect { case (first, second) =>
@@ -406,7 +406,7 @@ abstract class Category(override val graph: Graph)
     * @return a pair of arrows from pullback object to d0(f) and d0(g), or null if none exists.
     */
   def pullback(f: Arrow, g: Arrow): Option[(Arrow, Arrow)] = {
-    require(sameCodomain(f, g), s"Codomains of $f and $g should be the same")
+    require(sameCodomain(f, g), s"Codomains of $f and $g should be the same in $name")
     product2(arrows, arrows).find(isPullback(f, g))
   }
 
@@ -481,7 +481,7 @@ abstract class Category(override val graph: Graph)
     * @return a pair of arrows from d1(f) and d1(g) to the pushout object, or null if none exists.
     */
   def pushout(f: Arrow, g: Arrow): Option[(Arrow, Arrow)] = {
-    require(sameDomain(f, g), "Domains should be the same")
+    require(sameDomain(f, g), "Domains should be the same in $name")
     product2(arrows, arrows).find(isPushout(f, g))
   }
 
@@ -590,7 +590,7 @@ abstract class Category(override val graph: Graph)
   def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[O, Arrows] = {
     val badArrows: Arrows = arrows.filterNot(a => setOfObjects(d0(a)))
 
-    require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")}")
+    require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")} in $name")
 
     val mor = SetMorphism(arrows, setOfObjects, d0).revert.function
     setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
@@ -652,13 +652,13 @@ abstract class Category(override val graph: Graph)
     arrows filter { x == d1(_) }
 }
 
-private[cat] abstract class CategoryData(val graph: Graph) extends Graph {
+private[cat] abstract class CategoryData(override val name: String = "a category", val graph: Graph) extends Graph {
   type O = Node
   type Objects = Set[O]
 
   implicit def obj(x: Any): O = x match {
     case _ if objects contains x.asInstanceOf[O] => x.asInstanceOf[O]
-    case other => throw new IllegalArgumentException(s"$x is not an object in this category")
+    case other => throw new IllegalArgumentException(s"$x is not an object in  in $name")
   }
 
   def id(o: O): Arrow
@@ -670,8 +670,8 @@ private[cat] abstract class CategoryData(val graph: Graph) extends Graph {
       Result.traverse(objects map {
         x =>
           val ux = id(x)
-          OKif(d0(ux) == x, s"Domain of id $ux should be $x") andAlso
-            OKif(d1(ux) == x, s"Codomain of id $ux should be $x")
+          OKif(d0(ux) == x, s"Domain of id $ux should be $x in $name") andAlso
+            OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
       })
     }
 
@@ -679,8 +679,8 @@ private[cat] abstract class CategoryData(val graph: Graph) extends Graph {
       Result.traverse(arrows map { f =>
         val u_f = m(id(d0(f)), f)
         val f_u = m(f, id(d1(f)))
-        OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f") andAlso
-          OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u")
+        OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
+          OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
       })
     }
 
@@ -692,15 +692,15 @@ private[cat] abstract class CategoryData(val graph: Graph) extends Graph {
           h = m(f, g)
         } yield {
           if (follows(g, f)) {
-            Result(h) orCommentTheError s"composition must be defined for $f and $g" flatMap { gf =>
+            Result(h) orCommentTheError s"composition must be defined for $f and $g in $name" flatMap { gf =>
               OKif(sameDomain(gf, f),
-                s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)}") andAlso
+                s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
                 OKif(sameCodomain(gf, g),
-                  s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)}")
+                  s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)} in $name")
             } returning()
           }
           else {
-            OKif(h.isEmpty, s"Wrongly defined composition of $f and $g")
+            OKif(h.isEmpty, s"Wrongly defined composition of $f and $g in $name")
           }
         }
       }
@@ -719,10 +719,10 @@ private[cat] abstract class CategoryData(val graph: Graph) extends Graph {
           val hg_f = m(f, hg)
           // the following is for debugging
           val f0 = "" + f + ""
-          if (h_gf != hg_f) {
-            println(s"$f, $g, $h, $gf, $hg, $h_gf, $hg_f")
-          }
-          OKif(h_gf == hg_f, s"Associativity broken for $f, $g and $h, got $h_gf vs $hg_f")
+//          if (h_gf != hg_f) {
+//            println(s"$f, $g, $h, $gf, $hg, $h_gf, $hg_f")
+//          }
+          OKif(h_gf == hg_f, s"Associativity broken for $f, $g and $h, got $h_gf vs $hg_f in $name")
         }
       }
     })
@@ -750,7 +750,7 @@ private[cat] trait CategoryFactory {
     * @return a new category
     */
   def segment(n: Int): Cat = {
-    val numbers = fromPoset(PoSet.range(0, n, 1))
+    val numbers = fromPoset(s"_${n}_", PoSet.range(0, n, 1))
     val maybeSegment = convert2Cat(numbers)(
       _.toString,
       { case (a, b) => s"$a.$b" })
@@ -777,7 +777,6 @@ private[cat] trait CategoryFactory {
     val d1 = (f: String) => osMap(source.d1(saMap(f)))
     val ids = (o: String) => asMap(source.id(soMap(o)))
     val composition = (f: String, g: String) => source.m(saMap(f), saMap(g)) map asMap
-
 
     for {
       _ <- OKif(source.isFinite, "Need a finite category")
@@ -807,7 +806,7 @@ private[cat] trait CategoryFactory {
     ids: O => A,
     composition: (A, A) => Option[A]): Result[Category] = {
     val graph: Result[Graph] = Graph.build(objects, arrows, d0, d1)
-    graph flatMap { buildFromGraphWithIdentity(_)(ids, composition) }
+    graph flatMap { buildFromGraphWithIdentity("", _)(ids, composition) }
   }
 
   /**
@@ -817,8 +816,8 @@ private[cat] trait CategoryFactory {
     * @param poset original poset
     * @return category based on he poset
     */
-  def fromPoset[T](poset: PoSet[T]): Category = {
-    new Category(Graph.ofPoset(poset)) {
+  def fromPoset[T](name: String = "", poset: PoSet[T]): Category = {
+    new Category(name, Graph.ofPoset(poset)) {
       type Node = T
       type Arrow = (T, T)
 
@@ -838,10 +837,10 @@ private[cat] trait CategoryFactory {
     * @param objects set of this category's objects
     * @return the category
     */
-  def discrete[T](objects: Set[T]): Category = new Category(Graph.discrete[T](objects)) {
-    override def id(o: O): Arrow = arrow(o)
-
-    override def m(f: Arrow, g: Arrow): Option[Arrow] = Option(f) filter (g ==) // everything is an identity
+  def discrete[T](objects: Set[T]): Category = {
+    val name = s"Discrete[${objects.size}]"
+    Category.buildFromPartialData[T](name, Graph.discrete[T](objects))().
+      getOrElse(throw new InstantiationException("Could not build category $name"))
   }
 
   /**
@@ -870,7 +869,7 @@ private[cat] trait CategoryFactory {
       if (isUnit(f)) Some(g) else if (isUnit(g)) Some(f) else composition(f, g)
     val g: Graph = addUnitsToGraph(graph)
     val id = (x: T) => x
-    buildFromGraphWithIdentity(g)(id, m)
+    buildFromGraphWithIdentity("", g)(id, m)
   }
 
   /**
@@ -889,7 +888,7 @@ private[cat] trait CategoryFactory {
     domain: Map[T, T],
     codomain: Map[T, T],
     compositionSource: Map[(T, T), T]): Result[Category] = {
-    Graph.build(objects, domain.keySet, domain, codomain) flatMap (buildFromPartialData(_, compositionSource))
+    Graph.build(objects, domain.keySet, domain, codomain) flatMap (buildFromPartialData("", _)(compositionSource))
   }
 
   /**
@@ -897,21 +896,22 @@ private[cat] trait CategoryFactory {
     * Objects have the same name as their identities.
     *
     * @tparam T arrow and node type
-    * @param graph             he graph
+    * @param name              category name
+    * @param graph             the underlying graph
     * @param compositionSource source table of arrows composition (may be incomplete)
     * @return a newly-built category
     */
-  def buildFromPartialData[T](
-    graph: Graph,
-    compositionSource: Map[(T, T), T]): Result[Category] = {
+  def buildFromPartialData[T](name: String, graph: Graph)
+    (compositionSource: Map[(T, T), T] = Map.empty[(T, T), T]): Result[Category] = {
     val graphWithUnits = addUnitsToGraph(graph)
     val composition = fillCompositionTable(graphWithUnits, compositionSource)
 
     def compositionFunction(f: T, g: T): Option[T] = composition.get((f, g))
 
     val result = buildFromGraphWithIdentity[T, T](
+      name,
       graphWithUnits)(
-      idMap(graph.nodes).asInstanceOf[T => T],
+      idMap[T](graph.nodes.asInstanceOf[Set[T]]),
       compositionFunction)
     result
   }
@@ -919,8 +919,9 @@ private[cat] trait CategoryFactory {
   /**
     * Builds a category given a graph, composition table, and a mapping for identity arrows.
     *
-    * @tparam O type of objects
+    * @tparam Obj type of objects
     * @tparam A type of arrows
+    * @param name        name of this category
     * @param g           the graph on which we are to create a category
     * @param ids         maps objects to identity arrows
     * @param composition defines composition
@@ -929,10 +930,11 @@ private[cat] trait CategoryFactory {
     *         TODO: eliminate code duplication
     */
   def buildFromGraphWithIdentity[Obj, A](
+    name: String,
     g: Graph)(
     ids: Obj => A,
     composition: (A, A) => Option[A]): Result[Category] = {
-    val data = new CategoryData(g) {
+    val data: CategoryData = new CategoryData(name, g) {
       override def id(o: O): Arrow = arrow(ids(o.asInstanceOf[Obj]))
       
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -940,7 +942,7 @@ private[cat] trait CategoryFactory {
     }
 
     data.validate returning
-      new Category(g) {
+      new Category("", g) {
         def id(o: O): Arrow = arrow(ids(o.asInstanceOf[Obj]))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -1096,22 +1098,37 @@ private[cat] trait CategoryFactory {
       val parseResult = parseAll(category, input)
       explain(parseResult)
     }
+    
+    def name: Parser[String] = word ~ ":" ^^ { case n ~ ":" => n }
 
     def category: Parser[Result[Cat]] =
-      "(" ~ graph ~ (("," ~ multTable) ?) ~ ")" ^^ { case "(" ~ g ~ mOpt ~ ")" => mOpt match {
-        case None =>
-          g.flatMap(buildFromPartialData(_, Map.empty[(String, String), String])).asInstanceOf[Result[Cat]]
-        case Some("," ~ m) =>
-          g.flatMap(buildFromPartialData(_, m)).asInstanceOf[Result[Cat]]
-        case Some(garbage) => Result.error(s"bad data: $garbage")
+      (name ?) ~ "(" ~ graph ~ (("," ~ multTable) ?) ~ ")" ^^ { 
+        case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" => mOpt match {
+          case None          => 
+            buildCategory(nameOpt, gOpt, Map.empty)
+          case Some("," ~ m) => 
+            buildCategory(nameOpt, gOpt, m)
+          case Some(garbage) => Result.error(s"bad data: $garbage")
+        }
       }
-      }
+
+    private def buildCategory(
+      nameOpt: Option[String],
+      gOpt: Result[Graph],
+      multTable: Map[(String, String), String]): Result[Cat] = {
+      val catOpt: Result[Cat] = for {
+        g: Graph <- gOpt
+        raw <- buildFromPartialData(nameOpt.getOrElse("a category"), g)(multTable)
+        cat <- convert2Cat(raw)()
+      } yield cat
+      catOpt
+    }
 
     def multTable: Parser[Map[(String, String), String]] = "{" ~ repsep(multiplication, ",") ~ "}" ^^ { case "{" ~ m
       ~ "}" => Map() ++ m
     }
 
-    def multiplication: Parser[((String, String), String)] = member ~ "o" ~ member ~ "=" ~ member ^^ { case g ~ "o" ~
+    def multiplication: Parser[((String, String), String)] = word ~ "o" ~ word ~ "=" ~ word ^^ { case g ~ "o" ~
       f ~ "=" ~ h => ((f, g), h)
     }
 
@@ -1168,7 +1185,7 @@ object Category extends CategoryFactory {
   /**
     * Category with 2 objects and 2 parallel arrows from one to another
     */
-  lazy val ParallelPair = category"({0, 1}, {a:0->1, b:0->1})"
+  lazy val ParallelPair = category"ParallelPair:({0, 1}, {a:0->1, b:0->1})"
 
   /**
     * Category <b>Z2</2> - a two-element monoid
@@ -1187,27 +1204,27 @@ object Category extends CategoryFactory {
   /**
     * Commutative square category
     */
-  lazy val Square = category"({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d, ad: a -> d}, {bd o ab = ad, cd o ac = ad})"
+  lazy val Square = category"Square:({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d, ad: a -> d}, {bd o ab = ad, cd o ac = ad})"
 
   /**
     * Pullback category: a -> c <- b
     */
-  lazy val Pullback = category"({a,b,c}, {ac: a -> c, bc: b -> c})"
+  lazy val Pullback = category"Pullback:({a,b,c}, {ac: a -> c, bc: b -> c})"
 
   /**
     * Pushout category: b <- a -> c
     */
-  lazy val Pushout = category"({a,b,c}, {ab: a -> b, ac: a -> c})"
+  lazy val Pushout = category"Pushout:({a,b,c}, {ab: a -> b, ac: a -> c})"
 
   /**
     * Sample W-shaped category: a -> b <- c -> d <- e
     */
-  lazy val W = category"({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d})"
+  lazy val W = category"W:({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d})"
 
   /**
     * Sample M-shaped category: a <- b -> c <- d -> e
     */
-  lazy val M = category"({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e})"
+  lazy val M = category"M:({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e})"
 
 
   /**
@@ -1241,7 +1258,7 @@ object Category extends CategoryFactory {
     ).
       getOrElse(throw new InstantiationException("Bad semisimplicial?")))
   lazy val NaturalNumbers: Category =
-    Category.fromPoset(PoSet.ofNaturalNumbers)
+    Category.fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
   lazy val KnownCategories = Set(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,

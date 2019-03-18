@@ -2,11 +2,10 @@ package math.cat.topos
 
 import math.cat._
 import Diagrams._
-import math.cat
 import math.sets._
 
 class Diagrams[C <: Category](site: C)
-  extends Category(graphOfDiagrams[C]) {
+  extends Category(s"Sets^${site.name}", graphOfDiagrams[C]) {
   type Node = Diagram[C]
   type Arrow = DiagramArrow[C]
   override def id(o: O): Arrow = {

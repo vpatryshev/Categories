@@ -114,10 +114,10 @@ class CategoryTest extends Test with CategoryFactory {
         compositionSource = EmptyComposition
       ).getOrElse(throw new InstantiationException("You have a bug"))
       
-      val sample1 = category"({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {a o 0 = a})"
+      val sample1 = category"sample1:({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {a o 0 = a})"
       sample1 === expected
 
-      val sample2 = category"({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
+      val sample2 = category"sample2:({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
       sample2 === expected
 
     }
@@ -815,7 +815,7 @@ class CategoryTest extends Test with CategoryFactory {
       newComposition.keySet must not contain ("bb", "a")
       newComposition.keySet must not contain ("a", "bb")
       
-      val sut1 = Category.buildFromPartialData(graph, composition)
+      val sut1 = Category.buildFromPartialData("sut1", graph)(composition)
       
       sut1 match {
         case Good(c) => ok
