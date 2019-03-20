@@ -52,7 +52,7 @@ class FunctorTest extends Test {
 
     "report incorrect object mappings" in {
       import _2_._
-      checkError(_ contains "Object mapping defined incorrectly for 1",
+      checkError(_ contains "Object mapping fails for 1",
         Functor.build("failing test",
           _2_, _2_)(
           Map("0" -> "1", "1" -> "3"),
@@ -105,7 +105,7 @@ class FunctorTest extends Test {
         "3.3" -> "3.3"
       )
 
-      checkError(_ contains "Object mapping defined incorrectly for 3",
+      checkError(_ contains "Object mapping fails for 3",
         Functor.build("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
   }

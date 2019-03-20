@@ -47,9 +47,9 @@ object Diagrams {
       type Node = Diagram[C]
       type Arrow = DiagramArrow[C]
 
-      override def nodes: Nodes = BigSet[Node]().asInstanceOf[Nodes]
+      override def nodes: Nodes = BigSet.of[Node].asInstanceOf[Nodes]
 
-      override def arrows: Arrows = BigSet[Arrow]().asInstanceOf[Arrows]
+      override def arrows: Arrows = BigSet.of[Arrow].asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node = f.d0.asInstanceOf[Diagram[C]]
 

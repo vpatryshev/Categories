@@ -33,7 +33,7 @@ object Sets {
   /**
     * A big set of all finite sets in Scala. This set is infinite, of course.
     */
-  val FiniteSets: BigSet[Set[Any]] = BigSet(isFinite)
+  val FiniteSets: BigSet[Set[Any]] = BigSet.comprehension(isFinite)
   
   def itsImmutable = throw new UnsupportedOperationException("Immutable class")
 

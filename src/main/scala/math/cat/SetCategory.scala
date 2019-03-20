@@ -35,7 +35,8 @@ class SetCategory(objects: BigSet[Set[Any]])
 
   override def equalizer(f: SetFunction, g: SetFunction): Option[SetFunction] = {
     require((f.d0 eq g.d0) && (f.d1 eq g.d1))
-    val inclusion = SetFunction.inclusion(f.d0, (x: set) => f(x) == g(x))
+    val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
+    val inclusion = filtrator(x => f(x) == g(x))
     Option(inclusion) filter { i => objects.contains(i.d0) }
   }
 
@@ -149,7 +150,7 @@ object SetCategory {
   private[cat] def graphOfSets(nodes0: BigSet[set]): Graph = {
     Graph.build[set, SetFunction](
       nodes0,
-      BigSet[SetFunction](),
+      BigSet.of[SetFunction],
       (f: SetFunction) => f.d0,
       (f: SetFunction) => f.d1)
   }.getOrElse(throw new InstantiationException("This graph should exist"))

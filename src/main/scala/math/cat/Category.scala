@@ -656,8 +656,9 @@ private[cat] abstract class CategoryData(override val name: String = "a category
   type Objects = Set[O]
 
   implicit def obj(x: Any): O = x match {
-    case _ if objects contains x.asInstanceOf[O] => x.asInstanceOf[O]
-    case other => throw new IllegalArgumentException(s"$x is not an object in  in $name")
+    case _ if x.isInstanceOf[O] && (objects contains x.asInstanceOf[O]) => x.asInstanceOf[O]
+    case other => 
+      throw new IllegalArgumentException(s"$x is not an object in  in $name")
   }
 
   def id(o: O): Arrow
