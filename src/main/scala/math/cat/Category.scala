@@ -11,8 +11,7 @@ import scalakittens.{Good, Result}
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category(name: String, override val graph: Graph)
-  extends CategoryData(name, graph) {
+abstract class Category(name: String, graph: Graph) extends CategoryData(name, graph) {
 
   lazy val terminal: Option[O] = objects.find(isTerminal)
   lazy val initial: Option[O] = objects.find(isInitial)
