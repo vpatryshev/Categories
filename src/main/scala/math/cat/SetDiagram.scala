@@ -32,8 +32,8 @@ abstract class SetDiagram[C <: Category](
   type XArrows = Set[d0.Arrow]
   type YArrow = SetFunction
 
-//  override def objectsMapping(x: XObject): set
-//  override def arrowsMappingCandidate(a: XArrow): YArrow
+  implicit def asSet(x: d1.O): set = x.asInstanceOf[set]
+  implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
 
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible

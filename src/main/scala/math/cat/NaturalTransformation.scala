@@ -33,8 +33,8 @@ abstract class NaturalTransformation[
 
   override val d0: Functor[X, Y] = from
   override val d1: Functor[X, Y] = to
-  def domainCategory: X = from.d0
-  def codomainCategory: Y = from.d1
+  def domainCategory: Category = from.d0
+  def codomainCategory: Category = from.d1
   
   def compose(
     next: NaturalTransformation[X, Y]

@@ -10,16 +10,16 @@ import scalakittens.Result._
 /**
   * Functor class: functions for categories.
   *
-  * @tparam X the first category type 
-  * @tparam Y the second category type
+  * @param d0 domain
+  * @param d1 codomain
   */
 abstract class Functor[X <: Category, Y <: Category](
   val d0: X, val d1: Y
 )
   extends GraphMorphism {
 
-  type Domain = X
-  type Codomain = Y
+  type Domain = Category
+  type Codomain = Category
   val tag: String
   def domainObjects: d0.Objects = d0.objects
 
