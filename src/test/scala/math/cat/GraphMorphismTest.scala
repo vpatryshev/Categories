@@ -1,24 +1,24 @@
 package math.cat
 
+import math.Test
 import math.sets.PoSet
 import org.specs2.mutable._
-import scalaz.Alpha.X
 
 /**
   * Tests for GraphMorphism class
   */
-class GraphMorphismTest extends Specification {
+class GraphMorphismTest extends Test {
   "GraphMorphism" >> {
 
     "Constructor" >> {
       val objects = Set(1, 2, 3)
       val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
-      val graph1 = Graph.fromArrowMap(objects, map).getOrElse(throw new InstantiationException("oops"))
+      val graph1 = Graph.fromArrowMap(objects, map).iHope
       val arrows2 = Set(11, 111, 21, 32, 13)
       val graph2 =
         Graph.build(objects, arrows2,
-          (x: Int) => x / 10 % 10, (x: Int) => x % 10).getOrElse(throw new InstantiationException("oops"))
+          (x: Int) => x / 10 % 10, (x: Int) => x % 10).iHope
       val nm = SetMorphism.id(objects)
       val am =
         SetMorphism(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13))
@@ -35,7 +35,7 @@ class GraphMorphismTest extends Specification {
       val objects = Set(1, 2, 3)
       val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
-      val graph = Graph.fromArrowMap(objects, map).getOrElse(throw new InstantiationException("oops"))
+      val graph = Graph.fromArrowMap(objects, map).iHope
       val sut: GraphMorphism = GraphMorphism.id(graph)
       sut.d0 === graph
       sut.d1 === graph
@@ -52,14 +52,14 @@ class GraphMorphismTest extends Specification {
         Set(1,2,3,4,5,6),
         Set(1,2,3,4,5,6),
         same,
-        (i:Int) => i%6 + 1).getOrElse(throw new InstantiationException("oops"))
+        (i:Int) => i%6 + 1).iHope
       
       val g3 = Graph.build(
         Set(1,2,3),
         Set(1,2,3),
         same,
         (i:Int) => i%3+1
-      ).getOrElse(throw new InstantiationException("oops"))
+      ).iHope
 
       g3.isFinite === true
 

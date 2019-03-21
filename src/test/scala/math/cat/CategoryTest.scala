@@ -112,7 +112,7 @@ class CategoryTest extends Test with CategoryFactory {
         domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
         codomain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "2", "b" -> "2"),
         compositionSource = EmptyComposition
-      ).getOrElse(throw new InstantiationException("You have a bug"))
+      ).iHope
       
       val sample1 = category"sample1:({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {a o 0 = a})"
       sample1 === expected

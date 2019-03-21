@@ -28,13 +28,14 @@ class NaturalTransformationTest extends Test {
     lazy val fgOpt: Result[NT] = for {
       f <- fOpt
       g <- gOpt
-      nt <- NaturalTransformation.build(f, g)(Map("0" -> "0.1", "1" -> "2.2"))
+      nt <- NaturalTransformation.build(f, g)(Map(
+        "0" -> f.d1.arrow("0.1"), "1" -> f.d1.arrow("2.2")))
     } yield nt
 
     lazy val ghOpt: Result[NT] = for {
       g <- gOpt
       h <- hOpt
-      nt <- NaturalTransformation.build(g, h)(Map("0" -> "1.2", "1" -> "2.3"))
+      nt <- NaturalTransformation.build(g, h)(Map("0" -> g.d1.arrow("1.2"), "1" -> g.d1.arrow("2.3")))
     } yield nt
 
     "compose" in {
@@ -42,8 +43,8 @@ class NaturalTransformationTest extends Test {
         val fgh = fg compose gh
         fgh.from === f
         fgh.to === h
-        fgh.transformPerObject("0") === "0.2"
-        fgh.transformPerObject("1") === "2.3"
+        fgh.transformPerObject(fgh.from.d0.obj("0")) === "0.2"
+        fgh.transformPerObject(fgh.from.d0.obj("1")) === "2.3"
       }(fOpt andAlso gOpt andAlso hOpt andAlso fgOpt andAlso ghOpt)
     }
 

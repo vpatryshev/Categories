@@ -36,7 +36,7 @@ class FunctorTest extends Test {
       Pushout, categorySquareWithTwoRightCorners)(
       Map("a" -> "a", "b" -> "b", "c" -> "c"),
       Map("a" -> "a", "b" -> "b", "c" -> "c", "ab" -> "ab", "ac" -> "ac")
-    ).getOrElse(throw new InstantiationException("wtf wit functor on line 29?"))
+    ).iHope
   }
   
   "Constructor" should {
@@ -137,75 +137,100 @@ class FunctorTest extends Test {
     }
     
     "cones from" in {
-      val actual = functorFromPullbackToDoubleSquare.conesFrom("a0")
-      val expected = functorFromPullbackToDoubleSquare.Cone("a0", Map(
-        "a" -> "a0b",
-        "b" -> "a0c",
-        "c" -> "a0d")
-      )
+      val sut = functorFromPullbackToDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+      val actual: Set[sut.Cone] = sut.conesFrom(obj1("a0"))
+      
+      val expected: sut.Cone = sut.Cone(obj1("a0"), Map(
+        obj0("a") -> arr1("a0b"),
+        obj0("b") -> arr1("a0c"),
+        obj0("c") -> arr1("a0d")
+      ))
+        
       actual === Set(expected)
     }
     
     "build all cones" in {
-      val allCones = functorFromPullbackToDoubleSquare.allCones
-      val c1 = functorFromPullbackToDoubleSquare.Cone("a0", Map(
-        "a" -> "a0b",
-        "b" -> "a0c",
-        "c" -> "a0d")
-      )
+      val sut = functorFromPullbackToDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+      val allCones = sut.allCones
+      val c1 = sut.Cone(obj1("a0"), Map(
+        obj0("a") -> arr1("a0b"),
+        obj0("b") -> arr1("a0c"),
+        obj0("c") -> arr1("a0d")
+      ))
       
-      val c2 = functorFromPullbackToDoubleSquare.Cone("a1", Map(
-        "a" -> "a1b",
-        "b" -> "a1c",
-        "c" -> "a1d")
-      )
+      val c2 = sut.Cone(obj1("a1"), Map(
+        obj0("a") -> arr1("a1b"),
+        obj0("b") -> arr1("a1c"),
+        obj0("c") -> arr1("a1d")
+      ))
       
       allCones === Set(c1, c2)
     }
     
     "limit with two candidates" in {
-      functorFromPullbackToDoubleSquare.limit match {
+      val sut = functorFromPullbackToDoubleSquare
+      sut.limit match {
         case Some(limit) =>
           limit.vertex == "a1"
-          limit.arrowTo("a") == "a1b"
-          limit.arrowTo("b") == "a1c"
+          limit.arrowTo(sut.d0.obj("a")) == "a1b"
+          limit.arrowTo(sut.d0.obj("b")) == "a1c"
         case oops => failure("no limit?")
       }
       ok
     }
     
     "cocones to" in {
-      val actual = functorFrom1to2toDoubleSquare.coconesTo("d0")
-      val expected = functorFrom1to2toDoubleSquare.Cocone("d0", Map(
-        "a" -> "ad0",
-        "b" -> "bd0",
-        "c" -> "cd0"
+      val sut = functorFrom1to2toDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+
+      val actual = sut.coconesTo(obj1("d0"))
+      val expected = sut.Cocone(obj1("d0"), Map(
+        obj0("a") -> arr1("ad0"),
+        obj0("b") -> arr1("bd0"),
+        obj0("c") -> arr1("cd0")
       ))
       actual === Set(expected)
     }
     
     "all cocones" in {
-      val allCocones = functorFrom1to2toDoubleSquare.allCocones
-      val expected1 = functorFrom1to2toDoubleSquare.Cocone("d0", Map(
-        "a" -> "ad0",
-        "b" -> "bd0",
-        "c" -> "cd0"
+      val sut = functorFrom1to2toDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+      val allCocones = sut.allCocones
+      val expected1 = sut.Cocone(obj1("d0"), Map(
+        obj0("a") -> arr1("ad0"),
+        obj0("b") -> arr1("bd0"),
+        obj0("c") -> arr1("cd0")
       ))
-      val expected2 = functorFrom1to2toDoubleSquare.Cocone("d1", Map(
-        "a" -> "ad1",
-        "b" -> "bd1",
-        "c" -> "cd1"
+      val expected2 = sut.Cocone(obj1("d1"), Map(
+        obj0("a") -> arr1("ad1"),
+        obj0("b") -> arr1("bd1"),
+        obj0("c") -> arr1("cd1")
       ))
       allCocones === Set(expected1, expected2)
     }
     
     "colimit with two candidates" in {
-      functorFrom1to2toDoubleSquare.colimit match {
+      val sut = functorFrom1to2toDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+
+      sut.colimit match {
         case Some(colimit) =>
           colimit.vertex == "d1"
-          colimit.arrowFrom("a") === "ad1"
-          colimit.arrowFrom("b") === "bd1"
-          colimit.arrowFrom("c") === "cd1"
+          colimit.arrowFrom(obj0("a")) === "ad1"
+          colimit.arrowFrom(obj0("b")) === "bd1"
+          colimit.arrowFrom(obj0("c")) === "cd1"
         case oops => failure("Could not build a colimit for " + 
                      functorFrom1to2toDoubleSquare.tag)
       }

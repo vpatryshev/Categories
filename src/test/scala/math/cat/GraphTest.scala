@@ -192,7 +192,8 @@ class GraphTest extends Test {
           Set(1, 2, 3),
           Set(11, 21, 32, 13),
           (x: Int) => x % 10,
-          (x: Int) => x / 10 % 10).getOrElse(throw new InstantiationException("oops"))
+          (x: Int) => x / 10 % 10) iHope
+        
         opsut === expected
         sut === ~opsut
       })(
@@ -215,7 +216,8 @@ class GraphTest extends Test {
       val sut = Graph.ofPoset(PoSet(nodes, (a: String, b: String) => a <= b))
       import sut._
       val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
-      val expected = Graph.fromArrowMap(nodes, arrows).getOrElse(throw new IllegalArgumentException)
+      val expected = Graph.fromArrowMap(nodes, arrows) iHope
+      
       sut.nodes === expected.nodes
       sut.arrows === expected.arrows
       sut === expected
@@ -240,7 +242,7 @@ class GraphTest extends Test {
       val objects = Set("1", "2", "3")
       val map = Map("1a" -> ("1", "1"), "1b" -> ("1", "1"), "2to1" -> ("2", "1"), "3to2" -> ("3", "2"), "1to3" ->
         ("1", "3"))
-      val expected = Graph.fromArrowMap(objects, map).getOrElse(throw new IllegalArgumentException)
+      val expected = Graph.fromArrowMap(objects, map).iHope
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
       import sut._
 
@@ -269,7 +271,7 @@ class GraphTest extends Test {
         Set(1,2,3),
         identity[Int],
         (i:Int) => i%3+1
-      ).getOrElse(throw new InstantiationException("oops"))
+      ).iHope
       
       g3.isFinite === true
     }

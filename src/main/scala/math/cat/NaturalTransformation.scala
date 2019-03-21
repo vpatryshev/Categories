@@ -77,7 +77,7 @@ object NaturalTransformation {
   X <: Category,
   Y <: Category
   ](
-    f: Functor[X, Y], g: Functor[X, Y], domainCategory: X, codomainCategory: Y)(
+    f: Functor[X, Y], g: Functor[X, Y], domainCategory: Category, codomainCategory: Category)(
     transformPerObject: f.d0.O => f.d1.Arrow
   ): Outcome =
     OKif(domainCategory == g.d0, s"Functors must be defined on the same categories") andAlso
@@ -116,12 +116,12 @@ object NaturalTransformation {
     X <: Category,
     Y <: Category
   ](from0: Functor[X, Y],
-    to0: Functor[X, Y])
+    to: Functor[X, Y])
   (
     mappings: from0.d0.O => from0.d1.Arrow
   ): Result[NaturalTransformation[X, Y]] = {
-    validate[X, Y](from0, to0, from0.d0, from0.d1)(mappings) returning 
-    new NaturalTransformation[X, Y](from0, to0) {
+    validate[X, Y](from0, to, from0.d0, from0.d1)(mappings) returning 
+    new NaturalTransformation[X, Y](from0, to) {
       override def transformPerObject(x: from.d0.O): from.d1.Arrow =
         mappings(x.asInstanceOf[from0.d0.O]).asInstanceOf[from.d1.Arrow]
     }

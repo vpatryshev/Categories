@@ -1,16 +1,17 @@
 package math.cat
 
+import math.Test
 import math.cat.Category.Cat
 import math.sets.Sets.set
 import scalakittens.Result
 
-trait TestDiagrams {
+trait TestDiagrams extends Test {
   type SmallDiagram = SetDiagram[Cat]
   
   lazy val EmptyDiagram: SmallDiagram = SetDiagram.build("empty", Category._0_)(
     Map[String, set](),
     Map[String, SetFunction]()
-  ).getOrElse(throw new InstantiationException("Could not build empty diagram"))
+  ).iHope
 
   def point(x: set): Result[SmallDiagram] =
     SetDiagram.build(s"point $x", Category._1_)(

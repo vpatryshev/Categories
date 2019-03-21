@@ -14,7 +14,7 @@ import scalakittens.Result._
   * @param d1 codomain
   */
 abstract class Functor[X <: Category, Y <: Category](
-  val d0: X, val d1: Y
+  val d0: Category, val d1: Y
 )
   extends GraphMorphism {
 
