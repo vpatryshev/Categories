@@ -59,7 +59,7 @@ abstract class SetDiagram[C <: Category](
     def arrowFromRootObject(x: XObject) =
       if (limitBuilder.rootObjects(x)) d0.id(x) else fromRootObjects(x)
     
-    def coneMap(x: XObject): SetFunction = {
+    def coneMap(x: XObject): d1.Arrow = d1.arrow {
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
@@ -68,7 +68,7 @@ abstract class SetDiagram[C <: Category](
         { case point: List[Any] => f(projections(point)) })
     }
     //YObjects vertex
-    Option(Cone(limitBuilder.vertex, coneMap))
+    Option(Cone(d1.obj(limitBuilder.vertex), coneMap))
   }
 
   override def colimit: Option[Cocone] = {
@@ -79,7 +79,7 @@ abstract class SetDiagram[C <: Category](
       d0.buildBundles(d0.objects, participantArrows.asInstanceOf[XArrows])
     val listOfObjects: List[XObject] = op.listOfRootObjects.asInstanceOf[List[XObject]]
     // Here we have a non-repeating collection of sets to use for building a union
-    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping
+    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping map asSet
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
     val typelessUnion: set = union.unionSet untyped
     val directIndex: IntMap[XObject] = Base.toMap(listOfObjects)
@@ -128,10 +128,10 @@ abstract class SetDiagram[C <: Category](
       }
     }
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
-    def coconeMap(x: XObject): SetFunction = {
+    def coconeMap(x: XObject): d1.Arrow = d1.arrow {
       canonicalFunctionPerObject(x) andThen factorMorphism
     }
-    Option(Cocone(theFactorset.content.untyped, coconeMap))
+    Option(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
   }
 
   /**
@@ -176,7 +176,7 @@ abstract class SetDiagram[C <: Category](
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = rootObjects.toList.sortBy(_.toString)
     // Here we have a non-repeating collection of sets to use for building a limit
-    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping
+    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map asSet
     // this is the product of these sets; will have to take a subset of this product
     final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
     // for each domain object, a collection of arrows looking outside
@@ -220,7 +220,7 @@ object SetDiagram {
     arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[C]] = {
     
     val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
-      override val objectsMapping: d0.O => set = objectsMap.asInstanceOf[d0.O => set]
+      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(objectsMap(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
         ((a: XArrow) => arrowMap(a.asInstanceOf[dom.Arrow])).asInstanceOf[d0.Arrow => d1.Arrow]

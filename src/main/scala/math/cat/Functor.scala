@@ -14,7 +14,7 @@ import scalakittens.Result._
   * @param d1 codomain
   */
 abstract class Functor[X <: Category, Y <: Category](
-  val d0: Category, val d1: Y
+  val d0: Category, val d1: Category
 )
   extends GraphMorphism {
 
@@ -292,7 +292,7 @@ abstract class Functor[X <: Category, Y <: Category](
 object Functor {
   
   def build[X <: Category, Y <: Category](
-    dom: X, codom: Y)(
+    dom: Category, codom: Category)(
     objectsMorphism: dom.O => codom.O,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
     validateFunctor(new Functor[X, Y](dom, codom) {
@@ -333,7 +333,7 @@ object Functor {
     * @tparam Y second category type
     * @param x  the category
     * @param y  second category
-    * @param y0 an object in category Y
+    * @param y0 an object in category y
     * @return constant functor on x that takes maps all objects to y0 and all arrows to y0's identities.
     */
   def const[X <: Category, Y <: Category](x: X, y: Y)(y0: y.O):
@@ -345,8 +345,8 @@ object Functor {
 
   private def unsafeBuild[X <: Category, Y <: Category](
     atag: String,
-    dom: X,
-    codom: Y)(
+    dom: Category,
+    codom: Category)(
     objectsMorphism: dom.O => codom.O,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
     new Functor[X, Y](dom, codom) {
