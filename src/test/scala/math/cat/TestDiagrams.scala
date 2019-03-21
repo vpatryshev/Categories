@@ -8,10 +8,10 @@ import scalakittens.Result
 trait TestDiagrams extends Test {
   type SmallDiagram = SetDiagram[Cat]
   
-  implicit def translateObjectMapping(f: Functor[_,_])(om: String => set): f.d0.Obj => f.d1.Obj =
+  implicit def translateObjectMapping(f: Functor[_])(om: String => set): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => f.d1.obj(om(f.toString))
 
-  implicit def translateArrowMapping(f: Functor[_,_])(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
+  implicit def translateArrowMapping(f: Functor[_])(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => f.d1.obj(am(f.toString))
 
   lazy val EmptyDiagram: SmallDiagram = SetDiagram.build("empty", Category._0_)(
@@ -35,7 +35,7 @@ trait TestDiagrams extends Test {
     val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
     val am = Map("ac" -> ac, "bc" -> bc)
 
-    lazy val asFunctor: Result[Functor[Cat, SetCategory]] = Functor.build[Cat, SetCategory](
+    lazy val asFunctor: Result[Functor[Cat]] = Functor.build[Cat, SetCategory](
       "pullback", Category.Pullback, SetCategory.Setf)(
       om,
       am

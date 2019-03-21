@@ -16,7 +16,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "validate as a functor with Set as domain" in {
 
-      check[Functor[Cat, SetCategory]](SamplePullbackDiagram.asFunctor,
+      check[Functor[Cat]](SamplePullbackDiagram.asFunctor,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf

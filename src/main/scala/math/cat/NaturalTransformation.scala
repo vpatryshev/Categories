@@ -26,13 +26,13 @@ import scalakittens.Result.Outcome
 abstract class NaturalTransformation[
     X <: Category,
     Y <: Category
-  ](val from: Functor[X, Y],
-    val to: Functor[X, Y]) extends Morphism[Functor[X, Y], Functor[X, Y]] {
+  ](val from: Functor[X],
+    val to: Functor[X]) extends Morphism[Functor[X], Functor[X]] {
   
   def transformPerObject(x: from.d0.Obj): from.d1.Arrow
 
-  override val d0: Functor[X, Y] = from
-  override val d1: Functor[X, Y] = to
+  override val d0: Functor[X] = from
+  override val d1: Functor[X] = to
   def domainCategory: Category = from.d0
   def codomainCategory: Category = from.d1
   
@@ -40,7 +40,7 @@ abstract class NaturalTransformation[
     next: NaturalTransformation[X, Y]
   ): NaturalTransformation[X, Y] = {
 
-    val first: Functor[X, Y] = from
+    val first: Functor[X] = from
     val targetCategory = to.d1
     
     def comp(x: first.d0.Obj): targetCategory.Arrow = {
@@ -77,7 +77,7 @@ object NaturalTransformation {
   X <: Category,
   Y <: Category
   ](
-    f: Functor[X, Y], g: Functor[X, Y], domainCategory: Category, codomainCategory: Category)(
+    f: Functor[X], g: Functor[X], domainCategory: Category, codomainCategory: Category)(
     transformPerObject: f.d0.Obj => f.d1.Arrow
   ): Outcome =
     OKif(domainCategory == g.d0, s"Functors must be defined on the same categories") andAlso
@@ -115,8 +115,8 @@ object NaturalTransformation {
   def build[
     X <: Category,
     Y <: Category
-  ](from0: Functor[X, Y],
-    to: Functor[X, Y])
+  ](from0: Functor[X],
+    to: Functor[X])
   (
     mappings: from0.d0.Obj => from0.d1.Arrow
   ): Result[NaturalTransformation[X, Y]] = {
@@ -133,7 +133,7 @@ object NaturalTransformation {
     * @param functor the functor for which we are building the identity transformation
     * @return identity natural transformation for the functor
     */
-  def id[X <: Category, Y <: Category](functor: Functor[X, Y]):
+  def id[X <: Category, Y <: Category](functor: Functor[X]):
   NaturalTransformation[X, Y] = {
 
     def objectMap(x: functor.d0.Obj): functor.d1.Arrow =

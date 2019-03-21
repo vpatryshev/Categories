@@ -6,7 +6,7 @@ import math.cat.SetCategory.Setf
 import math.sets.Sets.set
 
 class FunctorTest extends Test {
-  type FSS = Functor[Cat, Cat]
+  type FSS = Functor[Cat]
 
   type SUT = FSS
   
@@ -123,8 +123,8 @@ class FunctorTest extends Test {
         Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
       
       val fOpt = Functor.build("sample product", from, to)(mapO, mapA)
-      check[Functor[Category, Cat]](fOpt,
-        (f:Functor[Category, Cat]) => {
+      check[Functor[Category]](fOpt,
+        (f:Functor[Category]) => {
         val limitOpt = f.limit
 
         limitOpt match {
@@ -249,7 +249,7 @@ class FunctorTest extends Test {
         Map("ac" -> ac, "bc" -> bc)
       )
       
-      check[Functor[Cat, SetCategory]](sutOpt,
+      check[Functor[Cat]](sutOpt,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf

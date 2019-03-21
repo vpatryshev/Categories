@@ -24,7 +24,7 @@ import scala.language.postfixOps
 abstract class SetDiagram[C <: Category](
   override val tag: String,
   override val d0: C)
-  extends Functor[C, SetCategory](d0, SetCategory.Setf) {
+  extends Functor[C](d0, SetCategory.Setf) {
   type XObject = d0.Obj
   type XObjects = Set[d0.Obj]
   type YObject = set
