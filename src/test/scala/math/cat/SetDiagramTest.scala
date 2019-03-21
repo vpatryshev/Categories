@@ -32,8 +32,8 @@ class SetDiagramTest extends Test with TestDiagrams {
 
       val diagram: SetDiagram[Cat] =
         new SetDiagram[Cat]("Test", dom) {
-          override val objectsMapping: d0.O => d1.O =
-            (x: d0.O) => d1.obj(SamplePullbackDiagram.om(x))
+          override val objectsMapping: d0.Obj => d1.Obj =
+            (x: d0.Obj) => d1.obj(SamplePullbackDiagram.om(x))
           override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
             (a: d0.Arrow) => d1.arrow(SamplePullbackDiagram.am(a))
         }
@@ -86,7 +86,7 @@ class SetDiagramTest extends Test with TestDiagrams {
           sut.d1 === Setf
           sut.limit match {
             case None => failure("We expected a limit")
-            case Some(sut.Cone(vertex:sut.d1.O, arrowTo)) =>
+            case Some(sut.Cone(vertex:sut.d1.Obj, arrowTo)) =>
               sut.asSet(vertex).size === x.size
           }
         }
@@ -97,7 +97,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex0:sut.d1.O, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
             val vertex = sut.asSet(vertex0)
             vertex.size === 5
             val ara = sut.asFunction(sut.d1.arrow(arrowTo("a")))
@@ -121,7 +121,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex0:sut.d1.O, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
             val vertex = sut.asSet(vertex0)
             vertex.size === 3
             vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
@@ -157,7 +157,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex0:sut.d1.O, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
             val vertex = sut.asSet(vertex0)
             vertex.size === 16
             val ara = sut.asFunction(sut.d1.arrow(arrowTo("a")))
@@ -204,7 +204,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex0:sut.d1.O, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
             val vertex = sut.asSet(vertex0)
             vertex.size === 8
             val ara = sut.asFunction(sut.d1.arrow(arrowTo("a")))
@@ -259,7 +259,7 @@ class SetDiagramTest extends Test with TestDiagrams {
           sut.d1 === Setf
           sut.colimit match {
             case None => failure("We expected a colimit")
-            case Some(sut.Cocone(vertex0:sut.d1.O, arrowFrom)) =>
+            case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
               val vertex = sut.asSet(vertex0)
               vertex.size === x.size
           }
@@ -284,7 +284,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       val list = v0 :: v1 :: v0 :: Nil
       expect(sut =>
         sut.colimit match {
-          case Some(sut.Cocone(vertex0:sut.d1.O, arrowFrom)) =>
+          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
             val vertex = sut.asSet(vertex0)
             val ara = sut.asFunction(sut.d1.arrow(arrowFrom("a")))
             val arb = sut.asFunction(sut.d1.arrow(arrowFrom("b")))
@@ -319,7 +319,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
       expect(sut =>
         sut.colimit match {
-          case Some(sut.Cocone(vertex0:sut.d1.O, arrowFrom)) =>
+          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
             val vertex = sut.asSet(vertex0)
             val ar0 = sut.asFunction(sut.d1.arrow(arrowFrom("0")))
             val ar1 = sut.asFunction(sut.d1.arrow(arrowFrom("1")))
@@ -345,7 +345,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.colimit match {
           case None => failure("We expected a colimit")
-          case Some(sut.Cocone(vertex0:sut.d1.O, arrowFrom)) =>
+          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
             val vertex = sut.asSet(vertex0)
             vertex.size === 8
             val ara = sut.asFunction(sut.d1.arrow(arrowFrom("a")))

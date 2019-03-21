@@ -8,11 +8,11 @@ import scalakittens.Result
 trait TestDiagrams extends Test {
   type SmallDiagram = SetDiagram[Cat]
   
-  implicit def translateObjectMapping(f: Functor[_,_])(om: String => set): f.d0.O => f.d1.O =
-    (x: f.d0.O) => f.d1.obj(om(f.toString))
+  implicit def translateObjectMapping(f: Functor[_,_])(om: String => set): f.d0.Obj => f.d1.Obj =
+    (x: f.d0.Obj) => f.d1.obj(om(f.toString))
 
-  implicit def translateArrowMapping(f: Functor[_,_])(am: String => SetFunction): f.d0.O => f.d1.O =
-    (x: f.d0.O) => f.d1.obj(am(f.toString))
+  implicit def translateArrowMapping(f: Functor[_,_])(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
+    (x: f.d0.Obj) => f.d1.obj(am(f.toString))
 
   lazy val EmptyDiagram: SmallDiagram = SetDiagram.build("empty", Category._0_)(
     Map[String, set](),

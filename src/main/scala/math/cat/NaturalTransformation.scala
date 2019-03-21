@@ -29,7 +29,7 @@ abstract class NaturalTransformation[
   ](val from: Functor[X, Y],
     val to: Functor[X, Y]) extends Morphism[Functor[X, Y], Functor[X, Y]] {
   
-  def transformPerObject(x: from.d0.O): from.d1.Arrow
+  def transformPerObject(x: from.d0.Obj): from.d1.Arrow
 
   override val d0: Functor[X, Y] = from
   override val d1: Functor[X, Y] = to
@@ -43,24 +43,24 @@ abstract class NaturalTransformation[
     val first: Functor[X, Y] = from
     val targetCategory = to.d1
     
-    def comp(x: first.d0.O): targetCategory.Arrow = {
+    def comp(x: first.d0.Obj): targetCategory.Arrow = {
       val fHere: targetCategory.Arrow =
-        transformPerObject(x.asInstanceOf[from.d0.O]).asInstanceOf[targetCategory.Arrow]
+        transformPerObject(x.asInstanceOf[from.d0.Obj]).asInstanceOf[targetCategory.Arrow]
       val fThere: targetCategory.Arrow =
-        next.transformPerObject(x.asInstanceOf[next.from.d0.O]).asInstanceOf[targetCategory.Arrow]
+        next.transformPerObject(x.asInstanceOf[next.from.d0.Obj]).asInstanceOf[targetCategory.Arrow]
       val compOpt: Option[targetCategory.Arrow] = targetCategory.m(fHere, fThere)
       compOpt getOrElse(
           throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere"))
     }
     
     new NaturalTransformation[X, Y](from, next.to) {
-      def transformPerObject(x: from.d0.O): from.d1.Arrow =
-        comp(x.asInstanceOf[first.d0.O]).asInstanceOf[from.d1.Arrow]
+      def transformPerObject(x: from.d0.Obj): from.d1.Arrow =
+        comp(x.asInstanceOf[first.d0.Obj]).asInstanceOf[from.d1.Arrow]
     }
   }
   
-  private lazy val asMap: Map[from.d0.O, from.d1.Arrow] =
-    (from.d0.objects map (o => o -> transformPerObject(o)) toMap) .asInstanceOf[Map[from.d0.O, from.d1.Arrow]]
+  private lazy val asMap: Map[from.d0.Obj, from.d1.Arrow] =
+    (from.d0.objects map (o => o -> transformPerObject(o)) toMap) .asInstanceOf[Map[from.d0.Obj, from.d1.Arrow]]
   
   override lazy val hashCode: Int = from.hashCode | to.hashCode*17 | asMap.hashCode*31
   
@@ -78,7 +78,7 @@ object NaturalTransformation {
   Y <: Category
   ](
     f: Functor[X, Y], g: Functor[X, Y], domainCategory: Category, codomainCategory: Category)(
-    transformPerObject: f.d0.O => f.d1.Arrow
+    transformPerObject: f.d0.Obj => f.d1.Arrow
   ): Outcome =
     OKif(domainCategory == g.d0, s"Functors must be defined on the same categories") andAlso
     OKif(codomainCategory == g.d1, s"Functors must map to the same categories") andAlso
@@ -86,8 +86,8 @@ object NaturalTransformation {
     for {
       a <- f.d0.arrows
     } yield {
-      val x0: f.d0.O = f.d0.d0(a)
-      val x1: f.d0.O = f.d0.d1(a)
+      val x0: f.d0.Obj = f.d0.d0(a)
+      val x1: f.d0.Obj = f.d0.d1(a)
       val rr = for {
         fa <- forValue(f.arrowsMapping(a))
         ga <- forValue(g.arrowsMapping(a.asInstanceOf[g.d0.Arrow])) // same thing
@@ -118,12 +118,12 @@ object NaturalTransformation {
   ](from0: Functor[X, Y],
     to: Functor[X, Y])
   (
-    mappings: from0.d0.O => from0.d1.Arrow
+    mappings: from0.d0.Obj => from0.d1.Arrow
   ): Result[NaturalTransformation[X, Y]] = {
     validate[X, Y](from0, to, from0.d0, from0.d1)(mappings) returning 
     new NaturalTransformation[X, Y](from0, to) {
-      override def transformPerObject(x: from.d0.O): from.d1.Arrow =
-        mappings(x.asInstanceOf[from0.d0.O]).asInstanceOf[from.d1.Arrow]
+      override def transformPerObject(x: from.d0.Obj): from.d1.Arrow =
+        mappings(x.asInstanceOf[from0.d0.Obj]).asInstanceOf[from.d1.Arrow]
     }
   }
 
@@ -136,13 +136,13 @@ object NaturalTransformation {
   def id[X <: Category, Y <: Category](functor: Functor[X, Y]):
   NaturalTransformation[X, Y] = {
 
-    def objectMap(x: functor.d0.O): functor.d1.Arrow =
-      functor.d1.id(functor.objectsMapping(x).asInstanceOf[functor.d1.O])
+    def objectMap(x: functor.d0.Obj): functor.d1.Arrow =
+      functor.d1.id(functor.objectsMapping(x).asInstanceOf[functor.d1.Obj])
 
     new NaturalTransformation[X, Y](
       functor, functor) {
-      override def transformPerObject(x: from.d0.O): from.d1.Arrow =
-        objectMap(x.asInstanceOf[functor.d0.O]).asInstanceOf[from.d1.Arrow]
+      override def transformPerObject(x: from.d0.Obj): from.d1.Arrow =
+        objectMap(x.asInstanceOf[functor.d0.Obj]).asInstanceOf[from.d1.Arrow]
     }
   }
 

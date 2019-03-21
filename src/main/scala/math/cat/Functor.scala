@@ -23,16 +23,16 @@ abstract class Functor[X <: Category, Y <: Category](
   val tag: String
   def domainObjects: d0.Objects = d0.objects
 
-  val objectsMapping: d0.O => d1.O
+  val objectsMapping: d0.Obj => d1.Obj
   val arrowsMappingCandidate: d0.Arrow => d1.Arrow
 
   override def toString: String = s"Functor $tag"
 
   override def arrowsMapping(a: d0.Arrow): d1.Arrow = {
-    val domainX: d0.O = d0.d0(a)
+    val domainX: d0.Obj = d0.d0(a)
     try {
       if (d0.id(domainX) == a) {
-        val domainY: d1.O = objectsMapping(domainX)
+        val domainY: d1.Obj = objectsMapping(domainX)
         d1.id(domainY)
       } else arrowsMappingCandidate(a)
     } catch {
@@ -52,9 +52,9 @@ abstract class Functor[X <: Category, Y <: Category](
   def compose[Z <: Category](g: Functor[Y, Z]): Option[Functor[X, Z]] = {
     if (d1 != g.d0) None else Some {
       val f = this
-      val objectMap = (x: d0.O) => {
-        val y: g.d0.O = g.d0.obj(objectsMapping(x))
-        val z: g.d1.O = g.objectsMapping(y)
+      val objectMap = (x: d0.Obj) => {
+        val y: g.d0.Obj = g.d0.obj(objectsMapping(x))
+        val z: g.d1.Obj = g.objectsMapping(y)
         z
       }
       new Functor[X, Z](f.d0, g.d1) {
@@ -62,8 +62,8 @@ abstract class Functor[X <: Category, Y <: Category](
 
         val tag: String = g.tag + " o " + this.tag
 
-        override val objectsMapping: d0.O => d1.O =
-          (x:d0.O) => d1.obj(objectMap(Functor.this.d0.obj(x)))
+        override val objectsMapping: d0.Obj => d1.Obj =
+          (x:d0.Obj) => d1.obj(objectMap(Functor.this.d0.obj(x)))
 
         override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
           (a: d0.Arrow) => d1.arrow(g.arrowsMapping(g.d0.arrow(f.arrowsMapping(f.d0.arrow(a)))))
@@ -80,7 +80,7 @@ abstract class Functor[X <: Category, Y <: Category](
   override def nodesMapping(n: d0.Node): d1.Node =
     d1.obj(objectsMapping(d0.obj(n)))
 
-  def cone(vertex: d1.O)(arrowTo: Iterable[(d0.O, d1.Arrow)]): Option[Cone] = {
+  def cone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cone] = {
     Option(Cone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
   }
 
@@ -92,17 +92,17 @@ abstract class Functor[X <: Category, Y <: Category](
     * @param y an object from which the cone originates.
     * @return a map that maps objects x of domain category to arrows y -> F(x)
     */
-  def conesFrom(y: d1.O): Set[Cone] = {
+  def conesFrom(y: d1.Obj): Set[Cone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
-    val arrowsFromYtoFX: Injection[d0.O, Set[(d0.O, d1.Arrow)]] = injection(
-      (x: d0.O) => d1.arrowsBetween(d1.obj(y), objectsMapping(x)) map { (x, _) }
+    val arrowsFromYtoFX: Injection[d0.Obj, Set[(d0.Obj, d1.Arrow)]] = injection(
+      (x: d0.Obj) => d1.arrowsBetween(d1.obj(y), objectsMapping(x)) map { (x, _) }
     )
 
-    val listOfDomainObjects: List[d0.O] = domainObjects.toList
+    val listOfDomainObjects: List[d0.Obj] = domainObjects.toList
     // group (x, f: y->F[x]) by x
-    val homsGroupedByX: List[Set[(d0.O, d1.Arrow)]] = listOfDomainObjects map arrowsFromYtoFX
+    val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = listOfDomainObjects map arrowsFromYtoFX
 
-    val coneCandidates: Set[List[(d0.O, d1.Arrow)]] = product(homsGroupedByX)
+    val coneCandidates: Set[List[(d0.Obj, d1.Arrow)]] = product(homsGroupedByX)
     val result: Set[Cone] = coneCandidates flatMap cone(y)
     result
   }
@@ -129,7 +129,7 @@ abstract class Functor[X <: Category, Y <: Category](
     */
   def limit: Option[Cone] = allCones find isLimit
 
-  def cocone(vertex: d1.O)(arrowTo: Iterable[(d0.O, d1.Arrow)]): Option[Cocone] = {
+  def cocone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cocone] = {
     Option(Cocone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
   }
 
@@ -141,15 +141,15 @@ abstract class Functor[X <: Category, Y <: Category](
     * @param y an object from which the cone originates.
     * @return a map that maps objects x of domain category to arrows y -> F(x)
     */
-  def coconesTo(y: d1.O): Set[Cocone] = {
+  def coconesTo(y: d1.Obj): Set[Cocone] = {
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
-    def arrowsFromFXtoY(x: d0.O): Set[(d0.O, d1.Arrow)] =
+    def arrowsFromFXtoY(x: d0.Obj): Set[(d0.Obj, d1.Arrow)] =
       d1.arrowsBetween(d1.obj(objectsMapping(x)), y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
-    val homsGroupedByX: List[Set[(d0.O, d1.Arrow)]] = domainObjects.toList map arrowsFromFXtoY
+    val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = domainObjects.toList map arrowsFromFXtoY
 
-    val coconeCandidates: Set[List[(d0.O, d1.Arrow)]] = product(homsGroupedByX)
+    val coconeCandidates: Set[List[(d0.Obj, d1.Arrow)]] = product(homsGroupedByX)
     val result: Set[Cocone] = coconeCandidates flatMap cocone(y)
     result
   }
@@ -181,7 +181,7 @@ abstract class Functor[X <: Category, Y <: Category](
     * @param vertex  the cone's vertex object in Y
     * @param arrowTo maps each object of x to an arrow from F(x) to the vertex.
     */
-  case class Cone(vertex: d1.O, arrowTo: d0.O => d1.Arrow) {
+  case class Cone(vertex: d1.Obj, arrowTo: d0.Obj => d1.Arrow) {
     require(vertex != null, "an vertex of a cone can't be null")
     require(arrowTo != null, "a map of arrows of a cone can't be null")
 
@@ -217,7 +217,7 @@ abstract class Functor[X <: Category, Y <: Category](
       o match {
         case other: Cone => eq(other) ||
           (vertex == other.vertex &&
-            domainObjects.forall { x: d0.O =>
+            domainObjects.forall { x: d0.Obj =>
               Result.forValue(arrowTo(x) == other.arrowTo(x)).getOrElse(false)
             })
         case somethingElse => false
@@ -234,7 +234,7 @@ abstract class Functor[X <: Category, Y <: Category](
     * @param vertex    the cone's vertex object in Y
     * @param arrowFrom maps each object of x to an arrow from F(x) to the vertex.
     */
-  case class Cocone(vertex: d1.O, arrowFrom: d0.O => d1.Arrow) {
+  case class Cocone(vertex: d1.Obj, arrowFrom: d0.Obj => d1.Arrow) {
 
     override def toString: String = "Cocone[" + vertex + "]"
 
@@ -251,7 +251,7 @@ abstract class Functor[X <: Category, Y <: Category](
       val answer = hom exists (
         (h: d1.Arrow) => {
           val failsOn = domainObjects.find(
-            (x: d0.O) => !(d1.m(factored.arrowFrom(x), h) contains arrowFrom(x)))
+            (x: d0.Obj) => !(d1.m(factored.arrowFrom(x), h) contains arrowFrom(x)))
           val itWorks = failsOn.isEmpty
           itWorks
         }
@@ -278,7 +278,7 @@ abstract class Functor[X <: Category, Y <: Category](
         eq(other) || (
           vertex == other.vertex &&
             domainObjects.forall {
-              x: d0.O => arrowFrom(x) == other.arrowFrom(x)
+              x: d0.Obj => arrowFrom(x) == other.arrowFrom(x)
             })
       case somethingElse => false
     }
@@ -293,11 +293,11 @@ object Functor {
   
   def build[X <: Category, Y <: Category](
     dom: Category, codom: Category)(
-    objectsMorphism: dom.O => codom.O,
+    objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] =
     validateFunctor(new Functor[X, Y](dom, codom) {
       val tag = ""
-      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(objectsMorphism(dom.obj(x)))
+      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMorphism(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (a: d0.Arrow) =>
         d1.arrow(arrowsMorphism(dom.arrow(a)))
@@ -318,7 +318,7 @@ object Functor {
     new Functor[X, X](c, c) {
       val tag = "id"
 
-      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(x)
+      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(x)
       
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
         (a: d0.Arrow) => d1.arrow(a)
@@ -336,7 +336,7 @@ object Functor {
     * @param y0 an object in category y
     * @return constant functor on x that takes maps all objects to y0 and all arrows to y0's identities.
     */
-  def const[X <: Category, Y <: Category](x: X, y: Y)(y0: y.O):
+  def const[X <: Category, Y <: Category](x: X, y: Y)(y0: y.Obj):
   Functor[X, Y] =
     unsafeBuild[X, Y]( // won't fail? Check y0, at least
       y.toString, x, y)(
@@ -347,11 +347,11 @@ object Functor {
     atag: String,
     dom: Category,
     codom: Category)(
-    objectsMorphism: dom.O => codom.O,
+    objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X, Y] =
     new Functor[X, Y](dom, codom) {
       val tag: String = atag
-      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(objectsMorphism(dom.obj(x)))
+      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMorphism(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
         (a: d0.Arrow) => d1.arrow(arrowsMorphism(dom.arrow(a)))
@@ -361,7 +361,7 @@ object Functor {
     atag: String,
     dom: X,
     codom: Y)(
-    objectsMorphism: dom.O => codom.O,
+    objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X, Y]] = {
     import codom._
     validateFunctor[X, Y](unsafeBuild[X, Y](atag, dom, codom)(objectsMorphism, arrowsMorphism))
@@ -382,7 +382,7 @@ object Functor {
   
   private def checkIdentityPreservation[Y <: Category, X <: Category](f: Functor[X, Y]): Outcome = Result.traverse {
     for (x <- f.domainObjects) yield {
-      val y: f.d1.O = f.objectsMapping(x)
+      val y: f.d1.Obj = f.objectsMapping(x)
       OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
     }
 
@@ -424,7 +424,7 @@ object Functor {
     Result.traverse {
     for (x <- f.domainObjects) yield {
       try {
-        val someY: Result[f.d1.O] =
+        val someY: Result[f.d1.Obj] =
           Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
         someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
       } catch {

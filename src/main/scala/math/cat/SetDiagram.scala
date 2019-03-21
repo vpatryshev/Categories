@@ -25,14 +25,14 @@ abstract class SetDiagram[C <: Category](
   override val tag: String,
   override val d0: C)
   extends Functor[C, SetCategory](d0, SetCategory.Setf) {
-  type XObject = d0.O
-  type XObjects = Set[d0.O]
+  type XObject = d0.Obj
+  type XObjects = Set[d0.Obj]
   type YObject = set
   type XArrow = d0.Arrow
   type XArrows = Set[d0.Arrow]
   type YArrow = SetFunction
 
-  implicit def asSet(x: d1.O): set = x.asInstanceOf[set]
+  implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
 
   // for each original object select a value in the diagram
@@ -186,7 +186,7 @@ abstract class SetDiagram[C <: Category](
     // this is the limit object
     final private[cat] lazy val vertex: set = prod filter isPoint untyped
     // bundles maps each "initial" object to a set of arrows from it
-    final private[cat] lazy val bundles: Map[d0.O, XArrows] =
+    final private[cat] lazy val bundles: Map[d0.Obj, XArrows] =
       d0.buildBundles(rootObjects, participantArrows)
 
     // this function takes an object and returns a projection set function;
@@ -216,11 +216,11 @@ object SetDiagram {
   def build[C <: Category](
     tag: String,
     dom: C)(
-    objectsMap: dom.O => set,
+    objectsMap: dom.Obj => set,
     arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[C]] = {
     
     val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
-      override val objectsMapping: d0.O => d1.O = (x: d0.O) => d1.obj(objectsMap(dom.obj(x)))
+      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMap(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
         ((a: XArrow) => arrowMap(a.asInstanceOf[dom.Arrow])).asInstanceOf[d0.Arrow => d1.Arrow]
@@ -232,7 +232,7 @@ object SetDiagram {
     for {
       x <- diagram.d0.objects
     } {
-      val y = objectsMap(x.asInstanceOf[dom.O])
+      val y = objectsMap(x.asInstanceOf[dom.Obj])
       println(s"$x -> $y")
     }
     Functor.validateFunctor(diagram) returning diagram

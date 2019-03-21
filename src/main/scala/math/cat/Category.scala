@@ -13,8 +13,8 @@ import scalakittens.{Good, Result}
   */
 abstract class Category(name: String, graph: Graph) extends CategoryData(name, graph) {
 
-  lazy val terminal: Option[O] = objects.find(isTerminal)
-  lazy val initial: Option[O] = objects.find(isInitial)
+  lazy val terminal: Option[Obj] = objects.find(isTerminal)
+  lazy val initial: Option[Obj] = objects.find(isInitial)
   /**
     * an iterable of initial objects as defined
     */
@@ -47,7 +47,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
   lazy val op: Category = {
     val src = this
     new Category(s"~$name", ~graph) {
-      override def id(o: O): Arrow = arrow(src.id(src.obj(o)))
+      override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         src.m(src.arrow(f), src.arrow(g)) map arrow
@@ -111,7 +111,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param to   second object
     * @return the set of all arrows from x to y
     */
-  def hom(from: O, to: O): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
+  def hom(from: Obj, to: Obj): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
 
   /**
@@ -317,7 +317,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param y second object
     * @return a set of pairs of arrows with the same domain, ending at x and y.
     */
-  def pairsWithTheSameDomain(x: O, y: O): Set[(Arrow, Arrow)] = setOf(
+  def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
       filter(p => {
         val (px, py) = p
@@ -335,7 +335,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param y second object
     * @return true if this is a cartesian product
     */
-  def isProduct(x: O, y: O): ((Arrow, Arrow)) => Boolean = {
+  def isProduct(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean = {
     case (px, py) =>
       d0(arrow(px)) == d0(arrow(py)) &&
         d1(px) == x &&
@@ -352,7 +352,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param y second object
     * @return a pair of arrows from product object to x and y, or null if none exists.
     */
-  def product(x: O, y: O): Option[(Arrow, Arrow)] =
+  def product(x: Obj, y: Obj): Option[(Arrow, Arrow)] =
     product2(arrows, arrows) find isProduct(x, y)
 
   /**
@@ -363,7 +363,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param y second object
     * @return a pair of arrows from a and b to their union, or null if none exists.
     */
-  def union(x: O, y: O): Option[(Arrow, Arrow)] =
+  def union(x: Obj, y: Obj): Option[(Arrow, Arrow)] =
     product2(arrows, arrows) find isUnion(x, y)
 
   /**
@@ -373,7 +373,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param y second object
     * @return true if this is a union
     */
-  def isUnion(x: O, y: O): ((Arrow, Arrow)) => Boolean = (i: (Arrow, Arrow)) => {
+  def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean = (i: (Arrow, Arrow)) => {
     val (ix, iy) = i
     d0(arrow(ix)) == x && d0(arrow(iy)) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
@@ -386,7 +386,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param y second object
     * @return a set of pairs of arrows with the same codomain, starting at x and y.
     */
-  def pairsWithTheSameCodomain(x: O, y: O): Set[(Arrow, Arrow)] = setOf(
+  def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows) filter {
       case (px, py) =>
         sameCodomain(px, py) &&
@@ -569,14 +569,14 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * Checks if a given object (candidate) is a terminal object (aka unit).
     * Terminal object is the one which has just one arrow from every other object.
     */
-  def isTerminal(t: O): Boolean =
-    objects.forall((x: O) => isUnique(arrowsBetween(x, t)))
+  def isTerminal(t: Obj): Boolean =
+    objects.forall((x: Obj) => isUnique(arrowsBetween(x, t)))
 
   /**
     * Checks if a given object (candidate) is an initial object (aka zero).
     * Initial object is the one which has just one arrow to every other object.
     */
-  def isInitial(i: O): Boolean = objects.forall((x: O) => isUnique(arrowsBetween(i, x)))
+  def isInitial(i: Obj): Boolean = objects.forall((x: Obj) => isUnique(arrowsBetween(i, x)))
 
   /**
     * Given a set of objects and a set of arrows, build a map that maps each object to
@@ -586,7 +586,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param arrows  arrows that participate in the bundles.
     * @return a map.
     */
-  def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[O, Arrows] = {
+  def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] = {
     val badArrows: Arrows = arrows.filterNot(a => setOfObjects(d0(a)))
 
     require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")} in $name")
@@ -603,7 +603,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     * @param n degree to which to raise object x
     * @return x^n^ and its projections to x
     */
-  def degree(x: O, n: Int): Option[(O, List[Arrow])] = {
+  def degree(x: Obj, n: Int): Option[(Obj, List[Arrow])] = {
     n match {
       case neg if neg < 0 => None
       case 0 => terminal map (x => (x, List()))
@@ -625,7 +625,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     }
   }
 
-  protected def deg(n: Int)(x: O): Option[(O, List[Arrow])] = {
+  protected def deg(n: Int)(x: Obj): Option[(Obj, List[Arrow])] = {
     n match {
       case neg if neg < 0 => None
       case 0 => terminal map (x => (x, List()))
@@ -647,21 +647,19 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     }
   }
 
-  private def arrowsEndingAt(x: O): Arrows =
+  private def arrowsEndingAt(x: Obj): Arrows =
     arrows filter { x == d1(_) }
 }
 
 private[cat] abstract class CategoryData(override val name: String = "a category", val graph: Graph) extends Graph {
-  type O = Node
-  type Objects = Set[O]
+  type Obj = Node
+  type Objects = Set[Obj]
 
-  implicit def obj(x: Any): O = x match {
-    case _ if x.isInstanceOf[O] && (objects contains x.asInstanceOf[O]) => x.asInstanceOf[O]
-    case other => 
-      throw new IllegalArgumentException(s"$x is not an object in  in $name")
-  }
+  implicit def obj(x: Any): Obj =
+    if (objects contains x.asInstanceOf[Obj]) x.asInstanceOf[Obj]
+    else throw new IllegalArgumentException(s"$x is not an object in  in $name")
 
-  def id(o: O): Arrow
+  def id(o: Obj): Arrow
 
   def m(f: Arrow, g: Arrow): Option[Arrow]
 
@@ -736,9 +734,9 @@ private[cat] abstract class CategoryData(override val name: String = "a category
 
   def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
 
-  def d0(a: Arrow): O = obj(graph.d0(graph.arrow(a)))
+  def d0(a: Arrow): Obj = obj(graph.d0(graph.arrow(a)))
 
-  def d1(a: Arrow): O = obj(graph.d1(graph.arrow(a)))
+  def d1(a: Arrow): Obj = obj(graph.d1(graph.arrow(a)))
 
 }
 
@@ -763,7 +761,7 @@ private[cat] trait CategoryFactory {
   
   def convert2Cat[O, A](
     source: Category)(
-    object2string: source.O => String = (_: source.O).toString,
+    object2string: source.Obj => String = (_: source.Obj).toString,
     arrow2string: source.Arrow => String = (_: source.Arrow).toString): Result[Cat] = {
     val objectStrings = source.objects map (o => o -> object2string(o))
     val osMap = objectStrings toMap
@@ -821,7 +819,7 @@ private[cat] trait CategoryFactory {
       type Node = T
       type Arrow = (T, T)
 
-      override def id(o: O): Arrow = arrow((o, o))
+      override def id(o: Obj): Arrow = arrow((o, o))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match {
         case (f: (T, T), g: (T, T)) =>
@@ -919,7 +917,7 @@ private[cat] trait CategoryFactory {
   /**
     * Builds a category given a graph, composition table, and a mapping for identity arrows.
     *
-    * @tparam Obj type of objects
+    * @tparam Ob type of objects
     * @tparam A type of arrows
     * @param name        name of this category
     * @param g           the graph on which we are to create a category
@@ -929,13 +927,13 @@ private[cat] trait CategoryFactory {
     *
     *         TODO: eliminate code duplication
     */
-  def buildFromGraphWithIdentity[Obj, A](
+  def buildFromGraphWithIdentity[Ob, A](
     name: String,
     g: Graph)(
-    ids: Obj => A,
+    ids: Ob => A,
     composition: (A, A) => Option[A]): Result[Category] = {
     val data: CategoryData = new CategoryData(name, g) {
-      override def id(o: O): Arrow = arrow(ids(o.asInstanceOf[Obj]))
+      override def id(o: Obj): Arrow = arrow(ids(o.asInstanceOf[Ob]))
       
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         composition(f.asInstanceOf[A], g.asInstanceOf[A]) map arrow
@@ -943,14 +941,14 @@ private[cat] trait CategoryFactory {
 
     data.validate returning
       new Category("", g) {
-        def id(o: O): Arrow = arrow(ids(o.asInstanceOf[Obj]))
+        def id(o: Obj): Arrow = arrow(ids(o.asInstanceOf[Ob]))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           composition(f.asInstanceOf[A], g.asInstanceOf[A]) map arrow
 
-        override def d0(f: Arrow): O = graph.node(graph.d0(graph.arrow(f)))
+        override def d0(f: Arrow): Obj = graph.node(graph.d0(graph.arrow(f)))
 
-        override def d1(f: Arrow): O = graph.node(graph.d1(graph.arrow(f)))
+        override def d1(f: Arrow): Obj = graph.node(graph.d1(graph.arrow(f)))
       }
   }
 

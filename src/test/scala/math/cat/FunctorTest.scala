@@ -118,8 +118,8 @@ class FunctorTest extends Test {
       val mapA: from.Arrow => to.Arrow =
         Map(from.arrow(0) -> to.arrow("b"), from.arrow(1) -> to.arrow("c"))
 
-      type toO = to.O
-      val mapO: from.O => to.O =
+      type toO = to.Obj
+      val mapO: from.Obj => to.Obj =
         Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
       
       val fOpt = Functor.build("sample product", from, to)(mapO, mapA)
