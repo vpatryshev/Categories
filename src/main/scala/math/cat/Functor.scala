@@ -336,20 +336,20 @@ object Functor {
     * @param y0 an object in category y
     * @return constant functor on x that takes maps all objects to y0 and all arrows to y0's identities.
     */
-  def const[X <: Category, Y <: Category](x: X, y: Y)(y0: y.Obj):
-  Functor[X] =
-    unsafeBuild[X, Y]( // won't fail? Check y0, at least
+  def const[X <: Category, Y <: Category](x: X, y: Category)(y0: y.Obj):
+  Functor[Category] =
+    unsafeBuild( // won't fail? Check y0, at least
       y.toString, x, y)(
       SetMorphism.const(x.objects, y.objects, y0),
       SetMorphism.const(x.arrows, y.arrows, y.id(y0)))
 
-  private def unsafeBuild[X <: Category, Y <: Category](
+  private def unsafeBuild(
     atag: String,
     dom: Category,
     codom: Category)(
     objectsMorphism: dom.Obj => codom.Obj,
-    arrowsMorphism: dom.Arrow => codom.Arrow): Functor[X] =
-    new Functor[X](dom, codom) {
+    arrowsMorphism: dom.Arrow => codom.Arrow): Functor[Category] =
+    new Functor[Category](dom, codom) {
       val tag: String = atag
       override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMorphism(dom.obj(x)))
 
@@ -359,12 +359,12 @@ object Functor {
 
   def build[X <: Category, Y <: Category](
     atag: String,
-    dom: X,
-    codom: Y)(
+    dom: Category,
+    codom: Category)(
     objectsMorphism: dom.Obj => codom.Obj,
-    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[X]] = {
+    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor[Category]] = {
     import codom._
-    validateFunctor[X, Y](unsafeBuild[X, Y](atag, dom, codom)(objectsMorphism, arrowsMorphism))
+    validateFunctor[Category, Category](unsafeBuild(atag, dom, codom)(objectsMorphism, arrowsMorphism))
   }
 
   /**
