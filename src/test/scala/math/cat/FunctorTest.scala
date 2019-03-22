@@ -241,7 +241,7 @@ class FunctorTest extends Test {
       val c: set = Set(0, 1)
       val ac = SetFunction("f", a, c, _.toString.toInt % 2)
       val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
-      val sutOpt = Functor.build[Cat, SetCategory](
+      val sutOpt = Functor.build(
         "pullback", Category.Pullback, SetCategory.Setf)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ac" -> ac, "bc" -> bc)

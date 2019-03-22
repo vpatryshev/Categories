@@ -87,8 +87,8 @@ class SetDiagramTest extends Test with TestDiagrams {
           sut.d1 === Setf
           sut.limit match {
             case None => failure("We expected a limit")
-            case Some(sut.Cone(vertex:sut.d1.Obj, arrowTo)) =>
-              sut.asSet(vertex).size === x.size
+            case Some(sut.Cone(vertex, arrowTo)) =>
+              sut.asSet(sut.d1.obj(vertex)).size === x.size
           }
         }
       )

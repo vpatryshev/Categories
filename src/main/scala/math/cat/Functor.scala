@@ -357,7 +357,7 @@ object Functor {
         (a: d0.Arrow) => d1.arrow(arrowsMorphism(dom.arrow(a)))
     }
 
-  def build[X <: Category, Y <: Category](
+  def build(
     atag: String,
     dom: Category,
     codom: Category)(

@@ -35,7 +35,7 @@ trait TestDiagrams extends Test {
     val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
     val am = Map("ac" -> ac, "bc" -> bc)
 
-    lazy val asFunctor: Result[Functor[Category]] = Functor.build[Cat, SetCategory](
+    lazy val asFunctor: Result[Functor[Category]] = Functor.build(
       "pullback", Category.Pullback, SetCategory.Setf)(
       om,
       am
