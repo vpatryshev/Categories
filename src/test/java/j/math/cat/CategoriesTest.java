@@ -53,11 +53,11 @@ public class CategoriesTest extends TestCase {
     assertEquals(1, Categories._3_.arrows(1, 2).size());
   }
 
-  public void testSegment() {
-    Category<Integer, Pair<Integer, Integer>> n = Categories.segment(10);
-    assertEquals(10, n.objects().size());
-    assertEquals(55, n.arrows().size());
-  }
+//  public void testSegment() {
+//    Category<Integer, Pair<Integer, Integer>> n = Categories.segment(10);
+//    assertEquals(10, n.objects().size());
+//    assertEquals(55, n.arrows().size());
+//  }
 
   public void testParallelPair() {
     assertEquals(2, Categories.PARALLEL_PAIR.objects().size());

@@ -787,8 +787,6 @@ private[cat] trait CategoryFactory {
   /**
     * Creates a new instance of of category, given objects, arrows, ids, and composition table.
     *
-    * @tparam O object type
-    * @tparam A arrow type
     * @param objects     category's objects
     * @param d0          maps arrows to domains
     * @param d1          maps arrows to codomains
@@ -803,8 +801,12 @@ private[cat] trait CategoryFactory {
     d1: A => O,
     ids: O => A,
     composition: (A, A) => Option[A]): Result[Category] = {
-    val graph: Result[Graph] = Graph.build(objects, arrows, d0, d1)
-    graph flatMap { buildFromGraphWithIdentity("", _)(ids, composition) }
+    for {
+      g: Graph <- Graph.build(objects, arrows, d0, d1)
+      c <- buildFromGraphWithIdentity[O,A]("", g)(
+        ids.asInstanceOf[g.Node => g.Arrow],
+        composition.asInstanceOf[(g.Arrow, g.Arrow) => Option[g.Arrow]])
+    } yield c
   }
 
   /**
@@ -850,24 +852,25 @@ private[cat] trait CategoryFactory {
     * @return new category
     */
   def fromGraph[T](g: Graph): Result[Category] =
-    build[T](g, (f: T, g: T) => None)
+    build(g)((f1:g.Arrow, f2: g.Arrow) => None)
 
   /**
     * Creates an instance of Category given a graph and arrow composition table
     *
-    * @tparam T graph element and arrow type (must be the same)
     * @param graph       the underlying graph
     * @param composition arrows composition table
     * @return new category
     */
-  def build[T](graph: Graph,
-    composition: (T, T) => Option[T]): Result[Category] = {
-    val isUnit = (f: T) => graph contains f // that is, as an object
-    val m = (f: T, g: T) =>
+  def build(graph: Graph)(
+    composition: (graph.Arrow, graph.Arrow) => Option[graph.Arrow]): Result[Category] = {
+    val isUnit = (f: graph.Arrow) => graph contains f // that is, as an object
+    val m = (f: graph.Arrow, g: graph.Arrow) =>
       if (isUnit(f)) Some(g) else if (isUnit(g)) Some(f) else composition(f, g)
     val g: Graph = addUnitsToGraph(graph)
-    val id = (x: T) => x
-    buildFromGraphWithIdentity("", g)(id, m)
+    val id = (x: graph.Node) => graph.arrow(x)
+    buildFromGraphWithIdentity[graph.Node, graph.Arrow]("", g)(
+      id.asInstanceOf[g.Node => g.Arrow],
+      m.asInstanceOf[(g.Arrow, g.Arrow) => Option[g.Arrow]])
   }
 
   /**
@@ -886,7 +889,10 @@ private[cat] trait CategoryFactory {
     domain: Map[T, T],
     codomain: Map[T, T],
     compositionSource: Map[(T, T), T]): Result[Category] = {
-    Graph.build(objects, domain.keySet, domain, codomain) flatMap (buildFromPartialData("", _)(compositionSource))
+    for {
+      g <- Graph.build(objects, domain.keySet, domain, codomain)
+      c <- buildFromPartialData("", g)(compositionSource)
+    } yield c
   }
 
   /**
@@ -900,16 +906,20 @@ private[cat] trait CategoryFactory {
     * @return a newly-built category
     */
   def buildFromPartialData[T](name: String, graph: Graph)
-    (compositionSource: Map[(T, T), T] = Map.empty[(T, T), T]): Result[Category] = {
-    val graphWithUnits = addUnitsToGraph(graph)
-    val composition = fillCompositionTable(graphWithUnits, compositionSource)
+    (compositionSource: Map[(T, T), T] =
+        Map.empty[(T, T), T]): Result[Category] = {
+    val graph1 = addUnitsToGraph(graph)
+    val composition = fillCompositionTable(graph1, compositionSource)
+    
+    val idFunction: graph1.Node => graph1.Arrow = (o: graph1.Node) => graph1.arrow(o)
 
-    def compositionFunction(f: T, g: T): Option[T] = composition.get((f, g))
+    val compositionFunction: (graph1.Arrow, graph1.Arrow) => Option[graph1.Arrow] =
+      (f: graph1.Arrow, g: graph1.Arrow) => composition.get((f, g).asInstanceOf[(T, T)]) map (a => graph1.arrow(a))
 
     val result = buildFromGraphWithIdentity[T, T](
       name,
-      graphWithUnits)(
-      idMap[T](graph.nodes.asInstanceOf[Set[T]]),
+      graph1)(
+      idFunction,
       compositionFunction)
     result
   }
@@ -920,7 +930,7 @@ private[cat] trait CategoryFactory {
     * @tparam Ob type of objects
     * @tparam A type of arrows
     * @param name        name of this category
-    * @param g           the graph on which we are to create a category
+    * @param gr           the graph on which we are to create a category
     * @param ids         maps objects to identity arrows
     * @param composition defines composition
     * @return a category built based on the data above
@@ -929,22 +939,22 @@ private[cat] trait CategoryFactory {
     */
   def buildFromGraphWithIdentity[Ob, A](
     name: String,
-    g: Graph)(
-    ids: Ob => A,
-    composition: (A, A) => Option[A]): Result[Category] = {
-    val data: CategoryData = new CategoryData(name, g) {
-      override def id(o: Obj): Arrow = arrow(ids(o.asInstanceOf[Ob]))
+    gr: Graph)(
+    ids: gr.Node => gr.Arrow,
+    composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): Result[Category] = {
+    val data: CategoryData = new CategoryData(name, gr) {
+      override def id(o: Obj): Arrow = arrow(ids(gr.node(o)))
       
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        composition(f.asInstanceOf[A], g.asInstanceOf[A]) map arrow
+        composition(gr.arrow(f), gr.arrow(g)) map arrow
     }
 
     data.validate returning
-      new Category("", g) {
-        def id(o: Obj): Arrow = arrow(ids(o.asInstanceOf[Ob]))
+      new Category("", gr) {
+        def id(o: Obj): Arrow = arrow(ids(gr.node(o)))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
-          composition(f.asInstanceOf[A], g.asInstanceOf[A]) map arrow
+          composition(gr.arrow(f), gr.arrow(g)) map arrow
 
         override def d0(f: Arrow): Obj = graph.node(graph.d0(graph.arrow(f)))
 
