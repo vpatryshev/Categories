@@ -23,8 +23,8 @@ import scala.language.postfixOps
   */
 abstract class SetDiagram[C <: Category](
   override val tag: String,
-  override val d0: C)
-  extends Functor[C](d0, SetCategory.Setf) {
+  override val d0: Category)
+  extends Functor[Category](d0, SetCategory.Setf) {
   type XObject = d0.Obj
   type XObjects = Set[d0.Obj]
   type YObject = set
@@ -217,9 +217,9 @@ object SetDiagram {
     tag: String,
     dom: C)(
     objectsMap: dom.Obj => set,
-    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[C]] = {
+    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[Category]] = {
     
-    val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
+    val diagram: SetDiagram[Category] = new SetDiagram[Category](tag, dom) {
       override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMap(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =

@@ -6,7 +6,7 @@ import math.sets.Sets.set
 import scalakittens.Result
 
 trait TestDiagrams extends Test {
-  type SmallDiagram = SetDiagram[Cat]
+  type SmallDiagram = SetDiagram[Category]
   
   implicit def translateObjectMapping(f: Functor[_])(om: String => set): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => f.d1.obj(om(f.toString))

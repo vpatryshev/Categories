@@ -49,7 +49,7 @@ abstract class Functor[X <: Category](
     * @param g : Y -> Z - second functor
     * @return g o this : X -> Z - composition of this functor with functor g
     */
-  def compose[Y <: Category, Z <: Category](g: Functor[Y]): Option[Functor[X]] = {
+  def compose(g: Functor[Category]): Option[Functor[Category]] = {
     if (d1 != g.d0) None else Some {
       val f = this
       val objectMap = (x: d0.Obj) => {
@@ -57,8 +57,8 @@ abstract class Functor[X <: Category](
         val z: g.d1.Obj = g.objectsMapping(y)
         z
       }
-      new Functor[X](f.d0, g.d1) {
-        comp: Functor[X] =>
+      new Functor[Category](f.d0, g.d1) {
+        comp: Functor[Category] =>
 
         val tag: String = g.tag + " o " + this.tag
 
@@ -309,7 +309,6 @@ object Functor {
   /**
     * Factory method. Builds identity functor for a category (identity functor).
     *
-    * @tparam X the category type
     * @param c the category
     * @return identity functor on the given category
     */
