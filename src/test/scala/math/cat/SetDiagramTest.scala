@@ -31,8 +31,8 @@ class SetDiagramTest extends Test with TestDiagrams {
         getOrElse(throw new InstantiationException("alas..."))
       sut1.objectsMapping(sut1.d0.obj("b")) === SamplePullbackDiagram.sb
 
-      val diagram: SetDiagram[Category] =
-        new SetDiagram[Category]("Test", dom) {
+      val diagram: SetDiagram =
+        new SetDiagram("Test", dom) {
           override val objectsMapping: d0.Obj => d1.Obj =
             (x: d0.Obj) => d1.obj(SamplePullbackDiagram.om(x.toString))
           override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =

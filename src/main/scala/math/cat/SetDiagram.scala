@@ -17,11 +17,8 @@ import scala.language.postfixOps
   * Here we talk about the category of diagrams, so a point is a
   * singleton diagram. It must have been a mapping from objects of the base category to values
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
-  *
-  *
-  * @tparam C type of the domain category
   */
-abstract class SetDiagram[C <: Category](
+abstract class SetDiagram(
   override val tag: String,
   override val d0: Category)
   extends Functor[Category](d0, SetCategory.Setf) {
@@ -213,13 +210,13 @@ abstract class SetDiagram[C <: Category](
 
 object SetDiagram {
 
-  def build[C <: Category](
+  def build(
     tag: String,
-    dom: C)(
+    dom: Category)(
     objectsMap: dom.Obj => set,
-    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[Category]] = {
+    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram] = {
     
-    val diagram: SetDiagram[Category] = new SetDiagram[Category](tag, dom) {
+    val diagram: SetDiagram = new SetDiagram(tag, dom) {
       override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMap(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =

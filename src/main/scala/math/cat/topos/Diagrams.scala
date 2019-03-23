@@ -38,7 +38,7 @@ class Diagrams[C <: Category](site: Category)
 }
 
 object Diagrams {
-  type Diagram = SetDiagram[Category]
+  type Diagram = SetDiagram
   
   type DiagramArrow[C <: Category] = NaturalTransformation[Category, SetCategory]
   
