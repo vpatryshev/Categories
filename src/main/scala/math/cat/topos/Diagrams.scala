@@ -4,25 +4,24 @@ import math.cat._
 import Diagrams._
 import math.sets._
 
-class Diagrams[C <: Category](site: Category)
-  extends Category(s"Sets^${site.name}", graphOfDiagrams[Category]) {
+class Diagrams(site: Category)
+  extends Category(s"Sets^${site.name}", graphOfDiagrams) {
   type Node = Diagram
-  type Arrow = DiagramArrow[Category]
+  type Arrow = DiagramArrow
   override def id(o: Obj): Arrow = {
-    def objectMap(x: o.d0.Obj): o.d1.Arrow =
-      o.d1.id(o.objectsMapping(x).asInstanceOf[o.d1.Obj])
+    def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
-    new DiagramArrow[Category](o, o) {
+    new DiagramArrow(o, o) {
       override def transformPerObject(x: from.d0.Obj): from.d1.Arrow =
         objectMap(x.asInstanceOf[o.d0.Obj]).asInstanceOf[from.d1.Arrow]
     }
   }
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
-    val fArrow = f.asInstanceOf[DiagramArrow[C]]
-    val gArrow = g.asInstanceOf[DiagramArrow[C]]
-    val composition: DiagramArrow[Category] = {
-      new DiagramArrow[C](fArrow.d0.asInstanceOf[Diagram], gArrow.d1.asInstanceOf[Diagram]) {
+    val fArrow = f.asInstanceOf[DiagramArrow]
+    val gArrow = g.asInstanceOf[DiagramArrow]
+    val composition: DiagramArrow = {
+      new DiagramArrow(fArrow.d0.asInstanceOf[Diagram], gArrow.d1.asInstanceOf[Diagram]) {
         override def transformPerObject(x: from.d0.Obj): from.d1.Arrow = {
           val xObjf: fArrow.from.d0.Obj = x.asInstanceOf[fArrow.from.d0.Obj]
           val f_x = fArrow.transformPerObject(xObjf)
@@ -40,12 +39,12 @@ class Diagrams[C <: Category](site: Category)
 object Diagrams {
   type Diagram = SetDiagram
   
-  type DiagramArrow[C <: Category] = NaturalTransformation[Category, SetCategory]
+  type DiagramArrow = NaturalTransformation
   
-  def graphOfDiagrams[C <: Category]: Graph =
+  def graphOfDiagrams: Graph =
     new Graph {
       type Node = Diagram
-      type Arrow = DiagramArrow[Category]
+      type Arrow = DiagramArrow
 
       override def nodes: Nodes = BigSet.of[Node].asInstanceOf[Nodes]
 

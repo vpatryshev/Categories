@@ -9,7 +9,7 @@ import scalakittens.Result
   */
 class NaturalTransformationTest extends Test {
   type F = Functor[Category]
-  type NT = NaturalTransformation[Category, Category]
+  type NT = NaturalTransformation
   type SUT = ((((F, F), F), NT), NT)
 
   "natural transformation" should {
