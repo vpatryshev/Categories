@@ -13,7 +13,7 @@ class FunctorTest extends Test {
 
   lazy val functorFromPullbackToDoubleSquare: SUT = {
     import categorySquareWithTwoTopLeftCorners._
-    Functor.build(
+    Functor(
       "From2to1toDoubleSquare",
       Pullback, categorySquareWithTwoTopLeftCorners)(
       Map("a" -> "b", "b" -> "c", "c" -> "d"),
@@ -30,7 +30,7 @@ class FunctorTest extends Test {
   lazy val functorFrom1to2toDoubleSquare: SUT = {
     import categorySquareWithTwoRightCorners._
 
-    Functor.build("From1to2toDoubleSquare",
+    Functor("From1to2toDoubleSquare",
       Pushout, categorySquareWithTwoRightCorners)(
       Map("a" -> "a", "b" -> "b", "c" -> "c"),
       Map("a" -> "a", "b" -> "b", "c" -> "c", "ab" -> "ab", "ac" -> "ac")
@@ -42,7 +42,7 @@ class FunctorTest extends Test {
     "report missing object mappings" in {
       import _4_._
       checkError(_ contains "Object mapping fails for 1", 
-      Functor.build("failing test",
+      Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1"),
         Map.empty[String, String]))
@@ -51,7 +51,7 @@ class FunctorTest extends Test {
     "report incorrect object mappings" in {
       import _2_._
       checkError(_ contains "Object mapping fails for 1",
-        Functor.build("failing test",
+        Functor("failing test",
           _2_, _2_)(
           Map("0" -> "1", "1" -> "3"),
           Map.empty[String, String]))
@@ -60,7 +60,7 @@ class FunctorTest extends Test {
     "report missing arrows mappings" in {
       import _4_._
       checkError(_ contains "failing test: arrow mapping not found for 0.2: 0 -> 2",
-        Functor.build("failing test",
+        Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
           Map.empty[String, String]))
@@ -83,7 +83,7 @@ class FunctorTest extends Test {
         "3.3" -> "3.3"
       )
       checkError(_ contains "Inconsistent mapping for d1(0.2)",
-        Functor.build("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
+        Functor("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
     }
     
     "report a failure" in {
@@ -104,7 +104,7 @@ class FunctorTest extends Test {
       )
 
       checkError(_ contains "Object mapping fails for 3",
-        Functor.build("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
+        Functor("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
   }
 
@@ -120,7 +120,7 @@ class FunctorTest extends Test {
       val mapO: from.Obj => to.Obj =
         Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
       
-      val fOpt = Functor.build("sample product", from, to)(mapO, mapA)
+      val fOpt = Functor("sample product", from, to)(mapO, mapA)
       check[Functor](fOpt,
         (f:Functor) => {
         val limitOpt = f.limit
@@ -241,7 +241,7 @@ class FunctorTest extends Test {
       val c: set = Set(0, 1)
       val ac = SetFunction("f", a, c, _.toString.toInt % 2)
       val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
-      val sutOpt = Functor.build(
+      val sutOpt = Functor(
         "pullback", Category.Pullback, SetCategory.Setf)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ac" -> ac, "bc" -> bc)

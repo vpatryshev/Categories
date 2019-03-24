@@ -904,7 +904,7 @@ private[cat] trait CategoryFactory {
     *
     *         TODO: eliminate code duplication
     */
-  def build(
+  private def build(
     name: String,
     gr: Graph)(
     ids: gr.Node => gr.Arrow,

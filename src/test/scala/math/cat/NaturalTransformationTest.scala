@@ -17,7 +17,7 @@ class NaturalTransformationTest extends Test {
     val d = _5_
 
     def buildFunctor(name: String, op: Int => Int) =
-      Functor.build(name, c, d)(
+      Functor.apply(name, c, d)(
         { case s => op(s.toInt).toString },
         { case PairRegex(x, y) => s"${op(x.toInt)}.${op(y.toInt)}" })
 

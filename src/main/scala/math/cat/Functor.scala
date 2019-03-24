@@ -284,20 +284,6 @@ abstract class Functor(
 }
 
 object Functor {
-  
-  def build(
-    dom: Category, codom: Category)(
-    objectsMorphism: dom.Obj => codom.Obj,
-    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor] =
-    validateFunctor(new Functor("_", dom, codom) {
-      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMorphism(dom.obj(x)))
-
-      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (a: d0.Arrow) =>
-        d1.arrow(arrowsMorphism(dom.arrow(a)))
-
-      override def nodesMapping(n: d0.Node): d1.Node =
-        d1.obj(objectsMorphism(dom.obj(n)))
-    })
 
   /**
     * Factory method. Builds identity functor for a category (identity functor).
@@ -317,7 +303,7 @@ object Functor {
     }
 
   /**
-    * Factory method. Builds constant functor from a category to an object in another.
+    * Builds a constant functor from a category to an object in another.
     *
     * @param x  the category
     * @param y  second category
@@ -344,14 +330,23 @@ object Functor {
         (a: d0.Arrow) => d1.arrow(arrowsMorphism(dom.arrow(a)))
     }
 
-  def build(
+  /**
+    * Builds a functor, given the data:
+    * 
+    * @param atag functor tag
+    * @param dom domain category
+    * @param codom codomain category
+    * @param objectsMapping objects mapping
+    * @param arrowsMapping arrows mapping
+    * @return
+    */
+  def apply(
     atag: String,
     dom: Category,
     codom: Category)(
-    objectsMorphism: dom.Obj => codom.Obj,
-    arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor] = {
-    import codom._
-    validateFunctor(unsafeBuild(atag, dom, codom)(objectsMorphism, arrowsMorphism))
+    objectsMapping: dom.Obj => codom.Obj,
+    arrowsMapping: dom.Arrow => codom.Arrow): Result[Functor] = {
+    validateFunctor(unsafeBuild(atag, dom, codom)(objectsMapping, arrowsMapping))
   }
 
   /**
@@ -361,7 +356,7 @@ object Functor {
     * That is, F(id(x)) == id(F(x)), and
     * F(g) o F(f) = F(g o f)
     */
-  def validateFunctor(f: Functor): Result[Functor] = for {
+  private[cat] def validateFunctor(f: Functor): Result[Functor] = for {
     _ <- checkObjectMapping(f)
     _ <- checkArrowMapping(f)
     _ <- checkCompositionPreservation(f) andAlso checkCompositionPreservation(f)
