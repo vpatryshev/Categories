@@ -6,7 +6,7 @@ import math.cat.SetCategory.Setf
 import math.sets.Sets.set
 
 class FunctorTest extends Test {
-  type SUT = Functor[Category]
+  type SUT = Functor
   
   lazy val categorySquareWithTwoTopLeftCorners: Cat =
     category"({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
@@ -121,8 +121,8 @@ class FunctorTest extends Test {
         Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
       
       val fOpt = Functor.build("sample product", from, to)(mapO, mapA)
-      check[Functor[Category]](fOpt,
-        (f:Functor[Category]) => {
+      check[Functor](fOpt,
+        (f:Functor) => {
         val limitOpt = f.limit
 
         limitOpt match {
@@ -247,7 +247,7 @@ class FunctorTest extends Test {
         Map("ac" -> ac, "bc" -> bc)
       )
       
-      check[Functor[Category]](sutOpt,
+      check[Functor](sutOpt,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf

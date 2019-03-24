@@ -14,13 +14,10 @@ import scalakittens.Result._
   * @param d1 codomain
   */
 abstract class Functor(
+  val tag: String,
   val d0: Category, val d1: Category
-)
-  extends GraphMorphism {
-
-  type Domain = Category
-  type Codomain = Category
-  val tag: String
+) extends GraphMorphism {
+  
   def domainObjects: d0.Objects = d0.objects
 
   val objectsMapping: d0.Obj => d1.Obj
@@ -45,7 +42,6 @@ abstract class Functor(
   /**
     * Composes two functors
     *
-    * @tparam Z the third category in the chain
     * @param g : Y -> Z - second functor
     * @return g o this : X -> Z - composition of this functor with functor g
     */
@@ -57,10 +53,8 @@ abstract class Functor(
         val z: g.d1.Obj = g.objectsMapping(y)
         z
       }
-      new Functor(f.d0, g.d1) {
+      new Functor(g.tag + " o " + this.tag, f.d0, g.d1) {
         comp: Functor =>
-
-        val tag: String = g.tag + " o " + this.tag
 
         override val objectsMapping: d0.Obj => d1.Obj =
           (x:d0.Obj) => d1.obj(objectMap(Functor.this.d0.obj(x)))
@@ -295,8 +289,7 @@ object Functor {
     dom: Category, codom: Category)(
     objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Result[Functor] =
-    validateFunctor(new Functor(dom, codom) {
-      val tag = ""
+    validateFunctor(new Functor("_", dom, codom) {
       override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMorphism(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (a: d0.Arrow) =>
@@ -314,9 +307,7 @@ object Functor {
     */
   def id(c: Category):
   Functor =
-    new Functor(c, c) {
-      val tag = "id"
-
+    new Functor("id", c, c) {
       override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(x)
       
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
@@ -341,13 +332,12 @@ object Functor {
       SetMorphism.const(x.arrows, y.arrows, y.id(y0)))
 
   private def unsafeBuild(
-    atag: String,
+    tag: String,
     dom: Category,
     codom: Category)(
     objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor =
-    new Functor(dom, codom) {
-      val tag: String = atag
+    new Functor(tag, dom, codom) {
       override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMorphism(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
@@ -420,16 +410,9 @@ object Functor {
   private def checkObjectMapping(f: Functor): Outcome =
     Result.traverse {
     for (x <- f.domainObjects) yield {
-      try {
-        val someY: Result[f.d1.Obj] =
-          Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
-        someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
-      } catch {
-        case ame: AbstractMethodError =>
-          ame.printStackTrace()
-          println(s"Object mapping crashed on $x")
-          throw ame
-      }
+      val someY: Result[f.d1.Obj] =
+        Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
+      someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
     }
   } andThen OK
 }

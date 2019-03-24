@@ -4,7 +4,7 @@ import java.io.Reader
 
 import math.cat.Category.Cat
 import math.sets.Sets._
-import math.sets.{PoSet, Sets}
+import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
@@ -95,7 +95,7 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     c1 + c2 * 2 + c3 * 5
   }
 
-  override def toString: String = s"${if (name.isEmpty) "" else {name + ":"}}({" +
+  override def toString: String = s"${if (name.isEmpty) "" else {name + ": "}}({" +
     objects.mkString(", ") + "}, {" +
     (arrows map (a => s"$a: ${d0(a)}->${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect { case (first, second) =>
@@ -651,7 +651,9 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
     arrows filter { x == d1(_) }
 }
 
-private[cat] abstract class CategoryData(override val name: String = "a category", val graph: Graph) extends Graph {
+private[cat] abstract class CategoryData(
+  override val name: String = "a category",
+  val graph: Graph) extends Graph {
   type Obj = Node
   type Objects = Set[Obj]
 
@@ -759,54 +761,63 @@ private[cat] trait CategoryFactory {
     throw new InstantiationException("Failed to convert to Cat")
   )
   
-  def convert2Cat[O, A](
-    source: Category)(
+  private def convert2Cat[O, A](source: Category)(
     object2string: source.Obj => String = (_: source.Obj).toString,
     arrow2string: source.Arrow => String = (_: source.Arrow).toString): Result[Cat] = {
-    val objectStrings = source.objects map (o => o -> object2string(o))
-    val osMap = objectStrings toMap
-    val soMap = objectStrings map (_.swap) toMap
-    val arrowStrings = source.arrows map (a => a -> arrow2string(a))
-    val asMap = arrowStrings toMap
-    val saMap = arrowStrings map (_.swap) toMap
-    val objects = soMap.keySet
-    val arrows = saMap.keySet
-    val d0 = (f: String) => osMap(source.d0(saMap(f)))
-    val d1 = (f: String) => osMap(source.d1(saMap(f)))
-    val ids = (o: String) => asMap(source.id(soMap(o)))
-    val composition = (f: String, g: String) => source.m(saMap(f), saMap(g)) map asMap
+    val stringToObject = source.objects map (o => object2string(o) -> o) toMap
+    val string2Arrow = source.arrows map (a => arrow2string(a) -> a) toMap
+    val objects = stringToObject.keySet
+    val arrows = string2Arrow.keySet
+    val d0 = (f: String) => object2string(source.d0(string2Arrow(f)))
+    val d1 = (f: String) => object2string(source.d1(string2Arrow(f)))
+    val ids = (o: String) => arrow2string(source.id(stringToObject(o)))
+    val composition = (f: String, g: String) => source.m(string2Arrow(f), string2Arrow(g)) map arrow2string
 
     for {
       _ <- OKif(source.isFinite, "Need a finite category")
-      _ <- OKif(osMap.size == objectStrings.size, "some objects have the same string repr")
-      _ <- OKif(asMap.size == arrowStrings.size, "some arrows have the same string repr")
-      c <- Category.build(objects, arrows, d0, d1, ids, composition)
+      _ <- OKif(objects.size == source.objects.size, "some objects have the same string repr")
+      _ <- OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
+      g <- Graph.build(objects, arrows, d0, d1)
+      c <- build(source.name, g)(
+        ids.asInstanceOf[g.Node => g.Arrow], // TODO: find a way to avoid casting
+        composition.asInstanceOf[(g.Arrow, g.Arrow) => Option[g.Arrow]])
     } yield c.asInstanceOf[Cat]
   }
 
   /**
-    * Creates a new instance of of category, given objects, arrows, ids, and composition table.
+    * Builds a category given a limited (but sufficient) amount of data.
+    * Objects have the same name as their identity arrows.
     *
-    * @param objects     category's objects
-    * @param d0          maps arrows to domains
-    * @param d1          maps arrows to codomains
-    * @param ids         maps objects to identity arrows
-    * @param composition composition table
-    * @return a new category
+    * @tparam T object and arrow type
+    * @param objects           set of objects (same as identity arrows)
+    * @param domain            maps arrows to domains
+    * @param codomain          maps arrows to codomain
+    * @param compositionSource source table of arrows composition (may be incomplete)
+    * @return a newly-built category
     */
-  def build[O, A](
-    objects: Set[O],
-    arrows: Set[A],
-    d0: A => O,
-    d1: A => O,
-    ids: O => A,
-    composition: (A, A) => Option[A]): Result[Category] = {
+  def build[T](
+    name: String,
+    objects: Set[T],
+    domain: Map[T, T],
+    codomain: Map[T, T],
+    compositionSource: Map[(T, T), T]): Result[Category] = {
     for {
-      g: Graph <- Graph.build(objects, arrows, d0, d1)
-      c <- buildFromGraphWithIdentity[O,A]("", g)(
-        ids.asInstanceOf[g.Node => g.Arrow],
-        composition.asInstanceOf[(g.Arrow, g.Arrow) => Option[g.Arrow]])
+      g <- Graph.build(objects, domain.keySet, domain, codomain)
+      c <- fromPartialData(name, g, compositionSource)
     } yield c
+  }
+
+  /**
+    * Builds a discrete category on a given set of objects.
+    *
+    * @tparam T object type
+    * @param objects set of this category's objects
+    * @return the category
+    */
+  def discrete[T](objects: Set[T]): Category = {
+    val name = s"Discrete[${objects.size}]"
+    Category.fromPartialData[T](name, Graph.discrete[T](objects)).
+      getOrElse(throw new InstantiationException("Could not build category $name"))
   }
 
   /**
@@ -831,69 +842,14 @@ private[cat] trait CategoryFactory {
   }
 
   /**
-    * Builds a discrete category on a given set of objects.
-    *
-    * @tparam T object type
-    * @param objects set of this category's objects
-    * @return the category
-    */
-  def discrete[T](objects: Set[T]): Category = {
-    val name = s"Discrete[${objects.size}]"
-    Category.buildFromPartialData[T](name, Graph.discrete[T](objects))().
-      getOrElse(throw new InstantiationException("Could not build category $name"))
-  }
-
-  /**
     * Creates an instance of Category given a graph, when no composition is required
     * The method returns Bad if composition is required
     *
-    * @tparam T graph element and arrow type (must be the same)
     * @param g the underlying graph, with no id arrows
     * @return new category
     */
-  def fromGraph[T](g: Graph): Result[Category] =
-    build(g)((f1:g.Arrow, f2: g.Arrow) => None)
-
-  /**
-    * Creates an instance of Category given a graph and arrow composition table
-    *
-    * @param graph       the underlying graph
-    * @param composition arrows composition table
-    * @return new category
-    */
-  def build(graph: Graph)(
-    composition: (graph.Arrow, graph.Arrow) => Option[graph.Arrow]): Result[Category] = {
-    val isUnit = (f: graph.Arrow) => graph contains f // that is, as an object
-    val m = (f: graph.Arrow, g: graph.Arrow) =>
-      if (isUnit(f)) Some(g) else if (isUnit(g)) Some(f) else composition(f, g)
-    val g: Graph = addUnitsToGraph(graph)
-    val id = (x: graph.Node) => graph.arrow(x)
-    buildFromGraphWithIdentity[graph.Node, graph.Arrow]("", g)(
-      id.asInstanceOf[g.Node => g.Arrow],
-      m.asInstanceOf[(g.Arrow, g.Arrow) => Option[g.Arrow]])
-  }
-
-  /**
-    * Builds a category given a limited (but sufficient) amount of data.
-    * Objects have the same name as their identity arrows.
-    *
-    * @tparam T arrow type
-    * @param objects           set of objects (same as identity arrows)
-    * @param domain            maps arrows to domains
-    * @param codomain          maps arrows to codomain
-    * @param compositionSource source table of arrows composition (may be incomplete)
-    * @return a newly-built category
-    */
-  def build[T](
-    objects: Set[T],
-    domain: Map[T, T],
-    codomain: Map[T, T],
-    compositionSource: Map[(T, T), T]): Result[Category] = {
-    for {
-      g <- Graph.build(objects, domain.keySet, domain, codomain)
-      c <- buildFromPartialData("", g)(compositionSource)
-    } yield c
-  }
+  def fromGraph(g: Graph): Result[Category] =
+    fromPartialData("a graph", g)
 
   /**
     * Builds a category given a limited (but sufficient) amount of data.
@@ -905,30 +861,41 @@ private[cat] trait CategoryFactory {
     * @param compositionSource source table of arrows composition (may be incomplete)
     * @return a newly-built category
     */
-  def buildFromPartialData[T](name: String, graph: Graph)
-    (compositionSource: Map[(T, T), T] =
-        Map.empty[(T, T), T]): Result[Category] = {
+  private[cat] def fromPartialData[T](
+    name: String,
+    graph: Graph,
+    compositionSource: Map[(T, T), T] = Map.empty[(T, T), T]): Result[Category] = {
     val graph1 = addUnitsToGraph(graph)
     val composition = fillCompositionTable(graph1, compositionSource)
-    
-    val idFunction: graph1.Node => graph1.Arrow = (o: graph1.Node) => graph1.arrow(o)
 
     val compositionFunction: (graph1.Arrow, graph1.Arrow) => Option[graph1.Arrow] =
-      (f: graph1.Arrow, g: graph1.Arrow) => composition.get((f, g).asInstanceOf[(T, T)]) map (a => graph1.arrow(a))
+      (f: graph1.Arrow, g: graph1.Arrow) => {
+        composition.find {
+          case ((first, second), value) => first == f && second == g
+        }
+      } map { m => graph1.arrow(m._2) }
 
-    val result = buildFromGraphWithIdentity[T, T](
-      name,
-      graph1)(
-      idFunction,
-      compositionFunction)
-    result
+    fromGraphWithUnits(name, graph1)(compositionFunction)
+  }
+
+  /**
+    * Builds a category out of a graph with unites and a composition mapping
+    * 
+    * @param name category name
+    * @param g the graph
+    * @param m the composition table
+    * @tparam A type of arrow
+    * @return
+    */
+  private[cat] def fromGraphWithUnits[A](name: String, g: Graph)(m: (A, A) => Option[A]) = {
+    build(name, g)(
+      (x: g.Node) => g.arrow(x),
+      m.asInstanceOf[(g.Arrow, g.Arrow) => Option[g.Arrow]])
   }
 
   /**
     * Builds a category given a graph, composition table, and a mapping for identity arrows.
     *
-    * @tparam Ob type of objects
-    * @tparam A type of arrows
     * @param name        name of this category
     * @param gr           the graph on which we are to create a category
     * @param ids         maps objects to identity arrows
@@ -937,7 +904,7 @@ private[cat] trait CategoryFactory {
     *
     *         TODO: eliminate code duplication
     */
-  def buildFromGraphWithIdentity[Ob, A](
+  def build(
     name: String,
     gr: Graph)(
     ids: gr.Node => gr.Arrow,
@@ -946,11 +913,12 @@ private[cat] trait CategoryFactory {
       override def id(o: Obj): Arrow = arrow(ids(gr.node(o)))
       
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
+        
         composition(gr.arrow(f), gr.arrow(g)) map arrow
     }
 
     data.validate returning
-      new Category("", gr) {
+      new Category(name, gr) {
         def id(o: Obj): Arrow = arrow(ids(gr.node(o)))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -962,16 +930,12 @@ private[cat] trait CategoryFactory {
       }
   }
 
-  private[cat] def addUnitsToGraph[T](graph: Graph): Graph = {
-    val nodes = graph.nodes.asInstanceOf[Set[T]] // this and the next casting is to cover up a weird bug somewhere in
-    // scala
-    val allArrows: Set[T] = nodes ++ graph.arrows.asInstanceOf[Set[T]]
-
+  private[cat] def addUnitsToGraph(graph: Graph): Graph = {
     def isIdentity(f: Any): Boolean = graph contains f
 
     new Graph {
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
-      def arrows: Arrows = allArrows.asInstanceOf[Arrows]
+      def arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node =
         if (isIdentity(f)) node(f) else node(graph.d0(graph.arrow(f)))
@@ -1126,7 +1090,7 @@ private[cat] trait CategoryFactory {
       multTable: Map[(String, String), String]): Result[Cat] = {
       val catOpt: Result[Cat] = for {
         g: Graph <- gOpt
-        raw <- buildFromPartialData(nameOpt.getOrElse("a category"), g)(multTable)
+        raw <- fromPartialData(nameOpt.getOrElse("a category"), g, multTable)
         cat <- convert2Cat(raw)()
       } yield cat
       catOpt
@@ -1241,7 +1205,8 @@ object Category extends CategoryFactory {
     * all their possible functions.
     */
   lazy val HalfSimplicial: Cat = asCat(
-    Category.build(Set("0", "1", "2"),
+    build("HalfSimplicial",
+      Set("0", "1", "2"),
       Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "a" -> "1", "b" -> "1", "2_swap" ->
         "2"), // d0
       Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "a" -> "2", "b" -> "2", "2_swap" ->
@@ -1265,8 +1230,7 @@ object Category extends CategoryFactory {
       )
     ).
       getOrElse(throw new InstantiationException("Bad semisimplicial?")))
-  lazy val NaturalNumbers: Category =
-    Category.fromPoset("ℕ", PoSet.ofNaturalNumbers)
+  lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
   lazy val KnownCategories = Set(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
@@ -1285,7 +1249,7 @@ object Category extends CategoryFactory {
         buf append expressions.next
         buf append strings.next
       }
-      Category.read(buf) match {
+      read(buf) match {
         case Good(c) => c
         case bad => throw new InstantiationException(bad.errorDetails.mkString)
       }

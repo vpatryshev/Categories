@@ -42,7 +42,7 @@ class CategoryTest extends Test with CategoryFactory {
       )
       val c = Category
       
-      val sutOpt = Category.build(
+      val sutOpt = Category.build("example1",
         Set("0", "1", "2"), // objects
         d0d1.mapValues(_._1), // d0
         d0d1.mapValues(_._2), // d1
@@ -94,6 +94,7 @@ class CategoryTest extends Test with CategoryFactory {
     "id case 1" >> {
       import _3_._
       _3_.id("2") === "2.2"
+      _3_.name === "_3_"
     }
 
     "id case 2" >> {
@@ -107,7 +108,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
     
     "regression from 6/9/15" >> {
-      val expected = Category.build(
+      val expected = Category.build("regression from 6/9/15",
         objects = Set("0", "1", "2"),
         domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
         codomain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "2", "b" -> "2"),
@@ -127,7 +128,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "constructor_1_bare" >> {
-      val sutOpt = Category.build(
+      val sutOpt = Category.build("constructor_1_bare",
         objects = Set("1"),
         domain = EmptyMap,
         codomain = EmptyMap,
@@ -143,7 +144,7 @@ class CategoryTest extends Test with CategoryFactory {
         import sut._
         sut.arrows must haveSize(1)
       })(
-        Category.build(Set("1"),
+        Category.build("constructor_1_full", Set("1"),
           Map("1" -> "1"), // d0
           Map("1" -> "1"), // d1
           Map(("1", "1") -> "1")
@@ -171,7 +172,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_negative" >> {
-      val actual = Category.build(Set("0", "1", "2"),
+      val actual = Category.build("must fail", Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "a" -> "1", "b" -> "1", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "a" -> "1", "b" -> "1", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "2_swap" -> "2"), // d1
         // breaking laws
@@ -189,9 +190,9 @@ class CategoryTest extends Test with CategoryFactory {
     
     "toString_1" >> {
       expect(sut => {
-        sut.toString === "({1}, {1: 1->1}, {1 o 1 = 1})"
+        sut.toString === "sample: ({1}, {1: 1->1}, {1 o 1 = 1})"
       })(
-        Category.build(Set("1"),
+        Category.build("sample", Set("1"),
           EmptyMap, // d0
           EmptyMap, // d1
           EmptyComposition
@@ -199,7 +200,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive_0" >> {
-      val sutOpt = Category.build(Set("1"),
+      val sutOpt = Category.build("sample0", Set("1"),
         EmptyMap, // d0
         EmptyMap, // d1
         EmptyComposition
@@ -222,7 +223,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive_5" >> {
-      val sutOpt = Category.build(Set("1", "2"),
+      val sutOpt = Category.build("sample5", Set("1", "2"),
         Map("2_1" -> "2"), // d0
         Map("2_1" -> "1"), // d1
         EmptyComposition
@@ -232,7 +233,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive_6" >> {
-      checkParsing(Category.build(Set("1", "2"),
+      checkParsing(Category.build("sample6", Set("1", "2"),
         Map("2_1" -> "2", "2_a" -> "2"), // d0
         Map("2_1" -> "1", "2_a" -> "2"), // d1
         Map(("2_a", "2_a") -> "2_a")
@@ -240,7 +241,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive_7" >> {
-      val sutOpt = Category.build(Set("0", "1", "2"),
+      val sutOpt = Category.build("sample7", Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
         Map(("0_1", "a") -> "0_2",
@@ -252,7 +253,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive_8" >> {
-      val sutOpt = Category.build(Set("0", "1", "2"),
+      val sutOpt = Category.build("sample8", Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
         Map(("0_1", "a") -> "0_2",
@@ -745,7 +746,7 @@ class CategoryTest extends Test with CategoryFactory {
     // following are tests for accompanying object
 
     "0" >> {
-      val expected = "({}, {}, {})"
+      val expected = "_0_: ({}, {}, {})"
       val actual = _0_.toString
       actual === expected
       _0_.objects must beEmpty
@@ -815,7 +816,9 @@ class CategoryTest extends Test with CategoryFactory {
       newComposition.keySet must not contain ("bb", "a")
       newComposition.keySet must not contain ("a", "bb")
       
-      val sut1 = Category.buildFromPartialData("sut1", graph)(composition)
+      val sut1 = Category.fromPartialData("sut1", graph, composition)
+      val graph1 = Category.addUnitsToGraph(graph)
+      val sut2 = Category.fromGraphWithUnits[String]("sut1", graph1)((f, g) => composition.get((f, g)))
       
       sut1 match {
         case Good(c) => ok

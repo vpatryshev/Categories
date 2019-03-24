@@ -19,9 +19,9 @@ import scala.language.postfixOps
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
   */
 abstract class SetDiagram(
-  override val tag: String,
+  tag: String,
   override val d0: Category)
-  extends Functor[Category](d0, SetCategory.Setf) {
+  extends Functor(tag, d0, SetCategory.Setf) {
   type XObject = d0.Obj
   type XObjects = Set[d0.Obj]
   type YObject = set

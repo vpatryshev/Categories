@@ -21,19 +21,19 @@ import scalakittens.Result.Outcome
   *            V         V
   *    g[a]: g[x] ---> g[y]
   */
-abstract class NaturalTransformation(val from: Functor[Category],
-    val to: Functor[Category]) extends Morphism[Functor[Category], Functor[Category]] {
+abstract class NaturalTransformation(val from: Functor,
+    val to: Functor) extends Morphism[Functor, Functor] {
   
   def transformPerObject(x: from.d0.Obj): from.d1.Arrow
 
-  override val d0: Functor[Category] = from
-  override val d1: Functor[Category] = to
+  override val d0: Functor = from
+  override val d1: Functor = to
   def domainCategory: Category = from.d0
   def codomainCategory: Category = from.d1
 
   // TODO: check the preconditions, return an option
   def compose(next: NaturalTransformation): NaturalTransformation = {
-    val first: Functor[Category] = from
+    val first: Functor = from
     val targetCategory = to.d1
     
     def comp(x: first.d0.Obj): targetCategory.Arrow = {
@@ -69,7 +69,7 @@ object NaturalTransformation {
   X <: Category,
   Y <: Category
   ](
-    f: Functor[Category], g: Functor[Category], domainCategory: Category, codomainCategory: Category)(
+    f: Functor, g: Functor, domainCategory: Category, codomainCategory: Category)(
     transformPerObject: f.d0.Obj => f.d1.Arrow
   ): Outcome =
     OKif(domainCategory == g.d0, s"Functors must be defined on the same categories") andAlso
@@ -104,8 +104,8 @@ object NaturalTransformation {
     * @param to   second functor
     * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
     */
-  def build(from0: Functor[Category],
-    to: Functor[Category])
+  def build(from0: Functor,
+    to: Functor)
   (
     mappings: from0.d0.Obj => from0.d1.Arrow
   ): Result[NaturalTransformation] = {
@@ -122,7 +122,7 @@ object NaturalTransformation {
     * @param functor the functor for which we are building the identity transformation
     * @return identity natural transformation for the functor
     */
-  def id(functor: Functor[Category]): NaturalTransformation = {
+  def id(functor: Functor): NaturalTransformation = {
 
     def objectMap(x: functor.d0.Obj): functor.d1.Arrow =
       functor.d1.id(functor.d1.obj(functor.objectsMapping(x)))
