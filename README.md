@@ -25,3 +25,5 @@ Plans: presheaves, sheaves, subobject classifiers, logic, Grothendieck topologie
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
 
+TODO: use refinement maybe: https://github.com/fthomas/refined
+

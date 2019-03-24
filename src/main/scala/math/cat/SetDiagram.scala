@@ -17,23 +17,20 @@ import scala.language.postfixOps
   * Here we talk about the category of diagrams, so a point is a
   * singleton diagram. It must have been a mapping from objects of the base category to values
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
-  *
-  *
-  * @tparam C type of the domain category
   */
-abstract class SetDiagram[C <: Category[_, _]](
-  override val tag: String,
-  override val d0: C)
-  extends Functor[C, SetCategory](d0, SetCategory.Setf) {
-  type XObject = d0.O
-  type XObjects = Set[d0.O]
+abstract class SetDiagram(
+  tag: String,
+  override val d0: Category)
+  extends Functor(tag, d0, SetCategory.Setf) {
+  type XObject = d0.Obj
+  type XObjects = Set[d0.Obj]
   type YObject = set
   type XArrow = d0.Arrow
   type XArrows = Set[d0.Arrow]
   type YArrow = SetFunction
 
-//  override def objectsMapping(x: XObject): set
-//  override def arrowsMappingCandidate(a: XArrow): YArrow
+  implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
+  implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
 
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
@@ -59,7 +56,7 @@ abstract class SetDiagram[C <: Category[_, _]](
     def arrowFromRootObject(x: XObject) =
       if (limitBuilder.rootObjects(x)) d0.id(x) else fromRootObjects(x)
     
-    def coneMap(x: XObject): SetFunction = {
+    def coneMap(x: XObject): d1.Arrow = d1.arrow {
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
@@ -68,7 +65,7 @@ abstract class SetDiagram[C <: Category[_, _]](
         { case point: List[Any] => f(projections(point)) })
     }
     //YObjects vertex
-    Option(Cone(limitBuilder.vertex, coneMap))
+    Option(Cone(d1.obj(limitBuilder.vertex), coneMap))
   }
 
   override def colimit: Option[Cocone] = {
@@ -79,7 +76,7 @@ abstract class SetDiagram[C <: Category[_, _]](
       d0.buildBundles(d0.objects, participantArrows.asInstanceOf[XArrows])
     val listOfObjects: List[XObject] = op.listOfRootObjects.asInstanceOf[List[XObject]]
     // Here we have a non-repeating collection of sets to use for building a union
-    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping
+    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping map asSet
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
     val typelessUnion: set = union.unionSet untyped
     val directIndex: IntMap[XObject] = Base.toMap(listOfObjects)
@@ -91,8 +88,8 @@ abstract class SetDiagram[C <: Category[_, _]](
 
     // All possible functions in the diagram, bundled with domain objects
     val functionsToUnion: Set[(XObject, SetFunction)] = for {
-      o:XObject <- d0.objects
-      a:XArrow <- bundles(o)
+      o <- d0.objects
+      a <- bundles(o)
       from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
       embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a)))
@@ -128,10 +125,10 @@ abstract class SetDiagram[C <: Category[_, _]](
       }
     }
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
-    def coconeMap(x: XObject): SetFunction = {
+    def coconeMap(x: XObject): d1.Arrow = d1.arrow {
       canonicalFunctionPerObject(x) andThen factorMorphism
     }
-    Option(Cocone(theFactorset.content.untyped, coconeMap))
+    Option(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
   }
 
   /**
@@ -176,7 +173,7 @@ abstract class SetDiagram[C <: Category[_, _]](
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = rootObjects.toList.sortBy(_.toString)
     // Here we have a non-repeating collection of sets to use for building a limit
-    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping
+    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map asSet
     // this is the product of these sets; will have to take a subset of this product
     final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
     // for each domain object, a collection of arrows looking outside
@@ -186,7 +183,7 @@ abstract class SetDiagram[C <: Category[_, _]](
     // this is the limit object
     final private[cat] lazy val vertex: set = prod filter isPoint untyped
     // bundles maps each "initial" object to a set of arrows from it
-    final private[cat] lazy val bundles: Map[d0.O, XArrows] =
+    final private[cat] lazy val bundles: Map[d0.Obj, XArrows] =
       d0.buildBundles(rootObjects, participantArrows)
 
     // this function takes an object and returns a projection set function;
@@ -213,14 +210,14 @@ abstract class SetDiagram[C <: Category[_, _]](
 
 object SetDiagram {
 
-  def build[C <: Category[_, _]](
+  def build(
     tag: String,
-    dom: C)(
-    objectsMap: dom.O => set,
-    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram[C]] = {
+    dom: Category)(
+    objectsMap: dom.Obj => set,
+    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram] = {
     
-    val diagram: SetDiagram[C] = new SetDiagram[C](tag, dom) {
-      override val objectsMapping: d0.O => set = objectsMap.asInstanceOf[d0.O => set]
+    val diagram: SetDiagram = new SetDiagram(tag, dom) {
+      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMap(dom.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
         ((a: XArrow) => arrowMap(a.asInstanceOf[dom.Arrow])).asInstanceOf[d0.Arrow => d1.Arrow]
@@ -232,9 +229,9 @@ object SetDiagram {
     for {
       x <- diagram.d0.objects
     } {
-      val y = objectsMap(x.asInstanceOf[dom.O])
+      val y = objectsMap(x.asInstanceOf[dom.Obj])
       println(s"$x -> $y")
     }
-    Functor.validate(diagram) returning diagram
+    Functor.validateFunctor(diagram) returning diagram
   } 
 }

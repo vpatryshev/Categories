@@ -104,7 +104,7 @@ object PoSet {
 
   class Parser extends Sets.Parser {
     def poset: Parser[PoSet[String]] = "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)}
-    def pair: Parser[(String, String)] = member~"<="~member ^^ {case x~"<="~y => (x, y)}
+    def pair: Parser[(String, String)] = word~"<="~word ^^ {case x~"<="~y => (x, y)}
 
     private def explain(pr: ParseResult[PoSet[String]]): PoSet[String] = {
       pr match {

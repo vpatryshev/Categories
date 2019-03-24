@@ -8,17 +8,19 @@ import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-abstract class Graph[N, A] extends GraphData[N, A] { graph =>
-  def contains(node: N): Boolean = nodes contains node
+abstract class Graph extends GraphData { graph =>
+  
+  def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception => false }
+
   def size: Int = nodes.size
+  
+  implicit def pairOfNodes(p: (_, _)): (Node, Node) = (node(p._1), node(p._2))
 
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
-  def -(x:N): Set[N] = itsImmutable
-  def +(x:N): Set[N] = itsImmutable
 
   override def equals(x: Any): Boolean = {
     x match {
-      case other: Graph[_, A] => other.equal(this)
+      case other: Graph => other.equal(this)
       case _ => false
     }
   }
@@ -31,15 +33,20 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param that another graph
     * @return true if they are equal.
     */
-  private def equal(that: Graph[_, A]) = {
+  private def equal(that: Graph) = {
     val isEqual = this.nodes == that.nodes && this.arrows == that.arrows
-    (isEqual /: arrows) ((bool: Boolean, a: A) => bool && (this.d0(a) == that.d0(a)) && (this.d1(a) == that.d1(a)))
+    (isEqual /: arrows) (
+      (bool: Boolean, aHere: this.Arrow) => try {
+        val aThere = that.arrow(aHere)
+        bool && (d0(aHere) == that.d0(aThere)) && (d1(aHere) == that.d1(aThere))
+      } catch { case _: Exception => false }
+    )
   }
 
   override def toString: String = {
     val nodess = nodes.mkString(", ")
     val arrowss =
-      arrows map ((a: A) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
+      arrows map ((a: Arrow) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
     s"({$nodess}, {$arrowss})"
   }
 
@@ -50,12 +57,7 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param to   second node
     * @return the set of all arrows from x to y
     */
-  def arrowsBetween(from: Node, to: Node): Set[Arrow] = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
-
-  def anArrow(f: Arrow): Arrow = {
-    require(arrows(f), s"Unknown arrow $f")
-    f
-  }
+  def arrowsBetween(from: Node, to: Node): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
   /**
     * Checks if one arrow follows another
@@ -63,8 +65,8 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff f follows g
     */
-  def follows(f: A, g: A): Boolean = {
-    d0(anArrow(f)) == d1(anArrow(g))
+  def follows(f: Arrow, g: Arrow): Boolean = {
+    d0(arrow(f)) == d1(arrow(g))
   }
 
   /**
@@ -73,8 +75,8 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff g and f have the same domain
     */
-  def sameDomain(f: A, g: A): Boolean = {
-    d0(anArrow(f)) == d0(anArrow(g))
+  def sameDomain(f: Arrow, g: Arrow): Boolean = {
+    d0(arrow(f)) == d0(arrow(g))
   }
 
   /**
@@ -83,8 +85,8 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff g and f have the same codomain
     */
-  def sameCodomain(f: A, g: A): Boolean = {
-    d1(anArrow(f)) == d1(anArrow(g))
+  def sameCodomain(f: Arrow, g: Arrow): Boolean = {
+    d1(arrow(f)) == d1(arrow(g))
   }
 
   /**
@@ -93,20 +95,23 @@ abstract class Graph[N, A] extends GraphData[N, A] { graph =>
     * @param g an arrow
     * @return true iff g and f have the same domain and codomain
     */
-  def areParallel(f: A, g: A): Boolean = sameDomain(f, g) && sameCodomain(f, g)
+  def areParallel(f: Arrow, g: Arrow): Boolean = sameDomain(f, g) && sameCodomain(f, g)
 
-  def unary_~ : Graph[N, A] = new Graph[N, A] {
-    def nodes: Set[N] = graph.nodes
-    def arrows: Set[A] = graph.arrows
-    def d0(f: A): N = graph.d1(f)
-    def d1(f: A): N = graph.d0(f)
+  def unary_~ : Graph = new Graph {
+    type Node = graph.Node
+    type Arrow = graph.Arrow
+    def nodes: Nodes = graph.nodes
+    def arrows: Arrows = graph.arrows
+    def d0(f: Arrow): Node = graph.d1(f)
+    def d1(f: Arrow): Node = graph.d0(f)
   }
 }
 
-private[cat] abstract class GraphData[N, A] {
-  final type Node = N
+private[cat] abstract class GraphData {
+  val name: String = "a graph"
+  type Node
+  type Arrow
   type Nodes = Set[Node]
-  final type Arrow = A
   type Arrows = Set[Arrow]
   
   def nodes: Nodes
@@ -114,10 +119,24 @@ private[cat] abstract class GraphData[N, A] {
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  protected lazy val finiteNodes: Boolean = isFinite(nodes)
-  protected lazy val finiteArrows: Boolean = isFinite(arrows)
+  implicit def node(x: Any): Node = x match {
+    case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
+    case other =>
+      throw new IllegalArgumentException(s"<<$other>> is not a node in $name")
+  }
 
-  def validate: Result[GraphData[N, A]] =
+  implicit def arrow(a: Any): Arrow = a match {
+    case _ if arrows contains a.asInstanceOf[Arrow] => a.asInstanceOf[Arrow]
+    case other =>
+      throw new IllegalArgumentException(s"<<$other>> is not an arrow of $name")
+  }
+
+  protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
+  protected lazy val finiteArrows: Boolean = Sets.isFinite(arrows)
+  
+  def isFinite: Boolean = finiteNodes && finiteArrows
+
+  def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {
       Result.fold(arrows map {
         a =>
@@ -132,56 +151,64 @@ object Graph {
     nodes0: Set[N],
     arrows0: Set[A],
     d00: A => N,
-    d10: A => N): Result[Graph[N, A]] = {
-    val data = new GraphData[N, A] {
-      def nodes: Set[N] = nodes0
-      def arrows: Set[A] = arrows0
-      def d0(f: A): N = d00(f)
-      def d1(f: A): N = d10(f)
+    d10: A => N): Result[Graph] = {
+    val data: GraphData = new GraphData {
+      override type Node = N
+      override type Arrow = A
+      def nodes: Nodes = nodes0
+      def arrows: Arrows = arrows0
+      def d0(f: Arrow): Node = d00(f)
+      def d1(f: Arrow): Node = d10(f)
     }
 
     data.validate returning
-      new Graph[N, A] {
-        def nodes: Set[N] = data.nodes
-        def arrows: Set[A] = data.arrows
-        def d0(f: A): N = data.d0(f)
-        def d1(f: A): N = data.d1(f)
+      new Graph {
+        def nodes: Nodes = data.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
+        def arrows: Arrows = data.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
+        override type Node = N
+        override type Arrow = A
+        override def d0(f: Arrow): Node = data.d0(data.arrow(f))
+        override def d1(f: Arrow): Node = data.d1(data.arrow(f))
       }
   }
 
-  def build[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph[N, A]] = {
-    build(nodes, arrows.keySet, a => arrows(a)._1,  (a: A) => arrows(a)._2)
+  def fromArrowMap[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] = {
+    build(nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
   }
 
-  def discrete[N](points: Set[N]): Graph[N, N] =
-    new Graph[N, N] {
-      def nodes: Set[N] = points
-      def arrows: Set[N] = Set.empty
-      def d0(f: N): N = f
-      def d1(f: N): N = f
+  def discrete[N](points: Set[N]): Graph =
+    new Graph {
+      type Node = N
+      type Arrow = N
+      def nodes: Nodes = points
+      def arrows: Arrows = Set.empty
+      def d0(f: Arrow): Node = Map.empty(f) // there's nothing there, but we need a signature
+      def d1(f: Arrow): Node = Map.empty(f)
     }
 
-  def ofPoset[N](poset: PoSet[N]): Graph[N, (N, N)] = {
+  def ofPoset[N](poset: PoSet[N]): Graph = {
     val points = poset.underlyingSet
     val posetSquare = Sets.product2(points, points)
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 
-    new Graph[N, (N, N)] {
-      def nodes: Set[N] = points
+    new Graph {
+      type Node = N
+      type Arrow = (N, N)
+      def nodes: Nodes = points
       def arrows: Arrows = goodPairs
-      def d0(f: (N, N)): N = f._1
-      def d1(f: (N, N)): N = f._2
+      def d0(f: Arrow): Node = f._1
+      def d1(f: Arrow): Node = f._2
     }
   }        
 
   class Parser extends Sets.Parser {
-    def all: Parser[Result[Graph[String, String]]] = "("~graph~")" ^^ {case "("~g~")" => g}
+    def all: Parser[Result[Graph]] = "("~graph~")" ^^ {case "("~g~")" => g}
 
-    def graph: Parser[Result[Graph[String, String]]] = parserOfSet~","~arrows ^^ {case s~","~a => Graph.build(s, a)}
+    def graph: Parser[Result[Graph]] = parserOfSet~","~arrows ^^ {case s~","~a => Graph.fromArrowMap(s, a)}
 
     def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
 
-    def arrow: Parser[(String, (String, String))] = member~":"~member~"->"~member ^^ {case f~":"~x~"->"~y => (f, (x, y))}
+    def arrow: Parser[(String, (String, String))] = word~":"~word~"->"~word ^^ {case f~":"~x~"->"~y => (f, (x, y))}
 
     def explain[T](pr: ParseResult[Result[T]]): Result[T] = {
       pr match {
@@ -190,20 +217,20 @@ object Graph {
       }
     }
 
-    def readGraph(input: CharSequence): Result[Graph[String, String]] = {
-      val pr: ParseResult[Result[Graph[String, String]]] = parseAll(all, input)
+    def readGraph(input: CharSequence): Result[Graph] = {
+      val pr: ParseResult[Result[Graph]] = parseAll(all, input)
       explain(pr)
     }
 
-    def readGraph(input: Reader): Result[Graph[String, String]] = explain(parseAll(all, input))
+    def readGraph(input: Reader): Result[Graph] = explain(parseAll(all, input))
   }
 
-  def read(input: Reader): Result[Graph[String, String]] = (new Parser).readGraph(input)
+  def read(input: Reader): Result[Graph] = (new Parser).readGraph(input)
 
-  def read(input: CharSequence): Result[Graph[String, String]] = (new Parser).readGraph(input)
+  def read(input: CharSequence): Result[Graph] = (new Parser).readGraph(input)
 
   implicit class GraphString(val sc: StringContext) extends AnyVal {
-    def graph(args: Any*): Graph[String, String] = {
+    def graph(args: Any*): Graph = {
       val strings = sc.parts.iterator
       val expressions = args.iterator
       var buf = new StringBuffer(strings.next)

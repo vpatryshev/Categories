@@ -6,20 +6,20 @@ import math.cat.SetCategory.Setf
 import math.sets.Sets.set
 
 class FunctorTest extends Test {
-  type FSS = Functor[Cat, Cat]
-
-  type SUT = FSS
+  type SUT = Functor
   
   lazy val categorySquareWithTwoTopLeftCorners: Cat =
     category"({a0,a1,b,c,d}, {a0a1: a0 -> a1, a0b: a0 -> b, a0c: a0 -> c, a1b: a1 -> b, a1c: a1 -> c, bd: b -> d, cd: c -> d, a0d: a0 -> d, a1d: a1 -> d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
 
-  lazy val functorFromPullbackToDoubleSquare: FSS =
-    Functor.build(
+  lazy val functorFromPullbackToDoubleSquare: SUT = {
+    import categorySquareWithTwoTopLeftCorners._
+    Functor(
       "From2to1toDoubleSquare",
       Pullback, categorySquareWithTwoTopLeftCorners)(
       Map("a" -> "b", "b" -> "c", "c" -> "d"),
       Map("a" -> "b", "b" -> "c", "c" -> "d", "ac" -> "bd", "bc" -> "cd")
-  ) getOrElse (throw new InstantiationException("Something wrong with `From2to1toDoubleSquare`"))
+    ) getOrElse (throw new InstantiationException("Something wrong with `From2to1toDoubleSquare`"))
+  }
 
   lazy val categorySquareWithTwoRightCorners =
     category"""({a,b,c, d0, d1}
@@ -27,42 +27,50 @@ class FunctorTest extends Test {
       ,{bd0 o ab = ad0, cd0 o ac = ad0, bd1 o ab = ad1, cd1 o ac = ad1, d0d1 o ad0 = ad1, d0d1 o bd0 = bd1,d0d1 o bd0 = bd1, d0d1 o cd0 = cd1}
       )"""
 
-  lazy val functorFrom1to2toDoubleSquare: FSS =
-    Functor.build("From1to2toDoubleSquare",
+  lazy val functorFrom1to2toDoubleSquare: SUT = {
+    import categorySquareWithTwoRightCorners._
+
+    Functor("From1to2toDoubleSquare",
       Pushout, categorySquareWithTwoRightCorners)(
       Map("a" -> "a", "b" -> "b", "c" -> "c"),
       Map("a" -> "a", "b" -> "b", "c" -> "c", "ab" -> "ab", "ac" -> "ac")
-    ).getOrElse(throw new InstantiationException("wtf wit functor on line 29?"))
+    ).iHope
+  }
   
   "Constructor" should {
 
     "report missing object mappings" in {
+      import _4_._
       checkError(_ contains "Object mapping fails for 1", 
-      Functor.build("failing test",
+      Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1"),
         Map.empty[String, String]))
     }
 
     "report incorrect object mappings" in {
-      checkError(_ contains "Object mapping defined incorrectly for 1",
-        Functor.build("failing test",
+      import _2_._
+      checkError(_ contains "Object mapping fails for 1",
+        Functor("failing test",
           _2_, _2_)(
           Map("0" -> "1", "1" -> "3"),
           Map.empty[String, String]))
     }
 
     "report missing arrows mappings" in {
+      import _4_._
       checkError(_ contains "failing test: arrow mapping not found for 0.2: 0 -> 2",
-        Functor.build("failing test",
+        Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
           Map.empty[String, String]))
     }
 
     "report missing arrows mappings" in {
-      val objectMapping = Map("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
-      val arrowMapping = Map(
+      import _4_._
+      val objectMapping: _4_.Node => _4_.Node =
+        Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
+      val arrowMapping: _4_.Arrow => _4_.Arrow = Map[_4_.Arrow, _4_.Arrow](
         "0.0" -> "1.1",
         "0.1" -> "1.2",
         "0.2" -> "1.3",
@@ -75,11 +83,13 @@ class FunctorTest extends Test {
         "3.3" -> "3.3"
       )
       checkError(_ contains "Inconsistent mapping for d1(0.2)",
-        Functor.build("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
+        Functor("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
     }
     
     "report a failure" in {
-      val objectMapping = Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
+      import _4_._
+      val objectMapping: _4_.Node => _4_.Node =
+        Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
       val arrowMapping = Map(
         "0.0" -> "1.1",
         "0.1" -> "1.2",
@@ -93,101 +103,132 @@ class FunctorTest extends Test {
         "3.3" -> "3.3"
       )
 
-      checkError(_ contains "Object mapping defined incorrectly for 3",
-        Functor.build("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
+      checkError(_ contains "Object mapping fails for 3",
+        Functor("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
-    
   }
 
   "functor" should {
     "produce cartesian product" in {
       val from = Category.discrete(Set(0, 1))
       val to = Square
-      val map = Map(0 -> "b", 1 -> "c")
-      val fOpt = Functor.build("sample product", from, to)(map, map)
-      check[Functor[Category[Int, Int], Cat]](fOpt,
-        (f:Functor[Category[Int, Int], Cat]) => {
+
+      val mapA: from.Arrow => to.Arrow =
+        Map(from.arrow(0) -> to.arrow("b"), from.arrow(1) -> to.arrow("c"))
+
+      type toO = to.Obj
+      val mapO: from.Obj => to.Obj =
+        Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
+      
+      val fOpt = Functor("sample product", from, to)(mapO, mapA)
+      check[Functor](fOpt,
+        (f:Functor) => {
         val limitOpt = f.limit
 
         limitOpt match {
           case Some(limit) =>
-            limit.arrowTo(0) == "ab"
-            limit.arrowTo(1) == "ac"
+            limit.arrowTo(f.d0.obj(0)) == "ab"
+            limit.arrowTo(f.d0.obj(1)) == "ac"
           case _ => failure(s"Could not build a limit of $f")
         }
       })
     }
     
     "cones from" in {
-      val actual = functorFromPullbackToDoubleSquare.conesFrom("a0")
-      val expected = functorFromPullbackToDoubleSquare.Cone("a0", Map(
-        "a" -> "a0b",
-        "b" -> "a0c",
-        "c" -> "a0d")
-      )
+      val sut = functorFromPullbackToDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+      val actual: Set[sut.Cone] = sut.conesFrom(obj1("a0"))
+      
+      val expected: sut.Cone = sut.Cone(obj1("a0"), Map(
+        obj0("a") -> arr1("a0b"),
+        obj0("b") -> arr1("a0c"),
+        obj0("c") -> arr1("a0d")
+      ))
+        
       actual === Set(expected)
     }
     
     "build all cones" in {
-      val allCones = functorFromPullbackToDoubleSquare.allCones
-      val c1 = functorFromPullbackToDoubleSquare.Cone("a0", Map(
-        "a" -> "a0b",
-        "b" -> "a0c",
-        "c" -> "a0d")
-      )
+      val sut = functorFromPullbackToDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+      val allCones = sut.allCones
+      val c1 = sut.Cone(obj1("a0"), Map(
+        obj0("a") -> arr1("a0b"),
+        obj0("b") -> arr1("a0c"),
+        obj0("c") -> arr1("a0d")
+      ))
       
-      val c2 = functorFromPullbackToDoubleSquare.Cone("a1", Map(
-        "a" -> "a1b",
-        "b" -> "a1c",
-        "c" -> "a1d")
-      )
+      val c2 = sut.Cone(obj1("a1"), Map(
+        obj0("a") -> arr1("a1b"),
+        obj0("b") -> arr1("a1c"),
+        obj0("c") -> arr1("a1d")
+      ))
       
       allCones === Set(c1, c2)
     }
     
     "limit with two candidates" in {
-      functorFromPullbackToDoubleSquare.limit match {
+      val sut = functorFromPullbackToDoubleSquare
+      sut.limit match {
         case Some(limit) =>
           limit.vertex == "a1"
-          limit.arrowTo("a") == "a1b"
-          limit.arrowTo("b") == "a1c"
+          limit.arrowTo(sut.d0.obj("a")) == "a1b"
+          limit.arrowTo(sut.d0.obj("b")) == "a1c"
         case oops => failure("no limit?")
       }
       ok
     }
     
     "cocones to" in {
-      val actual = functorFrom1to2toDoubleSquare.coconesTo("d0")
-      val expected = functorFrom1to2toDoubleSquare.Cocone("d0", Map(
-        "a" -> "ad0",
-        "b" -> "bd0",
-        "c" -> "cd0"
+      val sut = functorFrom1to2toDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+
+      val actual = sut.coconesTo(obj1("d0"))
+      val expected = sut.Cocone(obj1("d0"), Map(
+        obj0("a") -> arr1("ad0"),
+        obj0("b") -> arr1("bd0"),
+        obj0("c") -> arr1("cd0")
       ))
       actual === Set(expected)
     }
     
     "all cocones" in {
-      val allCocones = functorFrom1to2toDoubleSquare.allCocones
-      val expected1 = functorFrom1to2toDoubleSquare.Cocone("d0", Map(
-        "a" -> "ad0",
-        "b" -> "bd0",
-        "c" -> "cd0"
+      val sut = functorFrom1to2toDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+      val allCocones = sut.allCocones
+      val expected1 = sut.Cocone(obj1("d0"), Map(
+        obj0("a") -> arr1("ad0"),
+        obj0("b") -> arr1("bd0"),
+        obj0("c") -> arr1("cd0")
       ))
-      val expected2 = functorFrom1to2toDoubleSquare.Cocone("d1", Map(
-        "a" -> "ad1",
-        "b" -> "bd1",
-        "c" -> "cd1"
+      val expected2 = sut.Cocone(obj1("d1"), Map(
+        obj0("a") -> arr1("ad1"),
+        obj0("b") -> arr1("bd1"),
+        obj0("c") -> arr1("cd1")
       ))
       allCocones === Set(expected1, expected2)
     }
     
     "colimit with two candidates" in {
-      functorFrom1to2toDoubleSquare.colimit match {
+      val sut = functorFrom1to2toDoubleSquare
+      val obj0 = sut.d0.obj _
+      val obj1 = sut.d1.obj _
+      val arr1 = sut.d1.arrow _
+
+      sut.colimit match {
         case Some(colimit) =>
           colimit.vertex == "d1"
-          colimit.arrowFrom("a") === "ad1"
-          colimit.arrowFrom("b") === "bd1"
-          colimit.arrowFrom("c") === "cd1"
+          colimit.arrowFrom(obj0("a")) === "ad1"
+          colimit.arrowFrom(obj0("b")) === "bd1"
+          colimit.arrowFrom(obj0("c")) === "cd1"
         case oops => failure("Could not build a colimit for " + 
                      functorFrom1to2toDoubleSquare.tag)
       }
@@ -200,20 +241,20 @@ class FunctorTest extends Test {
       val c: set = Set(0, 1)
       val ac = SetFunction("f", a, c, _.toString.toInt % 2)
       val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
-      val sutOpt = Functor.build[Category[String, String], SetCategory](
+      val sutOpt = Functor(
         "pullback", Category.Pullback, SetCategory.Setf)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ac" -> ac, "bc" -> bc)
       )
       
-      check[Functor[Category[String, String], SetCategory]](sutOpt,
+      check[Functor](sutOpt,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
-          sut.objectsMapping("a") === a
-          sut.objectsMapping("b") === b
-          sut.objectsMapping("c") === c
-          sut.arrowsMapping("ac") === ac
+          sut.objectsMapping(sut.d0.obj("a")) === a
+          sut.objectsMapping(sut.d0.obj("b")) === b
+          sut.objectsMapping(sut.d0.obj("c")) === c
+          sut.arrowsMapping(sut.d0.arrow("ac")) === ac
         }
       )
     }

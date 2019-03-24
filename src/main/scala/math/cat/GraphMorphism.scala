@@ -4,16 +4,58 @@ package math.cat
 /**
   * Morphism for graphs.
   */
-trait GraphMorphism[X <: Graph[_, _], Y <: Graph[_, _]]
-  extends Morphism[X, Y] { m =>
+trait GraphMorphism
+  extends Morphism[Graph, Graph] { m =>
   val tag: String
-  val d0: X
-  val d1: Y
+  val d0: Graph
+  val d1: Graph
   
   def nodesMapping(n: d0.Node): d1.Node
 
   def arrowsMapping(a: d0.Arrow): d1.Arrow
 
+  /**
+    * Good for testing
+    * @param other another graph morphism
+    * @param x a node
+    * @return true or false
+    */
+  private[cat] def sameNodesMapping(other: GraphMorphism)(x: d0.Node): Boolean = try {
+    other.nodesMapping(other.d0.node(x)) == nodesMapping(x)
+  } catch {case _: Exception => false}
+
+  /**
+    * Good for testing
+    * @param other another graph morphism
+    * @return true or false
+    */
+  private[cat] def sameNodes(other: GraphMorphism): Boolean = {
+    d0 == other.d0 && d1 == other.d1 && {
+      d0.nodes forall sameNodesMapping(other)
+    }
+  }
+
+  /**
+    * Good for testing
+    * @param other another graph
+    * @param a arrow to compare
+    * @return true or false
+    */
+  def sameArrowsMapping(other: GraphMorphism)(a: d0.Arrow): Boolean = try {
+    other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a)
+  } catch { case _: Exception => false }
+
+  /**
+    * Good for testing
+    * @param other another graph
+    * @return true or false
+    */
+  private[cat] def sameArrows(other: GraphMorphism): Boolean = {
+    d1 == other.d1 && {
+      d0.arrows forall sameArrowsMapping(other)
+    }    
+  }
+  
   /**
     * Two graph morphisms are equal if they have equal d0s and cod0s and both morphisms for nodes and arrows
     * are equal respectively.
@@ -29,21 +71,8 @@ trait GraphMorphism[X <: Graph[_, _], Y <: Graph[_, _]]
   override def equals(gm: Any): Boolean = {
 
     gm match {
-      case other: GraphMorphism[X, Y] =>
-        d0 == other.d0 &&
-        d1 == other.d1 && {
-          def sameNodesMapping(x: d0.Node): Boolean = {
-            nodesMapping(x) == other.nodesMapping(x.asInstanceOf[other.d0.Node])
-          }
-          val sameNodes: Boolean = d0.nodes forall sameNodesMapping
-
-          def sameArrowssMapping(a: d0.Arrow): Boolean = {
-            arrowsMapping(a) == other.arrowsMapping(a.asInstanceOf[other.d0.Arrow])
-          }
-          val sameArrows: Boolean = d0.arrows forall sameArrowssMapping
-          
-          sameNodes && sameArrows
-        }
+      case other: GraphMorphism =>
+        sameNodes(other) && sameArrows(other)
       case otherwise => false
     }
   }
@@ -52,52 +81,39 @@ trait GraphMorphism[X <: Graph[_, _], Y <: Graph[_, _]]
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
-  def compose[Z <: Graph[_, _]]
-  (g: GraphMorphism[Y, Z]):
-  GraphMorphism[X, Z] = {
+  def compose(g: GraphMorphism): GraphMorphism = {
     require(this.d1 == g.d0, "Composition not defined")
-    def nm(x: d0.Node): g.d1.Node = g.nodesMapping(this.nodesMapping(x).asInstanceOf[g.d0.Node]) // casting is redundant, intellij says
-    def am(a: d0.Arrow): g.d1.Arrow = g.arrowsMapping(this.arrowsMapping(a).asInstanceOf[g.d0.Arrow])
+    val nm: d0.Node => g.d1.Node = x => g.nodesMapping(g.d0.node(nodesMapping(x)))
+    val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
     
-    GraphMorphism[X, Z](
-      m.tag + " o " + g.tag,
-      m.d0, g.d1)(nm, am)
+    GraphMorphism(m.tag + " o " + g.tag, m.d0, g.d1)(nm, am)
   }
 }
 
 object GraphMorphism {
-  def apply[X <: Graph[_, _], Y <: Graph[_, _]](
+  def apply(
     taggedAs: String,
-    domain: X,
-    codomain: Y)(
+    domain: Graph,
+    codomain: Graph)(
     f0: domain.Node => codomain.Node,
     f1: domain.Arrow => codomain.Arrow):
-  GraphMorphism[X, Y] = new GraphMorphism[X, Y] {
+  GraphMorphism = new GraphMorphism {
     val tag: String = taggedAs
-    val d0: X = domain
-    val d1: Y = codomain
+    val d0: Graph = domain
+    val d1: Graph = codomain
 
-    override def nodesMapping(n: d0.Node): d1.Node =
-      f0(n.asInstanceOf[domain.Node]).asInstanceOf[d1.Node]
+    override def nodesMapping(n: d0.Node): d1.Node = d1.node(f0(domain.node(n)))
 
-    override def arrowsMapping(a: d0.Arrow): d1.Arrow =
-      f1(a.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
+    override def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(f1(domain.arrow(a)))
   }
 
-//  def apply[X <: Graph[_, _], Y <: Graph[_, _]]
-//    (d0: X, d1: Y)
-//    (f0: d0.Node => d1.Node,
-//     f1: d0.Arrow => d1.Arrow): GraphMorphism[X, Y] =
-//    apply("_", d0, d1)(f0, f1)
-
-  def id[G <: Graph[_, _]](graph: G): GraphMorphism[G, G] =
-    new GraphMorphism[G, G] {
+  def id(graph: Graph): GraphMorphism =
+    new GraphMorphism {
       val tag = "id"
-      val d0: G = graph
-      val d1: G = graph
+      val d0: Graph = graph
+      val d1: Graph = graph
 
-      def nodesMapping(n: d0.Node): d1.Node = n.asInstanceOf[d1.Node] // d1==d0
-
-      def arrowsMapping(a: d0.Arrow): d1.Arrow = a.asInstanceOf[d1.Arrow] // d1==d0
+      def nodesMapping(n: d0.Node): d1.Node = d1.node(n)
+      def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(a)
     }
 }

@@ -34,4 +34,7 @@ class Test extends Specification {
     ok
   }
   
+  implicit class Optimist[T](opt: Result[T]) {
+    def iHope: T = opt.fold(identity, errors => throw new InstantiationException(errors.mkString(";")))
+   }
 }

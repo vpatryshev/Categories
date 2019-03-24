@@ -4,27 +4,28 @@ import math.cat._
 import Diagrams._
 import math.sets._
 
-class Diagrams[C <: Category[_, _]](site: C)
-  extends Category[Diagram[C], DiagramArrow[C]](graphOfDiagrams[C]) {
-  override def id(o: O): Arrow = {
-    def objectMap(x: o.d0.O): o.d1.Arrow =
-      o.d1.id(o.objectsMapping(x).asInstanceOf[o.d1.O])
+class Diagrams(site: Category)
+  extends Category(s"Sets^${site.name}", graphOfDiagrams) {
+  type Node = Diagram
+  type Arrow = DiagramArrow
+  override def id(o: Obj): Arrow = {
+    def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
-    new DiagramArrow[C](o, o) {
-      override def transformPerObject(x: from.d0.O): from.d1.Arrow =
-        objectMap(x.asInstanceOf[o.d0.O]).asInstanceOf[from.d1.Arrow]
+    new DiagramArrow(o, o) {
+      override def transformPerObject(x: from.d0.Obj): from.d1.Arrow =
+        objectMap(x.asInstanceOf[o.d0.Obj]).asInstanceOf[from.d1.Arrow]
     }
   }
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
-    val fArrow = f.asInstanceOf[DiagramArrow[C]]
-    val gArrow = g.asInstanceOf[DiagramArrow[C]]
-    val composition: DiagramArrow[C] = {
-      new DiagramArrow[C](fArrow.d0.asInstanceOf[Diagram[C]], gArrow.d1.asInstanceOf[Diagram[C]]) {
-        override def transformPerObject(x: from.d0.O): from.d1.Arrow = {
-          val xObjf: fArrow.from.d0.O = x.asInstanceOf[fArrow.from.d0.O]
+    val fArrow = f.asInstanceOf[DiagramArrow]
+    val gArrow = g.asInstanceOf[DiagramArrow]
+    val composition: DiagramArrow = {
+      new DiagramArrow(fArrow.d0.asInstanceOf[Diagram], gArrow.d1.asInstanceOf[Diagram]) {
+        override def transformPerObject(x: from.d0.Obj): from.d1.Arrow = {
+          val xObjf: fArrow.from.d0.Obj = x.asInstanceOf[fArrow.from.d0.Obj]
           val f_x = fArrow.transformPerObject(xObjf)
-          val xObjg: gArrow.from.d0.O = x.asInstanceOf[gArrow.from.d0.O]
+          val xObjg: gArrow.from.d0.Obj = x.asInstanceOf[gArrow.from.d0.Obj]
           val g_x = gArrow.transformPerObject(xObjg)
           val gf_x = f_x.compose(g_x)
           gf_x.asInstanceOf[from.d1.Arrow]
@@ -36,18 +37,21 @@ class Diagrams[C <: Category[_, _]](site: C)
 }
 
 object Diagrams {
-  type Diagram[C <: Category[_, _]] = SetDiagram[C]
+  type Diagram = SetDiagram
   
-  type DiagramArrow[C <: Category[_, _]] = NaturalTransformation[C, SetCategory]
+  type DiagramArrow = NaturalTransformation
   
-  def graphOfDiagrams[C <: Category[_, _]]: Graph[Diagram[C], DiagramArrow[C]] =
-    new Graph[Diagram[C], DiagramArrow[C]] {
-      override def nodes: Nodes = BigSet[Diagram[C]]()
+  def graphOfDiagrams: Graph =
+    new Graph {
+      type Node = Diagram
+      type Arrow = DiagramArrow
 
-      override def arrows: Arrows = BigSet[DiagramArrow[C]]()
+      override def nodes: Nodes = BigSet.of[Node].asInstanceOf[Nodes]
 
-      override def d0(f: Arrow): Node = f.d0.asInstanceOf[Node]
+      override def arrows: Arrows = BigSet.of[Arrow].asInstanceOf[Arrows]
 
-      override def d1(f: Arrow): Node = f.d1.asInstanceOf[Node]
+      def d0(f: Arrow): Node = f.d0.asInstanceOf[Diagram]
+
+      def d1(f: Arrow): Node = f.d1.asInstanceOf[Diagram]
     }
 }

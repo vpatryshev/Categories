@@ -1,16 +1,23 @@
 package math.cat
 
+import math.Test
 import math.cat.Category.Cat
 import math.sets.Sets.set
 import scalakittens.Result
 
-trait TestDiagrams {
-  type SmallDiagram = SetDiagram[Cat]
+trait TestDiagrams extends Test {
+  type SmallDiagram = SetDiagram
   
+  implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
+    (x: f.d0.Obj) => f.d1.obj(om(f.toString))
+
+  implicit def translateArrowMapping(f: Functor)(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
+    (x: f.d0.Obj) => f.d1.obj(am(f.toString))
+
   lazy val EmptyDiagram: SmallDiagram = SetDiagram.build("empty", Category._0_)(
     Map[String, set](),
     Map[String, SetFunction]()
-  ).getOrElse(throw new InstantiationException("Could not build empty diagram"))
+  ).iHope
 
   def point(x: set): Result[SmallDiagram] =
     SetDiagram.build(s"point $x", Category._1_)(
@@ -28,7 +35,7 @@ trait TestDiagrams {
     val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
     val am = Map("ac" -> ac, "bc" -> bc)
 
-    lazy val asFunctor: Result[Functor[Cat, SetCategory]] = Functor.build[Cat, SetCategory](
+    lazy val asFunctor: Result[Functor] = Functor.apply(
       "pullback", Category.Pullback, SetCategory.Setf)(
       om,
       am
@@ -41,7 +48,7 @@ trait TestDiagrams {
   }
 
   object SamplePushoutDiagram {
-    
+    // TODO: implement
   }
   
   object SampleParallelPairDiagram {

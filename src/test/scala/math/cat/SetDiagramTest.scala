@@ -1,9 +1,11 @@
 package math.cat
 
 import math.Test
+import math.cat.Category.Cat
 import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
+import scalakittens.Result
 
 /**
   * Test for set diagrams (functors with codomain=sets)
@@ -15,7 +17,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "validate as a functor with Set as domain" in {
 
-      check[Functor[Category[String, String], SetCategory]](SamplePullbackDiagram.asFunctor,
+      check[Functor](SamplePullbackDiagram.asFunctor,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
@@ -27,16 +29,16 @@ class SetDiagramTest extends Test with TestDiagrams {
       val dom = Category.Pullback
       val sut1 = SamplePullbackDiagram.asFunctor.
         getOrElse(throw new InstantiationException("alas..."))
-      sut1.objectsMapping("b") === SamplePullbackDiagram.sb
+      sut1.objectsMapping(sut1.d0.obj("b")) === SamplePullbackDiagram.sb
 
-      val diagram: SetDiagram[Category[String, String]] =
-        new SetDiagram[Category[String, String]]("Test", dom) {
-          override val objectsMapping: d0.O => d1.O =
-            (x: d0.O) => SamplePullbackDiagram.om(x)
-          override val arrowsMappingCandidate: d0.Arrow => YArrow =
-            (a: d0.Arrow) => SamplePullbackDiagram.am(a)
+      val diagram: SetDiagram =
+        new SetDiagram("Test", dom) {
+          override val objectsMapping: d0.Obj => d1.Obj =
+            (x: d0.Obj) => d1.obj(SamplePullbackDiagram.om(x.toString))
+          override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
+            (a: d0.Arrow) => d1.arrow(SamplePullbackDiagram.am(a.toString))
         }
-      val res = Functor.validate(diagram)
+      val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
     }
 
@@ -72,7 +74,7 @@ class SetDiagramTest extends Test with TestDiagrams {
         sut => {
           sut.d0 === Category._1_
           sut.d1 === Setf
-          sut.objectsMapping("0") === Set("a", "b")
+          sut.objectsMapping(sut.d0.obj("0")) === Set("a", "b")
         }
       )
     }
@@ -86,7 +88,7 @@ class SetDiagramTest extends Test with TestDiagrams {
           sut.limit match {
             case None => failure("We expected a limit")
             case Some(sut.Cone(vertex, arrowTo)) =>
-              vertex.size === x.size
+              sut.asSet(sut.d1.obj(vertex)).size === x.size
           }
         }
       )
@@ -96,10 +98,11 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
+            val vertex = sut.asSet(vertex0)
             vertex.size === 5
-            val ara = arrowTo("a")
-            val arb = arrowTo("b")
+            val ara = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("a"))))
+            val arb = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("b"))))
 
             for {
               i <- 1 to 3
@@ -119,11 +122,12 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
+            val vertex = sut.asSet(vertex0)
             vertex.size === 3
             vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
-            val ar0 = arrowTo("0")
-            val ar1 = arrowTo("1")
+            val ar0 = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("0"))))
+            val ar1 = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("1"))))
 
             for {
               element <- vertex
@@ -144,7 +148,8 @@ class SetDiagramTest extends Test with TestDiagrams {
           case None => failure("We expected a limit")
           case Some(sut.Cone(vertex, arrowTo)) =>
             vertex === Set(List(3))
-            arrowTo("0")(List(3)) === 3
+            val ar0 = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("0"))))
+            ar0(List(3)) === 3
         })(SampleZ3Diagram.asDiagram)
     }
 
@@ -153,13 +158,14 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
+            val vertex = sut.asSet(vertex0)
             vertex.size === 16
-            val ara = arrowTo("a")
-            val arb = arrowTo("b")
-            val arc = arrowTo("c")
-            val ard = arrowTo("d")
-            val are = arrowTo("e")
+            val ara = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("a"))))
+            val arb = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("b"))))
+            val arc = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("c"))))
+            val ard = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("d"))))
+            val are = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("e"))))
 
             for {
               i <- SampleWDiagram.a
@@ -195,17 +201,19 @@ class SetDiagramTest extends Test with TestDiagrams {
         "W", Category.W)(
         Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
         Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
-      )
+      ) map (_.asInstanceOf[SUT])
+      
       expect(sut =>
         sut.limit match {
           case None => failure("We expected a limit")
-          case Some(sut.Cone(vertex, arrowTo)) =>
+          case Some(sut.Cone(vertex0:sut.d1.Obj, arrowTo)) =>
+            val vertex = sut.asSet(vertex0)
             vertex.size === 8
-            val ara = arrowTo("a")
-            val arb = arrowTo("b")
-            val arc = arrowTo("c")
-            val ard = arrowTo("d")
-            val are = arrowTo("e")
+            val ara = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("a"))))
+            val arb = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("b"))))
+            val arc = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("c"))))
+            val ard = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("d"))))
+            val are = sut.asFunction(sut.d1.arrow(arrowTo(sut.d0.obj("e"))))
             val points = sut.limitBuilder
 
             for {
@@ -239,7 +247,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       sut.d0 === Category._0_
       sut.d1 === Setf
       sut.colimit match {
-        case Some(sut.Cocone(Sets.Empty, arrowTo)) => ok
+        case Some(sut.Cocone(Sets.Empty, arrowFrom)) => ok
         case x => failure(s"We expected a colimit, got $x")
       }
       ok
@@ -253,7 +261,8 @@ class SetDiagramTest extends Test with TestDiagrams {
           sut.d1 === Setf
           sut.colimit match {
             case None => failure("We expected a colimit")
-            case Some(sut.Cocone(vertex, arrowFrom)) =>
+            case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
+              val vertex = sut.asSet(vertex0)
               vertex.size === x.size
           }
         })
@@ -265,21 +274,22 @@ class SetDiagramTest extends Test with TestDiagrams {
       val c: set = Set(0, 1)
       val ab = SetFunction("f", a, b, _.toString.toInt + 1)
       val ac = SetFunction("g", a, c, _.toString.toInt % 2)
-      val sutOpt = SetDiagram.build(
+      val sutOpt: Result[SUT] = SetDiagram.build(
         "pushout", Category.Pushout)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ab" -> ab, "ac" -> ac)
-      )
+      ) map (_.asInstanceOf[SUT])
 
       val v0 = Set((0, 4), (0, 2), (1, 1))
       val v1 = Set((0, 3), (1, 0))
       val ExpectedVertex: set = Set(v0, v1)
+      val list = v0 :: v1 :: v0 :: Nil
       expect(sut =>
         sut.colimit match {
-          case Some(sut.Cocone(ExpectedVertex, arrowFrom)) =>
-            val list = v0 :: v1 :: v0 :: Nil
-            val ara = arrowFrom("a")
-            val arb = arrowFrom("b")
+          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
+            val vertex = sut.asSet(vertex0)
+            val ara = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("a"))))
+            val arb = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("b"))))
             for {
               i <- 1 to 3
             } {
@@ -311,14 +321,15 @@ class SetDiagramTest extends Test with TestDiagrams {
 
       expect(sut =>
         sut.colimit match {
-          case Some(sut.Cocone(Vertex, arrowFrom)) =>
-            val ar0 = arrowFrom("0")
-            val ar1 = arrowFrom("1")
+          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
+            val vertex = sut.asSet(vertex0)
+            val ar0 = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("0"))))
+            val ar1 = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("1"))))
             a.foreach(ar0(_) === element)
             b.foreach(ar1(_) === element)
           case bad => failure(s"We expected a colimit, got $bad")
         }
-      )(sutOpt)
+      )(sutOpt map (_.asInstanceOf[SUT]))
     }
 
     "exist for a monoid Z3" in {
@@ -336,13 +347,14 @@ class SetDiagramTest extends Test with TestDiagrams {
       expect(sut =>
         sut.colimit match {
           case None => failure("We expected a colimit")
-          case Some(sut.Cocone(vertex, arrowFrom)) =>
+          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
+            val vertex = sut.asSet(vertex0)
             vertex.size === 8
-            val ara = arrowFrom("a")
-            val arb = arrowFrom("b")
-            val arc = arrowFrom("c")
-            val ard = arrowFrom("d")
-            val are = arrowFrom("e")
+            val ara = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("a"))))
+            val arb = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("b"))))
+            val arc = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("c"))))
+            val ard = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("d"))))
+            val are = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("e"))))
 
             for {
               i <- SampleMDiagram.a
