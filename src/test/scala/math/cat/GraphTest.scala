@@ -2,8 +2,7 @@ package math.cat
 
 import math.Test
 import math.sets.{PoSet, Sets}
-import org.specs2.mutable._
-import scalakittens.{Good, Result}
+import scalakittens.Good
 
 class GraphTest extends Test {
   import Graph._
@@ -14,7 +13,6 @@ class GraphTest extends Test {
 
     "checks its arrows" >> {
       expect(sut => {
-        import sut._
         sut.arrow(111) === 111
         sut.arrow(112) should throwA[IllegalArgumentException]
       })(
@@ -60,7 +58,6 @@ class GraphTest extends Test {
 
     "contains" >> {
       expect(sut => {
-        import sut._
       (sut contains 2) === true
       (sut contains 7) === false
       })(
@@ -214,7 +211,6 @@ class GraphTest extends Test {
     "FromPoset" >> {
       val nodes = Set("a", "b", "c")
       val sut = Graph.ofPoset(PoSet(nodes, (a: String, b: String) => a <= b))
-      import sut._
       val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
       val expected = Graph.fromArrowMap(nodes, arrows) iHope
       
@@ -244,7 +240,6 @@ class GraphTest extends Test {
         ("1", "3"))
       val expected = Graph.fromArrowMap(objects, map).iHope
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
-      import sut._
 
       sut.nodes === expected.nodes
       sut.arrows === expected.arrows

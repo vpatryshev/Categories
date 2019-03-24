@@ -795,7 +795,7 @@ private[cat] trait CategoryFactory {
     * @param compositionSource source table of arrows composition (may be incomplete)
     * @return a newly-built category
     */
-  def build[T](
+  def apply[T](
     name: String,
     objects: Set[T],
     domain: Map[T, T],
@@ -1204,8 +1204,7 @@ object Category extends CategoryFactory {
     * Represents three sets (empty, singleton and two-point) and
     * all their possible functions.
     */
-  lazy val HalfSimplicial: Cat = asCat(
-    build("HalfSimplicial",
+  lazy val HalfSimplicial: Cat = asCat(Category("HalfSimplicial",
       Set("0", "1", "2"),
       Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "a" -> "1", "b" -> "1", "2_swap" ->
         "2"), // d0
