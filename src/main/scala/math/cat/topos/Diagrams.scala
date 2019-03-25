@@ -12,11 +12,11 @@ class Diagrams(site: Category)
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
     new DiagramArrow {
-      override val from: Functor = o
-      override val to: Functor = o
+      override val d0: Functor = o
+      override val d1: Functor = o
       
-      override def transformPerObject(x: d0.d0.Obj): d0.d1.Arrow =
-        d0.d1.arrow(objectMap(o.d0.obj(x)))
+      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+        codomainCategory.arrow(objectMap(o.d0.obj(x)))
     }
   }
 
@@ -25,16 +25,16 @@ class Diagrams(site: Category)
     val gArrow = g.asInstanceOf[DiagramArrow]
     val composition: DiagramArrow = {
       new DiagramArrow() {
-        val from: Functor = fArrow.d0
-        val to: Functor = gArrow.d1
+        val d0: Functor = fArrow.d0
+        val d1: Functor = gArrow.d1
 
-        override def transformPerObject(x: d0.d0.Obj): d0.d1.Arrow = {
-          val xObjf: fArrow.d0.d0.Obj = fArrow.d0.d0.obj(x)
+        override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
+          val xObjf: fArrow.domainCategory.Obj = fArrow.domainCategory.obj(x)
           val f_x = fArrow.transformPerObject(xObjf)
-          val xObjg: gArrow.d0.d0.Obj = gArrow.d0.d0.obj(x)
+          val xObjg: gArrow.domainCategory.Obj = gArrow.domainCategory.obj(x)
           val g_x = gArrow.transformPerObject(xObjg)
           val gf_x = f_x.compose(g_x)
-          d0.d1.arrow(gf_x)
+          codomainCategory.arrow(gf_x)
         }
       }
     }

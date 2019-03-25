@@ -27,8 +27,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "test build" in {
       val dom = Category.Pullback
-      val sut1 = SamplePullbackDiagram.asFunctor.
-        getOrElse(throw new InstantiationException("alas..."))
+      val sut1 = SamplePullbackDiagram.asFunctor.iHope
       sut1.objectsMapping(sut1.d0.obj("b")) === SamplePullbackDiagram.sb
 
       val diagram: SetDiagram =
