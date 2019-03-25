@@ -8,7 +8,7 @@ import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-abstract class Graph extends GraphData { graph =>
+trait Graph extends GraphData { graph =>
   
   def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception => false }
 
@@ -107,7 +107,7 @@ abstract class Graph extends GraphData { graph =>
   }
 }
 
-private[cat] abstract class GraphData {
+private[cat] trait GraphData {
   val name: String = "a graph"
   type Node
   type Arrow

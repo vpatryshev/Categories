@@ -11,7 +11,7 @@ import scalakittens.{Good, Result}
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category(name: String, graph: Graph) extends CategoryData(name, graph) {
+abstract class Category(override val name: String, graph: Graph) extends CategoryData(graph) {
 
   lazy val terminal: Option[Obj] = objects.find(isTerminal)
   lazy val initial: Option[Obj] = objects.find(isInitial)
@@ -652,8 +652,9 @@ abstract class Category(name: String, graph: Graph) extends CategoryData(name, g
 }
 
 private[cat] abstract class CategoryData(
-  override val name: String = "a category",
   val graph: Graph) extends Graph {
+  override val name: String = "a category"
+
   type Obj = Node
   type Objects = Set[Obj]
 
@@ -909,22 +910,21 @@ private[cat] trait CategoryFactory {
     gr: Graph)(
     ids: gr.Node => gr.Arrow,
     composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): Result[Category] = {
-    val data: CategoryData = new CategoryData(name, gr) {
-      override def id(o: Obj): Arrow = arrow(ids(gr.node(o)))
-      
+    val data: CategoryData = new CategoryData(gr) {
+      override def id(o: Obj): Arrow = ids(gr.node(o))
+
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        
         composition(gr.arrow(f), gr.arrow(g)) map arrow
     }
 
     data.validate returning
       new Category(name, gr) {
-        def id(o: Obj): Arrow = arrow(ids(gr.node(o)))
+        def id(o: Obj): Arrow = ids(gr.node(o))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           composition(gr.arrow(f), gr.arrow(g)) map arrow
 
-        override def d0(f: Arrow): Obj = graph.node(graph.d0(graph.arrow(f)))
+        override def d0(f: Arrow): Obj = graph.d0(graph.arrow(f))
 
         override def d1(f: Arrow): Obj = graph.node(graph.d1(graph.arrow(f)))
       }
@@ -1162,16 +1162,16 @@ object Category extends CategoryFactory {
   /**
     * Category <b>Z2</2> - a two-element monoid
     */
-  lazy val Z2 = category"({1}, {1: 1 -> 1, a: 1 -> 1}, {1 o 1 = 1, 1 o a = a, a o 1 = a, a o a = 1})"
+  lazy val Z2 = category"Z2: ({1}, {1: 1 -> 1, a: 1 -> 1}, {1 o 1 = 1, 1 o a = a, a o 1 = a, a o a = 1})"
 
-  lazy val Z3 = category"({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})"
+  lazy val Z3 = category"Z3: ({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})"
 
   /**
     * "Split Monomorphism" category (see http://en.wikipedia.org/wiki/Morphism)
     * Two objects, and a split monomorphism from a to b
     */
   lazy val SplitMono =
-    category"({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = a, ab o ba = bb, bb o ab = ab, ba o bb = ba, bb o bb = bb})"
+    category"SplitMono: ({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = a, ab o ba = bb, bb o ab = ab, ba o bb = ba, bb o bb = bb})"
 
   /**
     * Commutative square category

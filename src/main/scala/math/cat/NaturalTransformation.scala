@@ -7,9 +7,6 @@ import scalakittens.Result.Outcome
 /**
   * Natural transformation class: morphisms for functors.
   *
-  * @param from        first functor
-  * @param to        second functor
-  *                  
   * The following three requirements are checked:
   * f and g are from the same category
   * f and g are to the same category
@@ -21,38 +18,43 @@ import scalakittens.Result.Outcome
   *            V         V
   *    g[a]: g[x] ---> g[y]
   */
-abstract class NaturalTransformation(val from: Functor,
-    val to: Functor) extends Morphism[Functor, Functor] {
-  
-  def transformPerObject(x: from.d0.Obj): from.d1.Arrow
+abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =>
+  val from: Functor
+  val to: Functor
 
-  override val d0: Functor = from
-  override val d1: Functor = to
-  def domainCategory: Category = from.d0
-  def codomainCategory: Category = from.d1
+  override lazy val d0: Functor = from
+  override lazy val d1: Functor = to
+  
+  def transformPerObject(x: d0.d0.Obj): d0.d1.Arrow
+
+  def domainCategory: Category = d0.d0
+  def codomainCategory: Category = d0.d1
 
   // TODO: check the preconditions, return an option
   def compose(next: NaturalTransformation): NaturalTransformation = {
-    val first: Functor = from
+    val first: Functor = d0
+    val sourceCategory = d0.d0
     val targetCategory = to.d1
     
-    def comp(x: first.d0.Obj): targetCategory.Arrow = {
+    def comp(x: sourceCategory.Obj): targetCategory.Arrow = {
       val fHere: targetCategory.Arrow =
-        targetCategory.arrow(transformPerObject(from.d0.obj(x)))
+        targetCategory.arrow(transformPerObject(d0.d0.obj(x)))
       val fThere: targetCategory.Arrow =
-        targetCategory.arrow(next.transformPerObject(next.from.d0.obj(x)))
+        targetCategory.arrow(next.transformPerObject(next.d0.d0.obj(x)))
       val compOpt: Option[targetCategory.Arrow] = targetCategory.m(fHere, fThere)
       compOpt getOrElse(
           throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere"))
     }
     
-    new NaturalTransformation(from, next.to) {
-      def transformPerObject(x: from.d0.Obj): from.d1.Arrow = from.d1.arrow(comp(first.d0.obj(x)))
+    new NaturalTransformation {
+      val from = self.from
+      val to = next.to
+      def transformPerObject(x: d0.d0.Obj): d0.d1.Arrow = d0.d1.arrow(comp(sourceCategory.obj(x)))
     }
   }
   
-  private lazy val asMap: Map[from.d0.Obj, from.d1.Arrow] =
-    from.d0.objects map (o => o -> transformPerObject(o)) toMap
+  private lazy val asMap: Map[d0.d0.Obj, d0.d1.Arrow] =
+    d0.d0.objects map (o => o -> transformPerObject(o)) toMap
   
   override lazy val hashCode: Int = from.hashCode | to.hashCode*17 | asMap.hashCode*31
   
@@ -100,18 +102,20 @@ object NaturalTransformation {
   /**
     * Builds a natural transformation
     *
-    * @param from first functor
-    * @param to   second functor
+    * @param from0 first functor
+    * @param to0   second functor
     * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
     */
-  def build(from0: Functor, to: Functor)
+  def build(from0: Functor, to0: Functor)
   (
     mappings: from0.d0.Obj => from0.d1.Arrow
   ): Result[NaturalTransformation] = {
-    validate(from0, to, from0.d0, from0.d1)(mappings) returning 
-    new NaturalTransformation(from0, to) {
-      override def transformPerObject(x: from.d0.Obj): from.d1.Arrow =
-        from.d1.arrow(mappings(from0.d0.obj(x)))
+    validate(from0, to0, from0.d0, from0.d1)(mappings) returning 
+    new NaturalTransformation {
+      val from: Functor = from0
+      val to: Functor = to0
+      override def transformPerObject(x: d0.d0.Obj): d0.d1.Arrow =
+        d0.d1.arrow(mappings(from0.d0.obj(x)))
     }
   }
 
@@ -126,9 +130,12 @@ object NaturalTransformation {
     def objectMap(x: functor.d0.Obj): functor.d1.Arrow =
       functor.d1.id(functor.d1.obj(functor.objectsMapping(x)))
 
-    new NaturalTransformation(functor, functor) {
-      override def transformPerObject(x: from.d0.Obj): from.d1.Arrow =
-        from.d1.arrow(objectMap(functor.d0.obj(x)))
+    new NaturalTransformation {
+      val from: Functor = functor
+      val to: Functor = functor
+      
+      override def transformPerObject(x: d0.d0.Obj): d0.d1.Arrow =
+        d0.d1.arrow(objectMap(functor.d0.obj(x)))
     }
   }
 

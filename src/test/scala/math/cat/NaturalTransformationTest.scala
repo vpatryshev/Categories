@@ -34,8 +34,8 @@ class NaturalTransformationTest extends Test {
         val fgh = fg compose gh
         fgh.from === f
         fgh.to === h
-        fgh.transformPerObject(fgh.from.d0.obj("0")) === "0.2"
-        fgh.transformPerObject(fgh.from.d0.obj("1")) === "2.3"
+        fgh.transformPerObject(fgh.d0.d0.obj("0")) === "0.2"
+        fgh.transformPerObject(fgh.d0.d0.obj("1")) === "2.3"
     }
 
     "have identity" in {
