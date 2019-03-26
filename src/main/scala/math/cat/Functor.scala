@@ -310,8 +310,7 @@ object Functor {
     * @param y0 an object in category y
     * @return constant functor on x that takes maps all objects to y0 and all arrows to y0's identities.
     */
-  def const(x: Category, y: Category)(y0: y.Obj):
-  Functor =
+  def const(x: Category, y: Category)(y0: y.Obj): Functor =
     unsafeBuild( // won't fail? Check y0, at least
       y.toString, x, y)(
       SetMorphism.const(x.objects, y.objects, y0),

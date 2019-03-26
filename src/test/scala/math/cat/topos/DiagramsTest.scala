@@ -4,6 +4,7 @@ import math.cat.{Category, TestDiagrams}
 import org.specs2.mutable.Specification
 import Category._
 import math.Test
+import math.cat.topos.Diagrams.Diagram
 
 class DiagramsTest extends Test with TestDiagrams {
 
@@ -16,14 +17,7 @@ class DiagramsTest extends Test with TestDiagrams {
         val idtrans = topos.id(d)
         idtrans.d0 === d
         idtrans.d1 === d
-        // the following case fails miserably; investigate
-        // java.lang.AbstractMethodError: Fatal execution error, caused by math.cat.NaturalTransformation
-        // .transformPerObject(Ljava/lang/Object;)Ljava/lang/Object;
-        //java.lang.AbstractMethodError: math.cat.NaturalTransformation.transformPerObject(Ljava/lang/Object;)
-        // Ljava/lang/Object;
-        //	at math.cat.NaturalTransformation.math$cat$NaturalTransformation$$comp$1(NaturalTransformation.scala:48)
-        
-//        idtrans.compose(idtrans) === idtrans
+        idtrans.compose(idtrans) === idtrans
       } (SampleWDiagram.asDiagram)
     }
 
@@ -37,9 +31,25 @@ class DiagramsTest extends Test with TestDiagrams {
       } (SampleMDiagram.asDiagram)
     }
 
-    "graphOfDiagrams" in {
+//    "graphOfDiagrams" in {
+//      ok
+//    }
+
+    "have a terminal" in {
+      val topos = new Diagrams(W)
+      val terminalOpt = topos.terminal
+      terminalOpt match {
+        case None => failure(s"Could not build a terminal in $topos")
+        case Some(terminal) =>
+          import terminal._
+          for {
+            x <- W.objects
+          } {
+            val setAtx: Set[_] = terminal @@ x
+            setAtx.size === 1
+          }
+      }
       ok
     }
-
   }
 }

@@ -659,12 +659,12 @@ private[cat] abstract class CategoryData(
   type Objects = Set[Obj]
 
   implicit def obj(x: Any): Obj =
-    if (objects contains x.asInstanceOf[Obj]) x.asInstanceOf[Obj]
-    else throw new IllegalArgumentException(s"$x is not an object in  in $name")
+    Result.forValue(x.asInstanceOf[Obj]) filter (objects contains) getOrElse
+      {throw new IllegalArgumentException(s"$x is not an object in  in $name")}
 
-  def id(o: Obj): Arrow
+      def id(o: Obj): Arrow
 
-  def m(f: Arrow, g: Arrow): Option[Arrow]
+      def m(f: Arrow, g: Arrow): Option[Arrow]
 
   override def validate: Result[CategoryData] = {
     val objectsHaveIds = OKif(!finiteNodes) orElse {

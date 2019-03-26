@@ -2,10 +2,12 @@ package math.cat
 
 import math.Base
 import math.Base._
+import math.cat.SetCategory.Setf
 import math.sets.FactorSet
 import math.sets.Functions._
 import math.sets.Sets._
 import scalakittens.Result
+import SetDiagram._
 
 import scala.language.postfixOps
 
@@ -24,16 +26,17 @@ abstract class SetDiagram(
   extends Functor(tag, d0, SetCategory.Setf) {
   type XObject = d0.Obj
   type XObjects = Set[d0.Obj]
-  type YObject = set
   type XArrow = d0.Arrow
   type XArrows = Set[d0.Arrow]
-  type YArrow = SetFunction
 
   implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
 
+  def @@(x: Any): set = asSet(objectsMapping(d0.obj(x)))
+
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
+  // something like Yoneda embedding, but not exactly
   private type PointLike = Map[XObject, Any]
 
   /**
@@ -212,15 +215,16 @@ object SetDiagram {
 
   def build(
     tag: String,
-    dom: Category)(
-    objectsMap: dom.Obj => set,
-    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram] = {
+    site: Category)(
+    objectsMap: site.Obj => set,
+    arrowMap: site.Arrow => SetFunction): Result[SetDiagram] = {
     
-    val diagram: SetDiagram = new SetDiagram(tag, dom) {
-      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMap(dom.obj(x)))
+    val diagram: SetDiagram = new SetDiagram(tag, site) {
+      override val objectsMapping: d0.Obj => d1.Obj =
+        (x: d0.Obj) => d1.obj(objectsMap(site.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-        ((a: XArrow) => arrowMap(a.asInstanceOf[dom.Arrow])).asInstanceOf[d0.Arrow => d1.Arrow]
+        (a: XArrow) => d1.arrow(arrowMap(site.arrow(a)))
     }
     
     val dc = diagram.getClass
@@ -229,7 +233,7 @@ object SetDiagram {
     for {
       x <- diagram.d0.objects
     } {
-      val y = objectsMap(x.asInstanceOf[dom.Obj])
+      val y = objectsMap(x.asInstanceOf[site.Obj])
       println(s"$x -> $y")
     }
     Functor.validateFunctor(diagram) returning diagram

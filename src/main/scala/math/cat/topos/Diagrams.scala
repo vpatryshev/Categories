@@ -1,13 +1,16 @@
 package math.cat.topos
 
 import math.cat._
-import Diagrams._
+import math.sets.Sets.set
 import math.sets._
+import Diagrams._
 
 class Diagrams(site: Category)
   extends Category(s"Sets^${site.name}", graphOfDiagrams) {
+  val base: Category = BaseCategory
   type Node = Diagram
   type Arrow = DiagramArrow
+  
   override def id(o: Obj): Arrow = {
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
@@ -40,12 +43,30 @@ class Diagrams(site: Category)
     }
     composition.asInstanceOf[Arrow]
   } else None
+
+  override lazy val terminal: Option[Obj] =
+    BaseCategory.terminal map Diagrams.const("terminal", site)
+  
+  override lazy val initial: Option[Obj] =
+    BaseCategory.initial map Diagrams.const("initial", site)
 }
 
 object Diagrams {
   type Diagram = SetDiagram
-  
-  type DiagramArrow = NaturalTransformation
+
+  val BaseCategory: Category = SetCategory.Setf
+
+  def const(tag: String, site: Category)(value: BaseCategory.Obj): Diagram = {
+    new Diagram(tag, site) {
+      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(value)
+
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
+        (a: XArrow) => d1.arrow(BaseCategory.id(value))
+    }
+  }
+
+
+  type DiagramArrow = NaturalTransformation 
   
   def graphOfDiagrams: Graph =
     new Graph {
@@ -56,8 +77,8 @@ object Diagrams {
 
       override def arrows: Arrows = BigSet.of[Arrow].asInstanceOf[Arrows]
 
-      def d0(f: Arrow): Node = f.d0.asInstanceOf[Diagram]
+      def d0(f: Arrow): Node = node(f.d0)
 
-      def d1(f: Arrow): Node = f.d1.asInstanceOf[Diagram]
+      def d1(f: Arrow): Node = node(f.d1)
     }
 }
