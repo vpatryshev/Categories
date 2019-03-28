@@ -16,14 +16,13 @@ class PoSetMorphism[X, Y] (
     extends SetMorphism[X, Y] (tag, d0, d1, f) {
   type Domain = PoSet[X]
   type Codomain = PoSet[Y]
-  
-  for (x <- d0) {
-    for (y <- d0) {
-      if (d0.le(x, y)) {
-        val fx = f(x)
-        val fy = f(y)
-        require(d1.le(fx, fy), s"Since $x<=$y in domain, it should be $fx<=$fy in codomain")
-      }
+
+  for {x <- d0
+       y <- d0} {
+    if (d0.le(x, y)) {
+      val fx = f(x)
+      val fy = f(y)
+      require(d1.le(fx, fy), s"Since $x<=$y in domain, it should be $fx<=$fy in codomain")
     }
   }
 

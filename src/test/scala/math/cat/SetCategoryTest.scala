@@ -308,6 +308,19 @@ class SetCategoryTest extends Specification {
       }
       ok
     }
+    
+    "have an inverse" in {
+      val f = SetFunction("f", s2, s2, n => (n.toString.toInt + 1) % 7)
+      val g = SetFunction("f", s2, s2, n => (n.toString.toInt + 6) % 7)
+      val actual = Setf.inverse(f)
+      actual === Some(g)
+    }
+
+    "not have an inverse" in {
+      val f = SetFunction("f", s2, s4, n => if (n.toString.toInt < 3) "hello" else "goodbye")
+      val actual = Setf.inverse(f)
+      actual === None
+    }
 
   }
 }

@@ -236,16 +236,6 @@ class SetsTest extends Specification {
       actual === expected
     }
 
-    "split should split" >> {
-      val sut = Set("a1", "b2", "c3")
-      val (x, xs) = split(sut)
-      x === "a1"
-      val i = xs.iterator
-      i.next === "b2"
-      i.next === "c3"
-      i.hasNext must beFalse
-    }
-
     "{x,y,z}^{1,2} should give a 9-element set of maps" >> {
       val domain = Set("1", "2")
       val codomain = Set("x", "y", "z")

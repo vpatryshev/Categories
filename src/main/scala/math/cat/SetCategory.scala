@@ -91,10 +91,12 @@ class SetCategory(objects: BigSet[Set[Any]])
     }
   }
 
+  // need to filter, to eliminate the value that does not belong
   override lazy val initial: Option[set] = Option(Sets.Empty) filter contains
 
   override lazy val terminal: Option[set] = {
     val option1: Option[set] = Option(setOf(initial))
+    // need to filter, to eliminate the value that does not belong
     option1 filter contains
   }
 
@@ -157,3 +159,7 @@ object SetCategory {
 
   object Setf extends SetCategory(FiniteSets)
 }
+
+/*
+простой пример топоса, где не всякая монада является апликативным функтором. Это Set^{ℤ_2}
+ */

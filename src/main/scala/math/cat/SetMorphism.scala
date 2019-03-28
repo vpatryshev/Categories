@@ -15,7 +15,7 @@ class SetMorphism[X, Y] (
 
   // Validates set morphism.
   // All we need is that each d0 element is mapped to a d1 element.
-  for (x <- d0) {
+  for {x <- d0} {
     val y = function(x)
     val yInD1 = d1 contains y
     require(yInD1, s"$tag: Value $y for $x should be in d1 $d1")

@@ -142,11 +142,10 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @return true iff f is a monomorphism
     */
   def isMonomorphism(f: Arrow): Boolean = {
-    val iterable = for (g <- arrows if follows(f, g);
-                        h <- arrows if follows(f, h) &&
-      equalizes(g, h)(f)) yield {
-      g == h
-    }
+    
+    val iterable = for {g <- arrows if follows(f, g)
+                        h <- arrows if follows(f, h) && equalizes(g, h)(f)
+    } yield g == h
 
     iterable forall (x => x)
   }

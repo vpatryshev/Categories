@@ -5,6 +5,7 @@ import java.io.Reader
 import Functions.Injection
 import math.cat.SetMorphism
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.util.parsing.combinator.RegexParsers
@@ -190,8 +191,6 @@ object Sets {
       pow(2, xs.size),
       (sub: Set[X]) => sub subsetOf xs)
 
-  def split[X](xs: Iterable[X]): (X, Iterable[X]) = (xs.iterator.next, xs drop 1)
-
   /**
     * Set of all possible maps from set xs to set ys
     * @param xs domain of maps
@@ -200,12 +199,18 @@ object Sets {
     * @tparam Y type of codomain elements
     * @return the set of all possible maps
     */
-  def exponent[X, Y](xs: Set[X], ys: Set[Y]): Set[Map[X, Y]] =
-    setOf(exponentElements(ys, xs),
+  def exponent[X, Y](xs: Set[X], ys: Set[Y]): Set[Map[X, Y]] = {
+    setOf(allMaps(xs.toList, ys.toList),
       pow(ys size, xs size),
       (m: Map[X, Y]) => xs == m.keySet
     )
+  }
 
+  def allMaps[X, Y](xs: List[X], ys: List[Y]): List[Map[X, Y]] =
+    (List(Map.empty[X, Y]) /: xs)((maps, x) =>
+      maps flatMap (m => ys map (y => m + (x -> y)))
+    )
+  
   def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X => Y): Y => Set[X] = {
     y => Set.empty[X] ++ xs.filter(f(_) == y)
   }
@@ -380,17 +385,6 @@ object Sets {
     * @return the set of numbers
     */
   def numbers(from: Int, to: Int, step: Int): Set[Int] = setOf(range(from, to, step))
-  
-  private def exponentElements[X, Y](ys: Iterable[Y], xs: Iterable[X]): Iterable[Map[X, Y]] = {
-    if (xs.iterator hasNext) {
-      val (x, tail) = split(xs)
-      for (y <- ys;
-           z <- exponentElements(ys, tail))
-        yield {
-          z + (x -> y)
-        }
-    } else List(Map[X, Y]())
-  }
 
   class InterleavingIterator[X, X1 <: X, X2 <: X](
       iterator1: Iterator[X1],
