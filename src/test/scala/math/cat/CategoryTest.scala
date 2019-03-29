@@ -7,6 +7,7 @@ import math.sets.Sets
 import math.sets.Sets._
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
+import math.Base._
 
 /**
  * Tests for Category class

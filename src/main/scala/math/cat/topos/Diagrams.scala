@@ -1,11 +1,12 @@
 package math.cat.topos
 
 import math.cat._
+import math.Base._
 import math.sets.Sets.set
 import math.sets._
 import Diagrams._
 
-class Diagrams(site: Category)
+class Diagrams(val site: Category)
   extends Category(s"Sets^${site.name}", graphOfDiagrams) {
   val base: Category = BaseCategory
   type Node = Diagram
@@ -44,11 +45,17 @@ class Diagrams(site: Category)
     composition.asInstanceOf[Arrow]
   } else None
 
+  override lazy val initial: Option[Obj] =
+    BaseCategory.initial map Diagrams.const("initial", site)
+
+  lazy val _0: Obj = initial iHope
+
   override lazy val terminal: Option[Obj] =
     BaseCategory.terminal map Diagrams.const("terminal", site)
   
-  override lazy val initial: Option[Obj] =
-    BaseCategory.initial map Diagrams.const("initial", site)
+  lazy val _1: Obj = terminal iHope
+  
+//  def partialPoints = 
 }
 
 object Diagrams {

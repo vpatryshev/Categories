@@ -6,6 +6,7 @@ import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.Result
+import math.Base._
 
 /**
   * Test for set diagrams (functors with codomain=sets)
