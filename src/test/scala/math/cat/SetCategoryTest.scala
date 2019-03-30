@@ -76,8 +76,6 @@ class SetCategoryTest extends Specification {
       val same = actual contains expected
       actual === Some(expected)
 
-      def singleton(x: Any): Any = Set(x)
-
       val singletons: set = s2 map singleton
       Setf.coequalizer(f :: Nil) === Some(SetFunction("Factorset", s2, singletons, singleton))
       Setf.coequalizer(List.empty[SetFunction]) should throwA[IllegalArgumentException]

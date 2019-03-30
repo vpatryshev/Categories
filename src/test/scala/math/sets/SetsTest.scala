@@ -264,7 +264,7 @@ class SetsTest extends Specification {
         val x = Sets.parse("{a, b, c")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception => println(e) // as designed
+        case e: Exception =>// as designed
       }
       true
     }
@@ -274,7 +274,7 @@ class SetsTest extends Specification {
         val x = Sets.parse("a, b, c}")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception => println(e) // as designed
+        case e: Exception => // as designed
       }
       true
     }
@@ -284,7 +284,7 @@ class SetsTest extends Specification {
         val x = Sets.parse("{a, b,, c}")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception => println(e) // as designed
+        case e: Exception => // as designed
       }
       true
     }

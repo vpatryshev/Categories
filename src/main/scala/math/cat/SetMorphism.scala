@@ -2,6 +2,8 @@ package math.cat
 
 import math.sets.Sets
 import math.sets.Sets._
+import scalakittens.Result
+import Result._
 
 /**
  * Morphism class for sets, and the accompanying object.
@@ -75,8 +77,9 @@ object SetMorphism {
   def apply[X, Y](name: String, d0: Set[X], d1: Set[Y], function: X => Y) =
     new SetMorphism[X, Y](name, d0, d1, function)
 
-//  implicit def include[X, Y >: X](d0: Set[X]) =
-//    apply(d0, d1 asInstanceOf Set[Y], source.function)
+  def inclusion[X](d0: Set[X], d1: Set[X]): Result[SetMorphism[X, X]] = {
+    OKif(d0 subsetOf(d1)) returning new SetMorphism("⊂", d0, d1, identity)
+  }
 
   def id[X](domain: Set[X]) = new SetMorphism[X, X]("1", domain, domain, x => x)
 

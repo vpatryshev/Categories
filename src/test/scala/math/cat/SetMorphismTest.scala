@@ -3,6 +3,7 @@ package math.cat
 import org.specs2.mutable._
 import SetMorphism._
 import math.sets.{N, Sets}
+import scalakittens._
 
 class SetMorphismTest extends Specification {
   val ints: Set[BigInt] = Set(1, 2, 3, 5, 8, 13)
@@ -27,7 +28,7 @@ class SetMorphismTest extends Specification {
     } catch  {
       case e: NoSuchElementException => // as expected
     }
-    true
+    ok
   }
 
   "Composition with id" >>  {
@@ -136,6 +137,33 @@ class SetMorphismTest extends Specification {
       (p._1 == left(p)) must beTrue
       (p._2 == right(p)) must beTrue
     }
-    true
+    ok
   }
+  
+  "Good inclusion" >> {
+    val xs = Set[BigInt](1,2,3,4,5)
+    val ys = Set[BigInt](0,1,2,3,4,5,6)
+    inclusion[BigInt](xs, ys) match {
+      case Good(sm) =>
+        sm.d0 === xs
+        sm.d1 === ys
+        for {
+          i <- xs
+        } sm(i) === i
+      case nogood => failure(nogood.toString)
+    }
+    ok
+  }
+
+  "Bad inclusion" >> {
+    val xs = Set[BigInt](1,2,3,4,5)
+    val ys = Set[BigInt](0,1,2,3,4,5,6)
+    inclusion[BigInt](ys, xs) match {
+      case Good(sm) => failure("Could not detect an error in bad inclusion")
+      case nogood => ok
+    }
+    ok
+  }
+
+
 }

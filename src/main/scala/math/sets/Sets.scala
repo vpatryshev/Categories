@@ -242,6 +242,8 @@ object Sets {
 
   def parse(input: CharSequence): Set[String] = (new Parser).read(input)
 
+  def singleton[T](x: T): Set[T] = Set(x)
+
   def isSingleton[T](ts: Iterable[T]): Boolean = {
     val i = ts.iterator
     i.hasNext && { i.next; !i.hasNext }

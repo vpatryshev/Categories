@@ -32,7 +32,7 @@ abstract class SetDiagram(
   implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
 
-  def @@(x: Any): set = asSet(objectsMapping(d0.obj(x)))
+  def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
 
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
@@ -213,9 +213,7 @@ abstract class SetDiagram(
 
 object SetDiagram {
 
-  def build(
-    tag: String,
-    site: Category)(
+  def build(tag: String, site: Category)(
     objectsMap: site.Obj => set,
     arrowMap: site.Arrow => SetFunction): Result[SetDiagram] = {
     
@@ -227,15 +225,6 @@ object SetDiagram {
         (a: XArrow) => d1.arrow(arrowMap(site.arrow(a)))
     }
     
-    val dc = diagram.getClass
-    val meths = dc.getMethods
-    val m0 = meths.head
-    for {
-      x <- diagram.d0.objects
-    } {
-      val y = objectsMap(x.asInstanceOf[site.Obj])
-      println(s"$x -> $y")
-    }
     Functor.validateFunctor(diagram) returning diagram
   } 
 }

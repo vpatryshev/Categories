@@ -525,7 +525,7 @@ public class Sets {
    * 
    * @param <X> the main set element type
    * @param set the set
-   * @param factorset the subset
+   * @param factorset the factorset
    * @return projection from the set to the factorset.
    */
   public static <X> Function<X, Set<X>> factorset(final Set<X> set, final Set<Set<X>> factorset) {

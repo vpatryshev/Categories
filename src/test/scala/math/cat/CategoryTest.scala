@@ -276,7 +276,7 @@ class CategoryTest extends Test with CategoryFactory {
         val unknown = HalfSimplicial.d0("qq")
         failure("Should have failed")
       } catch {
-        case e: Exception => // println("Got expected exception " + e) // as expected
+        case e: Exception => // as expected
         case _: Throwable => failure("should have thrown a NoSuchElementException")
       }
       true

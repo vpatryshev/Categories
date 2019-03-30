@@ -8,11 +8,17 @@ import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
+import scala.collection.{GenTraversableOnce, TraversableOnce}
+
 /**
   * Category class, and the accompanying object.
   */
 abstract class Category(override val name: String, graph: Graph) extends CategoryData(graph) {
 
+  def foreach[U](f: Obj => U): Unit = objects foreach f
+  def map[B](f: Obj => B): TraversableOnce[B] = objects.map(f)
+  def flatMap[B](f: Obj => GenTraversableOnce[B]): TraversableOnce[B] = objects.flatMap(f)
+  
   lazy val terminal: Option[Obj] = objects.find(isTerminal)
   lazy val initial: Option[Obj] = objects.find(isInitial)
   /**
@@ -719,9 +725,6 @@ private[cat] abstract class CategoryData(
           val hg_f = m(f, hg)
           // the following is for debugging
           val f0 = "" + f + ""
-//          if (h_gf != hg_f) {
-//            println(s"$f, $g, $h, $gf, $hg, $h_gf, $hg_f")
-//          }
           OKif(h_gf == hg_f, s"Associativity broken for $f, $g and $h, got $h_gf vs $hg_f in $name")
         }
       }

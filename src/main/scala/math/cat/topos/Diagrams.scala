@@ -2,9 +2,10 @@ package math.cat.topos
 
 import math.cat._
 import math.Base._
-import math.sets.Sets.set
 import math.sets._
+import math.sets.Sets._
 import Diagrams._
+import scalakittens.Result
 
 class Diagrams(val site: Category)
   extends Category(s"Sets^${site.name}", graphOfDiagrams) {
@@ -54,8 +55,36 @@ class Diagrams(val site: Category)
     BaseCategory.terminal map Diagrams.const("terminal", site)
   
   lazy val _1: Obj = terminal iHope
-  
-//  def partialPoints = 
+
+  def inclusionOf(diagram1: Diagram, diagram2: Diagram): Result[DiagramArrow] = {
+    val results: TraversableOnce[Result[(site.Obj, diagram1.d1.Arrow)]] = for {
+      x <- site
+      in = SetMorphism.inclusion(diagram1(x), diagram2(x))
+      pair = in map (x -> diagram1.d1.arrow(_))
+    } yield pair
+
+    for {
+      map <- Result traverse results
+      arrow <- NaturalTransformation.build(diagram1, diagram2)(map.toMap)
+    } yield arrow
+  }
+
+  lazy val partialPoints: Set[DiagramArrow] = {
+    def arrowsMapping(a: site.Arrow): SetFunction = {
+      val arrowIn_d0: _1.d0.Arrow = _1.d0.arrow(a)
+      _1.asFunction(_1.arrowsMapping(arrowIn_d0))
+    }
+    
+    val all = for {
+      (candidate, i) <- Sets.powerset(site.objects).zipWithIndex
+      om = (obj: site.Obj) => candidate.intersect(singleton(obj)).untyped
+      diagram <-
+        SetDiagram.build("__" + i, site)(om, arrowsMapping).toOption
+      inclusion: DiagramArrow <- inclusionOf(diagram, _1).toOption
+    } yield inclusion
+    
+    all
+  } 
 }
 
 object Diagrams {

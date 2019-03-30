@@ -1,11 +1,8 @@
 package math.cat.topos
 
-import math.cat.{Category, TestDiagrams}
-import org.specs2.mutable.Specification
-import Category._
 import math.Test
-import math.Base._
-import math.cat.topos.Diagrams.Diagram
+import math.cat.Category._
+import math.cat.{Category, TestDiagrams}
 
 class DiagramsTest extends Test with TestDiagrams {
 
@@ -33,14 +30,24 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     def checkConstSize(topos: Diagrams)(obj: topos.Obj, expected: Int): Unit = {
-      import obj._
       for {
         x <- topos.site.objects
       } {
-        val setAtx: Set[_] = obj @@ x
+        val setAtx: Set[_] = obj apply x
         setAtx.size === expected
       }
-      
+    }
+
+    "have an initial" in {
+      val topos = new Diagrams(M)
+
+      val terminalOpt = topos.initial
+      terminalOpt match {
+        case None => failure(s"Could not build an initial in $topos")
+        case Some(terminal) => checkConstSize(topos)(terminal, 0)
+      }
+      checkConstSize(topos)(topos._0, 0)
+      ok
     }
     
     "have a terminal" in {
