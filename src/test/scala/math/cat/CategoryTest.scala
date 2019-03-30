@@ -279,7 +279,7 @@ class CategoryTest extends Test with CategoryFactory {
         case e: Exception => // as expected
         case _: Throwable => failure("should have thrown a NoSuchElementException")
       }
-      true
+      ok
     }
 
     "D1_positive()" >> {
@@ -607,6 +607,16 @@ class CategoryTest extends Test with CategoryFactory {
     "Initial_misc" >> {
       Square.initial === Some("a")
       _4_.initial === Some("0")
+    }
+    
+    "foreach" >> {
+      _4_ foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
+      ok
+    }
+    
+    "map" >> {
+      val actual = Square map (x => x.toUpperCase)
+      actual.toSet === Set("A", "B", "C", "D")
     }
 
     "allRootObjects_byDefinition" >> {

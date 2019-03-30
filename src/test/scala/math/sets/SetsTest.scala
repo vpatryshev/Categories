@@ -266,7 +266,7 @@ class SetsTest extends Specification {
       } catch {
         case e: Exception =>// as designed
       }
-      true
+      ok
     }
 
     "Parse without opening curly should throw an exception" >> {
@@ -276,7 +276,7 @@ class SetsTest extends Specification {
       } catch {
         case e: Exception => // as designed
       }
-      true
+      ok
     }
 
     "Parse without nothing between commas should throw an exception" >> {
@@ -286,7 +286,7 @@ class SetsTest extends Specification {
       } catch {
         case e: Exception => // as designed
       }
-      true
+      ok
     }
 
     "String should work as expected" >> {

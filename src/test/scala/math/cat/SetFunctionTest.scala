@@ -22,7 +22,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord!
       }
-      true
+      ok
     }
     
     "compositions" >> {
@@ -50,7 +50,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord
       }
-      true
+      ok
     }
 
     "building a constant" >> {
@@ -66,7 +66,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord!
       }
-      true
+      ok
     }
 
     "building a nonexistent constant" >> {
@@ -76,7 +76,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord!
       }
-      true
+      ok
     }
 
     "building an inclusion" >> {
@@ -91,7 +91,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // Hallelujah!
       }
-      true
+      ok
     }
 
     "building a predicate-based inclusion" >> {
@@ -108,7 +108,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // Hallelujah!
       }
-      true
+      ok
     }
 
     "building ai identity" >> {
@@ -123,7 +123,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // Hallelujah!
       }
-      true
+      ok
     }
 
     "for factorset" >> {
