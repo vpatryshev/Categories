@@ -87,7 +87,7 @@ class SetCategory(objects: BigSet[Set[Any]])
         tag = s"set^$n",
         d0 = domain,
         d1 = x,
-        f = takeElementAt(i)
+        mapping = takeElementAt(i)
       )
 
       Option((domain, projections.toList))
@@ -98,7 +98,7 @@ class SetCategory(objects: BigSet[Set[Any]])
   override lazy val initial: Option[set] = Option(Sets.Empty) filter contains
 
   override lazy val terminal: Option[set] = {
-    val option1: Option[set] = Option(setOf(initial))
+    val option1: Option[set] = initial map (setOf(_))
     // need to filter, to eliminate the value that does not belong
     option1 filter contains
   }

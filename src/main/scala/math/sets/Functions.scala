@@ -156,8 +156,7 @@ object Functions {
    */
   def constant[X, Y] (value: Y): X => Y = (x: X) => value
 
-  // TODO(vlad): figure out if this makes any sense
-//  def restrict[X, X1 <: X, Y](fun: X => Y): X1 => Y = (x1: X1) => fun(x1)
+  def restrict[X, X1 <: X, Y](fun: X => Y): X1 => Y = (x1: X1) => fun(x1)
 
   // This should not even exist! What exception?! what extension? Be contravariant.
   /**

@@ -112,7 +112,7 @@ abstract class SetDiagram(
       val arrowsFrom_o: Seq[XArrow] = bundles(o).toList
 
       def inclusionToUnion(a: XArrow): Any => Any = {
-        arrowsMapping(a).f andThen objectToInjection(d0.d1(a))
+        arrowsMapping(a).mapping andThen objectToInjection(d0.d1(a))
       }
 
       arrowsFrom_o match {
@@ -225,6 +225,7 @@ object SetDiagram {
         (a: XArrow) => d1.arrow(arrowMap(site.arrow(a)))
     }
     
-    Functor.validateFunctor(diagram) returning diagram
+    val res = Functor.validateFunctor(diagram) returning diagram
+    res
   } 
 }

@@ -69,19 +69,32 @@ class Diagrams(val site: Category)
     } yield arrow
   }
 
-  lazy val partialPoints: Set[DiagramArrow] = {
-    def arrowsMapping(a: site.Arrow): SetFunction = {
-      val arrowIn_d0: _1.d0.Arrow = _1.d0.arrow(a)
-      _1.asFunction(_1.arrowsMapping(arrowIn_d0))
+  lazy val subterminals: Set[Diagram] = {
+    def objectMapping(candidate: Set[site.Obj]) =
+      (obj: site.Obj) => if (candidate contains obj) _1(obj) else Set.empty.untyped
+    
+    var ii: Int = 42
+    
+    def arrowMapping(candidate: Set[site.Obj]): site.Arrow => SetFunction = {
+      val omc = objectMapping(candidate)
+          
+      (a: site.Arrow) => {
+        val arrowIn_site: _1.d0.Arrow = _1.d0.arrow(a)
+        val d0 = omc(site.d0(a))
+        val d1 = omc(site.d1(a))
+        val mapping = _1.asFunction(_1.arrowsMapping(arrowIn_site)).mapping
+        
+        val function: SetFunction = SetFunction("", d0, d1, mapping)
+        function
+      }
     }
     
     val all = for {
       (candidate, i) <- Sets.powerset(site.objects).zipWithIndex
-      om = (obj: site.Obj) => candidate.intersect(singleton(obj)).untyped
-      diagram <-
-        SetDiagram.build("__" + i, site)(om, arrowsMapping).toOption
-      inclusion: DiagramArrow <- inclusionOf(diagram, _1).toOption
-    } yield inclusion
+      om = objectMapping(candidate)
+      am = arrowMapping(candidate)
+      diagram <- SetDiagram.build("__" + i, site)(om, am).toOption
+    } yield diagram
     
     all
   } 

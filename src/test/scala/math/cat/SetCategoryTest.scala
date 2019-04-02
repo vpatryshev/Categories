@@ -223,11 +223,22 @@ class SetCategoryTest extends Specification {
     }
 
     "have initial" in {
-      Setf.initial.isDefined === true
+      Setf.initial match {
+        case None => failure("Oops, no initial")
+        case Some(s0) => s0 must be empty
+      }
+      ok
     }
 
     "have terminal" in {
-      Setf.terminal.isDefined === true
+      Setf.terminal match {
+        case None => failure("Oops, no terminal")
+        case Some(s1) =>
+          s1.size === 1
+          s1.contains(Sets.Empty) === true
+      }
+      
+      ok
     }
     
     "build product 0x3" in {

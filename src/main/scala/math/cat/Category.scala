@@ -117,7 +117,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param to   second object
     * @return the set of all arrows from x to y
     */
-  def hom(from: Obj, to: Obj): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
+  def hom(from: Obj, to: Obj): Arrows = asSet(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
 
   /**
@@ -322,7 +322,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param y second object
     * @return a set of pairs of arrows with the same domain, ending at x and y.
     */
-  def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
+  def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = asSet(
     product2(arrows, arrows).
       filter(p => {
         val (px, py) = p
@@ -391,7 +391,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param y second object
     * @return a set of pairs of arrows with the same codomain, starting at x and y.
     */
-  def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
+  def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = asSet(
     product2(arrows, arrows) filter {
       case (px, py) =>
         sameCodomain(px, py) &&
@@ -462,7 +462,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @return the set of all such pairs of arrows
     */
   def pairsEqualizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = {
-    setOf(
+    asSet(
       product2[Arrow, Arrow](arrows, arrows).
         filter(p => {
           val (px, py) = p
@@ -558,7 +558,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param g second arrow
     * @return an iterable of all such pairs of arrows
     */
-  def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = setOf(
+  def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = asSet(
     product2(arrows, arrows).
       filter(q => {
         val (qx, qy) = q

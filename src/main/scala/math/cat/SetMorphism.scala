@@ -68,6 +68,11 @@ class SetMorphism[X, Y] (
   def empty[PY] = throw new RuntimeException("No such thing exists as empty set morphism")
   def iterator: Iterator[(X, Y)] = d0.iterator map (x => (x, function(x)))
   def product: Set[Map[Y, X]] = exponent(d1, d0) filter(m => d1 forall {y => function(m(y)) == y})
+  
+  def restrictTo(newDomain: Set[X]): SetMorphism[X, Y] = {
+    require(newDomain subsetOf d0)
+    new SetMorphism[X, Y](tag, newDomain, d1, function)
+  }
 }
 
 object SetMorphism {
@@ -78,9 +83,9 @@ object SetMorphism {
     new SetMorphism[X, Y](name, d0, d1, function)
 
   def inclusion[X](d0: Set[X], d1: Set[X]): Result[SetMorphism[X, X]] = {
-    OKif(d0 subsetOf(d1)) returning new SetMorphism("⊂", d0, d1, identity)
+    OKif(d0 subsetOf d1) returning new SetMorphism("⊂", d0, d1, identity)
   }
-
+  
   def id[X](domain: Set[X]) = new SetMorphism[X, X]("1", domain, domain, x => x)
 
   def const[X, Y](d0: Set[X], d1: Set[Y], value: Y) =

@@ -71,7 +71,7 @@ class SetsTest extends Specification {
 
     "setOf(Iterable) should be good" >> {
       val source = List("one", "two", "three", "")
-      setOf[String](source) === Set("one", "two", "three", "")
+      asSet[String](source) === Set("one", "two", "three", "")
     }
 
     "infinite set should be okay" >> {
@@ -119,7 +119,7 @@ class SetsTest extends Specification {
     }
 
     "union of a list of sets" >> {
-      val sets = (1 to 5) map (n => setOf[Int]((10 * n) to (10 * n) + n))
+      val sets = (1 to 5) map (n => asSet[Int]((10 * n) to (10 * n) + n))
       val expected = Set(10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41, 42, 43, 44, 50, 51, 52, 53, 54, 55)
       val actual = union(sets)
       val eq1 = actual == expected
@@ -336,7 +336,7 @@ class SetsTest extends Specification {
     }
 
     "Factorset" >> {
-      val s = setOf[Int](1 to 10)
+      val s = asSet[Int](1 to 10)
       def isOdd(x: Int) = x % 2 == 0
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => isOdd(a) == isOdd(b)
       val factoring = new FactorSet(s, br)
@@ -350,15 +350,15 @@ class SetsTest extends Specification {
     }
 
     "Factorset by a diagonal" >> {
-      val s = setOf[Int](1 to 10)
+      val s = asSet[Int](1 to 10)
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
       val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
-      val factor = setOf[Set[Int]](for (i <- s) yield Set(i))
+      val factor = asSet[Set[Int]](for (i <- s) yield Set(i))
       actual === SetMorphism[Int, Set[Int]](s, factor, (i:Int) => Set(i))
     }
 
     "Factorset mod 2" >> {
-      val s0 = setOf[Int](1 to 10)
+      val s0 = asSet[Int](1 to 10)
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
       val actual = factorset(s0, br)
       val listofClasses = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))

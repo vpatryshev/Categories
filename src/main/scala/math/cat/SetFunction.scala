@@ -10,14 +10,14 @@ import math.sets.Sets._
  * @param tag name of the morphism
  * @param d0 domain
  * @param d1 codomain
- * @param f the function that implements the morphism
+ * @param mapping the function that implements the morphism
  */
 case class SetFunction(
   override val tag: String,
   override val d0: set,
   override val d1: set,
-  f: Any => Any)
-    extends SetMorphism[Any, Any](tag, d0, d1, f) { self =>
+  mapping: Any => Any)
+    extends SetMorphism[Any, Any](tag, d0, d1, mapping) { self =>
 
   /**
     * Composes with another morphism, optionally
@@ -45,7 +45,7 @@ case class SetFunction(
   }
   
   override lazy val hashCode: Int =
-    d1.hashCode + 2 * d0.map(x => (x, f(x))).hashCode
+    d1.hashCode + 2 * d0.map(x => (x, mapping(x))).hashCode
 }
 
 /**

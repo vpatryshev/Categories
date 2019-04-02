@@ -53,10 +53,10 @@ object Sets {
   def setOf[X](content: Iterable[X], predicate: X => Boolean): Set[X] =
     setOf(content, (0 /: content) ((n, x) => n + 1), predicate)
 
-  def setOf[X](content: Iterable[X]): Set[X] =
+  def asSet[X](content: Iterable[X]): Set[X] =
     setOf(content, x => content exists (_ == x))
 
-  def setOf[T](content: T*): Set[T] = setOf(content)
+  def setOf[T](content: T*): Set[T] = asSet(content)
 
   def range(n: Int): Set[Int] = range(0, n, 1)
   
@@ -386,7 +386,7 @@ object Sets {
     * @param step range step
     * @return the set of numbers
     */
-  def numbers(from: Int, to: Int, step: Int): Set[Int] = setOf(range(from, to, step))
+  def numbers(from: Int, to: Int, step: Int): Set[Int] = asSet(range(from, to, step))
 
   class InterleavingIterator[X, X1 <: X, X2 <: X](
       iterator1: Iterator[X1],
