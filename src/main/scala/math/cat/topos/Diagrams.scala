@@ -77,15 +77,14 @@ class Diagrams(val site: Category)
     
     def arrowMapping(candidate: Set[site.Obj]): site.Arrow => SetFunction = {
       val omc = objectMapping(candidate)
-          
+      import _1.d0._
       (a: site.Arrow) => {
-        val arrowIn_site: _1.d0.Arrow = _1.d0.arrow(a)
-        val d0 = omc(site.d0(a))
-        val d1 = omc(site.d1(a))
-        val mapping = _1.asFunction(_1.arrowsMapping(arrowIn_site)).mapping
+        // this transformation, site.arrow, is here due to an intellij bug
+        val d0 = omc(site.d0(site.arrow(a)))
+        val d1 = omc(site.d1(site.arrow(a)))
+        val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
         
-        val function: SetFunction = SetFunction("", d0, d1, mapping)
-        function
+        SetFunction("", d0, d1, mapping)
       }
     }
     

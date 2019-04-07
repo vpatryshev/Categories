@@ -3,10 +3,10 @@ package math.cat
 import math.Base
 import math.Base._
 import math.cat.SetCategory.Setf
-import math.sets.FactorSet
+import math.sets.{FactorSet, Sets}
 import math.sets.Functions._
 import math.sets.Sets._
-import scalakittens.Result
+import scalakittens.{Good, Result}
 import SetDiagram._
 
 import scala.language.postfixOps
@@ -56,10 +56,10 @@ abstract class SetDiagram(
     val fromRootObjects: Map[XObject, XArrow] =
       arrowsInvolved.groupBy(arrow => d0.d1(arrow)).mapValues(_.head) // does not matter which one, in this case
 
-    def arrowFromRootObject(x: XObject) =
+    def arrowFromRootObject(x: d0.Obj) =
       if (limitBuilder.rootObjects(x)) d0.id(x) else fromRootObjects(x)
     
-    def coneMap(x: XObject): d1.Arrow = d1.arrow {
+    def coneMap(x: d0.Obj): d1.Arrow = d1.arrow {
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
@@ -144,7 +144,7 @@ abstract class SetDiagram(
     arrows => arrows.forall(f => arrows.forall(g => {
         arrowsAreCompatibleOnPoint(point)(f, g)
       }))
-    
+
 
   /**
     * Checks whether two arrows action on a given point produce the same element. 
@@ -207,6 +207,44 @@ abstract class SetDiagram(
       val arrowSets = cobundles.values
       val setsToCheck = arrowSets filterNot (_.forall(d0.isIdentity))
       setsToCheck.forall(checkCompatibility)
+    }
+  }
+
+  def points: Iterable[SetDiagram] = {
+    val listOfObjects: List[XObject] = domainObjects.toList
+    val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
+
+    def isCompatible(om: PointLike) = d0.arrows.forall {
+      a =>
+        val d00 = om(d0.d0(a))
+        val d01 = om(d0.d1(a))
+        val f = arrowsMapping(a)
+        val itsok = f(d00) == d01
+        
+        itsok
+    }
+
+    val objMappings = for {
+      values <- Sets.product(listOfComponents) //.view
+      om: PointLike = listOfObjects zip values toMap;
+      if isCompatible(om)
+    } yield om
+    val sorted = objMappings.toList.sortBy(_.toString).zipWithIndex
+
+    val all = sorted map {
+      case (map, i) =>
+        def om(o: d0.Obj): set = asSet(d1.obj(singleton(map(o))))
+        def am(a: d0.Arrow): SetFunction = {
+          val original = arrowsMapping(a)
+          val newDomain = om(d0.d0(a))
+          val newCodomain = om(d0.d1(a))
+          original.restrictTo(newDomain, newCodomain)
+        }
+        
+        SetDiagram.build(s"#$i", d0)(om, am)
+    }
+    all collect {
+      case Good(diagram) => diagram
     }
   }
 }
