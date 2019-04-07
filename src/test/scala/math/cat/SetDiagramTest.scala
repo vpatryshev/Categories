@@ -1,23 +1,23 @@
 package math.cat
 
+import math.Base._
 import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.Result
-import math.Base._
 
 /**
   * Test for set diagrams (functors with codomain=sets)
   */
 class SetDiagramTest extends Test with TestDiagrams {
   type SUT = SmallDiagram
-  
+
   "SetDiagram" should {
 
     "validate as a functor with Set as domain" in {
 
-      check[Functor](SamplePullbackDiagram.asFunctor,
+      check[Functor](BuildPullbackDiagram.asFunctor,
         sut => {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
@@ -27,25 +27,24 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "test build" in {
       val dom = Category.Pullback
-      val sut1 = SamplePullbackDiagram.asFunctor.iHope
-      sut1.objectsMapping(sut1.d0.obj("b")) === SamplePullbackDiagram.sb
+      val sut1 = BuildPullbackDiagram.asFunctor.iHope
+      sut1.objectsMapping(sut1.d0.obj("b")) === BuildPullbackDiagram.sb
 
       val diagram: SetDiagram =
         new SetDiagram("Test", dom) {
           override val objectsMapping: d0.Obj => d1.Obj =
-            (x: d0.Obj) => d1.obj(SamplePullbackDiagram.om(x.toString))
+            (x: d0.Obj) => d1.obj(BuildPullbackDiagram.om(x.toString))
           override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-            (a: d0.Arrow) => d1.arrow(SamplePullbackDiagram.am(a.toString))
+            (a: d0.Arrow) => d1.arrow(BuildPullbackDiagram.am(a.toString))
         }
       val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
     }
 
     "get validated - positive" in {
-      expect(sut => {
-        sut.d0 === Category.Pullback
-        sut.d1 === Setf
-      })(SamplePullbackDiagram.asDiagram)
+      val sut = SamplePullbackDiagram
+      sut.d0 === Category.Pullback
+      sut.d1 === Setf
     }
 
     "get validated - negative" in {
@@ -61,29 +60,57 @@ class SetDiagramTest extends Test with TestDiagrams {
         )
       )
     }
-    
+
     "validate empty diagram" in {
       EmptyDiagram.d0 === Category._0_
       EmptyDiagram.d1 === Setf
     }
-    
+
+    def checkPoint(sut: SmallDiagram)(point: SmallDiagram, values: List[Int]) = {
+      val objects = sut.d0.objects.toList
+      val actual = objects map point.apply
+      val expected = values map Sets.singleton
+      actual aka point.tag must_== expected
+    }
+
     "have points in paralel pair" in {
-      expect(sut => {
-        val actual = sut.points
-        actual.size === 2
-      }
-      )(SampleParallelPairDiagram.asDiagram)
+      val sut = SampleParallelPairDiagram
+      val actual = sut.points
+      actual.size === 3
+      val check = checkPoint(sut) _
+      val p1 :: p2 :: p3 :: Nil = actual
+      check(p1, 1 :: 1 :: Nil)
+      check(p2, 2 :: 2 :: Nil)
+      check(p3, 5 :: 2 :: Nil)
     }
 
     "have points in pullback pair" in {
       val sut = SamplePullbackDiagram
+      val actual = sut.points
+      actual.size === 5
+      val p1 :: p2 :: p3 :: p4 :: p5 :: Nil = actual
+      val check = checkPoint(sut) _
+      check(p1, 1 :: 2 :: 1 :: Nil)
+      check(p2, 1 :: 4 :: 1 :: Nil)
+      check(p3, 2 :: 3 :: 0 :: Nil)
+      check(p4, 3 :: 2 :: 1 :: Nil)
+      check(p5, 3 :: 4 :: 1 :: Nil)
+    }
+
+    "have points in Z3 diagram" in {
+      val sut = SampleZ3Diagram
+      val actual = sut.points
+      actual.size === 1
+      val p1 :: Nil = actual
+      val check = checkPoint(sut) _
+
       ok
     }
   }
 
   "SetDiagram limit" should {
     "exist for an empty diagram" in {
-      check[SmallDiagram](point(Set("a", "b")),
+      check[SmallDiagram](const(Set("a", "b")),
         sut => {
           sut.d0 === Category._1_
           sut.d1 === Setf
@@ -94,7 +121,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      check[SmallDiagram](point(x),
+      check[SmallDiagram](const(x),
         sut => {
           sut.d0 === Category._1_
           sut.d1 === Setf
@@ -108,67 +135,67 @@ class SetDiagramTest extends Test with TestDiagrams {
     }
 
     "exist for a pullback" in {
-      expect(sut =>
-        sut.limit match {
-          case None => failure("We expected a limit")
-          case Some(cone) =>
-            val vertex = sut.asSet(cone.vertex)
-            vertex.size === 5
-            val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
-            val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
+      val sut = SamplePullbackDiagram
+      sut.limit match {
+        case None => failure("We expected a limit")
+        case Some(cone) =>
+          val vertex = sut.asSet(cone.vertex)
+          vertex.size === 5
+          val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
+          val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
 
-            for {
-              i <- 1 to 3
-              j <- 2 to 4
-            } {
-              val element = i :: j :: Nil
-              (i, j, vertex(element)) === (i, j, (i + j) % 2 == 1)
-              if (vertex(element)) {
-                (i, j, ara(element)) === (i, j, i)
-                (i, j, arb(element)) === (i, j, j)
-              }
+          for {
+            i <- 1 to 3
+            j <- 2 to 4
+          } {
+            val element = i :: j :: Nil
+            (i, j, vertex(element)) === (i, j, (i + j) % 2 == 1)
+            if (vertex(element)) {
+              (i, j, ara(element)) === (i, j, i)
+              (i, j, arb(element)) === (i, j, j)
             }
-        })(SamplePullbackDiagram.asDiagram)
+          }
+      }
+      ok
     }
 
     "exist for an equalizer" in {
-      expect(sut =>
-        sut.limit match {
-          case None => failure("We expected a limit")
-          case Some(cone) =>
-            val vertex = sut.asSet(cone.vertex)
-            vertex.size === 3
-            vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
-            val ar0 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("0"))))
-            val ar1 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("1"))))
+      val sut = SampleParallelPairDiagram
+      sut.limit match {
+        case None => failure("We expected a limit")
+        case Some(cone) =>
+          val vertex = sut.asSet(cone.vertex)
+          vertex.size === 3
+          vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
+          val ar0 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("0"))))
+          val ar1 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("1"))))
 
-            for {
-              element <- vertex
-            } {
-              val i = (element match {
-                case n :: Nil => n;
-                case other => Integer.MAX_VALUE
-              }).toString.toInt
-              (element, ar0(element)) === (element, i)
-              (element, ar1(element)) === (element, i % 3)
-            }
-        })(SampleParallelPairDiagram.asDiagram)
-    }
+          for {
+            element <- vertex
+          } {
+            val i = (element match {
+              case n :: Nil => n;
+              case other => Integer.MAX_VALUE
+            }).toString.toInt
+            (element, ar0(element)) === (element, i)
+            (element, ar1(element)) === (element, i % 3)
+          }
+      }
 
-    "exist for a monoid Z3" in {
-      expect(sut =>
+      "exist for a monoid Z3" in {
+        val sut = SampleZ3Diagram
         sut.limit match {
           case None => failure("We expected a limit")
           case Some(cone) =>
             cone.vertex === Set(List(3))
             val ar0 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("0"))))
             ar0(List(3)) === 3
-        })(SampleZ3Diagram.asDiagram)
-    }
+        }
+        ok
+      }
 
-    "exist for a W, regular data" in {
-
-      expect(sut =>
+      "exist for a W, regular data" in {
+        val sut = SampleWDiagram
         sut.limit match {
           case None => failure("We expected a limit")
           case Some(cone) =>
@@ -181,76 +208,77 @@ class SetDiagramTest extends Test with TestDiagrams {
             val are = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("e"))))
 
             for {
-              i <- SampleWDiagram.a
-              j <- SampleWDiagram.c
-              k <- SampleWDiagram.e
+              i <- SampleWDiagramContent.a
+              j <- SampleWDiagramContent.c
+              k <- SampleWDiagramContent.e
             } {
               val element = i :: j :: k :: Nil
               if (vertex(element)) {
                 (i, j, k, ara(element)) === (i, j, k, i)
                 (i, j, k, arc(element)) === (i, j, k, j)
                 (i, j, k, are(element)) === (i, j, k, k)
-                (i, j, k, arb(element)) === (i, j, k, SampleWDiagram.ab(i))
-                (i, j, k, arb(element)) === (i, j, k, SampleWDiagram.cb(j))
-                (i, j, k, ard(element)) === (i, j, k, SampleWDiagram.cd(j))
-                (i, j, k, ard(element)) === (i, j, k, SampleWDiagram.ed(k))
+                (i, j, k, arb(element)) === (i, j, k, SampleWDiagramContent.ab(i))
+                (i, j, k, arb(element)) === (i, j, k, SampleWDiagramContent.cb(j))
+                (i, j, k, ard(element)) === (i, j, k, SampleWDiagramContent.cd(j))
+                (i, j, k, ard(element)) === (i, j, k, SampleWDiagramContent.ed(k))
               }
             }
         }
-      )(SampleWDiagram.asDiagram)
-    }
+        ok
+      }
 
-    "exist for a W, weird data" in {
-      val a: set = Set(1, 2, 3)
-      val b: set = Set(2, 3, 4)
-      val c: set = Set(0, 1, 2, 3, 4, 5)
-      val d: set = Set(0, 1, 2)
-      val e: set = Set(1, 2, 3, 4)
-      val ab = SetFunction("ab", a, b, _.toString.toInt + 1)
-      val cb = SetFunction("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt)))
-      val cd = SetFunction("cd", c, d, _.toString.toInt % 3)
-      val ed = SetFunction("ed", e, d, x => (x.toString.toInt + 1) % 2)
-      val sutOpt = SetDiagram.build(
-        "W", Category.W)(
-        Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
-        Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
-      )
-      
-      expect(sut =>
-        sut.limit match {
-          case None => failure("We expected a limit")
-          case Some(cone) =>
-            val vertex = sut.asSet(cone.vertex)
-            vertex.size === 8
-            val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
-            val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
-            val arc = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("c"))))
-            val ard = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("d"))))
-            val are = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("e"))))
-            val points = sut.limitBuilder
+      "exist for a W, weird data" in {
+        val a: set = Set(1, 2, 3)
+        val b: set = Set(2, 3, 4)
+        val c: set = Set(0, 1, 2, 3, 4, 5)
+        val d: set = Set(0, 1, 2)
+        val e: set = Set(1, 2, 3, 4)
+        val ab = SetFunction("ab", a, b, _.toString.toInt + 1)
+        val cb = SetFunction("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt)))
+        val cd = SetFunction("cd", c, d, _.toString.toInt % 3)
+        val ed = SetFunction("ed", e, d, x => (x.toString.toInt + 1) % 2)
+        val sutOpt = SetDiagram.build(
+          "W", Category.W)(
+          Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
+          Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
+        )
 
-            for {
-              i <- a
-              j <- c
-              k <- e
-            } {
-              val element = i :: j :: k :: Nil
-              val eq1 = ab(i) == cb(j)
-              val eq2 = cd(j) == ed(k)
-              (i, j, k, eq1, eq2, points.isPoint(element)) === (i, j, k, eq1, eq2, eq1 && eq2)
+        expect(sut =>
+          sut.limit match {
+            case None => failure("We expected a limit")
+            case Some(cone) =>
+              val vertex = sut.asSet(cone.vertex)
+              vertex.size === 8
+              val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
+              val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
+              val arc = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("c"))))
+              val ard = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("d"))))
+              val are = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("e"))))
+              val points = sut.limitBuilder
 
-              (i, j, k, eq1, eq2, vertex(element)) === (i, j, k, eq1, eq2, eq1 && eq2)
-              if (vertex(element)) {
-                (i, j, k, ara(element)) === (i, j, k, i)
-                (i, j, k, arc(element)) === (i, j, k, j)
-                (i, j, k, are(element)) === (i, j, k, k)
-                (i, j, k, arb(element)) === (i, j, k, ab(i))
-                (i, j, k, arb(element)) === (i, j, k, cb(j))
-                (i, j, k, ard(element)) === (i, j, k, cd(j))
-                (i, j, k, ard(element)) === (i, j, k, ed(k))
+              for {
+                i <- a
+                j <- c
+                k <- e
+              } {
+                val element = i :: j :: k :: Nil
+                val eq1 = ab(i) == cb(j)
+                val eq2 = cd(j) == ed(k)
+                (i, j, k, eq1, eq2, points.isPoint(element)) === (i, j, k, eq1, eq2, eq1 && eq2)
+
+                (i, j, k, eq1, eq2, vertex(element)) === (i, j, k, eq1, eq2, eq1 && eq2)
+                if (vertex(element)) {
+                  (i, j, k, ara(element)) === (i, j, k, i)
+                  (i, j, k, arc(element)) === (i, j, k, j)
+                  (i, j, k, are(element)) === (i, j, k, k)
+                  (i, j, k, arb(element)) === (i, j, k, ab(i))
+                  (i, j, k, arb(element)) === (i, j, k, cb(j))
+                  (i, j, k, ard(element)) === (i, j, k, cd(j))
+                  (i, j, k, ard(element)) === (i, j, k, ed(k))
+                }
               }
-            }
-        })(sutOpt)
+          })(sutOpt)
+      }
     }
   }
 
@@ -268,7 +296,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
     "exist for a point" in {
       val expected: set = Set("x", "y", "z")
-      check[SmallDiagram](point(expected),
+      check[SmallDiagram](const(expected),
         sut => {
           sut.d0 === Category._1_
           sut.d1 === Setf
@@ -299,10 +327,10 @@ class SetDiagramTest extends Test with TestDiagrams {
       val list = v0 :: v1 :: v0 :: Nil
       expect(sut =>
         sut.colimit match {
-          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
-            val vertex = sut.asSet(vertex0)
-            val ara = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("a"))))
-            val arb = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("b"))))
+          case Some(cocone) =>
+            val vertex = sut.asSet(cocone.vertex)
+            val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
+            val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))
             for {
               i <- 1 to 3
             } {
@@ -334,10 +362,10 @@ class SetDiagramTest extends Test with TestDiagrams {
 
       expect(sut =>
         sut.colimit match {
-          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
-            val vertex = sut.asSet(vertex0)
-            val ar0 = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("0"))))
-            val ar1 = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("1"))))
+          case Some(cocone) =>
+            val vertex = sut.asSet(cocone.vertex)
+            val ar0 = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("0"))))
+            val ar1 = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("1"))))
             a.foreach(ar0(_) === element)
             b.foreach(ar1(_) === element)
           case bad => failure(s"We expected a colimit, got $bad")
@@ -346,48 +374,48 @@ class SetDiagramTest extends Test with TestDiagrams {
     }
 
     "exist for a monoid Z3" in {
-      expect(sut =>
-        sut.colimit match {
-          case None => failure("We expected a colimit")
-          case Some(sut.Cocone(vertex, arrowFrom)) =>
-            vertex === Set(Set((0, 0), (0, 1), (0, 2)), Set((0, 3)))
-        }
-      )(SampleZ3Diagram.asDiagram)
+      val sut = SampleZ3Diagram
+      sut.colimit match {
+        case None => failure("We expected a colimit")
+        case Some(sut.Cocone(vertex, arrowFrom)) =>
+          vertex === Set(Set((0, 0), (0, 1), (0, 2)), Set((0, 3)))
+      }
+      ok
     }
 
     "exist for M, regular data" in {
+      val sut = SampleMDiagram
+      sut.colimit match {
+        case None => failure("We expected a colimit")
+        case Some(cocone) =>
+          val vertex = sut.asSet(cocone.vertex)
+          vertex.size === 8
+          val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
+          val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))
+          val arc = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("c"))))
+          val ard = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("d"))))
+          val are = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("e"))))
 
-      expect(sut =>
-        sut.colimit match {
-          case None => failure("We expected a colimit")
-          case Some(sut.Cocone(vertex0:sut.d1.Obj, arrowFrom)) =>
-            val vertex = sut.asSet(vertex0)
-            vertex.size === 8
-            val ara = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("a"))))
-            val arb = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("b"))))
-            val arc = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("c"))))
-            val ard = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("d"))))
-            val are = sut.asFunction(sut.d1.arrow(arrowFrom(sut.d0.obj("e"))))
-
-            for {
-              i <- SampleMDiagram.a
-              j <- SampleMDiagram.c
-              k <- SampleMDiagram.e
-            } {
-              val element = i :: j :: k :: Nil
-              if (vertex(element)) {
-                (i, j, k, ara(element)) === (i, j, k, i)
-                (i, j, k, arc(element)) === (i, j, k, j)
-                (i, j, k, are(element)) === (i, j, k, k)
-                (i, j, k, arb(element)) === (i, j, k, SampleMDiagram.ba(i))
-                (i, j, k, arb(element)) === (i, j, k, SampleMDiagram.bc(j))
-                (i, j, k, ard(element)) === (i, j, k, SampleMDiagram.dc(j))
-                (i, j, k, ard(element)) === (i, j, k, SampleMDiagram.de(k))
-              }
+          for {
+            i <- SampleMDiagramContent.a
+            j <- SampleMDiagramContent.c
+            k <- SampleMDiagramContent.e
+          } {
+            val element = i :: j :: k :: Nil
+            if (vertex(element)) {
+              (i, j, k, ara(element)) === (i, j, k, i)
+              (i, j, k, arc(element)) === (i, j, k, j)
+              (i, j, k, are(element)) === (i, j, k, k)
+              (i, j, k, arb(element)) === (i, j, k, SampleMDiagramContent.ba(i))
+              (i, j, k, arb(element)) === (i, j, k, SampleMDiagramContent.bc(j))
+              (i, j, k, ard(element)) === (i, j, k, SampleMDiagramContent.dc(j))
+              (i, j, k, ard(element)) === (i, j, k, SampleMDiagramContent.de(k))
             }
-        }
-      )(SampleMDiagram.asDiagram)
+          }
+      }
+      ok
     }
 
   }
+
 }

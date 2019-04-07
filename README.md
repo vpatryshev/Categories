@@ -22,9 +22,9 @@ What we have now:
 - set diagrams, that is, functors with a set category as a codomain
 - diagrams (that's set diagrams) (presheaves)
 - subterminals
+- points
 
 Plans: 
-- points
 - representable functors
 - build subobject classifiers,
 - build logic, 

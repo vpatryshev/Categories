@@ -65,7 +65,7 @@ case class SetFunction(
   def restrictTo(newDomain: set, newCodomain: set): SetFunction = {
     require(newDomain subsetOf d0)
     require(newCodomain subsetOf d1)
-    new SetFunction(tag, newDomain, newDomain, function)
+    new SetFunction(tag, newDomain, newCodomain, function)
   }
 }
 

@@ -34,8 +34,9 @@ abstract class Functor(
       } else arrowsMappingCandidate(a)
     } catch {
       case x: Exception =>
+        x.printStackTrace()
         throw new IllegalArgumentException(
-          s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}")
+          s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}", x)
     }
   }
 

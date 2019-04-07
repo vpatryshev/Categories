@@ -238,10 +238,11 @@ abstract class SetDiagram(
           val original = arrowsMapping(a)
           val newDomain = om(d0.d0(a))
           val newCodomain = om(d0.d1(a))
-          original.restrictTo(newDomain, newCodomain)
+          val function = original.restrictTo(newDomain, newCodomain)
+          function
         }
         
-        SetDiagram.build(s"#$i", d0)(om, am)
+        SetDiagram.build(s"#${i+1}", d0)(om, am)
     }
     all collect {
       case Good(diagram) => diagram
