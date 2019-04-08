@@ -9,6 +9,8 @@ import scalakittens.Result
 
 class Diagrams(val site: Category)
   extends Category(s"Sets^${site.name}", graphOfDiagrams) {
+  def representable(obj: site.Obj): Diagram = null
+
   val base: Category = BaseCategory
   type Node = Diagram
   type Arrow = DiagramArrow

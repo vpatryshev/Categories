@@ -3,6 +3,8 @@ package math.cat.topos
 import math.Test
 import math.cat.Category._
 import math.cat.TestDiagrams
+import math.cat.topos.Diagrams.Diagram
+import math.sets.Sets
 
 class DiagramsTest extends Test with TestDiagrams {
 
@@ -69,6 +71,42 @@ class DiagramsTest extends Test with TestDiagrams {
       subterminals.size === 6
       subterminals must contain(topos._0)
       subterminals must contain(topos._1)
+    }
+
+    "produce representables in W" in {
+      import Diagrams._
+      val topos = new Diagrams(W)
+      import topos.site._
+      val at = (obj: topos.site.Obj) => topos.representable(obj)
+      
+      case class table(data: List[String] = Nil) {
+        def |(x: String): table = table(x::data)
+        def |(d: Diagrams.Diagram) = check(d, data, data)
+      }
+
+      case class check(d: Diagram, data: List[String], fullList: List[String]) {
+        def |(x: String): check = {
+          try {
+            d(data.head) === x.split(",").toSet
+          } catch { case npe: NullPointerException =>
+              npe.printStackTrace()
+              println("wtf")
+          }
+          check(d, data.tail, fullList)
+        }
+        def |(d: Diagram): check = check(d, fullList, fullList)
+      }
+
+      val applyTo = new table
+
+      applyTo | "a" | "b"  | "c" | "d"  | "e" |
+      at("a") | "a" | "ab" | ""  | ""   | ""  |
+      at("b") | ""  | "b"  | ""  | ""   | ""  |
+      at("c") | ""  | "cb" | "c" | "cd" | ""  |
+      at("d") | ""  | ""   | ""  | "d"  | ""  |
+      at("e") | ""  | ""   | ""  | "ed" | "e" 
+
+      ok
     }
   }
 }
