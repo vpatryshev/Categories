@@ -9,7 +9,22 @@ import scalakittens.Result
 
 class Diagrams(val site: Category)
   extends Category(s"Sets^${site.name}", graphOfDiagrams) {
-  def representable(obj: site.Obj): Diagram = null
+  def representable(x: site.Obj): Diagram = {
+    def om(y: site.Obj) = site.hom(site.obj(x), y)
+
+    def am(f: site.Arrow) = {
+      val d0f = om(site.d0(f)) // it is site.hom(x, f.d0)
+      d0f flatMap (_ compose f)
+    }
+    
+    new Diagram(s"hom($x, _)", site) {
+      override val objectsMapping: d0.Obj => d1.Obj = x => d1.obj(om(site.obj(x)))
+        
+      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (f: XArrow) => {
+        d1.arrow(am(site.arrow(f)))
+      }
+    }
+  }
 
   val base: Category = BaseCategory
   type Node = Diagram
@@ -75,11 +90,8 @@ class Diagrams(val site: Category)
     def objectMapping(candidate: Set[site.Obj]) =
       (obj: site.Obj) => if (candidate contains obj) _1(obj) else Set.empty.untyped
     
-    var ii: Int = 42
-    
     def arrowMapping(candidate: Set[site.Obj]): site.Arrow => SetFunction = {
       val omc = objectMapping(candidate)
-      import _1.d0._
       (a: site.Arrow) => {
         // this transformation, site.arrow, is here due to an intellij bug
         val d0 = omc(site.d0(site.arrow(a)))
@@ -94,6 +106,7 @@ class Diagrams(val site: Category)
       (candidate, i) <- Sets.powerset(site.objects).zipWithIndex
       om = objectMapping(candidate)
       am = arrowMapping(candidate)
+      // some of these build attemps will fail, because of compatibility checks
       diagram <- SetDiagram.build("__" + i, site)(om, am).toOption
     } yield diagram
     
@@ -114,7 +127,6 @@ object Diagrams {
         (a: XArrow) => d1.arrow(BaseCategory.id(value))
     }
   }
-
 
   type DiagramArrow = NaturalTransformation 
   

@@ -81,17 +81,15 @@ class DiagramsTest extends Test with TestDiagrams {
       
       case class table(data: List[String] = Nil) {
         def |(x: String): table = table(x::data)
-        def |(d: Diagrams.Diagram) = check(d, data, data)
+        def |(d: Diagrams.Diagram) = check(d, data.reverse, data.reverse)
       }
 
       case class check(d: Diagram, data: List[String], fullList: List[String]) {
         def |(x: String): check = {
-          try {
-            d(data.head) === x.split(",").toSet
-          } catch { case npe: NullPointerException =>
-              npe.printStackTrace()
-              println("wtf")
-          }
+          val y = data.head
+          val expected = x.split(",").toSet.filter(_.nonEmpty)
+          val actual = d(y)
+          actual aka s"${d.tag} @$y" must_== expected
           check(d, data.tail, fullList)
         }
         def |(d: Diagram): check = check(d, fullList, fullList)

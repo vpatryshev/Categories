@@ -25,7 +25,8 @@ What we have now:
 - points
 
 Plans: 
-- representable functors
+- representable functors (WIP),
+- (lattice of) subobjects,
 - build subobject classifiers,
 - build logic, 
 - table of logic on points

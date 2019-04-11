@@ -665,7 +665,7 @@ private[cat] abstract class CategoryData(
 
   implicit def obj(x: Any): Obj =
     Result.forValue(x.asInstanceOf[Obj]) filter (objects contains) getOrElse
-      {throw new IllegalArgumentException(s"$x is not an object in  in $name")}
+      {throw new IllegalArgumentException(s"$x is not an object in $name")}
 
       def id(o: Obj): Arrow
 
