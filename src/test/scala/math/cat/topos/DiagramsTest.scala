@@ -3,8 +3,6 @@ package math.cat.topos
 import math.Test
 import math.cat.Category._
 import math.cat.TestDiagrams
-import math.cat.topos.Diagrams.Diagram
-import math.sets.Sets
 
 class DiagramsTest extends Test with TestDiagrams {
 

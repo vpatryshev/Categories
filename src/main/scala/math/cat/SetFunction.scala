@@ -2,6 +2,8 @@ package math.cat
 
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
+import scalakittens.Result
+import Result._
 
 /**
   * The idea was to create something that would cover unresolved issues with type assignment
@@ -53,7 +55,7 @@ case class SetFunction(
     * @param newDomain new domain
     * @return new function
     */
-  override def restrictTo(newDomain: set): SetFunction = 
+  override def restrictTo(newDomain: set): Result[SetFunction] = 
     restrictTo(newDomain, d1)
 
   /**
@@ -62,9 +64,8 @@ case class SetFunction(
     * @param newCodomain new codomain
     * @return new function
     */
-  def restrictTo(newDomain: set, newCodomain: set): SetFunction = {
-    require(newDomain subsetOf d0)
-    require(newCodomain subsetOf d1)
+  def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] = {
+    OKif(newDomain subsetOf d0) andAlso OKif(newCodomain subsetOf d1) returning
     new SetFunction(tag, newDomain, newCodomain, function)
   }
 }

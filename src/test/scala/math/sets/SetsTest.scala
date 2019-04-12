@@ -7,6 +7,8 @@ import math.sets.Sets._
 import org.specs2.execute.Failure
 import org.specs2.mutable._
 import scalakittens.{Empty, Result}
+import scalaz.std.function
+import math.Base.Pollyanna
 
 import scala.concurrent.duration.Duration
 
@@ -264,7 +266,7 @@ class SetsTest extends Specification {
         val x = Sets.parse("{a, b, c")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception =>// as designed
+        case e: Exception => // as designed
       }
       ok
     }
@@ -354,7 +356,7 @@ class SetsTest extends Specification {
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
       val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
       val factor = asSet[Set[Int]](for (i <- s) yield Set(i))
-      actual === SetMorphism[Int, Set[Int]](s, factor, (i:Int) => Set(i))
+      actual === SetMorphism.build[Int, Set[Int]](s, factor, (i:Int) => Set(i)).iHope
     }
 
     "Factorset mod 2" >> {
@@ -363,7 +365,9 @@ class SetsTest extends Specification {
       val actual = factorset(s0, br)
       val listofClasses = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val setOfClasses = Set(listofClasses(0), listofClasses(1))
-      actual === SetMorphism[Int, Set[Int]](d0 = s0, d1 = setOfClasses, function = (i:Int) => listofClasses(i % 2))
+      actual === SetMorphism.build[Int, Set[Int]](
+        d0 = s0, d1 = setOfClasses, function = (i:Int) => listofClasses(i % 2)
+      ).iHope
     }
 
     "Set(iterable, size, filter) should not return false positives" >> {

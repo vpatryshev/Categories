@@ -3,7 +3,7 @@ package math.cat
 import math.Test
 import math.sets.PoSet
 import org.specs2.mutable._
-import math.Base._
+import math.Base.Pollyanna
 
 /**
   * Tests for GraphMorphism class
@@ -22,7 +22,7 @@ class GraphMorphismTest extends Test {
           (x: Int) => x / 10 % 10, (x: Int) => x % 10).iHope
       val nm = SetMorphism.id(objects)
       val am =
-        SetMorphism(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13))
+        SetMorphism.build(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13)).iHope
       val sut = GraphMorphism("test", graph1, graph2)(
         nm.asInstanceOf[graph1.Node => graph2.Node],
         am.asInstanceOf[graph1.Arrow => graph2.Arrow])

@@ -2,6 +2,8 @@ package math.cat
 
 import math.sets.PoSet
 import org.specs2.mutable._
+import scalakittens.Good
+import math.Base._
 
 /**
  * Test suite for PoSetMorphism class
@@ -15,24 +17,32 @@ class PoSetMorphismTest extends Specification {
     "Constructor" >> {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5")
-      val sut = PoSetMorphism(x, y, (n: Int) => "#" + n)
-      sut(3) === "#3"
-      sut.d0 === x
-      sut.d1 === y
+      PoSetMorphism.build(x, y, (n: Int) => "#" + n) match {
+        case Good(sut) =>
+          sut(3) === "#3"
+          sut.d0 === x
+          sut.d1 === y
+        case nogood => failure(nogood.toString)
+      }
+      ok
     }
 
     "Constructor_negative_badCodomain" >> {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#5")
 
-      PoSetMorphism(x, y, (n: Int) => "#" + n) must throwA[IllegalArgumentException]
+      PoSetMorphism.build(x, y, (n: Int) => "#" + n) match {
+        case Good(sut) => failure(s"expected an error, got $sut")
+        case nogood => ok
+      }
+      ok
     }
 
     "Constructor_negative_lostOrder" >> {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(intComparator, 1, 2, 3, 4, 5)
-
-      PoSetMorphism(x, y, (n: Int) => 1 + (n - 3) * (n - 3)) must throwA[IllegalArgumentException]
+      val sut = PoSetMorphism.build(x, y, (n: Int) => 1 + (n - 3) * (n - 3))
+      sut.isBad === true
     }
 
     "Equals" >> {
@@ -40,19 +50,23 @@ class PoSetMorphismTest extends Specification {
       val y1 = PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5")
       val x2 = PoSet(intComparator, 5, 4, 3, 2, 1)
       val y2 = PoSet(stringComparator, "#5", "#4", "#3", "#2", "#1")
-      val sut1 = PoSetMorphism(x1, y1, (n: Int) => "#" + n)
-      val sut2 = PoSetMorphism(x2, y2,
+      val sut1 = PoSetMorphism.build(x1, y1, (n: Int) => "#" + n)
+      val sut2 = PoSetMorphism.build(x2, y2,
         Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5"))
       sut1 === sut2
-      val sut3 = PoSetMorphism(x2, y2, Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#4"))
+      val sut3 = PoSetMorphism.build(x2, y2, Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#4"))
       sut1 !== sut3
     }
 
     "Compose" >> {
-      val f = PoSetMorphism(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(intComparator, 1, 2, 3, 4, 5), (n: Int) => n - 10)
-      val g = PoSetMorphism(PoSet(intComparator, 1, 2, 3, 4, 5), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + n)
-      val h = f compose g
-      h === PoSetMorphism(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10))
+      val fOpt = PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(intComparator, 1, 2, 3, 4, 5), (n: Int) => n - 10)
+      val gOpt = PoSetMorphism.build(PoSet(intComparator, 1, 2, 3, 4, 5), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + n)
+      
+      fOpt andAlso gOpt match {
+        case Good((f, g)) =>
+          val h = f compose g
+          h === PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10)).iHope
+      }
     }
 
     "id" >> {

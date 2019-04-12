@@ -239,7 +239,7 @@ abstract class SetDiagram(
           val newDomain = om(d0.d0(a))
           val newCodomain = om(d0.d1(a))
           val function = original.restrictTo(newDomain, newCodomain)
-          function
+          function iHope
         }
         
         SetDiagram.build(s"#${i+1}", d0)(om, am)

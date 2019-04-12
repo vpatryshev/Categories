@@ -34,7 +34,6 @@ abstract class Functor(
       } else arrowsMappingCandidate(a)
     } catch {
       case x: Exception =>
-        x.printStackTrace()
         throw new IllegalArgumentException(
           s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}", x)
     }
@@ -177,8 +176,6 @@ abstract class Functor(
     * @param arrowTo maps each object of x to an arrow from F(x) to the vertex.
     */
   case class Cone(vertex: d1.Obj, arrowTo: d0.Obj => d1.Arrow) {
-    require(vertex != null, "an vertex of a cone can't be null")
-    require(arrowTo != null, "a map of arrows of a cone can't be null")
 
     override def toString: String = "Cone[" + vertex + "]"
 
@@ -221,7 +218,7 @@ abstract class Functor(
 
     override def hashCode: Int = (vertex.hashCode /: domainObjects) ((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
-
+  
   /**
     * Cocone class for this Functor. A cocone is an object y (called vertex) and a bundle of arrows cx: F(x) -> y
     * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.

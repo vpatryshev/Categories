@@ -7,6 +7,7 @@ import math.sets.Sets._
 import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Good, Result}
+import math.Base._
 
 import scala.collection.{GenTraversableOnce, TraversableOnce}
 
@@ -596,7 +597,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
     require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")} in $name")
 
-    val mor = SetMorphism(arrows, setOfObjects, d0).revert.function
+    val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
     setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
   }
 
