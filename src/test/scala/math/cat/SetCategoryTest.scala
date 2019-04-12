@@ -76,8 +76,6 @@ class SetCategoryTest extends Specification {
       val same = actual contains expected
       actual === Some(expected)
 
-      def singleton(x: Any): Any = Set(x)
-
       val singletons: set = s2 map singleton
       Setf.coequalizer(f :: Nil) === Some(SetFunction("Factorset", s2, singletons, singleton))
       Setf.coequalizer(List.empty[SetFunction]) should throwA[IllegalArgumentException]
@@ -225,11 +223,22 @@ class SetCategoryTest extends Specification {
     }
 
     "have initial" in {
-      Setf.initial.isDefined === true
+      Setf.initial match {
+        case None => failure("Oops, no initial")
+        case Some(s0) => s0 must be empty
+      }
+      ok
     }
 
     "have terminal" in {
-      Setf.terminal.isDefined === true
+      Setf.terminal match {
+        case None => failure("Oops, no terminal")
+        case Some(s1) =>
+          s1.size === 1
+          s1.contains(Sets.Empty) === true
+      }
+      
+      ok
     }
     
     "build product 0x3" in {
@@ -307,6 +316,19 @@ class SetCategoryTest extends Specification {
           iy(4) === ("y", 4)
       }
       ok
+    }
+    
+    "have an inverse" in {
+      val f = SetFunction("f", s2, s2, n => (n.toString.toInt + 1) % 7)
+      val g = SetFunction("f", s2, s2, n => (n.toString.toInt + 6) % 7)
+      val actual = Setf.inverse(f)
+      actual === Some(g)
+    }
+
+    "not have an inverse" in {
+      val f = SetFunction("f", s2, s4, n => if (n.toString.toInt < 3) "hello" else "goodbye")
+      val actual = Setf.inverse(f)
+      actual === None
     }
 
   }

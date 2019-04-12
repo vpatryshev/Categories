@@ -22,7 +22,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord!
       }
-      true
+      ok
     }
     
     "compositions" >> {
@@ -50,7 +50,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord
       }
-      true
+      ok
     }
 
     "building a constant" >> {
@@ -66,7 +66,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord!
       }
-      true
+      ok
     }
 
     "building a nonexistent constant" >> {
@@ -76,7 +76,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // praise the Lord!
       }
-      true
+      ok
     }
 
     "building an inclusion" >> {
@@ -91,7 +91,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // Hallelujah!
       }
-      true
+      ok
     }
 
     "building a predicate-based inclusion" >> {
@@ -108,7 +108,7 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // Hallelujah!
       }
-      true
+      ok
     }
 
     "building ai identity" >> {
@@ -123,11 +123,11 @@ class SetFunctionTest extends Specification {
       } catch {
         case e: Exception => // Hallelujah!
       }
-      true
+      ok
     }
 
     "for factorset" >> {
-      val set0: Set[Int] = setOf(1 to 10)
+      val set0: Set[Int] = asSet(1 to 10)
       val set1 = set0.map(i => i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
       val br: BinaryRelation[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)

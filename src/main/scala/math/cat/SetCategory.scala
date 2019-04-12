@@ -23,6 +23,9 @@ class SetCategory(objects: BigSet[Set[Any]])
   override def id(s: set): SetFunction = SetFunction.id(s)
 
   override def toString: String = "Category of all Scala Sets"
+  
+  // this makes our category Cartesian-closed
+  def exponent(x: set, y: set): set = Sets.exponent(x, y)
 
   override def arrowsBetween(x: set, y: set): Set[SetFunction] =
     SetFunction.exponent(x, y)
@@ -84,17 +87,19 @@ class SetCategory(objects: BigSet[Set[Any]])
         tag = s"set^$n",
         d0 = domain,
         d1 = x,
-        f = takeElementAt(i)
+        mapping = takeElementAt(i)
       )
 
       Option((domain, projections.toList))
     }
   }
 
+  // need to filter, to eliminate the value that does not belong
   override lazy val initial: Option[set] = Option(Sets.Empty) filter contains
 
   override lazy val terminal: Option[set] = {
-    val option1: Option[set] = Option(setOf(initial))
+    val option1: Option[set] = initial map (setOf(_))
+    // need to filter, to eliminate the value that does not belong
     option1 filter contains
   }
 
@@ -157,3 +162,7 @@ object SetCategory {
 
   object Setf extends SetCategory(FiniteSets)
 }
+
+/*
+простой пример топоса, где не всякая монада является апликативным функтором. Это Set^{ℤ_2}
+ */

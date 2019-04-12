@@ -53,9 +53,9 @@ class BaseTest extends Specification {
       toMap(List("Nada", "I", "II")) === Map(0 -> "Nada", 1 -> "I", 2 -> "II")
     }
 
-    "id" in {
-      id(Set(1, "x", ())) === Map(1 -> 1, "x" -> "x", () -> ())
-    }
+//    "id" in {
+//      id(Set(1, "x", ())) === Map(1 -> 1, "x" -> "x", () -> ())
+//    }
     
     "range 1 arg" in {
       val r0 = range(0)

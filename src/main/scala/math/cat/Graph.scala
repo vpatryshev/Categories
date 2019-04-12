@@ -8,7 +8,7 @@ import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-abstract class Graph extends GraphData { graph =>
+trait Graph extends GraphData { graph =>
   
   def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception => false }
 
@@ -57,7 +57,7 @@ abstract class Graph extends GraphData { graph =>
     * @param to   second node
     * @return the set of all arrows from x to y
     */
-  def arrowsBetween(from: Node, to: Node): Arrows = setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
+  def arrowsBetween(from: Node, to: Node): Arrows = asSet(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
   /**
     * Checks if one arrow follows another
@@ -107,7 +107,7 @@ abstract class Graph extends GraphData { graph =>
   }
 }
 
-private[cat] abstract class GraphData {
+private[cat] trait GraphData {
   val name: String = "a graph"
   type Node
   type Arrow

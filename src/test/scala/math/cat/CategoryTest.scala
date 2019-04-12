@@ -7,6 +7,7 @@ import math.sets.Sets
 import math.sets.Sets._
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
+import math.Base._
 
 /**
  * Tests for Category class
@@ -275,10 +276,10 @@ class CategoryTest extends Test with CategoryFactory {
         val unknown = HalfSimplicial.d0("qq")
         failure("Should have failed")
       } catch {
-        case e: Exception => // println("Got expected exception " + e) // as expected
+        case e: Exception => // as expected
         case _: Throwable => failure("should have thrown a NoSuchElementException")
       }
-      true
+      ok
     }
 
     "D1_positive()" >> {
@@ -607,6 +608,16 @@ class CategoryTest extends Test with CategoryFactory {
       Square.initial === Some("a")
       _4_.initial === Some("0")
     }
+    
+    "foreach" >> {
+      _4_ foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
+      ok
+    }
+    
+    "map" >> {
+      val actual = Square map (x => x.toUpperCase)
+      actual.toSet === Set("A", "B", "C", "D")
+    }
 
     "allRootObjects_byDefinition" >> {
       ParallelPair.allRootObjects_byDefinition === Set("0")
@@ -810,6 +821,14 @@ class CategoryTest extends Test with CategoryFactory {
     "Segment" >> {
       def sut: Cat = segment(3)
       sut === _3_
+    }
+  }
+  
+  "Square" should {
+    "pass a regression test of 3/31/19" in {
+      val cd = Square.arrow("cd")
+      Square.d0(cd) === "c"
+      Square.d1(cd) === "d"
     }
   }
   

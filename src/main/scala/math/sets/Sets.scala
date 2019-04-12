@@ -5,6 +5,7 @@ import java.io.Reader
 import Functions.Injection
 import math.cat.SetMorphism
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.util.parsing.combinator.RegexParsers
@@ -52,10 +53,10 @@ object Sets {
   def setOf[X](content: Iterable[X], predicate: X => Boolean): Set[X] =
     setOf(content, (0 /: content) ((n, x) => n + 1), predicate)
 
-  def setOf[X](content: Iterable[X]): Set[X] =
+  def asSet[X](content: Iterable[X]): Set[X] =
     setOf(content, x => content exists (_ == x))
 
-  def setOf[T](content: T*): Set[T] = setOf(content)
+  def setOf[T](content: T*): Set[T] = asSet(content)
 
   def range(n: Int): Set[Int] = range(0, n, 1)
   
@@ -190,8 +191,6 @@ object Sets {
       pow(2, xs.size),
       (sub: Set[X]) => sub subsetOf xs)
 
-  def split[X](xs: Iterable[X]): (X, Iterable[X]) = (xs.iterator.next, xs drop 1)
-
   /**
     * Set of all possible maps from set xs to set ys
     * @param xs domain of maps
@@ -200,12 +199,18 @@ object Sets {
     * @tparam Y type of codomain elements
     * @return the set of all possible maps
     */
-  def exponent[X, Y](xs: Set[X], ys: Set[Y]): Set[Map[X, Y]] =
-    setOf(exponentElements(ys, xs),
+  def exponent[X, Y](xs: Set[X], ys: Set[Y]): Set[Map[X, Y]] = {
+    setOf(allMaps(xs.toList, ys.toList),
       pow(ys size, xs size),
       (m: Map[X, Y]) => xs == m.keySet
     )
+  }
 
+  def allMaps[X, Y](xs: List[X], ys: List[Y]): List[Map[X, Y]] =
+    (List(Map.empty[X, Y]) /: xs)((maps, x) =>
+      maps flatMap (m => ys map (y => m + (x -> y)))
+    )
+  
   def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X => Y): Y => Set[X] = {
     y => Set.empty[X] ++ xs.filter(f(_) == y)
   }
@@ -236,6 +241,8 @@ object Sets {
   def parse(input: Reader): Set[String] = (new Parser).read(input)
 
   def parse(input: CharSequence): Set[String] = (new Parser).read(input)
+
+  def singleton[T](x: T): Set[T] = Set(x)
 
   def isSingleton[T](ts: Iterable[T]): Boolean = {
     val i = ts.iterator
@@ -379,18 +386,7 @@ object Sets {
     * @param step range step
     * @return the set of numbers
     */
-  def numbers(from: Int, to: Int, step: Int): Set[Int] = setOf(range(from, to, step))
-  
-  private def exponentElements[X, Y](ys: Iterable[Y], xs: Iterable[X]): Iterable[Map[X, Y]] = {
-    if (xs.iterator hasNext) {
-      val (x, tail) = split(xs)
-      for (y <- ys;
-           z <- exponentElements(ys, tail))
-        yield {
-          z + (x -> y)
-        }
-    } else List(Map[X, Y]())
-  }
+  def numbers(from: Int, to: Int, step: Int): Set[Int] = asSet(range(from, to, step))
 
   class InterleavingIterator[X, X1 <: X, X2 <: X](
       iterator1: Iterator[X1],

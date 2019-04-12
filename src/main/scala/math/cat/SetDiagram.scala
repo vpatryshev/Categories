@@ -2,10 +2,12 @@ package math.cat
 
 import math.Base
 import math.Base._
-import math.sets.FactorSet
+import math.cat.SetCategory.Setf
+import math.sets.{FactorSet, Sets}
 import math.sets.Functions._
 import math.sets.Sets._
-import scalakittens.Result
+import scalakittens.{Good, Result}
+import SetDiagram._
 
 import scala.language.postfixOps
 
@@ -24,16 +26,17 @@ abstract class SetDiagram(
   extends Functor(tag, d0, SetCategory.Setf) {
   type XObject = d0.Obj
   type XObjects = Set[d0.Obj]
-  type YObject = set
   type XArrow = d0.Arrow
   type XArrows = Set[d0.Arrow]
-  type YArrow = SetFunction
 
   implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
 
+  def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
+
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
+  // something like Yoneda embedding, but not exactly
   private type PointLike = Map[XObject, Any]
 
   /**
@@ -53,10 +56,10 @@ abstract class SetDiagram(
     val fromRootObjects: Map[XObject, XArrow] =
       arrowsInvolved.groupBy(arrow => d0.d1(arrow)).mapValues(_.head) // does not matter which one, in this case
 
-    def arrowFromRootObject(x: XObject) =
+    def arrowFromRootObject(x: d0.Obj) =
       if (limitBuilder.rootObjects(x)) d0.id(x) else fromRootObjects(x)
     
-    def coneMap(x: XObject): d1.Arrow = d1.arrow {
+    def coneMap(x: d0.Obj): d1.Arrow = d1.arrow {
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
@@ -109,7 +112,7 @@ abstract class SetDiagram(
       val arrowsFrom_o: Seq[XArrow] = bundles(o).toList
 
       def inclusionToUnion(a: XArrow): Any => Any = {
-        arrowsMapping(a).f andThen objectToInjection(d0.d1(a))
+        arrowsMapping(a).mapping andThen objectToInjection(d0.d1(a))
       }
 
       arrowsFrom_o match {
@@ -141,7 +144,7 @@ abstract class SetDiagram(
     arrows => arrows.forall(f => arrows.forall(g => {
         arrowsAreCompatibleOnPoint(point)(f, g)
       }))
-    
+
 
   /**
     * Checks whether two arrows action on a given point produce the same element. 
@@ -206,32 +209,62 @@ abstract class SetDiagram(
       setsToCheck.forall(checkCompatibility)
     }
   }
+
+  def points: Iterable[SetDiagram] = {
+    val listOfObjects: List[XObject] = domainObjects.toList
+    val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
+
+    def isCompatible(om: PointLike) = d0.arrows.forall {
+      a =>
+        val d00 = om(d0.d0(a))
+        val d01 = om(d0.d1(a))
+        val f = arrowsMapping(a)
+        val itsok = f(d00) == d01
+        
+        itsok
+    }
+
+    val objMappings = for {
+      values <- Sets.product(listOfComponents) //.view
+      om: PointLike = listOfObjects zip values toMap;
+      if isCompatible(om)
+    } yield om
+    val sorted = objMappings.toList.sortBy(_.toString).zipWithIndex
+
+    val all = sorted map {
+      case (map, i) =>
+        def om(o: d0.Obj): set = asSet(d1.obj(singleton(map(o))))
+        def am(a: d0.Arrow): SetFunction = {
+          val original = arrowsMapping(a)
+          val newDomain = om(d0.d0(a))
+          val newCodomain = om(d0.d1(a))
+          val function = original.restrictTo(newDomain, newCodomain)
+          function iHope
+        }
+        
+        SetDiagram.build(s"#${i+1}", d0)(om, am)
+    }
+    all collect {
+      case Good(diagram) => diagram
+    }
+  }
 }
 
 object SetDiagram {
 
-  def build(
-    tag: String,
-    dom: Category)(
-    objectsMap: dom.Obj => set,
-    arrowMap: dom.Arrow => SetFunction): Result[SetDiagram] = {
+  def build(tag: String, site: Category)(
+    objectsMap: site.Obj => set,
+    arrowMap: site.Arrow => SetFunction): Result[SetDiagram] = {
     
-    val diagram: SetDiagram = new SetDiagram(tag, dom) {
-      override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(objectsMap(dom.obj(x)))
+    val diagram: SetDiagram = new SetDiagram(tag, site) {
+      override val objectsMapping: d0.Obj => d1.Obj =
+        (x: d0.Obj) => d1.obj(objectsMap(site.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-        ((a: XArrow) => arrowMap(a.asInstanceOf[dom.Arrow])).asInstanceOf[d0.Arrow => d1.Arrow]
+        (a: XArrow) => d1.arrow(arrowMap(site.arrow(a)))
     }
     
-    val dc = diagram.getClass
-    val meths = dc.getMethods
-    val m0 = meths.head
-    for {
-      x <- diagram.d0.objects
-    } {
-      val y = objectsMap(x.asInstanceOf[dom.Obj])
-      println(s"$x -> $y")
-    }
-    Functor.validateFunctor(diagram) returning diagram
+    val res = Functor.validateFunctor(diagram) returning diagram
+    res
   } 
 }

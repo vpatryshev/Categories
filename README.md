@@ -20,10 +20,24 @@ What we have now:
 - initial and terminal objects in categories, products of categories, degreees
 - functors, cones, cocones, limits, colimits
 - set diagrams, that is, functors with a set category as a codomain
+- diagrams (that's set diagrams) (presheaves)
+- subterminals
+- points
+- representable functors
 
-Plans: presheaves, sheaves, subobject classifiers, logic, Grothendieck topologies
+WIP:
+- (lattice of) subobjects
+
+Plans: 
+- build subobject classifiers,
+- build logic, 
+- table of logic on points
+- Grothendieck topologies
+- sheaves
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
 
 TODO: use refinement maybe: https://github.com/fthomas/refined
+
+
 

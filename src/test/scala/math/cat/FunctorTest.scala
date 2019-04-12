@@ -4,6 +4,7 @@ import Category._
 import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
+import math.Base._
 
 class FunctorTest extends Test {
   type SUT = Functor

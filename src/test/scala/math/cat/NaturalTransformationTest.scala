@@ -3,6 +3,7 @@ package math.cat
 import math.Test
 import math.cat.Category._
 import scalakittens.Result
+import math.Base._
 
 /**
   * Natural transformations tests
@@ -32,10 +33,10 @@ class NaturalTransformationTest extends Test {
 
     "compose" in {
         val fgh = fg compose gh
-        fgh.from === f
-        fgh.to === h
-        fgh.transformPerObject(fgh.from.d0.obj("0")) === "0.2"
-        fgh.transformPerObject(fgh.from.d0.obj("1")) === "2.3"
+        fgh.d0 === f
+        fgh.d1 === h
+        fgh.transformPerObject(fgh.domainCategory.obj("0")) === "0.2"
+        fgh.transformPerObject(fgh.domainCategory.obj("1")) === "2.3"
     }
 
     "have identity" in {

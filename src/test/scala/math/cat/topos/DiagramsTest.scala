@@ -1,45 +1,144 @@
 package math.cat.topos
 
-import math.cat.{Category, TestDiagrams}
-import org.specs2.mutable.Specification
-import Category._
 import math.Test
+import math.cat.Category._
+import math.cat.TestDiagrams
+import math.cat.topos.Diagrams.Diagram
 
 class DiagramsTest extends Test with TestDiagrams {
 
   type SUT = SmallDiagram
-  
-  "DiagramsTest" should {
-    "id" in {
+
+  "Diagrams" should {
+    "have id W" in {
       val topos = new Diagrams(W)
-      expect { d =>
-        val idtrans = topos.id(d)
-        idtrans.d0 === d
-        idtrans.d1 === d
-        // the following case fails miserably; investigate
-        // java.lang.AbstractMethodError: Fatal execution error, caused by math.cat.NaturalTransformation
-        // .transformPerObject(Ljava/lang/Object;)Ljava/lang/Object;
-        //java.lang.AbstractMethodError: math.cat.NaturalTransformation.transformPerObject(Ljava/lang/Object;)
-        // Ljava/lang/Object;
-        //	at math.cat.NaturalTransformation.math$cat$NaturalTransformation$$comp$1(NaturalTransformation.scala:48)
-        
-//        idtrans.compose(idtrans) === idtrans
-      } (SampleWDiagram.asDiagram)
+      val d = SampleWDiagram
+      val idtrans = topos.id(d)
+      idtrans.d0 === d
+      idtrans.d1 === d
+      idtrans.compose(idtrans) === idtrans
     }
 
-    "m" in {
+    "have id in M" in {
       // todo: test composition
       val topos = new Diagrams(M)
-      expect { d =>
-        val idtrans = topos.id(d)
-        idtrans.d0 === d
-        idtrans.d1 === d
-      } (SampleMDiagram.asDiagram)
+      val d = SampleMDiagram
+      val idtrans = topos.id(d)
+      idtrans.d0 === d
+      idtrans.d1 === d
     }
 
-    "graphOfDiagrams" in {
+    def checkConstSize(topos: Diagrams)(obj: topos.Obj, expected: Int): Unit = {
+      for {
+        x <- topos.site.objects
+      } {
+        val setAtx: Set[_] = obj apply x
+        setAtx.size === expected
+      }
+    }
+
+    "have an initial in M" in {
+      val topos = new Diagrams(M)
+
+      val terminalOpt = topos.initial
+      terminalOpt match {
+        case None => failure(s"Could not build an initial in $topos")
+        case Some(terminal) => checkConstSize(topos)(terminal, 0)
+      }
+      checkConstSize(topos)(topos._0, 0)
       ok
     }
 
+    "have a terminal in W" in {
+      val topos = new Diagrams(W)
+
+      val terminalOpt = topos.terminal
+      terminalOpt match {
+        case None => failure(s"Could not build a terminal in $topos")
+        case Some(terminal) =>
+          terminal === topos._1
+          checkConstSize(topos)(terminal, 1)
+          val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
+          terminal.asFunction(ab).d0 === Set(Set())
+      }
+      ok
+    }
+
+    "list subterminals in square" in {
+      val topos = new Diagrams(Square)
+      val subterminals = topos.subterminals
+      subterminals.size === 6
+      subterminals must contain(topos._0)
+      subterminals must contain(topos._1)
+    }
+
+    case class diagramTable(data: List[String] = Nil) {
+      def |(x: String): diagramTable = diagramTable(x::data)
+      def |(d: Diagrams.Diagram) = checkDiagram(d, data.reverse, data.reverse)
+    }
+
+    case class checkDiagram(d: Diagram, data: List[String], fullList: List[String]) {
+      private def check1(x: String, y: String) = {
+        val expected = x.split(",").toSet.filter(_.nonEmpty)
+        val actual = d(y)
+        actual aka s"${d.tag} @$y" must_== expected
+      }
+      
+      def |(x: String): checkDiagram = {
+        check1(x, data.head)
+        checkDiagram(d, data.tail, fullList)
+      }
+
+      def |(d: Diagram): checkDiagram = checkDiagram(d, fullList, fullList)
+    }
+    
+    val applyTo = new diagramTable
+    
+    def representable(topos: Diagrams) =
+      (obj: topos.site.Obj) => topos.representable(obj)
+    
+    "produce representables in W" in {
+      import Diagrams._
+      val topos = new Diagrams(W)
+      import topos.site._
+      val at = representable(topos)
+
+      applyTo | "a" | "b"  | "c" | "d"  | "e" |
+      at("a") | "a" | "ab" | ""  | ""   | ""  |
+      at("b") | ""  | "b"  | ""  | ""   | ""  |
+      at("c") | ""  | "cb" | "c" | "cd" | ""  |
+      at("d") | ""  | ""   | ""  | "d"  | ""  |
+      at("e") | ""  | ""   | ""  | "ed" | "e"
+
+      ok
+    }
+
+    "produce representables in M" in {
+      import Diagrams._
+      val topos = new Diagrams(M)
+      import topos.site._
+      val at = representable(topos)
+
+      applyTo | "a"  | "b" | "c"  | "d" | "e"  |
+      at("a") | "a"  | ""  | ""   | ""  | ""   |
+      at("b") | "ba" | "b" | "bc" | ""  | ""   |
+      at("c") | ""   | ""  | "c"  | ""  | ""   |
+      at("d") | ""   | ""  | "dc" | "d" | "de" |
+      at("e") | ""   | ""  | ""   | ""  | "e"
+
+      ok
+    }
+
+    "produce representables in Z3" in {
+      import Diagrams._
+      val topos = new Diagrams(Z3)
+      import topos.site._
+      val at = representable(topos)
+
+      applyTo | "0"     |
+      at("0") | "0,1,2"
+
+      ok
+    }
   }
 }
