@@ -3,6 +3,7 @@ package math.cat.topos
 import math.Test
 import math.cat.Category._
 import math.cat.TestDiagrams
+import math.cat.topos.Diagrams.Diagram
 
 class DiagramsTest extends Test with TestDiagrams {
 
@@ -71,36 +72,71 @@ class DiagramsTest extends Test with TestDiagrams {
       subterminals must contain(topos._1)
     }
 
+    case class diagramTable(data: List[String] = Nil) {
+      def |(x: String): diagramTable = diagramTable(x::data)
+      def |(d: Diagrams.Diagram) = checkDiagram(d, data.reverse, data.reverse)
+    }
+
+    case class checkDiagram(d: Diagram, data: List[String], fullList: List[String]) {
+      private def check1(x: String, y: String) = {
+        val expected = x.split(",").toSet.filter(_.nonEmpty)
+        val actual = d(y)
+        actual aka s"${d.tag} @$y" must_== expected
+      }
+      
+      def |(x: String): checkDiagram = {
+        check1(x, data.head)
+        checkDiagram(d, data.tail, fullList)
+      }
+
+      def |(d: Diagram): checkDiagram = checkDiagram(d, fullList, fullList)
+    }
+    
+    val applyTo = new diagramTable
+    
+    def representable(topos: Diagrams) =
+      (obj: topos.site.Obj) => topos.representable(obj)
+    
     "produce representables in W" in {
       import Diagrams._
       val topos = new Diagrams(W)
       import topos.site._
-      val at = (obj: topos.site.Obj) => topos.representable(obj)
-      
-      case class table(data: List[String] = Nil) {
-        def |(x: String): table = table(x::data)
-        def |(d: Diagrams.Diagram) = check(d, data.reverse, data.reverse)
-      }
-
-      case class check(d: Diagram, data: List[String], fullList: List[String]) {
-        def |(x: String): check = {
-          val y = data.head
-          val expected = x.split(",").toSet.filter(_.nonEmpty)
-          val actual = d(y)
-          actual aka s"${d.tag} @$y" must_== expected
-          check(d, data.tail, fullList)
-        }
-        def |(d: Diagram): check = check(d, fullList, fullList)
-      }
-
-      val applyTo = new table
+      val at = representable(topos)
 
       applyTo | "a" | "b"  | "c" | "d"  | "e" |
       at("a") | "a" | "ab" | ""  | ""   | ""  |
       at("b") | ""  | "b"  | ""  | ""   | ""  |
       at("c") | ""  | "cb" | "c" | "cd" | ""  |
       at("d") | ""  | ""   | ""  | "d"  | ""  |
-      at("e") | ""  | ""   | ""  | "ed" | "e" 
+      at("e") | ""  | ""   | ""  | "ed" | "e"
+
+      ok
+    }
+
+    "produce representables in M" in {
+      import Diagrams._
+      val topos = new Diagrams(M)
+      import topos.site._
+      val at = representable(topos)
+
+      applyTo | "a"  | "b" | "c"  | "d" | "e"  |
+      at("a") | "a"  | ""  | ""   | ""  | ""   |
+      at("b") | "ba" | "b" | "bc" | ""  | ""   |
+      at("c") | ""   | ""  | "c"  | ""  | ""   |
+      at("d") | ""   | ""  | "dc" | "d" | "de" |
+      at("e") | ""   | ""  | ""   | ""  | "e"
+
+      ok
+    }
+
+    "produce representables in Z3" in {
+      import Diagrams._
+      val topos = new Diagrams(Z3)
+      import topos.site._
+      val at = representable(topos)
+
+      applyTo | "0"     |
+      at("0") | "0,1,2"
 
       ok
     }

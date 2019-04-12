@@ -23,10 +23,12 @@ What we have now:
 - diagrams (that's set diagrams) (presheaves)
 - subterminals
 - points
+- representable functors
+
+WIP:
+- (lattice of) subobjects
 
 Plans: 
-- representable functors (WIP),
-- (lattice of) subobjects,
 - build subobject classifiers,
 - build logic, 
 - table of logic on points
