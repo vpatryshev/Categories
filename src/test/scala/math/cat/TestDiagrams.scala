@@ -55,6 +55,14 @@ trait TestDiagrams extends Test {
     )
 
   object BuildPullbackDiagram {
+    val sa: set = Set(1, 2, 3)
+    val sb: set = Set(2, 3, 4)
+    val sc: set = Set(0, 1)
+    val ac = SetFunction.build("_ac", sa, sc, _.toString.toInt % 2).iHope
+    val bc = SetFunction.build("_bc", sb, sc, x => (x.toString.toInt + 1) % 2).iHope
+    val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
+    val am = Map("ac" -> ac, "bc" -> bc)
+    
     lazy val asFunctor: Result[Functor] = Functor.apply(
       "pullback", Category.Pullback, SetCategory.Setf)(
       om,
@@ -65,13 +73,6 @@ trait TestDiagrams extends Test {
       om,
       am
     )
-    val sa: set = Set(1, 2, 3)
-    val sb: set = Set(2, 3, 4)
-    val sc: set = Set(0, 1)
-    val ac = SetFunction.build("_ac", sa, sc, _.toString.toInt % 2).iHope
-    val bc = SetFunction.build("_bc", sb, sc, x => (x.toString.toInt + 1) % 2).iHope
-    val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
-    val am = Map("ac" -> ac, "bc" -> bc)
   }
 
   object SampleWDiagramContent {

@@ -34,6 +34,7 @@ abstract class Functor(
       } else arrowsMappingCandidate(a)
     } catch {
       case x: Exception =>
+//        x.printStackTrace()
         throw new IllegalArgumentException(
           s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}", x)
     }
@@ -367,20 +368,23 @@ object Functor {
 
   } andThen OK
 
-  private def checkCompositionPreservation(f: Functor): Outcome = Result.traverse {
-    for {
-      fx <- f.d0.arrows
-      gx <- f.d0.arrows
-      gx_fx <- f.d0.m(fx, gx)
-      fy = f.arrowsMapping(fx)
-      gy = f.arrowsMapping(gx)
-      expected = f.arrowsMapping(gx_fx)
-      gy_fy <- f.d1.m(fy, gy)
-    } yield {
+  private def checkCompositionPreservation(f: Functor): Outcome = {
+    def check(fx: f.d0.Arrow, gx: f.d0.Arrow): Outcome = {
+      val fy = f.arrowsMapping(fx)
+      val gy = f.arrowsMapping(gx)
+      val gy_fy = f.d1.m(fy, gy)
+      val gx_fx = f.d0.m(fx, gx)
+      val expected = gx_fx map (gf => f.arrowsMapping(gf))
       OKif(gy_fy == expected,
-        s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
+          s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
     }
-  } andThen OK
+    
+    Result.traverse {
+      for {
+        (fx, gx) <- Category.composablePairs(f.d0)
+      } yield check(fx, gx)
+    } andThen OK
+  }
   
     private def checkArrowMapping(f: Functor): Outcome = Result.traverse {
     for (a <- f.d0.arrows) yield {

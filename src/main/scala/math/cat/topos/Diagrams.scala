@@ -90,7 +90,7 @@ class Diagrams(val site: Category)
     def objectMapping(candidate: Set[site.Obj]) =
       (obj: site.Obj) => if (candidate contains obj) _1(obj) else Set.empty.untyped
     
-    def arrowMapping(candidate: Set[site.Obj]): site.Arrow => SetFunction = {
+    def arrowMappingOpt(candidate: Set[site.Obj]): site.Arrow => Result[SetFunction] = {
       val omc = objectMapping(candidate)
       (a: site.Arrow) => {
         // this transformation, site.arrow, is here due to an intellij bug
@@ -98,16 +98,20 @@ class Diagrams(val site: Category)
         val d1 = omc(site.d1(site.arrow(a)))
         val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
         
-        SetFunction.build("", d0, d1, mapping).iHope // TODO: figure out if errors should be handled
+        SetFunction.build("", d0, d1, mapping)
       }
     }
+    (1::Nil).toStream
     
     val all = for {
       (candidate, i) <- Sets.powerset(site.objects).zipWithIndex
+      // some mappings are not working for a given candidate
+      amCandidate: (site.Arrow => Result[SetFunction]) = arrowMappingOpt(candidate)
+      arrowsMapOpt: Set[Result[(site.Arrow, SetFunction)]] = site.arrows map (a => amCandidate(a) map (a -> _))
+      am: Traversable[(site.Arrow, SetFunction)] <- Result.traverse(arrowsMapOpt).asOption
       om = objectMapping(candidate)
-      am = arrowMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram <- SetDiagram.build("__" + i, site)(om, am).asOption
+      diagram <- SetDiagram.build("__" + i, site)(om, am.toMap).asOption
     } yield diagram
     
     all

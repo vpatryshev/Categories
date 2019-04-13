@@ -18,32 +18,8 @@ class DiagramsTest extends Test with TestDiagrams {
       setAtx.size === expected
     }
   }
-
-  "Diagrams" should {
-
-    "have a terminal in W" in {
-      val topos = new Diagrams(W)
-
-      val terminalOpt = topos.terminal
-      terminalOpt match {
-        case Good(terminal) =>
-          terminal === topos._1
-          checkConstSize(topos)(terminal, 1)
-          val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
-          terminal.asFunction(ab).d0 === Set(Set())
-        case none => failure(s"Could not build a terminal in $topos: $none")
-      }
-      ok
-    }
-
-    "list subterminals in square" in {
-      val topos = new Diagrams(Square)
-      val subterminals = topos.subterminals
-      subterminals.size === 6
-      subterminals must contain(topos._0)
-      subterminals must contain(topos._1)
-    }
-
+  
+  "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x::data)
       def |(d: Diagrams.Diagram) = checkDiagram(d, data.reverse, data.reverse)
@@ -55,7 +31,7 @@ class DiagramsTest extends Test with TestDiagrams {
         val actual = d(y)
         actual aka s"${d.tag} @$y" must_== expected
       }
-      
+
       def |(x: String): checkDiagram = {
         check1(x, data.head)
         checkDiagram(d, data.tail, fullList)
@@ -63,52 +39,52 @@ class DiagramsTest extends Test with TestDiagrams {
 
       def |(d: Diagram): checkDiagram = checkDiagram(d, fullList, fullList)
     }
-    
+
     val applyTo = new diagramTable
-    
+
     def representable(topos: Diagrams) =
       (obj: topos.site.Obj) => topos.representable(obj)
-    
-    "produce representables in W" in {
+
+    "be good in Set^W" in {
       import Diagrams._
       val topos = new Diagrams(W)
       import topos.site._
       val at = representable(topos)
 
       applyTo | "a" | "b"  | "c" | "d"  | "e" |
-      at("a") | "a" | "ab" | ""  | ""   | ""  |
-      at("b") | ""  | "b"  | ""  | ""   | ""  |
-      at("c") | ""  | "cb" | "c" | "cd" | ""  |
-      at("d") | ""  | ""   | ""  | "d"  | ""  |
-      at("e") | ""  | ""   | ""  | "ed" | "e"
+        at("a") | "a" | "ab" | ""  | ""   | ""  |
+        at("b") | ""  | "b"  | ""  | ""   | ""  |
+        at("c") | ""  | "cb" | "c" | "cd" | ""  |
+        at("d") | ""  | ""   | ""  | "d"  | ""  |
+        at("e") | ""  | ""   | ""  | "ed" | "e"
 
       ok
     }
 
-    "produce representables in M" in {
+    "be good in Set^M" in {
       import Diagrams._
       val topos = new Diagrams(M)
       import topos.site._
       val at = representable(topos)
 
       applyTo | "a"  | "b" | "c"  | "d" | "e"  |
-      at("a") | "a"  | ""  | ""   | ""  | ""   |
-      at("b") | "ba" | "b" | "bc" | ""  | ""   |
-      at("c") | ""   | ""  | "c"  | ""  | ""   |
-      at("d") | ""   | ""  | "dc" | "d" | "de" |
-      at("e") | ""   | ""  | ""   | ""  | "e"
+        at("a") | "a"  | ""  | ""   | ""  | ""   |
+        at("b") | "ba" | "b" | "bc" | ""  | ""   |
+        at("c") | ""   | ""  | "c"  | ""  | ""   |
+        at("d") | ""   | ""  | "dc" | "d" | "de" |
+        at("e") | ""   | ""  | ""   | ""  | "e"
 
       ok
     }
 
-    "produce representables in Z3" in {
+    "be good in Set^Z3" in {
       import Diagrams._
       val topos = new Diagrams(Z3)
       import topos.site._
       val at = representable(topos)
 
       applyTo | "0"     |
-      at("0") | "0,1,2"
+        at("0") | "0,1,2"
 
       ok
     }
@@ -145,6 +121,46 @@ class DiagramsTest extends Test with TestDiagrams {
       }
       checkConstSize(topos)(topos._0, 0)
       ok
+    }
+  }
+  
+  "Terminal object" should {
+
+    "exist in Set^W" in {
+      val topos = new Diagrams(W)
+
+      val terminalOpt = topos.terminal
+      terminalOpt match {
+        case Good(terminal) =>
+          terminal === topos._1
+          checkConstSize(topos)(terminal, 1)
+          val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
+          terminal.asFunction(ab).d0 === Set(Set())
+        case none => failure(s"Could not build a terminal in $topos: $none")
+      }
+      ok
+    }
+
+    "exist in Set^Square" in {
+      val topos = new Diagrams(Square)
+      val subterminals = topos.subterminals
+      subterminals.size === 6
+      subterminals must contain(topos._0)
+      subterminals must contain(topos._1)
+    }
+  }
+  
+  "List of subobjects" should {
+    "be good for empty diagram" in {
+      val actual = EmptyDiagram.subobjects
+      actual.size === 1
+      actual.head === EmptyDiagram
+    }
+    
+    "be good for pullback diagram" in {
+      val actual = SamplePullbackDiagram.subobjects
+      actual.size === 4
+      actual.head.points.size === 0
     }
   }
 }
