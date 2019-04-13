@@ -20,8 +20,9 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   def map[B](f: Obj => B): TraversableOnce[B] = objects.map(f)
   def flatMap[B](f: Obj => GenTraversableOnce[B]): TraversableOnce[B] = objects.flatMap(f)
   
-  lazy val terminal: Option[Obj] = objects.find(isTerminal)
-  lazy val initial: Option[Obj] = objects.find(isInitial)
+  lazy val terminal: Result[Obj] = objects.find(isTerminal)
+  lazy val initial: Result[Obj] = objects.find(isInitial)
+  
   /**
     * an iterable of initial objects as defined
     */
@@ -135,7 +136,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param f an arrow for which we are looking an inverse
     * @return inverse arrow
     */
-  def inverse(f: Arrow): Option[Arrow] = arrowsBetween(d1(arrow(f)), d0(f)) find (areInverse(f, _))
+  def inverse(f: Arrow): Result[Arrow] = arrowsBetween(d1(arrow(f)), d0(f)) find (areInverse(f, _))
 
   def areInverse(f: Arrow, g: Arrow): Boolean =
     (m(arrow(f), arrow(g)) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
@@ -210,7 +211,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param g second arrow
     * @return an equalizer arrow, wrapped in Option
     */
-  def equalizer(f: Arrow, g: Arrow): Option[Arrow] = arrows find isEqualizer(f, g)
+  def equalizer(f: Arrow, g: Arrow): Result[Arrow] = arrows find isEqualizer(f, g)
 
   /**
     * Builds a predicate that checks
@@ -254,7 +255,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param g second arrow
     * @return a coequalizer arrow, if one exists, null othrewise
     */
-  def coequalizer(f: Arrow, g: Arrow): Option[Arrow] = arrows find isCoequalizer(f, g)
+  def coequalizer(f: Arrow, g: Arrow): Result[Arrow] = Result(arrows find isCoequalizer(f, g))
 
   /**
     * Builds a predicate that checks if an arrow is a coequalizer of the other two arrows.
@@ -312,9 +313,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param arrows the arrows, all of which shold be coequalized
     * @return a coequalizer arrow
     */
-  def coequalizer(arrows: Iterable[Arrow]): Option[Arrow] = {
-    throw new UnsupportedOperationException("to be implemented later, maybe")
-  }
+  def coequalizer(arrows: Iterable[Arrow]): Result[Arrow] = NotImplemented
 
   /**
     * Builds a set of all arrows to x and y (respectively) that start at the same object.
@@ -358,8 +357,8 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param y second object
     * @return a pair of arrows from product object to x and y, or null if none exists.
     */
-  def product(x: Obj, y: Obj): Option[(Arrow, Arrow)] =
-    product2(arrows, arrows) find isProduct(x, y)
+  def product(x: Obj, y: Obj): Result[(Arrow, Arrow)] =
+    Result(product2(arrows, arrows) find isProduct(x, y))
 
   /**
     * Builds a union of two objects, if it exists. Returns null otherwise.
@@ -369,8 +368,8 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param y second object
     * @return a pair of arrows from a and b to their union, or null if none exists.
     */
-  def union(x: Obj, y: Obj): Option[(Arrow, Arrow)] =
-    product2(arrows, arrows) find isUnion(x, y)
+  def union(x: Obj, y: Obj): Result[(Arrow, Arrow)] =
+    Result(product2(arrows, arrows) find isUnion(x, y))
 
   /**
     * Checks if i = (ix, iy) is a union of objects x and y.
@@ -410,8 +409,8 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param g second arrow
     * @return a pair of arrows from pullback object to d0(f) and d0(g), or null if none exists.
     */
-  def pullback(f: Arrow, g: Arrow): Option[(Arrow, Arrow)] = {
-    require(sameCodomain(f, g), s"Codomains of $f and $g should be the same in $name")
+  def pullback(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] = {
+    OKif(sameCodomain(f, g), s"Codomains of $f and $g should be the same in $name") andThen
     product2(arrows, arrows).find(isPullback(f, g))
   }
 
@@ -485,8 +484,8 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param g second arrow
     * @return a pair of arrows from d1(f) and d1(g) to the pushout object, or null if none exists.
     */
-  def pushout(f: Arrow, g: Arrow): Option[(Arrow, Arrow)] = {
-    require(sameDomain(f, g), "Domains should be the same in $name")
+  def pushout(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] = {
+    OKif(sameDomain(f, g), "Domains should be the same in $name") andThen
     product2(arrows, arrows).find(isPushout(f, g))
   }
 
@@ -609,33 +608,33 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param n degree to which to raise object x
     * @return x^n^ and its projections to x
     */
-  def degree(x: Obj, n: Int): Option[(Obj, List[Arrow])] = {
-    n match {
-      case neg if neg < 0 => None
-      case 0 => terminal map (x => (x, List()))
-      case 1 => Option((x, id(x) :: Nil))
-      case _ =>
-        degree(x, n - 1) flatMap (
-          value => {
-            val (x_n_1, previous_projections) = value
-            val tentativeProduct = product(x, x_n_1)
-            tentativeProduct flatMap { xn => {
-              val (p1, p_n_1) = xn
-              val projections = p1 :: previous_projections map (m(p_n_1, _))
-              val res = Some((d0(p1), projections collect { case Some(f) => f }))
-              res
+  def degree(x: Obj, n: Int): Result[(Obj, List[Arrow])] = {
+    OKif(n >= 0) andThen {
+      n match {
+        case 0 => terminal map (x => (x, List()))
+        case 1 => Good((x, id(x) :: Nil))
+        case _ =>
+          degree(x, n - 1) flatMap (
+            value => {
+              val (x_n_1, previous_projections) = value
+              val tentativeProduct = product(x, x_n_1)
+              tentativeProduct flatMap { xn => {
+                val (p1, p_n_1) = xn
+                val projections = p1 :: previous_projections map (m(p_n_1, _))
+                val res = Good((d0(p1), projections collect { case Some(f) => f }))
+                res
+              }
+              }
             }
-            }
-          }
-          )
+            )
+      }
     }
   }
 
-  protected def deg(n: Int)(x: Obj): Option[(Obj, List[Arrow])] = {
+  protected def deg(n: Int)(x: Obj): Result[(Obj, List[Arrow])] = OKif(n >= 0) andThen {
     n match {
-      case neg if neg < 0 => None
       case 0 => terminal map (x => (x, List()))
-      case 1 => Option((x, id(x) :: Nil))
+      case 1 => Good((x, id(x) :: Nil))
       case _ =>
         degree(x, n - 1) flatMap (
           value => {
@@ -644,7 +643,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
             tentativeProduct flatMap { xn => {
               val (p1, p_n_1) = xn
               val projections = p1 :: previous_projections map (m(p_n_1, _))
-              val res = Some((d0(p1), projections collect { case Some(f) => f }))
+              val res = Good((d0(p1), projections collect { case Some(f) => f }))
               res
             }
             }

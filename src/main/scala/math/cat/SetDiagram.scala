@@ -44,7 +44,7 @@ abstract class SetDiagram(
     *
     * @return this functor's limit
     */
-  override def limit: Option[Cone] = {
+  override def limit: Result[Cone] = {
     val bundleObjects: XObjects = limitBuilder.bundles.keySet
 
     def arrowsFromBundles(obj: XObject): XArrows = limitBuilder.bundles.get(obj).toSet.flatten
@@ -64,14 +64,14 @@ abstract class SetDiagram(
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
       val projections: List[Any] => Any = limitBuilder.projectionForObject(rootObject)
-      SetFunction(s"vertex to ($tag)[$x]", limitBuilder.vertex, f.d1,
-        { case point: List[Any] => f(projections(point)) })
+      SetFunction.build(s"vertex to ($tag)[$x]", limitBuilder.vertex, f.d1,
+        { case point: List[Any] => f(projections(point)) }) iHope // what can go wrong?
     }
     //YObjects vertex
-    Option(Cone(d1.obj(limitBuilder.vertex), coneMap))
+    Good(Cone(d1.obj(limitBuilder.vertex), coneMap))
   }
 
-  override def colimit: Option[Cocone] = {
+  override def colimit: Result[Cocone] = {
     val op = d0.op
     val participantArrows: Set[op.Arrow] = op.arrowsFromRootObjects // filterNot domain.isIdentity
     // for each object, a set of arrows starting at it object
@@ -95,7 +95,8 @@ abstract class SetDiagram(
       a <- bundles(o)
       from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
-      embeddingToUnion = SetFunction("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a)))
+      embeddingToUnion =
+      SetFunction.build("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a))).iHope
       g = aAsMorphism.andThen(embeddingToUnion) // do we need it?
     } yield (o, g)
 
@@ -131,7 +132,7 @@ abstract class SetDiagram(
     def coconeMap(x: XObject): d1.Arrow = d1.arrow {
       canonicalFunctionPerObject(x) andThen factorMorphism
     }
-    Option(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
+    Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
   }
 
   /**
@@ -238,8 +239,8 @@ abstract class SetDiagram(
           val original = arrowsMapping(a)
           val newDomain = om(d0.d0(a))
           val newCodomain = om(d0.d1(a))
-          val function = original.restrictTo(newDomain, newCodomain)
-          function iHope
+          val setFunction = original.restrictTo(newDomain, newCodomain)
+          setFunction iHope
         }
         
         SetDiagram.build(s"#${i+1}", d0)(om, am)
@@ -247,6 +248,22 @@ abstract class SetDiagram(
     all collect {
       case Good(diagram) => diagram
     }
+  }
+  
+  def subobjects: Iterable[SetDiagram] = {
+    def asSet(x: Any): set = asSet(d1.obj(x))
+    val allPowers: Map[d0.Obj, Set[Set[Any]]] = 
+      d0.objects map (o => o -> Sets.powerset(asSet(objectsMapping(o)))) toMap
+    def am(a: d0.Arrow): SetFunction = {
+      val dom: Set[set] = allPowers(d0.d0(a))
+      val codom: Set[set] = allPowers(d0.d1(a))
+      def f(s: set): set = s map { x => asSet(arrowsMapping(a)(x)) }
+      SetFunction.build("", asSet(dom), asSet(codom), x => f(asSet(x))).iHope
+    }
+    val power =
+      SetDiagram.build("?", d0)(x => asSet(allPowers(d0.obj(x))), a => am(d0.arrow(a))) iHope
+    
+    power.points
   }
 }
 

@@ -4,6 +4,7 @@ import math.sets.Sets._
 import math.cat.SetFunction._
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import org.specs2.mutable._
+import math.Base._
 
 /**
  * Test suite for Typeless Set Morphisms object
@@ -13,7 +14,7 @@ class SetFunctionTest extends Specification {
   "SetFunction" >> {
 
     "building TypelessSetMorphism" >> {
-      val sut = SetFunction("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x)
+      val sut = SetFunction.build("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x).iHope
       sut(1) === "x1"
       sut("a") === "xa"
       try {
@@ -29,9 +30,10 @@ class SetFunctionTest extends Specification {
       val x = Set(1, 2, "a")
       val y = Set("x1", "x2", "xa", 77)
       val z = Set(2, 28, x)
-      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
-      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
-      g.compose(f) === None
+      val f = SetFunction.build("f", x, y, (x: Any) => "x" + x) iHope
+      val g = SetFunction.build("g", y, z, (y: Any) => y.toString.length) iHope
+      
+      g.compose(f).isDefined === false
       f.compose(g).isDefined === true
     }
 
@@ -39,8 +41,8 @@ class SetFunctionTest extends Specification {
       val x = Set(1, 2, "a")
       val y = Set("x1", "x2", "xa", 77)
       val z = Set(2, 28, x)
-      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
-      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
+      val f = SetFunction.build("f", x, y, (x: Any) => "x" + x) iHope
+      val g = SetFunction.build("g", y, z, (y: Any) => y.toString.length) iHope
       val sut = f andThen g
       sut(1) === 2
       sut("a") === 2

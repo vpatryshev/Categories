@@ -121,7 +121,7 @@ abstract class Functor(
   /**
     * @return this functor's limit
     */
-  def limit: Option[Cone] = allCones find isLimit
+  def limit: Result[Cone] = allCones find isLimit
 
   def cocone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cocone] = {
     Option(Cocone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
@@ -166,7 +166,7 @@ abstract class Functor(
   def isColimit(candidate: Cocone): Boolean =
     allCocones.forall((anyCocone: Cocone) => candidate.factorsOnRight(anyCocone))
 
-  def colimit: Option[Cocone] = allCocones find isColimit
+  def colimit: Result[Cocone] = allCocones find isColimit
 
   /**
     * Cone class for this Functor. A cone is an object y (called vertex) and a bundle of arrows cx: y -> F(x)

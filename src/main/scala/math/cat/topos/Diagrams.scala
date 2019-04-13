@@ -63,12 +63,12 @@ class Diagrams(val site: Category)
     composition.asInstanceOf[Arrow]
   } else None
 
-  override lazy val initial: Option[Obj] =
+  override lazy val initial: Result[Obj] =
     BaseCategory.initial map Diagrams.const("initial", site)
 
   lazy val _0: Obj = initial iHope
 
-  override lazy val terminal: Option[Obj] =
+  override lazy val terminal: Result[Obj] =
     BaseCategory.terminal map Diagrams.const("terminal", site)
   
   lazy val _1: Obj = terminal iHope
@@ -98,7 +98,7 @@ class Diagrams(val site: Category)
         val d1 = omc(site.d1(site.arrow(a)))
         val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
         
-        SetFunction("", d0, d1, mapping)
+        SetFunction.build("", d0, d1, mapping).iHope // TODO: figure out if errors should be handled
       }
     }
     
@@ -107,11 +107,11 @@ class Diagrams(val site: Category)
       om = objectMapping(candidate)
       am = arrowMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram <- SetDiagram.build("__" + i, site)(om, am).toOption
+      diagram <- SetDiagram.build("__" + i, site)(om, am).asOption
     } yield diagram
     
     all
-  } 
+  }
 }
 
 object Diagrams {

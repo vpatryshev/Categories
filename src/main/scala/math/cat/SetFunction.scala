@@ -4,6 +4,7 @@ import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
 import Result._
+import math.cat.SetMorphism.check
 
 /**
   * The idea was to create something that would cover unresolved issues with type assignment
@@ -14,7 +15,7 @@ import Result._
   * @param d1      codomain
   * @param mapping the function that implements the morphism
   */
-case class SetFunction(
+case class SetFunction private(
   override val tag: String,
   override val d0: set,
   override val d1: set,
@@ -75,6 +76,11 @@ case class SetFunction(
   */
 object SetFunction {
 
+  def build(d0: set, d1: set, function: Any => Any): Result[SetFunction] =
+    build("", d0, d1, function)
+
+  def build(name: String, d0: set, d1: set, function: Any => Any): Result[SetFunction] =
+    SetMorphism.check[Any, Any, SetFunction](new SetFunction(name, d0, d1, function))
   /**
     * Factory method. Builds constant morphism from one set to another (constant function).
     *

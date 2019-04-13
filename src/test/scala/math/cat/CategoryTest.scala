@@ -85,9 +85,9 @@ class CategoryTest extends Test with CategoryFactory {
     
     "degree" >> {
       val sut = segment(10)
-      sut.degree("4", 0) === Some("9", Nil)
-      sut.degree("4", 1) === Some("4", List("4.4"))
-      sut.degree("4", 5) === Some("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))
+      sut.degree("4", 0) === Good("9", Nil)
+      sut.degree("4", 1) === Good("4", List("4.4"))
+      sut.degree("4", 5) === Good("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))
     }
     
     "id case 1" >> {
@@ -317,8 +317,8 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "Inverse()" >> {
-      Z3.inverse("2") === Some("1")
-      Z3.inverse("1") === Some("2")
+      Z3.inverse("2") === Good("1")
+      Z3.inverse("1") === Good("2")
     }
 
     "isIsomorphism_positive()" >> {
@@ -440,11 +440,11 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "equalizer_positive" >> {
-      HalfSimplicial.equalizer("2_a", "2_b") === Some("0_2")
+      HalfSimplicial.equalizer("2_a", "2_b") === Good("0_2")
     }
 
     "equalizer_negative" >> {
-      ParallelPair.equalizer("a", "b") === None
+      ParallelPair.equalizer("a", "b").isBad must beTrue
     }
 
     "allCoequalizingArrows" >> {
@@ -460,11 +460,11 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "Coequalizer_positive" >> {
-      HalfSimplicial.coequalizer("2_a", "2_b") === Some("2_1")
+      HalfSimplicial.coequalizer("2_a", "2_b") === Good("2_1")
     }
 
     "Coequalizer_negative" >> {
-      ParallelPair.coequalizer("a", "b") === None
+      ParallelPair.coequalizer("a", "b").isBad must beTrue
     }
 
     "pairsEqualizing" >> {
@@ -503,11 +503,11 @@ class CategoryTest extends Test with CategoryFactory {
     }
     
     "product_none" >> {
-      ParallelPair.product("0", "1") === None
+      ParallelPair.product("0", "1").isBad must beTrue
     }
 
     "product_plain" >> {
-      Square.product("b", "c") === Some(("ab", "ac"))
+      Square.product("b", "c") === Good(("ab", "ac"))
     }
 
     "isUnion" >> {
@@ -518,12 +518,12 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "union_none" >> {
-      ParallelPair.union("0", "1") === None
+      ParallelPair.union("0", "1").isBad must beTrue
     }
 
     "union_plain" >> {
       val actual = Square.union("b", "c")
-      actual === Some(("bd", "cd"))
+      actual === Good(("bd", "cd"))
     }
 
     "isPullback" >> {
@@ -534,26 +534,26 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "Pullback_none" >> {
-      ParallelPair.pullback("a", "b") === None
+      ParallelPair.pullback("a", "b").isBad must beTrue
     }
 
     "Pullback_same" >> {
       val actual = ParallelPair.pullback("a", "a")
-      actual === Some(("0", "0"))
+      actual === Good(("0", "0"))
     }
 
     "Pullback_plain" >> {
       val actual = Square.pullback("bd", "cd")
-      actual === Some(("ab", "ac"))
+      actual === Good(("ab", "ac"))
     }
 
     "Pushout_none" >> {
-      ParallelPair.pushout("a", "b") === None
+      ParallelPair.pushout("a", "b").isBad must beTrue
     }
 
     "Pushout_same" >> {
       val actual = ParallelPair.pushout("a", "a")
-      actual === Some(("1", "1"))
+      actual === Good(("1", "1"))
     }
 
     "isPushout_square" >> {
@@ -563,12 +563,12 @@ class CategoryTest extends Test with CategoryFactory {
 
     "Pushout_plain" >> {
       val actual = Square.pushout("ab", "ac")
-      actual === Some(("bd", "cd"))
+      actual === Good(("bd", "cd"))
     }
 
     "Terminal_none" >> {
-      Z2.terminal === None
-      ParallelPair.terminal === None
+      Z2.terminal.isBad must beTrue
+      ParallelPair.terminal.isBad must beTrue
     }
 
     "isTerminal_positive_Square" >> {
@@ -595,18 +595,18 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "Terminal_misc" >> {
-      Square.terminal === Some("d")
-      _4_.terminal === Some("3")
+      Square.terminal === Good("d")
+      _4_.terminal === Good("3")
     }
 
     "Initial_none" >> {
-      Z2.initial === None
-      ParallelPair.initial === None
+      Z2.initial.isBad must beTrue
+      ParallelPair.initial.isBad must beTrue
     }
 
     "Initial_misc" >> {
-      Square.initial === Some("a")
-      _4_.initial === Some("0")
+      Square.initial === Good("a")
+      _4_.initial === Good("0")
     }
     
     "foreach" >> {
@@ -839,7 +839,7 @@ class CategoryTest extends Test with CategoryFactory {
       val product = Setf.product(first, second)
 
       product match {
-        case Some((x, y)) =>
+        case Good((x, y)) =>
           x.d0 === Sets.setOf(
             ("a", 1), ("a", 2), ("a", 3),
             ("b", 1), ("b", 2), ("b", 3))

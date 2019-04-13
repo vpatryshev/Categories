@@ -36,7 +36,7 @@ class SetMorphism[X, Y] (
   }
   
   def compose[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
-    OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) => g(this(x))) toOption
+    OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) => g(this(x))) asOption
   }
   
   def revert: SetMorphism[Y, Set[X]] = {
@@ -79,7 +79,7 @@ object SetMorphism {
   } returning f
   
   def build[X, Y](d0: Set[X], d1: Set[Y], function: X => Y): Result[SetMorphism[X, Y]] =
-    check[X, Y, SetMorphism[X, Y]] (new SetMorphism[X, Y]("", d0, d1, function))
+    build[X, Y]("", d0, d1, function)
 
   def build[X, Y](name: String, d0: Set[X], d1: Set[Y], function: X => Y): Result[SetMorphism[X, Y]] =
     check[X, Y, SetMorphism[X, Y]](new SetMorphism[X, Y](name, d0, d1, function))
@@ -95,7 +95,7 @@ object SetMorphism {
 
   def hom[X, Y](xs: Set[X], ys: Set[Y]): Set[SetMorphism[X, Y]] = {
       val maps = Sets.exponent(xs, ys)
-      val morphisms = maps flatMap (build(xs, ys, _).toOption)
+      val morphisms = maps flatMap (build(xs, ys, _).asOption)
       def predicate(m: SetMorphism[X, Y]) = m.d0 == xs && m.d1 == ys && maps.contains(m)
       setOf(morphisms, maps.size, predicate _)
   }

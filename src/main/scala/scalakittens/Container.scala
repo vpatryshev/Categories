@@ -6,6 +6,7 @@ package scalakittens
   */
 trait Container[+T] extends Goodness {
   def isEmpty: Boolean
+  def isDefined: Boolean = nonEmpty
   def nonEmpty: Boolean = !isEmpty
 }
 

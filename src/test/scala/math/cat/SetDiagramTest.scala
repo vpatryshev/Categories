@@ -5,7 +5,7 @@ import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets
 import math.sets.Sets.set
-import scalakittens.Result
+import scalakittens.{Good, Result}
 
 /**
   * Test for set diagrams (functors with codomain=sets)
@@ -50,8 +50,8 @@ class SetDiagramTest extends Test with TestDiagrams {
     "get validated - negative" in {
       val a: set = Set(1, 2, 3, 4, 5)
       val b: set = Set(0, 1, 2)
-      val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
-      val g = SetFunction("g", b, b, x => x.toString.toInt % 3)
+      val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
+      val g = SetFunction.build("g", b, b, x => x.toString.toInt % 3).iHope
       checkError("Inconsistent mapping for d0(b) - Set(0, 1, 2) vs Set(5, 1, 2, 3, 4)" ==,
         SetDiagram.build(
           "ParallelPair", Category.ParallelPair)(
@@ -65,6 +65,9 @@ class SetDiagramTest extends Test with TestDiagrams {
       EmptyDiagram.d0 === Category._0_
       EmptyDiagram.d1 === Setf
     }
+  }
+  
+  "SetDiagram points" should {
 
     def checkPoint(sut: SmallDiagram)(point: SmallDiagram, values: List[Int]) = {
       val objects = sut.d0.objects.toList
@@ -73,7 +76,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       actual aka point.tag must_== expected
     }
 
-    "have points in paralel pair" in {
+    "exist in paralel pair" in {
       val sut = SampleParallelPairDiagram
       val actual = sut.points
       actual.size === 3
@@ -84,7 +87,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       check(p3, 5 :: 2 :: Nil)
     }
 
-    "have points in pullback pair" in {
+    "exist in pullback pair" in {
       val sut = SamplePullbackDiagram
       val actual = sut.points
       actual.size === 5
@@ -97,7 +100,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       check(p5, 3 :: 4 :: 1 :: Nil)
     }
 
-    "have points in Z3 diagram" in {
+    "exist in Z3 diagram" in {
       val sut = SampleZ3Diagram
       val actual = sut.points
       actual.size === 1
@@ -126,9 +129,9 @@ class SetDiagramTest extends Test with TestDiagrams {
           sut.d0 === Category._1_
           sut.d1 === Setf
           sut.limit match {
-            case None => failure("We expected a limit")
-            case Some(sut.Cone(vertex, arrowTo)) =>
+            case Good(sut.Cone(vertex, arrowTo)) =>
               sut.asSet(sut.d1.obj(vertex)).size === x.size
+            case none => failure(s"We expected a limit, got $none")
           }
         }
       )
@@ -137,8 +140,7 @@ class SetDiagramTest extends Test with TestDiagrams {
     "exist for a pullback" in {
       val sut = SamplePullbackDiagram
       sut.limit match {
-        case None => failure("We expected a limit")
-        case Some(cone) =>
+        case Good(cone) =>
           val vertex = sut.asSet(cone.vertex)
           vertex.size === 5
           val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
@@ -155,6 +157,7 @@ class SetDiagramTest extends Test with TestDiagrams {
               (i, j, arb(element)) === (i, j, j)
             }
           }
+        case none => failure(s"We expected a limit, got $none")
       }
       ok
     }
@@ -162,8 +165,7 @@ class SetDiagramTest extends Test with TestDiagrams {
     "exist for an equalizer" in {
       val sut = SampleParallelPairDiagram
       sut.limit match {
-        case None => failure("We expected a limit")
-        case Some(cone) =>
+        case Good(cone) =>
           val vertex = sut.asSet(cone.vertex)
           vertex.size === 3
           vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
@@ -180,16 +182,17 @@ class SetDiagramTest extends Test with TestDiagrams {
             (element, ar0(element)) === (element, i)
             (element, ar1(element)) === (element, i % 3)
           }
+        case none => failure(s"We expected a limit, got $none")
       }
 
       "exist for a monoid Z3" in {
         val sut = SampleZ3Diagram
         sut.limit match {
-          case None => failure("We expected a limit")
-          case Some(cone) =>
+          case Good(cone) =>
             cone.vertex === Set(List(3))
             val ar0 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("0"))))
             ar0(List(3)) === 3
+          case none => failure(s"We expected a limit, got $none")
         }
         ok
       }
@@ -197,8 +200,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       "exist for a W, regular data" in {
         val sut = SampleWDiagram
         sut.limit match {
-          case None => failure("We expected a limit")
-          case Some(cone) =>
+          case Good(cone) =>
             val vertex = sut.asSet(cone.vertex)
             vertex.size === 16
             val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
@@ -223,6 +225,7 @@ class SetDiagramTest extends Test with TestDiagrams {
                 (i, j, k, ard(element)) === (i, j, k, SampleWDiagramContent.ed(k))
               }
             }
+          case none => failure(s"We expected a limit, got $none")
         }
         ok
       }
@@ -233,10 +236,10 @@ class SetDiagramTest extends Test with TestDiagrams {
         val c: set = Set(0, 1, 2, 3, 4, 5)
         val d: set = Set(0, 1, 2)
         val e: set = Set(1, 2, 3, 4)
-        val ab = SetFunction("ab", a, b, _.toString.toInt + 1)
-        val cb = SetFunction("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt)))
-        val cd = SetFunction("cd", c, d, _.toString.toInt % 3)
-        val ed = SetFunction("ed", e, d, x => (x.toString.toInt + 1) % 2)
+        val ab = SetFunction.build("ab", a, b, _.toString.toInt + 1).iHope
+        val cb = SetFunction.build("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt))).iHope
+        val cd = SetFunction.build("cd", c, d, _.toString.toInt % 3).iHope
+        val ed = SetFunction.build("ed", e, d, x => (x.toString.toInt + 1) % 2).iHope
         val sutOpt = SetDiagram.build(
           "W", Category.W)(
           Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
@@ -245,8 +248,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
         expect(sut =>
           sut.limit match {
-            case None => failure("We expected a limit")
-            case Some(cone) =>
+            case Good(cone) =>
               val vertex = sut.asSet(cone.vertex)
               vertex.size === 8
               val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
@@ -277,6 +279,7 @@ class SetDiagramTest extends Test with TestDiagrams {
                   (i, j, k, ard(element)) === (i, j, k, ed(k))
                 }
               }
+            case none => failure(s"We expected a limit, got $none")
           })(sutOpt)
       }
     }
@@ -288,8 +291,8 @@ class SetDiagramTest extends Test with TestDiagrams {
       sut.d0 === Category._0_
       sut.d1 === Setf
       sut.colimit match {
-        case Some(sut.Cocone(Sets.Empty, arrowFrom)) => ok
-        case x => failure(s"We expected a colimit, got $x")
+        case Good(sut.Cocone(Sets.Empty, arrowFrom)) => ok
+        case none => failure(s"no colimit? $none")
       }
       ok
     }
@@ -301,10 +304,10 @@ class SetDiagramTest extends Test with TestDiagrams {
           sut.d0 === Category._1_
           sut.d1 === Setf
           sut.colimit match {
-            case None => failure("We expected a colimit")
-            case Some(cocone) =>
+            case Good(cocone) =>
               val vertex = sut.asSet(cocone.vertex)
               vertex.size === expected.size
+            case x => failure(s"We expected a colimit, got $x")
           }
         })
     }
@@ -313,8 +316,8 @@ class SetDiagramTest extends Test with TestDiagrams {
       val a: set = Set(1, 2, 3)
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
-      val ab = SetFunction("f", a, b, _.toString.toInt + 1)
-      val ac = SetFunction("g", a, c, _.toString.toInt % 2)
+      val ab = SetFunction.build("f", a, b, _.toString.toInt + 1).iHope
+      val ac = SetFunction.build("g", a, c, _.toString.toInt % 2).iHope
       val sutOpt: Result[SUT] = SetDiagram.build(
         "pushout", Category.Pushout)(
         Map("a" -> a, "b" -> b, "c" -> c),
@@ -327,7 +330,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       val list = v0 :: v1 :: v0 :: Nil
       expect(sut =>
         sut.colimit match {
-          case Some(cocone) =>
+          case Good(cocone) =>
             val vertex = sut.asSet(cocone.vertex)
             val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
             val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))
@@ -350,8 +353,8 @@ class SetDiagramTest extends Test with TestDiagrams {
     "exist for a coequalizer" in {
       val a: set = Set(1, 2, 3, 4)
       val b: set = Set(0, 1, 2)
-      val f = SetFunction("f", a, b, x => Math.min(2, x.toString.toInt))
-      val g = SetFunction("g", a, b, x => x.toString.toInt % 3)
+      val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
+      val g = SetFunction.build("g", a, b, x => x.toString.toInt % 3).iHope
       val sutOpt: Result[SmallDiagram] = SetDiagram.build(
         "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
@@ -362,7 +365,7 @@ class SetDiagramTest extends Test with TestDiagrams {
 
       expect(sut =>
         sut.colimit match {
-          case Some(cocone) =>
+          case Good(cocone) =>
             val vertex = sut.asSet(cocone.vertex)
             val ar0 = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("0"))))
             val ar1 = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("1"))))
@@ -376,9 +379,9 @@ class SetDiagramTest extends Test with TestDiagrams {
     "exist for a monoid Z3" in {
       val sut = SampleZ3Diagram
       sut.colimit match {
-        case None => failure("We expected a colimit")
-        case Some(sut.Cocone(vertex, arrowFrom)) =>
+        case Good(sut.Cocone(vertex, arrowFrom)) =>
           vertex === Set(Set((0, 0), (0, 1), (0, 2)), Set((0, 3)))
+        case x => failure(s"We expected a colimit, got $x")
       }
       ok
     }
@@ -386,8 +389,7 @@ class SetDiagramTest extends Test with TestDiagrams {
     "exist for M, regular data" in {
       val sut = SampleMDiagram
       sut.colimit match {
-        case None => failure("We expected a colimit")
-        case Some(cocone) =>
+        case Good(cocone) =>
           val vertex = sut.asSet(cocone.vertex)
           vertex.size === 8
           val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
@@ -412,6 +414,7 @@ class SetDiagramTest extends Test with TestDiagrams {
               (i, j, k, ard(element)) === (i, j, k, SampleMDiagramContent.de(k))
             }
           }
+        case x => failure(s"We expected a colimit, got $x")
       }
       ok
     }

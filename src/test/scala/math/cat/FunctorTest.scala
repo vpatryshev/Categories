@@ -5,6 +5,7 @@ import math.Test
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
 import math.Base._
+import scalakittens.Good
 
 class FunctorTest extends Test {
   type SUT = Functor
@@ -127,7 +128,7 @@ class FunctorTest extends Test {
         val limitOpt = f.limit
 
         limitOpt match {
-          case Some(limit) =>
+          case Good(limit) =>
             limit.arrowTo(f.d0.obj(0)) == "ab"
             limit.arrowTo(f.d0.obj(1)) == "ac"
           case _ => failure(s"Could not build a limit of $f")
@@ -175,7 +176,7 @@ class FunctorTest extends Test {
     "limit with two candidates" in {
       val sut = functorFromPullbackToDoubleSquare
       sut.limit match {
-        case Some(limit) =>
+        case Good(limit) =>
           limit.vertex == "a1"
           limit.arrowTo(sut.d0.obj("a")) == "a1b"
           limit.arrowTo(sut.d0.obj("b")) == "a1c"
@@ -225,7 +226,7 @@ class FunctorTest extends Test {
       val arr1 = sut.d1.arrow _
 
       sut.colimit match {
-        case Some(colimit) =>
+        case Good(colimit) =>
           colimit.vertex == "d1"
           colimit.arrowFrom(obj0("a")) === "ad1"
           colimit.arrowFrom(obj0("b")) === "bd1"
@@ -240,8 +241,8 @@ class FunctorTest extends Test {
       val a: set = Set(1, 2, 3)
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
-      val ac = SetFunction("f", a, c, _.toString.toInt % 2)
-      val bc = SetFunction("g", b, c, x => (x.toString.toInt + 1) % 2)
+      val ac = SetFunction.build("f", a, c, _.toString.toInt % 2) iHope
+      val bc = SetFunction.build("g", b, c, x => (x.toString.toInt + 1) % 2) iHope
       val sutOpt = Functor(
         "pullback", Category.Pullback, SetCategory.Setf)(
         Map("a" -> a, "b" -> b, "c" -> c),
