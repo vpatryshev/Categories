@@ -1,10 +1,9 @@
 package math.cat
 
-import math.cat.Functor.validateFunctor
 import math.sets.Functions._
 import math.sets.Sets
 import math.sets.Sets._
-import scalakittens.{Good, Result}
+import scalakittens.Result
 import scalakittens.Result._
 
 /**
@@ -17,7 +16,7 @@ abstract class Functor(
   val tag: String,
   val d0: Category, val d1: Category
 ) extends GraphMorphism {
-  
+
   def domainObjects: d0.Objects = d0.objects
 
   val objectsMapping: d0.Obj => d1.Obj
@@ -28,13 +27,12 @@ abstract class Functor(
   override def arrowsMapping(a: d0.Arrow): d1.Arrow = {
     val domainX: d0.Obj = d0.d0(a)
     try {
-      if (d0.id(domainX) == a) {
+      if (a == d0.id(domainX)) {
         val domainY: d1.Obj = objectsMapping(domainX)
         d1.id(domainY)
       } else arrowsMappingCandidate(a)
     } catch {
       case x: Exception =>
-//        x.printStackTrace()
         throw new IllegalArgumentException(
           s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}", x)
     }
@@ -58,14 +56,14 @@ abstract class Functor(
         comp: Functor =>
 
         override val objectsMapping: d0.Obj => d1.Obj =
-          (x:d0.Obj) => d1.obj(objectMap(Functor.this.d0.obj(x)))
+          (x: d0.Obj) => d1.obj(objectMap(Functor.this.d0.obj(x)))
 
         override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
           (a: d0.Arrow) => d1.arrow(g.arrowsMapping(g.d0.arrow(f.arrowsMapping(f.d0.arrow(a)))))
 
         // the following override is not required, because it's just another name for object mapping
         override def nodesMapping(n: d0.Node): d1.Node = {
-          val y: g.d0.Node = g.d0.node(f.nodesMapping(f.d0.obj(n))) 
+          val y: g.d0.Node = g.d0.node(f.nodesMapping(f.d0.obj(n)))
           d1.obj(g.nodesMapping(y))
         }
       }
@@ -219,7 +217,7 @@ abstract class Functor(
 
     override def hashCode: Int = (vertex.hashCode /: domainObjects) ((hash, x) => hash * 13 + arrowTo(x).hashCode)
   }
-  
+
   /**
     * Cocone class for this Functor. A cocone is an object y (called vertex) and a bundle of arrows cx: F(x) -> y
     * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
@@ -294,7 +292,7 @@ object Functor {
   Functor =
     new Functor("id", c, c) {
       override val objectsMapping: d0.Obj => d1.Obj = (x: d0.Obj) => d1.obj(x)
-      
+
       override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
         (a: d0.Arrow) => d1.arrow(a)
 
@@ -330,12 +328,12 @@ object Functor {
 
   /**
     * Builds a functor, given the data:
-    * 
-    * @param atag functor tag
-    * @param dom domain category
-    * @param codom codomain category
+    *
+    * @param atag           functor tag
+    * @param dom            domain category
+    * @param codom          codomain category
     * @param objectsMapping objects mapping
-    * @param arrowsMapping arrows mapping
+    * @param arrowsMapping  arrows mapping
     * @return
     */
   def apply(
@@ -359,7 +357,7 @@ object Functor {
     _ <- checkArrowMapping(f)
     _ <- checkCompositionPreservation(f) andAlso checkCompositionPreservation(f)
   } yield f
-  
+
   private def checkIdentityPreservation(f: Functor): Outcome = Result.traverse {
     for (x <- f.domainObjects) yield {
       val y: f.d1.Obj = f.objectsMapping(x)
@@ -376,17 +374,17 @@ object Functor {
       val gx_fx = f.d0.m(fx, gx)
       val expected = gx_fx map (gf => f.arrowsMapping(gf))
       OKif(gy_fy == expected,
-          s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
+        s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
     }
-    
+
     Result.traverse {
       for {
         (fx, gx) <- Category.composablePairs(f.d0)
       } yield check(fx, gx)
     } andThen OK
   }
-  
-    private def checkArrowMapping(f: Functor): Outcome = Result.traverse {
+
+  private def checkArrowMapping(f: Functor): Outcome = Result.traverse {
     for (a <- f.d0.arrows) yield {
       Result.forValue(f.arrowsMapping(a)) flatMap {
         aa =>
@@ -394,21 +392,21 @@ object Functor {
           val codomainActual = f.d1.d1(aa)
           val domainExpected = f.objectsMapping(f.d0.d0(a))
           val codomainExpected = f.objectsMapping(f.d0.d1(a))
-          OKif(domainActual == domainExpected, 
+          OKif(domainActual == domainExpected,
             s"Inconsistent mapping for d0($a) - $domainActual vs $domainExpected") andAlso
-          OKif(codomainActual == codomainExpected, 
-            s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected")
+            OKif(codomainActual == codomainExpected,
+              s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected")
       }
     }
-    
+
   } andThen OK
-  
+
   private def checkObjectMapping(f: Functor): Outcome =
     Result.traverse {
-    for (x <- f.domainObjects) yield {
-      val someY: Result[f.d1.Obj] =
-        Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
-      someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
-    }
-  } andThen OK
+      for (x <- f.domainObjects) yield {
+        val someY: Result[f.d1.Obj] =
+          Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
+        someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
+      }
+    } andThen OK
 }

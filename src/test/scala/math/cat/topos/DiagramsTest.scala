@@ -2,8 +2,9 @@ package math.cat.topos
 
 import math.Test
 import math.cat.Category._
-import math.cat.TestDiagrams
+import math.cat.{SetDiagram, TestDiagrams}
 import math.cat.topos.Diagrams.Diagram
+import math.sets.Sets.set
 import scalakittens.Good
 
 class DiagramsTest extends Test with TestDiagrams {
@@ -158,9 +159,30 @@ class DiagramsTest extends Test with TestDiagrams {
     }
     
     "be good for pullback diagram" in {
-      val actual = SamplePullbackDiagram.subobjects
-      actual.size === 4
+      val sample = SamplePullbackDiagram.d0.objects map (ob => SamplePullbackDiagram.objectsMapping(ob))
+      
+      def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
+
+      def fullSet(d: SetDiagram): List[String] = {
+        d.d0.objects.toList map ((o:d.d0.Obj) => d.objectsMapping(o))
+      } map d.asSet map canonical
+
+      val listOfSubobjects = SamplePullbackDiagram.subobjects.toList
+      val actual =
+        listOfSubobjects.sortBy(fullSet)(Ordering.by(_.mkString(";"))).reverse
+      actual.size === 20
+      val objects = actual map fullSet
+
       actual.head.points.size === 0
+      val last = actual.last
+      SamplePullbackDiagram.d0 === last.d0
+      SamplePullbackDiagram.d1 === last.d1
+
+      SamplePullbackDiagram.sameNodes(last) must beTrue
+      SamplePullbackDiagram.sameArrows(last) must beTrue
+      val comp = actual.last == SamplePullbackDiagram
+
+      actual.last === SamplePullbackDiagram
     }
   }
 }

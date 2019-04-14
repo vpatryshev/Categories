@@ -96,7 +96,7 @@ class SetCategoryTest extends Specification {
     }
 
     "produce 1st degree of an object" in {
-      Setf.degree(Set(1, 2, 3), 1).map(_._1) === Good(Set(Map(0 -> 1), Map(0 -> 2), Map(0 -> 3)))
+      Setf.degree(Set(1, 2, 3), 1).map(_._1) === Good(Set(List(1), List(2), List(3)))
       val maybeZeroOne = Setf.degree(Set.empty[Any], 1).map(_._1)
       maybeZeroOne === Good(Set.empty[Any])
     }
@@ -104,15 +104,15 @@ class SetCategoryTest extends Specification {
     "produce 2nd degree of an object" in {
       Setf.degree(Set(1, 2, 3), 2).map(_._1) ===
         Good(Set(
-          Map(1 -> 1, 0 -> 1),
-          Map(1 -> 1, 0 -> 2),
-          Map(1 -> 1, 0 -> 3),
-          Map(1 -> 2, 0 -> 1),
-          Map(1 -> 2, 0 -> 2),
-          Map(1 -> 2, 0 -> 3),
-          Map(1 -> 3, 0 -> 1),
-          Map(1 -> 3, 0 -> 2),
-          Map(1 -> 3, 0 -> 3))
+          List(1,1),
+          List(2,1),
+          List(3,1),
+          List(1,2),
+          List(2,2),
+          List(3,2),
+          List(1,3),
+          List(2,3),
+          List(3,3))
         )
     }
 
@@ -129,7 +129,7 @@ class SetCategoryTest extends Specification {
             c <- source
             d <- source
           } {
-            val point = Map(0 -> a, 1 -> b, 2 -> c, 3 -> d)
+            val point = List(a,b,c,d)
             s(point) === true
           }
         case none => failure(s"must have built a 4th degree: $none")

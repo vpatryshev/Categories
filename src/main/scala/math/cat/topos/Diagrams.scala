@@ -12,9 +12,9 @@ class Diagrams(val site: Category)
   def representable(x: site.Obj): Diagram = {
     def om(y: site.Obj) = site.hom(site.obj(x), y)
 
-    def am(f: site.Arrow) = {
-      val d0f = om(site.d0(f)) // it is site.hom(x, f.d0)
-      d0f flatMap (_ compose f)
+    def am(f: site.Arrow): Arrow = {
+      val d0f: site.Arrows = om(site.d0(f)) // it is site.hom(x, f.d0)
+      d0f flatMap (site.m(f, _))
     }
     
     new Diagram(s"hom($x, _)", site) {
@@ -55,7 +55,7 @@ class Diagrams(val site: Category)
           val f_x = fArrow.transformPerObject(xObjf)
           val xObjg: gArrow.domainCategory.Obj = gArrow.domainCategory.obj(x)
           val g_x = gArrow.transformPerObject(xObjg)
-          val gf_x = f_x.compose(g_x)
+          val gf_x = m(f_x, g_x)
           codomainCategory.arrow(gf_x)
         }
       }

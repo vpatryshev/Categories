@@ -8,6 +8,7 @@ import math.sets.Functions._
 import math.sets.Sets._
 import scalakittens.{Good, Result}
 import SetDiagram._
+import math.cat.topos.Diagrams.Diagram
 
 import scala.language.postfixOps
 
@@ -250,20 +251,39 @@ abstract class SetDiagram(
     }
   }
   
-  def subobjects: Iterable[SetDiagram] = {
-    def asSet(x: Any): set = asSet(d1.obj(x))
-    val allPowers: Map[d0.Obj, Set[Set[Any]]] = 
-      d0.objects map (o => o -> Sets.powerset(asSet(objectsMapping(o)))) toMap
+  private def toSet(x: Any): set = asSet(d1.obj(x))
+  
+  def power: SetDiagram = {
+    val allSets: Map[d0.Obj, set] = d0.objects map (o => o -> toSet(objectsMapping(o))) toMap
+    val allPowers: Map[d0.Obj, Set[Set[Any]]] = allSets.mapValues(Sets.powerset)
     def am(a: d0.Arrow): SetFunction = {
       val dom: Set[set] = allPowers(d0.d0(a))
       val codom: Set[set] = allPowers(d0.d1(a))
-      def f(s: set): set = s map { x => asSet(arrowsMapping(a)(x)) }
-      SetFunction.build("", asSet(dom), asSet(codom), x => f(asSet(x))).iHope
+      val f = arrowsMapping(a)
+      
+      SetFunction.build("", toSet(dom), toSet(codom), x => toSet(x) map f).iHope
     }
-    val power =
-      SetDiagram.build("?", d0)(x => asSet(allPowers(d0.obj(x))), a => am(d0.arrow(a))) iHope
+    val power = SetDiagram.build(s"pow($tag)", d0)(
+      x => allPowers(d0.obj(x)).untyped, a => am(d0.arrow(a)))
     
-    power.points
+    power iHope
+  }
+  
+  def subobjects: Iterable[SetDiagram] = {
+
+    def materialize(sub: SetDiagram): Result[SetDiagram] = {
+      def om(o: d0.Obj): set = {
+        val container = sub.asSet(sub.objectsMapping(sub.d0.obj(o)))
+        sub.toSet(container.headOption.getOrElse(Set.empty))
+      }
+      def am(a: d0.Arrow) = {
+        val f0: SetFunction = arrowsMapping(a).asInstanceOf[SetFunction]
+        f0.restrictTo(om(d0.d0(a)), om(d0.d1(a)))
+      } iHope
+      
+      build("", d0)(om, am)
+    }
+    power.points map { d => materialize(d).iHope }
   }
 }
 

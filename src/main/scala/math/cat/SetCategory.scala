@@ -80,13 +80,15 @@ class SetCategory(objects: BigSet[Set[Any]])
 
   override def degree(x: set, n: Int): Result[(set, List[SetFunction])] = {
     Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
-      val actualDomain: Set[Map[Int, Any]] = Sets.exponent(Sets.numbers(n), x.asInstanceOf[set])
+      val actualDomain: Set[List[Any]] =
+        Sets.exponent(Sets.numbers(n), x.asInstanceOf[set]) map {
+          m => m.toList.sortBy(_._1).map(_._2)
+        }
 
       val domain: set = actualDomain untyped
 
-      // TODO: use Shapeless, get rid of warning
       def takeElementAt(i: Int)(obj: Any) = obj match {
-        case m: Map[Int, Any] => m(i)
+        case m: List[Any] => m(i)
         case other => throw new IllegalArgumentException(s"expected a map, got $other")
       }
 
