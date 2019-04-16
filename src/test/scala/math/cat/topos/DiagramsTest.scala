@@ -44,10 +44,9 @@ class DiagramsTest extends Test with TestDiagrams {
     val applyTo = new diagramTable
 
     def representable(topos: Diagrams) =
-      (obj: topos.site.Obj) => topos.representable(obj)
+      (obj: topos.site.Obj) ⇒ topos.Representable(obj)
 
     "be good in Set^W" in {
-      import Diagrams._
       val topos = new Diagrams(W)
       import topos.site._
       val at = representable(topos)
@@ -63,7 +62,6 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "be good in Set^M" in {
-      import Diagrams._
       val topos = new Diagrams(M)
       import topos.site._
       val at = representable(topos)
@@ -79,7 +77,6 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "be good in Set^Z3" in {
-      import Diagrams._
       val topos = new Diagrams(Z3)
       import topos.site._
       val at = representable(topos)
@@ -117,8 +114,8 @@ class DiagramsTest extends Test with TestDiagrams {
 
       val terminalOpt = topos.initial
       terminalOpt match {
-        case Good(terminal) => checkConstSize(topos)(terminal, 0)
-        case none => failure(s"Could not build an initial in $topos: $none")
+        case Good(terminal) ⇒ checkConstSize(topos)(terminal, 0)
+        case none ⇒ failure(s"Could not build an initial in $topos: $none")
       }
       checkConstSize(topos)(topos._0, 0)
       ok
@@ -132,12 +129,12 @@ class DiagramsTest extends Test with TestDiagrams {
 
       val terminalOpt = topos.terminal
       terminalOpt match {
-        case Good(terminal) =>
+        case Good(terminal) ⇒
           terminal === topos._1
           checkConstSize(topos)(terminal, 1)
           val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
           terminal.asFunction(ab).d0 === Set(Set())
-        case none => failure(s"Could not build a terminal in $topos: $none")
+        case none ⇒ failure(s"Could not build a terminal in $topos: $none")
       }
       ok
     }
@@ -159,12 +156,12 @@ class DiagramsTest extends Test with TestDiagrams {
     }
     
     "be good for pullback diagram" in {
-      val sample = SamplePullbackDiagram.d0.objects map (ob => SamplePullbackDiagram.objectsMapping(ob))
+      val sample = SamplePullbackDiagram.d0.objects map (ob ⇒ SamplePullbackDiagram.objectsMapping(ob))
       
       def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
 
       def fullSet(d: SetDiagram): List[String] = {
-        d.d0.objects.toList map ((o:d.d0.Obj) => d.objectsMapping(o))
+        d.d0.objects.toList map ((o:d.d0.Obj) ⇒ d.objectsMapping(o))
       } map d.asSet map canonical
 
       val listOfSubobjects = SamplePullbackDiagram.subobjects.toList

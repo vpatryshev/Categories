@@ -52,10 +52,10 @@ abstract class SetDiagram(
 
     // For each object of domain we have an arrow from one of the objects used in building the product
     val arrowsInvolved: XArrows =
-      bundleObjects flatMap (bo => arrowsFromBundles(bo)) filterNot d0.isIdentity
+      bundleObjects flatMap (bo ⇒ arrowsFromBundles(bo)) filterNot d0.isIdentity
 
     val fromRootObjects: Map[XObject, XArrow] =
-      arrowsInvolved.groupBy(arrow => d0.d1(arrow)).mapValues(_.head) // does not matter which one, in this case
+      arrowsInvolved.groupBy(arrow ⇒ d0.d1(arrow)).mapValues(_.head) // does not matter which one, in this case
 
     def arrowFromRootObject(x: d0.Obj) =
       if (limitBuilder.rootObjects(x)) d0.id(x) else fromRootObjects(x)
@@ -64,9 +64,9 @@ abstract class SetDiagram(
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
-      val projections: List[Any] => Any = limitBuilder.projectionForObject(rootObject)
+      val projections: List[Any] ⇒ Any = limitBuilder.projectionForObject(rootObject)
       SetFunction.build(s"vertex to ($tag)[$x]", limitBuilder.vertex, f.d1,
-        { case point: List[Any] => f(projections(point)) }) iHope // what can go wrong?
+        { case point: List[Any] ⇒ f(projections(point)) }) iHope // what can go wrong?
     }
     //YObjects vertex
     Good(Cone(d1.obj(limitBuilder.vertex), coneMap))
@@ -76,7 +76,7 @@ abstract class SetDiagram(
     val op = d0.op
     val participantArrows: Set[op.Arrow] = op.arrowsFromRootObjects // filterNot domain.isIdentity
     // for each object, a set of arrows starting at it object
-    val bundles: XObject => XArrows =
+    val bundles: XObject ⇒ XArrows =
       d0.buildBundles(d0.objects, participantArrows.asInstanceOf[XArrows])
     val listOfObjects: List[XObject] = op.listOfRootObjects.asInstanceOf[List[XObject]]
     // Here we have a non-repeating collection of sets to use for building a union
@@ -113,12 +113,12 @@ abstract class SetDiagram(
       val F_o = nodesMapping(o) // the set to which `o` maps
       val arrowsFrom_o: Seq[XArrow] = bundles(o).toList
 
-      def inclusionToUnion(a: XArrow): Any => Any = {
+      def inclusionToUnion(a: XArrow): Any ⇒ Any = {
         arrowsMapping(a).mapping andThen objectToInjection(d0.d1(a))
       }
 
       arrowsFrom_o match {
-        case a0 :: tail =>
+        case a0 :: tail ⇒
           val f = inclusionToUnion(a0)
           for (a <- tail) {
             val g = inclusionToUnion(a)
@@ -126,7 +126,7 @@ abstract class SetDiagram(
               theFactorset.merge(f(x), g(x))
             }
           }
-        case other => // do nothing
+        case other ⇒ // do nothing
       }
     }
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
@@ -142,8 +142,8 @@ abstract class SetDiagram(
     * @param point element of Cartesian product
     * @return the predicate
     */
-  private[cat] def allArrowsAreCompatibleOnPoint(point: PointLike): XArrows => Boolean =
-    arrows => arrows.forall(f => arrows.forall(g => {
+  private[cat] def allArrowsAreCompatibleOnPoint(point: PointLike): XArrows ⇒ Boolean =
+    arrows ⇒ arrows.forall(f ⇒ arrows.forall(g ⇒ {
         arrowsAreCompatibleOnPoint(point)(f, g)
       }))
 
@@ -217,7 +217,7 @@ abstract class SetDiagram(
     val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
 
     def isCompatible(om: PointLike) = d0.arrows.forall {
-      a =>
+      a ⇒
         val d00 = om(d0.d0(a))
         val d01 = om(d0.d1(a))
         val f = arrowsMapping(a)
@@ -234,7 +234,7 @@ abstract class SetDiagram(
     val sorted = objMappings.toList.sortBy(_.toString).zipWithIndex
 
     val all = sorted map {
-      case (map, i) =>
+      case (map, i) ⇒
         def om(o: d0.Obj): set = asSet(d1.obj(singleton(map(o))))
         def am(a: d0.Arrow): SetFunction = {
           val original = arrowsMapping(a)
@@ -247,24 +247,24 @@ abstract class SetDiagram(
         SetDiagram.build(s"#${i+1}", d0)(om, am)
     }
     all collect {
-      case Good(diagram) => diagram
+      case Good(diagram) ⇒ diagram
     }
   }
   
   private def toSet(x: Any): set = asSet(d1.obj(x))
   
   def power: SetDiagram = {
-    val allSets: Map[d0.Obj, set] = d0.objects map (o => o -> toSet(objectsMapping(o))) toMap
+    val allSets: Map[d0.Obj, set] = d0.objects map (o ⇒ o -> toSet(objectsMapping(o))) toMap
     val allPowers: Map[d0.Obj, Set[Set[Any]]] = allSets.mapValues(Sets.powerset)
     def am(a: d0.Arrow): SetFunction = {
       val dom: Set[set] = allPowers(d0.d0(a))
       val codom: Set[set] = allPowers(d0.d1(a))
       val f = arrowsMapping(a)
       
-      SetFunction.build("", toSet(dom), toSet(codom), x => toSet(x) map f).iHope
+      SetFunction.build("", toSet(dom), toSet(codom), x ⇒ toSet(x) map f).iHope
     }
     val power = SetDiagram.build(s"pow($tag)", d0)(
-      x => allPowers(d0.obj(x)).untyped, a => am(d0.arrow(a)))
+      x ⇒ allPowers(d0.obj(x)).untyped, a ⇒ am(d0.arrow(a)))
     
     power iHope
   }
@@ -283,22 +283,22 @@ abstract class SetDiagram(
       
       build("", d0)(om, am)
     }
-    power.points map { d => materialize(d).iHope }
+    power.points map { d ⇒ materialize(d).iHope }
   }
 }
 
 object SetDiagram {
 
   def build(tag: String, site: Category)(
-    objectsMap: site.Obj => set,
-    arrowMap: site.Arrow => SetFunction): Result[SetDiagram] = {
+    objectsMap: site.Obj ⇒ set,
+    arrowMap: site.Arrow ⇒ SetFunction): Result[SetDiagram] = {
     
     val diagram: SetDiagram = new SetDiagram(tag, site) {
-      override val objectsMapping: d0.Obj => d1.Obj =
-        (x: d0.Obj) => d1.obj(objectsMap(site.obj(x)))
+      override val objectsMapping: d0.Obj ⇒ d1.Obj =
+        (x: d0.Obj) ⇒ d1.obj(objectsMap(site.obj(x)))
 
-      override val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-        (a: XArrow) => d1.arrow(arrowMap(site.arrow(a)))
+      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
+        (a: XArrow) ⇒ d1.arrow(arrowMap(site.arrow(a)))
     }
     
     val res = Functor.validateFunctor(diagram) returning diagram

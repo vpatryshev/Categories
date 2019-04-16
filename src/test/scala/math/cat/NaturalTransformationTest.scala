@@ -17,10 +17,10 @@ class NaturalTransformationTest extends Test {
     val c = _2_
     val d = _5_
 
-    def buildFunctor(name: String, op: Int => Int) =
+    def buildFunctor(name: String, op: Int ⇒ Int) =
       Functor.apply(name, c, d)(
-        { case s => op(s.toInt).toString },
-        { case PairRegex(x, y) => s"${op(x.toInt)}.${op(y.toInt)}" })
+        { case s ⇒ op(s.toInt).toString },
+        { case PairRegex(x, y) ⇒ s"${op(x.toInt)}.${op(y.toInt)}" })
 
     lazy val f: F = buildFunctor("f", 2 *).iHope
     lazy val g: F = buildFunctor("g", 1 +).iHope

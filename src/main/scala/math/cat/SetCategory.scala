@@ -34,16 +34,16 @@ class SetCategory(objects: BigSet[Set[Any]])
     SetFunction.exponent(x, y)
 
   override def isMonomorphism(f: SetFunction): Boolean =
-    f.d0.forall(x => f.d0.forall(y => !(f(x) == f(y)) || x == y))
+    f.d0.forall(x ⇒ f.d0.forall(y ⇒ !(f(x) == f(y)) || x == y))
 
   override def isEpimorphism(arrow: SetFunction): Boolean =
-    arrow.d1 forall {y => arrow.d0 exists {y == arrow(_)}}
+    arrow.d1 forall {y ⇒ arrow.d0 exists {y == arrow(_)}}
 
   override def equalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = {
     require((f.d0 eq g.d0) && (f.d1 eq g.d1))
-    val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
-    val inclusion = filtrator(x => f(x) == g(x))
-    Good(inclusion) filter { i => objects.contains(i.d0) }
+    val filtrator: (Any ⇒ Boolean) ⇒ SetFunction = SetFunction.filterByPredicate(f.d0)
+    val inclusion = filtrator(x ⇒ f(x) == g(x))
+    Good(inclusion) filter { i ⇒ objects.contains(i.d0) }
   }
 
   override def coequalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = 
@@ -82,14 +82,14 @@ class SetCategory(objects: BigSet[Set[Any]])
     Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
       val actualDomain: Set[List[Any]] =
         Sets.exponent(Sets.numbers(n), x.asInstanceOf[set]) map {
-          m => m.toList.sortBy(_._1).map(_._2)
+          m ⇒ m.toList.sortBy(_._1).map(_._2)
         }
 
       val domain: set = actualDomain untyped
 
       def takeElementAt(i: Int)(obj: Any) = obj match {
-        case m: List[Any] => m(i)
-        case other => throw new IllegalArgumentException(s"expected a map, got $other")
+        case m: List[Any] ⇒ m(i)
+        case other ⇒ throw new IllegalArgumentException(s"expected a map, got $other")
       }
 
       val projections = for {
@@ -99,7 +99,7 @@ class SetCategory(objects: BigSet[Set[Any]])
         SetFunction.build(s"set^$n", domain, x, function)
       }
       
-      Result.traverse(projections) map {ps => (domain, ps.toList)}
+      Result.traverse(projections) map {ps ⇒ (domain, ps.toList)}
     }
   }
 
@@ -115,8 +115,8 @@ class SetCategory(objects: BigSet[Set[Any]])
   override def product(x: set, y: set): Result[(SetFunction, SetFunction)] = {
 
     val productSet: set = Sets.product2(x, y) untyped
-    val p1 = SetFunction.build("p1", productSet, x, { case (a, b) => a })
-    val p2 = SetFunction.build("p2", productSet, y, { case (a, b) => b })
+    val p1 = SetFunction.build("p1", productSet, x, { case (a, b) ⇒ a })
+    val p2 = SetFunction.build("p2", productSet, y, { case (a, b) ⇒ b })
     p1 andAlso p2
   }
 
@@ -127,7 +127,7 @@ class SetCategory(objects: BigSet[Set[Any]])
     } yield {
       val productSet = prod._1.d0
       val pullbackInProduct =
-        filterByPredicate(productSet)(predicate = { case (a, b) => f(a) == g(b) })
+        filterByPredicate(productSet)(predicate = { case (a, b) ⇒ f(a) == g(b) })
       
       (pullbackInProduct andThen prod._1,
        pullbackInProduct andThen prod._2)
@@ -157,8 +157,8 @@ class SetCategory(objects: BigSet[Set[Any]])
   override def hashCode: Int = getClass.hashCode * 7 + objects.hashCode
 
   override def equals(x: Any): Boolean = x match {
-    case sc: SetCategory => objects == sc.objects
-    case other => false
+    case sc: SetCategory ⇒ objects == sc.objects
+    case other ⇒ false
   }
 
 }
@@ -169,8 +169,8 @@ object SetCategory {
     Graph.build[set, SetFunction](
       nodes0,
       BigSet.of[SetFunction],
-      (f: SetFunction) => f.d0,
-      (f: SetFunction) => f.d1)
+      (f: SetFunction) ⇒ f.d0,
+      (f: SetFunction) ⇒ f.d1)
   }.getOrElse(throw new InstantiationException("This graph should exist"))
 
   object Setf extends SetCategory(FiniteSets)

@@ -8,11 +8,11 @@ import scalakittens.Result
 trait TestDiagrams extends Test {
   type SmallDiagram = SetDiagram
 
-  implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
-    (x: f.d0.Obj) => f.d1.obj(om(f.toString))
+  implicit def translateObjectMapping(f: Functor)(om: String ⇒ set): f.d0.Obj ⇒ f.d1.Obj =
+    (x: f.d0.Obj) ⇒ f.d1.obj(om(f.toString))
 
-  implicit def translateArrowMapping(f: Functor)(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
-    (x: f.d0.Obj) => f.d1.obj(am(f.toString))
+  implicit def translateArrowMapping(f: Functor)(am: String ⇒ SetFunction): f.d0.Obj ⇒ f.d1.Obj =
+    (x: f.d0.Obj) ⇒ f.d1.obj(am(f.toString))
 
   lazy val EmptyDiagram: SmallDiagram = SetDiagram.build("empty", Category._0_)(
     Map[String, set](),
@@ -26,8 +26,8 @@ trait TestDiagrams extends Test {
   val SampleParallelPairDiagram: SmallDiagram = {
     val a: set = Set(1, 2, 3, 4, 5)
     val b: set = Set(0, 1, 2)
-    val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
-    val g = SetFunction.build("g", a, b, x => x.toString.toInt % 3).iHope
+    val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
+    val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
     SetDiagram.build(
       "ParallelPair", Category.ParallelPair)(
       Map("0" -> a, "1" -> b),
@@ -37,10 +37,10 @@ trait TestDiagrams extends Test {
   val SampleZ3Diagram: SmallDiagram = {
     val a: set = Set(0, 1, 2, 3)
 
-    def f(i: Int): Int => Int = (n: Int) => if (n == 3) n else (n + i) % 3
+    def f(i: Int): Int ⇒ Int = (n: Int) ⇒ if (n == 3) n else (n + i) % 3
 
-    val f1 = SetFunction.build("f1", a, a, x => f(1)(x.toString.toInt)).iHope
-    val f2 = SetFunction.build("f2", a, a, x => f(2)(x.toString.toInt)).iHope
+    val f1 = SetFunction.build("f1", a, a, x ⇒ f(1)(x.toString.toInt)).iHope
+    val f2 = SetFunction.build("f2", a, a, x ⇒ f(2)(x.toString.toInt)).iHope
     SetDiagram.build(
       "Z3", Category.Z3)(
       Map("0" -> a),
@@ -59,7 +59,7 @@ trait TestDiagrams extends Test {
     val sb: set = Set(2, 3, 4)
     val sc: set = Set(0, 1)
     val ac = SetFunction.build("_ac", sa, sc, _.toString.toInt % 2).iHope
-    val bc = SetFunction.build("_bc", sb, sc, x => (x.toString.toInt + 1) % 2).iHope
+    val bc = SetFunction.build("_bc", sb, sc, x ⇒ (x.toString.toInt + 1) % 2).iHope
     val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
     val am = Map("ac" -> ac, "bc" -> bc)
     

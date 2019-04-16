@@ -55,7 +55,7 @@ object Base {
   def inverse[A, B](m: Map[A, B]): Map[B, A] = {
     
     val result: Map[B, A] = (m map {
-      case (k, v) => v -> k
+      case (k, v) ⇒ v -> k
     })(breakOut)
         
     require(result.size == m.size, "map not invertible")
@@ -153,12 +153,12 @@ object Base {
     * @return the
     */
   def toMap[X](list: List[X]): IntMap[X] =
-    list.zipWithIndex map { case (x, i) => i -> x } toMap
+    list.zipWithIndex map { case (x, i) ⇒ i -> x } toMap
 
-//  def id[T](set: Set[T]): Map[T, T] = set.map(t => t -> t)(breakOut)
+//  def id[T](set: Set[T]): Map[T, T] = set.map(t ⇒ t -> t)(breakOut)
 
   implicit class Pollyanna[T](opt: Result[T]) {
-    def iHope: T = opt.fold(identity, errors => throw new InstantiationException(errors.mkString(";")))
+    def iHope: T = opt.fold(identity, errors ⇒ throw new InstantiationException(errors.mkString(";")))
   }
 
   implicit class Optimist[T](opt: Option[T]) {

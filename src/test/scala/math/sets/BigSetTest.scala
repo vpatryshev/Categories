@@ -16,7 +16,7 @@ class BigSetTest extends Specification {
     }
 
     "get created from predicate" in {
-      val sut = BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a')
+      val sut = BigSet.comprehension[String]((s: String) ⇒ s.length == 7 && s.charAt(1) == 'a')
       sut.size === Sets.InfiniteSize
       sut.hashCode * 0 === 0 // meaning, no exception thrown
       sut.toString === "A BIG SET"
@@ -28,7 +28,7 @@ class BigSetTest extends Specification {
     
     "filter properly" in {
       val sut =
-        BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') filter (_.head == 'b')
+        BigSet.comprehension[String]((s: String) ⇒ s.length == 7 && s.charAt(1) == 'a') filter (_.head == 'b')
       sut.size === Sets.InfiniteSize
       sut.toString === "A BIG SET"
       sut.iterator must throwA[UnsupportedOperationException]
@@ -41,7 +41,7 @@ class BigSetTest extends Specification {
     "map properly" in {
       val iso = Functions.bijection[String, String]((_:String).reverse, (_:String).reverse)
       val sut =
-        BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') map iso
+        BigSet.comprehension[String]((s: String) ⇒ s.length == 7 && s.charAt(1) == 'a') map iso
       sut.size === Sets.InfiniteSize
       sut.toString === "A BIG SET"
       sut.iterator must throwA[UnsupportedOperationException]

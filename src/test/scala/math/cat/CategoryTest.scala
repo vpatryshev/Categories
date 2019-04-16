@@ -67,10 +67,10 @@ class CategoryTest extends Test with CategoryFactory {
        )
       
       sutOpt match {
-        case Good(cat) =>
+        case Good(cat) ⇒
           val string = cat.toString
           Category.read(string) === sutOpt
-        case oops => failure(oops.toString)
+        case oops ⇒ failure(oops.toString)
       }
       ok
     }
@@ -131,13 +131,13 @@ class CategoryTest extends Test with CategoryFactory {
         codomain = EmptyMap,
         compositionSource = EmptyComposition
       )
-      check(sutOpt, (sut: Category) => {
+      check(sutOpt, (sut: Category) ⇒ {
         sut.arrows must haveSize(1)
       }); ok
     }
 
     "constructor_1_full" >> {
-      expect(sut => {
+      expect(sut ⇒ {
         sut.arrows must haveSize(1)
       })(
         Category("constructor_1_full", Set("1"),
@@ -178,14 +178,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     def checkParsing(catOpt: Result[Category]): MatchResult[Any] =
-      expect(sut => {
+      expect(sut ⇒ {
         val string = sut.toString
         val parsed = Category.read(string)
         parsed === catOpt
       })(catOpt)
     
     "toString_1" >> {
-      expect(sut => {
+      expect(sut ⇒ {
         sut.toString === "sample: ({1}, {1: 1->1}, {1 o 1 = 1})"
       })(
         Category("sample", Set("1"),
@@ -276,8 +276,8 @@ class CategoryTest extends Test with CategoryFactory {
         val unknown = HalfSimplicial.d0("qq")
         failure("Should have failed")
       } catch {
-        case e: Exception => // as expected
-        case _: Throwable => failure("should have thrown a NoSuchElementException")
+        case e: Exception ⇒ // as expected
+        case _: Throwable ⇒ failure("should have thrown a NoSuchElementException")
       }
       ok
     }
@@ -324,8 +324,8 @@ class CategoryTest extends Test with CategoryFactory {
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
       _3_.arrows.forall { 
-        case a@PairRegex(x, y) => (x == y) === _3_.isIsomorphism(a)
-        case s => failure(s"$s does not look like an arrow in a poset"); false
+        case a@PairRegex(x, y) ⇒ (x == y) === _3_.isIsomorphism(a)
+        case s ⇒ failure(s"$s does not look like an arrow in a poset"); false
       }
 
       HalfSimplicial.arrows.filter(HalfSimplicial.isIsomorphism) ===
@@ -360,8 +360,8 @@ class CategoryTest extends Test with CategoryFactory {
 
     "isEndomorphism" in {
       _3_.arrows.forall {
-        case a@PairRegex(x, y) => (x == y) === _3_.isEndomorphism(a)
-        case s => failure(s"$s does not look like an arrow in a poset"); false
+        case a@PairRegex(x, y) ⇒ (x == y) === _3_.isEndomorphism(a)
+        case s ⇒ failure(s"$s does not look like an arrow in a poset"); false
       }
 
       HalfSimplicial.arrows.filter(HalfSimplicial.isEndomorphism) ===
@@ -610,12 +610,12 @@ class CategoryTest extends Test with CategoryFactory {
     }
     
     "foreach" >> {
-      _4_ foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
+      _4_ foreach (i ⇒ (i.toInt >= 0 && i.toInt < 4) === true)
       ok
     }
     
     "map" >> {
-      val actual = Square map (x => x.toUpperCase)
+      val actual = Square map (x ⇒ x.toUpperCase)
       actual.toSet === Set("A", "B", "C", "D")
     }
 
@@ -644,7 +644,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "allRootObjects_forKnownCategories" >> {
-      KnownCategories.filter(c => Sets.isFinite(c.objects)).forall { c =>
+      KnownCategories.filter(c ⇒ Sets.isFinite(c.objects)).forall { c ⇒
         c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
@@ -792,22 +792,22 @@ class CategoryTest extends Test with CategoryFactory {
       
       val sut1 = Category.fromPartialData("sut1", graph, composition)
       val graph1 = Category.addUnitsToGraph(graph)
-      val sut2 = Category.fromGraphWithUnits[String]("sut1", graph1)((f, g) => composition.get((f, g)))
+      val sut2 = Category.fromGraphWithUnits[String]("sut1", graph1)((f, g) ⇒ composition.get((f, g)))
       
       sut1 match {
-        case Good(c) => ok
-        case oops => oops.errorDetails match {
-          case Some(errors) => failure(errors)
-          case None => failure("What happened?!")
+        case Good(c) ⇒ ok
+        case oops ⇒ oops.errorDetails match {
+          case Some(errors) ⇒ failure(errors)
+          case None ⇒ failure("What happened?!")
         }
       }
 
       val text = "({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ba o ab = bb, ab o ba = bb, bb o ab = ab, ba o bb = ba, bb o bb = bb})"
       Category.read(text) match {
-        case Good(c) => ok
-        case oops => oops.errorDetails match {
-          case Some(errors) => failure(errors)
-          case None => failure("What happened?!")
+        case Good(c) ⇒ ok
+        case oops ⇒ oops.errorDetails match {
+          case Some(errors) ⇒ failure(errors)
+          case None ⇒ failure("What happened?!")
         }
       }
       
@@ -839,11 +839,11 @@ class CategoryTest extends Test with CategoryFactory {
       val product = Setf.product(first, second)
 
       product match {
-        case Good((x, y)) =>
+        case Good((x, y)) ⇒
           x.d0 === Sets.setOf(
             ("a", 1), ("a", 2), ("a", 3),
             ("b", 1), ("b", 2), ("b", 3))
-        case otherwise => failure("product not found")
+        case otherwise ⇒ failure("product not found")
       }
       ok
     }

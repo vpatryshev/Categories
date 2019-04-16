@@ -21,7 +21,7 @@ class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
   /**
     * Maps elements of the main set to their equivalence classes (they constitute the factorset).
     */
-  private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: base) ((m, x) => m + (x -> Set(x)))
+  private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: base) ((m, x) ⇒ m + (x -> Set(x)))
 
   /**
     * Builds a factorset of a given set, by the transitive closure of a given relationship.

@@ -6,7 +6,7 @@ class PoSetTest extends Specification {
 
   "PoSet" >> {
     "parse" >> {
-      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x,y) => y contains x)
+      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x,y) ⇒ y contains x)
       val actual: PoSet[String] =
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})")
 
@@ -27,7 +27,7 @@ class PoSetTest extends Specification {
     }
 
     "plain comparator" >> {
-      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) ⇒ a <= b)
       sut.le("a", "c") must beTrue
     }
 
@@ -41,7 +41,7 @@ class PoSetTest extends Specification {
 
     "Equals_positive" >> {
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
-      val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
+      val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) ⇒ x <= y)
       (sut2 == sut1) must beTrue
       (sut1 == sut2) must beTrue
     }
@@ -49,7 +49,7 @@ class PoSetTest extends Specification {
     "Equals_negative" >> {
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("c", "b")))
       def naturalOrder(p: (String, String)) = p._1 <= p._2
-      val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
+      val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) ⇒ x <= y)
       (sut1 == sut2) must beFalse
     }
 
@@ -60,7 +60,7 @@ class PoSetTest extends Specification {
     }
 
     "UnaryOp" >> {
-      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) ⇒ a <= b)
       val opsut = ~sut
 
       opsut.le("c", "a") must beTrue
@@ -76,12 +76,12 @@ class PoSetTest extends Specification {
     }
 
     "UnderlyingSet" >> {
-      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) ⇒ a <= b)
       sut.underlyingSet === Set("a", "b", "c")
     }
 
     "Paarser" >> {
-      val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
+      val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) ⇒ a <= b)
       val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})")
       actual.size === 3
       actual.underlyingSet === Set("a", "b", "c")

@@ -24,9 +24,9 @@ What we have now:
 - subterminals
 - points
 - representable functors
+- (lattice of) subobjects
 
 WIP:
-- (lattice of) subobjects
 
 Plans: 
 - build subobject classifiers,

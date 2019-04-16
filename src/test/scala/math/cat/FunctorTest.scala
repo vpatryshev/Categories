@@ -70,9 +70,9 @@ class FunctorTest extends Test {
 
     "report missing arrows mappings" in {
       import _4_._
-      val objectMapping: _4_.Node => _4_.Node =
+      val objectMapping: _4_.Node ⇒ _4_.Node =
         Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
-      val arrowMapping: _4_.Arrow => _4_.Arrow = Map[_4_.Arrow, _4_.Arrow](
+      val arrowMapping: _4_.Arrow ⇒ _4_.Arrow = Map[_4_.Arrow, _4_.Arrow](
         "0.0" -> "1.1",
         "0.1" -> "1.2",
         "0.2" -> "1.3",
@@ -90,7 +90,7 @@ class FunctorTest extends Test {
     
     "report a failure" in {
       import _4_._
-      val objectMapping: _4_.Node => _4_.Node =
+      val objectMapping: _4_.Node ⇒ _4_.Node =
         Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
       val arrowMapping = Map(
         "0.0" -> "1.1",
@@ -115,23 +115,23 @@ class FunctorTest extends Test {
       val from = Category.discrete(Set(0, 1))
       val to = Square
 
-      val mapA: from.Arrow => to.Arrow =
+      val mapA: from.Arrow ⇒ to.Arrow =
         Map(from.arrow(0) -> to.arrow("b"), from.arrow(1) -> to.arrow("c"))
 
       type toO = to.Obj
-      val mapO: from.Obj => to.Obj =
+      val mapO: from.Obj ⇒ to.Obj =
         Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
       
       val fOpt = Functor("sample product", from, to)(mapO, mapA)
       check[Functor](fOpt,
-        (f:Functor) => {
+        (f:Functor) ⇒ {
         val limitOpt = f.limit
 
         limitOpt match {
-          case Good(limit) =>
+          case Good(limit) ⇒
             limit.arrowTo(f.d0.obj(0)) == "ab"
             limit.arrowTo(f.d0.obj(1)) == "ac"
-          case _ => failure(s"Could not build a limit of $f")
+          case _ ⇒ failure(s"Could not build a limit of $f")
         }
       })
     }
@@ -176,11 +176,11 @@ class FunctorTest extends Test {
     "limit with two candidates" in {
       val sut = functorFromPullbackToDoubleSquare
       sut.limit match {
-        case Good(limit) =>
+        case Good(limit) ⇒
           limit.vertex == "a1"
           limit.arrowTo(sut.d0.obj("a")) == "a1b"
           limit.arrowTo(sut.d0.obj("b")) == "a1c"
-        case oops => failure("no limit?")
+        case oops ⇒ failure("no limit?")
       }
       ok
     }
@@ -226,12 +226,12 @@ class FunctorTest extends Test {
       val arr1 = sut.d1.arrow _
 
       sut.colimit match {
-        case Good(colimit) =>
+        case Good(colimit) ⇒
           colimit.vertex == "d1"
           colimit.arrowFrom(obj0("a")) === "ad1"
           colimit.arrowFrom(obj0("b")) === "bd1"
           colimit.arrowFrom(obj0("c")) === "cd1"
-        case oops => failure("Could not build a colimit for " + 
+        case oops ⇒ failure("Could not build a colimit for " + 
                      functorFrom1to2toDoubleSquare.tag)
       }
       ok
@@ -242,7 +242,7 @@ class FunctorTest extends Test {
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
       val ac = SetFunction.build("f", a, c, _.toString.toInt % 2) iHope
-      val bc = SetFunction.build("g", b, c, x => (x.toString.toInt + 1) % 2) iHope
+      val bc = SetFunction.build("g", b, c, x ⇒ (x.toString.toInt + 1) % 2) iHope
       val sutOpt = Functor(
         "pullback", Category.Pullback, SetCategory.Setf)(
         Map("a" -> a, "b" -> b, "c" -> c),
@@ -250,7 +250,7 @@ class FunctorTest extends Test {
       )
       
       check[Functor](sutOpt,
-        sut => {
+        sut ⇒ {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
           sut.objectsMapping(sut.d0.obj("a")) === a
