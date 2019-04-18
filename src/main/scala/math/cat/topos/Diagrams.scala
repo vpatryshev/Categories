@@ -13,16 +13,31 @@ class Diagrams(val site: Category)
   case class Representable(x: site.Obj) extends Diagram(s"hom($x, _)", site) {
     private def om(y: site.Obj) = site.hom(site.obj(x), y)
 
-    private def am(f: site.Arrow): Arrow = {
-      val d0f: site.Arrows = om(site.d0(f)) // it is site.hom(x, f.d0)
-      d0f flatMap (site.m(f, _))
+    /**
+      * Maps a site arrow to set arrow.
+      * 
+      * @param f arrow in site
+      * @return a function from site.hom(x, f.d0) to site.hom(x, f.d1)
+      */
+    private def am(f: site.Arrow): SetFunction = {
+      val d0: site.Arrows = om(site.d0(f))
+      val d1: site.Arrows = om(site.d1(f))
+      val tuples: Set[(site.Arrow, site.Arrow)] = d0 flatMap { g => site.m(g, f) map (g -> _) }
+      val mapping: Map[site.Arrow, site.Arrow] =tuples toMap
+
+      SetFunction.build(toSet(d0), toSet(d1), a => mapping(site.arrow(a))).iHope
     }
 
     override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(site.obj(x)))
         
     override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
-      d1.arrow(am(site.arrow(f)))
+      val arrow = site.arrow(f)
+      val mapping = am(arrow)
+      d1.arrow(mapping)
     }
+
+    // have to validate right here, because a representable must exist, and all checks should be passing
+    Functor.validateFunctor(this).iHope
   }
 
   val base: Category = BaseCategory
@@ -116,12 +131,14 @@ class Diagrams(val site: Category)
     all
   }
   
+  private[topos] def subobjectsOfRepresentables: Map[site.Obj, Set[Diagram]] =
+    site.objects map (x ⇒ x -> Representable(x).subobjects.toSet) toMap
+  
   lazy val Ω: Diagram = {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`
-    val om: Map[site.Obj, Set[Diagram]] = // cache the values at objects
-      site.objects map (x ⇒ x -> Representable(x).subobjects.toSet) toMap
-    
+    val om: Map[site.Obj, Set[Diagram]] = subobjectsOfRepresentables // cache the values at objects
+
     def am(a: site.Arrow): SetFunction = {
       val x = site.d0(a)
       val y = site.d1(a)
@@ -151,6 +168,9 @@ class Diagrams(val site: Category)
       
       SetFunction.build(s"[$a]", d0.untyped, d1.untyped, d => diaMap(d.asInstanceOf[Diagram])).iHope
     }
+    
+    SetDiagram.build("Ω", site)(d => om(d).untyped, am).iHope
+    
   }
 }
 

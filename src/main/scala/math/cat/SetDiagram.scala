@@ -7,7 +7,6 @@ import math.sets.{FactorSet, Sets}
 import math.sets.Functions._
 import math.sets.Sets._
 import scalakittens.{Good, Result}
-import SetDiagram._
 import math.cat.topos.Diagrams.Diagram
 
 import scala.language.postfixOps
@@ -251,7 +250,7 @@ abstract class SetDiagram(
     }
   }
   
-  private def toSet(x: Any): set = asSet(d1.obj(x))
+  private[cat] def toSet(x: Any): set = asSet(d1.obj(x))
   
   def power: SetDiagram = {
     val allSets: Map[d0.Obj, set] = d0.objects map (o ⇒ o -> toSet(objectsMapping(o))) toMap
@@ -268,21 +267,21 @@ abstract class SetDiagram(
     
     power iHope
   }
-  
-  def subobjects: Iterable[SetDiagram] = {
 
-    def materialize(sub: SetDiagram): Result[SetDiagram] = {
-      def om(o: d0.Obj): set = {
-        val container = sub.asSet(sub.objectsMapping(sub.d0.obj(o)))
-        sub.toSet(container.headOption.getOrElse(Set.empty))
-      }
-      def am(a: d0.Arrow) = {
-        val f0: SetFunction = arrowsMapping(a).asInstanceOf[SetFunction]
-        f0.restrictTo(om(d0.d0(a)), om(d0.d1(a)))
-      } iHope
-      
-      build("", d0)(om, am)
+  private[cat] def materialize(sub: SetDiagram): Result[SetDiagram] = {
+    def om(o: d0.Obj): set = {
+      val container = sub.asSet(sub.objectsMapping(sub.d0.obj(o)))
+      sub.toSet(container.headOption.getOrElse(Set.empty))
     }
+    def am(a: d0.Arrow) = {
+      val f0: SetFunction = arrowsMapping(a).asInstanceOf[SetFunction]
+      f0.restrictTo(om(d0.d0(a)), om(d0.d1(a)))
+    } iHope
+
+    SetDiagram.build("", d0)(om, am)
+  }
+
+  def subobjects: Iterable[SetDiagram] = {
     power.points map { d ⇒ materialize(d).iHope }
   }
 }
@@ -301,7 +300,6 @@ object SetDiagram {
         (a: XArrow) ⇒ d1.arrow(arrowMap(site.arrow(a)))
     }
     
-    val res = Functor.validateFunctor(diagram) returning diagram
-    res
+    Functor.validateFunctor(diagram) returning diagram
   } 
 }
