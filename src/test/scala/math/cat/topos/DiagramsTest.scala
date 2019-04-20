@@ -27,10 +27,10 @@ class DiagramsTest extends Test with TestDiagrams {
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x::data)
-      def |(f: String => Any) = check(f)(data.reverse, data.reverse)
+      def |(f: String ⇒ Any) = check(f)(data.reverse, data.reverse)
     }
 
-    case class check(f: String => Any)(data: List[String], fullList: List[String]) {
+    case class check(f: String ⇒ Any)(data: List[String], fullList: List[String]) {
       private def check1(x: String, y: String) = {
         val expected = x.split(",").toSet.filter(_.nonEmpty)
         val actual = f(y)
@@ -42,7 +42,7 @@ class DiagramsTest extends Test with TestDiagrams {
         check(f)(data.tail, fullList)
       }
 
-      def |(f: String => Any): check = check(f)(fullList, fullList)
+      def |(f: String ⇒ Any): check = check(f)(fullList, fullList)
     }
 
     val appliesTo = new diagramTable
@@ -50,9 +50,9 @@ class DiagramsTest extends Test with TestDiagrams {
     "be good in Set^W" in {
       val topos = new Diagrams(W)
       import topos.site._
-      val ob = (o: String) => {
+      val ob = (o: String) ⇒ {
         val r = representable(topos)(obj(o))
-        name: String => r(name)
+        name: String ⇒ r(name)
       }
 
       appliesTo | "a" | "b"  | "c" | "d"  | "e" |
@@ -69,9 +69,9 @@ class DiagramsTest extends Test with TestDiagrams {
       val topos = new Diagrams(M)
       import topos.site._
       val rep = representable(topos)
-      val ob = (o: Obj) => {
+      val ob = (o: Obj) ⇒ {
         val r = rep(o)
-        name: String => r(name)
+        name: String ⇒ r(name)
       }
 
       appliesTo | "a"  | "b" | "c"  | "d" | "e"  |
@@ -97,13 +97,13 @@ class DiagramsTest extends Test with TestDiagrams {
     "be good in Set^Z3" in {
       val topos = new Diagrams(Z3)
       import topos.site._
-      val ob = (o: Obj) => {
+      val ob = (o: Obj) ⇒ {
         val r = representable(topos)(o)
-        name: String => r(obj(name)).toString
+        name: String ⇒ r(obj(name)).toString
       }
-      val ar = (o: Obj) => {
+      val ar = (o: Obj) ⇒ {
         val r = representable(topos)(o)
-        a: String => r.arrowsMapping(r.d0.arrow(a)).toString
+        a: String ⇒ r.arrowsMapping(r.d0.arrow(a)).toString
       }
 
       appliesTo | "0"     |
@@ -114,21 +114,21 @@ class DiagramsTest extends Test with TestDiagrams {
     
   }
   
-  "Power" should {
-    "exist for representables in Set^_2_" in {
-      val topos = new Diagrams(_2_)
-      import topos.site._
-      val sut0 = representable(topos)("0")
-      val pow0 = sut0.power
-      val sut1 = representable(topos)("1")
-      val pow1 = sut1.power
-      ok
-    }
-
-    "exist for reps in Set^_2_" in {
-      ok
-    }    
-  }
+//  "Power" should {
+//    "exist for representables in Set^_2_" in {
+//      val topos = new Diagrams(_2_)
+//      import topos.site._
+//      val sut0 = representable(topos)("0")
+//      val pow0 = sut0.power
+//      val sut1 = representable(topos)("1")
+//      val pow1 = sut1.power
+//      ok
+//    }
+//
+//    "exist for reps in Set^_2_" in {
+//      ok
+//    }    
+//  }
   
   "Identity arrow" should {
     "exist in Set^W" in {
@@ -196,10 +196,10 @@ class DiagramsTest extends Test with TestDiagrams {
       actual.size === 1
       actual.head === EmptyDiagram
     }
-    
+
     "be good for pullback diagram" in {
       val sample = SamplePullbackDiagram.d0.objects map (ob ⇒ SamplePullbackDiagram.objectsMapping(ob))
-      
+
       def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
 
       def fullSet(d: SetDiagram): List[String] = {
@@ -209,7 +209,7 @@ class DiagramsTest extends Test with TestDiagrams {
       val listOfSubobjects = SamplePullbackDiagram.subobjects.toList
       val actual =
         listOfSubobjects.sortBy(fullSet)(Ordering.by(_.mkString(";"))).reverse
-      actual.size === 20
+      actual.size === 85
       val objects = actual map fullSet
 
       actual.head.points.size === 0
@@ -224,24 +224,13 @@ class DiagramsTest extends Test with TestDiagrams {
       actual.last === SamplePullbackDiagram
     }
     
-    "exist for representables in _2_" in {
+    "exist for representables in Set^_2_" in {
       val topos = new Diagrams(_2_)
-      val r0 = topos.Representable(topos.site.obj("0"))
-      val r0p = r0.power
-      val r0pps = r0p.points.toList
-      r0pps.size === 3
-      val p0::p1::p2::Nil = r0pps
-      r0.materialize(p0).iHope
-      r0.materialize(p1).iHope
-      r0.materialize(p2).iHope
-      r0pps map { d ⇒ r0.materialize(d).iHope }
+      val r0 = topos.Representable(topos.objectNamed("0"))
 
-      r0.subobjects // should not crash
-      val r1 = topos.Representable(topos.site.obj("1"))
-      r1.subobjects // should not crash
+      val obj0 = topos.objectNamed("0")
+      val obj1 = topos.objectNamed("1")
       
-      val obj0 = topos.site.obj("0")
-      val obj1 = topos.site.obj("1")
       val sor = topos.subobjectsOfRepresentables
       sor.size === 2
       sor(obj0).size === 3
@@ -250,14 +239,14 @@ class DiagramsTest extends Test with TestDiagrams {
   }
   
   "Subobject classifier" should {
-    "exist in _0_" in {
+    "exist for _0_" in {
       val topos = new Diagrams(_0_)
       val omega = topos.Ω
       val points = omega.points
       points.size === 1
     }
 
-    "exist in _1_" in {
+    "exist for _1_" in {
       val topos = new Diagrams(_1_)
       val omega = topos.Ω
       val omega0 = omega("0").toList
@@ -269,12 +258,12 @@ class DiagramsTest extends Test with TestDiagrams {
       points.size === 2
     }
 
-    "exist in _2_" in {
+    "exist for _2_" in {
       val topos = new Diagrams(_2_)
       
       val omega = topos.Ω
-      omega("0") === Nil
-      omega("1") === Nil
+//      omega("0") === Nil
+//      omega("1") === Nil
       val points = omega.points
       points.size === 3
     }

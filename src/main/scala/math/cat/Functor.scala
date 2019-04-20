@@ -3,7 +3,7 @@ package math.cat
 import math.sets.Functions._
 import math.sets.Sets
 import math.sets.Sets._
-import scalakittens.Result
+import scalakittens.{Bad, Result}
 import scalakittens.Result._
 
 /**
@@ -355,7 +355,7 @@ object Functor {
   private[cat] def validateFunctor(f: Functor): Result[Functor] = for {
     _ <- checkObjectMapping(f)
     _ <- checkArrowMapping(f)
-    _ <- checkCompositionPreservation(f) andAlso checkCompositionPreservation(f)
+    _ <- checkIdentityPreservation(f) andAlso checkCompositionPreservation(f)
   } yield f
 
   private def checkIdentityPreservation(f: Functor): Outcome = Result.traverse {
@@ -377,11 +377,31 @@ object Functor {
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
     }
 
-    Result.traverse {
+    val checked = Result.traverse {
       for {
         (fx, gx) <- Category.composablePairs(f.d0)
-      } yield check(fx, gx)
-    } andThen OK
+      } yield {
+        val r = check(fx, gx)
+//        if (r.isBad) { // TODO: remove this block, it makes no sense
+//          println(r.asInstanceOf[Bad[_]].stackTrace)
+//          val fy = f.arrowsMapping(fx)
+//          val gy = f.arrowsMapping(gx)
+//          val gy_fy = f.d1.m(fy, gy)
+//          try {
+//            val g = gy_fy.get
+//            println(g)
+//            println(g)
+//          } catch {
+//            case x: Exception =>
+//              x.printStackTrace()
+//              throw x
+//          }
+//        }
+        r
+      }
+    }
+    
+    checked andThen OK
   }
 
   private def checkArrowMapping(f: Functor): Outcome = Result.traverse {

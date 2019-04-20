@@ -10,6 +10,8 @@ import scalakittens.Result
 class Diagrams(val site: Category)
   extends Category(s"Sets^${site.name}", graphOfDiagrams) {
   
+  def objectNamed(name: String): site.Obj = site.obj(name)
+  
   case class Representable(x: site.Obj) extends Diagram(s"hom($x, _)", site) {
     private def om(y: site.Obj) = site.hom(site.obj(x), y)
 
@@ -22,10 +24,10 @@ class Diagrams(val site: Category)
     private def am(f: site.Arrow): SetFunction = {
       val d0: site.Arrows = om(site.d0(f))
       val d1: site.Arrows = om(site.d1(f))
-      val tuples: Set[(site.Arrow, site.Arrow)] = d0 flatMap { g => site.m(g, f) map (g -> _) }
+      val tuples: Set[(site.Arrow, site.Arrow)] = d0 flatMap { g ⇒ site.m(g, f) map (g -> _) }
       val mapping: Map[site.Arrow, site.Arrow] =tuples toMap
 
-      SetFunction.build(toSet(d0), toSet(d1), a => mapping(site.arrow(a))).iHope
+      SetFunction.build(toSet(d0), toSet(d1), a ⇒ mapping(site.arrow(a))).iHope
     }
 
     override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(site.obj(x)))
@@ -166,10 +168,10 @@ class Diagrams(val site: Category)
         SetDiagram.build("", site)(om1, am1).iHope
       }
       
-      SetFunction.build(s"[$a]", d0.untyped, d1.untyped, d => diaMap(d.asInstanceOf[Diagram])).iHope
+      SetFunction.build(s"[$a]", d0.untyped, d1.untyped, d ⇒ diaMap(d.asInstanceOf[Diagram])).iHope
     }
     
-    SetDiagram.build("Ω", site)(d => om(d).untyped, am).iHope
+    SetDiagram.build("Ω", site)(d ⇒ om(d).untyped, am).iHope
     
   }
 }
