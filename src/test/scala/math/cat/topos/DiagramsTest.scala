@@ -262,8 +262,10 @@ class DiagramsTest extends Test with TestDiagrams {
       val topos = new Diagrams(_2_)
       
       val omega = topos.Ω
-//      omega("0") === Nil
-//      omega("1") === Nil
+      val omega0 = omega("0")
+      omega0.size === 3
+      val omega1 = omega("1")
+      omega1.size === 2
       val points = omega.points
       points.size === 3
     }
