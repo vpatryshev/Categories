@@ -27,7 +27,6 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
 
   // TODO: check the preconditions, return an option
   def compose(next: NaturalTransformation): NaturalTransformation = {
-//    import codomainCategory._
     
     def comp(x: domainCategory.Obj): codomainCategory.Arrow = {
       val fHere: codomainCategory.Arrow =

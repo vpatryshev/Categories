@@ -59,24 +59,19 @@ class Diagrams(val site: Category)
   }
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
-    val fArrow = f.asInstanceOf[DiagramArrow]
-    val gArrow = g.asInstanceOf[DiagramArrow]
-    val composition: DiagramArrow = {
-      new DiagramArrow() {
-        val d0: Functor = fArrow.d0
-        val d1: Functor = gArrow.d1
+    new DiagramArrow() {
+      val d0: Functor = f.d0
+      val d1: Functor = g.d1
 
-        override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
-          val xObjf: fArrow.domainCategory.Obj = fArrow.domainCategory.obj(x)
-          val f_x = fArrow.transformPerObject(xObjf)
-          val xObjg: gArrow.domainCategory.Obj = gArrow.domainCategory.obj(x)
-          val g_x = gArrow.transformPerObject(xObjg)
-          val gf_x = m(f_x, g_x)
-          codomainCategory.arrow(gf_x)
-        }
+      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
+        val xObjf = f.domainCategory.obj(x)
+        val f_x = f.transformPerObject(xObjf)
+        val xObjg = g.domainCategory.obj(x)
+        val g_x = g.transformPerObject(xObjg)
+        val gf_x = m(f_x, g_x)
+        codomainCategory.arrow(gf_x)
       }
     }
-    composition.asInstanceOf[Arrow]
   } else None
 
   override lazy val initial: Result[Obj] =
