@@ -2,8 +2,6 @@ package math.cat.topos
 
 import math.Test
 import math.cat.Category._
-import math.cat.{SetDiagram, TestDiagrams}
-import math.cat.topos.Diagrams.Diagram
 import math.sets.Sets.set
 import scalakittens.Good
 import math.Base._
@@ -202,7 +200,7 @@ class DiagramsTest extends Test with TestDiagrams {
 
       def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
 
-      def fullSet(d: SetDiagram): List[String] = {
+      def fullSet(d: Diagram): List[String] = {
         d.d0.objects.toList map ((o:d.d0.Obj) ⇒ d.objectsMapping(o))
       } map d.asSet map canonical
 
@@ -256,6 +254,8 @@ class DiagramsTest extends Test with TestDiagrams {
       omega01.asInstanceOf[Diagram]("0").isEmpty must beFalse
       val points = omega.points
       points.size === 2
+      points.map(_.toString) ===
+        List("Diagram(0→Set(Diagram(0→Set())))", "Diagram(0→Set(Diagram(0→Set(0.0))))")  
     }
 
     "exist for _2_" in {
@@ -266,8 +266,16 @@ class DiagramsTest extends Test with TestDiagrams {
       omega0.size === 3
       val omega1 = omega("1")
       omega1.size === 2
-      val points = omega.points
+      val points = omega.points.toList
       points.size === 3
+      points(0).toString ===
+        "Diagram(0→Set(Diagram(0→Set(), 1→Set())), 1→Set(Diagram(0→Set(), 1→Set())))"
+
+      points(1).toString ===
+        "Diagram(0→Set(Diagram(0→Set(), 1→Set(0.1))), 1→Set(Diagram(0→Set(), 1→Set())))"
+
+      points(2).toString ===
+        "Diagram(0→Set(Diagram(0→Set(0.0), 1→Set(0.1))), 1→Set(Diagram(0→Set(), 1→Set())))"
     }
   }
 }

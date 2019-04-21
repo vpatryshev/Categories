@@ -1,8 +1,9 @@
-package math.cat
+package math.cat.topos
 
 import math.Base._
 import math.Test
 import math.cat.SetCategory.Setf
+import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.{Good, Result}
@@ -10,10 +11,10 @@ import scalakittens.{Good, Result}
 /**
   * Test for set diagrams (functors with codomain=sets)
   */
-class SetDiagramTest extends Test with TestDiagrams {
+class DiagramTest extends Test with TestDiagrams {
   type SUT = SmallDiagram
 
-  "SetDiagram" should {
+  "Diagram" should {
 
     "validate as a functor with Set as domain" in {
 
@@ -30,8 +31,8 @@ class SetDiagramTest extends Test with TestDiagrams {
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
       sut1.objectsMapping(sut1.d0.obj("b")) === BuildPullbackDiagram.sb
 
-      val diagram: SetDiagram =
-        new SetDiagram("Test", dom) {
+      val diagram: Diagram =
+        new Diagram("Test", dom) {
           override val objectsMapping: d0.Obj ⇒ d1.Obj =
             (x: d0.Obj) ⇒ d1.obj(BuildPullbackDiagram.om(x.toString))
           override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
@@ -53,7 +54,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", b, b, x ⇒ x.toString.toInt % 3).iHope
       checkError("Inconsistent mapping for d0(b) - Set(0, 1, 2) vs Set(5, 1, 2, 3, 4)" ==,
-        SetDiagram.build(
+        Diagram.build(
           "ParallelPair", Category.ParallelPair)(
           Map("0" -> a, "1" -> b),
           Map("a" -> f, "b" -> g)
@@ -67,7 +68,7 @@ class SetDiagramTest extends Test with TestDiagrams {
     }
   }
   
-  "SetDiagram points" should {
+  "Diagram points" should {
 
     def checkPoint(sut: SmallDiagram)(point: SmallDiagram, values: List[Int]) = {
       val objects = sut.d0.objects.toList
@@ -111,7 +112,7 @@ class SetDiagramTest extends Test with TestDiagrams {
     }
   }
 
-  "SetDiagram limit" should {
+  "Diagram limit" should {
     "exist for an empty diagram" in {
       check[SmallDiagram](const(Set("a", "b")),
         sut ⇒ {
@@ -240,7 +241,7 @@ class SetDiagramTest extends Test with TestDiagrams {
         val cb = SetFunction.build("cb", c, b, x ⇒ Math.max(2, Math.min(4, x.toString.toInt))).iHope
         val cd = SetFunction.build("cd", c, d, _.toString.toInt % 3).iHope
         val ed = SetFunction.build("ed", e, d, x ⇒ (x.toString.toInt + 1) % 2).iHope
-        val sutOpt = SetDiagram.build(
+        val sutOpt = Diagram.build(
           "W", Category.W)(
           Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
           Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
@@ -285,7 +286,7 @@ class SetDiagramTest extends Test with TestDiagrams {
     }
   }
 
-  "SetDiagram colimit" should {
+  "Diagram colimit" should {
     "exist for a empty diagram" in {
       val sut = EmptyDiagram
       sut.d0 === Category._0_
@@ -318,7 +319,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       val c: set = Set(0, 1)
       val ab = SetFunction.build("f", a, b, _.toString.toInt + 1).iHope
       val ac = SetFunction.build("g", a, c, _.toString.toInt % 2).iHope
-      val sutOpt: Result[SUT] = SetDiagram.build(
+      val sutOpt: Result[SUT] = Diagram.build(
         "pushout", Category.Pushout)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ab" -> ab, "ac" -> ac)
@@ -355,7 +356,7 @@ class SetDiagramTest extends Test with TestDiagrams {
       val b: set = Set(0, 1, 2)
       val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
-      val sutOpt: Result[SmallDiagram] = SetDiagram.build(
+      val sutOpt: Result[SmallDiagram] = Diagram.build(
         "ParallelPair", Category.ParallelPair)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)

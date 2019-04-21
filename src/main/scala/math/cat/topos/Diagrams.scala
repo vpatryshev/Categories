@@ -122,7 +122,7 @@ class Diagrams(val site: Category)
       am: Traversable[(site.Arrow, SetFunction)] <- Result.traverse(arrowsMapOpt).asOption
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram <- SetDiagram.build("__" + i, site)(om, am.toMap).asOption
+      diagram <- Diagram.build("__" + i, site)(om, am.toMap).asOption
     } yield diagram
     
     all
@@ -160,20 +160,18 @@ class Diagrams(val site: Category)
           mapping
         } 
         
-        SetDiagram.build("", site)(om1, am1).iHope
+        Diagram.build("", site)(om1, am1).iHope
       }
       
       SetFunction.build(s"[$a]", d0.untyped, d1.untyped, d ⇒ diaMap(d.asInstanceOf[Diagram])).iHope
     }
     
-    SetDiagram.build("Ω", site)(d ⇒ om(d).untyped, am).iHope
+    Diagram.build("Ω", site)(d ⇒ om(d).untyped, am).iHope
     
   }
 }
 
 object Diagrams {
-  type Diagram = SetDiagram
-
   val BaseCategory: Category = SetCategory.Setf
 
   def const(tag: String, site: Category)(value: BaseCategory.Obj): Diagram = {

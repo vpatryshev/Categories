@@ -1,7 +1,8 @@
-package math.cat
+package math.cat.topos
 
 import math.Base
 import math.Base._
+import math.cat._
 import math.sets.Functions._
 import math.sets.Sets.{set, _}
 import math.sets.{FactorSet, Sets}
@@ -18,7 +19,7 @@ import scala.language.postfixOps
   * singleton diagram. It must have been a mapping from objects of the base category to values
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
   */
-abstract class SetDiagram(
+abstract class Diagram(
   tag: String,
   override val d0: Category)
   extends Functor(tag, d0, SetCategory.Setf) {
@@ -135,7 +136,7 @@ abstract class SetDiagram(
     Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
   }
 
-  def points: Iterable[SetDiagram] = {
+  def points: Iterable[Diagram] = {
     val listOfObjects: List[XObject] = domainObjects.toList
     val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
 
@@ -171,9 +172,9 @@ abstract class SetDiagram(
           setFunction iHope
         }
         val tag = s"#${i + 1}"
-        val d = SetDiagram.build(tag, d0)(om, am)
+        val d = Diagram.build(tag, d0)(om, am)
         if (d.isBad) {
-          val d1 = SetDiagram.build(tag, d0)(om, am)
+          val d1 = Diagram.build(tag, d0)(om, am)
         }
         d
     }
@@ -182,7 +183,7 @@ abstract class SetDiagram(
     }
   }
 
-  def power: SetDiagram = {
+  def power: Diagram = {
     val allSets: Map[d0.Obj, set] = d0.objects map (o ⇒ o → toSet(objectsMapping(o))) toMap
     val allPowers: Map[d0.Obj, Set[Set[Any]]] = allSets.mapValues(Sets.powerset)
 
@@ -194,13 +195,13 @@ abstract class SetDiagram(
       SetFunction.build("", toSet(dom), toSet(codom), x ⇒ toSet(x) map f).iHope
     }
 
-    val power = SetDiagram.build(s"pow($tag)", d0)(
+    val power = Diagram.build(s"pow($tag)", d0)(
       x ⇒ allPowers(d0.obj(x)).untyped, a ⇒ am(d0.arrow(a)))
 
     power iHope
   }
 
-  def subobjects: Iterable[SetDiagram] = {
+  def subobjects: Iterable[Diagram] = {
     val allSets: Map[d0.Obj, set] = domainObjects map (o ⇒ o → toSet(objectsMapping(o))) toMap
     val allPowers: Map[d0.Obj, Set[set]] = allSets.mapValues(Sets.powerset)
 
@@ -245,14 +246,14 @@ abstract class SetDiagram(
           val codom: Sets.set = om(d0.d1(a))
           SetFunction.build("", dom, codom, arrowsMapping(a)).iHope
         }
-        SetDiagram.build(s".$i", d0)(om, am)
+        Diagram.build(s".$i", d0)(om, am)
     }
     
     val goodOnes = allCandidates.collect { case Good(d) => d}
     goodOnes
   }
 
-  override def toString = s"SetDiagram(${
+  override def toString = s"Diagram(${
     d0.objects map { x ⇒ x + "→" + objectsMapping(x) } mkString ", "
   })"
 
@@ -293,7 +294,7 @@ abstract class SetDiagram(
 
   private[cat] def toSet(x: Any): set = asSet(d1.obj(x))
 
-//  private[cat] def materialize(sub: SetDiagram): Result[SetDiagram] = {
+//  private[cat] def materialize(sub: Diagram): Result[Diagram] = {
 //    def om(o: d0.Obj): set = {
 //      val container = sub.asSet(sub.objectsMapping(sub.d0.obj(o)))
 //      sub.toSet(container.headOption.getOrElse(Set.empty))
@@ -304,7 +305,7 @@ abstract class SetDiagram(
 //      f0.restrictTo(om(d0.d0(a)), om(d0.d1(a)))
 //    } iHope
 //
-//    SetDiagram.build("", d0)(om, am)
+//    Diagram.build("", d0)(om, am)
 //  }
 
   private[cat] object limitBuilder {
@@ -349,13 +350,13 @@ abstract class SetDiagram(
   }
 }
 
-object SetDiagram {
+object Diagram {
 
   def build(tag: String, site: Category)(
     objectsMap: site.Obj ⇒ set,
-    arrowMap: site.Arrow ⇒ SetFunction): Result[SetDiagram] = {
+    arrowMap: site.Arrow ⇒ SetFunction): Result[Diagram] = {
 
-    val diagram: SetDiagram = new SetDiagram(tag, site) {
+    val diagram: Diagram = new Diagram(tag, site) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj =
         (x: d0.Obj) ⇒ d1.obj(objectsMap(site.obj(x)))
 
