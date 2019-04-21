@@ -34,15 +34,15 @@ abstract class Functor(
     } catch {
       case x: Exception ⇒
         throw new IllegalArgumentException(
-          s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}", x)
+          s"$tag: arrow mapping not found for $a: $domainX → ${d0.d1(a)}", x)
     }
   }
 
   /**
     * Composes two functors
     *
-    * @param g : Y -> Z - second functor
-    * @return g o this : X -> Z - composition of this functor with functor g
+    * @param g : Y → Z - second functor
+    * @return g o this : X → Z - composition of this functor with functor g
     */
   def compose(g: Functor): Option[Functor] = {
     if (d1 != g.d0) None else Some {
@@ -79,20 +79,20 @@ abstract class Functor(
 
   /**
     * Lists all possible cones from given object y to this functor.
-    * The requirement is that if f1: y -> F(x1) is in the collection of arrows,
-    * and there is a g: x1 -> x2, then f2 = F(g) o f1 : y -> F(x2) is also in this collection.
+    * The requirement is that if f1: y → F(x1) is in the collection of arrows,
+    * and there is a g: x1 → x2, then f2 = F(g) o f1 : y → F(x2) is also in this collection.
     *
     * @param y an object from which the cone originates.
-    * @return a map that maps objects x of domain category to arrows y -> F(x)
+    * @return a map that maps objects x of domain category to arrows y → F(x)
     */
   def conesFrom(y: d1.Obj): Set[Cone] = {
-    // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
+    // this function builds pairs (x, f:y→F(x)) for all f:y→F(x)) for a given x
     val arrowsFromYtoFX: Injection[d0.Obj, Set[(d0.Obj, d1.Arrow)]] = injection(
       (x: d0.Obj) ⇒ d1.arrowsBetween(d1.obj(y), objectsMapping(x)) map { (x, _) }
     )
 
     val listOfDomainObjects: List[d0.Obj] = domainObjects.toList
-    // group (x, f: y->F[x]) by x
+    // group (x, f: y→F[x]) by x
     val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = listOfDomainObjects map arrowsFromYtoFX
 
     val coneCandidates: Set[List[(d0.Obj, d1.Arrow)]] = product(homsGroupedByX)
@@ -128,18 +128,18 @@ abstract class Functor(
 
   /**
     * Lists all possible cones from given object y to this functor.
-    * The requirement is that if f1: y -> F(x1) is in the collection of arrows,
-    * and there is a g: x1 -> x2, then f2 = F(g) o f1 : y -> F(x2) is also in this collection.
+    * The requirement is that if f1: y → F(x1) is in the collection of arrows,
+    * and there is a g: x1 → x2, then f2 = F(g) o f1 : y → F(x2) is also in this collection.
     *
     * @param y an object from which the cone originates.
-    * @return a map that maps objects x of domain category to arrows y -> F(x)
+    * @return a map that maps objects x of domain category to arrows y → F(x)
     */
   def coconesTo(y: d1.Obj): Set[Cocone] = {
-    // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
+    // this function builds pairs (x, f:y→F(x)) for all f:y→F(x)) for a given x
     def arrowsFromFXtoY(x: d0.Obj): Set[(d0.Obj, d1.Arrow)] =
       d1.arrowsBetween(d1.obj(objectsMapping(x)), y) map { (x, _) }
 
-    // group (x, f: y->F[x]) by x
+    // group (x, f: y→F[x]) by x
     val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = domainObjects.toList map arrowsFromFXtoY
 
     val coconeCandidates: Set[List[(d0.Obj, d1.Arrow)]] = product(homsGroupedByX)
@@ -168,8 +168,8 @@ abstract class Functor(
   def colimit: Result[Cocone] = allCocones find isColimit
 
   /**
-    * Cone class for this Functor. A cone is an object y (called vertex) and a bundle of arrows cx: y -> F(x)
-    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
+    * Cone class for this Functor. A cone is an object y (called vertex) and a bundle of arrows cx: y → F(x)
+    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 → x2.
     *
     * @param vertex  the cone's vertex object in Y
     * @param arrowTo maps each object of x to an arrow from F(x) to the vertex.
@@ -180,8 +180,8 @@ abstract class Functor(
 
     /**
       * A cone from y1 to F is factored by this cone (with vertex y)
-      * if there is an h : y1 -> y such that each f1: y1 -> F(x) is equal to
-      * f o h, where f: y -> F(x).
+      * if there is an h : y1 → y such that each f1: y1 → F(x) is equal to
+      * f o h, where f: y → F(x).
       *
       * @param factored a cone that may be factored
       * @return true if it is so
@@ -219,8 +219,8 @@ abstract class Functor(
   }
 
   /**
-    * Cocone class for this Functor. A cocone is an object y (called vertex) and a bundle of arrows cx: F(x) -> y
-    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 -> x2.
+    * Cocone class for this Functor. A cocone is an object y (called vertex) and a bundle of arrows cx: F(x) → y
+    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 → x2.
     *
     * @param vertex    the cone's vertex object in Y
     * @param arrowFrom maps each object of x to an arrow from F(x) to the vertex.
@@ -231,8 +231,8 @@ abstract class Functor(
 
     /**
       * A cocone from F to y1 is factored by this cocone (from F to y)
-      * if there is an h : y -> y1 such that each f1: F(x) -> y1 is equal to
-      * h o f, where f: F(x) -> y.
+      * if there is an h : y → y1 such that each f1: F(x) → y1 is equal to
+      * h o f, where f: F(x) → y.
       *
       * @param factored a cone that may be factored
       * @return true if it is so
@@ -392,7 +392,7 @@ object Functor {
 //            println(g)
 //            println(g)
 //          } catch {
-//            case x: Exception =>
+//            case x: Exception ⇒
 //              x.printStackTrace()
 //              throw x
 //          }

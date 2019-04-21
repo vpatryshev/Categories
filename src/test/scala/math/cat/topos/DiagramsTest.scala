@@ -255,7 +255,7 @@ class DiagramsTest extends Test with TestDiagrams {
       val points = omega.points
       points.size === 2
       points.map(_.toString) ===
-        List("Diagram(0→Set(Diagram(0→Set())))", "Diagram(0→Set(Diagram(0→Set(0.0))))")  
+        List("Diagram(0→{Diagram(0→{})})", "Diagram(0→{Diagram(0→{0.0})})")  
     }
 
     "exist for _2_" in {
@@ -269,13 +269,58 @@ class DiagramsTest extends Test with TestDiagrams {
       val points = omega.points.toList
       points.size === 3
       points(0).toString ===
-        "Diagram(0→Set(Diagram(0→Set(), 1→Set())), 1→Set(Diagram(0→Set(), 1→Set())))"
+        "Diagram(0→{Diagram(0→{}, 1→{})}, 1→{Diagram(0→{}, 1→{})})"
 
       points(1).toString ===
-        "Diagram(0→Set(Diagram(0→Set(), 1→Set(0.1))), 1→Set(Diagram(0→Set(), 1→Set())))"
+        "Diagram(0→{Diagram(0→{}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{})})"
 
       points(2).toString ===
-        "Diagram(0→Set(Diagram(0→Set(0.0), 1→Set(0.1))), 1→Set(Diagram(0→Set(), 1→Set())))"
+        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{})})"
+    }
+
+    "exist for _3_" in {
+      val topos = new Diagrams(_3_)
+
+      val omega = topos.Ω
+      val omega0 = omega("0")
+      omega0.size === 4
+      val omega1 = omega("1")
+      omega1.size === 3
+      val points = omega.points.toList
+      points.size === 4
+      points(0).toString ===
+        "Diagram(0→{Diagram(0→{}, 1→{}, 2→{})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+
+      points(1).toString ===
+        "Diagram(0→{Diagram(0→{}, 1→{}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+
+      points(2).toString ===
+        "Diagram(0→{Diagram(0→{}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+
+      points(3).toString ===
+        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+    }
+
+    "exist for ParallelPair" in {
+      val topos = new Diagrams(ParallelPair)
+
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 5
+      points(0).toString ===
+        "Diagram(0→{Diagram(0→{}, 1→{})}, 1→{Diagram(0→{}, 1→{})})"
+
+      points(1).toString ===
+        "Diagram(0→{Diagram(0→{}, 1→{a})}, 1→{Diagram(0→{}, 1→{})})"
+
+      points(2).toString ===
+        "Diagram(0→{Diagram(0→{}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{})})"
+
+      points(3).toString ===
+        "Diagram(0→{Diagram(0→{}, 1→{b})}, 1→{Diagram(0→{}, 1→{})})"
+
+      points(4).toString ===
+        "Diagram(0→{Diagram(0→{0}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{})})"
     }
   }
 }

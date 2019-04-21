@@ -31,8 +31,8 @@ trait TestDiagrams extends Test {
     val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
     Diagram.build(
       "ParallelPair", Category.ParallelPair)(
-      Map("0" -> a, "1" -> b),
-      Map("a" -> f, "b" -> g)
+      Map("0" → a, "1" → b),
+      Map("a" → f, "b" → g)
     ) iHope
   }
   val SampleZ3Diagram: SmallDiagram = {
@@ -44,14 +44,14 @@ trait TestDiagrams extends Test {
     val f2 = SetFunction.build("f2", a, a, x ⇒ f(2)(x.toString.toInt)).iHope
     Diagram.build(
       "Z3", Category.Z3)(
-      Map("0" -> a),
-      Map("1" -> f1, "2" -> f2)
+      Map("0" → a),
+      Map("1" → f1, "2" → f2)
     ) iHope
   }
 
   def const(x: set): Result[SmallDiagram] =
     Diagram.build(s"point $x", Category._1_)(
-      Map[String, set]("0" -> x),
+      Map[String, set]("0" → x),
       Map[String, SetFunction]()
     )
 
@@ -61,8 +61,8 @@ trait TestDiagrams extends Test {
     val sc: set = Set(0, 1)
     val ac = SetFunction.build("_ac", sa, sc, _.toString.toInt % 2).iHope
     val bc = SetFunction.build("_bc", sb, sc, x ⇒ (x.toString.toInt + 1) % 2).iHope
-    val om = Map("a" -> sa, "b" -> sb, "c" -> sc)
-    val am = Map("ac" -> ac, "bc" -> bc)
+    val om = Map("a" → sa, "b" → sb, "c" → sc)
+    val am = Map("ac" → ac, "bc" → bc)
     
     lazy val asFunctor: Result[Functor] = Functor.apply(
       "pullback", Category.Pullback, SetCategory.Setf)(
@@ -92,8 +92,8 @@ trait TestDiagrams extends Test {
     import SampleWDiagramContent._
     Diagram.build(
       "W", Category.W)(
-      Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
-      Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
+      Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
+      Map("ab" → ab, "cb" → cb, "cd" → cd, "ed" → ed)
     ) iHope
   }
 
@@ -113,8 +113,8 @@ trait TestDiagrams extends Test {
     import SampleMDiagramContent._
     Diagram.build(
       "M", Category.M)(
-      Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
-      Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
+      Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
+      Map("ba" → ba, "bc" → bc, "dc" → dc, "de" → de)
     ) iHope
   }
 }

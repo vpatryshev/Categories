@@ -208,7 +208,7 @@ object Sets {
 
   def allMaps[X, Y](xs: List[X], ys: List[Y]): List[Map[X, Y]] =
     (List(Map.empty[X, Y]) /: xs)((maps, x) ⇒
-      maps flatMap (m ⇒ ys map (y ⇒ m + (x -> y)))
+      maps flatMap (m ⇒ ys map (y ⇒ m + (x → y)))
     )
   
   def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X ⇒ Y): Y ⇒ Set[X] = {
@@ -273,7 +273,7 @@ object Sets {
     println("Let's build an exponent")
     val a2b = exponent(b, a)
     println("We have an exponent of size " + a2b.size + ", but its still under construction")
-    val anElement = Map("x" -> "b", "y" -> "a")
+    val anElement = Map("x" → "b", "y" → "a")
     println("Check membership for " + anElement + ": " + (a2b contains anElement))
     println("We use exponent, but its elements are still not listed... but wait: ")
     println(a2b)

@@ -146,8 +146,8 @@ abstract class Diagram(
         val d01 = om(d0.d1(a))
         val f = arrowsMapping(a)
         val itsok = (f(d00), d01) match {
-          case (s0: Set[Any], s1: Set[Any]) => s0 subsetOf s1
-          case (x, y) => x == y
+          case (s0: Set[Any], s1: Set[Any]) ⇒ s0 subsetOf s1
+          case (x, y) ⇒ x == y
         }
 
         itsok
@@ -158,7 +158,8 @@ abstract class Diagram(
       om: PointLike = listOfObjects zip values toMap;
       if isCompatible(om)
     } yield om
-    val sorted = objMappings.toList.sortBy(_.toString).zipWithIndex
+    
+    val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
     val all = sorted map {
       case (map, i) ⇒
@@ -183,24 +184,6 @@ abstract class Diagram(
     }
   }
 
-  def power: Diagram = {
-    val allSets: Map[d0.Obj, set] = d0.objects map (o ⇒ o → toSet(objectsMapping(o))) toMap
-    val allPowers: Map[d0.Obj, Set[Set[Any]]] = allSets.mapValues(Sets.powerset)
-
-    def am(a: d0.Arrow): SetFunction = {
-      val dom: Set[set] = allPowers(d0.d0(a))
-      val codom: Set[set] = allPowers(d0.d1(a))
-      val f = arrowsMapping(a)
-
-      SetFunction.build("", toSet(dom), toSet(codom), x ⇒ toSet(x) map f).iHope
-    }
-
-    val power = Diagram.build(s"pow($tag)", d0)(
-      x ⇒ allPowers(d0.obj(x)).untyped, a ⇒ am(d0.arrow(a)))
-
-    power iHope
-  }
-
   def subobjects: Iterable[Diagram] = {
     val allSets: Map[d0.Obj, set] = domainObjects map (o ⇒ o → toSet(objectsMapping(o))) toMap
     val allPowers: Map[d0.Obj, Set[set]] = allSets.mapValues(Sets.powerset)
@@ -214,8 +197,8 @@ abstract class Diagram(
         val d01 = om(d0.d1(a))
         val f = arrowsMapping(a)
         val itsok = (d00 map f, d01) match {
-          case (s0: Set[Any], s1: Set[Any]) => s0 subsetOf s1
-          case (x, y) => 
+          case (s0: Set[Any], s1: Set[Any]) ⇒ s0 subsetOf s1
+          case (x, y) ⇒ 
             x == y
         }
 
@@ -239,7 +222,7 @@ abstract class Diagram(
 
     var i = 0
     val allCandidates = sorted map {
-      case om: Map[d0.Obj, Sets.set] =>
+      case om: Map[d0.Obj, Sets.set] ⇒
         i += 1
         def am(a: d0.Arrow): SetFunction = {
           val dom: Sets.set = om(d0.d0(a))
@@ -249,13 +232,13 @@ abstract class Diagram(
         Diagram.build(s".$i", d0)(om, am)
     }
     
-    val goodOnes = allCandidates.collect { case Good(d) => d}
+    val goodOnes = allCandidates.collect { case Good(d) ⇒ d}
     goodOnes
   }
 
   override def toString = s"Diagram(${
-    d0.objects map { x ⇒ x + "→" + objectsMapping(x) } mkString ", "
-  })"
+    d0.objects map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", "
+  })".replace("Set()", "{}")
 
   /**
     * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value

@@ -14,7 +14,7 @@ class GraphMorphismTest extends Test {
     "Constructor" >> {
       val objects = Set(1, 2, 3)
       val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
-      val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
+      val map = Map("1a" → (1, 1), "1b" → (1, 1), "2to1" → (2, 1), "3to2" → (3, 2), "1to3" → (1, 3))
       val graph1 = Graph.fromArrowMap(objects, map).iHope
       val arrows2 = Set(11, 111, 21, 32, 13)
       val graph2 =
@@ -22,7 +22,7 @@ class GraphMorphismTest extends Test {
           (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10).iHope
       val nm = SetMorphism.id(objects)
       val am =
-        SetMorphism.build(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13)).iHope
+        SetMorphism.build(arrows1, arrows2, Map("1a" → 11, "1b" → 111, "2to1" → 21, "3to2" → 32, "1to3" → 13)).iHope
       val sut = GraphMorphism("test", graph1, graph2)(
         nm.asInstanceOf[graph1.Node ⇒ graph2.Node],
         am.asInstanceOf[graph1.Arrow ⇒ graph2.Arrow])
@@ -35,7 +35,7 @@ class GraphMorphismTest extends Test {
     "id" >> {
       val objects = Set(1, 2, 3)
       val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
-      val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
+      val map = Map("1a" → (1, 1), "1b" → (1, 1), "2to1" → (2, 1), "3to2" → (3, 2), "1to3" → (1, 3))
       val graph = Graph.fromArrowMap(objects, map).iHope
       val sut: GraphMorphism = GraphMorphism.id(graph)
       sut.d0 === graph

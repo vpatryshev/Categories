@@ -95,17 +95,17 @@ class GraphTest extends Test {
     "parse" >> {
       val nodes = Set("0", "1", "2")
       val arrows = Map(
-        "0.id" -> ("0", "0"),
-        "0.1" -> ("0", "1"),
-        "0.2" -> ("0", "2"),
-        "1.id" -> ("1", "1"),
-        "a" -> ("1", "2"),
-        "b" -> ("1", "2"),
-        "2.1" -> ("2", "1"),
-        "2.id" -> ("2", "2"),
-        "2.a" -> ("2", "2"),
-        "2.b" -> ("2", "2"),
-        "2.swap" -> ("2", "2"))
+        "0.id" → ("0", "0"),
+        "0.1" → ("0", "1"),
+        "0.2" → ("0", "2"),
+        "1.id" → ("1", "1"),
+        "a" → ("1", "2"),
+        "b" → ("1", "2"),
+        "2.1" → ("2", "1"),
+        "2.id" → ("2", "2"),
+        "2.a" → ("2", "2"),
+        "2.b" → ("2", "2"),
+        "2.swap" → ("2", "2"))
       val testGraph = Graph.fromArrowMap(nodes, arrows)
       testGraph === testGraph.flatMap(g ⇒ Graph.read(g.toString))
     }
@@ -118,7 +118,7 @@ class GraphTest extends Test {
 
     "Constructor_plain_withmap" >> {
       val objects = Set(1, 2, 3)
-      val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
+      val map = Map("1a" → (1, 1), "1b" → (1, 1), "2to1" → (2, 1), "3to2" → (3, 2), "1to3" → (1, 3))
       val sutOpt = Graph.fromArrowMap(objects, map)
 
       check(sutOpt, (sut: Graph) ⇒ {
@@ -163,7 +163,7 @@ class GraphTest extends Test {
     }
 
     "Equals_positive" >> {
-      val map = Map(11 -> (1, 1), 111 -> (1, 1), 21 -> (2, 1), 32 -> (3, 2), 13 -> (1, 3))
+      val map = Map(11 → (1, 1), 111 → (1, 1), 21 → (2, 1), 32 → (3, 2), 13 → (1, 3))
       val sut1 = Graph.fromArrowMap(Set(1, 2, 3), map)
       val sut2 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       sut1 === sut2
@@ -237,10 +237,10 @@ class GraphTest extends Test {
 
     "Parser" >> {
       val objects = Set("1", "2", "3")
-      val map = Map("1a" -> ("1", "1"), "1b" -> ("1", "1"), "2to1" -> ("2", "1"), "3to2" -> ("3", "2"), "1to3" ->
+      val map = Map("1a" → ("1", "1"), "1b" → ("1", "1"), "2to1" → ("2", "1"), "3to2" → ("3", "2"), "1to3" →
         ("1", "3"))
       val expected = Graph.fromArrowMap(objects, map).iHope
-      val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
+      val sut = graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 2 → 1, 3to2: 3 → 2, 1to3: 1 → 3})"
 
       sut.nodes === expected.nodes
       sut.arrows === expected.arrows
@@ -248,7 +248,7 @@ class GraphTest extends Test {
     }
 
     "hom" >> {
-      val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
+      val sut = graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 2 → 1, 3to2: 3 → 2, 1to3: 1 → 3})"
       import sut._
       val hom = sut.arrowsBetween("1", "1")
       hom === Sets.parse("{1a, 1b}")
@@ -256,8 +256,8 @@ class GraphTest extends Test {
     }
 
     "~" >> {
-      val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
-      ~sut === graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 1 -> 2, 3to2: 2 -> 3, 1to3: 3 -> 1})"
+      val sut = graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 2 → 1, 3to2: 3 → 2, 1to3: 1 → 3})"
+      ~sut === graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 1 → 2, 3to2: 2 → 3, 1to3: 3 → 1})"
     }
     
     "be finite" >> {

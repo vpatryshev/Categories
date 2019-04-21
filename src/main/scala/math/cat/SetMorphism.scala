@@ -18,8 +18,8 @@ class SetMorphism[X, Y] (
   extends Morphism[Set[X], Set[Y]] with Map[X, Y] {
 
   override def toString: String = tag match {
-    case "" ⇒ "{" + (d0 map (x ⇒ s"$x -> ${this(x)}") mkString ", ")  + "}"
-    case _  ⇒ s"$tag: ${d0.size} elements -> ${d1.size} elements"
+    case "" ⇒ "{" + (d0 map (x ⇒ s"$x → ${this(x)}") mkString ", ")  + "}"
+    case _  ⇒ s"$tag: ${d0.size} elements → ${d1.size} elements"
   }
 
   override def hashCode: Int = d0.hashCode * 4/*random number*/ + d1.hashCode

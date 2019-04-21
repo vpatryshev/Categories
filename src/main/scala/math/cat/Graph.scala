@@ -46,7 +46,7 @@ trait Graph extends GraphData { graph ⇒
   override def toString: String = {
     val nodess = nodes.mkString(", ")
     val arrowss =
-      arrows map ((a: Arrow) ⇒ s"$a: ${d0(a)}->${d1(a)}") mkString ", "
+      arrows map ((a: Arrow) ⇒ s"$a: ${d0(a)}→${d1(a)}") mkString ", "
     s"({$nodess}, {$arrowss})"
   }
 
@@ -208,7 +208,7 @@ object Graph {
 
     def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" ⇒ Map()++m}
 
-    def arrow: Parser[(String, (String, String))] = word~":"~word~"->"~word ^^ {case f~":"~x~"->"~y ⇒ (f, (x, y))}
+    def arrow: Parser[(String, (String, String))] = word~":"~word~"→"~word ^^ {case f~":"~x~"→"~y ⇒ (f, (x, y))}
 
     def explain[T](pr: ParseResult[Result[T]]): Result[T] = {
       pr match {

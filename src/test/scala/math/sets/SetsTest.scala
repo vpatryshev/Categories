@@ -243,7 +243,7 @@ class SetsTest extends Specification {
       val codomain = Set("x", "y", "z")
       val actual = exponent(domain, codomain)
       actual must haveSize(9)
-      actual must contain(Map("1" -> "y", "2" -> "x"))
+      actual must contain(Map("1" → "y", "2" → "x"))
     }
 
     "parse({a,b,c} with spaces should be okay" >> {

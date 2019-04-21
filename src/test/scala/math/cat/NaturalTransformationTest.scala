@@ -27,9 +27,9 @@ class NaturalTransformationTest extends Test {
     lazy val h: F = buildFunctor("g", 2 +).iHope
 
     lazy val fg: NT = NaturalTransformation.build(f, g)(Map(
-      f.d0.obj("0") -> f.d1.arrow("0.1"), f.d0.obj("1") -> f.d1.arrow("2.2"))).iHope
+      f.d0.obj("0") → f.d1.arrow("0.1"), f.d0.obj("1") → f.d1.arrow("2.2"))).iHope
 
-    lazy val gh: NT = NaturalTransformation.build(g, h)(Map("0" -> g.d1.arrow("1.2"), "1" -> g.d1.arrow("2.3"))).iHope
+    lazy val gh: NT = NaturalTransformation.build(g, h)(Map("0" → g.d1.arrow("1.2"), "1" → g.d1.arrow("2.3"))).iHope
 
     "compose" in {
         val fgh = fg compose gh

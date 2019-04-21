@@ -50,7 +50,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
   }
   
   private lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
-    domainCategory.objects map (o ⇒ o -> transformPerObject(o)) toMap
+    domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
@@ -100,7 +100,7 @@ object NaturalTransformation {
     *
     * @param from0 first functor
     * @param to0   second functor
-    * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
+    * @param mappings a set morphism that for each domain object x returns f(x) → g(x)
     */
   def build(from0: Functor, to0: Functor)
   (
@@ -116,7 +116,7 @@ object NaturalTransformation {
   }
 
   /**
-    * Builds an identity natural transformation id[f]: f -> f
+    * Builds an identity natural transformation id[f]: f → f
     *
     * @param functor the functor for which we are building the identity transformation
     * @return identity natural transformation for the functor

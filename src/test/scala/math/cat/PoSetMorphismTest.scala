@@ -52,9 +52,9 @@ class PoSetMorphismTest extends Specification {
       val y2 = PoSet(stringComparator, "#5", "#4", "#3", "#2", "#1")
       val sut1 = PoSetMorphism.build(x1, y1, (n: Int) ⇒ "#" + n)
       val sut2 = PoSetMorphism.build(x2, y2,
-        Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5"))
+        Map(1 → "#1", 2 → "#2", 3 → "#3", 4 → "#4", 5 → "#5"))
       sut1 === sut2
-      val sut3 = PoSetMorphism.build(x2, y2, Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#4"))
+      val sut3 = PoSetMorphism.build(x2, y2, Map(1 → "#1", 2 → "#2", 3 → "#3", 4 → "#4", 5 → "#4"))
       sut1 !== sut3
     }
 

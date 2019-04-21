@@ -52,10 +52,10 @@ class SetMorphismTest extends Specification {
   "Equals" >> {
     val sut1 = SetMorphism.build(testSetX, testSetZ, (n: Int) ⇒ "#" + n).iHope
     val sut2 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
-                           Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5")).iHope
+                           Map(1 → "#1", 2 → "#2", 3 → "#3", 4 → "#4", 5 → "#5")).iHope
     (sut1 == sut2) must beTrue
     val sut3 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
-                           Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#3")).iHope
+                           Map(1 → "#1", 2 → "#2", 3 → "#3", 4 → "#4", 5 → "#3")).iHope
     (sut1 != sut3) must beTrue
   }
 
@@ -71,7 +71,7 @@ class SetMorphismTest extends Specification {
   "Revert" >> {
     val sut1 = SetMorphism.build(Set("abc", "x", "def"), testSetX, (s:String) ⇒ s.length).iHope
     val sut2 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set(Set("abc", "def"), Set("x"), Set()),
-                           Map(1 -> Set("x"), 2 -> Set(), 3 -> Set("abc", "def"), 4 -> Set(), 5 -> Set())).iHope
+                           Map(1 → Set("x"), 2 → Set(), 3 → Set("abc", "def"), 4 → Set(), 5 → Set())).iHope
     (sut2 == sut1.revert) must beTrue
   }
 
@@ -99,7 +99,7 @@ class SetMorphismTest extends Specification {
     (d0 != d1) must beTrue
     val actual = SetMorphism.hom(d0, d1)
     (actual.size == 9) must beTrue
-    (actual contains SetMorphism.build(d0, d1, Map("1" -> "y", "2" -> "x")).iHope) must beTrue
+    (actual contains SetMorphism.build(d0, d1, Map("1" → "y", "2" → "x")).iHope) must beTrue
   }
 
   "Variance_byX" >> {
@@ -119,7 +119,7 @@ class SetMorphismTest extends Specification {
     val y = Set(0, 1, 2)
     val sut = SetMorphism.build(x, y, (x: Int) ⇒ x % 3).iHope.product
 
-    def m(x: Int, y: Int, z: Int) = Map(0 -> x, 1 -> y, 2 -> z)
+    def m(x: Int, y: Int, z: Int) = Map(0 → x, 1 → y, 2 → z)
 
     sut === Set(m(0, 1, 2), m(0, 1, 5),
       m(0, 4, 2), m(0, 4, 5),

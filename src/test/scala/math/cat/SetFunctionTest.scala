@@ -142,7 +142,7 @@ class SetFunctionTest extends Specification {
       s(1) === sut(5)
     }
 
-    "exponent 2->2" >> {
+    "exponent 2→2" >> {
       val set1 = setOf[Any](1, 2)
 
       val sut = SetFunction.exponent(set1, set1)
@@ -151,7 +151,7 @@ class SetFunctionTest extends Specification {
       check1 must beTrue
     }
 
-    "exponent 3->5" >> {
+    "exponent 3→5" >> {
       val set1 = setOf[Any](3, 4, 5)
       val set2 = setOf[Any](1, 2, 3, 4, 5)
 

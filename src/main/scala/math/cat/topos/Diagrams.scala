@@ -24,7 +24,7 @@ class Diagrams(val site: Category)
     private def am(f: site.Arrow): SetFunction = {
       val d0: site.Arrows = om(site.d0(f))
       val d1: site.Arrows = om(site.d1(f))
-      val tuples: Set[(site.Arrow, site.Arrow)] = d0 flatMap { g ⇒ site.m(g, f) map (g -> _) }
+      val tuples: Set[(site.Arrow, site.Arrow)] = d0 flatMap { g ⇒ site.m(g, f) map (g → _) }
       val mapping: Map[site.Arrow, site.Arrow] =tuples toMap
 
       SetFunction.build(toSet(d0), toSet(d1), a ⇒ mapping(site.arrow(a))).iHope
@@ -88,7 +88,7 @@ class Diagrams(val site: Category)
     val results: TraversableOnce[Result[(site.Obj, diagram1.d1.Arrow)]] = for {
       x <- site
       in = SetMorphism.inclusion(diagram1(x), diagram2(x))
-      pair = in map (x -> diagram1.d1.arrow(_))
+      pair = in map (x → diagram1.d1.arrow(_))
     } yield pair
 
     for {
@@ -118,7 +118,7 @@ class Diagrams(val site: Category)
       (candidate, i) <- Sets.powerset(site.objects).zipWithIndex
       // some mappings are not working for a given candidate
       amCandidate: (site.Arrow ⇒ Result[SetFunction]) = arrowMappingOpt(candidate)
-      arrowsMapOpt: Set[Result[(site.Arrow, SetFunction)]] = site.arrows map (a ⇒ amCandidate(a) map (a -> _))
+      arrowsMapOpt: Set[Result[(site.Arrow, SetFunction)]] = site.arrows map (a ⇒ amCandidate(a) map (a → _))
       am: Traversable[(site.Arrow, SetFunction)] <- Result.traverse(arrowsMapOpt).asOption
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
@@ -129,7 +129,7 @@ class Diagrams(val site: Category)
   }
   
   private[topos] def subobjectsOfRepresentables: Map[site.Obj, Set[Diagram]] =
-    site.objects map (x ⇒ x -> Representable(x).subobjects.toSet) toMap
+    site.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
   
   lazy val Ω: Diagram = {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.

@@ -56,8 +56,8 @@ class DiagramTest extends Test with TestDiagrams {
       checkError("Inconsistent mapping for d0(b) - Set(0, 1, 2) vs Set(5, 1, 2, 3, 4)" ==,
         Diagram.build(
           "ParallelPair", Category.ParallelPair)(
-          Map("0" -> a, "1" -> b),
-          Map("a" -> f, "b" -> g)
+          Map("0" → a, "1" → b),
+          Map("a" → f, "b" → g)
         )
       )
     }
@@ -243,8 +243,8 @@ class DiagramTest extends Test with TestDiagrams {
         val ed = SetFunction.build("ed", e, d, x ⇒ (x.toString.toInt + 1) % 2).iHope
         val sutOpt = Diagram.build(
           "W", Category.W)(
-          Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
-          Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
+          Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
+          Map("ab" → ab, "cb" → cb, "cd" → cd, "ed" → ed)
         )
 
         expect(sut ⇒
@@ -321,8 +321,8 @@ class DiagramTest extends Test with TestDiagrams {
       val ac = SetFunction.build("g", a, c, _.toString.toInt % 2).iHope
       val sutOpt: Result[SUT] = Diagram.build(
         "pushout", Category.Pushout)(
-        Map("a" -> a, "b" -> b, "c" -> c),
-        Map("ab" -> ab, "ac" -> ac)
+        Map("a" → a, "b" → b, "c" → c),
+        Map("ab" → ab, "ac" → ac)
       )
 
       val v0 = Set((0, 4), (0, 2), (1, 1))
@@ -358,8 +358,8 @@ class DiagramTest extends Test with TestDiagrams {
       val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
       val sutOpt: Result[SmallDiagram] = Diagram.build(
         "ParallelPair", Category.ParallelPair)(
-        Map("0" -> a, "1" -> b),
-        Map("a" -> f, "b" -> g)
+        Map("0" → a, "1" → b),
+        Map("a" → f, "b" → g)
       )
       val element = Set((0, 0), (0, 1), (0, 2))
       val Vertex: set = Set(element)
