@@ -31,7 +31,7 @@ abstract class Diagram(
   implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
   
   def ⊂(other: Diagram): Boolean = {
-    val itsok = d0.objects.forall { o =>
+    val itsok = d0.objects.forall { o ⇒
       this(o) subsetOf other(o)
     }
     itsok

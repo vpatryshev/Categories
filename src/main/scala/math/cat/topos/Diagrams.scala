@@ -137,7 +137,7 @@ class Diagrams(val site: Category)
     // These are values `Ω(x)`
     val om: Map[site.Obj, Set[Diagram]] = subobjectsOfRepresentables // cache the values at objects
 
-    val am: Map[site.Arrow, SetFunction] = site.arrows.map (a => a -> {
+    val am: Map[site.Arrow, SetFunction] = site.arrows.map (a ⇒ a → {
       val x = site.d0(a)
       val y = site.d1(a)
       val d0 = om(x) // `Ω(x)` = all subobjects of `Representable(x)`
@@ -145,9 +145,9 @@ class Diagrams(val site: Category)
 
       // How one diagram is transformed via `a`:
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
-      val diaMap: Map[Diagram, Diagram] = d0 map { (rx: Diagram) /*a subrepresentable on `x`*/ => rx -> {
+      val diaMap: Map[Diagram, Diagram] = d0 map { (rx: Diagram) /*a subrepresentable on `x`*/ ⇒ rx → {
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
-        val om1: Map[site.Obj, set] = site.objects map { (x1: site.Obj) => x1 -> {
+        val om1: Map[site.Obj, set] = site.objects map { (x1: site.Obj) ⇒ x1 → {
           // {f ∈ hom(y, x1) | a o f ∈ r1(x1)}
           val rx_at_x1 = rx(x1)
           val result = for {
@@ -160,7 +160,7 @@ class Diagrams(val site: Category)
         } toMap
           
         // this is how, given an arrow `b`, the new diagram gets from one point to another
-        val am1: Map[site.Arrow, SetFunction] = site.arrows map { (b: site.Arrow) => b -> {
+        val am1: Map[site.Arrow, SetFunction] = site.arrows map { (b: site.Arrow) ⇒ b → {
           val x1 = om1(site.d0(b)) //  {f ∈ hom(y, d0(b)) | a o f ∈ r1(d0(b)}
           val y1 = om1(site.d1(b)) //  {f ∈ hom(y, d1(b)) | a o f ∈ r1(d1(b)}
           // here we need a function fom x1 to y1
@@ -168,9 +168,9 @@ class Diagrams(val site: Category)
           val mappingOpt = SetFunction.build("", x1, y1, g ⇒ {
             val bfOpt = site.m(site.arrow(g), b)
             bfOpt match {
-              case None =>
+              case None ⇒
                 throw new IllegalArgumentException(s"Expected $b and $g to be composable")
-              case Some(h) => h
+              case Some(h) ⇒ h
             }
           })
           mappingOpt iHope
