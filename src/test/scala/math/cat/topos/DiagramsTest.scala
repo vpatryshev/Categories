@@ -8,7 +8,7 @@ import math.Base._
 
 class DiagramsTest extends Test with TestDiagrams {
 
-  type SUT = SmallDiagram
+  type SUT = Diagram
 
   def representable(topos: Diagrams) =
     (obj: topos.site.Obj) ⇒ topos.Representable(obj)
@@ -190,13 +190,16 @@ class DiagramsTest extends Test with TestDiagrams {
   
   "List of subobjects" should {
     "be good for empty diagram" in {
-      val actual = EmptyDiagram.subobjects
+      val sut = EmptyDiagram
+      val actual = sut.subobjects
       actual.size === 1
-      actual.head === EmptyDiagram
+      actual.head === sut
+      actual.forall(_ ⊂ sut)
     }
 
     "be good for pullback diagram" in {
-      val sample = SamplePullbackDiagram.d0.objects map (ob ⇒ SamplePullbackDiagram.objectsMapping(ob))
+      val sut = SamplePullbackDiagram
+      val sample = sut.d0.objects map (ob ⇒ sut.objectsMapping(ob))
 
       def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
 
@@ -204,7 +207,7 @@ class DiagramsTest extends Test with TestDiagrams {
         d.d0.objects.toList map ((o:d.d0.Obj) ⇒ d.objectsMapping(o))
       } map d.asSet map canonical
 
-      val listOfSubobjects = SamplePullbackDiagram.subobjects.toList
+      val listOfSubobjects = sut.subobjects.toList
       val actual =
         listOfSubobjects.sortBy(fullSet)(Ordering.by(_.mkString(";"))).reverse
       actual.size === 85
@@ -212,14 +215,17 @@ class DiagramsTest extends Test with TestDiagrams {
 
       actual.head.points.size === 0
       val last = actual.last
-      SamplePullbackDiagram.d0 === last.d0
-      SamplePullbackDiagram.d1 === last.d1
+      sut.d0 === last.d0
+      sut.d1 === last.d1
 
-      SamplePullbackDiagram.sameNodes(last) must beTrue
-      SamplePullbackDiagram.sameArrows(last) must beTrue
-      val comp = actual.last == SamplePullbackDiagram
+      sut.sameNodes(last) must beTrue
+      sut.sameArrows(last) must beTrue
+      val comp = actual.last == sut
 
-      actual.last === SamplePullbackDiagram
+      actual.last === sut
+
+      actual.forall(_ ⊂ sut)
+
     }
     
     "exist for representables in Set^_2_" in {
@@ -272,10 +278,10 @@ class DiagramsTest extends Test with TestDiagrams {
         "Diagram(0→{Diagram(0→{}, 1→{})}, 1→{Diagram(0→{}, 1→{})})"
 
       points(1).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{})})"
+        "Diagram(0→{Diagram(0→{}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{1.1})})"
 
       points(2).toString ===
-        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{})})"
+        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{1.1})})"
     }
 
     "exist for _3_" in {
@@ -292,13 +298,13 @@ class DiagramsTest extends Test with TestDiagrams {
         "Diagram(0→{Diagram(0→{}, 1→{}, 2→{})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
 
       points(1).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+        "Diagram(0→{Diagram(0→{}, 1→{}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{1.2})}, 2→{Diagram(0→{}, 1→{}, 2→{2.2})})"
 
       points(2).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+        "Diagram(0→{Diagram(0→{}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{1.1}, 2→{1.2})}, 2→{Diagram(0→{}, 1→{}, 2→{2.2})})"
 
       points(3).toString ===
-        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{1.1}, 2→{1.2})}, 2→{Diagram(0→{}, 1→{}, 2→{2.2})})"
     }
 
     "exist for ParallelPair" in {
@@ -306,21 +312,15 @@ class DiagramsTest extends Test with TestDiagrams {
 
       val omega = topos.Ω
       val points = omega.points.toList
-      points.size === 5
+      points.size === 3  // out of 5 possible candidates, 2 split by a or by b, so they are not points
       points(0).toString ===
         "Diagram(0→{Diagram(0→{}, 1→{})}, 1→{Diagram(0→{}, 1→{})})"
 
       points(1).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{a})}, 1→{Diagram(0→{}, 1→{})})"
+        "Diagram(0→{Diagram(0→{}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{1})})"
 
       points(2).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{})})"
-
-      points(3).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{b})}, 1→{Diagram(0→{}, 1→{})})"
-
-      points(4).toString ===
-        "Diagram(0→{Diagram(0→{0}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{})})"
+        "Diagram(0→{Diagram(0→{0}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{1})})"
     }
   }
 }

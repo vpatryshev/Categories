@@ -7,7 +7,6 @@ import scalakittens.Result
 import math.Base._
 
 trait TestDiagrams extends Test {
-  type SmallDiagram = Diagram
 
   implicit def translateObjectMapping(f: Functor)(om: String ⇒ set): f.d0.Obj ⇒ f.d1.Obj =
     (x: f.d0.Obj) ⇒ f.d1.obj(om(f.toString))
@@ -15,16 +14,16 @@ trait TestDiagrams extends Test {
   implicit def translateArrowMapping(f: Functor)(am: String ⇒ SetFunction): f.d0.Obj ⇒ f.d1.Obj =
     (x: f.d0.Obj) ⇒ f.d1.obj(am(f.toString))
 
-  lazy val EmptyDiagram: SmallDiagram = Diagram.build("empty", Category._0_)(
+  lazy val EmptyDiagram: Diagram = Diagram.build("empty", Category._0_)(
     Map[String, set](),
     Map[String, SetFunction]()
   ).iHope
-  val SamplePullbackDiagram: SmallDiagram = BuildPullbackDiagram.asDiagram iHope
-  val SamplePushoutDiagram: SmallDiagram = {
+  val SamplePullbackDiagram: Diagram = BuildPullbackDiagram.asDiagram iHope
+  val SamplePushoutDiagram: Diagram = {
     null
     // TODO: implement
   }
-  val SampleParallelPairDiagram: SmallDiagram = {
+  val SampleParallelPairDiagram: Diagram = {
     val a: set = Set(1, 2, 3, 4, 5)
     val b: set = Set(0, 1, 2)
     val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
@@ -35,7 +34,7 @@ trait TestDiagrams extends Test {
       Map("a" → f, "b" → g)
     ) iHope
   }
-  val SampleZ3Diagram: SmallDiagram = {
+  val SampleZ3Diagram: Diagram = {
     val a: set = Set(0, 1, 2, 3)
 
     def f(i: Int): Int ⇒ Int = (n: Int) ⇒ if (n == 3) n else (n + i) % 3
@@ -49,7 +48,7 @@ trait TestDiagrams extends Test {
     ) iHope
   }
 
-  def const(x: set): Result[SmallDiagram] =
+  def const(x: set): Result[Diagram] =
     Diagram.build(s"point $x", Category._1_)(
       Map[String, set]("0" → x),
       Map[String, SetFunction]()
@@ -69,7 +68,7 @@ trait TestDiagrams extends Test {
       om,
       am
     )
-    lazy val asDiagram: Result[SmallDiagram] = Diagram.build(
+    lazy val asDiagram: Result[Diagram] = Diagram.build(
       "pullback", Category.Pullback)(
       om,
       am
@@ -88,7 +87,7 @@ trait TestDiagrams extends Test {
     val ed = SetFunction.build("ed", e, d, _.toString.substring(1, 2)).iHope
   }
   
-  val SampleWDiagram: SmallDiagram = {
+  val SampleWDiagram: Diagram = {
     import SampleWDiagramContent._
     Diagram.build(
       "W", Category.W)(
@@ -109,7 +108,7 @@ trait TestDiagrams extends Test {
     val de = SetFunction.build("de", d, e, "e1" +).iHope
   }
 
-  val SampleMDiagram: SmallDiagram = {
+  val SampleMDiagram: Diagram = {
     import SampleMDiagramContent._
     Diagram.build(
       "M", Category.M)(

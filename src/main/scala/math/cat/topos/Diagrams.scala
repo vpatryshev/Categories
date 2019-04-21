@@ -39,7 +39,8 @@ class Diagrams(val site: Category)
     }
 
     // have to validate right here, because a representable must exist, and all checks should be passing
-    Functor.validateFunctor(this).iHope
+    private val probablyFunctor: Result[Functor] = Functor.validateFunctor(this)
+    probablyFunctor.iHope
   }
 
   val base: Category = BaseCategory
@@ -136,7 +137,7 @@ class Diagrams(val site: Category)
     // These are values `Ω(x)`
     val om: Map[site.Obj, Set[Diagram]] = subobjectsOfRepresentables // cache the values at objects
 
-    def am(a: site.Arrow): SetFunction = {
+    val am: Map[site.Arrow, SetFunction] = site.arrows.map (a => a -> {
       val x = site.d0(a)
       val y = site.d1(a)
       val d0 = om(x) // `Ω(x)` = all subobjects of `Representable(x)`
@@ -144,27 +145,43 @@ class Diagrams(val site: Category)
 
       // How one diagram is transformed via `a`:
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
-      // r1 is a subobject of Representable(x)
-      def diaMap(rx: Diagram /*a subrepresentable on `x`*/): Diagram /*a subrepresentable on `y`*/ = {
+      val diaMap: Map[Diagram, Diagram] = d0 map { (rx: Diagram) /*a subrepresentable on `x`*/ => rx -> {
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
-        def om1(x1: site.Obj): set = {
+        val om1: Map[site.Obj, set] = site.objects map { (x1: site.Obj) => x1 -> {
           // {f ∈ hom(y, x1) | a o f ∈ r1(x1)}
-          site.hom(y, x1).untyped filter {f ⇒ rx(x1) contains site.m(a, site.arrow(f))}
+          val rx_at_x1 = rx(x1)
+          val result = for {
+            f <- site.hom(y, x1).untyped
+            candidate <- site.m(a, site.arrow(f))
+            if rx_at_x1 contains candidate
+          } yield f
+          result
         }
+        } toMap
+          
         // this is how, given an arrow `b`, the new diagram gets from one point to another
-        def am1(b: site.Arrow): SetFunction = {
+        val am1: Map[site.Arrow, SetFunction] = site.arrows map { (b: site.Arrow) => b -> {
           val x1 = om1(site.d0(b)) //  {f ∈ hom(y, d0(b)) | a o f ∈ r1(d0(b)}
           val y1 = om1(site.d1(b)) //  {f ∈ hom(y, d1(b)) | a o f ∈ r1(d1(b)}
           // here we need a function fom x1 to y1
-          val mapping = SetFunction.build("", x1, y1, g ⇒ site.m(b, site.arrow(g))).iHope
-          mapping
-        } 
+         
+          val mappingOpt = SetFunction.build("", x1, y1, g ⇒ {
+            val bfOpt = site.m(site.arrow(g), b)
+            bfOpt match {
+              case None =>
+                throw new IllegalArgumentException(s"Expected $b and $g to be composable")
+              case Some(h) => h
+            }
+          })
+          mappingOpt iHope
+        }} toMap
         
-        Diagram.build("", site)(om1, am1).iHope
-      }
+        val diagramMaybe = Diagram.build("", site)(om1, am1)
+        diagramMaybe.iHope
+      }} toMap
       
       SetFunction.build(s"[$a]", d0.untyped, d1.untyped, d ⇒ diaMap(d.asInstanceOf[Diagram])).iHope
-    }
+    }) toMap
     
     Diagram.build("Ω", site)(d ⇒ om(d).untyped, am).iHope
     

@@ -9,10 +9,10 @@ import math.sets.Sets.set
 import scalakittens.{Good, Result}
 
 /**
-  * Test for set diagrams (functors with codomain=sets)
+  * Test for individual diagrams (functors with codomain=sets)
   */
 class DiagramTest extends Test with TestDiagrams {
-  type SUT = SmallDiagram
+  type SUT = Diagram
 
   "Diagram" should {
 
@@ -70,7 +70,7 @@ class DiagramTest extends Test with TestDiagrams {
   
   "Diagram points" should {
 
-    def checkPoint(sut: SmallDiagram)(point: SmallDiagram, values: List[Int]) = {
+    def checkPoint(sut: Diagram)(point: Diagram, values: List[Int]) = {
       val objects = sut.d0.objects.toList
       val actual = objects map point.apply
       val expected = values map Sets.singleton
@@ -114,7 +114,7 @@ class DiagramTest extends Test with TestDiagrams {
 
   "Diagram limit" should {
     "exist for an empty diagram" in {
-      check[SmallDiagram](const(Set("a", "b")),
+      check[Diagram](const(Set("a", "b")),
         sut ⇒ {
           sut.d0 === Category._1_
           sut.d1 === Setf
@@ -125,7 +125,7 @@ class DiagramTest extends Test with TestDiagrams {
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
-      check[SmallDiagram](const(x),
+      check[Diagram](const(x),
         sut ⇒ {
           sut.d0 === Category._1_
           sut.d1 === Setf
@@ -300,7 +300,7 @@ class DiagramTest extends Test with TestDiagrams {
 
     "exist for a point" in {
       val expected: set = Set("x", "y", "z")
-      check[SmallDiagram](const(expected),
+      check[Diagram](const(expected),
         sut ⇒ {
           sut.d0 === Category._1_
           sut.d1 === Setf
@@ -356,7 +356,7 @@ class DiagramTest extends Test with TestDiagrams {
       val b: set = Set(0, 1, 2)
       val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
-      val sutOpt: Result[SmallDiagram] = Diagram.build(
+      val sutOpt: Result[Diagram] = Diagram.build(
         "ParallelPair", Category.ParallelPair)(
         Map("0" → a, "1" → b),
         Map("a" → f, "b" → g)

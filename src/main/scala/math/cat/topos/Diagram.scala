@@ -29,6 +29,13 @@ abstract class Diagram(
   type XArrows = Set[d0.Arrow]
 
   implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
+  
+  def ⊂(other: Diagram): Boolean = {
+    val itsok = d0.objects.forall { o =>
+      this(o) subsetOf other(o)
+    }
+    itsok
+  }
 
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
   // for each original object select a value in the diagram
@@ -145,10 +152,7 @@ abstract class Diagram(
         val d00 = om(d0.d0(a))
         val d01 = om(d0.d1(a))
         val f = arrowsMapping(a)
-        val itsok = (f(d00), d01) match {
-          case (s0: Set[Any], s1: Set[Any]) ⇒ s0 subsetOf s1
-          case (x, y) ⇒ x == y
-        }
+        val itsok = f(d00) == d01
 
         itsok
     }
