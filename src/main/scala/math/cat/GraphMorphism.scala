@@ -5,7 +5,7 @@ package math.cat
   * Morphism for graphs.
   */
 trait GraphMorphism
-  extends Morphism[Graph, Graph] { m =>
+  extends Morphism[Graph, Graph] { m ⇒
   val tag: String
   val d0: Graph
   val d1: Graph
@@ -22,7 +22,7 @@ trait GraphMorphism
     */
   private[cat] def sameNodesMapping(other: GraphMorphism)(x: d0.Node): Boolean = try {
     other.nodesMapping(other.d0.node(x)) == nodesMapping(x)
-  } catch {case _: Exception => false}
+  } catch {case _: Exception ⇒ false}
 
   /**
     * Good for testing
@@ -43,7 +43,7 @@ trait GraphMorphism
     */
   def sameArrowsMapping(other: GraphMorphism)(a: d0.Arrow): Boolean = try {
     other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a)
-  } catch { case _: Exception => false }
+  } catch { case _: Exception ⇒ false }
 
   /**
     * Good for testing
@@ -71,9 +71,9 @@ trait GraphMorphism
   override def equals(gm: Any): Boolean = {
 
     gm match {
-      case other: GraphMorphism =>
+      case other: GraphMorphism ⇒
         sameNodes(other) && sameArrows(other)
-      case otherwise => false
+      case otherwise ⇒ false
     }
   }
 
@@ -83,8 +83,8 @@ trait GraphMorphism
 
   def compose(g: GraphMorphism): GraphMorphism = {
     require(this.d1 == g.d0, "Composition not defined")
-    val nm: d0.Node => g.d1.Node = x => g.nodesMapping(g.d0.node(nodesMapping(x)))
-    val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
+    val nm: d0.Node ⇒ g.d1.Node = x ⇒ g.nodesMapping(g.d0.node(nodesMapping(x)))
+    val am: d0.Arrow ⇒ g.d1.Arrow = a ⇒ g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
     
     GraphMorphism(m.tag + " o " + g.tag, m.d0, g.d1)(nm, am)
   }
@@ -95,8 +95,8 @@ object GraphMorphism {
     taggedAs: String,
     domain: Graph,
     codomain: Graph)(
-    f0: domain.Node => codomain.Node,
-    f1: domain.Arrow => codomain.Arrow):
+    f0: domain.Node ⇒ codomain.Node,
+    f1: domain.Arrow ⇒ codomain.Arrow):
   GraphMorphism = new GraphMorphism {
     val tag: String = taggedAs
     val d0: Graph = domain

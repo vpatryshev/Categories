@@ -23,9 +23,9 @@ object Sets {
   
   val InfiniteSize: Int = Int.MaxValue
   
-  val isInfinite: Set[_] => Boolean = _.size == InfiniteSize
+  val isInfinite: Set[_] ⇒ Boolean = _.size == InfiniteSize
 
-  def isFinite: Set[_] => Boolean = _.size != InfiniteSize
+  def isFinite: Set[_] ⇒ Boolean = _.size != InfiniteSize
 
   val Empty: set = Set.empty[Any]
   
@@ -39,22 +39,22 @@ object Sets {
   def itsImmutable = throw new UnsupportedOperationException("Immutable class")
 
   def setOf[X](
-    sourceIterator: => Iterator[X],
-    sizeEvaluator: => Int,
-    predicate: X => Boolean): Set[X] =
+    sourceIterator: ⇒ Iterator[X],
+    sizeEvaluator: ⇒ Int,
+    predicate: X ⇒ Boolean): Set[X] =
     setForIterator(sourceIterator, sizeEvaluator, predicate)
 
   def setOf[X](
     source: Iterable[X],
-    sizeEvaluator: => Int,
-    predicate: X => Boolean): Set[X] =
+    sizeEvaluator: ⇒ Int,
+    predicate: X ⇒ Boolean): Set[X] =
     setForIterator(source.iterator, sizeEvaluator, predicate)
 
-  def setOf[X](content: Iterable[X], predicate: X => Boolean): Set[X] =
-    setOf(content, (0 /: content) ((n, x) => n + 1), predicate)
+  def setOf[X](content: Iterable[X], predicate: X ⇒ Boolean): Set[X] =
+    setOf(content, (0 /: content) ((n, x) ⇒ n + 1), predicate)
 
   def asSet[X](content: Iterable[X]): Set[X] =
-    setOf(content, x => content exists (_ == x))
+    setOf(content, x ⇒ content exists (_ == x))
 
   def setOf[T](content: T*): Set[T] = asSet(content)
 
@@ -71,18 +71,18 @@ object Sets {
     lazy val size = if (isFinite(set1) && isFinite(set2)) set1.size + set2.size else InfiniteSize
 
     def inX1(x: X) = x match {
-      case x1: X1 => set1(x1)
-      case _ => false
+      case x1: X1 ⇒ set1(x1)
+      case _ ⇒ false
     }
 
     def inX2(x: X) = x match {
-      case x2: X2 => set2(x2)
-      case _ => false
+      case x2: X2 ⇒ set2(x2)
+      case _ ⇒ false
     }
 
     setOf[X](parIterable,
       size,
-      (x: X) => inX1(x) || inX2(x)
+      (x: X) ⇒ inX1(x) || inX2(x)
     )
   }
 
@@ -91,7 +91,7 @@ object Sets {
     */
   def union[X](sets: Iterable[Set[X]]): Set[X] = {
     lazy val content = sets.flatten
-    val result = setOf(content, (x: X) => sets exists (_ contains x))
+    val result = setOf(content, (x: X) ⇒ sets exists (_ contains x))
     result
   }
 
@@ -112,7 +112,7 @@ object Sets {
       */
     def unionSet: Set[(Int, T)] = {
       val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex map {
-        case (s, i) => s map (x => (i, x))
+        case (s, i) ⇒ s map (x ⇒ (i, x))
       }
 
       union(tagged)
@@ -124,7 +124,7 @@ object Sets {
       * @param i index of the set to inject in the list of sets
       * @return the injection (which is an Injection which is a Function))
       */
-    def injection(i: Int): Injection[T, (Int, T)] = Functions.injection(t => (i, t))
+    def injection(i: Int): Injection[T, (Int, T)] = Functions.injection(t ⇒ (i, t))
 
     /**
       * @return the list of injections of original sets to their union
@@ -168,7 +168,7 @@ object Sets {
     * Cartesian product of two sets
     */
   def product2[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] = {
-    val predicate = (p: (X, Y)) => xs.contains(p._1) && ys.contains(p._2)
+    val predicate = (p: (X, Y)) ⇒ xs.contains(p._1) && ys.contains(p._2)
     setOf(
       cantorIterator(xs, ys),
       if (isFinite(xs) && isFinite(ys)) xs.size * ys.size else InfiniteSize,
@@ -180,16 +180,16 @@ object Sets {
 
   def product[X](xss: List[Set[X]]): Set[List[X]] =
     xss match {
-      case List() => Set(List())
-      case head :: tail => product2(head, product(tail)) map cat
+      case List() ⇒ Set(List())
+      case head :: tail ⇒ product2(head, product(tail)) map cat
     }
 
   def pow(a: Int, b: Int): Int = if (b == 0) 1 else a * pow(a, b - 1)
 
   def powerset[X](xs: Set[X]): Set[Set[X]] =
-    setOf((List(Set.empty[X]) /: xs) ((xss, x) => xss ::: xss.map(_ + x)),
+    setOf((List(Set.empty[X]) /: xs) ((xss, x) ⇒ xss ::: xss.map(_ + x)),
       pow(2, xs.size),
-      (sub: Set[X]) => sub subsetOf xs)
+      (sub: Set[X]) ⇒ sub subsetOf xs)
 
   /**
     * Set of all possible maps from set xs to set ys
@@ -202,21 +202,21 @@ object Sets {
   def exponent[X, Y](xs: Set[X], ys: Set[Y]): Set[Map[X, Y]] = {
     setOf(allMaps(xs.toList, ys.toList),
       pow(ys size, xs size),
-      (m: Map[X, Y]) => xs == m.keySet
+      (m: Map[X, Y]) ⇒ xs == m.keySet
     )
   }
 
   def allMaps[X, Y](xs: List[X], ys: List[Y]): List[Map[X, Y]] =
-    (List(Map.empty[X, Y]) /: xs)((maps, x) =>
-      maps flatMap (m => ys map (y => m + (x -> y)))
+    (List(Map.empty[X, Y]) /: xs)((maps, x) ⇒
+      maps flatMap (m ⇒ ys map (y ⇒ m + (x → y)))
     )
   
-  def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X => Y): Y => Set[X] = {
-    y => Set.empty[X] ++ xs.filter(f(_) == y)
+  def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X ⇒ Y): Y ⇒ Set[X] = {
+    y ⇒ Set.empty[X] ++ xs.filter(f(_) == y)
   }
 
-  def pullback[X, Y, Z](xs: Set[X], ys: Set[Y], fx: X => Z, fy: Y => Z): Set[(X, Y)] =
-    product2(xs, ys) filter (p => fx(p._1) == fy(p._2))
+  def pullback[X, Y, Z](xs: Set[X], ys: Set[Y], fx: X ⇒ Z, fy: Y ⇒ Z): Set[(X, Y)] =
+    product2(xs, ys) filter (p ⇒ fx(p._1) == fy(p._2))
 
   /**
     * Builds a factorset epimorphism that projects a set to its factorset,
@@ -234,7 +234,7 @@ object Sets {
 
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
 
-  def buildMap[K, V](keys: Set[K], f: K => V) = new MapForFunction(keys, f)
+  def buildMap[K, V](keys: Set[K], f: K ⇒ V) = new MapForFunction(keys, f)
 
   def toString(s: Set[_]): String = "{" + s.mkString(", ") + "}"
 
@@ -251,7 +251,7 @@ object Sets {
 
   def isUnique[T](seq: Iterable[T]): Boolean = isSingleton(seq)
 
-  def existsUnique[T](seq: Iterable[T], p: T => Boolean): Boolean = isSingleton(seq filter p take 2)
+  def existsUnique[T](seq: Iterable[T], p: T ⇒ Boolean): Boolean = isSingleton(seq filter p take 2)
   
   def main(args: Array[String]) {
     val a = Set("a", "b", "c")
@@ -266,14 +266,14 @@ object Sets {
     println(s"Is $a equal to $b? ${a == b}")
     println(s"Is $u equal to $b? ${u == b}")
     println("Making a lazy copy")
-    val newb = setOf(b, 2, (x: String) => b contains x)
+    val newb = setOf(b, 2, (x: String) ⇒ b contains x)
     println("same size? " + (newb.size == b.size))
     println("Equal to source? " + (b == newb))
 
     println("Let's build an exponent")
     val a2b = exponent(b, a)
     println("We have an exponent of size " + a2b.size + ", but its still under construction")
-    val anElement = Map("x" -> "b", "y" -> "a")
+    val anElement = Map("x" → "b", "y" → "a")
     println("Check membership for " + anElement + ": " + (a2b contains anElement))
     println("We use exponent, but its elements are still not listed... but wait: ")
     println(a2b)
@@ -293,28 +293,28 @@ object Sets {
     println(product(source))
   }
   
-  def filter[X](sourceSet: Set[X], p: X => Boolean): Set[X] = {
+  def filter[X](sourceSet: Set[X], p: X ⇒ Boolean): Set[X] = {
     if (isFinite(sourceSet)) filteredSet(sourceSet.iterator, p)
     else setOf(sourceSet, InfiniteSize, p)
   }
 
-  private def filteredSet[X](i: => Iterator[X], p: X => Boolean): Set[X] = {
+  private def filteredSet[X](i: ⇒ Iterator[X], p: X ⇒ Boolean): Set[X] = {
     def j = i filter p
 
-    def n = (0 /: j) ((k, x) => k + 1)
+    def n = (0 /: j) ((k, x) ⇒ k + 1)
 
     setOf(j, n, p)
   }
 
-  private[Sets] def sizePlus(size: => Int, delta: Int): Int =
+  private[Sets] def sizePlus(size: ⇒ Int, delta: Int): Int =
     if (size == InfiniteSize) size
     else if (delta < 0) Math.max(0, size + delta)
     else delta + Math.min(size, InfiniteSize - delta)
 
   private def setForIterator[X](
-    sourceIterator: => Iterator[X],
-    sizeEvaluator: => Int,
-    predicate: X => Boolean): Set[X] = {
+    sourceIterator: ⇒ Iterator[X],
+    sizeEvaluator: ⇒ Int,
+    predicate: X ⇒ Boolean): Set[X] = {
     val s: Set[X] = new Set[X] {
       override def contains(x: X) = predicate(x)
 
@@ -327,30 +327,30 @@ object Sets {
       override def -(x: X): Set[X] = setForIterator(
         sourceIterator,
         sizePlus(sizeEvaluator, -1),
-        y => y != x && predicate(y))
+        y ⇒ y != x && predicate(y))
 
       override def +(x: X): Set[X] = setForIterator(
         List(x).iterator ++ sourceIterator,
         sizePlus(sizeEvaluator, +1),
-        y => y == x || predicate(y))
+        y ⇒ y == x || predicate(y))
 
       def map[Y](f: Injection[X, Y]): Set[Y] = {
         val source: Iterable[X] = this
         val target: Iterable[Y] = source.map(f)
-        val predicate: Y => Boolean = (y: Y) => iterator exists {f(_) == y}
+        val predicate: Y ⇒ Boolean = (y: Y) ⇒ iterator exists {f(_) == y}
         Sets.setOf(target, size, predicate)
       }
 
-      override def filter(p: X => Boolean): Set[X] =
-        filteredSet(sourceIterator, (x: X) => predicate(x) && p(x))
+      override def filter(p: X ⇒ Boolean): Set[X] =
+        filteredSet(sourceIterator, (x: X) ⇒ predicate(x) && p(x))
 
       def sample: Set[X] = if (isInfinite(this)) take(3) else this
       
       override def hashCode: Int = if (isInfinite(this)) sample.hashCode else super.hashCode
       
       override def equals(other: Any): Boolean = other match {
-        case s: Set[_] => if (isInfinite(this)) this.eq(s) else super.equals(s)
-        case somethingelse => false
+        case s: Set[_] ⇒ if (isInfinite(this)) this.eq(s) else super.equals(s)
+        case somethingelse ⇒ false
       } 
       
       override def toString: String = {
@@ -406,7 +406,7 @@ object Sets {
     def iterator = new InterleavingIterator(iterable1.iterator, iterable2.iterator)
   }
 
-  class MapForFunction[K, +V](xs: Set[K], f: K => V) extends Map[K, V] {
+  class MapForFunction[K, +V](xs: Set[K], f: K ⇒ V) extends Map[K, V] {
     override def keys: Set[K] = xs
 
     override def apply(x: K): V =
@@ -422,15 +422,15 @@ object Sets {
 
     override def size: Int = xs size
 
-    override def iterator: Iterator[(K, V)] = (xs map { x: K => (x, f(x)) }) iterator
+    override def iterator: Iterator[(K, V)] = (xs map { x: K ⇒ (x, f(x)) }) iterator
 
-    //    override def seq = (xs map { x: K => (x, f(x)) })
+    //    override def seq = (xs map { x: K ⇒ (x, f(x)) })
   }
 
   class Parser extends RegexParsers {
     def read(input: CharSequence): Set[String] = parseAll(parserOfSet, input).get
 
-    def parserOfSet: Parser[Set[String]] = "{" ~ repsep(word, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
+    def parserOfSet: Parser[Set[String]] = "{" ~ repsep(word, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" ⇒ Set() ++ ms }
 
     def word: Parser[String] = regex("""[\w\\.]+""".r)
 

@@ -11,7 +11,7 @@ class BaseTest extends Specification {
   "Base" should {
 
     "inverse regular" in {
-      val m = Map("I" -> 1, "II" -> 2, "III" -> 3, "IV" -> 4)
+      val m = Map("I" → 1, "II" → 2, "III" → 3, "IV" → 4)
 
       val actual = Base.inverse(m)
 
@@ -32,7 +32,7 @@ class BaseTest extends Specification {
     }
 
     "inverse bad" in {
-      val sut = Map("I" -> 1, "II" -> 2, "III" -> 3, "iii" -> 3)
+      val sut = Map("I" → 1, "II" → 2, "III" → 3, "iii" → 3)
 
       inverse(sut) must throwA[IllegalArgumentException]
     }
@@ -50,11 +50,11 @@ class BaseTest extends Specification {
     "toMap" in {
       toMap(List.empty[Object]) === Map.empty[String, Object]
       
-      toMap(List("Nada", "I", "II")) === Map(0 -> "Nada", 1 -> "I", 2 -> "II")
+      toMap(List("Nada", "I", "II")) === Map(0 → "Nada", 1 → "I", 2 → "II")
     }
 
 //    "id" in {
-//      id(Set(1, "x", ())) === Map(1 -> 1, "x" -> "x", () -> ())
+//      id(Set(1, "x", ())) === Map(1 → 1, "x" → "x", () → ())
 //    }
     
     "range 1 arg" in {

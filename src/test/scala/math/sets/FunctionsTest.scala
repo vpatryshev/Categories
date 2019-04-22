@@ -21,7 +21,7 @@ class FunctionsTest extends Specification {
     }
 
     "Schwartzian transform as defined in Wikipedia" >> {
-      val f = schwartzianTransform {s: String => s.toUpperCase}
+      val f = schwartzianTransform {s: String ⇒ s.toUpperCase}
       val actual = Set("aX", "mmm").map(f)
       val expected = Set(("aX", "AX"), ("mmm", "MMM"))
       actual == expected
@@ -68,13 +68,13 @@ class FunctionsTest extends Specification {
   "Injection" >> {
     "applied to a set should produce a set of the same size" >> {
       val s = Set("a", "b", "cdef")
-      val f = injection{s: String => s + "!"}
+      val f = injection{s: String ⇒ s + "!"}
       s.map(f) === Set("a!", "b!", "cdef!")
     }
 
     "composition with an injection is still an injection" >> {
-      val f = injection{s: String => s + "!"}
-      val g = injection{s: String => s + "?!"}
+      val f = injection{s: String ⇒ s + "!"}
+      val g = injection{s: String ⇒ s + "?!"}
       val fg: Injection[String, String] = f andThen g
       ok
     }

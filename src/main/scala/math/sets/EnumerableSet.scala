@@ -1,6 +1,6 @@
 package math.sets
 
-trait EnumerableSet[T] extends Set[T] { thisOne: BigSet[T] =>
+trait EnumerableSet[T] extends Set[T] { thisOne: BigSet[T] ⇒
 
   override def +(value: T): BigSet[T] =
     if (contains(value)) thisOne else new BigSet[T] with EnumerableSet[T] {

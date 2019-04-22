@@ -2,15 +2,134 @@ package math.cat.topos
 
 import math.Test
 import math.cat.Category._
-import math.cat.TestDiagrams
-import math.cat.topos.Diagrams.Diagram
+import math.sets.Sets.set
+import scalakittens.Good
+import math.Base._
 
 class DiagramsTest extends Test with TestDiagrams {
 
-  type SUT = SmallDiagram
+  type SUT = Diagram
 
-  "Diagrams" should {
-    "have id W" in {
+  def representable(topos: Diagrams) =
+    (obj: topos.site.Obj) ⇒ topos.Representable(obj)
+
+  def checkConstSize(topos: Diagrams)(obj: topos.Obj, expected: Int): Unit = {
+    for {
+      x <- topos.site.objects
+    } {
+      val setAtx: Set[_] = obj apply x
+      setAtx.size === expected
+    }
+  }
+  
+  "representables" should {
+    case class diagramTable(data: List[String] = Nil) {
+      def |(x: String): diagramTable = diagramTable(x::data)
+      def |(f: String ⇒ Any) = check(f)(data.reverse, data.reverse)
+    }
+
+    case class check(f: String ⇒ Any)(data: List[String], fullList: List[String]) {
+      private def check1(x: String, y: String) = {
+        val expected = x.split(",").toSet.filter(_.nonEmpty)
+        val actual = f(y)
+        actual.toString aka s"@$y" must_== expected.toString
+      }
+
+      def |(x: String): check = {
+        check1(x, data.head)
+        check(f)(data.tail, fullList)
+      }
+
+      def |(f: String ⇒ Any): check = check(f)(fullList, fullList)
+    }
+
+    val appliesTo = new diagramTable
+
+    "be good in Set^W" in {
+      val topos = new Diagrams(W)
+      import topos.site._
+      val ob = (o: String) ⇒ {
+        val r = representable(topos)(obj(o))
+        name: String ⇒ r(name)
+      }
+
+      appliesTo | "a" | "b"  | "c" | "d"  | "e" |
+        ob("a") | "a" | "ab" | ""  | ""   | ""  |
+        ob("b") | ""  | "b"  | ""  | ""   | ""  |
+        ob("c") | ""  | "cb" | "c" | "cd" | ""  |
+        ob("d") | ""  | ""   | ""  | "d"  | ""  |
+        ob("e") | ""  | ""   | ""  | "ed" | "e"
+
+      ok
+    }
+
+    "be good in Set^M" in {
+      val topos = new Diagrams(M)
+      import topos.site._
+      val rep = representable(topos)
+      val ob = (o: Obj) ⇒ {
+        val r = rep(o)
+        name: String ⇒ r(name)
+      }
+
+      appliesTo | "a"  | "b" | "c"  | "d" | "e"  |
+        ob("a") | "a"  | ""  | ""   | ""  | ""   |
+        ob("b") | "ba" | "b" | "bc" | ""  | ""   |
+        ob("c") | ""   | ""  | "c"  | ""  | ""   |
+        ob("d") | ""   | ""  | "dc" | "d" | "de" |
+        ob("e") | ""   | ""  | ""   | ""  | "e"
+
+      val mults = for {
+        x <- topos.site.objects
+        a <- topos.site.arrows
+      } {
+        val r = rep(x)
+        val arrow = r.d0.arrow(a)
+        val ra = r.arrowsMapping(arrow)
+        ra should not be null
+      }
+      
+      ok
+    }
+
+    "be good in Set^Z3" in {
+      val topos = new Diagrams(Z3)
+      import topos.site._
+      val ob = (o: Obj) ⇒ {
+        val r = representable(topos)(o)
+        name: String ⇒ r(obj(name)).toString
+      }
+      val ar = (o: Obj) ⇒ {
+        val r = representable(topos)(o)
+        a: String ⇒ r.arrowsMapping(r.d0.arrow(a)).toString
+      }
+
+      appliesTo | "0"     |
+        ob("0") | "0,1,2"
+
+      ok
+    }
+    
+  }
+  
+//  "Power" should {
+//    "exist for representables in Set^_2_" in {
+//      val topos = new Diagrams(_2_)
+//      import topos.site._
+//      val sut0 = representable(topos)("0")
+//      val pow0 = sut0.power
+//      val sut1 = representable(topos)("1")
+//      val pow1 = sut1.power
+//      ok
+//    }
+//
+//    "exist for reps in Set^_2_" in {
+//      ok
+//    }    
+//  }
+  
+  "Identity arrow" should {
+    "exist in Set^W" in {
       val topos = new Diagrams(W)
       val d = SampleWDiagram
       val idtrans = topos.id(d)
@@ -19,7 +138,7 @@ class DiagramsTest extends Test with TestDiagrams {
       idtrans.compose(idtrans) === idtrans
     }
 
-    "have id in M" in {
+    "exist in Set^M" in {
       // todo: test composition
       val topos = new Diagrams(M)
       val d = SampleMDiagram
@@ -27,118 +146,238 @@ class DiagramsTest extends Test with TestDiagrams {
       idtrans.d0 === d
       idtrans.d1 === d
     }
+  }
 
-    def checkConstSize(topos: Diagrams)(obj: topos.Obj, expected: Int): Unit = {
-      for {
-        x <- topos.site.objects
-      } {
-        val setAtx: Set[_] = obj apply x
-        setAtx.size === expected
-      }
-    }
-
-    "have an initial in M" in {
+  "Initial object" should {
+    "exist in Set^M" in {
       val topos = new Diagrams(M)
 
       val terminalOpt = topos.initial
       terminalOpt match {
-        case None => failure(s"Could not build an initial in $topos")
-        case Some(terminal) => checkConstSize(topos)(terminal, 0)
+        case Good(terminal) ⇒ checkConstSize(topos)(terminal, 0)
+        case none ⇒ failure(s"Could not build an initial in $topos: $none")
       }
       checkConstSize(topos)(topos._0, 0)
       ok
     }
+  }
+  
+  "Terminal object" should {
 
-    "have a terminal in W" in {
+    "exist in Set^W" in {
       val topos = new Diagrams(W)
 
       val terminalOpt = topos.terminal
       terminalOpt match {
-        case None => failure(s"Could not build a terminal in $topos")
-        case Some(terminal) =>
+        case Good(terminal) ⇒
           terminal === topos._1
           checkConstSize(topos)(terminal, 1)
           val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
           terminal.asFunction(ab).d0 === Set(Set())
+        case none ⇒ failure(s"Could not build a terminal in $topos: $none")
       }
       ok
     }
 
-    "list subterminals in square" in {
+    "exist in Set^Square" in {
       val topos = new Diagrams(Square)
       val subterminals = topos.subterminals
       subterminals.size === 6
       subterminals must contain(topos._0)
       subterminals must contain(topos._1)
     }
-
-    case class diagramTable(data: List[String] = Nil) {
-      def |(x: String): diagramTable = diagramTable(x::data)
-      def |(d: Diagrams.Diagram) = checkDiagram(d, data.reverse, data.reverse)
+  }
+  
+  "List of subobjects" should {
+    "be good for empty diagram" in {
+      val sut = EmptyDiagram
+      val actual = sut.subobjects
+      actual.size === 1
+      actual.head === sut
+      actual.forall(_ ⊂ sut)
     }
 
-    case class checkDiagram(d: Diagram, data: List[String], fullList: List[String]) {
-      private def check1(x: String, y: String) = {
-        val expected = x.split(",").toSet.filter(_.nonEmpty)
-        val actual = d(y)
-        actual aka s"${d.tag} @$y" must_== expected
-      }
+    "be good for pullback diagram" in {
+      val sut = SamplePullbackDiagram
+      val sample = sut.d0.objects map (ob ⇒ sut.objectsMapping(ob))
+
+      def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
+
+      def fullSet(d: Diagram): List[String] = {
+        d.d0.objects.toList map ((o:d.d0.Obj) ⇒ d.objectsMapping(o))
+      } map d.asSet map canonical
+
+      val listOfSubobjects = sut.subobjects.toList
+      val actual =
+        listOfSubobjects.sortBy(fullSet)(Ordering.by(_.mkString(";"))).reverse
+      actual.size === 85
+      val objects = actual map fullSet
+
+      actual.head.points.size === 0
+      val last = actual.last
+      sut.d0 === last.d0
+      sut.d1 === last.d1
+
+      sut.sameNodes(last) must beTrue
+      sut.sameArrows(last) must beTrue
+      val comp = actual.last == sut
+
+      actual.last === sut
+
+      actual.forall(_ ⊂ sut)
+
+    }
+    
+    "exist for representables in Set^_2_" in {
+      val topos = new Diagrams(_2_)
+      val r0 = topos.Representable(topos.objectNamed("0"))
+
+      val obj0 = topos.objectNamed("0")
+      val obj1 = topos.objectNamed("1")
       
-      def |(x: String): checkDiagram = {
-        check1(x, data.head)
-        checkDiagram(d, data.tail, fullList)
-      }
-
-      def |(d: Diagram): checkDiagram = checkDiagram(d, fullList, fullList)
+      val sor = topos.subobjectsOfRepresentables
+      sor.size === 2
+      sor(obj0).size === 3
+      sor(obj1).size === 2
     }
-    
-    val applyTo = new diagramTable
-    
-    def representable(topos: Diagrams) =
-      (obj: topos.site.Obj) => topos.representable(obj)
-    
-    "produce representables in W" in {
-      import Diagrams._
-      val topos = new Diagrams(W)
-      import topos.site._
-      val at = representable(topos)
-
-      applyTo | "a" | "b"  | "c" | "d"  | "e" |
-      at("a") | "a" | "ab" | ""  | ""   | ""  |
-      at("b") | ""  | "b"  | ""  | ""   | ""  |
-      at("c") | ""  | "cb" | "c" | "cd" | ""  |
-      at("d") | ""  | ""   | ""  | "d"  | ""  |
-      at("e") | ""  | ""   | ""  | "ed" | "e"
-
-      ok
+  }
+  
+  "Subobject classifier" should {
+    "exist for _0_" in {
+      val topos = new Diagrams(_0_)
+      val omega = topos.Ω
+      val points = omega.points
+      points.size === 1
     }
 
-    "produce representables in M" in {
-      import Diagrams._
-      val topos = new Diagrams(M)
-      import topos.site._
-      val at = representable(topos)
-
-      applyTo | "a"  | "b" | "c"  | "d" | "e"  |
-      at("a") | "a"  | ""  | ""   | ""  | ""   |
-      at("b") | "ba" | "b" | "bc" | ""  | ""   |
-      at("c") | ""   | ""  | "c"  | ""  | ""   |
-      at("d") | ""   | ""  | "dc" | "d" | "de" |
-      at("e") | ""   | ""  | ""   | ""  | "e"
-
-      ok
+    "exist for _1_" in {
+      val topos = new Diagrams(_1_)
+      val omega = topos.Ω
+      val omega0 = omega("0").toList
+      omega0.size === 2
+      val omega00::omega01::Nil = omega0
+      omega00.asInstanceOf[Diagram]("0").isEmpty must beTrue
+      omega01.asInstanceOf[Diagram]("0").isEmpty must beFalse
+      val points = omega.points
+      points.size === 2
+      points.map(_.toString) ===
+        List("Diagram[_1_](0→{(0→{})})", "Diagram[_1_](0→{(0→{0.0})})")  
     }
 
-    "produce representables in Z3" in {
-      import Diagrams._
+    "exist for _2_" in {
+      val topos = new Diagrams(_2_)
+      
+      val omega = topos.Ω
+      val omega0 = omega("0")
+      omega0.size === 3
+      val omega1 = omega("1")
+      omega1.size === 2
+      val points = omega.points.toList
+      points.size === 3
+      points(0).toString ===
+        "Diagram[_2_](0→{(0→{}, 1→{})}, 1→{(0→{}, 1→{})})"
+
+      points(1).toString ===
+        "Diagram[_2_](0→{(0→{}, 1→{0.1})}, 1→{(0→{}, 1→{1.1})})"
+
+      points(2).toString ===
+        "Diagram[_2_](0→{(0→{0.0}, 1→{0.1})}, 1→{(0→{}, 1→{1.1})})"
+    }
+
+    "exist for _3_" in {
+      val topos = new Diagrams(_3_)
+
+      val omega = topos.Ω
+      val omega0 = omega("0")
+      omega0.size === 4
+      val omega1 = omega("1")
+      omega1.size === 3
+      val points = omega.points.toList
+      points.size === 4
+      points(0).toString ===
+        "Diagram[_3_](0→{(0→{}, 1→{}, 2→{})}, 1→{(0→{}, 1→{}, 2→{})}, 2→{(0→{}, 1→{}, 2→{})})"
+
+      points(1).toString ===
+        "Diagram[_3_](0→{(0→{}, 1→{}, 2→{0.2})}, 1→{(0→{}, 1→{}, 2→{1.2})}, 2→{(0→{}, 1→{}, 2→{2.2})})"
+
+      points(2).toString ===
+        "Diagram[_3_](0→{(0→{}, 1→{0.1}, 2→{0.2})}, 1→{(0→{}, 1→{1.1}, 2→{1.2})}, 2→{(0→{}, 1→{}, 2→{2.2})})"
+
+      points(3).toString ===
+        "Diagram[_3_](0→{(0→{0.0}, 1→{0.1}, 2→{0.2})}, 1→{(0→{}, 1→{1.1}, 2→{1.2})}, 2→{(0→{}, 1→{}, 2→{2.2})})"
+    }
+
+    "exist for ParallelPair" in {
+      val topos = new Diagrams(ParallelPair)
+
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 3  // out of 5 possible candidates, 2 split by a or by b, so they are not points
+      points(0).toString ===
+        "Diagram[ParallelPair](0→{(0→{}, 1→{})}, 1→{(0→{}, 1→{})})"
+
+      points(1).toString ===
+        "Diagram[ParallelPair](0→{(0→{}, 1→{a,b})}, 1→{(0→{}, 1→{1})})"
+
+      points(2).toString ===
+        "Diagram[ParallelPair](0→{(0→{0}, 1→{a,b})}, 1→{(0→{}, 1→{1})})"
+    }
+
+    "exist for Pullback" in {
+      val topos = new Diagrams(Pullback)
+
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 5
+      points(0).toString ===
+        "Diagram[Pullback](a→{(a→{}, b→{}, c→{})}, b→{(a→{}, b→{}, c→{})}, c→{(a→{}, b→{}, c→{})})"
+
+      points(1).toString ===
+        "Diagram[Pullback](a→{(a→{}, b→{}, c→{ac})}, b→{(a→{}, b→{}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(2).toString ===
+        "Diagram[Pullback](a→{(a→{}, b→{}, c→{ac})}, b→{(a→{}, b→{b}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(3).toString ===
+        "Diagram[Pullback](a→{(a→{a}, b→{}, c→{ac})}, b→{(a→{}, b→{}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(4).toString ===
+        "Diagram[Pullback](a→{(a→{a}, b→{}, c→{ac})}, b→{(a→{}, b→{b}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+    }
+
+    "exist for Pushout" in {
+      val topos = new Diagrams(Pushout)
+
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 5
+      points(0).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{}, c→{})}, b→{(a→{}, b→{}, c→{})}, c→{(a→{}, b→{}, c→{})})"
+
+      points(1).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{}, c→{ac})}, b→{(a→{}, b→{}, c→{})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(2).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{ab}, c→{})}, b→{(a→{}, b→{b}, c→{})}, c→{(a→{}, b→{}, c→{})})"
+
+      points(3).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{ab}, c→{ac})}, b→{(a→{}, b→{b}, c→{})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(4).toString ===
+        "Diagram[Pushout](a→{(a→{a}, b→{ab}, c→{ac})}, b→{(a→{}, b→{b}, c→{})}, c→{(a→{}, b→{}, c→{c})})"
+    }
+
+    "exist for Z3" in {
       val topos = new Diagrams(Z3)
-      import topos.site._
-      val at = representable(topos)
 
-      applyTo | "0"     |
-      at("0") | "0,1,2"
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 2
+      points(0).toString ===
+        "Diagram[Z3](0→{(0→{})})"
 
-      ok
+      points(1).toString ===
+        "Diagram[Z3](0→{(0→{0,1,2})})"
     }
   }
 }

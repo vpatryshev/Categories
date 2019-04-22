@@ -4,6 +4,7 @@ import math.sets.Sets._
 import math.cat.SetFunction._
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import org.specs2.mutable._
+import math.Base._
 
 /**
  * Test suite for Typeless Set Morphisms object
@@ -13,14 +14,14 @@ class SetFunctionTest extends Specification {
   "SetFunction" >> {
 
     "building TypelessSetMorphism" >> {
-      val sut = SetFunction("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x)
+      val sut = SetFunction.build("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) ⇒ "x" + x).iHope
       sut(1) === "x1"
       sut("a") === "xa"
       try {
         sut(3)
         failure("3 is not in domain")
       } catch {
-        case e: Exception => // praise the Lord!
+        case e: Exception ⇒ // praise the Lord!
       }
       ok
     }
@@ -29,9 +30,10 @@ class SetFunctionTest extends Specification {
       val x = Set(1, 2, "a")
       val y = Set("x1", "x2", "xa", 77)
       val z = Set(2, 28, x)
-      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
-      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
-      g.compose(f) === None
+      val f = SetFunction.build("f", x, y, (x: Any) ⇒ "x" + x) iHope
+      val g = SetFunction.build("g", y, z, (y: Any) ⇒ y.toString.length) iHope
+      
+      g.compose(f).isDefined === false
       f.compose(g).isDefined === true
     }
 
@@ -39,8 +41,8 @@ class SetFunctionTest extends Specification {
       val x = Set(1, 2, "a")
       val y = Set("x1", "x2", "xa", 77)
       val z = Set(2, 28, x)
-      val f = new SetFunction("f", x, y, (x: Any) => "x" + x)
-      val g = new SetFunction("g", y, z, (y: Any) => y.toString.length)
+      val f = SetFunction.build("f", x, y, (x: Any) ⇒ "x" + x) iHope
+      val g = SetFunction.build("g", y, z, (y: Any) ⇒ y.toString.length) iHope
       val sut = f andThen g
       sut(1) === 2
       sut("a") === 2
@@ -48,7 +50,7 @@ class SetFunctionTest extends Specification {
         sut(z)
         failure("3 is not in domain")
       } catch {
-        case e: Exception => // praise the Lord
+        case e: Exception ⇒ // praise the Lord
       }
       ok
     }
@@ -64,7 +66,7 @@ class SetFunctionTest extends Specification {
         sut(3)
         failure("3 is not in domain")
       } catch {
-        case e: Exception => // praise the Lord!
+        case e: Exception ⇒ // praise the Lord!
       }
       ok
     }
@@ -74,7 +76,7 @@ class SetFunctionTest extends Specification {
         val sut = SetFunction.constant(Set(1, 2, "a"), Set("x1", "x2", "xa", 77), "xx")
         failure("xx is not in codomain")
       } catch {
-        case e: Exception => // praise the Lord!
+        case e: Exception ⇒ // praise the Lord!
       }
       ok
     }
@@ -89,14 +91,14 @@ class SetFunctionTest extends Specification {
       try {
         sut("b")
       } catch {
-        case e: Exception => // Hallelujah!
+        case e: Exception ⇒ // Hallelujah!
       }
       ok
     }
 
     "building a predicate-based inclusion" >> {
       val s = Set(1, 2, 77, 90, 42, "1xya2")
-      def predicate = (x: Any) => x.toString.charAt(0) == '1'
+      def predicate = (x: Any) ⇒ x.toString.charAt(0) == '1'
 
       val sut = filterByPredicate(s)(predicate)
       sut.d1 === s
@@ -106,7 +108,7 @@ class SetFunctionTest extends Specification {
         sut(2)
         failure("Must have thrown an exception")
       } catch {
-        case e: Exception => // Hallelujah!
+        case e: Exception ⇒ // Hallelujah!
       }
       ok
     }
@@ -121,16 +123,16 @@ class SetFunctionTest extends Specification {
         sut("b")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception => // Hallelujah!
+        case e: Exception ⇒ // Hallelujah!
       }
       ok
     }
 
     "for factorset" >> {
       val set0: Set[Int] = asSet(1 to 10)
-      val set1 = set0.map(i => i:Any)
+      val set1 = set0.map(i ⇒ i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
-      val br: BinaryRelation[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)
+      val br: BinaryRelation[Any, Any] = (a: Any, b: Any) ⇒ isOdd(a) == isOdd(b)
       val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
       val sut = Sets.factorset(set1, br)
       val factor = Set(s(1), s(0))
@@ -140,7 +142,7 @@ class SetFunctionTest extends Specification {
       s(1) === sut(5)
     }
 
-    "exponent 2->2" >> {
+    "exponent 2→2" >> {
       val set1 = setOf[Any](1, 2)
 
       val sut = SetFunction.exponent(set1, set1)
@@ -149,7 +151,7 @@ class SetFunctionTest extends Specification {
       check1 must beTrue
     }
 
-    "exponent 3->5" >> {
+    "exponent 3→5" >> {
       val set1 = setOf[Any](3, 4, 5)
       val set2 = setOf[Any](1, 2, 3, 4, 5)
 

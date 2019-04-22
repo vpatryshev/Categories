@@ -8,9 +8,9 @@ import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-trait Graph extends GraphData { graph =>
+trait Graph extends GraphData { graph ⇒
   
-  def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception => false }
+  def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception ⇒ false }
 
   def size: Int = nodes.size
   
@@ -20,8 +20,8 @@ trait Graph extends GraphData { graph =>
 
   override def equals(x: Any): Boolean = {
     x match {
-      case other: Graph => other.equal(this)
-      case _ => false
+      case other: Graph ⇒ other.equal(this)
+      case _ ⇒ false
     }
   }
 
@@ -36,17 +36,17 @@ trait Graph extends GraphData { graph =>
   private def equal(that: Graph) = {
     val isEqual = this.nodes == that.nodes && this.arrows == that.arrows
     (isEqual /: arrows) (
-      (bool: Boolean, aHere: this.Arrow) => try {
+      (bool: Boolean, aHere: this.Arrow) ⇒ try {
         val aThere = that.arrow(aHere)
         bool && (d0(aHere) == that.d0(aThere)) && (d1(aHere) == that.d1(aThere))
-      } catch { case _: Exception => false }
+      } catch { case _: Exception ⇒ false }
     )
   }
 
   override def toString: String = {
     val nodess = nodes.mkString(", ")
     val arrowss =
-      arrows map ((a: Arrow) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
+      arrows map ((a: Arrow) ⇒ s"$a: ${d0(a)}→${d1(a)}") mkString ", "
     s"({$nodess}, {$arrowss})"
   }
 
@@ -57,7 +57,7 @@ trait Graph extends GraphData { graph =>
     * @param to   second node
     * @return the set of all arrows from x to y
     */
-  def arrowsBetween(from: Node, to: Node): Arrows = asSet(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
+  def arrowsBetween(from: Node, to: Node): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
 
   /**
     * Checks if one arrow follows another
@@ -120,14 +120,14 @@ private[cat] trait GraphData {
   def d1(f: Arrow): Node
 
   implicit def node(x: Any): Node = x match {
-    case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
-    case other =>
+    case _ if nodes contains x.asInstanceOf[Node] ⇒ x.asInstanceOf[Node]
+    case other ⇒
       throw new IllegalArgumentException(s"<<$other>> is not a node in $name")
   }
 
   implicit def arrow(a: Any): Arrow = a match {
-    case _ if arrows contains a.asInstanceOf[Arrow] => a.asInstanceOf[Arrow]
-    case other =>
+    case _ if arrows contains a.asInstanceOf[Arrow] ⇒ a.asInstanceOf[Arrow]
+    case other ⇒
       throw new IllegalArgumentException(s"<<$other>> is not an arrow of $name")
   }
 
@@ -139,7 +139,7 @@ private[cat] trait GraphData {
   def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {
       Result.fold(arrows map {
-        a =>
+        a ⇒
           OKif(nodes contains d0(a), " d0 for " + a + " should be in set of nodes") andAlso
           OKif(nodes contains d1(a), " d1 for " + a + " should be in set of nodes") returning ()
       })
@@ -150,8 +150,8 @@ object Graph {
   def build[N, A](
     nodes0: Set[N],
     arrows0: Set[A],
-    d00: A => N,
-    d10: A => N): Result[Graph] = {
+    d00: A ⇒ N,
+    d10: A ⇒ N): Result[Graph] = {
     val data: GraphData = new GraphData {
       override type Node = N
       override type Arrow = A
@@ -173,7 +173,7 @@ object Graph {
   }
 
   def fromArrowMap[N, A] (nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] = {
-    build(nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
+    build(nodes, arrows.keySet, (a:A) ⇒ arrows(a)._1,  (a: A) ⇒ arrows(a)._2)
   }
 
   def discrete[N](points: Set[N]): Graph =
@@ -202,18 +202,18 @@ object Graph {
   }        
 
   class Parser extends Sets.Parser {
-    def all: Parser[Result[Graph]] = "("~graph~")" ^^ {case "("~g~")" => g}
+    def all: Parser[Result[Graph]] = "("~graph~")" ^^ {case "("~g~")" ⇒ g}
 
-    def graph: Parser[Result[Graph]] = parserOfSet~","~arrows ^^ {case s~","~a => Graph.fromArrowMap(s, a)}
+    def graph: Parser[Result[Graph]] = parserOfSet~","~arrows ^^ {case s~","~a ⇒ Graph.fromArrowMap(s, a)}
 
-    def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
+    def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" ⇒ Map()++m}
 
-    def arrow: Parser[(String, (String, String))] = word~":"~word~"->"~word ^^ {case f~":"~x~"->"~y => (f, (x, y))}
+    def arrow: Parser[(String, (String, String))] = word~":"~word~"→"~word ^^ {case f~":"~x~"→"~y ⇒ (f, (x, y))}
 
     def explain[T](pr: ParseResult[Result[T]]): Result[T] = {
       pr match {
-        case Success(res, _) => res
-        case e: NoSuccess => Result.error(s"Failed to parse: $e")
+        case Success(res, _) ⇒ res
+        case e: NoSuccess ⇒ Result.error(s"Failed to parse: $e")
       }
     }
 
@@ -239,8 +239,8 @@ object Graph {
         buf append strings.next
       }
       Graph.read(buf) match {
-        case Good(g) => g
-        case bad => 
+        case Good(g) ⇒ g
+        case bad ⇒ 
           throw new InstantiationException(bad.errorDetails.mkString)
       }
     }

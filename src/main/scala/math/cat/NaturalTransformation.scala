@@ -18,7 +18,7 @@ import scalakittens.Result.Outcome
   *            V         V
   *    g[a]: g[x] ---> g[y]
   */
-abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =>
+abstract class NaturalTransformation extends Morphism[Functor, Functor] { self ⇒
 
   lazy val domainCategory: Category = d0.d0
   lazy val codomainCategory: Category = d1.d1 // == d0.d1, of course
@@ -27,7 +27,6 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
 
   // TODO: check the preconditions, return an option
   def compose(next: NaturalTransformation): NaturalTransformation = {
-//    import codomainCategory._
     
     def comp(x: domainCategory.Obj): codomainCategory.Arrow = {
       val fHere: codomainCategory.Arrow =
@@ -51,14 +50,14 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
   }
   
   private lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
-    domainCategory.objects map (o => o -> transformPerObject(o)) toMap
+    domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
   override def equals(x: Any): Boolean = x match {
-    case other: NaturalTransformation =>
+    case other: NaturalTransformation ⇒
       d0 == other.d0 && d1 == other.d1 && asMap == other.asMap
-    case otherwise => false
+    case otherwise ⇒ false
   }
 }
 
@@ -69,7 +68,7 @@ object NaturalTransformation {
   Y <: Category
   ](
     f: Functor, g: Functor, domainCategory: Category, codomainCategory: Category)(
-    transformPerObject: f.d0.Obj => f.d1.Arrow
+    transformPerObject: f.d0.Obj ⇒ f.d1.Arrow
   ): Outcome =
     OKif(domainCategory == g.d0, s"Functors must be defined on the same categories") andAlso
     OKif(codomainCategory == g.d1, s"Functors must map to the same categories") andAlso
@@ -101,11 +100,11 @@ object NaturalTransformation {
     *
     * @param from0 first functor
     * @param to0   second functor
-    * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
+    * @param mappings a set morphism that for each domain object x returns f(x) → g(x)
     */
   def build(from0: Functor, to0: Functor)
   (
-    mappings: from0.d0.Obj => from0.d1.Arrow
+    mappings: from0.d0.Obj ⇒ from0.d1.Arrow
   ): Result[NaturalTransformation] = {
     validate(from0, to0, from0.d0, from0.d1)(mappings) returning 
     new NaturalTransformation {
@@ -117,7 +116,7 @@ object NaturalTransformation {
   }
 
   /**
-    * Builds an identity natural transformation id[f]: f -> f
+    * Builds an identity natural transformation id[f]: f → f
     *
     * @param functor the functor for which we are building the identity transformation
     * @return identity natural transformation for the functor

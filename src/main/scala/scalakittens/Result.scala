@@ -5,16 +5,17 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import Result.{Errors, NoResult}
 
+
 sealed trait Result[+T] extends Container[T] {
   def listErrors: Errors
   def onError[X >: Errors, Y](op: X ⇒ Y):Result[T]
   def map[U](f: T ⇒ U): Result[U]
   def flatMap[U](f: T ⇒ Result[U]): Result[U]
   def returning[U](u: ⇒ U): Result[U] = map[U](_ ⇒ u)
-  def andThen[U](next: ⇒ Result[U] = Empty):Result[U] = flatMap(_ ⇒ next)
+  def andThen[U](next: ⇒ Result[U]): Result[U] = flatMap(_ ⇒ next)
   def flatten[U](implicit asResult: T ⇒ Result[U]): Result[U] = flatMap(asResult)
   def collect[U](pf: PartialFunction[T, U], onError: T ⇒ String): Result[U]
-  def toOption: Option[T]
+  def asOption: Option[T]
   def orElse[T1 >: T] (next: ⇒ Result[T1]): Result[T1]
   def getOrElse[T1 >: T](alt: ⇒ T1): T1
   def <*>[U](other: Result[U]): Result[(T,U)]
@@ -33,9 +34,9 @@ sealed trait Result[+T] extends Container[T] {
   def errorDetails: Option[String]
   def fold[U](good: T ⇒ U, bad: Errors ⇒ U): U
   def orCommentTheError(message: ⇒ Any): Result[T]
-  def asOption: Option[T]
   def tap(op: T ⇒ Unit): Result[T] // see http://combinators.info/
   def optionally[U](f: T ⇒ U ⇒ U): U ⇒ U = this map f getOrElse identity[U]
+  def contains[T1 >: T](x: T1): Boolean
 }
 
 case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T] {
@@ -43,7 +44,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
 
   val listErrors: Errors = Nil
   def onError[X >: Errors, Y](op: X ⇒ Y):Result[T] = this
-  def toOption = Some(value)
+  def asOption = Some(value)
   def map[U](f: T⇒U): Result[U] = Result.forValue(f(value))
   def flatMap[U](f: T ⇒ Result[U]) = f(value)
   def collect[U](pf: PartialFunction[T, U], onError: T ⇒ String): Result[U] = pf.lift(value) match {
@@ -62,11 +63,12 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   def <*>[U](other: Result[U]): Result[(T, U)] = other.flatMap(u ⇒ Good((value, u)))
   protected def foreach_(f: T ⇒ Unit): Unit = f(value)
   def filter(p: T ⇒ Boolean): Result[T] = Result.forValue(if (p(value)) this else Empty).flatten
-  def filter(p: T ⇒ Boolean, onError: T ⇒ String): Result[T] = Result.forValue(if (p(value)) this else Result.error(onError(value))).flatten
+  def filter(p: T ⇒ Boolean, onError: T ⇒ String): Result[T] =
+    Result.forValue(if (p(value)) this else Result.error(onError(value))).flatten
   def errorDetails: Option[String] = None
   def orCommentTheError(message: ⇒Any): Good[T] = this
-  def asOption = Some(value)
   def tap(op: T ⇒ Unit): Result[T] = {op(value); this}// see http://combinators.info/
+  def contains[T1 >: T](x: T1): Boolean = value == x
 }
 
 trait NoGood[T] extends NothingInside[T] { self:Result[T] ⇒
@@ -75,9 +77,8 @@ trait NoGood[T] extends NothingInside[T] { self:Result[T] ⇒
   protected def foreach_(f: T ⇒ Unit) {}
   def getOrElse[T1 >: T](alt: ⇒ T1): T1 = alt
   def orElse[T1 >: T] (next: ⇒ Result[T1]): Result[T1] = next
-  def toOption: Option[T] = None
-  def fold[U](good: T ⇒ U, bad: Errors ⇒ U) = bad(listErrors)
   def asOption: Option[T] = None
+  def fold[U](good: T ⇒ U, bad: Errors ⇒ U) = bad(listErrors)
   def errors: String = listErrors mkString "; "
 
   def clock: TimeReader = DateAndTime
@@ -102,7 +103,7 @@ trait NoGood[T] extends NothingInside[T] { self:Result[T] ⇒
     val s1 = s0 map base32map
     "0"*(5-s1.length) + s1
   }
-
+  def contains[T1 >: T](x: T1): Boolean = false
 }
 
 sealed trait Bad[T] extends Result[T] with NoGood[T] {
@@ -241,9 +242,9 @@ object Result {
   //  private def legal[T](optT: Option[T]) = optT filter (null!=)
 
   def apply[T](outcome: Outcome): UnacceptableResult = new UnacceptableResult
-  def apply[T](optT: Option[T]):                         Result[T] = legalize(optT)
-  def apply[T](optT: Option[T], onError: ⇒ String):     Result[T] = legalize(optT) orCommentTheError onError
-  def apply[T](optT: Option[T], optErr: Option[String]): Result[T] = legalize(optT) match {
+  implicit def apply[T](optT: Option[T]):                         Result[T] = legalize(optT)
+  implicit def apply[T](optT: Option[T], onError: ⇒ String):     Result[T] = legalize(optT) orCommentTheError onError
+  implicit def apply[T](optT: Option[T], optErr: Option[String]): Result[T] = legalize(optT) match {
     case good: Good[T] ⇒ good
     case noGood ⇒ optErr match {
       case Some(err) ⇒ noGood orCommentTheError err
@@ -266,9 +267,9 @@ object Result {
 
   private def optionize[T](x: Any): Option[T] = x match {
     case null ⇒ None
-    case Some(thing) ⇒ Result.forValue(thing.asInstanceOf[T]).toOption
+    case Some(thing) ⇒ Result.forValue(thing.asInstanceOf[T]).asOption
     case None        ⇒ None
-    case notAnOption ⇒ Result.forValue(notAnOption.asInstanceOf[T]).toOption
+    case notAnOption ⇒ Result.forValue(notAnOption.asInstanceOf[T]).asOption
   }
 
   private[scalakittens] def goodOrBad[T](good: T, bad: String):Result[T] = apply(optionize(good), Option(bad))
