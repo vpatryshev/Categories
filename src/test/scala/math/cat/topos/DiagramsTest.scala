@@ -261,7 +261,7 @@ class DiagramsTest extends Test with TestDiagrams {
       val points = omega.points
       points.size === 2
       points.map(_.toString) ===
-        List("Diagram(0→{Diagram(0→{})})", "Diagram(0→{Diagram(0→{0.0})})")  
+        List("Diagram[_1_](0→{(0→{})})", "Diagram[_1_](0→{(0→{0.0})})")  
     }
 
     "exist for _2_" in {
@@ -275,13 +275,13 @@ class DiagramsTest extends Test with TestDiagrams {
       val points = omega.points.toList
       points.size === 3
       points(0).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{})}, 1→{Diagram(0→{}, 1→{})})"
+        "Diagram[_2_](0→{(0→{}, 1→{})}, 1→{(0→{}, 1→{})})"
 
       points(1).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{1.1})})"
+        "Diagram[_2_](0→{(0→{}, 1→{0.1})}, 1→{(0→{}, 1→{1.1})})"
 
       points(2).toString ===
-        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1})}, 1→{Diagram(0→{}, 1→{1.1})})"
+        "Diagram[_2_](0→{(0→{0.0}, 1→{0.1})}, 1→{(0→{}, 1→{1.1})})"
     }
 
     "exist for _3_" in {
@@ -295,16 +295,16 @@ class DiagramsTest extends Test with TestDiagrams {
       val points = omega.points.toList
       points.size === 4
       points(0).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{}, 2→{})}, 1→{Diagram(0→{}, 1→{}, 2→{})}, 2→{Diagram(0→{}, 1→{}, 2→{})})"
+        "Diagram[_3_](0→{(0→{}, 1→{}, 2→{})}, 1→{(0→{}, 1→{}, 2→{})}, 2→{(0→{}, 1→{}, 2→{})})"
 
       points(1).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{}, 2→{1.2})}, 2→{Diagram(0→{}, 1→{}, 2→{2.2})})"
+        "Diagram[_3_](0→{(0→{}, 1→{}, 2→{0.2})}, 1→{(0→{}, 1→{}, 2→{1.2})}, 2→{(0→{}, 1→{}, 2→{2.2})})"
 
       points(2).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{1.1}, 2→{1.2})}, 2→{Diagram(0→{}, 1→{}, 2→{2.2})})"
+        "Diagram[_3_](0→{(0→{}, 1→{0.1}, 2→{0.2})}, 1→{(0→{}, 1→{1.1}, 2→{1.2})}, 2→{(0→{}, 1→{}, 2→{2.2})})"
 
       points(3).toString ===
-        "Diagram(0→{Diagram(0→{0.0}, 1→{0.1}, 2→{0.2})}, 1→{Diagram(0→{}, 1→{1.1}, 2→{1.2})}, 2→{Diagram(0→{}, 1→{}, 2→{2.2})})"
+        "Diagram[_3_](0→{(0→{0.0}, 1→{0.1}, 2→{0.2})}, 1→{(0→{}, 1→{1.1}, 2→{1.2})}, 2→{(0→{}, 1→{}, 2→{2.2})})"
     }
 
     "exist for ParallelPair" in {
@@ -314,13 +314,70 @@ class DiagramsTest extends Test with TestDiagrams {
       val points = omega.points.toList
       points.size === 3  // out of 5 possible candidates, 2 split by a or by b, so they are not points
       points(0).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{})}, 1→{Diagram(0→{}, 1→{})})"
+        "Diagram[ParallelPair](0→{(0→{}, 1→{})}, 1→{(0→{}, 1→{})})"
 
       points(1).toString ===
-        "Diagram(0→{Diagram(0→{}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{1})})"
+        "Diagram[ParallelPair](0→{(0→{}, 1→{a,b})}, 1→{(0→{}, 1→{1})})"
 
       points(2).toString ===
-        "Diagram(0→{Diagram(0→{0}, 1→{a,b})}, 1→{Diagram(0→{}, 1→{1})})"
+        "Diagram[ParallelPair](0→{(0→{0}, 1→{a,b})}, 1→{(0→{}, 1→{1})})"
+    }
+
+    "exist for Pullback" in {
+      val topos = new Diagrams(Pullback)
+
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 5
+      points(0).toString ===
+        "Diagram[Pullback](a→{(a→{}, b→{}, c→{})}, b→{(a→{}, b→{}, c→{})}, c→{(a→{}, b→{}, c→{})})"
+
+      points(1).toString ===
+        "Diagram[Pullback](a→{(a→{}, b→{}, c→{ac})}, b→{(a→{}, b→{}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(2).toString ===
+        "Diagram[Pullback](a→{(a→{}, b→{}, c→{ac})}, b→{(a→{}, b→{b}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(3).toString ===
+        "Diagram[Pullback](a→{(a→{a}, b→{}, c→{ac})}, b→{(a→{}, b→{}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(4).toString ===
+        "Diagram[Pullback](a→{(a→{a}, b→{}, c→{ac})}, b→{(a→{}, b→{b}, c→{bc})}, c→{(a→{}, b→{}, c→{c})})"
+    }
+
+    "exist for Pushout" in {
+      val topos = new Diagrams(Pushout)
+
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 5
+      points(0).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{}, c→{})}, b→{(a→{}, b→{}, c→{})}, c→{(a→{}, b→{}, c→{})})"
+
+      points(1).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{}, c→{ac})}, b→{(a→{}, b→{}, c→{})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(2).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{ab}, c→{})}, b→{(a→{}, b→{b}, c→{})}, c→{(a→{}, b→{}, c→{})})"
+
+      points(3).toString ===
+        "Diagram[Pushout](a→{(a→{}, b→{ab}, c→{ac})}, b→{(a→{}, b→{b}, c→{})}, c→{(a→{}, b→{}, c→{c})})"
+
+      points(4).toString ===
+        "Diagram[Pushout](a→{(a→{a}, b→{ab}, c→{ac})}, b→{(a→{}, b→{b}, c→{})}, c→{(a→{}, b→{}, c→{c})})"
+    }
+
+    "exist for Z3" in {
+      val topos = new Diagrams(Z3)
+
+      val omega = topos.Ω
+      val points = omega.points.toList
+      points.size === 2
+      points(0).toString ===
+        "Diagram[Z3](0→{(0→{})})"
+
+      points(1).toString ===
+        "Diagram[Z3](0→{(0→{0,1,2})})"
     }
   }
 }

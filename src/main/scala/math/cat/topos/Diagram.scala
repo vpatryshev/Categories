@@ -240,8 +240,8 @@ abstract class Diagram(
     goodOnes
   }
 
-  override def toString = s"Diagram(${
-    d0.objects map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", "
+  override def toString = s"Diagram[${d0.name}](${
+    d0.objects map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", " replace(s"Diagram[${d0.name}]", "")
   })".replace("Set()", "{}")
 
   /**
