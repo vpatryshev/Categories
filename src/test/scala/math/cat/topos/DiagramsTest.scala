@@ -115,7 +115,7 @@ class DiagramsTest extends Test with TestDiagrams {
 //  "Power" should {
 //    "exist for representables in Set^_2_" in {
 //      val topos = new Diagrams(_2_)
-//      import topos.site._
+//      import topos.domain._
 //      val sut0 = representable(topos)("0")
 //      val pow0 = sut0.power
 //      val sut1 = representable(topos)("1")

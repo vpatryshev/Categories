@@ -37,6 +37,13 @@ abstract class Diagram(
     itsok
   }
 
+  def ∈(other: Diagram): Boolean = {
+    val itsok = d0.objects.forall { o ⇒
+      other(o)(this(o))
+    }
+    itsok
+  }
+
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
@@ -288,20 +295,6 @@ abstract class Diagram(
     arrowsMapping(a)(point(d0.d0(a)))
 
   private[cat] def toSet(x: Any): set = asSet(d1.obj(x))
-
-//  private[cat] def materialize(sub: Diagram): Result[Diagram] = {
-//    def om(o: d0.Obj): set = {
-//      val container = sub.asSet(sub.objectsMapping(sub.d0.obj(o)))
-//      sub.toSet(container.headOption.getOrElse(Set.empty))
-//    }
-//
-//    def am(a: d0.Arrow) = {
-//      val f0: SetFunction = arrowsMapping(a).asInstanceOf[SetFunction]
-//      f0.restrictTo(om(d0.d0(a)), om(d0.d1(a)))
-//    } iHope
-//
-//    Diagram.build("", d0)(om, am)
-//  }
 
   private[cat] object limitBuilder {
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
