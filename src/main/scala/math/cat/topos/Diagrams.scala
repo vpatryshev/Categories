@@ -12,14 +12,16 @@ class Diagrams(val domain: Category)
   
   def objectNamed(name: String): domain.Obj = domain.obj(name)
   
+  def pow(d: Diagram): Diagram = ??? // power object; tbd
+
   case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", domain) {
     private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)
 
     /**
-      * Maps a site arrow to set arrow.
+      * Maps a domain arrow to set arrow.
       * 
-      * @param f arrow in site
-      * @return a function from site.hom(x, f.d0) to site.hom(x, f.d1)
+      * @param f arrow in domain
+      * @return a function from domain.hom(x, f.d0) to domain.hom(x, f.d1)
       */
     private def am(f: domain.Arrow): SetFunction = {
       val d0: domain.Arrows = om(domain.d0(f))
@@ -105,7 +107,7 @@ class Diagrams(val domain: Category)
     def arrowMappingOpt(candidate: Set[domain.Obj]): domain.Arrow ⇒ Result[SetFunction] = {
       val omc = objectMapping(candidate)
       (a: domain.Arrow) ⇒ {
-        // this transformation, site.arrow, is here due to an intellij bug
+        // this transformation, domain.arrow, is here due to an intellij bug
         val d0 = omc(domain.d0(domain.arrow(a)))
         val d1 = omc(domain.d1(domain.arrow(a)))
         val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
@@ -132,7 +134,7 @@ class Diagrams(val domain: Category)
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     domain.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
   
-  lazy val Ω: Diagram = {
+  val Ω: Diagram = /* TODO: new Diagram("Ω", domain)*/ {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`
     val om: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables // cache the values at objects
@@ -191,8 +193,8 @@ class Diagrams(val domain: Category)
 object Diagrams {
   val BaseCategory: Category = SetCategory.Setf
 
-  def const(tag: String, site: Category)(value: BaseCategory.Obj): Diagram = {
-    new Diagram(tag, site) {
+  def const(tag: String, domain: Category)(value: BaseCategory.Obj): Diagram = {
+    new Diagram(tag, domain) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(value)
 
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
