@@ -11,11 +11,11 @@ class DiagramsTest extends Test with TestDiagrams {
   type SUT = Diagram
 
   def representable(topos: Diagrams) =
-    (obj: topos.site.Obj) ⇒ topos.Representable(obj)
+    (obj: topos.domain.Obj) ⇒ topos.Representable(obj)
 
   def checkConstSize(topos: Diagrams)(obj: topos.Obj, expected: Int): Unit = {
     for {
-      x <- topos.site.objects
+      x <- topos.domain.objects
     } {
       val setAtx: Set[_] = obj apply x
       setAtx.size === expected
@@ -47,7 +47,7 @@ class DiagramsTest extends Test with TestDiagrams {
 
     "be good in Set^W" in {
       val topos = new Diagrams(W)
-      import topos.site._
+      import topos.domain._
       val ob = (o: String) ⇒ {
         val r = representable(topos)(obj(o))
         name: String ⇒ r(name)
@@ -65,7 +65,7 @@ class DiagramsTest extends Test with TestDiagrams {
 
     "be good in Set^M" in {
       val topos = new Diagrams(M)
-      import topos.site._
+      import topos.domain._
       val rep = representable(topos)
       val ob = (o: Obj) ⇒ {
         val r = rep(o)
@@ -80,8 +80,8 @@ class DiagramsTest extends Test with TestDiagrams {
         ob("e") | ""   | ""  | ""   | ""  | "e"
 
       val mults = for {
-        x <- topos.site.objects
-        a <- topos.site.arrows
+        x <- topos.domain.objects
+        a <- topos.domain.arrows
       } {
         val r = rep(x)
         val arrow = r.d0.arrow(a)
@@ -94,7 +94,7 @@ class DiagramsTest extends Test with TestDiagrams {
 
     "be good in Set^Z3" in {
       val topos = new Diagrams(Z3)
-      import topos.site._
+      import topos.domain._
       val ob = (o: Obj) ⇒ {
         val r = representable(topos)(o)
         name: String ⇒ r(obj(name)).toString

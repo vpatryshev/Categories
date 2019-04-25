@@ -22,7 +22,7 @@ import scala.language.postfixOps
 abstract class Diagram(
   tag: String,
   override val d0: Category)
-  extends Functor(tag, d0, SetCategory.Setf) {
+  extends Functor(tag, d0, SetCategory.Setf) { diagram =>
   type XObject = d0.Obj
   type XObjects = Set[d0.Obj]
   type XArrow = d0.Arrow
@@ -42,6 +42,14 @@ abstract class Diagram(
   // not necessarily a point; must be compatible
   // something like Yoneda embedding, but not exactly
   private type PointLike = Map[XObject, Any]
+
+  def point(mapping: d0.Obj => Any): Point = new Point {
+
+    override val d0: Category = diagram.d0
+
+    def apply(x: Any): Unit = mapping(diagram.d0.obj(x))
+  }
+
 
   def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
 
@@ -339,18 +347,31 @@ abstract class Diagram(
 
 object Diagram {
 
-  def build(tag: String, site: Category)(
-    objectsMap: site.Obj ⇒ set,
-    arrowMap: site.Arrow ⇒ SetFunction): Result[Diagram] = {
+  def build(tag: String, domain: Category)(
+    objectsMap: domain.Obj ⇒ set,
+    arrowMap: domain.Arrow ⇒ SetFunction): Result[Diagram] = {
 
-    val diagram: Diagram = new Diagram(tag, site) {
+    val diagram: Diagram = new Diagram(tag, domain) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj =
-        (x: d0.Obj) ⇒ d1.obj(objectsMap(site.obj(x)))
+        (x: d0.Obj) ⇒ d1.obj(objectsMap(domain.obj(x)))
 
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
-        (a: XArrow) ⇒ d1.arrow(arrowMap(site.arrow(a)))
+        (a: XArrow) ⇒ d1.arrow(arrowMap(domain.arrow(a)))
     }
 
     Functor.validateFunctor(diagram) returning diagram
   }
+}
+
+trait Point {
+  val d0: Category
+
+  def ∈(other: Diagram): Boolean = {
+    val itsok = d0.objects.forall { o ⇒
+      other(o)(this(o))
+    }
+    itsok
+  }
+
+  def apply(x: Any): Any // todo: make it type-safe
 }

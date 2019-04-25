@@ -7,13 +7,13 @@ import math.sets.Sets._
 import Diagrams._
 import scalakittens.Result
 
-class Diagrams(val site: Category)
-  extends Category(s"Sets^${site.name}", graphOfDiagrams) {
+class Diagrams(val domain: Category)
+  extends Category(s"Sets^${domain.name}", graphOfDiagrams) {
   
-  def objectNamed(name: String): site.Obj = site.obj(name)
+  def objectNamed(name: String): domain.Obj = domain.obj(name)
   
-  case class Representable(x: site.Obj) extends Diagram(s"hom($x, _)", site) {
-    private def om(y: site.Obj) = site.hom(site.obj(x), y)
+  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", domain) {
+    private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)
 
     /**
       * Maps a site arrow to set arrow.
@@ -21,19 +21,19 @@ class Diagrams(val site: Category)
       * @param f arrow in site
       * @return a function from site.hom(x, f.d0) to site.hom(x, f.d1)
       */
-    private def am(f: site.Arrow): SetFunction = {
-      val d0: site.Arrows = om(site.d0(f))
-      val d1: site.Arrows = om(site.d1(f))
-      val tuples: Set[(site.Arrow, site.Arrow)] = d0 flatMap { g ⇒ site.m(g, f) map (g → _) }
-      val mapping: Map[site.Arrow, site.Arrow] =tuples toMap
+    private def am(f: domain.Arrow): SetFunction = {
+      val d0: domain.Arrows = om(domain.d0(f))
+      val d1: domain.Arrows = om(domain.d1(f))
+      val tuples: Set[(domain.Arrow, domain.Arrow)] = d0 flatMap { g ⇒ domain.m(g, f) map (g → _) }
+      val mapping: Map[domain.Arrow, domain.Arrow] =tuples toMap
 
-      SetFunction.build(toSet(d0), toSet(d1), a ⇒ mapping(site.arrow(a))).iHope
+      SetFunction.build(toSet(d0), toSet(d1), a ⇒ mapping(domain.arrow(a))).iHope
     }
 
-    override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(site.obj(x)))
+    override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(domain.obj(x)))
         
     override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
-      val arrow = site.arrow(f)
+      val arrow = domain.arrow(f)
       val mapping = am(arrow)
       d1.arrow(mapping)
     }
@@ -76,18 +76,18 @@ class Diagrams(val site: Category)
   } else None
 
   override lazy val initial: Result[Obj] =
-    BaseCategory.initial map Diagrams.const("initial", site)
+    BaseCategory.initial map Diagrams.const("initial", domain)
 
   lazy val _0: Obj = initial iHope
 
   override lazy val terminal: Result[Obj] =
-    BaseCategory.terminal map Diagrams.const("terminal", site)
+    BaseCategory.terminal map Diagrams.const("terminal", domain)
   
   lazy val _1: Obj = terminal iHope
 
   def inclusionOf(diagram1: Diagram, diagram2: Diagram): Result[DiagramArrow] = {
-    val results: TraversableOnce[Result[(site.Obj, diagram1.d1.Arrow)]] = for {
-      x <- site
+    val results: TraversableOnce[Result[(domain.Obj, diagram1.d1.Arrow)]] = for {
+      x <- domain
       in = SetMorphism.inclusion(diagram1(x), diagram2(x))
       pair = in map (x → diagram1.d1.arrow(_))
     } yield pair
@@ -99,15 +99,15 @@ class Diagrams(val site: Category)
   }
 
   lazy val subterminals: Set[Diagram] = {
-    def objectMapping(candidate: Set[site.Obj]) =
-      (obj: site.Obj) ⇒ if (candidate contains obj) _1(obj) else Set.empty.untyped
+    def objectMapping(candidate: Set[domain.Obj]) =
+      (obj: domain.Obj) ⇒ if (candidate contains obj) _1(obj) else Set.empty.untyped
     
-    def arrowMappingOpt(candidate: Set[site.Obj]): site.Arrow ⇒ Result[SetFunction] = {
+    def arrowMappingOpt(candidate: Set[domain.Obj]): domain.Arrow ⇒ Result[SetFunction] = {
       val omc = objectMapping(candidate)
-      (a: site.Arrow) ⇒ {
+      (a: domain.Arrow) ⇒ {
         // this transformation, site.arrow, is here due to an intellij bug
-        val d0 = omc(site.d0(site.arrow(a)))
-        val d1 = omc(site.d1(site.arrow(a)))
+        val d0 = omc(domain.d0(domain.arrow(a)))
+        val d1 = omc(domain.d1(domain.arrow(a)))
         val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
         
         SetFunction.build("", d0, d1, mapping)
@@ -116,30 +116,30 @@ class Diagrams(val site: Category)
     (1::Nil).toStream
     
     val all = for {
-      (candidate, i) <- Sets.powerset(site.objects).zipWithIndex
+      (candidate, i) <- Sets.powerset(domain.objects).zipWithIndex
       // some mappings are not working for a given candidate
-      amCandidate: (site.Arrow ⇒ Result[SetFunction]) = arrowMappingOpt(candidate)
-      arrowsMapOpt: Set[Result[(site.Arrow, SetFunction)]] = site.arrows map (a ⇒ amCandidate(a) map (a → _))
-      am: Traversable[(site.Arrow, SetFunction)] <- Result.traverse(arrowsMapOpt).asOption
+      amCandidate: (domain.Arrow ⇒ Result[SetFunction]) = arrowMappingOpt(candidate)
+      arrowsMapOpt: Set[Result[(domain.Arrow, SetFunction)]] = domain.arrows map (a ⇒ amCandidate(a) map (a → _))
+      am: Traversable[(domain.Arrow, SetFunction)] <- Result.traverse(arrowsMapOpt).asOption
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram <- Diagram.build("__" + i, site)(om, am.toMap).asOption
+      diagram <- Diagram.build("__" + i, domain)(om, am.toMap).asOption
     } yield diagram
     
     all
   }
   
-  private[topos] def subobjectsOfRepresentables: Map[site.Obj, Set[Diagram]] =
-    site.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
+  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
+    domain.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
   
   lazy val Ω: Diagram = {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`
-    val om: Map[site.Obj, Set[Diagram]] = subobjectsOfRepresentables // cache the values at objects
+    val om: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables // cache the values at objects
 
-    val am: Map[site.Arrow, SetFunction] = site.arrows.map (a ⇒ a → {
-      val x = site.d0(a)
-      val y = site.d1(a)
+    val am: Map[domain.Arrow, SetFunction] = domain.arrows.map (a ⇒ a → {
+      val x = domain.d0(a)
+      val y = domain.d1(a)
       val d0 = om(x) // `Ω(x)` = all subobjects of `Representable(x)`
       val d1 = om(y) // `Ω(y)` = all subobjects of `Representable(y)`
 
@@ -147,12 +147,12 @@ class Diagrams(val site: Category)
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
       val diaMap: Map[Diagram, Diagram] = d0 map { (rx: Diagram) /*a subrepresentable on `x`*/ ⇒ rx → {
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
-        val om1: Map[site.Obj, set] = site.objects map { (x1: site.Obj) ⇒ x1 → {
+        val om1: Map[domain.Obj, set] = domain.objects map { (x1: domain.Obj) ⇒ x1 → {
           // {f ∈ hom(y, x1) | a o f ∈ r1(x1)}
           val rx_at_x1 = rx(x1)
           val result = for {
-            f <- site.hom(y, x1).untyped
-            candidate <- site.m(a, site.arrow(f))
+            f <- domain.hom(y, x1).untyped
+            candidate <- domain.m(a, domain.arrow(f))
             if rx_at_x1 contains candidate
           } yield f
           result
@@ -160,13 +160,13 @@ class Diagrams(val site: Category)
         } toMap
           
         // this is how, given an arrow `b`, the new diagram gets from one point to another
-        val am1: Map[site.Arrow, SetFunction] = site.arrows map { (b: site.Arrow) ⇒ b → {
-          val x1 = om1(site.d0(b)) //  {f ∈ hom(y, d0(b)) | a o f ∈ r1(d0(b)}
-          val y1 = om1(site.d1(b)) //  {f ∈ hom(y, d1(b)) | a o f ∈ r1(d1(b)}
+        val am1: Map[domain.Arrow, SetFunction] = domain.arrows map { (b: domain.Arrow) ⇒ b → {
+          val x1 = om1(domain.d0(b)) //  {f ∈ hom(y, d0(b)) | a o f ∈ r1(d0(b)}
+          val y1 = om1(domain.d1(b)) //  {f ∈ hom(y, d1(b)) | a o f ∈ r1(d1(b)}
           // here we need a function fom x1 to y1
          
           val mappingOpt = SetFunction.build("", x1, y1, g ⇒ {
-            val bfOpt = site.m(site.arrow(g), b)
+            val bfOpt = domain.m(domain.arrow(g), b)
             bfOpt match {
               case None ⇒
                 throw new IllegalArgumentException(s"Expected $b and $g to be composable")
@@ -176,14 +176,14 @@ class Diagrams(val site: Category)
           mappingOpt iHope
         }} toMap
         
-        val diagramMaybe = Diagram.build("", site)(om1, am1)
+        val diagramMaybe = Diagram.build("", domain)(om1, am1)
         diagramMaybe.iHope
       }} toMap
       
       SetFunction.build(s"[$a]", d0.untyped, d1.untyped, d ⇒ diaMap(d.asInstanceOf[Diagram])).iHope
     }) toMap
     
-    Diagram.build("Ω", site)(d ⇒ om(d).untyped, am).iHope
+    Diagram.build("Ω", domain)(d ⇒ om(d).untyped, am).iHope
     
   }
 }
