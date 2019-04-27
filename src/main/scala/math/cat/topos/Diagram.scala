@@ -54,7 +54,7 @@ abstract class Diagram(
 
     override val domainCategory: Category = diagram.d0
 
-    override def at(x: domainCategory.Obj): Any = mapping(diagram.d0.obj(x))
+    override def at(x: Any): Any = mapping(diagram.d0.obj(x))
 
     override def apply(x: diagram.d0.Obj): Any = mapping(diagram.d0.obj(x))
   }
@@ -278,7 +278,7 @@ abstract class Diagram(
 
 
 
-  private[cat] def allArrowsAreCompatibleOnPointInter(point: PointLike[XObject]): XArrows ⇒ Boolean =
+  private[cat] def allArrowsAreCompatibleOnPointInter(point: PointLikeIntermediate): XArrows ⇒ Boolean =
     arrows ⇒ arrows.forall(f ⇒ arrows.forall(g ⇒ {
       arrowsAreCompatibleOnPoint(point)(f, g)
     }))
@@ -299,7 +299,7 @@ abstract class Diagram(
 
 
 
-  private[cat] def arrowsAreCompatibleOnPoint(point: PointLike[XObject])(f: XArrow, g: XArrow): Boolean = {
+  private[cat] def arrowsAreCompatibleOnPoint(point: PointLikeIntermediate)(f: XArrow, g: XArrow): Boolean = {
     val f_x = arrowActionOnPoint(f, point)
     val g_x = arrowActionOnPoint(g, point)
     f_x == g_x
@@ -318,7 +318,7 @@ abstract class Diagram(
   }
 
 
-  private def arrowActionOnPoint(a: XArrow, point: PointLike[XObject]): Any =
+  private def arrowActionOnPoint(a: XArrow, point: PointLikeIntermediate): Any =
     arrowsMapping(a)(point(d0.d0(a)))
 
   private[cat] def toSet(x: Any): set = asSet(d1.obj(x))
@@ -395,7 +395,9 @@ object Diagram {
 trait Point {
   val domainCategory: Category
 
-  lazy val asMap: Map[domainCategory.Obj, Any] = domainCategory.objects map (x => x -> at(x)) toMap
+//    
+//  
+//  val asMap: Map[domainCategory.Obj, Any] = domainCategory.objects map (x => x -> at(x)) toMap
 
   def ∈(other: Diagram): Boolean = {
     val itsok = domainCategory.objects.forall { o ⇒
@@ -405,5 +407,5 @@ trait Point {
   }
 
   override def toString: String = domainCategory.objects.map(x => s"x→${at(x)}").mkString("point(", ",", ")")
-  def at(x: domainCategory.Obj): Any = asMap(x) // todo: make it type-safe
+  def at(x: Any): Any // = asMap(domainCategory.obj(x)) // todo: make it type-safe
 }
