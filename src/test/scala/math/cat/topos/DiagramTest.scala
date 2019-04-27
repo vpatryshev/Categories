@@ -88,7 +88,7 @@ class DiagramTest extends Test with TestDiagrams {
       check(p3, 5 :: 2 :: Nil)
     }
 
-    "exist in pullback pair" in {
+    "exist in pullback" in {
       val sut = SamplePullbackDiagram
       val actual = sut.points
       actual.size === 5

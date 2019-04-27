@@ -50,7 +50,7 @@ abstract class Diagram(
   // not necessarily a point; must be compatible
   // something like Yoneda embedding, but not exactly
 
-  def point(mapping: d0.Obj => Any): Point = new PointLikel {
+  def point(mapping: d0.Obj => Any): PointLikeIntermediate = new PointLikeIntermediate {
 
     override val domainCategory: Category = diagram.d0
 
@@ -166,7 +166,7 @@ abstract class Diagram(
     val listOfObjects: List[XObject] = domainObjects.toList
     val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
 
-    def isCompatible(om: PointLike[XObject]) = d0.arrows.forall {
+    def isCompatible(om: PointLikeIntermediate) = d0.arrows.forall {
       a ⇒
         val d00 = om(d0.d0(a))
         val d01 = om(d0.d1(a))
@@ -178,7 +178,8 @@ abstract class Diagram(
 
     val objMappings = for {
       values <- Sets.product(listOfComponents) //.view
-      om: PointLike[XObject] = listOfObjects zip values toMap;
+      mapping = listOfObjects zip values toMap;
+      om: PointLikeIntermediate = point(mapping)
       if isCompatible(om)
     } yield om
     
@@ -214,7 +215,7 @@ abstract class Diagram(
     val listOfObjects: List[d0.Obj] = domainObjects.toList
     val listOfComponents: List[Set[set]] = listOfObjects.map(allPowers)
 
-    def isCompatible(om: PointLike[XObject]) = d0.arrows.forall {
+    def isCompatible(om: d0.Obj => Sets.set) = d0.arrows.forall {
       a ⇒
         val d00 = toSet(om(d0.d0(a)))
         val d01 = om(d0.d1(a))
@@ -230,7 +231,8 @@ abstract class Diagram(
 
     val objMappings = for {
       values <- Sets.product(listOfComponents) //.view
-      om: PointLike[XObject] = listOfObjects zip values toMap;
+      om0: PointLikeIntermediate = point(listOfObjects zip values toMap)
+      om: Map[d0.Obj, Sets.set] = d0.objects map (x => x -> toSet(om0(x))) toMap;
       if isCompatible(om)
     } yield om
     val sorted = objMappings.toList.sortBy(_.toString)
@@ -276,7 +278,7 @@ abstract class Diagram(
 
 
 
-  private[cat] def allArrowsAreCompatibleOnPoint(point: PointLike[XObject]): XArrows ⇒ Boolean =
+  private[cat] def allArrowsAreCompatibleOnPointInter(point: PointLike[XObject]): XArrows ⇒ Boolean =
     arrows ⇒ arrows.forall(f ⇒ arrows.forall(g ⇒ {
       arrowsAreCompatibleOnPoint(point)(f, g)
     }))
@@ -357,8 +359,8 @@ abstract class Diagram(
       val p: Point = point(listOfObjects zip candidate toMap)
       val checkCompatibility = allArrowsAreCompatibleOnPoint(p)
       
-      val pl: PointLike[XObject] = listOfObjects zip candidate toMap
-      val checkCompatibilityL = allArrowsAreCompatibleOnPoint(pl)
+      val pl: PointLikeIntermediate = point(listOfObjects zip candidate toMap)
+      val checkCompatibilityL = allArrowsAreCompatibleOnPointInter(pl)
       val arrowSets = cobundles.values
       val setsToCheck = arrowSets filterNot (_.forall(d0.isIdentity))
       setsToCheck.forall(checkCompatibilityL)
@@ -367,7 +369,7 @@ abstract class Diagram(
 
   type PointLike[Z] = Z => Any
   
-  trait PointLikel extends Point with PointLike[d0.Obj] {
+  trait PointLikeIntermediate extends PointLike[d0.Obj] with Point {
     val d0: Category = diagram.d0
   }
 }
@@ -393,6 +395,8 @@ object Diagram {
 trait Point {
   val domainCategory: Category
 
+  lazy val asMap: Map[domainCategory.Obj, Any] = domainCategory.objects map (x => x -> at(x)) toMap
+
   def ∈(other: Diagram): Boolean = {
     val itsok = domainCategory.objects.forall { o ⇒
       other(o)(at(o))
@@ -400,5 +404,6 @@ trait Point {
     itsok
   }
 
-  def at(x: domainCategory.Obj): Any // todo: make it type-safe
+  override def toString: String = domainCategory.objects.map(x => s"x→${at(x)}").mkString("point(", ",", ")")
+  def at(x: domainCategory.Obj): Any = asMap(x) // todo: make it type-safe
 }
