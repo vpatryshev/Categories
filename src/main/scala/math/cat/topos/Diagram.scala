@@ -45,15 +45,18 @@ abstract class Diagram(
   }
 
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
+  
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
   // something like Yoneda embedding, but not exactly
 
-  def point(mapping: d0.Obj => Any): Point = new Point {
+  def point(mapping: d0.Obj => Any): Point = new PointLikel {
 
-    override val d0: Category = diagram.d0
+    override val domainCategory: Category = diagram.d0
 
-    def at(x: d0.Obj): Unit = mapping(diagram.d0.obj(x))
+    override def at(x: domainCategory.Obj): Any = mapping(diagram.d0.obj(x))
+
+    override def apply(x: diagram.d0.Obj): Any = mapping(diagram.d0.obj(x))
   }
 
 
@@ -309,7 +312,7 @@ abstract class Diagram(
     */
   private def arrowActionOnPoint(a: XArrow, p: Point): Any = {
     val aDomain: d0.Obj = d0.d0(a)
-    arrowsMapping(a)(p at p.d0.obj(aDomain))
+    arrowsMapping(a)(p at p.domainCategory.obj(aDomain))
   }
 
 
@@ -362,7 +365,7 @@ abstract class Diagram(
     }
   }
 
-  type PointLike[Z] = Map[Z, Any]
+  type PointLike[Z] = Z => Any
   
   trait PointLikel extends Point with PointLike[d0.Obj] {
     val d0: Category = diagram.d0
@@ -388,14 +391,14 @@ object Diagram {
 }
 
 trait Point {
-  val d0: Category
+  val domainCategory: Category
 
   def ∈(other: Diagram): Boolean = {
-    val itsok = d0.objects.forall { o ⇒
+    val itsok = domainCategory.objects.forall { o ⇒
       other(o)(at(o))
     }
     itsok
   }
 
-  def at(x: d0.Obj): Any // todo: make it type-safe
+  def at(x: domainCategory.Obj): Any // todo: make it type-safe
 }
