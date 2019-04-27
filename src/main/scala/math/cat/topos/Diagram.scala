@@ -4,7 +4,7 @@ import math.Base
 import math.Base._
 import math.cat._
 import math.sets.Functions._
-import math.sets.Sets.{set, _}
+import math.sets.Sets.{filter, set, _}
 import math.sets.{FactorSet, Sets}
 import scalakittens.{Good, Result}
 
@@ -48,13 +48,12 @@ abstract class Diagram(
   // for each original object select a value in the diagram
   // not necessarily a point; must be compatible
   // something like Yoneda embedding, but not exactly
-  private type PointLike = Map[XObject, Any]
 
   def point(mapping: d0.Obj => Any): Point = new Point {
 
     override val d0: Category = diagram.d0
 
-    def apply(x: Any): Unit = mapping(diagram.d0.obj(x))
+    def at(x: d0.Obj): Unit = mapping(diagram.d0.obj(x))
   }
 
 
@@ -80,12 +79,14 @@ abstract class Diagram(
     def arrowFromRootObject(x: d0.Obj) =
       if (limitBuilder.rootObjects(x)) d0.id(x) else fromRootObjects(x)
 
+    val vertex = limitBuilder.vertex
+
     def coneMap(x: d0.Obj): d1.Arrow = d1.arrow {
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
       val projections: List[Any] ⇒ Any = limitBuilder.projectionForObject(rootObject)
-      SetFunction.build(s"vertex to ($tag)[$x]", limitBuilder.vertex, f.d1,
+      SetFunction.build(s"vertex to ($tag)[$x]", vertex, f.d1,
         { case point: List[Any] ⇒ f(projections(point)) }) iHope // what can go wrong?
     }
     //YObjects vertex
@@ -162,7 +163,7 @@ abstract class Diagram(
     val listOfObjects: List[XObject] = domainObjects.toList
     val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
 
-    def isCompatible(om: PointLike) = d0.arrows.forall {
+    def isCompatible(om: PointLike[XObject]) = d0.arrows.forall {
       a ⇒
         val d00 = om(d0.d0(a))
         val d01 = om(d0.d1(a))
@@ -174,7 +175,7 @@ abstract class Diagram(
 
     val objMappings = for {
       values <- Sets.product(listOfComponents) //.view
-      om: PointLike = listOfObjects zip values toMap;
+      om: PointLike[XObject] = listOfObjects zip values toMap;
       if isCompatible(om)
     } yield om
     
@@ -210,7 +211,7 @@ abstract class Diagram(
     val listOfObjects: List[d0.Obj] = domainObjects.toList
     val listOfComponents: List[Set[set]] = listOfObjects.map(allPowers)
 
-    def isCompatible(om: PointLike) = d0.arrows.forall {
+    def isCompatible(om: PointLike[XObject]) = d0.arrows.forall {
       a ⇒
         val d00 = toSet(om(d0.d0(a)))
         val d01 = om(d0.d1(a))
@@ -226,7 +227,7 @@ abstract class Diagram(
 
     val objMappings = for {
       values <- Sets.product(listOfComponents) //.view
-      om: PointLike = listOfObjects zip values toMap;
+      om: PointLike[XObject] = listOfObjects zip values toMap;
       if isCompatible(om)
     } yield om
     val sorted = objMappings.toList.sortBy(_.toString)
@@ -265,7 +266,14 @@ abstract class Diagram(
     * @param point element of Cartesian product
     * @return the predicate
     */
-  private[cat] def allArrowsAreCompatibleOnPoint(point: PointLike): XArrows ⇒ Boolean =
+  private[cat] def allArrowsAreCompatibleOnPoint(point: Point): XArrows ⇒ Boolean =
+    arrows ⇒ arrows.forall(f ⇒ arrows.forall(g ⇒ {
+      arrowsAreCompatibleOnPoint(point)(f, g)
+    }))
+
+
+
+  private[cat] def allArrowsAreCompatibleOnPoint(point: PointLike[XObject]): XArrows ⇒ Boolean =
     arrows ⇒ arrows.forall(f ⇒ arrows.forall(g ⇒ {
       arrowsAreCompatibleOnPoint(point)(f, g)
     }))
@@ -278,7 +286,15 @@ abstract class Diagram(
     * @param g     second arrow
     * @return true if they are
     */
-  private[cat] def arrowsAreCompatibleOnPoint(point: PointLike)(f: XArrow, g: XArrow): Boolean = {
+  private[cat] def arrowsAreCompatibleOnPoint(point: Point)(f: XArrow, g: XArrow): Boolean = {
+    val f_x = arrowActionOnPoint(f, point)
+    val g_x = arrowActionOnPoint(g, point)
+    f_x == g_x
+  }
+
+
+
+  private[cat] def arrowsAreCompatibleOnPoint(point: PointLike[XObject])(f: XArrow, g: XArrow): Boolean = {
     val f_x = arrowActionOnPoint(f, point)
     val g_x = arrowActionOnPoint(g, point)
     f_x == g_x
@@ -291,7 +307,13 @@ abstract class Diagram(
     * @param point a mapping in the sets corresponding to objects from the list above
     * @return the value to which the arrow maps a component of the point
     */
-  private def arrowActionOnPoint(a: XArrow, point: PointLike): Any =
+  private def arrowActionOnPoint(a: XArrow, p: Point): Any = {
+    val aDomain: d0.Obj = d0.d0(a)
+    arrowsMapping(a)(p at p.d0.obj(aDomain))
+  }
+
+
+  private def arrowActionOnPoint(a: XArrow, point: PointLike[XObject]): Any =
     arrowsMapping(a)(point(d0.d0(a)))
 
   private[cat] def toSet(x: Any): set = asSet(d1.obj(x))
@@ -329,12 +351,21 @@ abstract class Diagram(
     // Have a product set; have to remove all the bad elements from it
     // this predicate leaves only compatible elements of product (which are lists)
     private[cat] def isPoint(candidate: List[Any]): Boolean = {
-      val point: PointLike = listOfObjects zip candidate toMap
-      val checkCompatibility = allArrowsAreCompatibleOnPoint(point)
+      val p: Point = point(listOfObjects zip candidate toMap)
+      val checkCompatibility = allArrowsAreCompatibleOnPoint(p)
+      
+      val pl: PointLike[XObject] = listOfObjects zip candidate toMap
+      val checkCompatibilityL = allArrowsAreCompatibleOnPoint(pl)
       val arrowSets = cobundles.values
       val setsToCheck = arrowSets filterNot (_.forall(d0.isIdentity))
-      setsToCheck.forall(checkCompatibility)
+      setsToCheck.forall(checkCompatibilityL)
     }
+  }
+
+  type PointLike[Z] = Map[Z, Any]
+  
+  trait PointLikel extends Point with PointLike[d0.Obj] {
+    val d0: Category = diagram.d0
   }
 }
 
@@ -361,10 +392,10 @@ trait Point {
 
   def ∈(other: Diagram): Boolean = {
     val itsok = d0.objects.forall { o ⇒
-      other(o)(this(o))
+      other(o)(at(o))
     }
     itsok
   }
 
-  def apply(x: Any): Any // todo: make it type-safe
+  def at(x: d0.Obj): Any // todo: make it type-safe
 }
