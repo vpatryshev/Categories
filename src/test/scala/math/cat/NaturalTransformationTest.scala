@@ -2,8 +2,6 @@ package math.cat
 
 import math.Test
 import math.cat.Category._
-import scalakittens.Result
-import math.Base._
 
 /**
   * Natural transformations tests

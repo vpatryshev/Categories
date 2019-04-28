@@ -1,10 +1,9 @@
 package math.cat
 
-import math.sets.Sets._
 import math.cat.SetFunction._
-import math.sets.{BinaryRelation, FactorSet, Sets}
+import math.sets.Sets._
+import math.sets.{BinaryRelation, Sets}
 import org.specs2.mutable._
-import math.Base._
 
 /**
  * Test suite for Typeless Set Morphisms object

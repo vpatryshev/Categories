@@ -157,10 +157,6 @@ object Base {
 
 //  def id[T](set: Set[T]): Map[T, T] = set.map(t ⇒ t → t)(breakOut)
 
-  implicit class Pollyanna[T](opt: Result[T]) {
-    def iHope: T = opt.fold(identity, errors ⇒ throw new InstantiationException(errors.mkString(";")))
-  }
-
   implicit class Optimist[T](opt: Option[T]) {
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
   }

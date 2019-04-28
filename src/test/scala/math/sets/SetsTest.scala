@@ -7,8 +7,6 @@ import math.sets.Sets._
 import org.specs2.execute.Failure
 import org.specs2.mutable._
 import scalakittens.{Empty, Result}
-import scalaz.std.function
-import math.Base.Pollyanna
 
 import scala.concurrent.duration.Duration
 

@@ -4,9 +4,8 @@ import math.cat.SetCategory._
 import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BigSet, FactorSet, Sets}
-import math.Base._
+import scalakittens.Result._
 import scalakittens.{Good, Result}
-import Result._
 
 /**
   * Category where objects are sets

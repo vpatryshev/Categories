@@ -1,6 +1,5 @@
 package math.cat.topos
 
-import math.Base._
 import math.Test
 import math.cat.SetCategory.Setf
 import math.cat.{Category, Functor, SetFunction}

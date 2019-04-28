@@ -1,8 +1,7 @@
 package math.sets
 
-import Sets.itsImmutable
 import math.cat.SetMorphism
-import math.Base._
+import math.sets.Sets.itsImmutable
 
 /**
   * Implements factorset functionality. A factorset may be built given a BinaryRelation,

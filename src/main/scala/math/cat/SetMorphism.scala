@@ -1,11 +1,10 @@
 package math.cat
 
+import math.cat.SetMorphism._
 import math.sets.Sets
 import math.sets.Sets._
 import scalakittens.Result
-import Result._
-import math.Base._
-import SetMorphism._
+import scalakittens.Result._
 
 /**
  * Morphism class for sets, and the accompanying object.

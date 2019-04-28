@@ -4,16 +4,15 @@ import math.Test
 import math.cat.Category._
 import math.sets.Sets.set
 import scalakittens.Good
-import math.Base._
 
-class DiagramsTest extends Test with TestDiagrams {
+class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
   type SUT = Diagram
 
-  def representable(topos: Diagrams) =
+  def representable(topos: CategoryOfDiagrams) =
     (obj: topos.domain.Obj) ⇒ topos.Representable(obj)
 
-  def checkConstSize(topos: Diagrams)(obj: topos.Obj, expected: Int): Unit = {
+  def checkConstSize(topos: CategoryOfDiagrams)(obj: topos.Obj, expected: Int): Unit = {
     for {
       x <- topos.domain.objects
     } {
@@ -46,7 +45,7 @@ class DiagramsTest extends Test with TestDiagrams {
     val appliesTo = new diagramTable
 
     "be good in Set^W" in {
-      val topos = new Diagrams(W)
+      val topos = new CategoryOfDiagrams(W)
       import topos.domain._
       val ob = (o: String) ⇒ {
         val r = representable(topos)(obj(o))
@@ -64,7 +63,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "be good in Set^M" in {
-      val topos = new Diagrams(M)
+      val topos = new CategoryOfDiagrams(M)
       import topos.domain._
       val rep = representable(topos)
       val ob = (o: Obj) ⇒ {
@@ -93,7 +92,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "be good in Set^Z3" in {
-      val topos = new Diagrams(Z3)
+      val topos = new CategoryOfDiagrams(Z3)
       import topos.domain._
       val ob = (o: Obj) ⇒ {
         val r = representable(topos)(o)
@@ -130,7 +129,7 @@ class DiagramsTest extends Test with TestDiagrams {
   
   "Identity arrow" should {
     "exist in Set^W" in {
-      val topos = new Diagrams(W)
+      val topos = new CategoryOfDiagrams(W)
       val d = SampleWDiagram
       val idtrans = topos.id(d)
       idtrans.d0 === d
@@ -140,7 +139,7 @@ class DiagramsTest extends Test with TestDiagrams {
 
     "exist in Set^M" in {
       // todo: test composition
-      val topos = new Diagrams(M)
+      val topos = new CategoryOfDiagrams(M)
       val d = SampleMDiagram
       val idtrans = topos.id(d)
       idtrans.d0 === d
@@ -150,7 +149,7 @@ class DiagramsTest extends Test with TestDiagrams {
 
   "Initial object" should {
     "exist in Set^M" in {
-      val topos = new Diagrams(M)
+      val topos = new CategoryOfDiagrams(M)
 
       val terminalOpt = topos.initial
       terminalOpt match {
@@ -165,7 +164,7 @@ class DiagramsTest extends Test with TestDiagrams {
   "Terminal object" should {
 
     "exist in Set^W" in {
-      val topos = new Diagrams(W)
+      val topos = new CategoryOfDiagrams(W)
 
       val terminalOpt = topos.terminal
       terminalOpt match {
@@ -180,7 +179,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "exist in Set^Square" in {
-      val topos = new Diagrams(Square)
+      val topos = new CategoryOfDiagrams(Square)
       val subterminals = topos.subterminals
       subterminals.size === 6
       subterminals must contain(topos._0)
@@ -229,7 +228,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
     
     "exist for representables in Set^_2_" in {
-      val topos = new Diagrams(_2_)
+      val topos = new CategoryOfDiagrams(_2_)
       val r0 = topos.Representable(topos.objectNamed("0"))
 
       val obj0 = topos.objectNamed("0")
@@ -244,14 +243,14 @@ class DiagramsTest extends Test with TestDiagrams {
   
   "Subobject classifier" should {
     "exist for _0_" in {
-      val topos = new Diagrams(_0_)
+      val topos = new CategoryOfDiagrams(_0_)
       val omega = topos.Ω
       val points = omega.points
       points.size === 1
     }
 
     "exist for _1_" in {
-      val topos = new Diagrams(_1_)
+      val topos = new CategoryOfDiagrams(_1_)
       val omega = topos.Ω
       val omega0 = omega("0").toList
       omega0.size === 2
@@ -265,7 +264,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "exist for _2_" in {
-      val topos = new Diagrams(_2_)
+      val topos = new CategoryOfDiagrams(_2_)
       
       val omega = topos.Ω
       val omega0 = omega("0")
@@ -285,7 +284,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "exist for _3_" in {
-      val topos = new Diagrams(_3_)
+      val topos = new CategoryOfDiagrams(_3_)
 
       val omega = topos.Ω
       val omega0 = omega("0")
@@ -308,7 +307,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "exist for ParallelPair" in {
-      val topos = new Diagrams(ParallelPair)
+      val topos = new CategoryOfDiagrams(ParallelPair)
 
       val omega = topos.Ω
       val points = omega.points.toList
@@ -324,7 +323,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "exist for Pullback" in {
-      val topos = new Diagrams(Pullback)
+      val topos = new CategoryOfDiagrams(Pullback)
 
       val omega = topos.Ω
       val points = omega.points.toList
@@ -346,7 +345,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "exist for Pushout" in {
-      val topos = new Diagrams(Pushout)
+      val topos = new CategoryOfDiagrams(Pushout)
 
       val omega = topos.Ω
       val points = omega.points.toList
@@ -368,7 +367,7 @@ class DiagramsTest extends Test with TestDiagrams {
     }
 
     "exist for Z3" in {
-      val topos = new Diagrams(Z3)
+      val topos = new CategoryOfDiagrams(Z3)
 
       val omega = topos.Ω
       val points = omega.points.toList

@@ -2,7 +2,6 @@ package math.cat
 
 import java.io.Reader
 
-import math.Base._
 import math.cat.Category.Cat
 import math.sets.PoSet
 import math.sets.Sets._

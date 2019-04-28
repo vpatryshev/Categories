@@ -1,9 +1,8 @@
 package math.cat
 
-import math.Base._
-import org.specs2.mutable._
-import SetMorphism._
+import math.cat.SetMorphism._
 import math.sets.{N, Sets}
+import org.specs2.mutable._
 import scalakittens._
 
 class SetMorphismTest extends Specification {

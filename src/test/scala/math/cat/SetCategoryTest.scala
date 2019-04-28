@@ -6,7 +6,6 @@ import math.sets.Sets._
 import math.sets.{BigSet, Sets}
 import org.specs2.mutable._
 import scalakittens.Good
-import math.Base._
 
 
 /**
@@ -26,7 +25,6 @@ class SetCategoryTest extends Specification {
       val sets = BigSet(Set(s1, s2))
       val arrow = SetFunction.build("sample", s1, s2, _.asInstanceOf[Int] / 7) iHope
       val theGraph = graphOfSets(sets)
-      import theGraph._
       theGraph.nodes === sets
       theGraph.arrows.contains(theGraph.arrow(arrow)) === true
     }

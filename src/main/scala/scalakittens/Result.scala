@@ -37,6 +37,7 @@ sealed trait Result[+T] extends Container[T] {
   def tap(op: T ⇒ Unit): Result[T] // see http://combinators.info/
   def optionally[U](f: T ⇒ U ⇒ U): U ⇒ U = this map f getOrElse identity[U]
   def contains[T1 >: T](x: T1): Boolean
+  def iHope: T
 }
 
 case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T] {
@@ -69,6 +70,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   def orCommentTheError(message: ⇒Any): Good[T] = this
   def tap(op: T ⇒ Unit): Result[T] = {op(value); this}// see http://combinators.info/
   def contains[T1 >: T](x: T1): Boolean = value == x
+  def iHope: T = value
 }
 
 trait NoGood[T] extends NothingInside[T] { self:Result[T] ⇒
@@ -104,6 +106,7 @@ trait NoGood[T] extends NothingInside[T] { self:Result[T] ⇒
     "0"*(5-s1.length) + s1
   }
   def contains[T1 >: T](x: T1): Boolean = false
+  def iHope: T = throw new InstantiationException(errors.mkString(";"))
 }
 
 sealed trait Bad[T] extends Result[T] with NoGood[T] {

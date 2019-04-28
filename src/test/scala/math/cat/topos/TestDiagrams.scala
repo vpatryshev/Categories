@@ -4,7 +4,6 @@ import math.Test
 import math.cat.{Category, Functor, SetCategory, SetFunction}
 import math.sets.Sets.set
 import scalakittens.Result
-import math.Base._
 
 trait TestDiagrams extends Test {
 
