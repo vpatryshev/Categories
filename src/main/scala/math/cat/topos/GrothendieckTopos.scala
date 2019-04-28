@@ -8,7 +8,7 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
   /**
     * Omega, subobject classifier.
     */
-  object Ω extends Diagram("Ω", domain) /* TODO: new Diagram("Ω", domain)*/ {
+  object Ω extends Diagram("Ω", domain) {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x ⇒ Ω(x)` .
     val mapOfSubrepresentables: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables

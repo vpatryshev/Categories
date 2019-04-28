@@ -2,7 +2,7 @@ package math.cat.topos
 
 import math.cat._
 import math.cat.topos.CategoryOfDiagrams._
-import math.sets.Sets._
+import math.sets.Sets.{isFinite, _}
 import math.sets._
 import scalakittens.Result
 
@@ -128,6 +128,34 @@ class CategoryOfDiagrams(val domain: Category)
 
     probablyFunctor.iHope
   }
+
+  /**
+    * Cartesian product of two diagrams
+    * TODO: figure out how to ensure the same d0 in both
+    */
+  def product2(x: Diagram, y: Diagram): Diagram = {
+
+    def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
+    def om(o: domain.Obj): set = productAt(o).untyped
+    
+    def am(a: domain.Arrow): SetFunction = {
+      val from = productAt(domain.d0(a))
+      val to = productAt(domain.d1(a))
+      val xa = x.arrowsMapping(x.d0.arrow(a))
+      val ya = y.arrowsMapping(y.d0.arrow(a))
+      def f(p: Any): Any = p match {
+        case (px, py) => (xa(px), ya(py))
+        case other =>
+          throw new IllegalArgumentException(s"Expected a pair of values, got $other")
+      }
+      SetFunction.build(from.untyped, to.untyped, f).iHope
+    }
+    
+    Diagram.build(s"${x.tag}×${y.tag}", domain)(om, am) iHope
+  }
+
+
+
 }
 
 object CategoryOfDiagrams {
@@ -156,4 +184,5 @@ object CategoryOfDiagrams {
 
       def d1(f: Arrow): Node = node(f.d1)
     }
+
 }
