@@ -129,32 +129,38 @@ class CategoryOfDiagrams(val domain: Category)
     probablyFunctor.iHope
   }
 
-  /**
-    * Cartesian product of two diagrams
-    * TODO: figure out how to ensure the same d0 in both
-    */
-  def product2(x: Diagram, y: Diagram): Diagram = {
+  private[topos] case class product2builder(x: Diagram, y: Diagram) {
 
     def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
     def om(o: domain.Obj): set = productAt(o).untyped
     
-    def am(a: domain.Arrow): SetFunction = {
+    def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
+      val za: z.d1.Arrow = z.arrowsMapping(z.d0.arrow(a))
+      val za0: SetFunction = za.asInstanceOf[SetFunction]
+      val value = za0(pz)
+      value
+    }
+    
+    def amOpt(a: domain.Arrow): Result[SetFunction] = {
       val from = productAt(domain.d0(a))
       val to = productAt(domain.d1(a))
-      val xa = x.arrowsMapping(x.d0.arrow(a))
-      val ya = y.arrowsMapping(y.d0.arrow(a))
       def f(p: Any): Any = p match {
-        case (px, py) => (xa(px), ya(py))
+        case (px, py) => (transition(x)(a)(px), transition(y)(a)(py))
         case other =>
           throw new IllegalArgumentException(s"Expected a pair of values, got $other")
       }
-      SetFunction.build(from.untyped, to.untyped, f).iHope
+      SetFunction.build(from.untyped, to.untyped, f)
     }
     
-    Diagram.build(s"${x.tag}×${y.tag}", domain)(om, am) iHope
+    val diagram = Diagram.build(s"${x.tag}×${y.tag}", domain)(om, a => amOpt(a).iHope)
   }
 
 
+  /**
+    * Cartesian product of two diagrams
+    * TODO: figure out how to ensure the same d0 in both
+    */
+  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram.iHope
 
 }
 

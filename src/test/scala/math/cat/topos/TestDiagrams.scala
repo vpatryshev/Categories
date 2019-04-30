@@ -17,12 +17,13 @@ trait TestDiagrams extends Test {
     Map[String, set](),
     Map[String, SetFunction]()
   ).iHope
+  
   val SamplePullbackDiagram: Diagram = BuildPullbackDiagram.asDiagram iHope
   val SamplePushoutDiagram: Diagram = {
     null
     // TODO: implement
   }
-  val SampleParallelPairDiagram: Diagram = {
+  val SampleParallelPairDiagram1: Diagram = {
     val a: set = Set(1, 2, 3, 4, 5)
     val b: set = Set(0, 1, 2)
     val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
@@ -33,6 +34,18 @@ trait TestDiagrams extends Test {
       Map("a" → f, "b" → g)
     ) iHope
   }
+  val SampleParallelPairDiagram2: Diagram = {
+    val a: set = Set(1, 2, 3)
+    val b: set = Set(0, 1)
+    val f = SetFunction.build("f", a, b, x ⇒ Math.min(1, x.toString.toInt - 1)).iHope
+    val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 2).iHope
+    Diagram.build(
+      "ParallelPair", Category.ParallelPair)(
+      Map("0" → a, "1" → b),
+      Map("a" → f, "b" → g)
+    ) iHope
+  }
+  
   val SampleZ3Diagram: Diagram = {
     val a: set = Set(0, 1, 2, 3)
 

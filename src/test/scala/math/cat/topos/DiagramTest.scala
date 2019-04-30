@@ -77,7 +77,7 @@ class DiagramTest extends Test with TestDiagrams {
     }
 
     "exist in paralel pair" in {
-      val sut = SampleParallelPairDiagram
+      val sut = SampleParallelPairDiagram1
       val actual = sut.points
       actual.size === 3
       val check = checkPoint(sut) _
@@ -163,7 +163,7 @@ class DiagramTest extends Test with TestDiagrams {
     }
 
     "exist for an equalizer" in {
-      val sut = SampleParallelPairDiagram
+      val sut = SampleParallelPairDiagram1
       sut.limit match {
         case Good(cone) ⇒
           val vertex = sut.asSet(cone.vertex)
