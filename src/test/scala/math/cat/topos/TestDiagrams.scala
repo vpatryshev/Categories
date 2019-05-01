@@ -61,7 +61,7 @@ trait TestDiagrams extends Test {
   }
 
   def const(x: set): Result[Diagram] =
-    Diagram.build(s"point $x", Category._1_)(
+    Diagram.build(s"Point $x", Category._1_)(
       Map[String, set]("0" → x),
       Map[String, SetFunction]()
     )

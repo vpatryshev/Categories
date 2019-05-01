@@ -160,7 +160,7 @@ abstract class Diagram(
     Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
   }
 
-  def points: Iterable[Diagram] = {
+  def points: List[Point] = {
     val listOfObjects: List[XObject] = domainObjects.toList
     val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
 
@@ -183,7 +183,7 @@ abstract class Diagram(
     
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
-    val all = sorted map {
+    val diagrams = sorted map {
       case (map, i) ⇒
         def om(o: d0.Obj): set = asSet(d1.obj(singleton(map(o))))
 
@@ -201,9 +201,7 @@ abstract class Diagram(
         }
         d
     }
-    all collect {
-      case Good(diagram) ⇒ diagram
-    }
+    sorted map (_._1)
   }
 
   def subobjects: Iterable[Diagram] = {
@@ -357,6 +355,13 @@ object Diagram {
 
     Functor.validateFunctor(diagram) returning diagram
   }
+
+  private[topos] def cleanupString(s: String): String = {
+    val s1 = s.replaceAll(s"→Diagram\\[[^\\]]+]", "→")
+    val s2 = s1.replace("Set()", "{}")
+    s2
+  }
+
 }
 
 trait Point {
@@ -366,7 +371,10 @@ trait Point {
 
   def ∈(other: Diagram): Boolean = domainCategory.objects.forall { o ⇒ other(o)(this(o)) }
 
-  override def toString: String =
-    domainCategory.objects.map(x => s"x→${apply(x)}").mkString("point(", ",", ")")
+  override def toString: String = {
+    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString("Point(", ", ", ")")
+    val short = Diagram.cleanupString(raw)
+    short
+  }
 
 }

@@ -69,11 +69,11 @@ class DiagramTest extends Test with TestDiagrams {
   
   "Diagram points" should {
 
-    def checkPoint(sut: Diagram)(point: Diagram, values: List[Int]) = {
+    def checkPoint(sut: Diagram)(point: Point, values: List[Int]) = {
       val objects = sut.d0.objects.toList
       val actual = objects map point.apply
-      val expected = values map Sets.singleton
-      actual aka point.tag must_== expected
+      val expected = values // map Sets.singleton
+      actual must_== expected
     }
 
     "exist in paralel pair" in {

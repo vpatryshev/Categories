@@ -70,5 +70,7 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
 
     validate iHope
   }
+  
+  val False: Point = Ω.points.head
 
 }
