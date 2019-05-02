@@ -46,11 +46,8 @@ abstract class Diagram(
 
   implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
   
-  // for each original object select a value in the diagram
-  // not necessarily a point; must be compatible
-  // something like Yoneda embedding, but not exactly
-
-  def point(mapping: d0.Obj => Any): Point = new Point {
+  def point(mapping: d0.Obj => Any, id: Any = ""): Point = new Point {
+    val tag: String = id.toString
 
     override val domainCategory: Category = diagram.d0
 
@@ -183,25 +180,7 @@ abstract class Diagram(
     
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
-    val diagrams = sorted map {
-      case (map, i) ⇒
-        def om(o: d0.Obj): set = asSet(d1.obj(singleton(map(o))))
-
-        def am(a: d0.Arrow): SetFunction = {
-          val original = arrowsMapping(a)
-          val newDomain = om(d0.d0(a))
-          val newCodomain = om(d0.d1(a))
-          val setFunction = original.restrictTo(newDomain, newCodomain)
-          setFunction iHope
-        }
-        val tag = s"#${i + 1}"
-        val d = Diagram.build(tag, d0)(om, am)
-        if (d.isBad) {
-          val d1 = Diagram.build(tag, d0)(om, am)
-        }
-        d
-    }
-    sorted map (_._1)
+    sorted map { p => point(p._1, p._2) }
   }
 
   def subobjects: Iterable[Diagram] = {
@@ -364,17 +343,25 @@ object Diagram {
 
 }
 
-trait Point {
+trait Point extends (Any => Any) {
+  val tag: String
+  
   val domainCategory: Category
-
-  def apply(x: Any): Any
 
   def ∈(other: Diagram): Boolean = domainCategory.objects.forall { o ⇒ other(o)(this(o)) }
 
   override def toString: String = {
-    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString("Point(", ", ", ")")
+    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
     val short = Diagram.cleanupString(raw)
     short
   }
 
+  override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode
+
+  override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
+    case p: Point =>
+      p.tag == tag && p.domainCategory == domainCategory &&
+      domainCategory.objects.forall(o => p(o) == this(o))
+    case other => false
+  })
 }
