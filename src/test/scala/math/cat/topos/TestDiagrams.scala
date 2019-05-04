@@ -29,7 +29,7 @@ trait TestDiagrams extends Test {
     val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
     val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
     Diagram.build(
-      "ParallelPair", Category.ParallelPair)(
+      "ParallelPair Sample1", Category.ParallelPair)(
       Map("0" → a, "1" → b),
       Map("a" → f, "b" → g)
     ) iHope
@@ -40,7 +40,7 @@ trait TestDiagrams extends Test {
     val f = SetFunction.build("f", a, b, x ⇒ Math.min(1, x.toString.toInt - 1)).iHope
     val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 2).iHope
     Diagram.build(
-      "ParallelPair", Category.ParallelPair)(
+      "ParallelPair Sample2", Category.ParallelPair)(
       Map("0" → a, "1" → b),
       Map("a" → f, "b" → g)
     ) iHope
@@ -54,7 +54,7 @@ trait TestDiagrams extends Test {
     val f1 = SetFunction.build("f1", a, a, x ⇒ f(1)(x.toString.toInt)).iHope
     val f2 = SetFunction.build("f2", a, a, x ⇒ f(2)(x.toString.toInt)).iHope
     Diagram.build(
-      "Z3", Category.Z3)(
+      "Z3 Sample", Category.Z3)(
       Map("0" → a),
       Map("1" → f1, "2" → f2)
     ) iHope
@@ -81,7 +81,7 @@ trait TestDiagrams extends Test {
       am
     )
     lazy val asDiagram: Result[Diagram] = Diagram.build(
-      "pullback", Category.Pullback)(
+      "Pullback Sample", Category.Pullback)(
       om,
       am
     )
@@ -102,7 +102,7 @@ trait TestDiagrams extends Test {
   val SampleWDiagram: Diagram = {
     import SampleWDiagramContent._
     Diagram.build(
-      "W", Category.W)(
+      "W Sample", Category.W)(
       Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
       Map("ab" → ab, "cb" → cb, "cd" → cd, "ed" → ed)
     ) iHope
@@ -123,7 +123,7 @@ trait TestDiagrams extends Test {
   val SampleMDiagram: Diagram = {
     import SampleMDiagramContent._
     Diagram.build(
-      "M", Category.M)(
+      "M Sample", Category.M)(
       Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
       Map("ba" → ba, "bc" → bc, "dc" → dc, "de" → de)
     ) iHope

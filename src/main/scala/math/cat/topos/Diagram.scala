@@ -183,6 +183,12 @@ abstract class Diagram(
     sorted map { p => point(p._1, p._2) }
   }
 
+  private def extendToArrows(om: d0.Obj => Sets.set)(a: d0.Arrow): SetFunction = {
+    val dom: Sets.set = om(d0.d0(a))
+    val codom: Sets.set = om(d0.d1(a))
+    SetFunction.build("", dom, codom, arrowsMapping(a)).iHope
+  }
+
   def subobjects: Iterable[Diagram] = {
     val allSets: Map[d0.Obj, set] = domainObjects map (o ⇒ o → toSet(objectsMapping(o))) toMap
     val allPowers: Map[d0.Obj, Set[set]] = allSets.mapValues(Sets.powerset)
@@ -210,26 +216,12 @@ abstract class Diagram(
       om: Map[d0.Obj, Sets.set] = d0.objects map (x => x -> toSet(om0(x))) toMap;
       if isCompatible(om)
     } yield om
+    
     val sorted = objMappings.toList.sortBy(_.toString)
 
-    def am(a: d0.Arrow): SetFunction = {
-      val dom: Set[set] = allPowers(d0.d0(a))
-      val codom: Set[set] = allPowers(d0.d1(a))
-      val f = arrowsMapping(a)
-
-      SetFunction.build("", toSet(dom), toSet(codom), x ⇒ toSet(x) map f).iHope
-    }
-
-    var i = 0
-    val allCandidates = sorted map {
-      case om: Map[d0.Obj, Sets.set] ⇒
-        i += 1
-        def am(a: d0.Arrow): SetFunction = {
-          val dom: Sets.set = om(d0.d0(a))
-          val codom: Sets.set = om(d0.d1(a))
-          SetFunction.build("", dom, codom, arrowsMapping(a)).iHope
-        }
-        Diagram.build(s".$i", d0)(om, am)
+    val allCandidates = sorted.zipWithIndex map {
+      case (om, i) ⇒
+        Diagram.build(i+1, d0)(om, extendToArrows(om) _)
     }
     
     val goodOnes = allCandidates.collect { case Good(d) ⇒ d}
@@ -320,11 +312,11 @@ abstract class Diagram(
 
 object Diagram {
 
-  def build(tag: String, domain: Category)(
+  def build(tag: Any, domain: Category)(
     objectsMap: domain.Obj ⇒ set,
     arrowMap: domain.Arrow ⇒ SetFunction): Result[Diagram] = {
 
-    val diagram: Diagram = new Diagram(tag, domain) {
+    val diagram: Diagram = new Diagram(tag.toString, domain) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj =
         (x: d0.Obj) ⇒ d1.obj(objectsMap(domain.obj(x)))
 

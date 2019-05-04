@@ -171,13 +171,13 @@ class GrothendieckToposTest extends Test with TestDiagrams {
   }
   
   "True and False" should {
-    "exist in _0_" in {
+    "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
       val omega = topos.Ω
       omega.True === omega.False // that's a degenerate topos
     }
     
-    def check(point0: Any, mappings: (String, set)*): Result[Unit] = {
+    def checkIt(point0: Any)(mappings: (String, set)*): Result[Unit] = {
       point0 match {
         case d: Diagram => 
           traverse {
@@ -185,25 +185,81 @@ class GrothendieckToposTest extends Test with TestDiagrams {
           }
         case trash => Oops(s"Expected a diagram, got $trash")
       }
-      
     }
     
     
-    "exist in _1_" in {
+    "exist for _1_" in {
       val topos = new CategoryOfDiagrams(_1_)
       val omega = topos.Ω
-      check(omega.False("0"), "0" -> Sets.Empty) === OK
-      check(omega.True("0"), "0" -> Set("0.0")) === OK
+      checkIt(omega.False("0"))("0" → Sets.Empty) === OK
+      checkIt(omega.True("0"))("0" → Set("0.0")) === OK
     }
     
-    "exist in _2_" in {
+    "exist for _2_" in {
       val topos = new CategoryOfDiagrams(_2_)
       val omega = topos.Ω
-      check(omega.False("0"), "0" -> Sets.Empty, "1" -> Sets.Empty) === OK
-      check(omega.False("1"), "1" -> Sets.Empty) === OK
+      checkIt(omega.False("0"))("0" → Sets.Empty, "1" → Sets.Empty) === OK
+      checkIt(omega.False("1"))("0" → Sets.Empty, "1" → Sets.Empty) === OK
       
-      check(omega.True("1"), "0" -> Sets.Empty, "1" -> Set("1.1")) === OK
-      check(omega.True("1"), "1" -> Set("1.1")) === OK
+      checkIt(omega.True("0"))("0" → Set("0.0"), "1" → Set("0.1")) === OK
+      checkIt(omega.True("1"))("0" → Sets.Empty, "1" → Set("1.1")) === OK
     }
-  }  
+    
+    "exist for _3_" in {
+      val topos = new CategoryOfDiagrams(_3_)
+      val omega = topos.Ω
+      checkIt(omega.False("0"))("0" → Sets.Empty, "1" → Sets.Empty, "2" → Sets.Empty) === OK
+      checkIt(omega.False("1"))("1" → Sets.Empty, "2" → Sets.Empty) === OK
+      checkIt(omega.False("2"))("2" → Sets.Empty) === OK
+
+      checkIt(omega.True("0"))("0" → Set("0.0"), "1" → Set("0.1"), "2" → Set("0.2")) === OK
+      checkIt(omega.True("1"))("0" → Sets.Empty, "1" → Set("1.1"), "2" → Set("1.2")) === OK
+      checkIt(omega.True("2"))("0" → Sets.Empty, "1" → Sets.Empty, "2" → Set("2.2")) === OK
+    }
+
+    "exist for ParallelPair" in {
+      val topos = new CategoryOfDiagrams(ParallelPair)
+      val omega = topos.Ω
+      checkIt(omega.False("0"))("0" → Sets.Empty, "1" → Sets.Empty) === OK
+      checkIt(omega.False("1"))("0" → Sets.Empty, "1" → Sets.Empty) === OK
+
+      checkIt(omega.True("0"))("0" → Set("0"), "1" → Set("a", "b")) === OK
+      checkIt(omega.True("1"))("1" → Set("1")) === OK
+    }
+
+    "exist for Pullback" in {
+      val topos = new CategoryOfDiagrams(Pullback)
+      val omega = topos.Ω
+      val False = omega.False
+      checkIt(False("a"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty) === OK
+      checkIt(False("b"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty) === OK
+      checkIt(False("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty) === OK
+
+      val True = omega.True
+      checkIt(True("a"))("a" → Set("a"), "b" → Sets.Empty, "c" → Set("ac")) === OK
+      checkIt(True("b"))("a" → Sets.Empty, "b" → Set("b"), "c" → Set("bc")) === OK
+      checkIt(True("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Set("c")) === OK
+    }
+
+    "exist for Pushout" in {
+      val topos = new CategoryOfDiagrams(Pushout)
+      val omega = topos.Ω
+      val False = omega.False
+      checkIt(False("a"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty) === OK
+      checkIt(False("b"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty) === OK
+      checkIt(False("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty) === OK
+
+      val True = omega.True
+      checkIt(True("a"))("a" → Set("a"), "b" → Set("ab"), "c" → Set("ac")) === OK
+      checkIt(True("b"))("a" → Sets.Empty, "b" → Set("b"), "c" → Sets.Empty) === OK
+      checkIt(True("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Set("c")) === OK
+    }
+
+    "exist for Z3" in {
+      val topos = new CategoryOfDiagrams(Z3)
+      val omega = topos.Ω
+      checkIt(omega.False("0"))("0" → Sets.Empty) === OK
+      checkIt(omega.True("0"))("0" → Set("0", "1", "2")) === OK
+    }
+  }
 }
