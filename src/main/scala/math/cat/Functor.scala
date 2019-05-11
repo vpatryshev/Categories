@@ -21,7 +21,7 @@ abstract class Functor(
 
   val objectsMapping: d0.Obj ⇒ d1.Obj
   val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow
-
+  
   override def toString: String = s"Functor $tag"
 
   override def arrowsMapping(a: d0.Arrow): d1.Arrow = {

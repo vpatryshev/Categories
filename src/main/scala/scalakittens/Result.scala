@@ -65,7 +65,9 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   protected def foreach_(f: T ⇒ Unit): Unit = f(value)
   def filter(p: T ⇒ Boolean): Result[T] = Result.forValue(if (p(value)) this else Empty).flatten
   def filter(p: T ⇒ Boolean, onError: T ⇒ String): Result[T] =
-    Result.forValue(if (p(value)) this else Result.error(onError(value))).flatten
+    Result.forValue(if (p(value)) this else {
+      Result.error(onError(value))
+    }).flatten
   def errorDetails: Option[String] = None
   def orCommentTheError(message: ⇒Any): Good[T] = this
   def tap(op: T ⇒ Unit): Result[T] = {op(value); this}// see http://combinators.info/

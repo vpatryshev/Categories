@@ -12,6 +12,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   type Node = Diagram
   type Arrow = DiagramArrow
+  
   override lazy val initial: Result[Obj] =
     BaseCategory.initial map const("initial", domain)
   lazy val _0: Obj = initial iHope
@@ -36,7 +37,7 @@ class CategoryOfDiagrams(val domain: Category)
 
     (1 :: Nil).toStream
 
-    val all = for {
+    val all: Set[Diagram] = for {
       (candidate, i) <- Sets.powerset(domain.objects).zipWithIndex
       // some mappings are not working for a given candidate
       amCandidate: (domain.Arrow ⇒ Result[SetFunction]) = arrowMappingOpt(candidate)
@@ -44,12 +45,14 @@ class CategoryOfDiagrams(val domain: Category)
       am: Traversable[(domain.Arrow, SetFunction)] <- Result.traverse(arrowsMapOpt).asOption
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram <- Diagram.build("__" + i, domain)(om, am.toMap).asOption
+      diagram: Diagram <- Diagram.build("__" + i, domain)(om, am.toMap).asOption
     } yield diagram
 
     all
   }
   val base: Category = BaseCategory
+
+  def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
 
   def objectNamed(name: String): domain.Obj = domain.obj(name)
 
@@ -83,10 +86,24 @@ class CategoryOfDiagrams(val domain: Category)
     }
   } else None
 
+  def inclusionOf(objectMap: domain.Obj => SetFunction, diagram: Diagram): Result[DiagramArrow] = {
+
+    def arrowMap(a: domain.Arrow): SetFunction = {
+      val d0a: domain.Obj = domain.d0(a)
+      val diagram_a = diagram.functionForArrow(a)
+      val transform_at_d0a = objectMap(d0a)
+      diagram_a.restrictTo(transform_at_d0a.d0).iHope // should have traversed over all arrows `a`
+    }
+
+    val subdiagram: Diagram = Diagram.build("Subdiagram", domain)(o => objectMap(o).d0, arrowMap).iHope
+    val mappings: (subdiagram.d0.Node => subdiagram.d1.Arrow) = (o => subdiagram.d1.arrow(objectMap(domain.obj(o))))
+    NaturalTransformation.build(subdiagram, diagram)(mappings)
+  }
+
   def inclusionOf(diagram1: Diagram, diagram2: Diagram): Result[DiagramArrow] = {
     val results: TraversableOnce[Result[(domain.Obj, diagram1.d1.Arrow)]] = for {
       x <- domain
-      in = SetMorphism.inclusion(diagram1(x), diagram2(x))
+      in = SetFunction.inclusion(diagram1(x), diagram2(x))
       pair = in map (x → diagram1.d1.arrow(_))
     } yield pair
 
@@ -131,8 +148,8 @@ class CategoryOfDiagrams(val domain: Category)
 
   private[topos] case class product2builder(x: Diagram, y: Diagram) {
 
-    def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
-    def om(o: domain.Obj): set = productAt(o).untyped
+    private def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
+    private def om(o: domain.Obj): set = productAt(o).untyped
     
     def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
       val za: z.d1.Arrow = z.arrowsMapping(z.d0.arrow(a))
@@ -141,7 +158,7 @@ class CategoryOfDiagrams(val domain: Category)
       value
     }
     
-    def amOpt(a: domain.Arrow): Result[SetFunction] = {
+    private def amOpt(a: domain.Arrow): Result[SetFunction] = {
       val from = productAt(domain.d0(a))
       val to = productAt(domain.d1(a))
       def f(p: Any): Any = p match {
@@ -154,7 +171,6 @@ class CategoryOfDiagrams(val domain: Category)
     
     val diagram = Diagram.build(s"${x.tag}×${y.tag}", domain)(om, a => amOpt(a).iHope)
   }
-
 
   /**
     * Cartesian product of two diagrams

@@ -4,7 +4,6 @@ import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
 import Result._
-import math.cat.SetMorphism.check
 
 /**
   * The idea was to create something that would cover unresolved issues with type assignment
@@ -99,9 +98,10 @@ object SetFunction {
     * @param containerSet codomain of the inclusion
     * @return inclusion monomorphism
     */
-  def inclusion(subset: set, containerSet: set): SetFunction = {
-    require(subset.subsetOf(containerSet), "It is not an inclusion if it is not a subset.")
-    apply("incl", subset, containerSet, Functions.inclusion)
+  def inclusion(subset: set, containerSet: set): Result[SetFunction] = {
+    OKif(subset subsetOf containerSet,
+      "It is not an inclusion if it is not a subset.") returning
+      apply("incl", subset, containerSet, Functions.inclusion)
   }
 
   /**

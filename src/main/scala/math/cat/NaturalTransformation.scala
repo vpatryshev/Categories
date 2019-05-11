@@ -24,6 +24,8 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
   lazy val codomainCategory: Category = d1.d1 // == d0.d1, of course
 
   def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow
+  //def apply(x: domainCategory.Obj): codomainCategory.Arrow
+  def apply(x: Any) = transformPerObject(domainCategory.obj(x))
 
   // TODO: check the preconditions, return an option
   def compose(next: NaturalTransformation): NaturalTransformation = {

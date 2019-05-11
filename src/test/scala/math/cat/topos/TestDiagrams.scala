@@ -25,9 +25,31 @@ trait TestDiagrams extends Test {
   }
   val SampleParallelPairDiagram1: Diagram = {
     val a: set = Set(1, 2, 3, 4, 5)
+    val b: set = Set(0, 1, 2, 3)
+    val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
+    val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
+    Diagram.build(
+      "ParallelPair Sample1", Category.ParallelPair)(
+      Map("0" → a, "1" → b),
+      Map("a" → f, "b" → g)
+    ) iHope
+  }
+  val SampleParallelPairSubdiagram1: Diagram = {
+    val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1, 2)
     val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
     val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
+    Diagram.build(
+      "ParallelPair Sample1", Category.ParallelPair)(
+      Map("0" → a, "1" → b),
+      Map("a" → f, "b" → g)
+    ) iHope
+  }
+  val SampleParallelPairSubdiagram2: Diagram = {
+    val a: set = Set(1, 2, 3)
+    val b: set = Set(0, 1, 2)
+    val f = SetFunction.build("ParSub2.f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
+    val g = SetFunction.build("ParSub2.g", a, b, x ⇒ x.toString.toInt % 3).iHope
     Diagram.build(
       "ParallelPair Sample1", Category.ParallelPair)(
       Map("0" → a, "1" → b),

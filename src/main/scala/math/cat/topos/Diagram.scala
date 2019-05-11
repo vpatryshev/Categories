@@ -44,7 +44,16 @@ abstract class Diagram(
     itsok
   }
 
-  implicit def asFunction(a: d1.Arrow): SetFunction = a.asInstanceOf[SetFunction]
+  implicit def asFunction(a: d1.Arrow): SetFunction = a match {
+    case sf: SetFunction => sf
+    case trash =>
+      throw new IllegalArgumentException(s"Expected a set function, got $trash")
+  }
+
+  def functionForArrow(a: Any): SetFunction = {
+    val arrowInSets = arrowsMapping(d0.arrow(a))
+    asFunction(arrowInSets)
+  }
   
   def point(mapping: d0.Obj => Any, id: Any = ""): Point = new Point {
     val tag: String = id.toString
@@ -53,7 +62,6 @@ abstract class Diagram(
 
     override def apply(x: Any): Any = mapping(diagram.d0.obj(x))
   }
-
 
   def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
 

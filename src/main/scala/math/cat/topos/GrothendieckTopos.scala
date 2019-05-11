@@ -1,6 +1,7 @@
 package math.cat.topos
 
-import math.cat.SetFunction
+import math.cat.{Functor, SetFunction}
+import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets._
 
 trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
@@ -11,18 +12,18 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
   object Ω extends Diagram("Ω", domain) {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x ⇒ Ω(x)` .
-    val mapOfSubrepresentables: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
+    private val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
     val objectsMapping: d0.Obj ⇒ d1.Obj =
-      (d: d0.Obj) ⇒ d1.obj(mapOfSubrepresentables(domain.obj(d): domain.Obj))
+      (d: d0.Obj) ⇒ d1.obj(subrepresentablesIndexed(domain.obj(d): domain.Obj))
 
     // for each arrow `a: x -> y` produce a transition `Ω(x) -> Ω(y)`.
-    def am(a: domain.Arrow): SetFunction = {
+    private def am(a: domain.Arrow): SetFunction = {
       val x = domain.d0(a)
       val y = domain.d1(a)
-      val d0 = mapOfSubrepresentables(x) // `Ω(x)` = all subobjects of `Representable(x)`
-      val d1 = mapOfSubrepresentables(y) // `Ω(y)` = all subobjects of `Representable(y)`
+      val d0 = subrepresentablesIndexed(x) // `Ω(x)` = all subobjects of `Representable(x)`
+      val d1 = subrepresentablesIndexed(y) // `Ω(y)` = all subobjects of `Representable(y)`
 
       // How one diagram is transformed via `a`:
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
@@ -58,7 +59,7 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
       * @param x1 an object in domain (a "state")
       * @return
       */
-    def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagram)(x1: domain.Obj): set = {
+    private def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagram)(x1: domain.Obj): set = {
       val y = domain.d1(a)
       val rx_at_x1 = rx(x1)
       for {
@@ -72,6 +73,56 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
 
     lazy val False: Point = Ω.points.head
     lazy val True: Point = Ω.points.last
+  }
+
+  /**
+    * Builds a map that classifies a subobject
+    * B ---> 1
+    * v      v
+    * |      |
+    * v      v
+    * A ---> Ω
+    * 
+    * @param inclusion B >--> A
+    * @return A -> Ω
+    */
+  def classifyingMap(inclusion: Arrow): Arrow = {
+    val A: Diagram = inclusion.d1
+    val B: Diagram = inclusion.d0
+
+    def objectMap(x: A.d0.Obj): A.d1.Arrow = {
+      val Ax = A(x)
+      val Bx = B(x) // Bx is a subset of Ax
+
+      // for each element ax of set Ax find all arrows x->y 
+      // that map ax to an ay that belongs to By 
+
+      def myArrows(ax: Any): Any = {
+        domain.objects map { y =>
+        {
+          val all_arrows_to_y: domain.Arrows = domain.hom(domain.obj(x), y)
+          def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
+          val By = B(y)
+          def hits_By(f: domain.Arrow) = By.contains(image_via(f))
+          y -> all_arrows_to_y.filter(hits_By)
+        }
+        }
+      }
+      val f = SetFunction.build(s"[χ($x)]", A.toSet(d0(x)), A.toSet(d1(x)), ax => myArrows(ax)).iHope
+      A.d1.arrow(f)
+    }
+
+    val nt = inclusionOf(objectMap _, Ω).iHope
+    nt
+//    new DiagramArrow {
+//      override val d0: Diagram = A
+//      override val d1: Diagram = Ω
+//
+//      
+//      override def transformPerObject(obj: domainCategory.Obj): codomainCategory.Arrow =
+//        codomainCategory.arrow(objectMap(A.d0.obj(obj)))
+//    }
+    
   }
 
 }

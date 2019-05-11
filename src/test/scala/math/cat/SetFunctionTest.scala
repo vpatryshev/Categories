@@ -83,7 +83,7 @@ class SetFunctionTest extends Specification {
     "building an inclusion" >> {
       val s0 = Set(1, 2, "a")
       val s1 = Set(0, 1, 2, "b", s0, "a")
-      val sut = inclusion(s0, s1)
+      val sut = inclusion(s0, s1).iHope
       sut.d0 === s0
       sut.d1 === s1
       for (x <- s0) (sut(x) == x) must beTrue
