@@ -138,13 +138,14 @@ class SetCategory(objects: BigSet[Set[Any]])
     val taggedX: set = x map tagX
     val taggedY: set = y map tagY
     val unionSet: set = Sets.union(taggedX, taggedY)
-    val ix =
-      SetFunction.build("ix", x, taggedX, tagX) map
-        (_.andThen(SetFunction.inclusion(taggedX, unionSet)))
-    val iy =
-      SetFunction.build("iy", y, taggedY, tagY) map
-        (_.andThen(SetFunction.inclusion(taggedY, unionSet)))
-    ix andAlso iy
+    val ix0 = SetFunction.build("ix", x, taggedX, tagX)
+    val ix1 = SetFunction.inclusion(taggedX, unionSet)
+    val ix =ix0 andAlso ix1 map { case (f, g) => f andThen g }
+    val iy0 = SetFunction.build("iy", y, taggedY, tagY)
+    val iy1 = SetFunction.inclusion(taggedY, unionSet)
+    val iy = iy0 andAlso iy1 map { case (f, g) => f andThen g }
+    val union = ix andAlso iy
+    union
   }
 
   override def pushout(f: SetFunction, g: SetFunction): Result[(SetFunction, SetFunction)] =

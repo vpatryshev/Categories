@@ -247,10 +247,13 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 //      val f1 = sample.amOpt(a)
 //      val f2 = sample.amOpt(b)
       // no need to check f1 and f2 for now
-      sample.diagram.isGood === true
+      sample.diagram match {
+        case Good(stuff) => ok // check stuff
+        case nogood => failure(nogood.errorDetails.getOrElse("???"))
+      }
       val actual = topos.product2(d1, d2)
-      actual("0").size == 15
-      actual("1").size == 6
+      actual("0").size === 15
+      actual("1") === Set((0,0), (1,0), (2,0), (3,0), (0,1), (1,1), (2,1), (3,1))
       
     }
     "exist in Set^M" in {

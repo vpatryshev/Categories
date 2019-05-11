@@ -282,7 +282,8 @@ class SetCategoryTest extends Specification {
       val f = SetFunction.build("f", c, a, _.toString.toInt + 1).iHope
       val g = SetFunction.build("g", c, b, x ⇒ x.toString.toInt + 2).iHope
 
-      Setf.pushout(f, g) match {
+      val actual = Setf.pushout(f, g)
+      actual match {
         case Good((p1, p2)) ⇒
           p1.d0 === a
           p2.d0 === b
@@ -303,7 +304,8 @@ class SetCategoryTest extends Specification {
     "have union" in {
       val a: set = Set(1, 2, 3)
       val b: set = Set(3, 4)
-      Setf.union(a, b) match {
+      val actual = Setf.union(a, b)
+      actual match {
         case Good((ix, iy)) ⇒
           ix.d0 === a
           iy.d0 === b
