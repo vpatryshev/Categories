@@ -325,8 +325,11 @@ object Diagram {
     arrowMap: domain.Arrow ⇒ SetFunction): Result[Diagram] = {
 
     val diagram: Diagram = new Diagram(tag.toString, domain) {
-      override val objectsMapping: d0.Obj ⇒ d1.Obj =
-        (x: d0.Obj) ⇒ d1.obj(objectsMap(domain.obj(x)))
+      override val objectsMapping: d0.Obj ⇒ d1.Obj = (o: d0.Obj) ⇒ {
+        val x = domain.obj(o)
+        val y = objectsMap(x)
+        d1.obj(y)
+      }
 
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
         (a: XArrow) ⇒ d1.arrow(arrowMap(domain.arrow(a)))

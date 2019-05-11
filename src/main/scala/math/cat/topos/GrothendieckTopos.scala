@@ -1,8 +1,8 @@
 package math.cat.topos
 
-import math.cat.{Functor, SetFunction}
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import math.cat.{NaturalTransformation, SetFunction}
 import math.sets.Sets._
+import scalakittens.Result
 
 trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
 
@@ -76,6 +76,50 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
   }
 
   /**
+    * Gvien an inclusion (a natural transformation from a diagram A to a diagram B), and an object x in domain
+    * produce a function that maps elements of A(x) to elements of Ω(x)
+    * @param inclusion the inclusion
+    * @param x an object of domain
+    * @return a function A(x) -> Ω(x)
+    */
+  private[topos] def classifyingMapAt(inclusion: Arrow)(x: domain.Obj): SetFunction = {
+    val A: Diagram = inclusion.d1
+    val B: Diagram = inclusion.d0
+
+    val Ax = A(x)
+    val Bx = B(x) // Bx is a subset of Ax
+
+    // for each element ax of set Ax find all arrows x->y 
+    // that map ax to an ay that belongs to By 
+    def myArrows(ax: Any): Set[(Any, set)] = {
+      domain.objects map {
+        y => {
+          val all_arrows_to_y: domain.Arrows = domain.hom(domain.obj(x), y)
+          def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
+          val By = B(y)
+          def hits_By(f: domain.Arrow) = By.contains(image_via(f))
+          y -> Ω.toSet(all_arrows_to_y.filter(hits_By))
+        }
+      }
+    }
+    
+    def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean = {
+      domain.objects.forall(o => mapping(o) == repr(o))
+    }
+    
+    def myRepresentable(ax: Any): Any = {
+      val arrows = myArrows(ax).toMap
+      val choices = Ω(x) find {
+        repr => sameMapping(repr.asInstanceOf[Diagram], arrows)
+      }
+      scalakittens.Result(choices).orCommentTheError(s"No representable found for $ax -> $arrows").iHope
+    }
+    
+    val fOpt = SetFunction.build(s"[χ($x)]", Ax, Ω(x), ax => myRepresentable(ax))
+    fOpt.iHope
+  }
+
+  /**
     * Builds a map that classifies a subobject
     * B ---> 1
     * v      v
@@ -83,46 +127,15 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
     * v      v
     * A ---> Ω
     * 
-    * @param inclusion B >--> A
+    * @param inclusion B >--> A - a natural transformation from diagram B to diagram A
     * @return A -> Ω
     */
   def classifyingMap(inclusion: Arrow): Arrow = {
-    val A: Diagram = inclusion.d1
-    val B: Diagram = inclusion.d0
-
-    def objectMap(x: A.d0.Obj): A.d1.Arrow = {
-      val Ax = A(x)
-      val Bx = B(x) // Bx is a subset of Ax
-
-      // for each element ax of set Ax find all arrows x->y 
-      // that map ax to an ay that belongs to By 
-
-      def myArrows(ax: Any): Any = {
-        domain.objects map { y =>
-        {
-          val all_arrows_to_y: domain.Arrows = domain.hom(domain.obj(x), y)
-          def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
-          val By = B(y)
-          def hits_By(f: domain.Arrow) = By.contains(image_via(f))
-          y -> all_arrows_to_y.filter(hits_By)
-        }
-        }
-      }
-      val f = SetFunction.build(s"[χ($x)]", A.toSet(d0(x)), A.toSet(d1(x)), ax => myArrows(ax)).iHope
-      A.d1.arrow(f)
-    }
-
-    val nt = inclusionOf(objectMap _, Ω).iHope
-    nt
-//    new DiagramArrow {
-//      override val d0: Diagram = A
-//      override val d1: Diagram = Ω
-//
-//      
-//      override def transformPerObject(obj: domainCategory.Obj): codomainCategory.Arrow =
-//        codomainCategory.arrow(objectMap(A.d0.obj(obj)))
-//    }
+    val objToFunction: domain.Obj => SetFunction = classifyingMapAt(inclusion)
     
+    val ntOpt = NaturalTransformation.build(inclusion.d1, Ω)(x => inclusion.d1.d1.arrow(objToFunction(domain.obj(x))))
+    
+    ntOpt.iHope
   }
 
 }

@@ -65,8 +65,9 @@ case class SetFunction private(
     * @return new function
     */
   def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] = {
-    OKif(newDomain subsetOf d0) andAlso OKif(newCodomain subsetOf d1) returning
-    new SetFunction(tag, newDomain, newCodomain, function)
+    val domOk = OKif(newDomain subsetOf d0)
+    val codomOk = OKif(newCodomain subsetOf d1)
+    domOk andAlso codomOk returning new SetFunction(tag, newDomain, newCodomain, function)
   }
 }
 

@@ -86,20 +86,6 @@ class CategoryOfDiagrams(val domain: Category)
     }
   } else None
 
-  def inclusionOf(objectMap: domain.Obj => SetFunction, diagram: Diagram): Result[DiagramArrow] = {
-
-    def arrowMap(a: domain.Arrow): SetFunction = {
-      val d0a: domain.Obj = domain.d0(a)
-      val diagram_a = diagram.functionForArrow(a)
-      val transform_at_d0a = objectMap(d0a)
-      diagram_a.restrictTo(transform_at_d0a.d0).iHope // should have traversed over all arrows `a`
-    }
-
-    val subdiagram: Diagram = Diagram.build("Subdiagram", domain)(o => objectMap(o).d0, arrowMap).iHope
-    val mappings: (subdiagram.d0.Node => subdiagram.d1.Arrow) = (o => subdiagram.d1.arrow(objectMap(domain.obj(o))))
-    NaturalTransformation.build(subdiagram, diagram)(mappings)
-  }
-
   def inclusionOf(diagram1: Diagram, diagram2: Diagram): Result[DiagramArrow] = {
     val results: TraversableOnce[Result[(domain.Obj, diagram1.d1.Arrow)]] = for {
       x <- domain
