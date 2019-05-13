@@ -2,6 +2,7 @@ package math.cat.topos
 
 import math.Test
 import math.cat.Category._
+import math.cat.{NaturalTransformation, SetFunction}
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets
 import math.sets.Sets.set
@@ -268,7 +269,6 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     
     "exist for ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
-      val base = CategoryOfDiagrams.BaseCategory
       val i1: topos.Arrow = topos.inclusionOf(SampleParallelPairSubdiagram1, SampleParallelPairDiagram1) iHope
 
       val chi1: DiagramArrow = topos.classifyingMap(i1)
@@ -282,6 +282,26 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       chi11(1).toString === "Diagram[ParallelPair](0→{}, 1→{1})"
       chi11(2).toString === "Diagram[ParallelPair](0→{}, 1→{1})"
       chi11(3).toString === "Diagram[ParallelPair](0→{}, 1→{})"
+    }
+  }
+
+  "Conjunction" should {
+    "exist for ParalelPair" in {
+      val topos = new CategoryOfDiagrams(ParallelPair)
+      import topos._
+
+      val ΩxΩ = product2(Ω, Ω)
+
+      def diagonalMap_Ω(x: domain.Obj): SetFunction = {
+        SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
+      }
+
+      val Δ: DiagramArrow = NaturalTransformation.build("Δ", Ω, ΩxΩ)(
+        (x: Ω.d0.Obj) => Ω.d1.arrow(diagonalMap_Ω(domain.obj(x)))).iHope
+      val conjunction = Ω.conjunction
+      Ω.True
+
+      failure("wtf")
     }
   }
 }

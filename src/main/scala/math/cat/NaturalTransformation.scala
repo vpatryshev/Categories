@@ -19,12 +19,11 @@ import scalakittens.Result.Outcome
   *    g[a]: g[x] ---> g[y]
   */
 abstract class NaturalTransformation extends Morphism[Functor, Functor] { self ⇒
-
+  val tag: String
   lazy val domainCategory: Category = d0.d0
   lazy val codomainCategory: Category = d1.d1 // == d0.d1, of course
 
   def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow
-  //def apply(x: domainCategory.Obj): codomainCategory.Arrow
   def apply(x: Any) = transformPerObject(domainCategory.obj(x))
 
   // TODO: check the preconditions, return an option
@@ -45,6 +44,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
     }
 
     new NaturalTransformation {
+      val tag = s"${next.tag} ∘ ${self.tag}"
       val d0: Functor = self.d0
       val d1: Functor = next.d1
       def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = codomainCategory.arrow(composed(x))
@@ -104,12 +104,13 @@ object NaturalTransformation {
     * @param to0   second functor
     * @param mappings a set morphism that for each domain object x returns f(x) → g(x)
     */
-  def build(from0: Functor, to0: Functor)
+  def build(theTag: String = "", from0: Functor, to0: Functor)
   (
     mappings: from0.d0.Obj ⇒ from0.d1.Arrow
   ): Result[NaturalTransformation] = {
     validate(from0, to0, from0.d0, from0.d1)(mappings) returning 
     new NaturalTransformation {
+      val tag = theTag
       val d0: Functor = from0
       val d1: Functor = to0
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
@@ -129,6 +130,7 @@ object NaturalTransformation {
       functor.d1.id(functor.d1.obj(functor.objectsMapping(x)))
 
     new NaturalTransformation {
+      val tag = "Id"
       val d0: Functor = functor
       val d1: Functor = functor
       

@@ -107,7 +107,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     objects.mkString(", ") + "}, {" +
     (arrows map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect { case (first, second) ⇒
-      s"$second o $first = ${m(first, second).get}"
+      s"$second ∘ $first = ${m(first, second).get}"
     }).mkString(", ") + "})"
 
   def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
@@ -160,7 +160,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   /**
     * Builds a predicate that checks whether an arrow equalizes two other arrows,
-    * that is, whether f o h = g o h  for a given arrow h.
+    * that is, whether f ∘ h = g ∘ h  for a given arrow h.
     *
     * @param f first arrow
     * @param g second arrow
@@ -188,7 +188,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   /**
     * Builds a predicate that checks whether an arrow h: B → A is such that
-    * px o h = qx and py o h = qy
+    * px ∘ h = qx and py ∘ h = qy
     * where qx: B → X, qy: B → Y, px: A → X, py: A → Y.
     *
     * @param q factoring pair of arrows
@@ -229,7 +229,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   /**
     * Builds a predicate that checks if arrow g: y → z
     * uniquely factors on the left the arrow f: x → z - that is,
-    * there is just one h: x → y such that f = g o h.
+    * there is just one h: x → y such that f = g ∘ h.
     *
     * @param f arrow being factored
     * @return the specified predicate
@@ -240,7 +240,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   /**
     * Builds a set of all arrows that equalize f: A → B and g: A → B, that is,
-    * such arrows h: X → A that f o h = g o h.
+    * such arrows h: X → A that f ∘ h = g ∘ h.
     *
     * @param f first arrow
     * @param g second arrow
@@ -274,7 +274,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   /**
     * Builds a predicate that checks if arrow g: x → y
     * uniquely factors on the right the arrow f: x → z - that is,
-    * there is just one h: y → z such that f = h o g.
+    * there is just one h: y → z such that f = h ∘ g.
     *
     * @param f factored arrow
     * @return the specified predicate
@@ -287,7 +287,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   /**
     * Builds a set of all arrows that coequalize f: A → B and g: A → B, that is,
-    * such arrows h: B → X that h o f = h o g.
+    * such arrows h: B → X that h ∘ f = h ∘ g.
     *
     * @param f first arrow
     * @param g second arrow
@@ -296,11 +296,11 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   def allCoequalizingArrows(f: Arrow, g: Arrow): Iterable[Arrow] = arrows filter coequalizes(f, g)
 
   /**
-    * Checks if arrow h coequalizes arrows f and g (that is, whether h o f == h o g).
+    * Checks if arrow h coequalizes arrows f and g (that is, whether h ∘ f == h ∘ g).
     *
     * @param f first arrow
     * @param g second arrow
-    * @return true iff h o f == h o g
+    * @return true iff h ∘ f == h ∘ g
     */
   def coequalizes(f: Arrow, g: Arrow): Arrow ⇒ Boolean = {
     h: Arrow ⇒ areParallel(f, g) && follows(h, f) && (m(f, h) == m(g, h))
@@ -405,7 +405,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * px: X → A, py: Y → A, factors uniquely a pair q = (qx, qy)
     * (where qx: X → B, qy: Y → B) on the left,
     * that is, if there exists a unique arrow h: A → B
-    * such that qx = h o px and qy = h o py.
+    * such that qx = h ∘ px and qy = h ∘ py.
     *
     * @return true if q factors p uniquely on the left
     */
@@ -417,7 +417,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   /**
     * Builds a predicate that checks whether an arrow h: A → B is such that
-    * h o px = qx and h o py = qy for q = (qx, qy), and p = (px, py)
+    * h ∘ px = qx and h ∘ py = qy for q = (qx, qy), and p = (px, py)
     * where qx: X → B, qy: Y → B, px: X → A, py: Y → A.
     *
     * @param q factoring pair of arrows
@@ -464,7 +464,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   /**
     * Builds a predicate that checks if a pair of arrows p = (px, py) : A → X x Y
     * factors uniquely a pair q = (qx, qy): B → X x Y on the right,
-    * that is, if there exists a unique arrow h: B → A such that qx = px o h and qy = py o h.
+    * that is, if there exists a unique arrow h: B → A such that qx = px ∘ h and qy = py ∘ h.
     *
     * @return true if p factors q uniquely on the right
     */
@@ -477,7 +477,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   /**
     * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
-    * at d0(f) and d0(g), equalizing them: f o px = g o py, that is, making the square
+    * at d0(f) and d0(g), equalizing them: f ∘ px = g ∘ py, that is, making the square
     * <pre>
     * py
     * U -----> Y
@@ -954,7 +954,7 @@ private[cat] trait CategoryFactory {
     * Case 1. There's an arrow f:a→b, and an arrow g:b→c; and there's just one arrow h:a→c.
     * What would be the composition of f and g? h is the only choice.
     * <p/>
-    * Case 2. h o (g o f) = k; what is (h o g) o f? It is k. and vice versa.
+    * Case 2. h ∘ (g ∘ f) = k; what is (h ∘ g) ∘ f? It is k. and vice versa.
     *
     * @param graph             - the graph of this category
     * @param compositionSource partially filled composition table
@@ -1104,8 +1104,9 @@ private[cat] trait CategoryFactory {
       ~ "}" ⇒ Map() ++ m
     }
 
-    def multiplication: Parser[((String, String), String)] = word ~ "o" ~ word ~ "=" ~ word ^^ { case g ~ "o" ~
-      f ~ "=" ~ h ⇒ ((f, g), h)
+    def multiplication: Parser[((String, String), String)] = {
+      word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { case g ~ o ~ f ~ "=" ~ h ⇒ ((f, g), h)
+      }
     }
 
     def readCategory(input: Reader): Result[Cat] = {
@@ -1166,21 +1167,21 @@ object Category extends CategoryFactory {
   /**
     * Category <b>Z2</2> - a two-element monoid
     */
-  lazy val Z2 = category"Z2: ({1}, {1: 1 → 1, a: 1 → 1}, {1 o 1 = 1, 1 o a = a, a o 1 = a, a o a = 1})"
+  lazy val Z2 = category"Z2: ({1}, {1: 1 → 1, a: 1 → 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
 
-  lazy val Z3 = category"Z3: ({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 o 1 = 2, 1 o 2 = 0, 2 o 1 = 0, 2 o 2 = 1})"
+  lazy val Z3 = category"Z3: ({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 0, 2 ∘ 1 = 0, 2 ∘ 2 = 1})"
 
   /**
     * "Split Monomorphism" category (see http://en.wikipedia.org/wiki/Morphism)
     * Two objects, and a split monomorphism from a to b
     */
   lazy val SplitMono =
-    category"SplitMono: ({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ba o ab = a, ab o ba = bb, bb o ab = ab, ba o bb = ba, bb o bb = bb})"
+    category"SplitMono: ({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ba ∘ ab = a, ab ∘ ba = bb, bb ∘ ab = ab, ba ∘ bb = ba, bb ∘ bb = bb})"
 
   /**
     * Commutative square category
     */
-  lazy val Square = category"Square:({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d, ad: a → d}, {bd o ab = ad, cd o ac = ad})"
+  lazy val Square = category"Square:({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d, ad: a → d}, {bd ∘ ab = ad, cd ∘ ac = ad})"
 
   /**
     * Pullback category: a → c <- b

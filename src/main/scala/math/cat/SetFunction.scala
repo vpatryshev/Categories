@@ -29,7 +29,7 @@ case class SetFunction private(
     * Composes this morphism with the next one.
     *
     * @param g second morphism: Y → Z
-    * @return their composition g o f: X → Z
+    * @return their composition g ∘ f: X → Z
     */
   def andThen(g: SetFunction): SetFunction = {
     compose(g) getOrElse (
@@ -41,11 +41,11 @@ case class SetFunction private(
     * Composes with another morphism, optionally
     *
     * @param g next morphism: Y → Z
-    * @return their composition g o f: X → Z
+    * @return their composition g ∘ f: X → Z
     */
   def compose(g: SetFunction): Option[SetFunction] = {
     if (d1 equals g.d0) {
-      Some(new SetFunction(g.tag + " o " + tag, d0, g.d1, (x: Any) ⇒ g(this (x))))
+      Some(new SetFunction(g.tag + " ∘ " + tag, d0, g.d1, (x: Any) ⇒ g(this (x))))
     }
     else None
   }

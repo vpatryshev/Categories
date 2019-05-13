@@ -1,6 +1,8 @@
 package math.cat.topos
 
-import math.cat.{NaturalTransformation, SetFunction}
+import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import math.cat.{Functor, NaturalTransformation, SetFunction}
+import math.sets.Sets
 import math.sets.Sets._
 import scalakittens.Result
 
@@ -12,7 +14,7 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
   object Ω extends Diagram("Ω", domain) {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x ⇒ Ω(x)` .
-    private val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
+    private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
     val objectsMapping: d0.Obj ⇒ d1.Obj =
@@ -73,6 +75,37 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
 
     lazy val False: Point = Ω.points.head
     lazy val True: Point = Ω.points.last
+
+    lazy val conjunction: DiagramArrow = {
+      new DiagramArrow {
+        val tag = "∧"
+        override val d0: Functor = product2(Ω, Ω)
+        override val d1: Functor = Ω
+
+        /**
+          * Intersection of two subrepresentables on object `x`
+          * @param a first subrepresentable
+          * @param b second subrepresentable
+          * @return their intersection
+          */
+        private def intersection(a: Diagram, b: Diagram): Diagram = {
+          ???
+        }
+
+        def conjunctionOfTwoSubreps(pair: Any): Any = pair match {
+          case (a: Diagram, b: Diagram) => intersection(a,b)
+        }
+
+        def perObject(x: d0.d0.Obj): SetFunction = {
+          val dom = Sets.product2(Ω(x), Ω(x))
+          val codom = Ω(x)
+          SetFunction.build(s"∧[$x]", dom.untyped, codom, pair => conjunctionOfTwoSubreps(pair)).iHope
+        }
+
+        override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+          codomainCategory.arrow(perObject(d0.d0.obj(x)))
+      }
+    }
   }
 
   /**
@@ -133,9 +166,9 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
   def classifyingMap(inclusion: Arrow): Arrow = {
     val objToFunction: domain.Obj => SetFunction = classifyingMapAt(inclusion)
     
-    val ntOpt = NaturalTransformation.build(inclusion.d1, Ω)(x => inclusion.d1.d1.arrow(objToFunction(domain.obj(x))))
+    val ntOpt = NaturalTransformation.build(s"(χ${inclusion.tag})", inclusion.d1, Ω)(x => inclusion.d1.d1.arrow(objToFunction(domain.obj(x))))
     
     ntOpt.iHope
   }
-
+  
 }

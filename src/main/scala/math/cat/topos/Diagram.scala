@@ -3,6 +3,7 @@ package math.cat.topos
 import math.Base
 import math.Base._
 import math.cat._
+import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Functions._
 import math.sets.Sets.{set, _}
 import math.sets.{FactorSet, Sets}
@@ -346,12 +347,20 @@ object Diagram {
 
 }
 
-trait Point extends (Any => Any) {
+trait Point extends (Any => Any) { p =>
   val tag: String
   
   val domainCategory: Category
 
-  def ∈(other: Diagram): Boolean = domainCategory.objects.forall { o ⇒ other(o)(this(o)) }
+  def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
+  
+  def transform(f: DiagramArrow): Point = {
+    new Point {
+      val tag = s"${f.tag}(${p.tag})"
+      val domainCategory: Category = p.domainCategory
+      def apply(o: Any) = f(domainCategory.obj(o))
+    }
+  }
 
   override def toString: String = {
     val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")

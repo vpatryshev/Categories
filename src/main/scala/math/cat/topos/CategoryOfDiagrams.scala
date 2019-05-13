@@ -18,7 +18,9 @@ class CategoryOfDiagrams(val domain: Category)
   lazy val _0: Obj = initial iHope
   override lazy val terminal: Result[Obj] =
     BaseCategory.terminal map const("terminal", domain)
+  
   lazy val _1: Obj = terminal iHope
+  
   lazy val subterminals: Set[Diagram] = {
     def objectMapping(candidate: Set[domain.Obj]) =
       (obj: domain.Obj) ⇒ if (candidate contains obj) _1(obj) else Set.empty.untyped
@@ -62,6 +64,7 @@ class CategoryOfDiagrams(val domain: Category)
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
     new DiagramArrow {
+      val tag = "Id"
       override val d0: Functor = o
       override val d1: Functor = o
 
@@ -72,6 +75,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
     new DiagramArrow() {
+      val tag = s"${g.tag} ∘ ${f.tag}"
       val d0: Functor = f.d0
       val d1: Functor = g.d1
 
@@ -95,7 +99,7 @@ class CategoryOfDiagrams(val domain: Category)
 
     for {
       map <- Result traverse results
-      arrow <- NaturalTransformation.build(diagram1, diagram2)(map.toMap)
+      arrow <- NaturalTransformation.build(s"${diagram1.tag}⊂${diagram2.tag}", diagram1, diagram2)(map.toMap)
     } yield arrow
   }
 
@@ -160,7 +164,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   /**
     * Cartesian product of two diagrams
-    * TODO: figure out how to ensure the same d0 in both
+    * TODO: figure out how to ensure the same d0 in bothDi
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram.iHope
 

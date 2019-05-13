@@ -10,7 +10,7 @@ class FunctorTest extends Test {
   type SUT = Functor
   
   lazy val categorySquareWithTwoTopLeftCorners: Cat =
-    category"({a0,a1,b,c,d}, {a0a1: a0 → a1, a0b: a0 → b, a0c: a0 → c, a1b: a1 → b, a1c: a1 → c, bd: b → d, cd: c → d, a0d: a0 → d, a1d: a1 → d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
+    category"({a0,a1,b,c,d}, {a0a1: a0 → a1, a0b: a0 → b, a0c: a0 → c, a1b: a1 → b, a1c: a1 → c, bd: b → d, cd: c → d, a0d: a0 → d, a1d: a1 → d}, {bd ∘ a0b = a0d, cd ∘ a0c = a0d, bd ∘ a1b = a1d, cd ∘ a1c = a1d, a1b ∘ a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
 
   lazy val functorFromPullbackToDoubleSquare: SUT = {
     Functor(
