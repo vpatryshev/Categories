@@ -6,6 +6,7 @@ import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.{Good, Result}
+import scalaz.Alpha.W
 
 /**
   * Test for individual diagrams (functors with codomain=sets)
@@ -64,50 +65,6 @@ class DiagramTest extends Test with TestDiagrams {
     "validate empty diagram" in {
       EmptyDiagram.d0 === Category._0_
       EmptyDiagram.d1 === Setf
-    }
-  }
-  
-  "Diagram points" should {
-
-    def checkPoint(sut: Diagram)(point: Point, values: List[Int]) = {
-      val objects = sut.d0.objects.toList
-      val actual = objects map point.apply
-      val expected = values // map Sets.singleton
-      actual must_== expected
-    }
-
-    "exist in paralel pair" in {
-      val sut = SampleParallelPairDiagram1
-      val actual = sut.points
-      actual.size === 3
-      val check = checkPoint(sut) _
-      val p1 :: p2 :: p3 :: Nil = actual
-      check(p1, 1 :: 1 :: Nil)
-      check(p2, 2 :: 2 :: Nil)
-      check(p3, 5 :: 2 :: Nil)
-    }
-
-    "exist in pullback" in {
-      val sut = SamplePullbackDiagram
-      val actual = sut.points
-      actual.size === 5
-      val p1 :: p2 :: p3 :: p4 :: p5 :: Nil = actual
-      val check = checkPoint(sut) _
-      check(p1, 1 :: 2 :: 1 :: Nil)
-      check(p2, 1 :: 4 :: 1 :: Nil)
-      check(p3, 2 :: 3 :: 0 :: Nil)
-      check(p4, 3 :: 2 :: 1 :: Nil)
-      check(p5, 3 :: 4 :: 1 :: Nil)
-    }
-
-    "exist in Z3 diagram" in {
-      val sut = SampleZ3Diagram
-      val actual = sut.points
-      actual.size === 1
-      val p1 :: Nil = actual
-      val check = checkPoint(sut) _
-
-      ok
     }
   }
 

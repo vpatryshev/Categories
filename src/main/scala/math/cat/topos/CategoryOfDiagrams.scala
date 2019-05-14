@@ -12,6 +12,9 @@ class CategoryOfDiagrams(val domain: Category)
 
   type Node = Diagram
   type Arrow = DiagramArrow
+
+  def domainObjects: domain.Objects = domain.objects
+  val listOfDomainObjects = domainObjects.toList
   
   override lazy val initial: Result[Obj] =
     BaseCategory.initial map const("initial", domain)
@@ -167,6 +170,21 @@ class CategoryOfDiagrams(val domain: Category)
     * TODO: figure out how to ensure the same d0 in bothDi
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram.iHope
+
+
+  def pointsOf(d: Diagram): List[Point] = {
+    val objMappings = for {
+      values <- Sets.product(d.listOfComponents) //.view
+      mapping = listOfDomainObjects zip values toMap;
+      om: Point = d.point(o => mapping(domain.obj(o)))
+      if d.isCompatible(om)
+    } yield om
+
+    val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
+
+    sorted map { p => d.point(p._1, p._2) }
+  }
+
 
 }
 

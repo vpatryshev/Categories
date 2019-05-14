@@ -166,32 +166,18 @@ abstract class Diagram(
     Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
   }
 
-  def points: List[Point] = {
-    val listOfObjects: List[XObject] = domainObjects.toList
-    val listOfComponents: List[set] = listOfObjects map objectsMapping map asSet
+  private[topos] def isCompatible(om: Point) = d0.arrows.forall {
+    a ⇒
+      val d00 = om(d0.d0(a))
+      val d01 = om(d0.d1(a))
+      val f = arrowsMapping(a)
+      val itsok = f(d00) == d01
 
-    def isCompatible(om: Point) = d0.arrows.forall {
-      a ⇒
-        val d00 = om(d0.d0(a))
-        val d01 = om(d0.d1(a))
-        val f = arrowsMapping(a)
-        val itsok = f(d00) == d01
-
-        itsok
-    }
-
-    val objMappings = for {
-      values <- Sets.product(listOfComponents) //.view
-      mapping = listOfObjects zip values toMap;
-      om: Point = point(mapping)
-      if isCompatible(om)
-    } yield om
-    
-    val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
-
-    sorted map { p => point(p._1, p._2) }
+      itsok
   }
 
+  lazy val listOfComponents: List[set] = domainObjects.toList map objectsMapping map asSet
+  
   private def extendToArrows(om: d0.Obj => Sets.set)(a: d0.Arrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
@@ -319,6 +305,43 @@ abstract class Diagram(
   }
 }
 
+trait Point extends (Any => Any) { p =>
+
+  val tag: String
+
+  val domainCategory: Category
+
+  def asInclusion: DiagramArrow = { ???
+    //      NaturalTransformation.build(s"$tag∈${diagram.tag}", )
+  }
+
+  def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
+
+  def transform(f: DiagramArrow): Point = {
+    new Point {
+      val tag = s"${f.tag}(${p.tag})"
+      val domainCategory: Category = p.domainCategory
+      def apply(o: Any) = f(domainCategory.obj(o))
+    }
+  }
+
+  override def toString: String = {
+    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
+    val short = Diagram.cleanupString(raw)
+    short
+  }
+
+  override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode
+
+  override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
+    case p: Point =>
+      p.tag == tag && p.domainCategory == domainCategory &&
+        domainCategory.objects.forall(o => p(o) == this(o))
+    case other => false
+  })
+}
+
+
 object Diagram {
 
   def build(tag: Any, domain: Category)(
@@ -345,35 +368,4 @@ object Diagram {
     s2
   }
 
-}
-
-trait Point extends (Any => Any) { p =>
-  val tag: String
-  
-  val domainCategory: Category
-
-  def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
-  
-  def transform(f: DiagramArrow): Point = {
-    new Point {
-      val tag = s"${f.tag}(${p.tag})"
-      val domainCategory: Category = p.domainCategory
-      def apply(o: Any) = f(domainCategory.obj(o))
-    }
-  }
-
-  override def toString: String = {
-    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
-    val short = Diagram.cleanupString(raw)
-    short
-  }
-
-  override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode
-
-  override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
-    case p: Point =>
-      p.tag == tag && p.domainCategory == domainCategory &&
-      domainCategory.objects.forall(o => p(o) == this(o))
-    case other => false
-  })
 }

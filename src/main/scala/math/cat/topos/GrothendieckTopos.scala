@@ -73,8 +73,8 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
 
     validate iHope
 
-    lazy val False: Point = Ω.points.head
-    lazy val True: Point = Ω.points.last
+    lazy val False: Point = pointsOf(Ω).head
+    lazy val True: Point = pointsOf(Ω).last
 
     lazy val conjunction: DiagramArrow = {
       new DiagramArrow {

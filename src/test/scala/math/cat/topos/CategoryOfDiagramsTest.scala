@@ -182,6 +182,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
     "be good for pullback diagram" in {
       val sut = SamplePullbackDiagram
+      val topos = new CategoryOfDiagrams(Pullback)
       val sample = sut.d0.objects map (ob ⇒ sut.objectsMapping(ob))
 
       def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
@@ -196,7 +197,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       actual.size === 85
       val objects = actual map fullSet
 
-      actual.head.points.size === 0
+      topos.pointsOf(actual.head).size === 0
       val last = actual.last
       sut.d0 === last.d0
       sut.d1 === last.d1
@@ -265,6 +266,56 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       } {
         actual(x).size == SampleMDiagram(x).size*SampleMDiagram(x).size
       }
+      ok
+    }
+  }
+
+  "Diagram points" should {
+
+    def checkPoint(sut: Diagram)(point: Point, values: List[Int]) = {
+      val objects = sut.d0.objects.toList
+      val actual = objects map point.apply
+      val expected = values // map Sets.singleton
+      actual must_== expected
+    }
+
+    "exist in paralel pair" in {
+      val sut = SampleParallelPairDiagram1
+      val topos = new CategoryOfDiagrams(ParallelPair)
+      import topos._
+      val actual = pointsOf(sut)
+      actual.size === 3
+      val check = checkPoint(sut) _
+      val p1 :: p2 :: p3 :: Nil = actual
+      check(p1, 1 :: 1 :: Nil)
+      check(p2, 2 :: 2 :: Nil)
+      check(p3, 5 :: 2 :: Nil)
+    }
+
+    "exist in pullback" in {
+      val sut = SamplePullbackDiagram
+      val topos = new CategoryOfDiagrams(Pullback)
+      import topos._
+      val actual = pointsOf(sut)
+      actual.size === 5
+      val p1 :: p2 :: p3 :: p4 :: p5 :: Nil = actual
+      val check = checkPoint(sut) _
+      check(p1, 1 :: 2 :: 1 :: Nil)
+      check(p2, 1 :: 4 :: 1 :: Nil)
+      check(p3, 2 :: 3 :: 0 :: Nil)
+      check(p4, 3 :: 2 :: 1 :: Nil)
+      check(p5, 3 :: 4 :: 1 :: Nil)
+    }
+
+    "exist in Z3 diagram" in {
+      val sut = SampleZ3Diagram
+      val topos = new CategoryOfDiagrams(Z3)
+      import topos._
+      val actual = pointsOf(sut)
+      actual.size === 1
+      val p1 :: Nil = actual
+      val check = checkPoint(sut) _
+
       ok
     }
   }
