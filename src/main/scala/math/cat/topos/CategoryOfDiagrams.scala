@@ -10,6 +10,8 @@ class CategoryOfDiagrams(val domain: Category)
   extends Category(s"Sets^${domain.name}", graphOfDiagrams)
   with GrothendieckTopos {
 
+  override def toString: String = name
+  
   type Node = Diagram
   type Arrow = DiagramArrow
 
@@ -93,18 +95,29 @@ class CategoryOfDiagrams(val domain: Category)
     }
   } else None
 
-  def inclusionOf(diagram1: Diagram, diagram2: Diagram): Result[DiagramArrow] = {
-    val results: TraversableOnce[Result[(domain.Obj, diagram1.d1.Arrow)]] = for {
-      x <- domain
-      in = SetFunction.inclusion(diagram1(x), diagram2(x))
-      pair = in map (x → diagram1.d1.arrow(_))
-    } yield pair
+  trait includer {
+    val diagram1: Diagram
+    
+    def in(diagram2: Diagram): Result[DiagramArrow] = {
+      val results: TraversableOnce[Result[(domain.Obj, diagram1.d1.Arrow)]] = for {
+        x <- domain
+        in = SetFunction.inclusion(diagram1(x), diagram2(x))
+        pair = in map (x → diagram1.d1.arrow(_))
+      } yield pair
 
-    for {
-      map <- Result traverse results
-      arrow <- NaturalTransformation.build(s"${diagram1.tag}⊂${diagram2.tag}", diagram1, diagram2)(map.toMap)
-    } yield arrow
+      val mapOpt = Result traverse results
+      
+      val result = for {
+        map <- mapOpt
+        arrow <- NaturalTransformation.build(s"${diagram1.tag}⊂${diagram2.tag}", diagram1, diagram2)(map.toMap)
+      } yield arrow
+      
+      result
+    }
   }
+  
+  def inclusionOf(diagram: Diagram): includer =
+    new includer { val diagram1: Diagram = diagram }
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     domain.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
@@ -145,47 +158,78 @@ class CategoryOfDiagrams(val domain: Category)
     private def om(o: domain.Obj): set = productAt(o).untyped
     
     def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
-      val za: z.d1.Arrow = z.arrowsMapping(z.d0.arrow(a))
-      val za0: SetFunction = za.asInstanceOf[SetFunction]
-      val value = za0(pz)
-      value
+      val sf: SetFunction = z.asFunction(z.arrowsMapping(z.d0.arrow(a)))
+      sf(pz)
     }
     
-    private def amOpt(a: domain.Arrow): Result[SetFunction] = {
+    private def am(a: domain.Arrow): SetFunction = {
       val from = productAt(domain.d0(a))
       val to = productAt(domain.d1(a))
       def f(p: Any): Any = p match {
-        case (px, py) => (transition(x)(a)(px), transition(y)(a)(py))
-        case other =>
+        case (px, py) ⇒ (transition(x)(a)(px), transition(y)(a)(py))
+        case other ⇒
           throw new IllegalArgumentException(s"Expected a pair of values, got $other")
       }
-      SetFunction.build(from.untyped, to.untyped, f)
+      new SetFunction("", from.untyped, to.untyped, f)
     }
     
-    val diagram = Diagram.build(s"${x.tag}×${y.tag}", domain)(om, a => amOpt(a).iHope)
+    val diagram = Diagram(s"${x.tag}×${y.tag}", domain)(om, a ⇒ am(a))
   }
 
   /**
     * Cartesian product of two diagrams
     * TODO: figure out how to ensure the same d0 in bothDi
     */
-  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram.iHope
+  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
 
   def pointsOf(d: Diagram): List[Point] = {
     val objMappings = for {
       values <- Sets.product(d.listOfComponents) //.view
       mapping = listOfDomainObjects zip values toMap;
-      om: Point = d.point(o => mapping(domain.obj(o)))
+      om: Point = d.point(o ⇒ mapping(domain.obj(o)))
       if d.isCompatible(om)
     } yield om
 
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
-    sorted map { p => d.point(p._1, p._2) }
+    sorted map { p ⇒ d.point(p._1, p._2) }
   }
 
+  def inclusionOf(p: Point): includer = {
+    val subdiagram = singletonDiagram(p.tag, o ⇒ p(o))
+    inclusionOf(subdiagram)
+  }
 
+  def singletonDiagram(tag: String, value: domain.Obj ⇒ Any): Diagram = {
+    val d = new Diagram(tag, domain) {
+      
+      override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(Set(value(x.asInstanceOf[domain.Obj])))
+      
+      private def arrowToFunction(a: d0.Arrow): Any ⇒ Any =
+        (z: Any) ⇒ {
+          val y = d0.d1(a).asInstanceOf[domain.Obj]
+          val v = value(y)
+          v
+        }
+      
+      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (a: d0.Arrow) ⇒ {
+        d1.arrow( // need a set function from a.d0 to a.d1
+          SetFunction(s"$tag(.)", objectsMapping(d0.d0(a)), objectsMapping(d0.d1(a)), arrowToFunction(a))
+        )
+      }
+    }
+    val f: Functor = d.asInstanceOf[Functor]
+    val dam = f.arrowsMapping(f.d0.arrow("a"))
+    val damf = dam.asInstanceOf[SetFunction]
+    for {
+      ob <- damf.d0
+    } {
+      val v = damf(ob)
+      println(v)
+    }
+    d
+  }
 }
 
 object CategoryOfDiagrams {

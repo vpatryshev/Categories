@@ -263,7 +263,8 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     
     "exist for ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
-      val i1: topos.Arrow = topos.inclusionOf(SampleParallelPairSubdiagram1, SampleParallelPairDiagram1) iHope
+      import topos._
+      val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1 iHope
 
       val chi1: DiagramArrow = topos.classifyingMap(i1)
       val chi10 = topos.asFunction(chi1("0"))
@@ -293,10 +294,17 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       val Δ: DiagramArrow = NaturalTransformation.build("Δ", Ω, ΩxΩ)(
         (x: Ω.d0.Obj) => Ω.d1.arrow(diagonalMap_Ω(domain.obj(x)))).iHope
       val conjunction = Ω.conjunction
-      
-      val point = Ω.True.transform(Δ).asInclusion
-      val classifierForTT = classifyingMap(point)
-      val theyAreTheSame = classifierForTT == conjunction
+
+      val pointOfTrueAndTrue = Ω.True.transform(Δ)
+      val p0 = pointOfTrueAndTrue("0")
+      val p1 = pointOfTrueAndTrue("1")
+      p0 === (Ω.True("0"), Ω.True("0"))
+      p1 === (Ω.True("1"), Ω.True("1"))
+      val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
+      val monomorphism: DiagramArrow = monomorphismMaybe iHope
+      val classifierForTT: DiagramArrow = classifyingMap(monomorphism)
+      val theyAreTheSame = classifierForTT equals conjunction
+      classifierForTT === conjunction
       theyAreTheSame === true
     }
   }

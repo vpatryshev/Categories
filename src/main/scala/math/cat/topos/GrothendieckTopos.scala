@@ -43,10 +43,11 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
           ) iHope
         }
 
-        Diagram.build("", domain)(om1, am1) iHope
+        Diagram("", domain)(om1, am1) // no validation, we know it's ok
       }
 
-      SetFunction.build(s"[$a]", d0.untyped, d1.untyped, d ⇒ diaMap(d.asInstanceOf[Diagram])).iHope
+      // no validation here, the function is known to be ok
+      new SetFunction(s"[$a]", d0.untyped, d1.untyped, d ⇒ diaMap(d.asInstanceOf[Diagram]))
     }
 
     val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
@@ -89,10 +90,27 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
           * @return their intersection
           */
         private def intersection(a: Diagram, b: Diagram): Diagram = {
-          ???
+          println(s"A) $a")
+          println(s"B) $b")
+          val om = (o: domain.Obj) => a(o) & b(o)
+
+          // this is how, given an arrow `b`, the new diagram gets from one point to another
+          def am(f: domain.Arrow): SetFunction = {
+            val x = om(domain.d0(f))
+            val y = om(domain.d1(f))
+            
+            a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
+          }
+
+          val tag = s"${a.tag}∩${b.tag}"
+          
+          val result: Result[Diagram] = Diagram.build(tag, domain)(
+            o => om(domain.obj(o)), f => am(domain.arrow(f)))
+          
+          result.iHope
         }
 
-        def conjunctionOfTwoSubreps(pair: Any): Any = pair match {
+        def conjunctionOfTwoSubreps(pair: Any): Diagram = pair match {
           case (a: Diagram, b: Diagram) => intersection(a,b)
         }
 

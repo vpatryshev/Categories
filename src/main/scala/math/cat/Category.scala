@@ -1,6 +1,7 @@
 package math.cat
 
 import java.io.Reader
+import java.util.Objects
 
 import math.cat.Category.Cat
 import math.sets.PoSet
@@ -80,8 +81,11 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     }
   }
 
+  private lazy val hash: Int = if (isFinite) Objects.hash(objects, arrows) else -1
+  
   // @deprecated("is category theory equational? does not seem like it is...")
-  private def equal(that: Category): Boolean = {
+  private def equal(that: Category): Boolean = this.eq(that) || (hash == that.hash && {
+    
     val objectsEqual = this.objects == that.objects && this.arrows == that.arrows
     val idsEqual = objectsEqual && (objects forall { x ⇒ id(x) == that.id(that.obj(x)) })
 
@@ -94,7 +98,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
       })
 
     isEqual
-  }
+  })
 
   override def hashCode: Int = {
     val c1 = getClass.hashCode
@@ -814,9 +818,9 @@ private[cat] trait CategoryFactory {
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           composition(gr.arrow(f), gr.arrow(g)) map arrow
 
-        override def d0(f: Arrow): Obj = graph.d0(graph.arrow(f))
+        override def d0(f: Arrow): Obj = graph.d0(graph.arrow(f)).asInstanceOf[graph.Node]
 
-        override def d1(f: Arrow): Obj = graph.node(graph.d1(graph.arrow(f)))
+        override def d1(f: Arrow): Obj = graph.d1(graph.arrow(f)).asInstanceOf[graph.Node]
       }
   }
 
@@ -934,7 +938,10 @@ private[cat] trait CategoryFactory {
   }
 
   private[cat] def addUnitsToGraph(graph: Graph): Graph = {
-    def isIdentity(f: Any): Boolean = graph contains f
+    
+    val nodesOpt: Option[Set[Any]] = if (graph.isFinite) Some(graph.nodes.toSet) else None
+    
+    def isIdentity(f: Any): Boolean = nodesOpt map (_ contains f) getOrElse (graph contains f)
 
     new Graph {
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]

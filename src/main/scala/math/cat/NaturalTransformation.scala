@@ -58,7 +58,9 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
   
   override def equals(x: Any): Boolean = x match {
     case other: NaturalTransformation ⇒
-      d0 == other.d0 && d1 == other.d1 && asMap == other.asMap
+      (this eq other) || {
+        d0 == other.d0 && d1 == other.d1 && asMap == other.asMap
+      }
     case otherwise ⇒ false
   }
 }
@@ -68,7 +70,7 @@ object NaturalTransformation {
   def validate[
   X <: Category,
   Y <: Category
-  ](
+  ]( // transforming `f` to `g`
     f: Functor, g: Functor, domainCategory: Category, codomainCategory: Category)(
     transformPerObject: f.d0.Obj ⇒ f.d1.Arrow
   ): Outcome =
@@ -80,18 +82,25 @@ object NaturalTransformation {
     } yield {
       val x0: f.d0.Obj = f.d0.d0(a)
       val x1: f.d0.Obj = f.d0.d1(a)
+      val faOpt = forValue(f.arrowsMapping(a))
+      val gaOpt = forValue(g.arrowsMapping(g.d0.arrow(a)))
       val rr = for {
-        fa <- forValue(f.arrowsMapping(a))
-        ga <- forValue(g.arrowsMapping(g.d0.arrow(a)))
-      } yield Result.forValue {
-        val tx0: f.d1.Arrow = transformPerObject(x0)
-        val tx1: f.d1.Arrow = transformPerObject(x1)
-        val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1)
-        val downright: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
-        require(rightdown == downright, s"Nat'l transform law broken for $a")
+        fa <- faOpt
+        ga <- gaOpt
+      } yield {
+        val r = Result.forValue {
+          val tx0: f.d1.Arrow = transformPerObject(x0)
+          val tx1: f.d1.Arrow = transformPerObject(x1)
+          val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
+          val downright: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
+          val checked = rightdown == downright
+          require(checked, s"Nat'l transform law broken for $a")
+        }
+        r
       }
       
-      rr.flatten
+      val r = rr.flatten
+      r
     }
   }
 
@@ -108,8 +117,8 @@ object NaturalTransformation {
   (
     mappings: from0.d0.Obj ⇒ from0.d1.Arrow
   ): Result[NaturalTransformation] = {
-    validate(from0, to0, from0.d0, from0.d1)(mappings) returning 
-    new NaturalTransformation {
+    val validated = validate(from0, to0, from0.d0, from0.d1)(mappings)
+    validated returning new NaturalTransformation {
       val tag = theTag
       val d0: Functor = from0
       val d1: Functor = to0

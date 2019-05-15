@@ -108,7 +108,8 @@ trait NoGood[T] extends NothingInside[T] { self:Result[T] ⇒
     "0"*(5-s1.length) + s1
   }
   def contains[T1 >: T](x: T1): Boolean = false
-  def iHope: T = throw new InstantiationException(errors)
+  def iHope: T =
+    throw new InstantiationException(errors)
 }
 
 sealed trait Bad[T] extends Result[T] with NoGood[T] {

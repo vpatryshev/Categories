@@ -233,25 +233,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val d2 = SampleParallelPairDiagram2
       val sample = topos.product2builder(d1, d2)
       
-//      val a: topos.domain.Arrow = topos.domain.arrow("a")
-//      val b: topos.domain.Arrow = topos.domain.arrow("b")
-//      val xx = sample.transition(d1)(a) _
-//
-//      val p0 = sample.productAt(topos.domain.obj("0"))
-//      val p1 = sample.productAt(topos.domain.obj("1"))
-//      for {
-//        x0 <- p0
-//      } {
-//        (xx(x0._1) aka s"@${x0}") should_== Math.min(x0._1.toString.toInt, 2)
-//      }
-//
-//      val f1 = sample.amOpt(a)
-//      val f2 = sample.amOpt(b)
       // no need to check f1 and f2 for now
-      sample.diagram match {
-        case Good(stuff) => ok // check stuff
-        case nogood => failure(nogood.errorDetails.getOrElse("???"))
-      }
       val actual = topos.product2(d1, d2)
       actual("0").size === 15
       actual("1") === Set((0,0), (1,0), (2,0), (3,0), (0,1), (1,1), (2,1), (3,1))

@@ -18,7 +18,7 @@ object Sets {
   type factorset = FactorSet[Any]
   
   implicit class converter[T](s: Set[T]) {
-    def untyped: set = s map identity
+    def untyped: set = s.asInstanceOf[set]
   }
   
   val InfiniteSize: Int = Int.MaxValue

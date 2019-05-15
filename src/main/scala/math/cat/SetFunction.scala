@@ -14,7 +14,7 @@ import Result._
   * @param d1      codomain
   * @param mapping the function that implements the morphism
   */
-case class SetFunction private(
+case class SetFunction private[cat](
   override val tag: String,
   override val d0: set,
   override val d1: set,
@@ -37,6 +37,12 @@ case class SetFunction private(
       )
   }
 
+  private def tagOfComposition(tag1: String, tag2: String): String = {
+    def maybeParens(tag: String) = if (tag contains "∘") s"($tag)" else tag
+    maybeParens(tag1) + " ∘ " + maybeParens(tag2)
+  }
+  
+  
   /**
     * Composes with another morphism, optionally
     *
@@ -45,7 +51,12 @@ case class SetFunction private(
     */
   def compose(g: SetFunction): Option[SetFunction] = {
     if (d1 equals g.d0) {
-      Some(new SetFunction(g.tag + " ∘ " + tag, d0, g.d1, (x: Any) ⇒ g(this (x))))
+      val newTag = tagOfComposition(g.tag, tag)
+      val transform = (x: Any) ⇒ {
+        val y = self(x)
+        g(y)
+      }
+      Some(new SetFunction(newTag, d0, g.d1, transform))
     }
     else None
   }

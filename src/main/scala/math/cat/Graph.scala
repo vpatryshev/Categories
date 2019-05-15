@@ -58,7 +58,7 @@ trait Graph extends GraphData { graph ⇒
     * @return the set of all arrows from x to y
     */
   def arrowsBetween(from: Node, to: Node): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
-
+  
   /**
     * Checks if one arrow follows another
     * @param f an arrow
@@ -66,7 +66,7 @@ trait Graph extends GraphData { graph ⇒
     * @return true iff f follows g
     */
   def follows(f: Arrow, g: Arrow): Boolean = {
-    d0(arrow(f)) == d1(arrow(g))
+    d0(f) == d1(g)
   }
 
   /**
@@ -167,8 +167,8 @@ object Graph {
         def arrows: Arrows = data.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
         override type Node = N
         override type Arrow = A
-        override def d0(f: Arrow): Node = data.d0(data.arrow(f))
-        override def d1(f: Arrow): Node = data.d1(data.arrow(f))
+        override def d0(f: Arrow): Node = d00(f).asInstanceOf[Node]
+        override def d1(f: Arrow): Node = d10(f).asInstanceOf[Node]
       }
   }
 

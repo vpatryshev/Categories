@@ -311,17 +311,22 @@ trait Point extends (Any => Any) { p =>
 
   val domainCategory: Category
 
-  def asInclusion: DiagramArrow = { ???
-    //      NaturalTransformation.build(s"$tag∈${diagram.tag}", )
-  }
-
   def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
 
   def transform(f: DiagramArrow): Point = {
     new Point {
       val tag = s"${f.tag}(${p.tag})"
       val domainCategory: Category = p.domainCategory
-      def apply(o: Any) = f(domainCategory.obj(o))
+      val codom = f.d1.asInstanceOf[Diagram]
+      def apply(o: Any) = {
+        val x_o = p(o)
+        f(o) match {
+          case sf: SetFunction =>
+            val y_o = sf(x_o)
+            y_o
+          case weirdStuff => throw new IllegalArgumentException(s"${f(o)} was supposed to be a set function")
+        }
+      }
     }
   }
 
@@ -344,11 +349,11 @@ trait Point extends (Any => Any) { p =>
 
 object Diagram {
 
-  def build(tag: Any, domain: Category)(
+  private[topos] def apply(tag: Any, domain: Category)(
     objectsMap: domain.Obj ⇒ set,
-    arrowMap: domain.Arrow ⇒ SetFunction): Result[Diagram] = {
+    arrowMap: domain.Arrow ⇒ SetFunction): Diagram = {
 
-    val diagram: Diagram = new Diagram(tag.toString, domain) {
+    new Diagram(tag.toString, domain) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (o: d0.Obj) ⇒ {
         val x = domain.obj(o)
         val y = objectsMap(x)
@@ -358,6 +363,12 @@ object Diagram {
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
         (a: XArrow) ⇒ d1.arrow(arrowMap(domain.arrow(a)))
     }
+  }
+  
+  def build(tag: Any, domain: Category)(
+    objectsMap: domain.Obj ⇒ set,
+    arrowMap: domain.Arrow ⇒ SetFunction): Result[Diagram] = {
+    val diagram: Diagram = apply(tag, domain)(objectsMap, arrowMap)
 
     Functor.validateFunctor(diagram) returning diagram
   }
