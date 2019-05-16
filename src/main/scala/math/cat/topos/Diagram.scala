@@ -226,6 +226,13 @@ abstract class Diagram(
   override def toString = s"Diagram[${d0.name}](${
     d0.objects map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", " replace(s"Diagram[${d0.name}]", "")
   })".replace("Set()", "{}")
+  
+  def toShortString = s"Diagram[${d0.name}](${
+    d0.objects.toList.sortBy(_.toString) map { x ⇒ {
+      val obRepr = Diagram.cleanupString(objectsMapping(x).mkString(","))
+      if (obRepr.isEmpty) "" else x + "→{" + obRepr + "}"
+    } } filter(_.nonEmpty) mkString ", " replace(s"Diagram[${d0.name}]", "")
+  })".replace("Set()", "{}")
 
   /**
     * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value
@@ -332,8 +339,24 @@ trait Point extends (Any => Any) { p =>
 
   override def toString: String = {
     val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
+    Diagram.cleanupString(raw)
+  }
+
+  def toShortString = {
+    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
     val short = Diagram.cleanupString(raw)
-    short
+
+    val objs = domainCategory.objects.toList.sortBy(_.toString)
+    val strings: List[String] = objs map { x ⇒ {
+      val obRepr = apply(x) match {
+        case d: Diagram => 
+          Diagram.cleanupString(d.toShortString)
+        case other => other.toString
+      }
+      s"$x→$obRepr"
+    }}
+
+    Diagram.cleanupString(strings.mkString(s"Point$tag(", ", ", ")"))
   }
 
   override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode

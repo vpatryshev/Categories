@@ -13,7 +13,8 @@ class CategoryOfDiagrams(val domain: Category)
   override def toString: String = name
   
   type Node = Diagram
-  type Arrow = DiagramArrow
+  override type Obj = Diagram
+  override type Arrow = DiagramArrow
 
   def domainObjects: domain.Objects = domain.objects
   val listOfDomainObjects = domainObjects.toList
@@ -96,20 +97,20 @@ class CategoryOfDiagrams(val domain: Category)
   } else None
 
   trait includer {
-    val diagram1: Diagram
+    val subdiagram: Diagram
     
-    def in(diagram2: Diagram): Result[DiagramArrow] = {
-      val results: TraversableOnce[Result[(domain.Obj, diagram1.d1.Arrow)]] = for {
+    def in(diagram: Diagram): Result[DiagramArrow] = {
+      val results: TraversableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] = for {
         x <- domain
-        in = SetFunction.inclusion(diagram1(x), diagram2(x))
-        pair = in map (x → diagram1.d1.arrow(_))
+        in = SetFunction.inclusion(subdiagram(x), diagram(x))
+        pair = in map (x → subdiagram.d1.arrow(_))
       } yield pair
 
       val mapOpt = Result traverse results
       
       val result = for {
         map <- mapOpt
-        arrow <- NaturalTransformation.build(s"${diagram1.tag}⊂${diagram2.tag}", diagram1, diagram2)(map.toMap)
+        arrow <- NaturalTransformation.build(s"${subdiagram.tag}⊂${diagram.tag}", subdiagram, diagram)(map.toMap)
       } yield arrow
       
       result
@@ -117,7 +118,7 @@ class CategoryOfDiagrams(val domain: Category)
   }
   
   def inclusionOf(diagram: Diagram): includer =
-    new includer { val diagram1: Diagram = diagram }
+    new includer { val subdiagram: Diagram = diagram }
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     domain.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
@@ -182,7 +183,6 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
-
   def pointsOf(d: Diagram): List[Point] = {
     val objMappings = for {
       values <- Sets.product(d.listOfComponents) //.view
@@ -219,15 +219,16 @@ class CategoryOfDiagrams(val domain: Category)
         )
       }
     }
-    val f: Functor = d.asInstanceOf[Functor]
-    val dam = f.arrowsMapping(f.d0.arrow("a"))
-    val damf = dam.asInstanceOf[SetFunction]
-    for {
-      ob <- damf.d0
-    } {
-      val v = damf(ob)
-      println(v)
-    }
+// the following code is here for debugging... TODO: introduce tests!!!
+//    val f: Functor = d.asInstanceOf[Functor]
+//    val dam = f.arrowsMapping(f.d0.arrow("a"))
+//    val damf = dam.asInstanceOf[SetFunction]
+//    for {
+//      ob <- damf.d0
+//    } {
+//      val v = damf(ob)
+//      println(v)
+//    }
     d
   }
 }

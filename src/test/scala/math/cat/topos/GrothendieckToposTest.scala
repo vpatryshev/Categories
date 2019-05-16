@@ -52,8 +52,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       omega01.asInstanceOf[Diagram]("0").isEmpty must beFalse
       points.size === 2
 
-      points.map(_.toString) ===
-        List("Point0(0→(0→{}))", "Point1(0→(0→{0.0}))")  
+      points.map(_.toShortString) === List("Point0(0→())", "Point1(0→(0→{0.0}))")  
     }
 
     "exist for _2_" in {
@@ -65,14 +64,9 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       val omega1 = Ω("1")
       omega1.size === 2
       points.size === 3
-      points(0).toString ===
-        "Point0(0→(0→{}, 1→{}), 1→(0→{}, 1→{}))"
-
-      points(1).toString ===
-        "Point1(0→(0→{}, 1→{0.1}), 1→(0→{}, 1→{1.1}))"
-
-      points(2).toString ===
-        "Point2(0→(0→{0.0}, 1→{0.1}), 1→(0→{}, 1→{1.1}))"
+      points(0).toShortString === "Point0(0→(), 1→())"
+      points(1).toShortString === "Point1(0→(1→{0.1}), 1→(1→{1.1}))"
+      points(2).toShortString === "Point2(0→(0→{0.0}, 1→{0.1}), 1→(1→{1.1}))"
     }
 
     "exist for _3_" in {
@@ -84,17 +78,10 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       val omega1 = Ω("1")
       omega1.size === 3
       points.size === 4
-      points(0).toString ===
-        "Point0(0→(0→{}, 1→{}, 2→{}), 1→(0→{}, 1→{}, 2→{}), 2→(0→{}, 1→{}, 2→{}))"
-
-      points(1).toString ===
-        "Point1(0→(0→{}, 1→{}, 2→{0.2}), 1→(0→{}, 1→{}, 2→{1.2}), 2→(0→{}, 1→{}, 2→{2.2}))"
-
-      points(2).toString ===
-        "Point2(0→(0→{}, 1→{0.1}, 2→{0.2}), 1→(0→{}, 1→{1.1}, 2→{1.2}), 2→(0→{}, 1→{}, 2→{2.2}))"
-
-      points(3).toString ===
-        "Point3(0→(0→{0.0}, 1→{0.1}, 2→{0.2}), 1→(0→{}, 1→{1.1}, 2→{1.2}), 2→(0→{}, 1→{}, 2→{2.2}))"
+      points(0).toShortString === "Point0(0→(), 1→(), 2→())"
+      points(1).toShortString === "Point1(0→(2→{0.2}), 1→(2→{1.2}), 2→(2→{2.2}))"
+      points(2).toShortString === "Point2(0→(1→{0.1}, 2→{0.2}), 1→(1→{1.1}, 2→{1.2}), 2→(2→{2.2}))"
+      points(3).toShortString === "Point3(0→(0→{0.0}, 1→{0.1}, 2→{0.2}), 1→(1→{1.1}, 2→{1.2}), 2→(2→{2.2}))"
     }
 
     "exist for ParallelPair" in {
@@ -102,14 +89,9 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       import topos._
       val points = pointsOf(Ω)
       points.size === 3  // out of 5 possible candidates, 2 split by a or by b, so they are not points
-      points(0).toString ===
-        "Point0(0→(0→{}, 1→{}), 1→(0→{}, 1→{}))"
-
-      points(1).toString ===
-        "Point1(0→(0→{}, 1→{a,b}), 1→(0→{}, 1→{1}))"
-
-      points(2).toString ===
-        "Point2(0→(0→{0}, 1→{a,b}), 1→(0→{}, 1→{1}))"
+      points(0).toShortString === "Point0(0→(), 1→())"
+      points(1).toShortString === "Point1(0→(1→{a,b}), 1→(1→{1}))"
+      points(2).toShortString === "Point2(0→(0→{0}, 1→{a,b}), 1→(1→{1}))"
     }
 
     "exist for Pullback" in {
@@ -117,20 +99,11 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       import topos._
       val points = pointsOf(Ω)
       points.size === 5
-      points(0).toString ===
-        "Point0(a→(a→{}, b→{}, c→{}), b→(a→{}, b→{}, c→{}), c→(a→{}, b→{}, c→{}))"
-
-      points(1).toString ===
-        "Point1(a→(a→{}, b→{}, c→{ac}), b→(a→{}, b→{}, c→{bc}), c→(a→{}, b→{}, c→{c}))"
-
-      points(2).toString ===
-        "Point2(a→(a→{}, b→{}, c→{ac}), b→(a→{}, b→{b}, c→{bc}), c→(a→{}, b→{}, c→{c}))"
-
-      points(3).toString ===
-        "Point3(a→(a→{a}, b→{}, c→{ac}), b→(a→{}, b→{}, c→{bc}), c→(a→{}, b→{}, c→{c}))"
-
-      points(4).toString ===
-        "Point4(a→(a→{a}, b→{}, c→{ac}), b→(a→{}, b→{b}, c→{bc}), c→(a→{}, b→{}, c→{c}))"
+      points(0).toShortString === "Point0(a→(), b→(), c→())"
+      points(1).toShortString === "Point1(a→(c→{ac}), b→(c→{bc}), c→(c→{c}))"
+      points(2).toShortString === "Point2(a→(c→{ac}), b→(b→{b}, c→{bc}), c→(c→{c}))"
+      points(3).toShortString === "Point3(a→(a→{a}, c→{ac}), b→(c→{bc}), c→(c→{c}))"
+      points(4).toShortString === "Point4(a→(a→{a}, c→{ac}), b→(b→{b}, c→{bc}), c→(c→{c}))"
     }
 
     "exist for Pushout" in {
@@ -138,20 +111,11 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       import topos._
       val points = pointsOf(Ω)
       points.size === 5
-      points(0).toString ===
-        "Point0(a→(a→{}, b→{}, c→{}), b→(a→{}, b→{}, c→{}), c→(a→{}, b→{}, c→{}))"
-
-      points(1).toString ===
-        "Point1(a→(a→{}, b→{}, c→{ac}), b→(a→{}, b→{}, c→{}), c→(a→{}, b→{}, c→{c}))"
-
-      points(2).toString ===
-        "Point2(a→(a→{}, b→{ab}, c→{}), b→(a→{}, b→{b}, c→{}), c→(a→{}, b→{}, c→{}))"
-
-      points(3).toString ===
-        "Point3(a→(a→{}, b→{ab}, c→{ac}), b→(a→{}, b→{b}, c→{}), c→(a→{}, b→{}, c→{c}))"
-
-      points(4).toString ===
-        "Point4(a→(a→{a}, b→{ab}, c→{ac}), b→(a→{}, b→{b}, c→{}), c→(a→{}, b→{}, c→{c}))"
+      points(0).toShortString === "Point0(a→(), b→(), c→())"
+      points(1).toShortString === "Point1(a→(c→{ac}), b→(), c→(c→{c}))"
+      points(2).toShortString === "Point2(a→(b→{ab}), b→(b→{b}), c→())"
+      points(3).toShortString === "Point3(a→(b→{ab}, c→{ac}), b→(b→{b}), c→(c→{c}))"
+      points(4).toShortString === "Point4(a→(a→{a}, b→{ab}, c→{ac}), b→(b→{b}), c→(c→{c}))"
     }
 
     "exist for Z3" in {
@@ -159,9 +123,8 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       import topos._
       val points = pointsOf(Ω)
       points.size === 2
-      points(0).toString === "Point0(0→(0→{}))"
-
-      points(1).toString === "Point1(0→(0→{0,1,2}))"
+      points(0).toShortString === "Point0(0→())"
+      points(1).toShortString === "Point1(0→(0→{0,1,2}))"
     }
   }
   
@@ -268,44 +231,71 @@ class GrothendieckToposTest extends Test with TestDiagrams {
 
       val chi1: DiagramArrow = topos.classifyingMap(i1)
       val chi10 = topos.asFunction(chi1("0"))
-      chi10(1).toString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"
-      chi10(2).toString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"
-      chi10(3).toString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"
-      chi10(4).toString === "Diagram[ParallelPair](0→{}, 1→{a,b})"
-      chi10(5).toString === "Diagram[ParallelPair](0→{}, 1→{a,b})"
+      chi10(1).toShortString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"
+      chi10(2).toShortString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"
+      chi10(3).toShortString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"
+      chi10(4).toShortString === "Diagram[ParallelPair](1→{a,b})"
+      chi10(5).toShortString === "Diagram[ParallelPair](1→{a,b})"
       val chi11 = topos.asFunction(chi1("1"))
-      chi11(1).toString === "Diagram[ParallelPair](0→{}, 1→{1})"
-      chi11(2).toString === "Diagram[ParallelPair](0→{}, 1→{1})"
-      chi11(3).toString === "Diagram[ParallelPair](0→{}, 1→{})"
+      chi11(1).toShortString === "Diagram[ParallelPair](1→{1})"
+      chi11(2).toShortString === "Diagram[ParallelPair](1→{1})"
+      chi11(3).toShortString === "Diagram[ParallelPair]()"
     }
   }
 
   "Conjunction" should {
-    "exist for ParalelPair" in {
-      val topos = new CategoryOfDiagrams(ParallelPair)
+    
+    def check(topos: GrothendieckTopos): MatchResult[Any] = {
       import topos._
-
-      val ΩxΩ = product2(Ω, Ω)
-
-      def diagonalMap_Ω(x: domain.Obj): SetFunction = {
+      val desc = s"Testing ${domain.name}"
+      
+      def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
         SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
       }
 
-      val Δ: DiagramArrow = NaturalTransformation.build("Δ", Ω, ΩxΩ)(
-        (x: Ω.d0.Obj) => Ω.d1.arrow(diagonalMap_Ω(domain.obj(x)))).iHope
       val conjunction = Ω.conjunction
 
-      val pointOfTrueAndTrue = Ω.True.transform(Δ)
-      val p0 = pointOfTrueAndTrue("0")
-      val p1 = pointOfTrueAndTrue("1")
-      p0 === (Ω.True("0"), Ω.True("0"))
-      p1 === (Ω.True("1"), Ω.True("1"))
+      val pointOfTrueAndTrue = Ω.True.transform(Δ_Ω)
+
+      for {
+        obj <- domain.objects
+      } {
+        val p = pointOfTrueAndTrue(obj)
+        p aka s"$desc, @$obj" must_== (Ω.True(obj), Ω.True(obj))
+      }
+
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
       val classifierForTT: DiagramArrow = classifyingMap(monomorphism)
-      val theyAreTheSame = classifierForTT equals conjunction
-      classifierForTT === conjunction
-      theyAreTheSame === true
+      val theyAreTheSame = classifierForTT equals conjunction // nice to have this line, to check the comparison
+      classifierForTT aka desc must_== conjunction
     }
+    
+    "exist for ParalelPair" in {
+      check(new CategoryOfDiagrams(ParallelPair))
+    }
+
+    "exist for W" in {
+      check(new CategoryOfDiagrams(W))
+    }
+
+    "exist for 2 and 3" in {
+      check(new CategoryOfDiagrams(_2_))
+      check(new CategoryOfDiagrams(_3_))
+    }
+
+    "exist for pullbak and pushout" in {
+      check(new CategoryOfDiagrams(Pullback))
+      check(new CategoryOfDiagrams(Pushout))
+    }
+    
+//    "exist for many other domains" in {
+//      for {
+//        category <- KnownCategories
+//      } if (category.isFinite) {
+//        check(new CategoryOfDiagrams(category))
+//      }
+//      ok
+//    }
   }
 }

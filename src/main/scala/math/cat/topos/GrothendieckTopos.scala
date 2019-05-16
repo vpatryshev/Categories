@@ -1,13 +1,17 @@
 package math.cat.topos
 
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Functor, NaturalTransformation, SetFunction}
+import math.cat.{Category, Functor, NaturalTransformation, SetFunction}
 import math.sets.Sets
 import math.sets.Sets._
 import scalakittens.Result
 
-trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
+trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfDiagrams =>
+  val domain: Category
 
+  def inclusionOf(subdiagram: Diagram): { def in(diagram: Diagram): Result[DiagramArrow] }
+  def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
+  
   /**
     * Omega, subobject classifier.
     */
@@ -90,8 +94,8 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
           * @return their intersection
           */
         private def intersection(a: Diagram, b: Diagram): Diagram = {
-          println(s"A) $a")
-          println(s"B) $b")
+//          println(s"A) $a")
+//          println(s"B) $b")
           val om = (o: domain.Obj) => a(o) & b(o)
 
           // this is how, given an arrow `b`, the new diagram gets from one point to another
@@ -125,6 +129,15 @@ trait GrothendieckTopos extends Topos { this: CategoryOfDiagrams =>
       }
     }
   }
+
+  lazy val ΩxΩ = product2(Ω, Ω)
+
+  private def diagonalMap_Ω(x: domain.Obj): SetFunction = {
+    SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
+  }
+
+  lazy val Δ_Ω: DiagramArrow = NaturalTransformation.build("Δ", Ω, ΩxΩ)(
+    (x: Ω.d0.Obj) => Ω.d1.arrow(diagonalMap_Ω(domain.obj(x)))).iHope
 
   /**
     * Gvien an inclusion (a natural transformation from a diagram A to a diagram B), and an object x in domain

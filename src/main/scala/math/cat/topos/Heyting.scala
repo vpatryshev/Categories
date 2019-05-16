@@ -2,7 +2,7 @@ package math.cat.topos
 
 // TODO: figure out how to declare all this
 trait Heyting[Obj] {
-  val topos: Topos
+  val topos: Topos[Obj, _]
 //  type GP = Obj => Obj
 //  lazy val False: Obj = ???
 //  lazy val True: Obj = ???

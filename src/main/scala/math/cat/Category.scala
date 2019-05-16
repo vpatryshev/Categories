@@ -65,9 +65,9 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   def flatMap[B](f: Obj ⇒ GenTraversableOnce[B]): TraversableOnce[B] = objects.flatMap(f)
 
   def compositions: Iterable[(Arrow, Arrow, Arrow)] =
-    for {f <- arrows
-         g <- arrows
-         h <- m(f, g)} yield (f, g, h)
+    for {f ← arrows
+         g ← arrows
+         h ← m(f, g)} yield (f, g, h)
 
   def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 
@@ -155,8 +155,8 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     */
   def isMonomorphism(f: Arrow): Boolean = {
 
-    val iterable = for {g <- arrows if follows(f, g)
-                        h <- arrows if follows(f, h) && equalizes(g, h)(f)
+    val iterable = for {g ← arrows if follows(f, g)
+                        h ← arrows if follows(f, h) && equalizes(g, h)(f)
     } yield g == h
 
     iterable forall (x ⇒ x)
@@ -181,8 +181,8 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @return true iff f is an epimorphism
     */
   def isEpimorphism(f: Arrow): Boolean = {
-    val iterable = for (g <- arrows if follows(g, f);
-                        h <- arrows if follows(h, f) &&
+    val iterable = for (g ← arrows if follows(g, f);
+                        h ← arrows if follows(h, f) &&
       coequalizes(g, h)(f)) yield {
       g == h
     }
@@ -698,8 +698,8 @@ private[cat] abstract class CategoryData(
     val compositionsAreDefined = idsAreNeutral andThen OKif(!finiteArrows) orElse {
       Result.traverse {
         for {
-          f <- arrows
-          g <- arrows
+          f ← arrows
+          g ← arrows
           h = m(f, g)
         } yield {
           if (follows(g, f)) {
@@ -720,11 +720,11 @@ private[cat] abstract class CategoryData(
     val compositionIsAssociative = compositionsAreDefined andThen (OKif(!finiteArrows) orElse {
       Result.traverse {
         for {
-          f <- arrows
-          g <- arrows
-          h <- arrows
-          gf <- m(f, g)
-          hg <- m(g, h)
+          f ← arrows
+          g ← arrows
+          h ← arrows
+          gf ← m(f, g)
+          hg ← m(g, h)
         } yield {
           val h_gf = m(gf, h)
           val hg_f = m(f, hg)
@@ -778,11 +778,11 @@ private[cat] trait CategoryFactory {
     val composition = (f: String, g: String) ⇒ source.m(string2Arrow(f), string2Arrow(g)) map arrow2string
 
     for {
-      _ <- OKif(source.isFinite, "Need a finite category")
-      _ <- OKif(objects.size == source.objects.size, "some objects have the same string repr")
-      _ <- OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
-      g <- Graph.build(objects, arrows, d0, d1)
-      c <- build(source.name, g)(
+      _ ← OKif(source.isFinite, "Need a finite category")
+      _ ← OKif(objects.size == source.objects.size, "some objects have the same string repr")
+      _ ← OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
+      g ← Graph.build(objects, arrows, d0, d1)
+      c ← build(source.name, g)(
         ids.asInstanceOf[g.Node ⇒ g.Arrow], // TODO: find a way to avoid casting
         composition.asInstanceOf[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]])
     } yield c.asInstanceOf[Cat]
@@ -867,8 +867,8 @@ private[cat] trait CategoryFactory {
     codomain: Map[T, T],
     compositionSource: Map[(T, T), T]): Result[Category] = {
     for {
-      g <- Graph.build(objects, domain.keySet, domain, codomain)
-      c <- fromPartialData(name, g, compositionSource)
+      g ← Graph.build(objects, domain.keySet, domain, codomain)
+      c ← fromPartialData(name, g, compositionSource)
     } yield c
   }
 
@@ -946,7 +946,7 @@ private[cat] trait CategoryFactory {
     new Graph {
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
 
-      def arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
+      lazy val arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node =
         if (isIdentity(f)) node(f) else node(graph.d0(graph.arrow(f)))
@@ -1024,7 +1024,7 @@ private[cat] trait CategoryFactory {
   }
 
   def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] = {
-    for (f <- graph.arrows; g <- graph.arrows if graph.follows(g, f)) yield (f, g)
+    for (f ← graph.arrows; g ← graph.arrows if graph.follows(g, f)) yield (f, g)
   }
 
   // adding composition that are deduced from associativity law
@@ -1051,9 +1051,9 @@ private[cat] trait CategoryFactory {
   // this is a technical method to list all possible triples that have compositions defined pairwise
   protected def composableTriples[A](graph: Graph, compositionSource: Map[(A, A), A]): Set[(A, A, A)] = {
     val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
-      f <- graph.arrows
-      g <- graph.arrows if compositionSource.contains((f, g).asInstanceOf[(A, A)])
-      h <- graph.arrows if compositionSource.contains((g, h).asInstanceOf[(A, A)])
+      f ← graph.arrows
+      g ← graph.arrows if compositionSource.contains((f, g).asInstanceOf[(A, A)])
+      h ← graph.arrows if compositionSource.contains((g, h).asInstanceOf[(A, A)])
     } yield (f, g, h)
 
     triples.asInstanceOf[Set[(A, A, A)]]
@@ -1100,9 +1100,9 @@ private[cat] trait CategoryFactory {
       gOpt: Result[Graph],
       multTable: Map[(String, String), String]): Result[Cat] = {
       val catOpt: Result[Cat] = for {
-        g: Graph <- gOpt
-        raw <- fromPartialData(nameOpt.getOrElse("a category"), g, multTable)
-        cat <- convert2Cat(raw)()
+        g: Graph ← gOpt
+        raw ← fromPartialData(nameOpt.getOrElse("a category"), g, multTable)
+        cat ← convert2Cat(raw)()
       } yield cat
       catOpt
     }
@@ -1191,22 +1191,22 @@ object Category extends CategoryFactory {
   lazy val Square = category"Square:({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d, ad: a → d}, {bd ∘ ab = ad, cd ∘ ac = ad})"
 
   /**
-    * Pullback category: a → c <- b
+    * Pullback category: a → c ← b
     */
   lazy val Pullback = category"Pullback:({a,b,c}, {ac: a → c, bc: b → c})"
 
   /**
-    * Pushout category: b <- a → c
+    * Pushout category: b ← a → c
     */
   lazy val Pushout = category"Pushout:({a,b,c}, {ab: a → b, ac: a → c})"
 
   /**
-    * Sample W-shaped category: a → b <- c → d <- e
+    * Sample W-shaped category: a → b ← c → d ← e
     */
   lazy val W = category"W:({a,b,c,d,e}, {ab: a → b, cb: c → b, cd: c → d, ed: e → d})"
 
   /**
-    * Sample M-shaped category: a <- b → c <- d → e
+    * Sample M-shaped category: a ← b → c ← d → e
     */
   lazy val M = category"M:({a,b,c,d,e}, {ba: b → a, bc: b → c, dc: d → c, de: d → e})"
 

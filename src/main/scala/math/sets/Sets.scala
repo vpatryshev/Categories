@@ -301,7 +301,7 @@ object Sets {
   private def filteredSet[X](i: ⇒ Iterator[X], p: X ⇒ Boolean): Set[X] = {
     def j = i filter p
 
-    def n = (0 /: j) ((k, x) ⇒ k + 1)
+    val n = (0 /: j) ((k, x) ⇒ k + 1)
 
     setOf(j, n, p)
   }

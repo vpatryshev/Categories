@@ -51,16 +51,37 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
     }
   }
   
-  private lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
-    domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap
+  private[cat] lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
+    if (domainCategory.isFinite) domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap else null
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
   override def equals(x: Any): Boolean = x match {
     case other: NaturalTransformation ⇒
-      (this eq other) || {
-        d0 == other.d0 && d1 == other.d1 && asMap == other.asMap
-      }
+      (this eq other) || (
+        hashCode == other.hashCode &&
+        d0 == other.d0 &&
+        d1 == other.d1 && {
+          val foundBad: Option[domainCategory.Obj] = domainCategory.objects find (o => {
+            val first = transformPerObject(o)
+            val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
+            val same = first == second
+            if (!same) {
+              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
+              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
+              if (f1.keySet != f2.keySet) {
+                println("wtf, bad keys")
+              }
+              val whatbad = f1.keySet.find(k => f1(k) != f2(k))
+              
+              println(whatbad)
+            }
+            !same
+          }
+          ) // checking it every time takes time
+          
+          foundBad.isEmpty
+        })
     case otherwise ⇒ false
   }
 }
