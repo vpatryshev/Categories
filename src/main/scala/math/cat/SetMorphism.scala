@@ -15,10 +15,10 @@ class SetMorphism[X, Y] (
     val d1: Set[Y],
     val function: X ⇒ Y)
   extends Morphism[Set[X], Set[Y]] with Map[X, Y] {
-
+  private def plural(n: Int, w: String) = if (n == 1) s"1 $w" else s"$n ${w}s"
   override def toString: String = tag match {
     case "" ⇒ "{" + (d0 map (x ⇒ s"$x → ${this(x)}") mkString ", ")  + "}"
-    case _  ⇒ s"$tag: ${d0.size} elements → ${d1.size} elements"
+    case _  ⇒ s"$tag: ${plural(d0.size, "element")} → ${plural(d1.size, "element")}"
   }
 
   override def hashCode: Int = d0.hashCode * 4/*random number*/ + d1.hashCode

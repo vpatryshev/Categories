@@ -667,8 +667,10 @@ private[cat] abstract class CategoryData(
   type Objects = Set[Obj]
   override val name: String = "a category"
 
+  def asObj(x: Any): Obj = x.asInstanceOf[Obj]
+  
   def obj(x: Any): Obj =
-    Result.forValue(x.asInstanceOf[Obj]) filter (objects contains) getOrElse {
+    Result.forValue(asObj(x)) filter (objects contains) getOrElse {
       throw new IllegalArgumentException(s"$x is not an object in $name")
     }
 
@@ -818,9 +820,9 @@ private[cat] trait CategoryFactory {
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           composition(gr.arrow(f), gr.arrow(g)) map arrow
 
-        override def d0(f: Arrow): Obj = graph.d0(graph.arrow(f)).asInstanceOf[graph.Node]
+        override def d0(f: Arrow): Obj = asObj(graph.d0(graph.arrow(f)))
 
-        override def d1(f: Arrow): Obj = graph.d1(graph.arrow(f)).asInstanceOf[graph.Node]
+        override def d1(f: Arrow): Obj = asObj(graph.d1(graph.arrow(f)))
       }
   }
 

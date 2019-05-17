@@ -224,7 +224,7 @@ abstract class Diagram(
   }
 
   override def toString = s"Diagram[${d0.name}](${
-    d0.objects map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", " replace(s"Diagram[${d0.name}]", "")
+    d0.objects.toList.sortBy(_.toString) map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", " replace(s"Diagram[${d0.name}]", "")
   })".replace("Set()", "{}")
   
   def toShortString = s"Diagram[${d0.name}](${
@@ -338,7 +338,8 @@ trait Point extends (Any => Any) { p =>
   }
 
   override def toString: String = {
-    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
+    val objectsInGoodOrder = domainCategory.objects.toList.sortBy(_.toString)
+    val raw = objectsInGoodOrder.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
     Diagram.cleanupString(raw)
   }
 

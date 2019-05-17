@@ -52,9 +52,15 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
   }
   
   private[cat] lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
-    if (domainCategory.isFinite) domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap else null
+    if (domainCategory.isFinite) domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap else Map.empty
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
+  
+  override def toString = s"NT($tag)(${
+    if (domainCategory.isFinite) {
+      domainCategory.objects.toList.sortBy(_.toString).map(o ⇒ s"$o→(${transformPerObject(o)})").mkString(", ")
+    } else ""
+  })"
   
   override def equals(x: Any): Boolean = x match {
     case other: NaturalTransformation ⇒

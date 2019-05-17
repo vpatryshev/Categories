@@ -2,12 +2,11 @@ package math.cat.topos
 
 import math.Test
 import math.cat.Category._
-import math.cat.{NaturalTransformation, SetFunction}
+import math.cat.SetFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets
 import math.sets.Sets.set
 import org.specs2.matcher.MatchResult
-import scalakittens.Result
 import scalakittens.Result._
 
 class GrothendieckToposTest extends Test with TestDiagrams {
@@ -16,23 +15,23 @@ class GrothendieckToposTest extends Test with TestDiagrams {
 
   def representable(topos: CategoryOfDiagrams) =
     (obj: topos.domain.Obj) ⇒ topos.Representable(obj)
-  
-//  "Power" should {
-//    "exist for representables in Set^_2_" in {
-//      val topos = new Diagrams(_2_)
-//      import topos.domain._
-//      val sut0 = representable(topos)("0")
-//      val pow0 = sut0.power
-//      val sut1 = representable(topos)("1")
-//      val pow1 = sut1.power
-//      ok
-//    }
-//
-//    "exist for reps in Set^_2_" in {
-//      ok
-//    }    
-//  }
-  
+
+  //  "Power" should {
+  //    "exist for representables in Set^_2_" in {
+  //      val topos = new Diagrams(_2_)
+  //      import topos.domain._
+  //      val sut0 = representable(topos)("0")
+  //      val pow0 = sut0.power
+  //      val sut1 = representable(topos)("1")
+  //      val pow1 = sut1.power
+  //      ok
+  //    }
+  //
+  //    "exist for reps in Set^_2_" in {
+  //      ok
+  //    }    
+  //  }
+
   "Subobject classifier" should {
     "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
@@ -47,12 +46,12 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       val points = pointsOf(Ω)
       val omega0 = Ω("0").toList
       omega0.size === 2
-      val omega00::omega01::Nil = omega0
+      val omega00 :: omega01 :: Nil = omega0
       omega00.asInstanceOf[Diagram]("0").isEmpty must beTrue
       omega01.asInstanceOf[Diagram]("0").isEmpty must beFalse
       points.size === 2
 
-      points.map(_.toShortString) === List("Point0(0→())", "Point1(0→(0→{0.0}))")  
+      points.map(_.toShortString) === List("Point0(0→())", "Point1(0→(0→{0.0}))")
     }
 
     "exist for _2_" in {
@@ -88,7 +87,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(ParallelPair)
       import topos._
       val points = pointsOf(Ω)
-      points.size === 3  // out of 5 possible candidates, 2 split by a or by b, so they are not points
+      points.size === 3 // out of 5 possible candidates, 2 split by a or by b, so they are not points
       points(0).toShortString === "Point0(0→(), 1→())"
       points(1).toShortString === "Point1(0→(1→{a,b}), 1→(1→{1}))"
       points(2).toShortString === "Point2(0→(0→{0}, 1→{a,b}), 1→(1→{1}))"
@@ -127,43 +126,43 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       points(1).toShortString === "Point1(0→(0→{0,1,2}))"
     }
   }
-  
+
   "True and False" should {
     "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
       import topos._
       Ω.True === Ω.False // that's a degenerate topos
     }
-    
+
     def checkAt(point0: Any)(mappings: (String, set)*): MatchResult[Any] = {
       point0 match {
-        case d: Diagram => 
+        case d: Diagram =>
           (traverse {
-            for {(k, v) <- mappings } yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
+            for {(k, v) <- mappings} yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
           } andThen OK) === OK
         case trash => failure(s"Expected a diagram, got $trash")
       }
       ok
     }
-    
-    
+
+
     "exist for _1_" in {
       val topos = new CategoryOfDiagrams(_1_)
       val omega = topos.Ω
       checkAt(omega.False("0"))("0" → Sets.Empty)
       checkAt(omega.True("0"))("0" → Set("0.0"))
     }
-    
+
     "exist for _2_" in {
       val topos = new CategoryOfDiagrams(_2_)
       val omega = topos.Ω
       checkAt(omega.False("0"))("0" → Sets.Empty, "1" → Sets.Empty)
       checkAt(omega.False("1"))("0" → Sets.Empty, "1" → Sets.Empty)
-      
+
       checkAt(omega.True("0"))("0" → Set("0.0"), "1" → Set("0.1"))
       checkAt(omega.True("1"))("0" → Sets.Empty, "1" → Set("1.1"))
     }
-    
+
     "exist for _3_" in {
       val topos = new CategoryOfDiagrams(_3_)
       val omega = topos.Ω
@@ -221,9 +220,9 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       checkAt(omega.True("0"))("0" → Set("0", "1", "2"))
     }
   }
-  
+
   "Classifying map" should {
-    
+
     "exist for ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
       import topos._
@@ -244,33 +243,61 @@ class GrothendieckToposTest extends Test with TestDiagrams {
   }
 
   "Conjunction" should {
-    
+
     def check(topos: GrothendieckTopos): MatchResult[Any] = {
       import topos._
       val desc = s"Testing ${domain.name}"
-      
+
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
         SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
       }
 
       val conjunction = Ω.conjunction
 
-      val pointOfTrueAndTrue = Ω.True.transform(Δ_Ω)
-
-      for {
-        obj <- domain.objects
-      } {
-        val p = pointOfTrueAndTrue(obj)
-        p aka s"$desc, @$obj" must_== (Ω.True(obj), Ω.True(obj))
-      }
+      val True = Ω.True
+      val pointOfTrueAndTrue = True.transform(Δ_Ω)
 
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
+      //    println(monomorphism)
+
+      for {
+        o <- domain.objects
+      } {
+        val p = pointOfTrueAndTrue(o)
+        p aka s"$desc, @$o" must_==(Ω.True(o), Ω.True(o))
+        val monoAt_o = monomorphism(o)
+        val actual = monoAt_o.asInstanceOf[SetFunction](p)
+        actual aka s"$desc, @$o" must_== p
+      }
+
       val classifierForTT: DiagramArrow = classifyingMap(monomorphism)
       val theyAreTheSame = classifierForTT equals conjunction // nice to have this line, to check the comparison
+
+      if (!theyAreTheSame) {
+        for {
+          o0 <- domain.objects
+        } {
+          val o = classifierForTT.domainCategory.obj(o0)
+          val con_o = classifierForTT.transformPerObject(o).asInstanceOf[SetFunction].toMap.toList.sortBy(_._1.toString)
+          val tru_classif_o =
+            conjunction.transformPerObject(o.asInstanceOf[conjunction.domainCategory.Obj]).asInstanceOf[SetFunction].toMap.toList.sortBy(_._1.toString)
+          
+          val pairs = con_o zip tru_classif_o
+          
+          pairs foreach {
+            case ((k1, v1), (k2, v2)) =>
+              k1 === k2
+              v1 aka s"At $k1 at $o" must_== v2
+          }
+          
+          tru_classif_o === con_o
+        }
+      }
+
       classifierForTT aka desc must_== conjunction
     }
-    
+
     "exist for ParalelPair" in {
       check(new CategoryOfDiagrams(ParallelPair))
     }
@@ -288,14 +315,14 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       check(new CategoryOfDiagrams(Pullback))
       check(new CategoryOfDiagrams(Pushout))
     }
-    
-//    "exist for many other domains" in {
-//      for {
-//        category <- KnownCategories
-//      } if (category.isFinite) {
-//        check(new CategoryOfDiagrams(category))
-//      }
-//      ok
-//    }
+
+    //    "exist for many other domains" in {
+    //      for {
+    //        category <- KnownCategories
+    //      } if (category.isFinite) {
+    //        check(new CategoryOfDiagrams(category))
+    //      }
+    //      ok
+    //    }
   }
 }
