@@ -9,14 +9,14 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
   * @param domainCategory the domain category of a topos
   * @param mapping for each object of domain category, choose something in the diagram
   */
-case class Point(
-  tag: Any,
-  domainCategory: Category,
-  mapping: Any => Any) extends (Any => Any) { p =>
+class Point(
+  val tag: Any,
+  val domainCategory: Category,
+  val mapping: Any => Any) extends (Any => Any) { p =>
 
   def apply(x: Any): Any = mapping(x)
   
-  def named(name: Any): Point = Point(name, domainCategory, mapping)
+  def named(name: Any): Point = new Point(name, domainCategory, mapping)
 
   def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
 
@@ -29,7 +29,7 @@ case class Point(
       }
     }
 
-    Point(s"${f.tag}(${p.tag})", p.domainCategory, apply)
+    new Point(s"${f.tag}(${p.tag})", p.domainCategory, apply)
   }
 
   override def toString: String = {

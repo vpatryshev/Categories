@@ -315,7 +315,6 @@ class GrothendieckToposTest extends Test with TestDiagrams {
 
   "Disjunction" should {
 
-
     def check(topos: GrothendieckTopos): MatchResult[Any] = {
       import topos._
       val desc = s"Testing ${domain.name}"

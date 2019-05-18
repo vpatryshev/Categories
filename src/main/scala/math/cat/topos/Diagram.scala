@@ -57,7 +57,7 @@ abstract class Diagram(
   }
   
   def point(mapping: d0.Obj => Any, id: Any = ""): Point =
-    Point(id, diagram.d0, (x: Any) => mapping(diagram.d0.obj(x)))
+    new Point(id, diagram.d0, (x: Any) => mapping(diagram.d0.obj(x)))
 
   lazy val points: List[Point] = {
     val objMappings = for {

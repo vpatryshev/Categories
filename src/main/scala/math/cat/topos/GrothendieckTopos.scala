@@ -85,36 +85,36 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
       points.last named "⊤"
     }
 
+    /**
+      * Intersection of two subrepresentables on object `x`
+      * @param a first subrepresentable
+      * @param b second subrepresentable
+      * @return their intersection
+      */
+    private[topos] def intersection(a: Diagram, b: Diagram): Diagram = {
+      val om = (o: domain.Obj) => a(o) & b(o)
+
+      // this is how, given an arrow `b`, the new diagram gets from one point to another
+      def am(f: domain.Arrow): SetFunction = {
+        val x = om(domain.d0(f))
+        val y = om(domain.d1(f))
+
+        a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
+      }
+
+      val tag = s"${a.tag}∩${b.tag}"
+
+      val result: Result[Diagram] = Diagram.build(tag, domain)(
+        o => om(domain.obj(o)), f => am(domain.arrow(f)))
+
+      result.iHope
+    }
+
     lazy val conjunction: DiagramArrow = {
       new DiagramArrow {
         val tag = "∧"
         override val d0: Functor = ΩxΩ
         override val d1: Functor = Ω
-
-        /**
-          * Intersection of two subrepresentables on object `x`
-          * @param a first subrepresentable
-          * @param b second subrepresentable
-          * @return their intersection
-          */
-        private def intersection(a: Diagram, b: Diagram): Diagram = {
-          val om = (o: domain.Obj) => a(o) & b(o)
-
-          // this is how, given an arrow `b`, the new diagram gets from one point to another
-          def am(f: domain.Arrow): SetFunction = {
-            val x = om(domain.d0(f))
-            val y = om(domain.d1(f))
-            
-            a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
-          }
-
-          val tag = s"${a.tag}∩${b.tag}"
-          
-          val result: Result[Diagram] = Diagram.build(tag, domain)(
-            o => om(domain.obj(o)), f => am(domain.arrow(f)))
-          
-          result.iHope
-        }
 
         def conjunctionOfTwoSubreps(pair: Any): Diagram = pair match {
           case (a: Diagram, b: Diagram) => intersection(a,b)
@@ -180,6 +180,32 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
   }
 
   lazy val ΩxΩ = product2(Ω, Ω)
+  
+  trait Predicate extends DiagramArrow { p =>
+    val d0: Diagram
+    val d1: Diagram = Ω
+    
+    def ∧(q: Predicate): Predicate = {
+      val pair = ΩxΩ
+      new Predicate {
+        val d0: Diagram = p.d0
+        val tag = s"${p.tag} ∧ ${q.tag}"
+
+        override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow = {
+          val pairs = product2(p.d0(o), q.d0(o))
+          
+          def trans(pair: Any): Any = pair match {
+            case (po: Any, qo: Any) => (p(po), q(qo))
+            case other => throw new IllegalArgumentException(s"$other? @$o")
+          }
+          val PQtoΩxΩ: SetFunction = SetFunction.build(pairs(o), ΩxΩ(o), trans _).iHope
+
+          val conj: SetFunction = Ω.conjunction(o).asInstanceOf[SetFunction]
+          codomainCategory.arrow(Result(PQtoΩxΩ.compose(conj)).iHope)
+        }
+      }
+    }
+  }
 
   private def diagonalMap_Ω(x: domain.Obj): SetFunction = {
     SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
