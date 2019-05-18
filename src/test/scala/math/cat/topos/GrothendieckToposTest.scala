@@ -311,18 +311,22 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       check(new CategoryOfDiagrams(_3_))
     }
 
+    "exist for _5_" in {
+      check(new CategoryOfDiagrams(_5_))
+    }
+
     "exist for pullbak and pushout" in {
       check(new CategoryOfDiagrams(Pullback))
       check(new CategoryOfDiagrams(Pushout))
     }
 
-    //    "exist for many other domains" in {
-    //      for {
-    //        category <- KnownCategories
-    //      } if (category.isFinite) {
-    //        check(new CategoryOfDiagrams(category))
-    //      }
-    //      ok
-    //    }
+    "exist for many other domains" in {
+      for {
+        category <- KnownCategories
+      } if (category.isFinite) {
+        check(new CategoryOfDiagrams(category))
+      }
+      ok
+    }
   }
 }
