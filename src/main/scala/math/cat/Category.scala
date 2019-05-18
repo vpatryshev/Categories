@@ -742,6 +742,8 @@ private[cat] abstract class CategoryData(
 
   def objects: Objects = nodes
 
+  lazy val listOfObjects = if (isFinite) objects.toList.sortBy(_.toString) else throw new IllegalStateException("Cannot sort infinite set")
+
   def nodes: Objects = graph.nodes.asInstanceOf[Objects]
 
   def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]

@@ -36,14 +36,14 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       points.size === 1
     }
 
     "exist for _1_" in {
       val topos = new CategoryOfDiagrams(_1_)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       val omega0 = Ω("0").toList
       omega0.size === 2
       val omega00 :: omega01 :: Nil = omega0
@@ -57,7 +57,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for _2_" in {
       val topos = new CategoryOfDiagrams(_2_)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       val omega0 = Ω("0")
       omega0.size === 3
       val omega1 = Ω("1")
@@ -71,7 +71,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for _3_" in {
       val topos = new CategoryOfDiagrams(_3_)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       val omega0 = Ω("0")
       omega0.size === 4
       val omega1 = Ω("1")
@@ -86,7 +86,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       points.size === 3 // out of 5 possible candidates, 2 split by a or by b, so they are not points
       points(0).toShortString === "Point0(0→(), 1→())"
       points(1).toShortString === "Point1(0→(1→{a,b}), 1→(1→{1}))"
@@ -96,7 +96,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for Pullback" in {
       val topos = new CategoryOfDiagrams(Pullback)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       points.size === 5
       points(0).toShortString === "Point0(a→(), b→(), c→())"
       points(1).toShortString === "Point1(a→(c→{ac}), b→(c→{bc}), c→(c→{c}))"
@@ -108,7 +108,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for Pushout" in {
       val topos = new CategoryOfDiagrams(Pushout)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       points.size === 5
       points(0).toShortString === "Point0(a→(), b→(), c→())"
       points(1).toShortString === "Point1(a→(c→{ac}), b→(), c→(c→{c}))"
@@ -120,7 +120,7 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for Z3" in {
       val topos = new CategoryOfDiagrams(Z3)
       import topos._
-      val points = pointsOf(Ω)
+      val points = Ω.points
       points.size === 2
       points(0).toShortString === "Point0(0→())"
       points(1).toShortString === "Point1(0→(0→{0,1,2}))"
@@ -131,7 +131,9 @@ class GrothendieckToposTest extends Test with TestDiagrams {
     "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
       import topos._
-      Ω.True === Ω.False // that's a degenerate topos
+      val tTrue = Ω.True.mapping
+      val tFalse = Ω.False.mapping
+      tTrue === tFalse // that's a degenerate topos, but tags are still distinct
     }
 
     def checkAt(point0: Any)(mappings: (String, set)*): MatchResult[Any] = {
@@ -253,13 +255,12 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       }
 
       val conjunction = Ω.conjunction
-
+      
       val True = Ω.True
       val pointOfTrueAndTrue = True.transform(Δ_Ω)
 
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
-      //    println(monomorphism)
 
       for {
         o <- domain.objects
@@ -298,29 +299,35 @@ class GrothendieckToposTest extends Test with TestDiagrams {
       classifierForTT aka desc must_== conjunction
     }
 
-    "exist for ParalelPair" in {
-      check(new CategoryOfDiagrams(ParallelPair))
-    }
-
-    "exist for W" in {
-      check(new CategoryOfDiagrams(W))
-    }
-
-    "exist for 2 and 3" in {
-      check(new CategoryOfDiagrams(_2_))
-      check(new CategoryOfDiagrams(_3_))
-    }
-
     "exist for _5_" in {
       check(new CategoryOfDiagrams(_5_))
     }
 
-    "exist for pullbak and pushout" in {
-      check(new CategoryOfDiagrams(Pullback))
-      check(new CategoryOfDiagrams(Pushout))
+    "exist for all known domains" in {
+      for {
+        category <- KnownCategories
+      } if (category.isFinite) {
+        check(new CategoryOfDiagrams(category))
+      }
+      ok
+    }
+  }
+
+  "Disjunction" should {
+
+
+    def check(topos: GrothendieckTopos): MatchResult[Any] = {
+      import topos._
+      val desc = s"Testing ${domain.name}"
+
+      val points = Ω.points
+      val disjunction = Ω.disjunction
+
+      
+      ok
     }
 
-    "exist for many other domains" in {
+    "exist for all known domains" in {
       for {
         category <- KnownCategories
       } if (category.isFinite) {

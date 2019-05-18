@@ -6,7 +6,7 @@ package math.cat
   */
 trait GraphMorphism
   extends Morphism[Graph, Graph] { m ⇒
-  val tag: String
+  val tag: Any
   val d0: Graph
   val d1: Graph
   

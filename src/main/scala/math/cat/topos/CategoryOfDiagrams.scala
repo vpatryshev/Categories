@@ -15,9 +15,6 @@ class CategoryOfDiagrams(val domain: Category)
   type Node = Diagram
   override type Obj = Diagram
   override type Arrow = DiagramArrow
-
-  def domainObjects: domain.Objects = domain.objects
-  val listOfDomainObjects = domainObjects.toList
   
   override lazy val initial: Result[Obj] =
     BaseCategory.initial map const("initial", domain)
@@ -183,25 +180,12 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
-  def pointsOf(d: Diagram): List[Point] = {
-    val objMappings = for {
-      values <- Sets.product(d.listOfComponents) //.view
-      mapping = listOfDomainObjects zip values toMap;
-      om: Point = d.point(o ⇒ mapping(domain.obj(o)))
-      if d.isCompatible(om)
-    } yield om
-
-    val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
-
-    sorted map { p ⇒ d.point(p._1, p._2) }
-  }
-
   def inclusionOf(p: Point): includer = {
     val subdiagram = singletonDiagram(p.tag, o ⇒ p(o))
     inclusionOf(subdiagram)
   }
 
-  def singletonDiagram(tag: String, value: domain.Obj ⇒ Any): Diagram = {
+  def singletonDiagram(tag: Any, value: domain.Obj ⇒ Any): Diagram = {
     val d = new Diagram(tag, domain) {
       
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(Set(value(x.asInstanceOf[domain.Obj])))
@@ -231,6 +215,7 @@ class CategoryOfDiagrams(val domain: Category)
 //    }
     d
   }
+
 }
 
 object CategoryOfDiagrams {

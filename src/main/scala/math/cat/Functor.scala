@@ -13,7 +13,7 @@ import scalakittens.Result._
   * @param d1 codomain
   */
 abstract class Functor(
-  val tag: String,
+  val tag: Any,
   val d0: Category, val d1: Category
 ) extends GraphMorphism {
 
@@ -91,9 +91,8 @@ abstract class Functor(
       (x: d0.Obj) ⇒ d1.arrowsBetween(d1.obj(y), objectsMapping(x)) map { (x, _) }
     )
 
-    val listOfDomainObjects: List[d0.Obj] = domainObjects.toList
     // group (x, f: y→F[x]) by x
-    val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = listOfDomainObjects map arrowsFromYtoFX
+    val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = d0.listOfObjects map arrowsFromYtoFX
 
     val coneCandidates: Set[List[(d0.Obj, d1.Arrow)]] = product(homsGroupedByX)
     val result: Set[Cone] = coneCandidates flatMap cone(y)

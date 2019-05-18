@@ -21,7 +21,7 @@ import scala.language.postfixOps
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
   */
 abstract class Diagram(
-  tag: String,
+  tag: Any,
   override val d0: Category)
   extends Functor(tag, d0, SetCategory.Setf) { diagram =>
   type XObject = d0.Obj
@@ -56,12 +56,20 @@ abstract class Diagram(
     asFunction(arrowInSets)
   }
   
-  def point(mapping: d0.Obj => Any, id: Any = ""): Point = new Point {
-    val tag: String = id.toString
+  def point(mapping: d0.Obj => Any, id: Any = ""): Point =
+    Point(id, diagram.d0, (x: Any) => mapping(diagram.d0.obj(x)))
 
-    override val domainCategory: Category = diagram.d0
+  lazy val points: List[Point] = {
+    val objMappings = for {
+      values <- Sets.product(listOfComponents) //.view
+      mapping = d0.listOfObjects zip values toMap;
+      om: Point = point(mapping)
+      if isCompatible(om)
+    } yield om
 
-    override def apply(x: Any): Any = mapping(diagram.d0.obj(x))
+    val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
+
+    sorted map { p ⇒ p._1 named p._2 }
   }
 
   def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
@@ -176,7 +184,7 @@ abstract class Diagram(
       itsok
   }
 
-  lazy val listOfComponents: List[set] = domainObjects.toList map objectsMapping map asSet
+  lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map asSet
   
   private def extendToArrows(om: d0.Obj => Sets.set)(a: d0.Arrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
@@ -224,11 +232,11 @@ abstract class Diagram(
   }
 
   override def toString = s"Diagram[${d0.name}](${
-    d0.objects.toList.sortBy(_.toString) map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", " replace(s"Diagram[${d0.name}]", "")
+    d0.listOfObjects map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", " replace(s"Diagram[${d0.name}]", "")
   })".replace("Set()", "{}")
   
   def toShortString = s"Diagram[${d0.name}](${
-    d0.objects.toList.sortBy(_.toString) map { x ⇒ {
+    d0.listOfObjects map { x ⇒ {
       val obRepr = Diagram.cleanupString(objectsMapping(x).mkString(","))
       if (obRepr.isEmpty) "" else x + "→{" + obRepr + "}"
     } } filter(_.nonEmpty) mkString ", " replace(s"Diagram[${d0.name}]", "")
@@ -311,65 +319,6 @@ abstract class Diagram(
     }
   }
 }
-
-trait Point extends (Any => Any) { p =>
-
-  val tag: String
-
-  val domainCategory: Category
-
-  def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
-
-  def transform(f: DiagramArrow): Point = {
-    new Point {
-      val tag = s"${f.tag}(${p.tag})"
-      val domainCategory: Category = p.domainCategory
-      val codom = f.d1.asInstanceOf[Diagram]
-      def apply(o: Any) = {
-        val x_o = p(o)
-        f(o) match {
-          case sf: SetFunction =>
-            val y_o = sf(x_o)
-            y_o
-          case weirdStuff => throw new IllegalArgumentException(s"${f(o)} was supposed to be a set function")
-        }
-      }
-    }
-  }
-
-  override def toString: String = {
-    val objectsInGoodOrder = domainCategory.objects.toList.sortBy(_.toString)
-    val raw = objectsInGoodOrder.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
-    Diagram.cleanupString(raw)
-  }
-
-  def toShortString = {
-    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
-    val short = Diagram.cleanupString(raw)
-
-    val objs = domainCategory.objects.toList.sortBy(_.toString)
-    val strings: List[String] = objs map { x ⇒ {
-      val obRepr = apply(x) match {
-        case d: Diagram => 
-          Diagram.cleanupString(d.toShortString)
-        case other => other.toString
-      }
-      s"$x→$obRepr"
-    }}
-
-    Diagram.cleanupString(strings.mkString(s"Point$tag(", ", ", ")"))
-  }
-
-  override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode
-
-  override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
-    case p: Point =>
-      p.tag == tag && p.domainCategory == domainCategory &&
-        domainCategory.objects.forall(o => p(o) == this(o))
-    case other => false
-  })
-}
-
 
 object Diagram {
 

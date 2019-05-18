@@ -72,16 +72,17 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
             val first = transformPerObject(o)
             val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
             val same = first == second
-            if (!same) {
-              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
-              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
-              if (f1.keySet != f2.keySet) {
-                println("wtf, bad keys")
-              }
-              val whatbad = f1.keySet.find(k => f1(k) != f2(k))
-              
-              println(whatbad)
-            }
+// the following code is, sorry, for debugging. Maybe better to have tests. later.
+//            if (!same) {
+//              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
+//              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
+//              if (f1.keySet != f2.keySet) {
+//                println("wtf, bad keys")
+//              }
+//              val whatbad = f1.keySet.find(k => f1(k) != f2(k))
+//              
+//              println(whatbad)
+//            }
             !same
           }
           ) // checking it every time takes time

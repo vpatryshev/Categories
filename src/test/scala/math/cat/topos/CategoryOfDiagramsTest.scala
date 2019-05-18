@@ -197,7 +197,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       actual.size === 85
       val objects = actual map fullSet
 
-      topos.pointsOf(actual.head).size === 0
+      actual.head.points.size === 0
       val last = actual.last
       sut.d0 === last.d0
       sut.d1 === last.d1
@@ -265,7 +265,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val sut = SampleParallelPairDiagram1
       val topos = new CategoryOfDiagrams(ParallelPair)
       import topos._
-      val actual = pointsOf(sut)
+      val actual = sut.points
       actual.size === 3
       val check = checkPoint(sut) _
       val p1 :: p2 :: p3 :: Nil = actual
@@ -278,7 +278,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val sut = SamplePullbackDiagram
       val topos = new CategoryOfDiagrams(Pullback)
       import topos._
-      val actual = pointsOf(sut)
+      val actual = sut.points
       actual.size === 5
       val p1 :: p2 :: p3 :: p4 :: p5 :: Nil = actual
       val check = checkPoint(sut) _
@@ -291,9 +291,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
     "exist in Z3 diagram" in {
       val sut = SampleZ3Diagram
-      val topos = new CategoryOfDiagrams(Z3)
-      import topos._
-      val actual = pointsOf(sut)
+      val actual = sut.points
       actual.size === 1
       val p1 :: Nil = actual
       val check = checkPoint(sut) _
