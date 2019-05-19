@@ -32,6 +32,27 @@ class Point(
     new Point(s"${f.tag}(${p.tag})", p.domainCategory, apply)
   }
 
+  def asDiagram: Diagram = {
+    new Diagram(tag, domainCategory) {
+
+      override val objectsMapping: d0.Obj ⇒ d1.Obj =
+        (x: d0.Obj) ⇒ d1.obj(Set(mapping(x.asInstanceOf[domainCategory.Obj])))
+
+      private def arrowToFunction(a: d0.Arrow): Any ⇒ Any =
+        (z: Any) ⇒ {
+          val y = d0.d1(a).asInstanceOf[domainCategory.Obj]
+          val v = mapping(y)
+          v
+        }
+
+      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (a: d0.Arrow) ⇒ {
+        d1.arrow( // need a set function from a.d0 to a.d1
+          SetFunction(s"$tag(.)", objectsMapping(d0.d0(a)), objectsMapping(d0.d1(a)), arrowToFunction(a))
+        )
+      }
+    }
+  }
+
   override def toString: String = {
     val raw = domainCategory.listOfObjects.map(x => s"$x→${apply(x)}")
     Diagram.cleanupString(raw.mkString(s"Point$tag(", ", ", ")"))

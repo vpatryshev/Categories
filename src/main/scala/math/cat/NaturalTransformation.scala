@@ -11,12 +11,12 @@ import scalakittens.Result.Outcome
   * f and g are from the same category
   * f and g are to the same category
   * the following squares are commutative:
-  *    f[a]: f[x] ---> f[y]
+  *    f[a]: f[x] --→ f[y]
   *            |         |
   *       t[x] |         | t[y]
   *            |         |
   *            V         V
-  *    g[a]: g[x] ---> g[y]
+  *    g[a]: g[x] --→ g[y]
   */
 abstract class NaturalTransformation extends Morphism[Functor, Functor] { self ⇒
   val tag: Any
@@ -24,7 +24,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
   lazy val codomainCategory: Category = d1.d1 // == d0.d1, of course
 
   def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow
-  def apply(x: Any) = transformPerObject(domainCategory.obj(x))
+  def apply(x: Any): codomainCategory.Arrow = transformPerObject(domainCategory.obj(x))
 
   // TODO: check the preconditions, return an option
   def compose(next: NaturalTransformation): NaturalTransformation = {
@@ -58,7 +58,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
   
   override def toString = s"NT($tag)(${
     if (domainCategory.isFinite) {
-      domainCategory.objects.toList.sortBy(_.toString).map(o ⇒ s"$o→(${transformPerObject(o)})").mkString(", ")
+      domainCategory.listOfObjects.map(o ⇒ s"$o→(${transformPerObject(o)})").mkString(", ")
     } else ""
   })"
   
@@ -68,7 +68,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
         hashCode == other.hashCode &&
         d0 == other.d0 &&
         d1 == other.d1 && {
-          val foundBad: Option[domainCategory.Obj] = domainCategory.objects find (o => {
+          val foundBad: Option[Any] = domainCategory.objects find (o => {
             val first = transformPerObject(o)
             val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
             val same = first == second
@@ -77,11 +77,15 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
 //              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
 //              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
 //              if (f1.keySet != f2.keySet) {
-//                println("wtf, bad keys")
+//                val badkeys = f1.keySet.diff(f2.keySet).union(f2.keySet.diff(f1.keySet))
+//                println("wtf, bad keys $badkeys")
+//                badkeys
+//              } else {
+//                val whatbad = f1.keySet.find(k => f1(k) != f2(k))
+//
+//                println(whatbad)
+//                whatbad
 //              }
-//              val whatbad = f1.keySet.find(k => f1(k) != f2(k))
-//              
-//              println(whatbad)
 //            }
             !same
           }
@@ -119,7 +123,7 @@ object NaturalTransformation {
         val r = Result.forValue {
           val tx0: f.d1.Arrow = transformPerObject(x0)
           val tx1: f.d1.Arrow = transformPerObject(x1)
-          val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
+          val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0→x1, fa: F[x0]→F[x1]; tx1: F[x1]→G[x1]
           val downright: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
           val checked = rightdown == downright
           require(checked, s"Nat'l transform law broken for $a")

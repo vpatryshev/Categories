@@ -180,42 +180,31 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
-  def inclusionOf(p: Point): includer = {
-    val subdiagram = singletonDiagram(p.tag, o ⇒ p(o))
-    inclusionOf(subdiagram)
+  def inclusionOf(p: Point): includer = inclusionOf(p.asDiagram)
+  
+  def standardInclusion(p: Point, d: Diagram): Result[Arrow] = {
+    inclusionOf(p) in d map uniqueFromTerminalTo(p).compose
   }
 
-  def singletonDiagram(tag: Any, value: domain.Obj ⇒ Any): Diagram = {
-    val d = new Diagram(tag, domain) {
-      
-      override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(Set(value(x.asInstanceOf[domain.Obj])))
-      
-      private def arrowToFunction(a: d0.Arrow): Any ⇒ Any =
-        (z: Any) ⇒ {
-          val y = d0.d1(a).asInstanceOf[domain.Obj]
-          val v = value(y)
-          v
-        }
-      
-      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (a: d0.Arrow) ⇒ {
-        d1.arrow( // need a set function from a.d0 to a.d1
-          SetFunction(s"$tag(.)", objectsMapping(d0.d0(a)), objectsMapping(d0.d1(a)), arrowToFunction(a))
-        )
+  /**
+    * An arrow from terminal to the point as a diagram
+    * @return
+    */
+  def uniqueFromTerminalTo(p: Point): Arrow = {
+    new DiagramArrow {
+      val tag = s"⊤→${p.tag}"
+
+      override val d0: Diagram = _1
+      override val d1: Diagram = p.asDiagram
+
+      override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow =
+      codomainCategory.arrow {
+        val value = p(o)
+        SetFunction.build(_1(o), Set(value), _ => value).iHope
       }
-    }
-// the following code is here for debugging... TODO: introduce tests!!!
-//    val f: Functor = d.asInstanceOf[Functor]
-//    val dam = f.arrowsMapping(f.d0.arrow("a"))
-//    val damf = dam.asInstanceOf[SetFunction]
-//    for {
-//      ob <- damf.d0
-//    } {
-//      val v = damf(ob)
-//      println(v)
-//    }
-    d
+    }    
   }
-
+  
 }
 
 object CategoryOfDiagrams {

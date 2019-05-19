@@ -9,7 +9,7 @@ import math.sets.Sets._
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
-import scala.collection.{GenTraversableOnce, TraversableOnce}
+import scala.collection.{GenTraversableOnce, TraversableOnce, mutable}
 
 /**
   * Category class, and the accompanying object.
@@ -116,6 +116,11 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
 
+  private def calculateHom(from: Obj, to: Obj): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
+
+  private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
+  
+  
   /**
     * Produces a collection of arrows from x to y.
     *
@@ -123,7 +128,11 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * @param to   second object
     * @return the set of all arrows from x to y
     */
-  def hom(from: Obj, to: Obj): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
+  def hom(from: Obj, to: Obj): Arrows = {
+    if (isFinite) {
+      homCache.getOrElseUpdate((from, to), calculateHom(from, to))
+    } else calculateHom(from, to)
+  }
 
 
   /**
@@ -483,14 +492,14 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
     * at d0(f) and d0(g), equalizing them: f ∘ px = g ∘ py, that is, making the square
     * <pre>
-    * py
-    * U -----> Y
-    * |        |
+    *      py
+    *   U —————→ Y
+    *   |        |
     * px|        | g
-    * |        |
-    * v        v
-    * X -----> Z
-    * f
+    *   |        |
+    *   ↓        ↓
+    *   X —————→ Z
+    *      f
     * </pre>
     * commutative.
     *
@@ -547,14 +556,14 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     * Builds a set of all pairs (qx, qy) of arrows that end at the same codomain and start
     * at d1(f) and d1(g), coequalizing them: m(f, qx) = m(g, qy), making the square
     * <pre>
-    * g
-    * Z -----> Y
-    * |        |
-    * f|        | qy
-    * |        |
-    * v        v
-    * X -----> U
-    * qx
+    *       g
+    *   Z —————→ Y
+    *   |        |
+    * f |        | qy
+    *   |        |
+    *   ↓        ↓
+    *   X —————→ U
+    *      qx
     * </pre>
     * commutative.
     *
