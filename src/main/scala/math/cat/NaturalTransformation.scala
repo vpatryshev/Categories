@@ -19,7 +19,7 @@ import scalakittens.Result.Outcome
   *    g[a]: g[x] ---> g[y]
   */
 abstract class NaturalTransformation extends Morphism[Functor, Functor] { self ⇒
-  val tag: String
+  val tag: Any
   lazy val domainCategory: Category = d0.d0
   lazy val codomainCategory: Category = d1.d1 // == d0.d1, of course
 

@@ -245,17 +245,49 @@ class GrothendieckToposTest extends Test with TestDiagrams {
   }
 
   "Conjunction" should {
-
-    def check(topos: GrothendieckTopos): MatchResult[Any] = {
+    
+    def checkProperties(topos: GrothendieckTopos): MatchResult[Any] = {
       import topos._
-      val desc = s"Testing ${domain.name}"
+      val desc = s"Testing ${domain.name} properties"
+      val points = Ω.points
+      val True = predicateFor(Ω.True)
+      val False = predicateFor(Ω.False)
+      
+      for { p <- points } {
+        val pp = predicateFor(p)
+        (True ∧ pp) === pp
+        (False ∧ pp) === False
+
+        // idempotence
+        (pp ∧ pp) === pp
+
+        for { q <- points } {
+          val pq = predicateFor(q)
+          val ppq = pp ∧ pq
+          
+          // commutativity
+          (pp ∧ pq) === (pq ∧ pp)
+          
+          for { r <- points } {
+            val pr = predicateFor(r)
+            // associativity
+            (ppq ∧ pr) === (pp ∧ (pq ∧ pr))
+          }
+        }
+      }
+      ok
+    }
+
+    def checkTrue(topos: GrothendieckTopos): MatchResult[Any] = {
+      import topos._
+      val desc = s"Testing ${domain.name} True value"
 
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
         SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
       }
 
       val conjunction = Ω.conjunction
-      
+
       val True = Ω.True
       val pointOfTrueAndTrue = True.transform(Δ_Ω)
 
@@ -283,20 +315,29 @@ class GrothendieckToposTest extends Test with TestDiagrams {
           val con_o = classifierForTT.transformPerObject(o).asInstanceOf[SetFunction].toMap.toList.sortBy(_._1.toString)
           val tru_classif_o =
             conjunction.transformPerObject(o.asInstanceOf[conjunction.domainCategory.Obj]).asInstanceOf[SetFunction].toMap.toList.sortBy(_._1.toString)
-          
+
           val pairs = con_o zip tru_classif_o
-          
+
           pairs foreach {
             case ((k1, v1), (k2, v2)) =>
               k1 === k2
               v1 aka s"At $k1 at $o" must_== v2
           }
-          
+
           tru_classif_o === con_o
         }
       }
 
       classifierForTT aka desc must_== conjunction
+    }
+
+
+    def check(topos: GrothendieckTopos): MatchResult[Any] = {
+      import topos._
+      val desc = s"Testing ${domain.name}"
+
+      checkTrue(topos)
+      checkProperties(topos)
     }
 
     "exist for _5_" in {

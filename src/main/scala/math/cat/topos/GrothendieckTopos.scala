@@ -9,7 +9,6 @@ import scalakittens.Result
 trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfDiagrams =>
   val domain: Category
 
-  def inclusionOf(subdiagram: Diagram): { def in(diagram: Diagram): Result[DiagramArrow] }
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
   
   /**
@@ -78,9 +77,12 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
 
     validate iHope
 
+    // TODO: redefine as classifying an empty
     lazy val False: Point = {
       points.head named "⊥"
     }
+
+    // TODO: redefine as classifying an identity
     lazy val True: Point = {
       points.last named "⊤"
     }
@@ -176,14 +178,23 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
           codomainCategory.arrow(perObject(d0.d0.obj(x)))
       }
     }
-
+    
   }
 
   lazy val ΩxΩ = product2(Ω, Ω)
   
-  trait Predicate extends DiagramArrow { p =>
+  trait Predicate extends DiagramArrow { p: DiagramArrow =>
     val d0: Diagram
     val d1: Diagram = Ω
+    
+    private def setAt(o: Any): set = {
+      val o1 = domainCategory.obj(o)
+      val function = p.transformPerObject(o1).asInstanceOf[SetFunction]
+      asSet(function.d0)
+    }
+    
+    private def transformAt(o: Any): SetFunction =
+      transformPerObject(domainCategory.obj(o)).asInstanceOf[SetFunction]
     
     def ∧(q: Predicate): Predicate = {
       val pair = ΩxΩ
@@ -192,13 +203,20 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
         val tag = s"${p.tag} ∧ ${q.tag}"
 
         override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow = {
-          val pairs = product2(p.d0(o), q.d0(o))
+          val pairs = Sets.product2(p.setAt(o), q.setAt(o)).untyped
+
+          val po = p.transformAt(o)
+          val qo = q.transformAt(o)
           
           def trans(pair: Any): Any = pair match {
-            case (po: Any, qo: Any) => (p(po), q(qo))
+            case (po0: Any, qo0: Any) =>
+              (po(po0), qo(qo0))
             case other => throw new IllegalArgumentException(s"$other? @$o")
           }
-          val PQtoΩxΩ: SetFunction = SetFunction.build(pairs(o), ΩxΩ(o), trans _).iHope
+          val PQtoΩxΩ: SetFunction =
+            SetFunction.build(s"PQ→ΩxΩ($o)", pairs, ΩxΩ(o), z => {
+              trans(z)
+            }).iHope
 
           val conj: SetFunction = Ω.conjunction(o).asInstanceOf[SetFunction]
           codomainCategory.arrow(Result(PQtoΩxΩ.compose(conj)).iHope)
@@ -207,6 +225,22 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
     }
   }
 
+  def predicateFor(p: Point): Predicate = {
+    
+    val inclusion: DiagramArrow = inclusionOf(p) in Ω iHope
+
+    new Predicate {
+      override val d0: Obj = _1
+      override val tag: Any = p.tag
+      
+      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
+        val xInInclusion = inclusion.domainCategory.obj(x)
+        val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
+        codomainCategory.arrow(arrowInInclusion)
+      }
+    }
+  }
+  
   private def diagonalMap_Ω(x: domain.Obj): SetFunction = {
     SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
   }
@@ -269,11 +303,15 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
     * @param inclusion B >--> A - a natural transformation from diagram B to diagram A
     * @return A -> Ω
     */
-  def classifyingMap(inclusion: Arrow): Arrow = {
+  def classifyingMap(inclusion: Arrow): Predicate = {
     val objToFunction: domain.Obj => SetFunction = classifyingMapAt(inclusion)
-    
-    val ntOpt = NaturalTransformation.build(s"(χ${inclusion.tag})", inclusion.d1, Ω)(x => inclusion.d1.d1.arrow(objToFunction(domain.obj(x))))
-    
-    ntOpt.iHope
+
+    new Predicate {
+      val d0: Diagram = inclusion.d1
+      val tag = s"(χ${inclusion.tag})"
+
+      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+        codomainCategory.arrow(objToFunction(domain.obj(x)))
+    }
   }
 }
