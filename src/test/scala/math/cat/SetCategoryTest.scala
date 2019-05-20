@@ -122,10 +122,10 @@ class SetCategoryTest extends Specification {
         case Good(s: set) ⇒
           s.size === 81
           for {
-            a <- source
-            b <- source
-            c <- source
-            d <- source
+            a ← source
+            b ← source
+            c ← source
+            d ← source
           } {
             val point = List(a,b,c,d)
             s(point) === true
@@ -173,7 +173,7 @@ class SetCategoryTest extends Specification {
 
     "have an id" in {
       for {
-        obj <- s4
+        obj ← s4
       } Setf.id(s4)(obj) === obj
 
       ok
@@ -217,7 +217,7 @@ class SetCategoryTest extends Specification {
           p1.d0 === p2.d0
           val sut = p1.d0
           sut.size === 9
-          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === true
+          for {i ← 1 to 3; j ← 2 to 4} sut((i, j)) === true
         case none ⇒ failure(s"Where's my product? $none")
       }
       ok
@@ -269,7 +269,7 @@ class SetCategoryTest extends Specification {
           p1.d0 === p2.d0
           val sut = p1.d0
           sut.size === 5
-          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === ((i+j) %2 == 1)
+          for {i ← 1 to 3; j ← 2 to 4} sut((i, j)) === ((i+j) %2 == 1)
         case none ⇒ failure(s"Where's my pullback? $none")
       }
       ok

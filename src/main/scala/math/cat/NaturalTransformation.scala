@@ -68,7 +68,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
         hashCode == other.hashCode &&
         d0 == other.d0 &&
         d1 == other.d1 && {
-          val foundBad: Option[Any] = domainCategory.objects find (o => {
+          val foundBad: Option[Any] = domainCategory.objects find (o ⇒ {
             val first = transformPerObject(o)
             val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
             val same = first == second
@@ -81,7 +81,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
 //                println("wtf, bad keys $badkeys")
 //                badkeys
 //              } else {
-//                val whatbad = f1.keySet.find(k => f1(k) != f2(k))
+//                val whatbad = f1.keySet.find(k ⇒ f1(k) != f2(k))
 //
 //                println(whatbad)
 //                whatbad
@@ -110,15 +110,15 @@ object NaturalTransformation {
     OKif(codomainCategory == g.d1, s"Functors must map to the same categories") andAlso
     Result.traverse {
     for {
-      a <- f.d0.arrows
+      a ← f.d0.arrows
     } yield {
       val x0: f.d0.Obj = f.d0.d0(a)
       val x1: f.d0.Obj = f.d0.d1(a)
       val faOpt = forValue(f.arrowsMapping(a))
       val gaOpt = forValue(g.arrowsMapping(g.d0.arrow(a)))
       val rr = for {
-        fa <- faOpt
-        ga <- gaOpt
+        fa ← faOpt
+        ga ← gaOpt
       } yield {
         val r = Result.forValue {
           val tx0: f.d1.Arrow = transformPerObject(x0)

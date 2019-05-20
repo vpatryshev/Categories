@@ -69,7 +69,7 @@ class ZFC {
       }
       
       val sb = new StringBuilder("{")
-      for (s <- content.sorted takeWhile (_ ⇒ sb.length < patience)) {
+      for (s ← content.sorted takeWhile (_ ⇒ sb.length < patience)) {
         if (sb.length > 1) sb.append(",")
         sb.append(s)
       }

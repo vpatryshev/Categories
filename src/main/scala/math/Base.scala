@@ -93,7 +93,7 @@ object Base {
     */
   def setProduct[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] = {
     (for {
-      x <- xs; y <- ys
+      x ← xs; y ← ys
     } yield(x, y))(breakOut)
   }
 

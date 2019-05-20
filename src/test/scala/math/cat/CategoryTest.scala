@@ -22,7 +22,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "have segments" >> {
       for {
-        i <- 0 until 10
+        i ← 0 until 10
       } {
         Category.segment(i).arrows.size === i*(i+1)/2
       }

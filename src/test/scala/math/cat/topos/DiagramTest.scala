@@ -104,8 +104,8 @@ class DiagramTest extends Test with TestDiagrams {
           val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
 
           for {
-            i <- 1 to 3
-            j <- 2 to 4
+            i ← 1 to 3
+            j ← 2 to 4
           } {
             val element = i :: j :: Nil
             (i, j, vertex(element)) === (i, j, (i + j) % 2 == 1)
@@ -130,7 +130,7 @@ class DiagramTest extends Test with TestDiagrams {
           val ar1 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("1"))))
 
           for {
-            element <- vertex
+            element ← vertex
           } {
             val i = (element match {
               case n :: Nil ⇒ n;
@@ -167,9 +167,9 @@ class DiagramTest extends Test with TestDiagrams {
             val are = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("e"))))
 
             for {
-              i <- SampleWDiagramContent.a
-              j <- SampleWDiagramContent.c
-              k <- SampleWDiagramContent.e
+              i ← SampleWDiagramContent.a
+              j ← SampleWDiagramContent.c
+              k ← SampleWDiagramContent.e
             } {
               val element = i :: j :: k :: Nil
               if (vertex(element)) {
@@ -216,9 +216,9 @@ class DiagramTest extends Test with TestDiagrams {
               val points = sut.limitBuilder
 
               for {
-                i <- a
-                j <- c
-                k <- e
+                i ← a
+                j ← c
+                k ← e
               } {
                 val element = i :: j :: k :: Nil
                 val eq1 = ab(i) == cb(j)
@@ -292,12 +292,12 @@ class DiagramTest extends Test with TestDiagrams {
             val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
             val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))
             for {
-              i <- 1 to 3
+              i ← 1 to 3
             } {
               ara(i) == list(i - 1)
             }
             for {
-              i <- 2 to 4
+              i ← 2 to 4
             } {
               arb(i) == list(i - 2)
             }
@@ -356,9 +356,9 @@ class DiagramTest extends Test with TestDiagrams {
           val are = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("e"))))
 
           for {
-            i <- SampleMDiagramContent.a
-            j <- SampleMDiagramContent.c
-            k <- SampleMDiagramContent.e
+            i ← SampleMDiagramContent.a
+            j ← SampleMDiagramContent.c
+            k ← SampleMDiagramContent.e
           } {
             val element = i :: j :: k :: Nil
             if (vertex(element)) {

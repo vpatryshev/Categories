@@ -21,11 +21,11 @@ class LogicTest extends Fixtures {
 
     def checkAt(point0: Any)(mappings: (String, set)*): MatchResult[Any] = {
       point0 match {
-        case d: Diagram =>
+        case d: Diagram ⇒
           (traverse {
-            for {(k, v) <- mappings} yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
+            for {(k, v) ← mappings} yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
           } andThen OK) === OK
-        case trash => failure(s"Expected a diagram, got $trash")
+        case trash ⇒ failure(s"Expected a diagram, got $trash")
       }
       ok
     }
@@ -116,10 +116,10 @@ class LogicTest extends Fixtures {
       checkThatIn(topos).mustBeMonoid[Predicate](
         "conjunction",
         True,
-        (p: Predicate, q: Predicate) => p ∧ q
+        (p: Predicate, q: Predicate) ⇒ p ∧ q
       )
 
-      for { p <- Ω.points} {
+      for { p ← Ω.points} {
         println(s"  checking conjunction with False for ${p.tag}")
         val pp = predicateFor(p)
         (False ∧ pp) === False
@@ -132,7 +132,7 @@ class LogicTest extends Fixtures {
       val desc = s"Testing ${domain.name} True value"
 
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
-        SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
+        SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) ⇒ (subrep, subrep)).iHope
       }
 
       val conjunction = Ω.conjunction
@@ -144,7 +144,7 @@ class LogicTest extends Fixtures {
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
 
       for {
-        o <- domain.objects
+        o ← domain.objects
       } {
         val p = pointOfTrueAndTrue(o)
         p aka s"$desc, @$o" must_==(Ω.True(o), Ω.True(o))
@@ -158,7 +158,7 @@ class LogicTest extends Fixtures {
 
       if (!theyAreTheSame) {
         for {
-          o0 <- domain.objects
+          o0 ← domain.objects
         } {
           val o = classifierForTT.domainCategory.obj(o0)
           val con_o = classifierForTT.transformPerObject(o).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
@@ -168,7 +168,7 @@ class LogicTest extends Fixtures {
           val pairs = con_o zip tru_classif_o
 
           pairs foreach {
-            case ((k1, v1), (k2, v2)) =>
+            case ((k1, v1), (k2, v2)) ⇒
               k1 === k2
               v1 aka s"At $k1 at $o" must_== v2
           }
@@ -204,10 +204,10 @@ class LogicTest extends Fixtures {
       checkThatIn(topos).mustBeMonoid[Predicate](
         "disjunction",
         False,
-        (p: Predicate, q: Predicate) => p ∨ q
+        (p: Predicate, q: Predicate) ⇒ p ∨ q
       )
 
-      for { p <- Ω.points} {
+      for { p ← Ω.points} {
         println(s"  checking disjunction with False for ${p.tag}")
         val pp = predicateFor(p)
         (True ∨ pp) === True
@@ -227,10 +227,10 @@ class LogicTest extends Fixtures {
         checkThatIn(topos).mustBeMonoid[Predicate](
           "disjunction",
           False,
-          (p: Predicate, q: Predicate) => p ∨ q
+          (p: Predicate, q: Predicate) ⇒ p ∨ q
         )
 
-        for { p <- Ω.points} {
+        for { p ← Ω.points} {
           println(s"  checking disjunction with False for ${p.tag}")
           val pp = predicateFor(p)
           (True ∨ pp) === True
@@ -273,16 +273,16 @@ class LogicTest extends Fixtures {
       val desc = s"Testing ${cat.name} distributivity laws"
       println(desc)
 
-      for { pt1 <- points } {
+      for { pt1 ← points } {
         println(s"  distributivity at ${pt1.tag}")
         val p = predicateFor(pt1)
 
-        for { pt2 <- points } {
+        for { pt2 ← points } {
           val q = predicateFor(pt2)
           val pAndQ = p ∧ q
           val pOrQ = p ∨ q
 
-          for { pt3 <- points } {
+          for { pt3 ← points } {
             val r: Predicate = predicateFor(pt3)
             conjunctionOverDisjunction(topos)(p, q, pAndQ, r)
             disjunctionOverConjunction(topos)(p, q, pOrQ, r)

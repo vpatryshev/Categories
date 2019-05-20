@@ -9,27 +9,27 @@ class Fixtures extends Test with TestDiagrams {
   case class checkThatIn(topos: GrothendieckTopos) {
     def mustBeMonoid[P](what: String,
       unit: P,
-      binop: (P, P) => P): MatchResult[Any] = {
+      binop: (P, P) ⇒ P): MatchResult[Any] = {
       import topos._
       val points = Ω.points
       println(s"Testing <<${domain.name}>> $what monoidal properties (${points.size} points in Ω)")
       def predicate(p: Point): P = predicateFor(p).asInstanceOf[P]
 
-      for { p <- points } {
+      for { p ← points } {
         println(s"  monoidal at ${p.tag}")
         val pp = predicate(p)
         binop(unit, pp) === pp
         // idempotence
         binop(pp, pp) === pp
 
-        for { q <- points } {
+        for { q ← points } {
           val pq = predicate(q)
           val ppq = binop(pp, pq)
 
           // commutativity
           ppq === binop(pq, pp)
 
-          for { r <- points } {
+          for { r ← points } {
             val pr = predicate(r)
             // associativity
             binop(ppq, pr) === binop(pp, binop(pq, pr))

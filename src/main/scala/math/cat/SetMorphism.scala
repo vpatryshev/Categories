@@ -70,7 +70,7 @@ object SetMorphism {
   // Validates set morphism.
   // All we need is that each d0 element is mapped to a d1 element.
   def check[X, Y, T <: SetMorphism[X, Y]](f: T): Result[T] = Result.traverse {
-    for {x <- f.d0} yield {
+    for {x ← f.d0} yield {
       val y = f.function(x)
       val yInD1 = f.d1 contains y
       OKif(yInD1, s"${f.tag}: Value $y for $x should be in d1 ${f.d1}")

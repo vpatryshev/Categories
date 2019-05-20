@@ -16,7 +16,7 @@ class BaseTest extends Specification {
       val actual = Base.inverse(m)
 
       def assertRightInverse[A, B](f: Map[A, B], g: Map[B, A]): MatchResult[Any] = {
-        for (a <- f.keys) {
+        for (a ← f.keys) {
           f.get(a).flatMap(g.get) must beSome(a)
         }
         ok

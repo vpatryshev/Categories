@@ -23,7 +23,7 @@ import scala.language.postfixOps
 abstract class Diagram(
   tag: Any,
   override val d0: Category)
-  extends Functor(tag, d0, SetCategory.Setf) { diagram =>
+  extends Functor(tag, d0, SetCategory.Setf) { diagram ⇒
   type XObject = d0.Obj
   type XObjects = Set[d0.Obj]
   type XArrow = d0.Arrow
@@ -46,8 +46,8 @@ abstract class Diagram(
   }
 
   implicit def asFunction(a: d1.Arrow): SetFunction = a match {
-    case sf: SetFunction => sf
-    case trash =>
+    case sf: SetFunction ⇒ sf
+    case trash ⇒
       throw new IllegalArgumentException(s"Expected a set function, got $trash")
   }
 
@@ -56,12 +56,12 @@ abstract class Diagram(
     asFunction(arrowInSets)
   }
   
-  def point(mapping: d0.Obj => Any, id: Any = ""): Point =
-    new Point(id, diagram.d0, (x: Any) => mapping(diagram.d0.obj(x)))
+  def point(mapping: d0.Obj ⇒ Any, id: Any = ""): Point =
+    new Point(id, diagram.d0, (x: Any) ⇒ mapping(diagram.d0.obj(x)))
 
   lazy val points: List[Point] = {
     val objMappings = for {
-      values <- Sets.product(listOfComponents) //.view
+      values ← Sets.product(listOfComponents) //.view
       mapping = d0.listOfObjects zip values toMap;
       om: Point = point(mapping)
       if isCompatible(om)
@@ -128,8 +128,8 @@ abstract class Diagram(
 
     // All possible functions in the diagram, bundled with domain objects
     val functionsToUnion: Set[(XObject, SetFunction)] = for {
-      o <- d0.objects
-      a <- bundles(o)
+      o ← d0.objects
+      a ← bundles(o)
       from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
       embeddingToUnion =
@@ -145,7 +145,7 @@ abstract class Diagram(
 
     // have to factor the union by the equivalence relationship caused
     // by two morphisms mapping the same element to two possibly different.
-    for (o <- d0.objects) {
+    for (o ← d0.objects) {
       val F_o = nodesMapping(o) // the set to which `o` maps
       val arrowsFrom_o: Seq[XArrow] = bundles(o).toList
 
@@ -156,9 +156,9 @@ abstract class Diagram(
       arrowsFrom_o match {
         case a0 :: tail ⇒
           val f = inclusionToUnion(a0)
-          for (a <- tail) {
+          for (a ← tail) {
             val g = inclusionToUnion(a)
-            for (x <- F_o) {
+            for (x ← F_o) {
               theFactorset.merge(f(x), g(x))
             }
           }
@@ -186,10 +186,18 @@ abstract class Diagram(
 
   lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map asSet
   
-  private def extendToArrows(om: d0.Obj => Sets.set)(a: d0.Arrow): SetFunction = {
+  private def extendToArrows(om: d0.Obj ⇒ Sets.set)(a: d0.Arrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
     SetFunction.build("", dom, codom, arrowsMapping(a)).iHope
+  }
+  
+  // TODO: write tests
+  def filter(tag: String, predicate: d0.Obj ⇒ Any ⇒ Boolean): Diagram = {
+    val om: d0.Obj ⇒ Sets.set =
+      o => objectsMapping(o) filter predicate(o)
+    
+    Diagram(tag, d0)(om, extendToArrows(om))
   }
 
   def subobjects: Iterable[Diagram] = {
@@ -199,7 +207,7 @@ abstract class Diagram(
     val listOfObjects: List[d0.Obj] = domainObjects.toList
     val listOfComponents: List[Set[set]] = listOfObjects.map(allPowers)
 
-    def isCompatible(om: d0.Obj => Sets.set) = d0.arrows.forall {
+    def isCompatible(om: d0.Obj ⇒ Sets.set) = d0.arrows.forall {
       a ⇒
         val d00 = toSet(om(d0.d0(a)))
         val d01 = om(d0.d1(a))
@@ -214,9 +222,9 @@ abstract class Diagram(
     }
 
     val objMappings = for {
-      values <- Sets.product(listOfComponents) //.view
+      values ← Sets.product(listOfComponents) //.view
       om0: Point = point(listOfObjects zip values toMap)
-      om: Map[d0.Obj, Sets.set] = d0.objects map (x => x → toSet(om0(x))) toMap;
+      om: Map[d0.Obj, Sets.set] = d0.objects map (x ⇒ x → toSet(om0(x))) toMap;
       if isCompatible(om)
     } yield om
     

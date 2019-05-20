@@ -12,7 +12,7 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 class Point(
   val tag: Any,
   val domainCategory: Category,
-  val mapping: Any => Any) extends (Any => Any) { p =>
+  val mapping: Any ⇒ Any) extends (Any ⇒ Any) { p ⇒
 
   def apply(x: Any): Any = mapping(x)
   
@@ -23,8 +23,8 @@ class Point(
   def transform(f: DiagramArrow): Point = {
     def apply(o: Any) = {
       f(o) match {
-        case sf: SetFunction => sf(p(o))
-        case weirdStuff =>
+        case sf: SetFunction ⇒ sf(p(o))
+        case weirdStuff ⇒
           throw new IllegalArgumentException(s"${f(o)} was supposed to be a set function")
       }
     }
@@ -54,20 +54,20 @@ class Point(
   }
 
   override def toString: String = {
-    val raw = domainCategory.listOfObjects.map(x => s"$x→${apply(x)}")
+    val raw = domainCategory.listOfObjects.map(x ⇒ s"$x→${apply(x)}")
     Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
   }
 
   def toShortString = {
-    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"$tag(", ", ", ")")
+    val raw = domainCategory.objects.map(x ⇒ s"$x→${apply(x)}").mkString(s"$tag(", ", ", ")")
     val short = Diagram.cleanupString(raw)
 
     val strings: List[String] =
       domainCategory.listOfObjects map { x ⇒ {
       val obRepr = apply(x) match {
-        case d: Diagram =>
+        case d: Diagram ⇒
           Diagram.cleanupString(d.toShortString)
-        case other => other.toString
+        case other ⇒ other.toString
       }
       s"$x→$obRepr"
     }}
@@ -78,10 +78,10 @@ class Point(
   override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode
 
   override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
-    case p: Point =>
+    case p: Point ⇒
       p.tag == tag && p.domainCategory == domainCategory &&
-        domainCategory.objects.forall(o => p(o) == this(o))
-    case other => false
+        domainCategory.objects.forall(o ⇒ p(o) == this(o))
+    case other ⇒ false
   })
 }
 

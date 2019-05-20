@@ -43,14 +43,14 @@ class CategoryOfDiagrams(val domain: Category)
     (1 :: Nil).toStream
 
     val all: Set[Diagram] = for {
-      (candidate, i) <- Sets.powerset(domain.objects).zipWithIndex
+      (candidate, i) ← Sets.powerset(domain.objects).zipWithIndex
       // some mappings are not working for a given candidate
       amCandidate: (domain.Arrow ⇒ Result[SetFunction]) = arrowMappingOpt(candidate)
       arrowsMapOpt: Set[Result[(domain.Arrow, SetFunction)]] = domain.arrows map (a ⇒ amCandidate(a) map (a → _))
-      am: Traversable[(domain.Arrow, SetFunction)] <- Result.traverse(arrowsMapOpt).asOption
+      am: Traversable[(domain.Arrow, SetFunction)] ← Result.traverse(arrowsMapOpt).asOption
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram: Diagram <- Diagram.build("__" + i, domain)(om, am.toMap).asOption
+      diagram: Diagram ← Diagram.build("__" + i, domain)(om, am.toMap).asOption
     } yield diagram
 
     all
@@ -98,7 +98,7 @@ class CategoryOfDiagrams(val domain: Category)
     
     def in(diagram: Diagram): Result[DiagramArrow] = {
       val results: TraversableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] = for {
-        x <- domain
+        x ← domain
         in = SetFunction.inclusion(subdiagram(x), diagram(x))
         pair = in map (x → subdiagram.d1.arrow(_))
       } yield pair
@@ -106,8 +106,8 @@ class CategoryOfDiagrams(val domain: Category)
       val mapOpt = Result traverse results
       
       val result = for {
-        map <- mapOpt
-        arrow <- NaturalTransformation.build(s"${subdiagram.tag}⊂${diagram.tag}", subdiagram, diagram)(map.toMap)
+        map ← mapOpt
+        arrow ← NaturalTransformation.build(s"${subdiagram.tag}⊂${diagram.tag}", subdiagram, diagram)(map.toMap)
       } yield arrow
       
       result
@@ -200,7 +200,7 @@ class CategoryOfDiagrams(val domain: Category)
       override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow =
       codomainCategory.arrow {
         val value = p(o)
-        SetFunction.build(_1(o), Set(value), _ => value).iHope
+        SetFunction.build(_1(o), Set(value), _ ⇒ value).iHope
       }
     }    
   }

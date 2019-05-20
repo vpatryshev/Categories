@@ -282,7 +282,7 @@ object Sets {
     val r = Set("c", "b", "a")
     println(s"Is $r equal to $q? ${r == q}")
     println(s"Does $q contain $a? ${q.contains("a")}")
-    val tuples = for (arg <- Set(1, 2, 3)) yield {
+    val tuples = for (arg ← Set(1, 2, 3)) yield {
       ("key" + arg, "v" + arg)
     }
 

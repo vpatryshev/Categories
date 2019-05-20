@@ -51,13 +51,13 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) ⇒ Boolean) exten
   }
 
   protected def validate(): Unit = if (Sets.isFinite(underlyingSet)) {
-    for {x <- underlyingSet} require(le(x, x), " reflexivity broken at " + x)
+    for {x ← underlyingSet} require(le(x, x), " reflexivity broken at " + x)
     
-    for {x <- underlyingSet; y <- underlyingSet} {
+    for {x ← underlyingSet; y ← underlyingSet} {
       if (le(x, y) && le(y, x)) require(x == y, " antisymmetry broken at " + x + ", " + y)
     }
     
-    for {x <- underlyingSet; y <- underlyingSet; z <- underlyingSet} {
+    for {x ← underlyingSet; y ← underlyingSet; z ← underlyingSet} {
       if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
     }
   }

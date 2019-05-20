@@ -14,7 +14,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
   def checkConstSize(topos: CategoryOfDiagrams)(obj: topos.Obj, expected: Int): Unit = {
     for {
-      x <- topos.domain.objects
+      x ← topos.domain.objects
     } {
       val setAtx: Set[_] = obj apply x
       setAtx.size === expected
@@ -79,8 +79,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         ob("e") | ""   | ""  | ""   | ""  | "e"
 
       val mults = for {
-        x <- topos.domain.objects
-        a <- topos.domain.arrows
+        x ← topos.domain.objects
+        a ← topos.domain.arrows
       } {
         val r = rep(x)
         val arrow = r.d0.arrow(a)
@@ -244,7 +244,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
       val actual = topos.product2(SampleMDiagram, SampleMDiagram)
       for {
-        x <- topos.domain.objects
+        x ← topos.domain.objects
       } {
         actual(x).size == SampleMDiagram(x).size*SampleMDiagram(x).size
       }

@@ -28,8 +28,8 @@ class PoSetMorphism[X, Y] private(
 object PoSetMorphism {
   def check[X, Y](pom: PoSetMorphism[X, Y]): Result[PoSetMorphism[X, Y]] = {
     val r0 = SetMorphism.check[X, Y, PoSetMorphism[X, Y]](pom)
-    val results = for {x <- pom.d0
-                       y <- pom.d0
+    val results = for {x ← pom.d0
+                       y ← pom.d0
                        if pom.d0.le(x, y)
     } yield {
       val fx = pom(x)

@@ -352,13 +352,13 @@ object Functor {
     * F(g) o F(f) = F(g o f)
     */
   private[cat] def validateFunctor(f: Functor): Result[Functor] = for {
-    _ <- checkObjectMapping(f)
-    _ <- checkArrowMapping(f)
-    _ <- checkIdentityPreservation(f) andAlso checkCompositionPreservation(f)
+    _ ← checkObjectMapping(f)
+    _ ← checkArrowMapping(f)
+    _ ← checkIdentityPreservation(f) andAlso checkCompositionPreservation(f)
   } yield f
 
   private def checkIdentityPreservation(f: Functor): Outcome = Result.traverse {
-    for (x <- f.domainObjects) yield {
+    for (x ← f.domainObjects) yield {
       val y: f.d1.Obj = f.objectsMapping(x)
       OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
     }
@@ -378,7 +378,7 @@ object Functor {
 
     val checked = Result.traverse {
       for {
-        (fx, gx) <- Category.composablePairs(f.d0)
+        (fx, gx) ← Category.composablePairs(f.d0)
       } yield {
         val r = check(fx, gx)
 //        if (r.isBad) { // TODO: remove this block, it makes no sense
@@ -404,7 +404,7 @@ object Functor {
   }
 
   private def checkArrowMapping(f: Functor): Outcome = Result.traverse {
-    for (a <- f.d0.arrows) yield {
+    for (a ← f.d0.arrows) yield {
       Result.forValue(f.arrowsMapping(a)) flatMap {
         aa ⇒
           val domainActual = f.d1.d0(aa)
@@ -422,7 +422,7 @@ object Functor {
 
   private def checkObjectMapping(f: Functor): Outcome =
     Result.traverse {
-      for (x <- f.domainObjects) yield {
+      for (x ← f.domainObjects) yield {
         val someY: Result[f.d1.Obj] =
           Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
         someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")

@@ -60,7 +60,7 @@ class SetFunctionTest extends Specification {
       val sut = SetFunction.constant(s0, s1, 77)
       sut.d0 === s0
       sut.d1 === s1
-      for (x <- s0) (sut(x) == 77) must beTrue
+      for (x ← s0) (sut(x) == 77) must beTrue
       try {
         sut(3)
         failure("3 is not in domain")
@@ -86,7 +86,7 @@ class SetFunctionTest extends Specification {
       val sut = inclusion(s0, s1).iHope
       sut.d0 === s0
       sut.d1 === s1
-      for (x <- s0) (sut(x) == x) must beTrue
+      for (x ← s0) (sut(x) == x) must beTrue
       try {
         sut("b")
       } catch {
@@ -102,7 +102,7 @@ class SetFunctionTest extends Specification {
       val sut = filterByPredicate(s)(predicate)
       sut.d1 === s
       sut.d0 === (s filter predicate)
-      for (x <- List(1, "1xya2")) (sut(x) == x) must beTrue
+      for (x ← List(1, "1xya2")) (sut(x) == x) must beTrue
       try {
         sut(2)
         failure("Must have thrown an exception")
@@ -117,7 +117,7 @@ class SetFunctionTest extends Specification {
       val sut = id(s)
       sut.d0 === s
       sut.d1 === s
-      for (x <- s) (sut(x) == x) must beTrue
+      for (x ← s) (sut(x) == x) must beTrue
       try {
         sut("b")
         failure("Should have thrown an exception")
@@ -156,7 +156,7 @@ class SetFunctionTest extends Specification {
 
       val sut = SetFunction.exponent(set1, set2)
       sut.size === 125
-      for (i <- set2) {
+      for (i ← set2) {
         val c = SetFunction.constant(set1, set2, 1)
         sut.contains(c) must beTrue
       }
