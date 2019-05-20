@@ -204,13 +204,13 @@ class LogicTest extends Fixtures {
       checkThatIn(topos).mustBeMonoid[Predicate](
         "disjunction",
         False,
-        (p: Predicate, q: Predicate) => p v q
+        (p: Predicate, q: Predicate) => p ∨ q
       )
 
       for { p <- Ω.points} {
         println(s"  checking disjunction with False for ${p.tag}")
         val pp = predicateFor(p)
-        (True v pp) === True
+        (True ∨ pp) === True
       }
       ok
     }
@@ -227,13 +227,13 @@ class LogicTest extends Fixtures {
         checkThatIn(topos).mustBeMonoid[Predicate](
           "disjunction",
           False,
-          (p: Predicate, q: Predicate) => p v q
+          (p: Predicate, q: Predicate) => p ∨ q
         )
 
         for { p <- Ω.points} {
           println(s"  checking disjunction with False for ${p.tag}")
           val pp = predicateFor(p)
-          (True v pp) === True
+          (True ∨ pp) === True
         }
         ok
       }
@@ -251,8 +251,8 @@ class LogicTest extends Fixtures {
     // distributivity of conjunction over disjunction
     def conjunctionOverDisjunction(topos: GrothendieckTopos)(
       p: topos.Predicate, q: topos.Predicate, pAndQ: topos.Predicate, r: topos.Predicate)= {
-      val p_qr = p ∧ (q v r)
-      val pq_pr = pAndQ v (p ∧ r)
+      val p_qr = p ∧ (q ∨ r)
+      val pq_pr = pAndQ ∨ (p ∧ r)
       p_qr === pq_pr
     }
 
@@ -260,8 +260,8 @@ class LogicTest extends Fixtures {
     def disjunctionOverConjunction(topos: GrothendieckTopos)(
       p: topos.Predicate,
       q: topos.Predicate, pOrQ: topos.Predicate, r: topos.Predicate)= {
-      val p_qr = p v (q ∧ r)
-      val pq_pr = pOrQ ∧ (p v r)
+      val p_qr = p ∨ (q ∧ r)
+      val pq_pr = pOrQ ∧ (p ∨ r)
       p_qr === pq_pr
     }
 
@@ -280,7 +280,7 @@ class LogicTest extends Fixtures {
         for { pt2 <- points } {
           val q = predicateFor(pt2)
           val pAndQ = p ∧ q
-          val pOrQ = p v q
+          val pOrQ = p ∨ q
 
           for { pt3 <- points } {
             val r: Predicate = predicateFor(pt3)

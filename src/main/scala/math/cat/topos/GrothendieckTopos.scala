@@ -323,7 +323,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
       * @param q another predicate
       * @return their disjunction
       */
-    def v(q: Predicate): Predicate = binaryOp(q, Ω.disjunction)
+    def ∨(q: Predicate): Predicate = binaryOp(q, Ω.disjunction)
 
     /**
       * implication of another predicate
