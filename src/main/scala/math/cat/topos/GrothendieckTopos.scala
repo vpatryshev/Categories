@@ -264,12 +264,19 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
 
   lazy val ΩxΩ = product2(Ω, Ω)
   
+//  private def p1_ΩxΩ_to_Ω_at(o: )
+  
+//  lazy val p1_ΩxΩ_to_Ω: DiagramArrow =
+//    NaturalTransformation.build("π1", ΩxΩ, Ω,
+//      o => ΩxΩ(o)
+//    )
+  
   /**
     * An equalizer of first projection and intersection
     */
-  lazy val `⊂`: Diagram = {
-    
-  }
+//  lazy val `⊂`: Diagram = {
+//    ΩxΩ filter ()
+//  }
   
   trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
     val d0: Diagram
@@ -362,13 +369,45 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
       }
     }
   }
-  
-  private def diagonalMap_Ω(x: domain.Obj): SetFunction = {
-    SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) ⇒ (subrep, subrep)).iHope
+
+  /**
+    * Given a `from` and `to` diagrams, build an arrow
+    * `from(o)` -> `to(o)`, for each given `o`,
+    * using the provided mapping
+    * 
+    * @param tag tag of a natural transformation
+    * @param from domain diagram
+    * @param to codomain diagram
+    * @param mapping given an object `o`, produce a function over this object
+    * @param o the object
+    * @return an arrow (it's a `SetFunction`, actually)
+    */
+  private def buildOneArrow(
+    tag: Any, 
+    from: Diagram,
+    to: Diagram,
+    mapping: domain.Obj ⇒ Any ⇒ Any
+  )(o: from.d0.Obj): from.d1.Arrow = {
+    from.d1.arrow(SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope)
   }
 
-  lazy val Δ_Ω: DiagramArrow = NaturalTransformation.build("Δ", Ω, ΩxΩ)(
-    (x: Ω.d0.Obj) ⇒ Ω.d1.arrow(diagonalMap_Ω(domain.obj(x)))).iHope
+  /**
+    * Builds a `DiagramArrow`, given domain, codomain, and a mapping
+    * @param tag arrow tag
+    * @param from domain
+    * @param to codomain
+    * @param mapping maps objects to functions
+    * @return a natural transformation (crashes if not)
+    */
+  def buildArrow(tag: Any, from: Diagram, to: Diagram,
+    mapping: domain.Obj ⇒ Any ⇒ Any): DiagramArrow = {
+    NaturalTransformation.build(tag, from, to)(
+      (o: from.d0.Obj) ⇒ buildOneArrow(tag, from, to, mapping)(o)).iHope
+  }
+
+  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
+    _ ⇒ (subrep: Any) ⇒ (subrep, subrep)
+  )
 
   /**
     * Gvien an inclusion (a natural transformation from a diagram A to a diagram B), and an object x in domain

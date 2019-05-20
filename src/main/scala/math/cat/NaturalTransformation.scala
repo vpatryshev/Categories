@@ -145,7 +145,7 @@ object NaturalTransformation {
     * @param to0   second functor
     * @param mappings a set morphism that for each domain object x returns f(x) → g(x)
     */
-  def build(theTag: String = "", from0: Functor, to0: Functor)
+  def build(theTag: Any = "", from0: Functor, to0: Functor)
   (
     mappings: from0.d0.Obj ⇒ from0.d1.Arrow
   ): Result[NaturalTransformation] = {
