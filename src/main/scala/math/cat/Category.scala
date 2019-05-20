@@ -1256,7 +1256,7 @@ object Category extends CategoryFactory {
     getOrElse(throw new InstantiationException("Bad semisimplicial?")))
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val KnownCategories = Set(
+  lazy val KnownCategories = List(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
     ParallelPair, Pullback, Pushout, SplitMono, Square,
     M, W,

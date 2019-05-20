@@ -55,11 +55,11 @@ class Point(
 
   override def toString: String = {
     val raw = domainCategory.listOfObjects.map(x => s"$x→${apply(x)}")
-    Diagram.cleanupString(raw.mkString(s"Point$tag(", ", ", ")"))
+    Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
   }
 
   def toShortString = {
-    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"Point$tag(", ", ", ")")
+    val raw = domainCategory.objects.map(x => s"$x→${apply(x)}").mkString(s"$tag(", ", ", ")")
     val short = Diagram.cleanupString(raw)
 
     val strings: List[String] =
@@ -72,7 +72,7 @@ class Point(
       s"$x→$obRepr"
     }}
 
-    Diagram.cleanupString(strings.mkString(s"Point$tag(", ", ", ")"))
+    Diagram.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
   }
 
   override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode

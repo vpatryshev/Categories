@@ -69,7 +69,7 @@ abstract class Diagram(
 
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
-    sorted map { p ⇒ p._1 named p._2 }
+    sorted map { p ⇒ p._1 named ("p" + p._2) }
   }
 
   def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
