@@ -15,24 +15,24 @@ class Fixtures extends Test with TestDiagrams {
       println(s"Testing <<${domain.name}>> $what monoidal properties (${points.size} points in Ω)")
       def predicate(p: Point): P = predicateFor(p).asInstanceOf[P]
 
-      for { p ← points } {
-        println(s"  monoidal at ${p.tag}")
-        val pp = predicate(p)
-        binop(unit, pp) === pp
+      for {pt1 ← points } {
+        println(s"  monoidal at ${pt1.tag}")
+        val p = predicate(pt1)
+        binop(unit, p) === p
         // idempotence
-        binop(pp, pp) === pp
+        binop(p, p) === p
 
-        for { q ← points } {
-          val pq = predicate(q)
-          val ppq = binop(pp, pq)
+        for {pt2 ← points } {
+          val q = predicate(pt2)
+          val p_q = binop(p, q)
 
           // commutativity
-          ppq === binop(pq, pp)
+          p_q === binop(q, p)
 
-          for { r ← points } {
-            val pr = predicate(r)
+          for {pt3 ← points } {
+            val r = predicate(pt3)
             // associativity
-            binop(ppq, pr) === binop(pp, binop(pq, pr))
+            binop(p_q, r) === binop(p, binop(q, r))
           }
         }
       }

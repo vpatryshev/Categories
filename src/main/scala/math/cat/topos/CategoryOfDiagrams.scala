@@ -2,7 +2,7 @@ package math.cat.topos
 
 import math.cat._
 import math.cat.topos.CategoryOfDiagrams._
-import math.sets.Sets.{isFinite, _}
+import math.sets.Sets._
 import math.sets._
 import scalakittens.Result
 
@@ -15,6 +15,7 @@ class CategoryOfDiagrams(val domain: Category)
   type Node = Diagram
   override type Obj = Diagram
   override type Arrow = DiagramArrow
+  type Mapping = domain.Obj ⇒ Any ⇒ Any
   
   override lazy val initial: Result[Obj] =
     BaseCategory.initial map const("initial", domain)
@@ -92,6 +93,41 @@ class CategoryOfDiagrams(val domain: Category)
       }
     }
   } else None
+
+  /**
+    * Given a `from` and `to` diagrams, build an arrow
+    * `from(o)` -> `to(o)`, for each given `o`,
+    * using the provided mapping
+    *
+    * @param tag tag of a natural transformation
+    * @param from domain diagram
+    * @param to codomain diagram
+    * @param mapping given an object `o`, produce a function over this object
+    * @param o the object
+    * @return an arrow (it's a `SetFunction`, actually)
+    */
+  protected def buildOneArrow(
+    tag: Any,
+    from: Diagram,
+    to: Diagram,
+    mapping: Mapping
+  )(o: from.d0.Obj): from.d1.Arrow = {
+    from.d1.arrow(SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope)
+  }
+
+  /**
+    * Builds a `DiagramArrow`, given domain, codomain, and a mapping
+    * @param tag arrow tag
+    * @param from domain
+    * @param to codomain
+    * @param mapping maps objects to functions
+    * @return a natural transformation (crashes if not)
+    */
+  def buildArrow(tag: Any, from: Diagram, to: Diagram,
+    mapping: Mapping): DiagramArrow = {
+    NaturalTransformation.build(tag, from, to)(
+      (o: from.d0.Obj) ⇒ buildOneArrow(tag, from, to, mapping)(o)).iHope
+  }
 
   trait includer {
     val subdiagram: Diagram
@@ -179,6 +215,18 @@ class CategoryOfDiagrams(val domain: Category)
     * TODO: figure out how to ensure the same d0 in bothDi
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
+
+  val π1: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
+    case (a, b) ⇒ a
+    case trash ⇒
+      throw new IllegalArgumentException(s"Expected a pair, got $trash")
+  }
+
+  val π2: Mapping = Functions.constant[domain.Obj, Any => Any] {
+    case (a, b) ⇒ b
+    case trash ⇒
+      throw new IllegalArgumentException(s"Expected a pair, got $trash")
+  }
 
   def inclusionOf(p: Point): includer = inclusionOf(p.asDiagram)
   

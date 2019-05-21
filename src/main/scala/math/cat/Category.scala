@@ -1256,13 +1256,17 @@ object Category extends CategoryFactory {
     getOrElse(throw new InstantiationException("Bad semisimplicial?")))
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
+  lazy val SomeKnownCategories = List(
+    _0_, _1_, _2_, _3_,
+    ParallelPair, Pullback, Pushout, SplitMono, W,
+    Z3)
+
   lazy val KnownCategories = List(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
     ParallelPair, Pullback, Pushout, SplitMono, Square,
     M, W,
     Z2, Z3,
     HalfSimplicial, NaturalNumbers)
-
 
   implicit class CategoryString(val sc: StringContext) extends AnyVal {
     def category(args: Any*): Cat = {

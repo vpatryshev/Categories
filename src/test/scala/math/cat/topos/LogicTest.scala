@@ -9,6 +9,8 @@ import org.specs2.matcher.MatchResult
 import scalakittens.Result._
 
 class LogicTest extends Fixtures {
+  
+  val categoriesToTest = SomeKnownCategories
 
   "True and False" should {
     "exist for _0_" in {
@@ -23,7 +25,7 @@ class LogicTest extends Fixtures {
       point0 match {
         case d: Diagram ⇒
           (traverse {
-            for {(k, v) ← mappings} yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
+            for {(k, v) ← mappings } yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
           } andThen OK) === OK
         case trash ⇒ failure(s"Expected a diagram, got $trash")
       }
@@ -106,26 +108,26 @@ class LogicTest extends Fixtures {
     }
   }
 
-  "Conjunction" should {
+  def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] = {
+    import topos._
+    val desc = s"Testing ${domain.name} conjunction"
+    val True = predicateFor(Ω.True)
+    val False = predicateFor(Ω.False)
+    checkThatIn(topos).mustBeMonoid[Predicate](
+      "conjunction",
+      True,
+      (p: Predicate, q: Predicate) ⇒ p ∧ q
+    )
 
-    def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] = {
-      import topos._
-      val desc = s"Testing ${domain.name} conjunction"
-      val True = predicateFor(Ω.True)
-      val False = predicateFor(Ω.False)
-      checkThatIn(topos).mustBeMonoid[Predicate](
-        "conjunction",
-        True,
-        (p: Predicate, q: Predicate) ⇒ p ∧ q
-      )
-
-      for { p ← Ω.points} {
-        println(s"  checking conjunction with False for ${p.tag}")
-        val pp = predicateFor(p)
-        (False ∧ pp) === False
-      }
-      ok
+    for {pt ← Ω.points } {
+      println(s"  checking conjunction with False for ${pt.tag}")
+      val p = predicateFor(pt)
+      (False ∧ p) === False
     }
+    ok
+  }
+
+  "Conjunction" should {
 
     def checkTrue(topos: GrothendieckTopos): MatchResult[Any] = {
       import topos._
@@ -186,36 +188,15 @@ class LogicTest extends Fixtures {
       checkProperties(topos, "conjunction")
     }
 
-    "exist for all known domains" in {
-      KnownCategories filter (_.isFinite) foreach check
+    "work for all known domains" in {
+      categoriesToTest filter (_.isFinite) foreach check
       ok
     }
   }
 
   "Disjunction" should {
 
-    def check(cat: Category): MatchResult[Any] = {
-      val topos = new CategoryOfDiagrams(cat)
-      import topos._
-      val desc = s"Testing ${cat.name} disjunction"
-      println(desc)
-      val True = predicateFor(Ω.True)
-      val False = predicateFor(Ω.False)
-      checkThatIn(topos).mustBeMonoid[Predicate](
-        "disjunction",
-        False,
-        (p: Predicate, q: Predicate) ⇒ p ∨ q
-      )
-
-      for { p ← Ω.points} {
-        println(s"  checking disjunction with False for ${p.tag}")
-        val pp = predicateFor(p)
-        (True ∨ pp) === True
-      }
-      ok
-    }
-
-    "exist for all known domains" in {
+    "work for all known domains" in {
       
       def check(cat: Category): MatchResult[Any] = {
         val topos = new CategoryOfDiagrams(cat)
@@ -230,17 +211,15 @@ class LogicTest extends Fixtures {
           (p: Predicate, q: Predicate) ⇒ p ∨ q
         )
 
-        for { p ← Ω.points} {
-          println(s"  checking disjunction with False for ${p.tag}")
-          val pp = predicateFor(p)
-          (True ∨ pp) === True
+        for {pt ← Ω.points } {
+          println(s"  checking disjunction with False for ${pt.tag}")
+          val p = predicateFor(pt)
+          (True ∨ p) === True
         }
         ok
       }
 
-      check(_3_)
-
-      KnownCategories filter (_.isFinite) foreach check
+      categoriesToTest filter (_.isFinite) foreach check
 
       ok
     }
@@ -294,12 +273,100 @@ class LogicTest extends Fixtures {
     }
 
     "hold for all known domains" in {
-
-      checkDistributivity(_3_)
-
-      KnownCategories filter (_.isFinite) foreach checkDistributivity
+      categoriesToTest filter (_.isFinite) foreach checkDistributivity
 
       ok
     }
   }
+
+  "Implication" should {
+
+    "work for all known domains" in {
+
+      def check(cat: Category): MatchResult[Any] = {
+        val topos = new CategoryOfDiagrams(cat)
+        import topos._
+        val desc = s"Testing ${cat.name} implication"
+        println(desc)
+        val True = predicateFor(Ω.True)
+        val False = predicateFor(Ω.False)
+
+        for {pt1 ← Ω.points } {
+          println(s"  checking Truth ==> ${pt1.tag}")
+          val p = predicateFor(pt1)
+          (True ==> p) === p
+          println(s"  checking False ==> ${pt1.tag}")
+          (False ==> p) === True
+          println(s"  checking ${pt1.tag} ==> ${pt1.tag}")
+          (p ==> p) === True
+          println(s"  checking ${pt1.tag} ==> True")
+          (p ==> True) === True
+
+          println(s"  checking adjunction for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = predicateFor(pt2)
+            val p_q = p ∧ q
+
+            for { pt3 ← Ω.points } {
+              val r = predicateFor(pt3)
+              val q2r = q ==> r
+              val left = p_q ==> r
+              val right = p ==> q2r
+              left === right
+            }
+          }
+
+          println(s"  checking adjunction for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = predicateFor(pt2)
+            val p_q = p ∧ q
+
+            for { pt3 ← Ω.points } {
+              val r = predicateFor(pt3)
+              val q2r = q ==> r
+              val left = p_q ==> r
+              val right = p ==> q2r
+              left === right
+            }
+          }
+
+          println(s"  checking conjunction distributivity for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = predicateFor(pt2)
+            val p_and_q = p ∧ q
+
+            for { pt3 ← Ω.points } {
+              val r = predicateFor(pt3)
+              val r2p = r ==> p
+              val r2q = r ==> q
+              val left = r2p ∧ r2q
+              val right = r ==> p_and_q
+              left === right
+            }
+          }
+
+          println(s"  checking disjunction distributivity for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = predicateFor(pt2)
+            val p_or_q = p ∨ q
+
+            for { pt3 ← Ω.points } {
+              val r = predicateFor(pt3)
+              val p2r = p ==> r
+              val q2r = q ==> r
+              val left = p2r ∧ q2r
+              val right = p_or_q ==> r
+              left === right
+            }
+          }
+        }
+        ok
+      }
+
+      categoriesToTest filter (_.isFinite) foreach check
+
+      ok
+    }
+  }
+
 }
