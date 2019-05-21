@@ -8,7 +8,7 @@ import scalakittens.Result
 
 import scala.collection.mutable
 
-trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfDiagrams ⇒
+trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { topos: CategoryOfDiagrams ⇒
   val domain: Category
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
@@ -16,7 +16,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
   /**
     * Omega, subobject classifier. Type "Option-Z" on your Mac to enter the Ω character.
     */
-  object Ω extends Diagram("Ω", domain) {
+  object Ω extends Diagram("Ω", this, domain) {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x ⇒ Ω(x)` .
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
@@ -44,11 +44,11 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
           val y1 = om1(domain.d1(b)) //  {f ∈ hom(y, d1(b)) | a o f ∈ r1(d1(b)}
 
           // A function fom x1 to y1 - it does the transition
-          SetFunction.build("", x1, y1, g ⇒ domain.m(domain.arrow(g), b).get // it must be defined
-          ) iHope
+          new SetFunction("", x1, y1, g ⇒ domain.m(domain.arrow(g), b).get) // it must be defined
+//          SetFunction.build("", x1, y1, g ⇒ domain.m(domain.arrow(g), b).get) iHope // it must be defined
         }
 
-        Diagram("", domain)(om1, am1) // no validation, we know it's ok
+        Diagram("", topos, domain)(om1, am1) // no validation, we know it's ok
       }
 
       // no validation here, the function is known to be ok
@@ -106,7 +106,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
         a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
       }
 
-      Diagram(s"${a.tag} ∩ ${b.tag}", domain)(
+      Diagram(s"${a.tag} ∩ ${b.tag}", topos, domain)(
         o ⇒ om(domain.obj(o)),
         f ⇒ am(domain.arrow(f))
       )
@@ -124,7 +124,8 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
       def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction = {
         val dom = ΩxΩ(x)
         val codom = Ω(x)
-        SetFunction.build(s"∧[$x]", dom.untyped, codom, pair ⇒ conjunctionOfTwoSubreps(pair)).iHope
+        new SetFunction(s"∧[$x]", dom.untyped, codom, pair ⇒ conjunctionOfTwoSubreps(pair))
+//        SetFunction.build(s"∧[$x]", dom.untyped, codom, pair ⇒ conjunctionOfTwoSubreps(pair)).iHope
       }
 
 
@@ -160,7 +161,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
           * @return their intersection
           */
         private def union(a: Diagram, b: Diagram): Diagram = {
-          val om = (o: domain.Obj) ⇒ a(o) | b(o)
+          val om = (o: domain.Obj) ⇒ a.setAt(o) | b.setAt(o)
 
           // this is how, given an arrow `b`, the new diagram gets from one point to another
           def am(f: domain.Arrow): SetFunction = {
@@ -176,17 +177,16 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
               if (ao(z)) functiona(z)
               else if (bo(z)) functionb(z)
               else throw new IllegalArgumentException(s"$z was supposed to be in $ao or in $bo")
-            
-            val unionFunctionMaybe = SetFunction.build(x, y, unionOfMappings)
-            unionFunctionMaybe.iHope
+
+            new SetFunction("", x, y, unionOfMappings)
+//            val unionFunctionMaybe = SetFunction.build(x, y, unionOfMappings)
+//            unionFunctionMaybe.iHope
           }
 
           val tag = s"${a.tag} ∪ ${b.tag}"
 
-          val result: Result[Diagram] = Diagram.build(tag, domain)(
+          Diagram(tag, topos, domain)(
             o ⇒ om(domain.obj(o)), f ⇒ am(domain.arrow(f)))
-
-          result.iHope
         }
 
         def disjunctionOfTwoSubreps(pair: Any): Diagram = pair match {
@@ -196,7 +196,8 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
         def perObject(x: d0.d0.Obj): SetFunction = {
           val dom = ΩxΩ(x)
           val codom = Ω(x)
-          SetFunction.build(s"v[$x]", dom.untyped, codom, pair ⇒ disjunctionOfTwoSubreps(pair)).iHope
+          new SetFunction(s"v[$x]", dom.untyped, codom, pair ⇒ disjunctionOfTwoSubreps(pair))
+//          SetFunction.build(s"v[$x]", dom.untyped, codom, pair ⇒ disjunctionOfTwoSubreps(pair)).iHope
         }
 
         override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
@@ -248,7 +249,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
       for (o ← domainCategory.objects) {
         require(p.setAt(o) == q.setAt(o), s"Different domains at $o for ${p.tag} and ${q.tag}") 
       }
-      val pair = ΩxΩ
+
       new Predicate {
         val d0: Diagram = p.d0
         val tag = s"${p.tag} ∧ ${q.tag}"
@@ -261,13 +262,14 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
           
           def trans(v: Any): Any = (po(v), qo(v))
           val PQtoΩxΩ: SetFunction =
-            SetFunction.build(
+            new SetFunction(
+//              SetFunction.build(
               s"PQ→ΩxΩ($o)",
               dom, ΩxΩ(o),
               v ⇒ {
                 (po(v), qo(v))
               }
-            ).iHope
+            ) //.iHope
 
           val conj: SetFunction = Ω.conjunction(o).asInstanceOf[SetFunction]
           val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
@@ -370,8 +372,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
       scalakittens.Result(choices).orCommentTheError(s"No representable found for $ax → $arrows").iHope
     }
     
-    val fOpt = SetFunction.build(s"[χ($x)]", Ax, Ω(x), ax ⇒ myRepresentable(ax))
-    fOpt.iHope
+    new SetFunction(s"[χ($x)]", Ax, Ω(x), ax ⇒ myRepresentable(ax))
   }
 
   /**

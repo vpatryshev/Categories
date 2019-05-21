@@ -8,7 +8,7 @@ import scalakittens.Result
 
 class CategoryOfDiagrams(val domain: Category)
   extends Category(s"Sets^${domain.name}", graphOfDiagrams)
-  with GrothendieckTopos {
+  with GrothendieckTopos { topos ⇒
 
   override def toString: String = name
   
@@ -18,10 +18,10 @@ class CategoryOfDiagrams(val domain: Category)
   type Mapping = domain.Obj ⇒ Any ⇒ Any
   
   override lazy val initial: Result[Obj] =
-    BaseCategory.initial map const("initial", domain)
+    BaseCategory.initial map const("initial", topos, domain)
   lazy val _0: Obj = initial iHope
   override lazy val terminal: Result[Obj] =
-    BaseCategory.terminal map const("terminal", domain)
+    BaseCategory.terminal map const("terminal", topos, domain)
   
   lazy val _1: Obj = terminal iHope
   
@@ -29,7 +29,7 @@ class CategoryOfDiagrams(val domain: Category)
     def objectMapping(candidate: Set[domain.Obj]) =
       (obj: domain.Obj) ⇒ if (candidate contains obj) _1(obj) else Set.empty.untyped
 
-    def arrowMappingOpt(candidate: Set[domain.Obj]): domain.Arrow ⇒ Result[SetFunction] = {
+    def arrowMapping(candidate: Set[domain.Obj]): domain.Arrow ⇒ SetFunction = {
       val omc = objectMapping(candidate)
       (a: domain.Arrow) ⇒ {
         // this transformation, domain.arrow, is here due to an intellij bug
@@ -37,7 +37,7 @@ class CategoryOfDiagrams(val domain: Category)
         val d1 = omc(domain.d1(domain.arrow(a)))
         val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
 
-        SetFunction.build("", d0, d1, mapping)
+        new SetFunction("", d0, d1, mapping)
       }
     }
 
@@ -46,12 +46,11 @@ class CategoryOfDiagrams(val domain: Category)
     val all: Set[Diagram] = for {
       (candidate, i) ← Sets.powerset(domain.objects).zipWithIndex
       // some mappings are not working for a given candidate
-      amCandidate: (domain.Arrow ⇒ Result[SetFunction]) = arrowMappingOpt(candidate)
-      arrowsMapOpt: Set[Result[(domain.Arrow, SetFunction)]] = domain.arrows map (a ⇒ amCandidate(a) map (a → _))
-      am: Traversable[(domain.Arrow, SetFunction)] ← Result.traverse(arrowsMapOpt).asOption
+      amCandidate: (domain.Arrow ⇒ SetFunction) = arrowMapping(candidate)
+      am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a ⇒ a → amCandidate(a))
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram: Diagram ← Diagram.build("__" + i, domain)(om, am.toMap).asOption
+      diagram: Diagram ← Diagram.build("__" + i, topos, domain)(om, am.toMap).asOption
     } yield diagram
 
     all
@@ -158,12 +157,10 @@ class CategoryOfDiagrams(val domain: Category)
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     domain.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
 
-  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", domain) {
+  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos, domain) {
     override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(domain.obj(x)))
     override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
-      val arrow = domain.arrow(f)
-      val mapping = am(arrow)
-      d1.arrow(mapping)
+      am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
     }
     // have to validate right here, because a representable must exist, and all checks should be passing
     private val probablyFunctor: Result[Functor] = Functor.validateFunctor(this)
@@ -180,7 +177,7 @@ class CategoryOfDiagrams(val domain: Category)
       val tuples: Set[(domain.Arrow, domain.Arrow)] = d0 flatMap { g ⇒ domain.m(g, f) map (g → _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
-      SetFunction.build(toSet(d0), toSet(d1), a ⇒ mapping(domain.arrow(a))).iHope
+      new SetFunction("", toSet(d0), toSet(d1), a ⇒ mapping(domain.arrow(a)))
     }
 
     private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)
@@ -209,7 +206,7 @@ class CategoryOfDiagrams(val domain: Category)
       new SetFunction("", from.untyped, to.untyped, f)
     }
     
-    val diagram = Diagram(s"${x.tag}×${y.tag}", domain)(om, a ⇒ am(a))
+    val diagram = Diagram(s"${x.tag}×${y.tag}", topos, domain)(om, a ⇒ am(a))
   }
 
   /**
@@ -224,7 +221,7 @@ class CategoryOfDiagrams(val domain: Category)
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
   }
 
-  val π2: Mapping = Functions.constant[domain.Obj, Any => Any] {
+  val π2: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
     case (a, b) ⇒ b
     case trash ⇒
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
@@ -250,7 +247,7 @@ class CategoryOfDiagrams(val domain: Category)
       override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow =
       codomainCategory.arrow {
         val value = p(o)
-        SetFunction.build(_1(o), Set(value), _ ⇒ value).iHope
+        new SetFunction(s"tag($o)", _1(o), Set(value), _ ⇒ value)
       }
     }    
   }
@@ -261,8 +258,8 @@ object CategoryOfDiagrams {
   type DiagramArrow = NaturalTransformation
   val BaseCategory: Category = SetCategory.Setf
 
-  def const(tag: String, domain: Category)(value: BaseCategory.Obj): Diagram = {
-    new Diagram(tag, domain) {
+  def const(tag: String, topos: GrothendieckTopos, domain: Category)(value: BaseCategory.Obj): Diagram = {
+    new Diagram(tag, topos, domain) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(value)
 
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =

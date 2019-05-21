@@ -69,7 +69,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
          g ← arrows
          h ← m(f, g)} yield (f, g, h)
 
-  def isIdentity(a: Arrow): Boolean = a == id(d0(a))
+  def isIdentity(a: Arrow): Boolean = d0(a) == d1(a) && a == id(d0(a))
 
   //@deprecated("category theory is not equational")
   // cannot elimitate this: too many tests rely on comparing categories...
@@ -676,7 +676,8 @@ private[cat] abstract class CategoryData(
   type Objects = Set[Obj]
   override val name: String = "a category"
 
-  def asObj(x: Any): Obj = x.asInstanceOf[Obj]
+  private[cat] def asObj(x: Any): Obj = x.asInstanceOf[Obj]
+  private[cat] def asArrow(a: Any): Arrow = a.asInstanceOf[Arrow]
   
   def obj(x: Any): Obj =
     Result.forValue(asObj(x)) filter (objects contains) getOrElse {
@@ -757,7 +758,10 @@ private[cat] abstract class CategoryData(
 
   def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
 
-  def d0(a: Arrow): Obj = obj(graph.d0(graph.arrow(a)))
+  def d0(a: Arrow): Obj = {
+    val gd0 = graph.d0(graph.arrow(a))
+    obj(gd0)
+  }
 
   def d1(a: Arrow): Obj = obj(graph.d1(graph.arrow(a)))
 
@@ -824,7 +828,31 @@ private[cat] trait CategoryFactory {
         composition(gr.arrow(f), gr.arrow(g)) map arrow
     }
 
-    data.validate returning
+    data.validate returning (if (data.isFinite) {
+      val d0Map: Map[Any, data.Obj] =
+        data.arrows.map(f => f -> data.asObj(gr.d0(gr.arrow(f)))).toMap
+      val d1Map: Map[Any, data.Obj] =
+        data.arrows.map(f => f -> data.asObj(gr.d1(gr.arrow(f)))).toMap
+      val mMap: Map[(Any, Any), gr.Arrow] = {
+        for {f <- data.arrows
+             g <- data.arrows
+             h <- composition(gr.arrow(f), gr.arrow(g))
+        } yield (f, g) -> h
+      } toMap
+      
+      val idMap: Map[Any, gr.Arrow] =
+        data.objects.map(o => o -> ids(gr.node(o))).toMap
+      
+      new Category(name, gr) {
+        def id(o: Obj): Arrow = idMap(o)
+
+        def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
+
+        override def d0(f: Arrow): Obj = asObj(d0Map(f))
+
+        override def d1(f: Arrow): Obj = asObj(d1Map(f))
+      }
+    } else {
       new Category(name, gr) {
         def id(o: Obj): Arrow = ids(gr.node(o))
 
@@ -835,6 +863,7 @@ private[cat] trait CategoryFactory {
 
         override def d1(f: Arrow): Obj = asObj(graph.d1(graph.arrow(f)))
       }
+    })
   }
 
   /**

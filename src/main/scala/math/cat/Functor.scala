@@ -27,9 +27,8 @@ abstract class Functor(
   override def arrowsMapping(a: d0.Arrow): d1.Arrow = {
     val domainX: d0.Obj = d0.d0(a)
     try {
-      if (a == d0.id(domainX)) {
-        val domainY: d1.Obj = objectsMapping(domainX)
-        d1.id(domainY)
+      if (d0.isIdentity(a)) {
+        d1.id(objectsMapping(domainX))
       } else arrowsMappingCandidate(a)
     } catch {
       case x: Exception ⇒
