@@ -205,9 +205,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
     }
 
     lazy val implication: DiagramArrow = {
-
       var inclusion: DiagramArrow = inclusionOf(order_on_Ω) in ΩxΩ
-      
       classifyingMap(inclusion, "⇒")
     }
   }
@@ -304,7 +302,7 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
   
   lazy val FalsePredicate = predicateFor(Ω.False)
 
-  lazy val FalsePredicate = predicateFor(Ω.True)
+  lazy val TruePredicate = predicateFor(Ω.True)
 
   /**
     * Builds a predicate for a point in Ω

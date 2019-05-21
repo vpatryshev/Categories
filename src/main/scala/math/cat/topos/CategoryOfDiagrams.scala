@@ -112,7 +112,9 @@ class CategoryOfDiagrams(val domain: Category)
     to: Diagram,
     mapping: Mapping
   )(o: from.d0.Obj): from.d1.Arrow = {
-    from.d1.arrow(SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope)
+    val domO: domain.Obj = domain.obj(o)
+    val funOpt = SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(domO))
+    from.d1.arrow(funOpt.iHope)
   }
 
   /**
