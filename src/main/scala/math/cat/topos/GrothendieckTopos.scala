@@ -298,7 +298,13 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
       * @return this implies q
       */
     def ==>(q: Predicate): Predicate = binaryOp(q, Ω.implication)
+    
+    def ¬ = this ==> FalsePredicate
   }
+  
+  lazy val FalsePredicate = predicateFor(Ω.False)
+
+  lazy val FalsePredicate = predicateFor(Ω.True)
 
   /**
     * Builds a predicate for a point in Ω
