@@ -18,7 +18,7 @@ object Sets {
   type factorset = FactorSet[Any]
   
   implicit class converter[T](s: Set[T]) {
-    def untyped: set = s map identity
+    def untyped: set = s.asInstanceOf[set]
   }
   
   val InfiniteSize: Int = Int.MaxValue
@@ -282,7 +282,7 @@ object Sets {
     val r = Set("c", "b", "a")
     println(s"Is $r equal to $q? ${r == q}")
     println(s"Does $q contain $a? ${q.contains("a")}")
-    val tuples = for (arg <- Set(1, 2, 3)) yield {
+    val tuples = for (arg ← Set(1, 2, 3)) yield {
       ("key" + arg, "v" + arg)
     }
 
@@ -301,7 +301,7 @@ object Sets {
   private def filteredSet[X](i: ⇒ Iterator[X], p: X ⇒ Boolean): Set[X] = {
     def j = i filter p
 
-    def n = (0 /: j) ((k, x) ⇒ k + 1)
+    val n = (0 /: j) ((k, x) ⇒ k + 1)
 
     setOf(j, n, p)
   }

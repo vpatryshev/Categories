@@ -1,8 +1,7 @@
 package math.sets
 
-import Sets.itsImmutable
 import math.cat.SetMorphism
-import math.Base._
+import math.sets.Sets.itsImmutable
 
 /**
   * Implements factorset functionality. A factorset may be built given a BinaryRelation,
@@ -42,8 +41,8 @@ class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
     */
   private def factorByRelationship(r: BinaryRelation[X, X]): Unit =
     for {
-      x1 <- base
-      x2 <- base
+      x1 ← base
+      x2 ← base
       if r(x1, x2) || r(x2, x1)} merge(x1, x2)
 
   /**
@@ -54,10 +53,10 @@ class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
     */
   def merge(x1: X, x2: X) {
     for (
-      class1 <- equivalenceClasses.get(x1);
-      class2 <- equivalenceClasses.get(x2) if x1 != x2) {
+      class1 ← equivalenceClasses.get(x1);
+      class2 ← equivalenceClasses.get(x2) if x1 != x2) {
       val merged: Set[X] = class1 ++ class2
-      for (x3 <- merged) {
+      for (x3 ← merged) {
         equivalenceClasses = equivalenceClasses + (x3 → merged)
       }
     }

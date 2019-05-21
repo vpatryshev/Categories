@@ -93,7 +93,7 @@ object Base {
     */
   def setProduct[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] = {
     (for {
-      x <- xs; y <- ys
+      x ← xs; y ← ys
     } yield(x, y))(breakOut)
   }
 
@@ -156,10 +156,6 @@ object Base {
     list.zipWithIndex map { case (x, i) ⇒ i → x } toMap
 
 //  def id[T](set: Set[T]): Map[T, T] = set.map(t ⇒ t → t)(breakOut)
-
-  implicit class Pollyanna[T](opt: Result[T]) {
-    def iHope: T = opt.fold(identity, errors ⇒ throw new InstantiationException(errors.mkString(";")))
-  }
 
   implicit class Optimist[T](opt: Option[T]) {
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))

@@ -3,7 +3,6 @@ package math.cat
 import math.sets.PoSet
 import org.specs2.mutable._
 import scalakittens.Good
-import math.Base._
 
 /**
  * Test suite for PoSetMorphism class

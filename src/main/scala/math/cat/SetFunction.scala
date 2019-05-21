@@ -4,7 +4,6 @@ import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
 import Result._
-import math.cat.SetMorphism.check
 
 /**
   * The idea was to create something that would cover unresolved issues with type assignment
@@ -15,7 +14,7 @@ import math.cat.SetMorphism.check
   * @param d1      codomain
   * @param mapping the function that implements the morphism
   */
-case class SetFunction private(
+case class SetFunction private[cat](
   override val tag: String,
   override val d0: set,
   override val d1: set,
@@ -30,7 +29,7 @@ case class SetFunction private(
     * Composes this morphism with the next one.
     *
     * @param g second morphism: Y → Z
-    * @return their composition g o f: X → Z
+    * @return their composition g ∘ f: X → Z
     */
   def andThen(g: SetFunction): SetFunction = {
     compose(g) getOrElse (
@@ -38,15 +37,26 @@ case class SetFunction private(
       )
   }
 
+  private def tagOfComposition(tag1: String, tag2: String): String = {
+    def maybeParens(tag: String) = if (tag contains "∘") s"($tag)" else tag
+    maybeParens(tag1) + " ∘ " + maybeParens(tag2)
+  }
+  
+  
   /**
     * Composes with another morphism, optionally
     *
     * @param g next morphism: Y → Z
-    * @return their composition g o f: X → Z
+    * @return their composition g ∘ f: X → Z
     */
   def compose(g: SetFunction): Option[SetFunction] = {
     if (d1 equals g.d0) {
-      Some(new SetFunction(g.tag + " o " + tag, d0, g.d1, (x: Any) ⇒ g(this (x))))
+      val newTag = tagOfComposition(g.tag, tag)
+      val transform = (x: Any) ⇒ {
+        val y = self(x)
+        g(y)
+      }
+      Some(new SetFunction(newTag, d0, g.d1, transform))
     }
     else None
   }
@@ -66,8 +76,10 @@ case class SetFunction private(
     * @return new function
     */
   def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] = {
-    OKif(newDomain subsetOf d0) andAlso OKif(newCodomain subsetOf d1) returning
-    new SetFunction(tag, newDomain, newCodomain, function)
+    val domOk = OKif(newDomain subsetOf d0)
+    val codomOk = OKif(newCodomain subsetOf d1)
+    val success = domOk andAlso codomOk
+    success returning new SetFunction(tag, newDomain, newCodomain, function)
   }
 }
 
@@ -99,9 +111,10 @@ object SetFunction {
     * @param containerSet codomain of the inclusion
     * @return inclusion monomorphism
     */
-  def inclusion(subset: set, containerSet: set): SetFunction = {
-    require(subset.subsetOf(containerSet), "It is not an inclusion if it is not a subset.")
-    apply("incl", subset, containerSet, Functions.inclusion)
+  def inclusion(subset: set, containerSet: set): Result[SetFunction] = {
+    OKif(subset subsetOf containerSet,
+      "It is not an inclusion if it is not a subset.") returning
+      apply("incl", subset, containerSet, Functions.inclusion)
   }
 
   /**

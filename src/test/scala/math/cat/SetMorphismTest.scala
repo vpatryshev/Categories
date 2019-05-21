@@ -1,9 +1,8 @@
 package math.cat
 
-import math.Base._
-import org.specs2.mutable._
-import SetMorphism._
+import math.cat.SetMorphism._
 import math.sets.{N, Sets}
+import org.specs2.mutable._
 import scalakittens._
 
 class SetMorphismTest extends Specification {
@@ -134,7 +133,7 @@ class SetMorphismTest extends Specification {
     val g = SetMorphism.build("g", ys, N, (y:BigInt) ⇒ y/5).iHope
     val (left, right) = SetMorphism.pullback(f, g)
     val pullbackSet = Set[(BigInt,BigInt)]((1,2),(1,4),(2,6),(2,8),(3,6),(3,8),(4,10),(5,10))
-    for (p <- pullbackSet) {
+    for (p ← pullbackSet) {
       (p._1 == left(p)) must beTrue
       (p._2 == right(p)) must beTrue
     }
@@ -149,7 +148,7 @@ class SetMorphismTest extends Specification {
         sm.d0 === xs
         sm.d1 === ys
         for {
-          i <- xs
+          i ← xs
         } sm(i) === i
       case nogood ⇒ failure(nogood.toString)
     }

@@ -3,7 +3,6 @@ package math.cat
 import math.Test
 import math.sets.PoSet
 import org.specs2.mutable._
-import math.Base.Pollyanna
 
 /**
   * Tests for GraphMorphism class

@@ -1,20 +1,18 @@
 package math.cat
 
-import Category._
 import math.Test
+import math.cat.Category._
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
-import math.Base._
 import scalakittens.Good
 
 class FunctorTest extends Test {
   type SUT = Functor
   
   lazy val categorySquareWithTwoTopLeftCorners: Cat =
-    category"({a0,a1,b,c,d}, {a0a1: a0 → a1, a0b: a0 → b, a0c: a0 → c, a1b: a1 → b, a1c: a1 → c, bd: b → d, cd: c → d, a0d: a0 → d, a1d: a1 → d}, {bd o a0b = a0d, cd o a0c = a0d, bd o a1b = a1d, cd o a1c = a1d, a1b o a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
+    category"({a0,a1,b,c,d}, {a0a1: a0 → a1, a0b: a0 → b, a0c: a0 → c, a1b: a1 → b, a1c: a1 → c, bd: b → d, cd: c → d, a0d: a0 → d, a1d: a1 → d}, {bd ∘ a0b = a0d, cd ∘ a0c = a0d, bd ∘ a1b = a1d, cd ∘ a1c = a1d, a1b ∘ a0a1 = a0b, a1c o a0a1 = a0c, a1d o a0a1 = a0d})"
 
   lazy val functorFromPullbackToDoubleSquare: SUT = {
-    import categorySquareWithTwoTopLeftCorners._
     Functor(
       "From2to1toDoubleSquare",
       Pullback, categorySquareWithTwoTopLeftCorners)(
@@ -30,7 +28,6 @@ class FunctorTest extends Test {
       )"""
 
   lazy val functorFrom1to2toDoubleSquare: SUT = {
-    import categorySquareWithTwoRightCorners._
 
     Functor("From1to2toDoubleSquare",
       Pushout, categorySquareWithTwoRightCorners)(
@@ -42,7 +39,6 @@ class FunctorTest extends Test {
   "Constructor" should {
 
     "report missing object mappings" in {
-      import _4_._
       checkError(_ contains "Object mapping fails for 1", 
       Functor("failing test",
         _4_, _4_)(
@@ -51,7 +47,6 @@ class FunctorTest extends Test {
     }
 
     "report incorrect object mappings" in {
-      import _2_._
       checkError(_ contains "Object mapping fails for 1",
         Functor("failing test",
           _2_, _2_)(
@@ -60,7 +55,6 @@ class FunctorTest extends Test {
     }
 
     "report missing arrows mappings" in {
-      import _4_._
       checkError(_ contains "failing test: arrow mapping not found for 0.2: 0 → 2",
         Functor("failing test",
         _4_, _4_)(
@@ -69,7 +63,6 @@ class FunctorTest extends Test {
     }
 
     "report missing arrows mappings" in {
-      import _4_._
       val objectMapping: _4_.Node ⇒ _4_.Node =
         Map[_4_.Node, _4_.Node]("0" → "1", "1" → "2", "2" → "1", "3" → "3")
       val arrowMapping: _4_.Arrow ⇒ _4_.Arrow = Map[_4_.Arrow, _4_.Arrow](
@@ -89,7 +82,6 @@ class FunctorTest extends Test {
     }
     
     "report a failure" in {
-      import _4_._
       val objectMapping: _4_.Node ⇒ _4_.Node =
         Map[_4_.Node, _4_.Node]("0" → "1", "1" → "2", "2" → "3", "3" → "4")
       val arrowMapping = Map(

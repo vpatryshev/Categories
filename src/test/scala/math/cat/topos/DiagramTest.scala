@@ -1,12 +1,12 @@
 package math.cat.topos
 
-import math.Base._
 import math.Test
 import math.cat.SetCategory.Setf
 import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.{Good, Result}
+import scalaz.Alpha.W
 
 /**
   * Test for individual diagrams (functors with codomain=sets)
@@ -55,7 +55,7 @@ class DiagramTest extends Test with TestDiagrams {
       val g = SetFunction.build("g", b, b, x ⇒ x.toString.toInt % 3).iHope
       checkError("Inconsistent mapping for d0(b) - Set(0, 1, 2) vs Set(5, 1, 2, 3, 4)" ==,
         Diagram.build(
-          "ParallelPair", Category.ParallelPair)(
+          "Bad Bad Bad", Category.ParallelPair)(
           Map("0" → a, "1" → b),
           Map("a" → f, "b" → g)
         )
@@ -65,50 +65,6 @@ class DiagramTest extends Test with TestDiagrams {
     "validate empty diagram" in {
       EmptyDiagram.d0 === Category._0_
       EmptyDiagram.d1 === Setf
-    }
-  }
-  
-  "Diagram points" should {
-
-    def checkPoint(sut: Diagram)(point: Diagram, values: List[Int]) = {
-      val objects = sut.d0.objects.toList
-      val actual = objects map point.apply
-      val expected = values map Sets.singleton
-      actual aka point.tag must_== expected
-    }
-
-    "exist in paralel pair" in {
-      val sut = SampleParallelPairDiagram
-      val actual = sut.points
-      actual.size === 3
-      val check = checkPoint(sut) _
-      val p1 :: p2 :: p3 :: Nil = actual
-      check(p1, 1 :: 1 :: Nil)
-      check(p2, 2 :: 2 :: Nil)
-      check(p3, 5 :: 2 :: Nil)
-    }
-
-    "exist in pullback pair" in {
-      val sut = SamplePullbackDiagram
-      val actual = sut.points
-      actual.size === 5
-      val p1 :: p2 :: p3 :: p4 :: p5 :: Nil = actual
-      val check = checkPoint(sut) _
-      check(p1, 1 :: 2 :: 1 :: Nil)
-      check(p2, 1 :: 4 :: 1 :: Nil)
-      check(p3, 2 :: 3 :: 0 :: Nil)
-      check(p4, 3 :: 2 :: 1 :: Nil)
-      check(p5, 3 :: 4 :: 1 :: Nil)
-    }
-
-    "exist in Z3 diagram" in {
-      val sut = SampleZ3Diagram
-      val actual = sut.points
-      actual.size === 1
-      val p1 :: Nil = actual
-      val check = checkPoint(sut) _
-
-      ok
     }
   }
 
@@ -148,8 +104,8 @@ class DiagramTest extends Test with TestDiagrams {
           val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
 
           for {
-            i <- 1 to 3
-            j <- 2 to 4
+            i ← 1 to 3
+            j ← 2 to 4
           } {
             val element = i :: j :: Nil
             (i, j, vertex(element)) === (i, j, (i + j) % 2 == 1)
@@ -164,7 +120,7 @@ class DiagramTest extends Test with TestDiagrams {
     }
 
     "exist for an equalizer" in {
-      val sut = SampleParallelPairDiagram
+      val sut = SampleParallelPairDiagram1
       sut.limit match {
         case Good(cone) ⇒
           val vertex = sut.asSet(cone.vertex)
@@ -174,7 +130,7 @@ class DiagramTest extends Test with TestDiagrams {
           val ar1 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("1"))))
 
           for {
-            element <- vertex
+            element ← vertex
           } {
             val i = (element match {
               case n :: Nil ⇒ n;
@@ -211,9 +167,9 @@ class DiagramTest extends Test with TestDiagrams {
             val are = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("e"))))
 
             for {
-              i <- SampleWDiagramContent.a
-              j <- SampleWDiagramContent.c
-              k <- SampleWDiagramContent.e
+              i ← SampleWDiagramContent.a
+              j ← SampleWDiagramContent.c
+              k ← SampleWDiagramContent.e
             } {
               val element = i :: j :: k :: Nil
               if (vertex(element)) {
@@ -260,9 +216,9 @@ class DiagramTest extends Test with TestDiagrams {
               val points = sut.limitBuilder
 
               for {
-                i <- a
-                j <- c
-                k <- e
+                i ← a
+                j ← c
+                k ← e
               } {
                 val element = i :: j :: k :: Nil
                 val eq1 = ab(i) == cb(j)
@@ -336,12 +292,12 @@ class DiagramTest extends Test with TestDiagrams {
             val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
             val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))
             for {
-              i <- 1 to 3
+              i ← 1 to 3
             } {
               ara(i) == list(i - 1)
             }
             for {
-              i <- 2 to 4
+              i ← 2 to 4
             } {
               arb(i) == list(i - 2)
             }
@@ -357,7 +313,7 @@ class DiagramTest extends Test with TestDiagrams {
       val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
       val sutOpt: Result[Diagram] = Diagram.build(
-        "ParallelPair", Category.ParallelPair)(
+        "coEq", Category.ParallelPair)(
         Map("0" → a, "1" → b),
         Map("a" → f, "b" → g)
       )
@@ -400,9 +356,9 @@ class DiagramTest extends Test with TestDiagrams {
           val are = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("e"))))
 
           for {
-            i <- SampleMDiagramContent.a
-            j <- SampleMDiagramContent.c
-            k <- SampleMDiagramContent.e
+            i ← SampleMDiagramContent.a
+            j ← SampleMDiagramContent.c
+            k ← SampleMDiagramContent.e
           } {
             val element = i :: j :: k :: Nil
             if (vertex(element)) {

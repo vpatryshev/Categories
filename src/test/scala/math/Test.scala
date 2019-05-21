@@ -16,8 +16,7 @@ class Test extends Specification {
   def check[T](g: Result[T], op: T ⇒ Unit): MatchResult[Any] = {
     g match {
       case Good(sut) ⇒ op(sut)
-      case bad ⇒ 
-        failure(bad.toString)
+      case bad ⇒ failure(bad.toString)
     }
     ok
   }

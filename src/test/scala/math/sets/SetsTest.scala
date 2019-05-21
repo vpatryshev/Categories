@@ -7,8 +7,6 @@ import math.sets.Sets._
 import org.specs2.execute.Failure
 import org.specs2.mutable._
 import scalakittens.{Empty, Result}
-import scalaz.std.function
-import math.Base.Pollyanna
 
 import scala.concurrent.duration.Duration
 
@@ -97,7 +95,7 @@ class SetsTest extends Specification {
       //      s must contain(42)
       s.contains(42) must beTrue
       var n = 0
-      for (i <- s take 10) {
+      for (i ← s take 10) {
         n += 1
       }
       n === 10
@@ -314,7 +312,7 @@ class SetsTest extends Specification {
 
     "Set should be monadic" >> {
       val i: Set[Int] = Set(1, 2, 3)
-      val s: Set[String] = for (n <- i) yield n.toString
+      val s: Set[String] = for (n ← i) yield n.toString
       s === Set("1", "2", "3")
     }
 
@@ -355,7 +353,7 @@ class SetsTest extends Specification {
       val s = asSet[Int](1 to 10)
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) ⇒ a == b
       val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
-      val factor = asSet[Set[Int]](for (i <- s) yield Set(i))
+      val factor = asSet[Set[Int]](for (i ← s) yield Set(i))
       actual === SetMorphism.build[Int, Set[Int]](s, factor, (i:Int) ⇒ Set(i)).iHope
     }
 

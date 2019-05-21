@@ -6,7 +6,6 @@ import math.sets.Sets._
 import math.sets.{BigSet, Sets}
 import org.specs2.mutable._
 import scalakittens.Good
-import math.Base._
 
 
 /**
@@ -26,7 +25,6 @@ class SetCategoryTest extends Specification {
       val sets = BigSet(Set(s1, s2))
       val arrow = SetFunction.build("sample", s1, s2, _.asInstanceOf[Int] / 7) iHope
       val theGraph = graphOfSets(sets)
-      import theGraph._
       theGraph.nodes === sets
       theGraph.arrows.contains(theGraph.arrow(arrow)) === true
     }
@@ -124,10 +122,10 @@ class SetCategoryTest extends Specification {
         case Good(s: set) ⇒
           s.size === 81
           for {
-            a <- source
-            b <- source
-            c <- source
-            d <- source
+            a ← source
+            b ← source
+            c ← source
+            d ← source
           } {
             val point = List(a,b,c,d)
             s(point) === true
@@ -175,7 +173,7 @@ class SetCategoryTest extends Specification {
 
     "have an id" in {
       for {
-        obj <- s4
+        obj ← s4
       } Setf.id(s4)(obj) === obj
 
       ok
@@ -219,7 +217,7 @@ class SetCategoryTest extends Specification {
           p1.d0 === p2.d0
           val sut = p1.d0
           sut.size === 9
-          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === true
+          for {i ← 1 to 3; j ← 2 to 4} sut((i, j)) === true
         case none ⇒ failure(s"Where's my product? $none")
       }
       ok
@@ -271,7 +269,7 @@ class SetCategoryTest extends Specification {
           p1.d0 === p2.d0
           val sut = p1.d0
           sut.size === 5
-          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === ((i+j) %2 == 1)
+          for {i ← 1 to 3; j ← 2 to 4} sut((i, j)) === ((i+j) %2 == 1)
         case none ⇒ failure(s"Where's my pullback? $none")
       }
       ok
@@ -284,7 +282,8 @@ class SetCategoryTest extends Specification {
       val f = SetFunction.build("f", c, a, _.toString.toInt + 1).iHope
       val g = SetFunction.build("g", c, b, x ⇒ x.toString.toInt + 2).iHope
 
-      Setf.pushout(f, g) match {
+      val actual = Setf.pushout(f, g)
+      actual match {
         case Good((p1, p2)) ⇒
           p1.d0 === a
           p2.d0 === b
@@ -305,7 +304,8 @@ class SetCategoryTest extends Specification {
     "have union" in {
       val a: set = Set(1, 2, 3)
       val b: set = Set(3, 4)
-      Setf.union(a, b) match {
+      val actual = Setf.union(a, b)
+      actual match {
         case Good((ix, iy)) ⇒
           ix.d0 === a
           iy.d0 === b

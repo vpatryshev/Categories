@@ -1,11 +1,10 @@
 package math.cat
 
+import math.cat.SetMorphism._
 import math.sets.Sets
 import math.sets.Sets._
 import scalakittens.Result
-import Result._
-import math.Base._
-import SetMorphism._
+import scalakittens.Result._
 
 /**
  * Morphism class for sets, and the accompanying object.
@@ -16,10 +15,10 @@ class SetMorphism[X, Y] (
     val d1: Set[Y],
     val function: X ⇒ Y)
   extends Morphism[Set[X], Set[Y]] with Map[X, Y] {
-
+  private def plural(n: Int, w: String) = if (n == 1) s"1 $w" else s"$n ${w}s"
   override def toString: String = tag match {
     case "" ⇒ "{" + (d0 map (x ⇒ s"$x → ${this(x)}") mkString ", ")  + "}"
-    case _  ⇒ s"$tag: ${d0.size} elements → ${d1.size} elements"
+    case _  ⇒ s"$tag: ${plural(d0.size, "element")} → ${plural(d1.size, "element")}"
   }
 
   override def hashCode: Int = d0.hashCode * 4/*random number*/ + d1.hashCode
@@ -71,7 +70,7 @@ object SetMorphism {
   // Validates set morphism.
   // All we need is that each d0 element is mapped to a d1 element.
   def check[X, Y, T <: SetMorphism[X, Y]](f: T): Result[T] = Result.traverse {
-    for {x <- f.d0} yield {
+    for {x ← f.d0} yield {
       val y = f.function(x)
       val yInD1 = f.d1 contains y
       OKif(yInD1, s"${f.tag}: Value $y for $x should be in d1 ${f.d1}")

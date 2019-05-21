@@ -4,7 +4,6 @@ import math.Test
 import math.cat.{Category, Functor, SetCategory, SetFunction}
 import math.sets.Sets.set
 import scalakittens.Result
-import math.Base._
 
 trait TestDiagrams extends Test {
 
@@ -18,22 +17,57 @@ trait TestDiagrams extends Test {
     Map[String, set](),
     Map[String, SetFunction]()
   ).iHope
+  
   val SamplePullbackDiagram: Diagram = BuildPullbackDiagram.asDiagram iHope
   val SamplePushoutDiagram: Diagram = {
     null
     // TODO: implement
   }
-  val SampleParallelPairDiagram: Diagram = {
+  val SampleParallelPairDiagram1: Diagram = {
     val a: set = Set(1, 2, 3, 4, 5)
-    val b: set = Set(0, 1, 2)
+    val b: set = Set(0, 1, 2, 3)
     val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
     val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
     Diagram.build(
-      "ParallelPair", Category.ParallelPair)(
+      "ParallelPair Sample1", Category.ParallelPair)(
       Map("0" → a, "1" → b),
       Map("a" → f, "b" → g)
     ) iHope
   }
+  val SampleParallelPairSubdiagram1: Diagram = {
+    val a: set = Set(1, 2, 3)
+    val b: set = Set(0, 1, 2)
+    val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
+    val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
+    Diagram.build(
+      "ParallelPair Sample1", Category.ParallelPair)(
+      Map("0" → a, "1" → b),
+      Map("a" → f, "b" → g)
+    ) iHope
+  }
+  val SampleParallelPairSubdiagram2: Diagram = {
+    val a: set = Set(1, 2, 3)
+    val b: set = Set(0, 1, 2)
+    val f = SetFunction.build("ParSub2.f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
+    val g = SetFunction.build("ParSub2.g", a, b, x ⇒ x.toString.toInt % 3).iHope
+    Diagram.build(
+      "ParallelPair Sample1", Category.ParallelPair)(
+      Map("0" → a, "1" → b),
+      Map("a" → f, "b" → g)
+    ) iHope
+  }
+  val SampleParallelPairDiagram2: Diagram = {
+    val a: set = Set(1, 2, 3)
+    val b: set = Set(0, 1)
+    val f = SetFunction.build("f", a, b, x ⇒ Math.min(1, x.toString.toInt - 1)).iHope
+    val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 2).iHope
+    Diagram.build(
+      "ParallelPair Sample2", Category.ParallelPair)(
+      Map("0" → a, "1" → b),
+      Map("a" → f, "b" → g)
+    ) iHope
+  }
+  
   val SampleZ3Diagram: Diagram = {
     val a: set = Set(0, 1, 2, 3)
 
@@ -42,14 +76,14 @@ trait TestDiagrams extends Test {
     val f1 = SetFunction.build("f1", a, a, x ⇒ f(1)(x.toString.toInt)).iHope
     val f2 = SetFunction.build("f2", a, a, x ⇒ f(2)(x.toString.toInt)).iHope
     Diagram.build(
-      "Z3", Category.Z3)(
+      "Z3 Sample", Category.Z3)(
       Map("0" → a),
       Map("1" → f1, "2" → f2)
     ) iHope
   }
 
   def const(x: set): Result[Diagram] =
-    Diagram.build(s"point $x", Category._1_)(
+    Diagram.build(s"Point($x)", Category._1_)(
       Map[String, set]("0" → x),
       Map[String, SetFunction]()
     )
@@ -63,13 +97,13 @@ trait TestDiagrams extends Test {
     val om = Map("a" → sa, "b" → sb, "c" → sc)
     val am = Map("ac" → ac, "bc" → bc)
     
-    lazy val asFunctor: Result[Functor] = Functor.apply(
+    lazy val asFunctor: Result[Functor] = Functor(
       "pullback", Category.Pullback, SetCategory.Setf)(
       om,
       am
     )
     lazy val asDiagram: Result[Diagram] = Diagram.build(
-      "pullback", Category.Pullback)(
+      "Pullback Sample", Category.Pullback)(
       om,
       am
     )
@@ -90,7 +124,7 @@ trait TestDiagrams extends Test {
   val SampleWDiagram: Diagram = {
     import SampleWDiagramContent._
     Diagram.build(
-      "W", Category.W)(
+      "W Sample", Category.W)(
       Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
       Map("ab" → ab, "cb" → cb, "cd" → cd, "ed" → ed)
     ) iHope
@@ -111,7 +145,7 @@ trait TestDiagrams extends Test {
   val SampleMDiagram: Diagram = {
     import SampleMDiagramContent._
     Diagram.build(
-      "M", Category.M)(
+      "M Sample", Category.M)(
       Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
       Map("ba" → ba, "bc" → bc, "dc" → dc, "de" → de)
     ) iHope

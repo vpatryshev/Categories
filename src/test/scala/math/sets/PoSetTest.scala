@@ -13,7 +13,7 @@ class PoSetTest extends Specification {
       actual.underlyingSet === expected.underlyingSet
       val product = Sets.product2(expected.underlyingSet, expected.underlyingSet)
 
-      for {p <- product} {
+      for {p ← product} {
         // could not use `===`, something wrong with it in combination with `aka`
         (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must_== expected.le(p)
       }

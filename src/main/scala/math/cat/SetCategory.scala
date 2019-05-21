@@ -4,9 +4,8 @@ import math.cat.SetCategory._
 import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BigSet, FactorSet, Sets}
-import math.Base._
+import scalakittens.Result._
 import scalakittens.{Good, Result}
-import Result._
 
 /**
   * Category where objects are sets
@@ -50,7 +49,7 @@ class SetCategory(objects: BigSet[Set[Any]])
   OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen {
     val theFactorset: factorset = new FactorSet[Any](f.d1)
     OKif(contains(theFactorset untyped)) returning {
-      for (x <- f.d0) {
+      for (x ← f.d0) {
         theFactorset.merge(f(x), g(x))
       }
       SetFunction.forFactorset(theFactorset)
@@ -62,7 +61,7 @@ class SetCategory(objects: BigSet[Set[Any]])
       val f = arrowsToEqualize.head
       val domain = f.d0
       val codomain = f.d1
-      val dataOk = Result.traverse(for (f <- arrowsToEqualize) yield {
+      val dataOk = Result.traverse(for (f ← arrowsToEqualize) yield {
         OKif(f.d0 == domain, s"Domain should be $domain") andAlso
           OKif(f.d1 == codomain, s"Codomain should be $codomain")
       })
@@ -70,8 +69,8 @@ class SetCategory(objects: BigSet[Set[Any]])
       dataOk andThen {
         val theFactorset: factorset = new FactorSet(codomain)
 
-        for (g <- arrowsToEqualize) {
-          for (x <- g.d0) theFactorset.merge(f(x), g(x))
+        for (g ← arrowsToEqualize) {
+          for (x ← g.d0) theFactorset.merge(f(x), g(x))
         }
         Option(SetFunction.forFactorset(theFactorset))
       }
@@ -93,7 +92,7 @@ class SetCategory(objects: BigSet[Set[Any]])
       }
 
       val projections = for {
-        i <- 0 until n
+        i ← 0 until n
       } yield {
         val function = takeElementAt(i)(_)
         SetFunction.build(s"set^$n", domain, x, function)
@@ -123,7 +122,7 @@ class SetCategory(objects: BigSet[Set[Any]])
   override def pullback(f: SetFunction, g: SetFunction):
   Result[(SetFunction, SetFunction)] =
     for {
-      prod <- product(f.d0, g.d0)
+      prod ← product(f.d0, g.d0)
     } yield {
       val productSet = prod._1.d0
       val pullbackInProduct =
@@ -139,19 +138,20 @@ class SetCategory(objects: BigSet[Set[Any]])
     val taggedX: set = x map tagX
     val taggedY: set = y map tagY
     val unionSet: set = Sets.union(taggedX, taggedY)
-    val ix =
-      SetFunction.build("ix", x, taggedX, tagX) map
-        (_.andThen(SetFunction.inclusion(taggedX, unionSet)))
-    val iy =
-      SetFunction.build("iy", y, taggedY, tagY) map
-        (_.andThen(SetFunction.inclusion(taggedY, unionSet)))
-    ix andAlso iy
+    val ix0 = SetFunction.build("ix", x, taggedX, tagX)
+    val ix1 = SetFunction.inclusion(taggedX, unionSet)
+    val ix =ix0 andAlso ix1 map { case (f, g) ⇒ f andThen g }
+    val iy0 = SetFunction.build("iy", y, taggedY, tagY)
+    val iy1 = SetFunction.inclusion(taggedY, unionSet)
+    val iy = iy0 andAlso iy1 map { case (f, g) ⇒ f andThen g }
+    val union = ix andAlso iy
+    union
   }
 
   override def pushout(f: SetFunction, g: SetFunction): Result[(SetFunction, SetFunction)] =
     for {
-      (left, right) <- union(f.d1, g.d1)
-      coeq <- coequalizer(f andThen left, g andThen right)
+      (left, right) ← union(f.d1, g.d1)
+      coeq ← coequalizer(f andThen left, g andThen right)
     } yield (left andThen coeq, right andThen coeq)
 
   override def hashCode: Int = getClass.hashCode * 7 + objects.hashCode
