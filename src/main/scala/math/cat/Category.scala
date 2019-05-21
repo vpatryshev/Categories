@@ -1257,9 +1257,7 @@ object Category extends CategoryFactory {
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
   lazy val SomeKnownCategories = List(
-    _0_, _1_, _2_, _3_,
-    ParallelPair, Pullback, Pushout, SplitMono, W,
-    Z3)
+    _0_, _1_, _3_, ParallelPair, SplitMono, W, M, Z3)
 
   lazy val KnownCategories = List(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,

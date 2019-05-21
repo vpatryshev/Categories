@@ -205,7 +205,8 @@ trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { this: CategoryOfD
     }
 
     lazy val implication: DiagramArrow = {
-      var inclusion: DiagramArrow = inclusionOf(order_on_Ω) in ΩxΩ
+      val inclusion: DiagramArrow = inclusionOf(order_on_Ω) in ΩxΩ iHope
+      
       classifyingMap(inclusion, "⇒")
     }
   }

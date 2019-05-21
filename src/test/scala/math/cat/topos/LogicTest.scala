@@ -108,30 +108,30 @@ class LogicTest extends Fixtures {
     }
   }
 
-  def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] = {
-    import topos._
-    val desc = s"Testing ${domain.name} conjunction"
-    val True = predicateFor(Ω.True)
-    val False = predicateFor(Ω.False)
-    checkThatIn(topos).mustBeMonoid[Predicate](
-      "conjunction",
-      True,
-      (p: Predicate, q: Predicate) ⇒ p ∧ q
-    )
-
-    for {pt ← Ω.points } {
-      println(s"  checking conjunction with False for ${pt.tag}")
-      val p = predicateFor(pt)
-      (False ∧ p) === False
-    }
-    ok
-  }
-
   "Conjunction" should {
+
+    def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] = {
+      import topos._
+      val desc = s"Testing $what over ${domain.name}"
+      val True = predicateFor(Ω.True)
+      val False = predicateFor(Ω.False)
+      checkThatIn(topos).mustBeMonoid[Predicate](
+        "conjunction",
+        True,
+        (p: Predicate, q: Predicate) ⇒ p ∧ q
+      )
+
+      for {pt ← Ω.points } {
+        println(s"  checking conjunction with False for ${pt.tag}")
+        val p = predicateFor(pt)
+        (False ∧ p) === False
+      }
+      ok
+    }
 
     def checkTrue(topos: GrothendieckTopos): MatchResult[Any] = {
       import topos._
-      val desc = s"Testing ${domain.name} True value"
+      val desc = s"Testing True value over ${domain.name}"
 
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
         SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) ⇒ (subrep, subrep)).iHope
@@ -197,11 +197,11 @@ class LogicTest extends Fixtures {
   "Disjunction" should {
 
     "work for all known domains" in {
-      
+
       def check(cat: Category): MatchResult[Any] = {
         val topos = new CategoryOfDiagrams(cat)
         import topos._
-        val desc = s"Testing ${cat.name} disjunction"
+        val desc = s"Testing disjunction over ${cat.name}"
         println(desc)
         val True = predicateFor(Ω.True)
         val False = predicateFor(Ω.False)
@@ -224,7 +224,7 @@ class LogicTest extends Fixtures {
       ok
     }
   }
-  
+
   "Distributivity laws of logic" in {
 
     // distributivity of conjunction over disjunction
@@ -249,7 +249,7 @@ class LogicTest extends Fixtures {
       import topos._
       val points = Ω.points
 
-      val desc = s"Testing ${cat.name} distributivity laws"
+      val desc = s"Testing distributivity laws over ${cat.name}"
       println(desc)
 
       for { pt1 ← points } {
@@ -286,7 +286,7 @@ class LogicTest extends Fixtures {
       def check(cat: Category): MatchResult[Any] = {
         val topos = new CategoryOfDiagrams(cat)
         import topos._
-        val desc = s"Testing ${cat.name} implication"
+        val desc = s"Testing implication over ${cat.name}"
         println(desc)
         val True = predicateFor(Ω.True)
         val False = predicateFor(Ω.False)
