@@ -31,32 +31,15 @@ abstract class Diagram(
   type XArrows = Set[d0.Arrow]
 
   implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
+
+  private[topos] def setAt(x: Any): set = asSet(objectsMapping(d0.asObj(x)))
   
-  def ⊂(other: Diagram): Boolean = {
-    val itsok = d0.objects.forall { o ⇒
-      this(o) subsetOf other(o)
-    }
-    itsok
-  }
+  def ⊂(other: Diagram): Boolean =
+    d0.objects.forall { o ⇒ this(o) subsetOf other(o) }
 
-  def ∈(other: Diagram): Boolean = {
-    val itsok = d0.objects.forall { o ⇒
-      other(o)(this(o))
-    }
-    itsok
-  }
+  def ∈(other: Diagram): Boolean =
+    d0.objects.forall { o ⇒ other(o)(this(o)) }
 
-  implicit def asFunction(a: d1.Arrow): SetFunction = a match {
-    case sf: SetFunction ⇒ sf
-    case trash ⇒
-      throw new IllegalArgumentException(s"Expected a set function, got $trash")
-  }
-
-  def functionForArrow(a: Any): SetFunction = {
-    val arrowInSets = arrowsMapping(d0.arrow(a))
-    asFunction(arrowInSets)
-  }
-  
   def point(mapping: d0.Obj ⇒ Any, id: Any = ""): Point =
     new Point(id, topos, (x: Any) ⇒ mapping(diagram.d0.obj(x)))
 
@@ -73,10 +56,17 @@ abstract class Diagram(
     sorted map { p ⇒ p._1 named ("p" + p._2) }
   }
 
-  private[topos] def setAt(x: Any): set = {
-    asSet(objectsMapping(x.asInstanceOf[d0.Obj]))
+  implicit def asFunction(a: d1.Arrow): SetFunction = a match {
+    case sf: SetFunction ⇒ sf
+    case trash ⇒
+      throw new IllegalArgumentException(s"Expected a set function, got $trash")
   }
-  
+
+  def functionForArrow(a: Any): SetFunction = {
+    val arrowInSets = arrowsMapping(d0.arrow(a))
+    asFunction(arrowInSets)
+  }
+
   def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
 
   /**

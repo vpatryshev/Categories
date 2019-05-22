@@ -19,8 +19,7 @@ case class SetFunction private[cat](
   override val d0: set,
   override val d1: set,
   mapping: Any ⇒ Any)
-  extends SetMorphism[Any, Any](tag, d0, d1, mapping) {
-  self ⇒
+  extends SetMorphism[Any, Any](tag, d0, d1, mapping) { self ⇒
 
   override lazy val hashCode: Int =
     d1.hashCode + 2 * d0.map(x ⇒ (x, mapping(x))).hashCode
@@ -50,13 +49,9 @@ case class SetFunction private[cat](
     * @return their composition g ∘ f: X → Z
     */
   def compose(g: SetFunction): Option[SetFunction] = {
-    if (d1 equals g.d0) {
-      val newTag = tagOfComposition(g.tag, tag)
-      val transform = (x: Any) ⇒ {
-        val y = self(x)
-        g(y)
-      }
-      Some(new SetFunction(newTag, d0, g.d1, transform))
+    if (d1 == g.d0) {
+      val transform = (x: Any) ⇒ g(self(x))
+      Some(new SetFunction(tagOfComposition(g.tag, tag), d0, g.d1, transform))
     }
     else None
   }

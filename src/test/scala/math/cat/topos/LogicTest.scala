@@ -11,6 +11,9 @@ import scalakittens.Result._
 class LogicTest extends Fixtures {
   
   val categoriesToTest = SomeKnownCategories
+  
+  val enabled: Set[String] = Set("negation")
+  def ignored(name: String) = false // !enabled(name)
 
   "True and False" should {
     "exist for _0_" in {
@@ -121,7 +124,7 @@ class LogicTest extends Fixtures {
         (p: Predicate, q: Predicate) ⇒ p ∧ q
       )
 
-      for {pt ← Ω.points } {
+      for { pt ← Ω.points } {
         println(s"  checking conjunction with False for ${pt.tag}")
         val p = pt.asPredicate
         (False ∧ p) === False
@@ -156,7 +159,7 @@ class LogicTest extends Fixtures {
       }
 
       val classifierForTT: DiagramArrow = χ(monomorphism)
-      val theyAreTheSame = classifierForTT equals conjunction // nice to have this line, to check the comparison
+      val theyAreTheSame = classifierForTT == conjunction // nice to have this line, to check the comparison
 
       if (!theyAreTheSame) {
         for {
@@ -211,7 +214,7 @@ class LogicTest extends Fixtures {
           (p: Predicate, q: Predicate) ⇒ p ∨ q
         )
 
-        for {pt ← Ω.points } {
+        for { pt ← Ω.points } {
           println(s"  checking disjunction with False for ${pt.tag}")
           val p = pt.asPredicate
           (True ∨ p) === True
@@ -291,7 +294,7 @@ class LogicTest extends Fixtures {
         val True = Ω.True.asPredicate
         val False = Ω.False.asPredicate
 
-        for {pt1 ← Ω.points } {
+        for { pt1 ← Ω.points } {
           println(s"  checking Truth ==> ${pt1.tag}")
           val p = pt1.asPredicate
           (True ==> p) === p
@@ -369,4 +372,43 @@ class LogicTest extends Fixtures {
     }
   }
 
+
+  "Negation" should {
+
+    "work for all known domains" in {
+      val d = describe("fuck")
+
+      def check(cat: Category): MatchResult[Any] = {
+        val topos = new CategoryOfDiagrams(cat)
+        import topos._
+        
+        val desc = s"Testing negation over ${cat.name}"
+        println(desc)
+        val True = Ω.True.asPredicate
+        val False = Ω.False.asPredicate
+
+        ¬(True) === False
+        ¬(False) === True
+
+        for { pt1 ← Ω.points } {
+          println(s"  checking triple negation for ${pt1.tag}")
+          val p = pt1.asPredicate
+          val not_p = ¬(p)
+          ¬(¬(not_p)) === not_p
+
+          println(s"  checking negation of disjunction for ${pt1.tag}")
+          for {pt2 ← Ω.points} {
+            val q = pt2.asPredicate
+            ¬(p ∨ q) === ¬(p) ∧ ¬(q)
+          }
+        }
+
+        ok
+      }
+
+      categoriesToTest filter (_.isFinite) foreach check
+
+      ok
+    }
+  }
 }

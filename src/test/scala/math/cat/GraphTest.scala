@@ -72,11 +72,11 @@ class GraphTest extends Test {
       val sut2 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       val sut3 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       val sut4 = Graph.build(Set(1, 2, 3, 4), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
-      (sut1 equals sut1) === true
-      (sut1 equals sut2) === true
-      (sut2 equals sut1) === true
-      (sut2 equals sut3) === false
-      (sut3 equals sut4) === false
+      (sut1 == sut1) === true
+      (sut1 == sut2) === true
+      (sut2 == sut1) === true
+      (sut2 == sut3) === false
+      (sut3 == sut4) === false
     }
 
     "follows" >> {

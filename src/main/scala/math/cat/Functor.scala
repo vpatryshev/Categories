@@ -286,9 +286,7 @@ object Functor {
     * @param c the category
     * @return identity functor on the given category
     */
-  def id(c: Category):
-  Functor =
-    new Functor("id", c, c) {
+  def id(c: Category): Functor = new Functor("id", c, c) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(x)
 
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =

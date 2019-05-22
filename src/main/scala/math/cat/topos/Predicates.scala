@@ -5,7 +5,7 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.{asSet, set}
 import scalakittens.Result
 
-trait Predicates { this: GrothendieckTopos with CategoryOfDiagrams =>
+trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams =>
 
   trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
     val d0: Diagram
@@ -31,7 +31,7 @@ trait Predicates { this: GrothendieckTopos with CategoryOfDiagrams =>
       binaryOpNamed(q, ΩxΩ_to_Ω, tag2(p.tag, opTag, q.tag))
     }
 
-    private def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
+    private[Predicates] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
       require(q.d0 == p.d0)
       
       for (o ← domainCategory.objects) {
@@ -84,9 +84,12 @@ trait Predicates { this: GrothendieckTopos with CategoryOfDiagrams =>
       * @return this implies q
       */
     def ==>(q: Predicate): Predicate = binaryOp(q, "⇒", Ω.implication)
-
-    def ¬ : Predicate = binaryOpNamed(FalsePredicate, Ω.implication, "¬")
   }
+
+
+  def ¬(p: topos.Predicate): topos.Predicate =
+    p.binaryOpNamed(FalsePredicate, Ω.implication, "¬")
+
 
   lazy val FalsePredicate: Predicate = predicateFor(Ω.False)
 
