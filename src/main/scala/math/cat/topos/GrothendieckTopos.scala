@@ -1,12 +1,13 @@
 package math.cat.topos
 
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Category, Functor, NaturalTransformation, SetFunction}
-import math.sets.Sets
+import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets._
 import scalakittens.Result
 
 import scala.collection.mutable
+
+// see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
 trait GrothendieckTopos extends Topos[Diagram, DiagramArrow] { topos: CategoryOfDiagrams ⇒
   val domain: Category
