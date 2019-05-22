@@ -345,9 +345,9 @@ object Diagram {
       override private[topos] def setAt(x: Any): set = objectsMap(x.asInstanceOf[domain.Obj]).asInstanceOf[d1.Obj]
       
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (o: d0.Obj) ⇒ {
-        val x = domain.obj(o)
+        val x = domain.asObj(o)
         val y = objectsMap(x)
-        d1.obj(y)
+        d1.asObj(y)
       }
 
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =

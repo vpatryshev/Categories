@@ -105,7 +105,7 @@ class GrothendieckToposTest extends Fixtures {
       import topos._
       val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1 iHope
 
-      val chi1: DiagramArrow = topos.classifyingMap(i1)
+      val chi1: DiagramArrow = topos.χ(i1)
       val chi10 = topos.asFunction(chi1("0"))
       chi10(1).toShortString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"
       chi10(2).toShortString === "Diagram[ParallelPair](0→{0}, 1→{a,b})"

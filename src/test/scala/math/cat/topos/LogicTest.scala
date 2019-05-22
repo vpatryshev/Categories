@@ -155,7 +155,7 @@ class LogicTest extends Fixtures {
         actual aka s"$desc, @$o" must_== p
       }
 
-      val classifierForTT: DiagramArrow = classifyingMap(monomorphism)
+      val classifierForTT: DiagramArrow = χ(monomorphism)
       val theyAreTheSame = classifierForTT equals conjunction // nice to have this line, to check the comparison
 
       if (!theyAreTheSame) {
