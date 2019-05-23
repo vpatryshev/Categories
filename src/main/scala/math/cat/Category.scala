@@ -1297,7 +1297,7 @@ object Category extends CategoryFactory {
     HalfSimplicial, NaturalNumbers)
 
   implicit class CategoryString(val sc: StringContext) extends AnyVal {
-    def category(args: Any*): Cat = {
+    def category(args: Any*): Cat = { 
       val strings = sc.parts.iterator
       val expressions = args.iterator
       var buf = new StringBuffer(strings.next)
