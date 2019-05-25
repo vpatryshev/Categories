@@ -12,8 +12,8 @@ class Test extends Specification {
   }
 
   type SUT
-  
-  def check[T](g: Result[T], op: T ⇒ Unit): MatchResult[Any] = {
+
+  def checkOpt[T](g: Result[T], op: T ⇒ Unit): MatchResult[Any] = {
     g match {
       case Good(sut) ⇒ op(sut)
       case bad ⇒ failure(bad.toString)
@@ -21,7 +21,12 @@ class Test extends Specification {
     ok
   }
 
-  def expect(op: SUT ⇒ Unit)(sutOpt: Result[SUT]): MatchResult[Any] = check[SUT](sutOpt, op)
+  def check[T](g: T, op: T ⇒ Unit): MatchResult[Any] = {
+    op(g)
+    ok
+  }
+
+  def expect(op: SUT ⇒ Unit)(sutOpt: Result[SUT]): MatchResult[Any] = checkOpt[SUT](sutOpt, op)
   
   def checkError[T](op: String ⇒ Boolean, sutOpt: Result[T]): MatchResult[_] = {
     sutOpt match {

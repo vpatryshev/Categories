@@ -22,6 +22,7 @@ import scala.language.postfixOps
   */
 abstract class Diagram(
   tag: Any,
+  val topos: GrothendieckTopos,
   override val d0: Category)
   extends Functor(tag, d0, SetCategory.Setf) { diagram ⇒
   type XObject = d0.Obj
@@ -30,34 +31,17 @@ abstract class Diagram(
   type XArrows = Set[d0.Arrow]
 
   implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
+
+  private[topos] def setAt(x: Any): set = asSet(objectsMapping(d0.asObj(x)))
   
-  def ⊂(other: Diagram): Boolean = {
-    val itsok = d0.objects.forall { o ⇒
-      this(o) subsetOf other(o)
-    }
-    itsok
-  }
+  def ⊂(other: Diagram): Boolean =
+    d0.objects.forall { o ⇒ this(o) subsetOf other(o) }
 
-  def ∈(other: Diagram): Boolean = {
-    val itsok = d0.objects.forall { o ⇒
-      other(o)(this(o))
-    }
-    itsok
-  }
+  def ∈(other: Diagram): Boolean =
+    d0.objects.forall { o ⇒ other(o)(this(o)) }
 
-  implicit def asFunction(a: d1.Arrow): SetFunction = a match {
-    case sf: SetFunction ⇒ sf
-    case trash ⇒
-      throw new IllegalArgumentException(s"Expected a set function, got $trash")
-  }
-
-  def functionForArrow(a: Any): SetFunction = {
-    val arrowInSets = arrowsMapping(d0.arrow(a))
-    asFunction(arrowInSets)
-  }
-  
   def point(mapping: d0.Obj ⇒ Any, id: Any = ""): Point =
-    new Point(id, diagram.d0, (x: Any) ⇒ mapping(diagram.d0.obj(x)))
+    new Point(id, topos, (x: Any) ⇒ mapping(diagram.d0.asObj(x)))
 
   lazy val points: List[Point] = {
     val objMappings = for {
@@ -70,6 +54,17 @@ abstract class Diagram(
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
     sorted map { p ⇒ p._1 named ("p" + p._2) }
+  }
+
+  implicit def asFunction(a: d1.Arrow): SetFunction = a match {
+    case sf: SetFunction ⇒ sf
+    case trash ⇒
+      throw new IllegalArgumentException(s"Expected a set function, got $trash")
+  }
+
+  def functionForArrow(a: Any): SetFunction = {
+    val arrowInSets = arrowsMapping(d0.arrow(a))
+    asFunction(arrowInSets)
   }
 
   def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
@@ -186,18 +181,29 @@ abstract class Diagram(
 
   lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map asSet
   
-  private def extendToArrows(om: d0.Obj ⇒ Sets.set)(a: d0.Arrow): SetFunction = {
+  private def extendToArrows1(om: d0.Obj ⇒ Sets.set)(a: d0.Arrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
-    SetFunction.build("", dom, codom, arrowsMapping(a)).iHope
+    new SetFunction("", dom, codom, arrowsMapping(a))
   }
-  
+
+  private def extendToArrows2(om: topos.domain.Obj ⇒ Sets.set)(a: d0.Arrow): SetFunction = {
+    def same_om(o: d0.Obj): Sets.set = om(topos.domain.asObj(o))
+    extendToArrows1(same_om)(a)
+  }
+
+  private def extendToArrows3(om: topos.domain.Obj ⇒ Sets.set)(a: topos.domain.Arrow): SetFunction = {
+    def same_om(o: d0.Obj): Sets.set = om(topos.domain.asObj(o))
+    extendToArrows1(same_om)(d0.arrow(a))
+  }
+
   // TODO: write tests
   def filter(tag: String, predicate: d0.Obj ⇒ Any ⇒ Boolean): Diagram = {
-    val om: d0.Obj ⇒ Sets.set =
-      o => objectsMapping(o) filter predicate(o)
-    
-    Diagram(tag, d0)(om, extendToArrows(om))
+    def om(o: d0.Obj): Sets.set = objectsMapping(o) filter predicate(o)
+    def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
+
+    val arrowToFunction = (a: topos.domain.Arrow) ⇒ extendToArrows1(om)(d0.arrow(a))
+    Diagram(tag, topos)(same_om, arrowToFunction)
   }
 
   def subobjects: Iterable[Diagram] = {
@@ -232,23 +238,28 @@ abstract class Diagram(
 
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) ⇒
-        Diagram.build(i+1, d0)(om, extendToArrows(om) _)
+        def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
+        Diagram.build(i+1, topos)(same_om, extendToArrows3(same_om) _)
     }
     
     val goodOnes = allCandidates.collect { case Good(d) ⇒ d}
     goodOnes
   }
-
-  override def toString = s"Diagram[${d0.name}](${
-    d0.listOfObjects map { x ⇒ x + "→{" + objectsMapping(x).mkString(",") + "}" } mkString ", " replace(s"Diagram[${d0.name}]", "")
-  })".replace("Set()", "{}")
   
-  def toShortString = s"Diagram[${d0.name}](${
-    d0.listOfObjects map { x ⇒ {
+  private def toString(contentMapper: d0.Obj ⇒ String): String = {
+    s"Diagram[${d0.name}](${
+      d0.listOfObjects map contentMapper filter(_.nonEmpty) mkString ", "
+    })".replace("Set()", "{}")    
+  }
+
+  override def toString: String = toString({ x ⇒ 
+      x + "→{" + objectsMapping(x).mkString(",") + "}" replace(s"Diagram[${d0.name}]", "") })
+  
+  def toShortString: String = toString({ x ⇒ {
       val obRepr = Diagram.cleanupString(objectsMapping(x).mkString(","))
       if (obRepr.isEmpty) "" else x + "→{" + obRepr + "}"
-    } } filter(_.nonEmpty) mkString ", " replace(s"Diagram[${d0.name}]", "")
-  })".replace("Set()", "{}")
+    } replace(s"Diagram[${d0.name}]", "")
+  })
 
   /**
     * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value
@@ -330,26 +341,29 @@ abstract class Diagram(
 
 object Diagram {
 
-  private[topos] def apply(tag: Any, domain: Category)(
-    objectsMap: domain.Obj ⇒ set,
-    arrowMap: domain.Arrow ⇒ SetFunction): Diagram = {
+  private[topos] def apply(tag: Any, t: GrothendieckTopos)(
+    objectsMap: t.domain.Obj ⇒ set,
+    arrowMap: t.domain.Arrow ⇒ SetFunction): Diagram = {
 
-    new Diagram(tag.toString, domain) {
+    new Diagram(tag.toString, t, t.domain) {
+      
+      override private[topos] def setAt(x: Any): set = d1.asObj(objectsMap(t.domain.asObj(x)))
+      
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (o: d0.Obj) ⇒ {
-        val x = domain.obj(o)
+        val x = t.domain.asObj(o)
         val y = objectsMap(x)
-        d1.obj(y)
+        d1.asObj(y)
       }
 
       override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
-        (a: XArrow) ⇒ d1.arrow(arrowMap(domain.arrow(a)))
+        (a: XArrow) ⇒ d1.arrow(arrowMap(t.domain.arrow(a)))
     }
   }
   
-  def build(tag: Any, domain: Category)(
-    objectsMap: domain.Obj ⇒ set,
-    arrowMap: domain.Arrow ⇒ SetFunction): Result[Diagram] = {
-    val diagram: Diagram = apply(tag, domain)(objectsMap, arrowMap)
+  def build(tag: Any, topos: GrothendieckTopos)(
+    objectsMap: topos.domain.Obj ⇒ set,
+    arrowMap: topos.domain.Arrow ⇒ SetFunction): Result[Diagram] = {
+    val diagram: Diagram = apply(tag, topos)(objectsMap, arrowMap)
 
     Functor.validateFunctor(diagram) returning diagram
   }

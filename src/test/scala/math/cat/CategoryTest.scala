@@ -130,7 +130,7 @@ class CategoryTest extends Test with CategoryFactory {
         codomain = EmptyMap,
         compositionSource = EmptyComposition
       )
-      check(sutOpt, (sut: Category) ⇒ {
+      checkOpt(sutOpt, (sut: Category) ⇒ {
         sut.arrows must haveSize(1)
       }); ok
     }

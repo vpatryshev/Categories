@@ -23,9 +23,9 @@ object Sets {
   
   val InfiniteSize: Int = Int.MaxValue
   
-  val isInfinite: Set[_] ⇒ Boolean = _.size == InfiniteSize
+  def isInfinite(s: Set[_]): Boolean = s.size == InfiniteSize
 
-  def isFinite: Set[_] ⇒ Boolean = _.size != InfiniteSize
+  def isFinite(s: Set[_]): Boolean = s.size != InfiniteSize
 
   val Empty: set = Set.empty[Any]
   

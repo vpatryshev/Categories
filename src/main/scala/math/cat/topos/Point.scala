@@ -6,17 +6,19 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 /**
   * A point of an object (of a diagram in a Grothendieck topos)
   * @param tag used to visually identify a point
-  * @param domainCategory the domain category of a topos
+  * @param topos the topos
   * @param mapping for each object of domain category, choose something in the diagram
   */
 class Point(
   val tag: Any,
-  val domainCategory: Category,
+  val topos: GrothendieckTopos,
   val mapping: Any ⇒ Any) extends (Any ⇒ Any) { p ⇒
+
+  val domainCategory: Category = topos.domain
 
   def apply(x: Any): Any = mapping(x)
   
-  def named(name: Any): Point = new Point(name, domainCategory, mapping)
+  def named(name: Any): Point = new Point(name, topos, mapping)
 
   def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
 
@@ -29,11 +31,11 @@ class Point(
       }
     }
 
-    new Point(s"${f.tag}(${p.tag})", p.domainCategory, apply)
+    new Point(s"${f.tag}(${p.tag})", p.topos, apply)
   }
 
   def asDiagram: Diagram = {
-    new Diagram(tag, domainCategory) {
+    new Diagram(tag, topos, domainCategory) {
 
       override val objectsMapping: d0.Obj ⇒ d1.Obj =
         (x: d0.Obj) ⇒ d1.obj(Set(mapping(x.asInstanceOf[domainCategory.Obj])))
@@ -52,6 +54,10 @@ class Point(
       }
     }
   }
+
+  private lazy val predicate: topos.Predicate = topos predicateFor this
+
+  def asPredicate[T <: GrothendieckTopos]: T#Predicate = predicate.asInstanceOf[T#Predicate]
 
   override def toString: String = {
     val raw = domainCategory.listOfObjects.map(x ⇒ s"$x→${apply(x)}")
@@ -75,7 +81,7 @@ class Point(
     Diagram.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
   }
 
-  override lazy val hashCode: Int = System.identityHashCode(domainCategory) * 79 + toString.hashCode
+  override lazy val hashCode: Int = System.identityHashCode(topos) * 79 + toString.hashCode
 
   override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
     case p: Point ⇒

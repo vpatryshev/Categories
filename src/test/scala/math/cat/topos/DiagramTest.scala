@@ -6,7 +6,7 @@ import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.{Good, Result}
-import scalaz.Alpha.W
+import Category._
 
 /**
   * Test for individual diagrams (functors with codomain=sets)
@@ -18,7 +18,7 @@ class DiagramTest extends Test with TestDiagrams {
 
     "validate as a functor with Set as domain" in {
 
-      check[Functor](BuildPullbackDiagram.asFunctor,
+      checkOpt[Functor](BuildPullbackDiagram.asFunctor,
         sut ⇒ {
           sut.d0 === Category.Pullback
           sut.d1 === Setf
@@ -28,11 +28,12 @@ class DiagramTest extends Test with TestDiagrams {
 
     "test build" in {
       val dom = Category.Pullback
+      val topos = new CategoryOfDiagrams(dom)
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
       sut1.objectsMapping(sut1.d0.obj("b")) === BuildPullbackDiagram.sb
 
       val diagram: Diagram =
-        new Diagram("Test", dom) {
+        new Diagram("Test", topos, dom) {
           override val objectsMapping: d0.Obj ⇒ d1.Obj =
             (x: d0.Obj) ⇒ d1.obj(BuildPullbackDiagram.om(x.toString))
           override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
@@ -53,9 +54,10 @@ class DiagramTest extends Test with TestDiagrams {
       val b: set = Set(0, 1, 2)
       val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", b, b, x ⇒ x.toString.toInt % 3).iHope
+      val topos = new CategoryOfDiagrams(ParallelPair)
       checkError("Inconsistent mapping for d0(b) - Set(0, 1, 2) vs Set(5, 1, 2, 3, 4)" ==,
         Diagram.build(
-          "Bad Bad Bad", Category.ParallelPair)(
+          "Bad Bad Bad", topos)(
           Map("0" → a, "1" → b),
           Map("a" → f, "b" → g)
         )
@@ -188,6 +190,7 @@ class DiagramTest extends Test with TestDiagrams {
       }
 
       "exist for a W, weird data" in {
+        val topos = new CategoryOfDiagrams(W)
         val a: set = Set(1, 2, 3)
         val b: set = Set(2, 3, 4)
         val c: set = Set(0, 1, 2, 3, 4, 5)
@@ -198,7 +201,7 @@ class DiagramTest extends Test with TestDiagrams {
         val cd = SetFunction.build("cd", c, d, _.toString.toInt % 3).iHope
         val ed = SetFunction.build("ed", e, d, x ⇒ (x.toString.toInt + 1) % 2).iHope
         val sutOpt = Diagram.build(
-          "W", Category.W)(
+          "W", topos)(
           Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
           Map("ab" → ab, "cb" → cb, "cd" → cd, "ed" → ed)
         )
@@ -270,13 +273,14 @@ class DiagramTest extends Test with TestDiagrams {
     }
 
     "exist for a pushout" in {
+      val topos = new CategoryOfDiagrams(Pushout)
       val a: set = Set(1, 2, 3)
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
       val ab = SetFunction.build("f", a, b, _.toString.toInt + 1).iHope
       val ac = SetFunction.build("g", a, c, _.toString.toInt % 2).iHope
       val sutOpt: Result[SUT] = Diagram.build(
-        "pushout", Category.Pushout)(
+        "pushout", topos)(
         Map("a" → a, "b" → b, "c" → c),
         Map("ab" → ab, "ac" → ac)
       )
@@ -308,12 +312,13 @@ class DiagramTest extends Test with TestDiagrams {
 
 
     "exist for a coequalizer" in {
+      val topos = new CategoryOfDiagrams(ParallelPair)
       val a: set = Set(1, 2, 3, 4)
       val b: set = Set(0, 1, 2)
       val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
       val sutOpt: Result[Diagram] = Diagram.build(
-        "coEq", Category.ParallelPair)(
+        "coEq", topos)(
         Map("0" → a, "1" → b),
         Map("a" → f, "b" → g)
       )

@@ -11,7 +11,7 @@ import scalakittens.{Good, Result}
   * Category where objects are sets
   */
 
-class SetCategory(objects: BigSet[Set[Any]])
+class SetCategory(objects: BigSet[set])
   extends Category("Sets", graphOfSets(objects)) {
   type Node = set
   type Arrow = SetFunction

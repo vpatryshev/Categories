@@ -11,6 +11,9 @@ import scalakittens.Result._
 class LogicTest extends Fixtures {
   
   val categoriesToTest = SomeKnownCategories
+  
+  val enabled: Set[String] = Set("negation")
+  def ignored(name: String) = false // !enabled(name)
 
   "True and False" should {
     "exist for _0_" in {
@@ -113,17 +116,17 @@ class LogicTest extends Fixtures {
     def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] = {
       import topos._
       val desc = s"Testing $what over ${domain.name}"
-      val True = predicateFor(Ω.True)
-      val False = predicateFor(Ω.False)
+      val True = Ω.True.asPredicate
+      val False = Ω.False.asPredicate
       checkThatIn(topos).mustBeMonoid[Predicate](
         "conjunction",
         True,
         (p: Predicate, q: Predicate) ⇒ p ∧ q
       )
 
-      for {pt ← Ω.points } {
+      for { pt ← Ω.points } {
         println(s"  checking conjunction with False for ${pt.tag}")
-        val p = predicateFor(pt)
+        val p = pt.asPredicate
         (False ∧ p) === False
       }
       ok
@@ -155,8 +158,8 @@ class LogicTest extends Fixtures {
         actual aka s"$desc, @$o" must_== p
       }
 
-      val classifierForTT: DiagramArrow = classifyingMap(monomorphism)
-      val theyAreTheSame = classifierForTT equals conjunction // nice to have this line, to check the comparison
+      val classifierForTT: DiagramArrow = χ(monomorphism)
+      val theyAreTheSame = classifierForTT == conjunction // nice to have this line, to check the comparison
 
       if (!theyAreTheSame) {
         for {
@@ -203,17 +206,17 @@ class LogicTest extends Fixtures {
         import topos._
         val desc = s"Testing disjunction over ${cat.name}"
         println(desc)
-        val True = predicateFor(Ω.True)
-        val False = predicateFor(Ω.False)
+        val True = Ω.True.asPredicate
+        val False = Ω.False.asPredicate
         checkThatIn(topos).mustBeMonoid[Predicate](
           "disjunction",
           False,
           (p: Predicate, q: Predicate) ⇒ p ∨ q
         )
 
-        for {pt ← Ω.points } {
+        for { pt ← Ω.points } {
           println(s"  checking disjunction with False for ${pt.tag}")
-          val p = predicateFor(pt)
+          val p = pt.asPredicate
           (True ∨ p) === True
         }
         ok
@@ -254,15 +257,15 @@ class LogicTest extends Fixtures {
 
       for { pt1 ← points } {
         println(s"  distributivity at ${pt1.tag}")
-        val p = predicateFor(pt1)
+        val p = pt1.asPredicate
 
         for { pt2 ← points } {
-          val q = predicateFor(pt2)
+          val q = pt2.asPredicate
           val pAndQ = p ∧ q
           val pOrQ = p ∨ q
 
           for { pt3 ← points } {
-            val r: Predicate = predicateFor(pt3)
+            val r: Predicate = pt3.asPredicate
             conjunctionOverDisjunction(topos)(p, q, pAndQ, r)
             disjunctionOverConjunction(topos)(p, q, pOrQ, r)
           }
@@ -288,12 +291,12 @@ class LogicTest extends Fixtures {
         import topos._
         val desc = s"Testing implication over ${cat.name}"
         println(desc)
-        val True = predicateFor(Ω.True)
-        val False = predicateFor(Ω.False)
+        val True = Ω.True.asPredicate
+        val False = Ω.False.asPredicate
 
-        for {pt1 ← Ω.points } {
+        for { pt1 ← Ω.points } {
           println(s"  checking Truth ==> ${pt1.tag}")
-          val p = predicateFor(pt1)
+          val p = pt1.asPredicate
           (True ==> p) === p
           println(s"  checking False ==> ${pt1.tag}")
           (False ==> p) === True
@@ -304,11 +307,11 @@ class LogicTest extends Fixtures {
 
           println(s"  checking adjunction for ${pt1.tag}")
           for { pt2 ← Ω.points } {
-            val q = predicateFor(pt2)
+            val q = pt2.asPredicate
             val p_q = p ∧ q
 
             for { pt3 ← Ω.points } {
-              val r = predicateFor(pt3)
+              val r = pt3.asPredicate
               val q2r = q ==> r
               val left = p_q ==> r
               val right = p ==> q2r
@@ -318,11 +321,11 @@ class LogicTest extends Fixtures {
 
           println(s"  checking adjunction for ${pt1.tag}")
           for { pt2 ← Ω.points } {
-            val q = predicateFor(pt2)
+            val q = pt2.asPredicate
             val p_q = p ∧ q
 
             for { pt3 ← Ω.points } {
-              val r = predicateFor(pt3)
+              val r = pt3.asPredicate
               val q2r = q ==> r
               val left = p_q ==> r
               val right = p ==> q2r
@@ -332,11 +335,11 @@ class LogicTest extends Fixtures {
 
           println(s"  checking conjunction distributivity for ${pt1.tag}")
           for { pt2 ← Ω.points } {
-            val q = predicateFor(pt2)
+            val q = pt2.asPredicate
             val p_and_q = p ∧ q
 
             for { pt3 ← Ω.points } {
-              val r = predicateFor(pt3)
+              val r = pt3.asPredicate
               val r2p = r ==> p
               val r2q = r ==> q
               val left = r2p ∧ r2q
@@ -347,11 +350,11 @@ class LogicTest extends Fixtures {
 
           println(s"  checking disjunction distributivity for ${pt1.tag}")
           for { pt2 ← Ω.points } {
-            val q = predicateFor(pt2)
+            val q = pt2.asPredicate
             val p_or_q = p ∨ q
 
             for { pt3 ← Ω.points } {
-              val r = predicateFor(pt3)
+              val r = pt3.asPredicate
               val p2r = p ==> r
               val q2r = q ==> r
               val left = p2r ∧ q2r
@@ -369,4 +372,43 @@ class LogicTest extends Fixtures {
     }
   }
 
+
+  "Negation" should {
+
+    "work for all known domains" in {
+      val d = describe("fuck")
+
+      def check(cat: Category): MatchResult[Any] = {
+        val topos = new CategoryOfDiagrams(cat)
+        import topos._
+        
+        val desc = s"Testing negation over ${cat.name}"
+        println(desc)
+        val True = Ω.True.asPredicate
+        val False = Ω.False.asPredicate
+
+        ¬(True) === False
+        ¬(False) === True
+
+        for { pt1 ← Ω.points } {
+          println(s"  checking triple negation for ${pt1.tag}")
+          val p = pt1.asPredicate
+          val not_p = ¬(p)
+          ¬(¬(not_p)) === not_p
+
+          println(s"  checking negation of disjunction for ${pt1.tag}")
+          for {pt2 ← Ω.points} {
+            val q = pt2.asPredicate
+            ¬(p ∨ q) === ¬(p) ∧ ¬(q)
+          }
+        }
+
+        ok
+      }
+
+      categoriesToTest filter (_.isFinite) foreach check
+
+      ok
+    }
+  }
 }

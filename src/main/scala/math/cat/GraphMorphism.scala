@@ -69,12 +69,12 @@ trait GraphMorphism
     * @return true iff they are equal
     */
   override def equals(gm: Any): Boolean = {
-
+    this.eq(gm.asInstanceOf[AnyRef]) || (
     gm match {
       case other: GraphMorphism ⇒
-        sameNodes(other) && sameArrows(other)
+        hashCode == other.hashCode && sameNodes(other) && sameArrows(other)
       case otherwise ⇒ false
-    }
+    })
   }
 
   override def hashCode: Int = d0.hashCode | d1.hashCode * 2

@@ -31,7 +31,7 @@ class SetMorphism[X, Y] (
    * @return true iff they are equal
    */
   def equals(other: SetMorphism[X, Y]): Boolean = {
-    ((d0.equals(other.d0) && d1.equals(other.d1)) /: d0) ((eq, x) ⇒ eq & this(x) == other(x))
+    ((d0 == other.d0 && d1 == other.d1) /: d0) ((eq, x) ⇒ eq & this(x) == other(x))
   }
   
   def compose[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {

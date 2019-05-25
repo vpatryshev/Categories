@@ -13,7 +13,7 @@ class Fixtures extends Test with TestDiagrams {
       import topos._
       val points = Ω.points
       println(s"Testing <<${domain.name}>> $what monoidal properties (${points.size} points in Ω)")
-      def predicate(p: Point): P = predicateFor(p).asInstanceOf[P]
+      def predicate(p: Point): P = p.asPredicate.asInstanceOf[P]
 
       for {pt1 ← points } {
         println(s"  monoidal at ${pt1.tag}")
