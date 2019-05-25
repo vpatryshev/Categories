@@ -11,11 +11,16 @@ import scala.collection.mutable
 trait TestDiagrams extends Test {
   val toposes: mutable.Map[String, GrothendieckTopos] = mutable.Map[String, GrothendieckTopos]()
   
-  def topos(domain: Category) = toposes.getOrElseUpdate(domain.name, new CategoryOfDiagrams(domain))
-  
+  def toposOver(domain: Category) = toposes.getOrElseUpdate(domain.name, new CategoryOfDiagrams(domain))
+
   def build(name: String, domain: Category)(
-    objectsMap: domain.Obj ⇒ set,
-    arrowMap: domain.Arrow ⇒ SetFunction): Diagram = Diagram.build(name, topos(domain), domain)(objectsMap, arrowMap) iHope
+    objectsMap: String ⇒ set,
+    arrowMap: String ⇒ SetFunction): Diagram = {
+    val topos = toposOver(domain)
+    def om(o: topos.domain.Obj): set = objectsMap(o.toString)
+    def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
+    Diagram.build(name, topos)(om, am) iHope
+  }
 
   implicit def translateObjectMapping(f: Functor)(om: String ⇒ set): f.d0.Obj ⇒ f.d1.Obj =
     (x: f.d0.Obj) ⇒ f.d1.obj(om(f.toString))

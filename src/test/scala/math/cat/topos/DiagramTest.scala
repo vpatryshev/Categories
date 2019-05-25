@@ -57,7 +57,7 @@ class DiagramTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(ParallelPair)
       checkError("Inconsistent mapping for d0(b) - Set(0, 1, 2) vs Set(5, 1, 2, 3, 4)" ==,
         Diagram.build(
-          "Bad Bad Bad", topos, ParallelPair)(
+          "Bad Bad Bad", topos)(
           Map("0" → a, "1" → b),
           Map("a" → f, "b" → g)
         )
@@ -201,7 +201,7 @@ class DiagramTest extends Test with TestDiagrams {
         val cd = SetFunction.build("cd", c, d, _.toString.toInt % 3).iHope
         val ed = SetFunction.build("ed", e, d, x ⇒ (x.toString.toInt + 1) % 2).iHope
         val sutOpt = Diagram.build(
-          "W", topos, W)(
+          "W", topos)(
           Map("a" → a, "b" → b, "c" → c, "d" → d, "e" → e),
           Map("ab" → ab, "cb" → cb, "cd" → cd, "ed" → ed)
         )
@@ -280,7 +280,7 @@ class DiagramTest extends Test with TestDiagrams {
       val ab = SetFunction.build("f", a, b, _.toString.toInt + 1).iHope
       val ac = SetFunction.build("g", a, c, _.toString.toInt % 2).iHope
       val sutOpt: Result[SUT] = Diagram.build(
-        "pushout", topos, Pushout)(
+        "pushout", topos)(
         Map("a" → a, "b" → b, "c" → c),
         Map("ab" → ab, "ac" → ac)
       )
@@ -318,7 +318,7 @@ class DiagramTest extends Test with TestDiagrams {
       val f = SetFunction.build("f", a, b, x ⇒ Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", a, b, x ⇒ x.toString.toInt % 3).iHope
       val sutOpt: Result[Diagram] = Diagram.build(
-        "coEq", topos, ParallelPair)(
+        "coEq", topos)(
         Map("0" → a, "1" → b),
         Map("a" → f, "b" → g)
       )

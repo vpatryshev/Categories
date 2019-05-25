@@ -5,7 +5,7 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.{asSet, set}
 import scalakittens.Result
 
-trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams =>
+trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
 
   trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
     val d0: Diagram

@@ -41,7 +41,7 @@ abstract class Functor(
     * Composes two functors
     *
     * @param g : Y → Z - second functor
-    * @return g o this : X → Z - composition of this functor with functor g
+    * @return g ∘ this : X → Z - composition of this functor with functor g
     */
   def compose(g: Functor): Option[Functor] = {
     if (d1 != g.d0) None else Some {
@@ -51,7 +51,7 @@ abstract class Functor(
         val z: g.d1.Obj = g.objectsMapping(y)
         z
       }
-      new Functor(g.tag + " o " + this.tag, f.d0, g.d1) {
+      new Functor(g.tag + " ∘ " + this.tag, f.d0, g.d1) {
         comp: Functor ⇒
 
         override val objectsMapping: d0.Obj ⇒ d1.Obj =
@@ -79,7 +79,7 @@ abstract class Functor(
   /**
     * Lists all possible cones from given object y to this functor.
     * The requirement is that if f1: y → F(x1) is in the collection of arrows,
-    * and there is a g: x1 → x2, then f2 = F(g) o f1 : y → F(x2) is also in this collection.
+    * and there is a g: x1 → x2, then f2 = F(g) ∘ f1 : y → F(x2) is also in this collection.
     *
     * @param y an object from which the cone originates.
     * @return a map that maps objects x of domain category to arrows y → F(x)
@@ -127,7 +127,7 @@ abstract class Functor(
   /**
     * Lists all possible cones from given object y to this functor.
     * The requirement is that if f1: y → F(x1) is in the collection of arrows,
-    * and there is a g: x1 → x2, then f2 = F(g) o f1 : y → F(x2) is also in this collection.
+    * and there is a g: x1 → x2, then f2 = F(g) ∘ f1 : y → F(x2) is also in this collection.
     *
     * @param y an object from which the cone originates.
     * @return a map that maps objects x of domain category to arrows y → F(x)
@@ -167,7 +167,7 @@ abstract class Functor(
 
   /**
     * Cone class for this Functor. A cone is an object y (called vertex) and a bundle of arrows cx: y → F(x)
-    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 → x2.
+    * for all objects x of domain category, such that F(f) ∘ cx1 = cx2 for f:x1 → x2.
     *
     * @param vertex  the cone's vertex object in Y
     * @param arrowTo maps each object of x to an arrow from F(x) to the vertex.
@@ -179,7 +179,7 @@ abstract class Functor(
     /**
       * A cone from y1 to F is factored by this cone (with vertex y)
       * if there is an h : y1 → y such that each f1: y1 → F(x) is equal to
-      * f o h, where f: y → F(x).
+      * f ∘ h, where f: y → F(x).
       *
       * @param factored a cone that may be factored
       * @return true if it is so
@@ -218,7 +218,7 @@ abstract class Functor(
 
   /**
     * Cocone class for this Functor. A cocone is an object y (called vertex) and a bundle of arrows cx: F(x) → y
-    * for all objects x of domain category, such that F(f) o cx1 = cx2 for f:x1 → x2.
+    * for all objects x of domain category, such that F(f) ∘ cx1 = cx2 for f:x1 → x2.
     *
     * @param vertex    the cone's vertex object in Y
     * @param arrowFrom maps each object of x to an arrow from F(x) to the vertex.
@@ -230,7 +230,7 @@ abstract class Functor(
     /**
       * A cocone from F to y1 is factored by this cocone (from F to y)
       * if there is an h : y → y1 such that each f1: F(x) → y1 is equal to
-      * h o f, where f: F(x) → y.
+      * h ∘ f, where f: F(x) → y.
       *
       * @param factored a cone that may be factored
       * @return true if it is so
@@ -346,7 +346,7 @@ object Functor {
     * A functor is valid if it is valid as a graph function, and besides,
     * it preserves identities and arrows composition.
     * That is, F(id(x)) == id(F(x)), and
-    * F(g) o F(f) = F(g o f)
+    * F(g) ∘ F(f) = F(g ∘ f)
     */
   private[cat] def validateFunctor(f: Functor): Result[Functor] = for {
     _ ← checkObjectMapping(f)

@@ -830,9 +830,9 @@ private[cat] trait CategoryFactory {
 
     data.validate returning (if (data.isFinite) {
       val d0Map: Map[Any, data.Obj] =
-        data.arrows.map(f => f -> data.asObj(gr.d0(gr.arrow(f)))).toMap
+        data.arrows.map(f ⇒ f -> data.asObj(gr.d0(gr.arrow(f)))).toMap
       val d1Map: Map[Any, data.Obj] =
-        data.arrows.map(f => f -> data.asObj(gr.d1(gr.arrow(f)))).toMap
+        data.arrows.map(f ⇒ f -> data.asObj(gr.d1(gr.arrow(f)))).toMap
       val mMap: Map[(Any, Any), gr.Arrow] = {
         for {f <- data.arrows
              g <- data.arrows
@@ -841,7 +841,7 @@ private[cat] trait CategoryFactory {
       } toMap
       
       val idMap: Map[Any, gr.Arrow] =
-        data.objects.map(o => o -> ids(gr.node(o))).toMap
+        data.objects.map(o ⇒ o -> ids(gr.node(o))).toMap
       
       new Category(name, gr) {
         def id(o: Obj): Arrow = idMap(o)

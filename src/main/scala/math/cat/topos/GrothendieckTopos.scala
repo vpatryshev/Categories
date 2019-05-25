@@ -18,9 +18,9 @@ trait GrothendieckTopos
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
   
   /**
-    * Omega, subobject classifier. Type "Option-Z" on your Mac to enter the Ω character.
+    * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  object Ω extends Diagram("Ω", this, domain) {
+  object Ω extends Diagram("Ω", this, domain) { Ω ⇒
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x ⇒ Ω(x)` .
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
@@ -40,19 +40,20 @@ trait GrothendieckTopos
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
       def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ = {
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
-        val om1 = transformingOfSubrepresentables(a, rx) _
+        def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
+        def om2(o: Ω.topos.domain.Obj): set = om1(domain.asObj(o))
 
         // this is how, given an arrow `b`, the new diagram gets from one point to another
-        def am1(b: domain.Arrow): SetFunction = {
-          val x1 = om1(domain.d0(b)) //  {f ∈ hom(y, d0(b)) | a o f ∈ r1(d0(b)}
-          val y1 = om1(domain.d1(b)) //  {f ∈ hom(y, d1(b)) | a o f ∈ r1(d1(b)}
+        def am1(b: Ω.topos.domain.Arrow): SetFunction = {
+          val same_b = domain.arrow(b)
+          val x1 = om1(domain.d0(same_b)) //  {f ∈ hom(y, d0(b)) | a ∘ f ∈ r1(d0(b)}
+          val y1 = om1(domain.d1(same_b)) //  {f ∈ hom(y, d1(b)) | a ∘ f ∈ r1(d1(b)}
 
           // A function fom x1 to y1 - it does the transition
-          new SetFunction("", x1, y1, g ⇒ domain.m(domain.arrow(g), b).get) // it must be defined
-//          SetFunction.build("", x1, y1, g ⇒ domain.m(domain.arrow(g), b).get) iHope // it must be defined
+          new SetFunction("", x1, y1, g ⇒ domain.m(domain.arrow(g), same_b).get)
         }
 
-        Diagram("", topos, domain)(om1, am1) // no validation, we know it's ok
+        Diagram("", topos)(om2, am1) // no validation, we know it's ok
       }
 
       // no validation here, the function is known to be ok
@@ -64,7 +65,7 @@ trait GrothendieckTopos
 
     /**
       * Given an arrow `a`, 
-      * {f ∈ hom(y, x1) | a o f ∈ r1(x1)}
+      * {f ∈ hom(y, x1) | a ∘ f ∈ r1(x1)}
       *
       * @param a  an arrow
       * @param rx a subrepresentable
@@ -84,14 +85,10 @@ trait GrothendieckTopos
     validate iHope
 
     // TODO: redefine as classifying an empty
-    lazy val False: Point = {
-      points.head named "⊥"
-    }
+    lazy val False: Point = points.head named "⊥"
 
     // TODO: redefine as classifying an identity
-    lazy val True: Point = {
-      points.last named "⊤"
-    }
+    lazy val True: Point = points.last named "⊤"
 
     /**
       * Intersection of two subrepresentables on object `x`
@@ -110,7 +107,7 @@ trait GrothendieckTopos
         a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
       }
 
-      Diagram(s"${a.tag} ∩ ${b.tag}", topos, domain)(
+      Diagram(s"${a.tag} ∩ ${b.tag}", topos)(
         o ⇒ om(domain.obj(o)),
         f ⇒ am(domain.arrow(f))
       )
@@ -189,7 +186,7 @@ trait GrothendieckTopos
 
           val tag = s"${a.tag} ∪ ${b.tag}"
 
-          Diagram(tag, topos, domain)(
+          Diagram(tag, topos)(
             o ⇒ om(domain.obj(o)), f ⇒ am(domain.arrow(f)))
         }
 
@@ -210,7 +207,7 @@ trait GrothendieckTopos
     }
 
     lazy val implication: DiagramArrow = {
-      val inclusion: DiagramArrow = inclusionOf(order_on_Ω) in ΩxΩ iHope
+      val inclusion: DiagramArrow = inclusionOf(Ω1) in ΩxΩ iHope
       
       χ(inclusion, "⇒")
     }
@@ -224,17 +221,7 @@ trait GrothendieckTopos
   /**
     * An equalizer of first projection and intersection
     */
-  lazy val order_on_Ω: Diagram = {
-    var fun: ΩxΩ.d0.Obj ⇒ Any ⇒ Boolean =
-      o ⇒ {
-        { case (a: Any, b: Any) ⇒
-          val arrow = Ω.conjunction(o).asInstanceOf[SetFunction]
-          a == arrow(a, b)
-        }
-      }
-
-    ΩxΩ.filter("<", fun)
-  }
+  lazy val Ω1: Diagram = ΩxΩ.filter("<", _ ⇒ { case (a: Any, b: Any) ⇒ a ⊂ b })
 
   lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
     _ ⇒ (subrep: Any) ⇒ (subrep, subrep)
