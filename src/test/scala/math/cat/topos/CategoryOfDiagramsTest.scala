@@ -47,9 +47,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "be good in Set^W" in {
       val topos = new CategoryOfDiagrams(W)
       import topos.domain._
-      val ob = (o: String) ⇒ {
-        name: String ⇒ representable(topos)(obj(o))(name)
-      }
+      val ob = (o: String) ⇒ representable(topos)(obj(o))(_)
 
       appliesTo | "a" | "b"  | "c" | "d"  | "e" |
         ob("a") | "a" | "ab" | ""  | ""   | ""  |
@@ -65,10 +63,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(M)
       import topos.domain._
       val rep = representable(topos)
-      val ob = (o: Obj) ⇒ {
-        val r = rep(o)
-        name: String ⇒ r(name)
-      }
+      val ob = (o: Obj) ⇒ rep(o)(_)
 
       appliesTo | "a"  | "b" | "c"  | "d" | "e"  |
         ob("a") | "a"  | ""  | ""   | ""  | ""   |
@@ -77,7 +72,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         ob("d") | ""   | ""  | "dc" | "d" | "de" |
         ob("e") | ""   | ""  | ""   | ""  | "e"
 
-      val mults = for {
+      for {
         x ← topos.domain.objects
         a ← topos.domain.arrows
       } {
