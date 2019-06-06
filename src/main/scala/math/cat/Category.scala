@@ -799,9 +799,11 @@ private[cat] trait CategoryFactory {
       _ ← OKif(objects.size == source.objects.size, "some objects have the same string repr")
       _ ← OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
       g ← Graph.build(objects, arrows, d0, d1)
+      
       c ← build(source.name, g)(
         ids.asInstanceOf[g.Node ⇒ g.Arrow], // TODO: find a way to avoid casting
         composition.asInstanceOf[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]])
+
     } yield c.asInstanceOf[Cat]
   }
 

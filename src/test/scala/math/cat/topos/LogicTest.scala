@@ -9,9 +9,9 @@ import org.specs2.matcher.MatchResult
 import scalakittens.Result._
 
 class LogicTest extends Fixtures {
-  
+
   val categoriesToTest = SomeKnownCategories
-  
+
   val enabled: Set[String] = Set("negation")
   def ignored(name: String) = false // !enabled(name)
 
@@ -294,24 +294,21 @@ class LogicTest extends Fixtures {
         val True = Ω.True.asPredicate
         val False = Ω.False.asPredicate
 
-        for { pt1 ← Ω.points } {
-          println(s"  checking Truth ==> ${pt1.tag}")
-          val p = pt1.asPredicate
+        for { p ← Ω.points  map (_.asPredicate)} {
+          println(s"  checking Truth ==> ${p.tag}")
           (True ==> p) === p
-          println(s"  checking False ==> ${pt1.tag}")
+          println(s"  checking False ==> ${p.tag}")
           (False ==> p) === True
-          println(s"  checking ${pt1.tag} ==> ${pt1.tag}")
+          println(s"  checking ${p.tag} ==> ${p.tag}")
           (p ==> p) === True
-          println(s"  checking ${pt1.tag} ==> True")
+          println(s"  checking ${p.tag} ==> True")
           (p ==> True) === True
 
-          println(s"  checking adjunction for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
-            val q = pt2.asPredicate
+          println(s"  checking adjunction for ${p.tag}")
+          for { q ← Ω.points map (_.asPredicate) } {
             val p_q = p ∧ q
 
-            for { pt3 ← Ω.points } {
-              val r = pt3.asPredicate
+            for { r ← Ω.points map (_.asPredicate) } {
               val q2r = q ==> r
               val left = p_q ==> r
               val right = p ==> q2r
@@ -319,13 +316,11 @@ class LogicTest extends Fixtures {
             }
           }
 
-          println(s"  checking adjunction for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
-            val q = pt2.asPredicate
+          println(s"  checking adjunction for ${p.tag}")
+          for { q ← Ω.points map (_.asPredicate) } {
             val p_q = p ∧ q
 
-            for { pt3 ← Ω.points } {
-              val r = pt3.asPredicate
+            for { r ← Ω.points map (_.asPredicate) } {
               val q2r = q ==> r
               val left = p_q ==> r
               val right = p ==> q2r
@@ -333,13 +328,11 @@ class LogicTest extends Fixtures {
             }
           }
 
-          println(s"  checking conjunction distributivity for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
-            val q = pt2.asPredicate
+          println(s"  checking conjunction distributivity for ${p.tag}")
+          for { q ← Ω.points map (_.asPredicate) } {
             val p_and_q = p ∧ q
 
-            for { pt3 ← Ω.points } {
-              val r = pt3.asPredicate
+            for { r ← Ω.points map (_.asPredicate) } {
               val r2p = r ==> p
               val r2q = r ==> q
               val left = r2p ∧ r2q
@@ -348,13 +341,11 @@ class LogicTest extends Fixtures {
             }
           }
 
-          println(s"  checking disjunction distributivity for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
-            val q = pt2.asPredicate
+          println(s"  checking disjunction distributivity for ${p.tag}")
+          for { q ← Ω.points map (_.asPredicate) } {
             val p_or_q = p ∨ q
 
-            for { pt3 ← Ω.points } {
-              val r = pt3.asPredicate
+            for { r ← Ω.points map (_.asPredicate) } {
               val p2r = p ==> r
               val q2r = q ==> r
               val left = p2r ∧ q2r
@@ -381,7 +372,7 @@ class LogicTest extends Fixtures {
       def check(cat: Category): MatchResult[Any] = {
         val topos = new CategoryOfDiagrams(cat)
         import topos._
-        
+
         val desc = s"Testing negation over ${cat.name}"
         println(desc)
         val True = Ω.True.asPredicate

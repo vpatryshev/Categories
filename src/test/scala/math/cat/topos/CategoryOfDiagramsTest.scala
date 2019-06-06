@@ -48,8 +48,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(W)
       import topos.domain._
       val ob = (o: String) ⇒ {
-        val r = representable(topos)(obj(o))
-        name: String ⇒ r(name)
+        name: String ⇒ representable(topos)(obj(o))(name)
       }
 
       appliesTo | "a" | "b"  | "c" | "d"  | "e" |

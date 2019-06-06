@@ -20,7 +20,7 @@ trait GrothendieckTopos
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  object Ω extends Diagram("Ω", this, domain) { Ω ⇒
+  object Ω extends Diagram("Ω", this, domain) {
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x ⇒ Ω(x)` .
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
@@ -41,10 +41,10 @@ trait GrothendieckTopos
       def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ = {
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
         def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
-        def om2(o: Ω.topos.domain.Obj): set = om1(domain.asObj(o))
+        def om2(o: topos.domain.Obj): set = om1(domain.asObj(o))
 
         // this is how, given an arrow `b`, the new diagram gets from one point to another
-        def am1(b: Ω.topos.domain.Arrow): SetFunction = {
+        def am1(b: topos.domain.Arrow): SetFunction = {
           val same_b = domain.arrow(b)
           val x1 = om1(domain.d0(same_b)) //  {f ∈ hom(y, d0(b)) | a ∘ f ∈ r1(d0(b)}
           val y1 = om1(domain.d1(same_b)) //  {f ∈ hom(y, d1(b)) | a ∘ f ∈ r1(d1(b)}
