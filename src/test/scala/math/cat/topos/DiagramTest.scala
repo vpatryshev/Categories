@@ -33,7 +33,7 @@ class DiagramTest extends Test with TestDiagrams {
       sut1.objectsMapping(sut1.d0.obj("b")) === BuildPullbackDiagram.sb
 
       val diagram: Diagram =
-        new Diagram("Test", topos, dom) {
+        new Diagram("Test", topos) {
           override val objectsMapping: d0.Obj ⇒ d1.Obj =
             (x: d0.Obj) ⇒ d1.obj(BuildPullbackDiagram.om(x.toString))
           override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =

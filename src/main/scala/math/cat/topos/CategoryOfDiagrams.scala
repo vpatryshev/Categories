@@ -158,7 +158,7 @@ class CategoryOfDiagrams(val domain: Category)
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     domain.objects map (x ⇒ x → Representable(x).subobjects.toSet) toMap
 
-  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos, topos.domain) {
+  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos) {
     override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(domain.obj(x)))
     override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
       am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]

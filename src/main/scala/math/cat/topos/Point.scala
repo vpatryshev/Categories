@@ -35,7 +35,7 @@ class Point(
   }
 
   def asDiagram: Diagram = {
-    new Diagram(tag, topos, domainCategory) {
+    new Diagram(tag, topos) {
 
       override val objectsMapping: d0.Obj ⇒ d1.Obj =
         (x: d0.Obj) ⇒ d1.obj(Set(mapping(x.asInstanceOf[domainCategory.Obj])))
