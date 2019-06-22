@@ -665,8 +665,10 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     }
   }
 
-  private def arrowsEndingAt(x: Obj): Arrows =
+  def arrowsEndingAt(x: Obj): Arrows =
     arrows filter { x == d1(_) }
+  
+  def completeSubcategory(setOfObjects: Objects): Category = ???
 }
 
 private[cat] abstract class CategoryData(
@@ -829,29 +831,7 @@ private[cat] trait CategoryFactory {
     }
 
     data.validate returning (if (data.isFinite) {
-      val d0Map: Map[Any, data.Obj] =
-        data.arrows.map(f ⇒ f -> data.asObj(gr.d0(gr.arrow(f)))).toMap
-      val d1Map: Map[Any, data.Obj] =
-        data.arrows.map(f ⇒ f -> data.asObj(gr.d1(gr.arrow(f)))).toMap
-      val mMap: Map[(Any, Any), gr.Arrow] = {
-        for {f <- data.arrows
-             g <- data.arrows
-             h <- composition(gr.arrow(f), gr.arrow(g))
-        } yield (f, g) -> h
-      } toMap
-      
-      val idMap: Map[Any, gr.Arrow] =
-        data.objects.map(o ⇒ o -> ids(gr.node(o))).toMap
-      
-      new Category(name, gr) {
-        def id(o: Obj): Arrow = idMap(o)
-
-        def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
-
-        override def d0(f: Arrow): Obj = asObj(d0Map(f))
-
-        override def d1(f: Arrow): Obj = asObj(d1Map(f))
-      }
+      newFiniteCategory(name, gr)(ids, composition, data)
     } else {
       new Category(name, gr) {
         def id(o: Obj): Arrow = ids(gr.node(o))
@@ -864,6 +844,33 @@ private[cat] trait CategoryFactory {
         override def d1(f: Arrow): Obj = asObj(graph.d1(graph.arrow(f)))
       }
     })
+  }
+
+  private def newFiniteCategory(name: String, gr: Graph)(ids: gr.Node => gr.Arrow, composition: (gr.Arrow, gr.Arrow) 
+    => Option[gr.Arrow], data: CategoryData): Category = {
+    val d0Map: Map[Any, data.Obj] =
+      data.arrows.map(f ⇒ f -> data.asObj(gr.d0(gr.arrow(f)))).toMap
+    val d1Map: Map[Any, data.Obj] =
+      data.arrows.map(f ⇒ f -> data.asObj(gr.d1(gr.arrow(f)))).toMap
+    val mMap: Map[(Any, Any), gr.Arrow] = {
+      for {f <- data.arrows
+           g <- data.arrows
+           h <- composition(gr.arrow(f), gr.arrow(g))
+      } yield (f, g) -> h
+    } toMap
+
+    val idMap: Map[Any, gr.Arrow] =
+      data.objects.map(o ⇒ o -> ids(gr.node(o))).toMap
+
+    new Category(name, gr) {
+      def id(o: Obj): Arrow = idMap(o)
+
+      def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
+
+      override def d0(f: Arrow): Obj = asObj(d0Map(f))
+
+      override def d1(f: Arrow): Obj = asObj(d1Map(f))
+    }
   }
 
   /**
@@ -935,7 +942,7 @@ private[cat] trait CategoryFactory {
     * @return new category
     */
   def fromGraph(g: Graph): Result[Category] =
-    fromPartialData("a graph", g)
+    fromPartialData(g.name, g)
 
   /**
     * Builds a category given a limited (but sufficient) amount of data.
@@ -1294,7 +1301,9 @@ object Category extends CategoryFactory {
     ParallelPair, Pullback, Pushout, SplitMono, Square,
     M, W,
     Z2, Z3,
-    HalfSimplicial, NaturalNumbers)
+    HalfSimplicial, NaturalNumbers).sortBy(_.arrows.size)
+  
+  lazy val KnownFiniteCategories = KnownCategories filter (_.isFinite)
 
   implicit class CategoryString(val sc: StringContext) extends AnyVal {
     def category(args: Any*): Cat = { 
