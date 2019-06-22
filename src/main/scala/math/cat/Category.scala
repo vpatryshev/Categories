@@ -53,9 +53,10 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        src.m(src.arrow(f), src.arrow(g)) map arrow
+        src.m(src.arrow(g), src.arrow(f)) map arrow
     }
   }
+
   private[cat] lazy val listOfRootObjects = allRootObjects.toList.sortBy(_.toString)
 
   def foreach[U](f: Obj ⇒ U): Unit = objects foreach f
@@ -668,7 +669,15 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   def arrowsEndingAt(x: Obj): Arrows =
     arrows filter { x == d1(_) }
   
-  def completeSubcategory(setOfObjects: Objects): Category = ???
+  def completeSubcategory(name: String, setOfObjects: Objects): Category = {
+    val src = this
+    new Category(name, subgraph(setOfObjects)) {
+      override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
+
+      override def m(f: Arrow, g: Arrow): Option[Arrow] =
+        src.m(src.arrow(f), src.arrow(g)) map arrow
+    }
+  }
 }
 
 private[cat] abstract class CategoryData(

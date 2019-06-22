@@ -715,6 +715,8 @@ class CategoryTest extends Test with CategoryFactory {
       op3.arrows === _3_.arrows
       op3.objects === _3_.objects
       op3.d0("1.2") === "2"
+      op3.validate.iHope
+      ok
     }
 
     // following are tests for accompanying object
