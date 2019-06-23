@@ -106,13 +106,20 @@ trait Graph extends GraphData { graph ⇒
     def d1(f: Arrow): Node = graph.d0(f)
   }
   
-  def subgraph(setOfNodes: Nodes): Graph = new Graph {
-    type Node = graph.Node
-    type Arrow = graph.Arrow
-    def nodes: Nodes = setOfNodes
-    def arrows: Arrows = graph.arrows filter (a => setOfNodes(d0(a)) && setOfNodes(d1(a)))
-    def d0(f: Arrow): Node = graph.d0(f)
-    def d1(f: Arrow): Node = graph.d1(f)
+  def subgraph(setOfNodes: Nodes): Graph = {
+    require(setOfNodes.subsetOf(nodes), s"Unknown nodes: ${setOfNodes.diff(nodes)}")
+    new Graph {
+      type Node = graph.Node
+      type Arrow = graph.Arrow
+
+      def nodes: Nodes = setOfNodes
+
+      def arrows: Arrows = graph.arrows filter (a => setOfNodes(d0(a)) && setOfNodes(d1(a)))
+
+      def d0(f: Arrow): Node = graph.d0(f)
+
+      def d1(f: Arrow): Node = graph.d1(f)
+    }
   }
 }
 

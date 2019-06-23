@@ -833,6 +833,17 @@ class CategoryTest extends Test with CategoryFactory {
     }
   }
   
+  "complete subcategory" should {
+    "be ok for Square" in {
+      Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
+      Square.completeSubcategory("diagonal", Set("a", "c")) === category"diagonal:({a,c}, {ac: a → c})"
+      
+      {
+        Square.completeSubcategory("abx", Set("a", "b", "x")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
+      } must throwA[IllegalArgumentException]()
+    }
+  }
+  
   "SetCategory" >> {
     "have products" >> {
       val first: set = Sets.setOf("a", "b")
