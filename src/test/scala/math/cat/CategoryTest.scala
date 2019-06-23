@@ -1,12 +1,12 @@
 package math.cat
 
 import math.Test
-import math.cat.Category._
 import math.cat.SetCategory._
 import math.sets.Sets
 import math.sets.Sets._
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
+import Categories._
 
 /**
  * Tests for Category class

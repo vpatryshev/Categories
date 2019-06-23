@@ -1,7 +1,7 @@
 package math.cat.topos
 
 import math.Test
-import math.cat.Category._
+import math.cat.Categories._
 import math.sets.Sets.set
 import scalakittens.Good
 

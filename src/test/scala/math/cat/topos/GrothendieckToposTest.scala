@@ -1,7 +1,7 @@
 package math.cat.topos
 
 import math.Test
-import math.cat.Category._
+import math.cat.Categories._
 import math.cat.{Category, SetFunction}
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets
