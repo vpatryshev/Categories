@@ -4,7 +4,7 @@ import java.io.Reader
 import java.util.Objects
 
 import math.cat.Categories._
-import math.sets.PoSet
+import math.sets.{BinaryRelation, FactorSet, PoSet}
 import math.sets.Sets._
 import scalakittens.Result._
 import scalakittens.{Good, Result}
@@ -676,6 +676,18 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         src.m(src.arrow(f), src.arrow(g)) map arrow
+    }
+  }
+
+  def connectedComponents: Set[Category] = {
+    val connected: BinaryRelation[Obj, Obj] =
+      BinaryRelation((x, y) => arrows.exists(a =>
+        (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
+
+    val sets = new FactorSet(objects, connected)
+    
+    sets.zipWithIndex map {
+      case (s, i) => completeSubcategory(s"$name.${i+1}", s)
     }
   }
 }

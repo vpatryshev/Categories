@@ -171,7 +171,7 @@ private[cat] trait CategoryFactory {
     * @return the category
     */
   def discrete[T](objects: Set[T]): Category = {
-    val name = s"Discrete[${objects.size}]"
+    val name = s"Discrete_${objects.size}"
     fromPartialData[T](name, Graph.discrete[T](objects)).
       getOrElse(throw new InstantiationException("Could not build category $name"))
   }

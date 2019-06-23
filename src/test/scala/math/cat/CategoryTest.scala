@@ -1,38 +1,38 @@
 package math.cat
 
 import math.Test
+import math.cat.Categories._
 import math.cat.SetCategory._
 import math.sets.Sets
 import math.sets.Sets._
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
-import Categories._
 
 /**
- * Tests for Category class
- */
+  * Tests for Category class
+  */
 class CategoryTest extends Test with CategoryFactory {
 
   type SUT = Category
-  
+
   val EmptyComposition: Map[(String, String), String] = Map()
   val EmptyMap: Map[String, String] = Map()
-  
+
   "Category" >> {
 
     "have segments" >> {
       for {
         i ← 0 until 10
       } {
-        Category.segment(i).arrows.size === i*(i+1)/2
+        Category.segment(i).arrows.size === i * (i + 1) / 2
       }
       ok
     }
-    
+
     "parsing example1" >> {
       val d0d1 = Map(
         "0.1" → ("0", "1"),
-        "0.2" → ("0", "2"), 
+        "0.2" → ("0", "2"),
         "a" → ("1", "2"),
         "b" → ("1", "2"),
         "2.1" → ("2", "1"),
@@ -40,7 +40,7 @@ class CategoryTest extends Test with CategoryFactory {
         "2.b" → ("2", "2"),
         "2.swap" → ("2", "2")
       )
-      
+
       val sutOpt = Category("example1",
         Set("0", "1", "2"), // objects
         d0d1.mapValues(_._1), // d0
@@ -63,8 +63,8 @@ class CategoryTest extends Test with CategoryFactory {
           ("2.swap", "2.a") → "2.a",
           ("2.swap", "2.b") → "2.b",
           ("2.swap", "2.swap") → "2") // composition map
-       )
-      
+      )
+
       sutOpt match {
         case Good(cat) ⇒
           val string = cat.toString
@@ -73,22 +73,22 @@ class CategoryTest extends Test with CategoryFactory {
       }
       ok
     }
-    
+
     "composablePairs" >> {
-      M.composablePairs === Set(("d","d"), ("b","ba"), ("d","de"), ("d","dc"), ("a","a"),
-        ("b","bc"), ("bc","c"), ("c","c"), ("e","e"), ("de","e"), ("b","b"), ("dc","c"), ("ba","a"))
-      Square.composablePairs === Set(("d","d"), ("ac","c"), ("ab","b"), ("ac","cd"), ("cd","d"),
-        ("a","ac"), ("b","bd"), ("ab","bd"), ("a","ad"), ("ad","d"), ("bd","d"), ("a","a"),
-        ("c","c"), ("b","b"), ("a","ab"), ("c","cd"))
+      M.composablePairs === Set(("d", "d"), ("b", "ba"), ("d", "de"), ("d", "dc"), ("a", "a"),
+        ("b", "bc"), ("bc", "c"), ("c", "c"), ("e", "e"), ("de", "e"), ("b", "b"), ("dc", "c"), ("ba", "a"))
+      Square.composablePairs === Set(("d", "d"), ("ac", "c"), ("ab", "b"), ("ac", "cd"), ("cd", "d"),
+        ("a", "ac"), ("b", "bd"), ("ab", "bd"), ("a", "ad"), ("ad", "d"), ("bd", "d"), ("a", "a"),
+        ("c", "c"), ("b", "b"), ("a", "ab"), ("c", "cd"))
     }
-    
+
     "degree" >> {
       val sut = segment(10)
       sut.degree("4", 0) === Good("9", Nil)
       sut.degree("4", 1) === Good("4", List("4.4"))
       sut.degree("4", 5) === Good("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))
     }
-    
+
     "id case 1" >> {
       _3_.id("2") === "2.2"
       _3_.name === "_3_"
@@ -102,7 +102,7 @@ class CategoryTest extends Test with CategoryFactory {
       import NaturalNumbers._
       id(BigInt(42)) === (BigInt(42), BigInt(42))
     }
-    
+
     "regression from 6/9/15" >> {
       val expected = Category("regression from 6/9/15",
         objects = Set("0", "1", "2"),
@@ -110,7 +110,7 @@ class CategoryTest extends Test with CategoryFactory {
         codomain = Map("0" → "0", "1" → "1", "2" → "2", "a" → "2", "b" → "2"),
         compositionSource = EmptyComposition
       ).iHope
-      
+
       val sample1 = category"sample1:({0,1,2}, {a: 0 → 2, b: 1 → 2}, {a ∘ 0 = a})"
       sample1 === expected
 
@@ -118,7 +118,7 @@ class CategoryTest extends Test with CategoryFactory {
       sample2 === expected
 
     }
-    
+
     "constructor_halfSimplicial" >> {
       HalfSimplicial.objects must haveSize(3)
     }
@@ -132,7 +132,8 @@ class CategoryTest extends Test with CategoryFactory {
       )
       checkOpt(sutOpt, (sut: Category) ⇒ {
         sut.arrows must haveSize(1)
-      }); ok
+      })
+      ok
     }
 
     "constructor_1_full" >> {
@@ -153,15 +154,15 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_1_1" >> {
-      val sut =category"({1, 0}, {}, {})"
+      val sut = category"({1, 0}, {}, {})"
       sut.objects === Set("0", "1")
     }
 
     "parse_2" >> {
-      val sut =category"({1, 0}, {a: 0 → 1}, {})"
+      val sut = category"({1, 0}, {a: 0 → 1}, {})"
       sut.objects === Set("0", "1")
     }
-    
+
     "parse_Z3" >> {
       Z3.arrows === Set("0", "1", "2")
     }
@@ -182,7 +183,7 @@ class CategoryTest extends Test with CategoryFactory {
         val parsed = Category.read(string)
         parsed === catOpt
       })(catOpt)
-    
+
     "toString_1" >> {
       expect(sut ⇒ {
         sut.toString === "sample: ({1}, {1: 1→1}, {1 ∘ 1 = 1})"
@@ -191,7 +192,7 @@ class CategoryTest extends Test with CategoryFactory {
           EmptyMap, // d0
           EmptyMap, // d1
           EmptyComposition
-        )      )
+        ))
     }
 
     "parse_positive_0" >> {
@@ -256,11 +257,13 @@ class CategoryTest extends Test with CategoryFactory {
           ("2_a", "2_a") → "2_a"
         )
       )
-      checkParsing(sutOpt); ok
+      checkParsing(sutOpt);
+      ok
     }
 
     "parse_positive" >> {
-      checkParsing(Good(HalfSimplicial)); ok
+      checkParsing(Good(HalfSimplicial));
+      ok
     }
 
     "D0_positive()" >> {
@@ -322,7 +325,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
-      _3_.arrows.forall { 
+      _3_.arrows.forall {
         case a@PairRegex(x, y) ⇒ (x == y) === _3_.isIsomorphism(a)
         case s ⇒ failure(s"$s does not look like an arrow in a poset"); false
       }
@@ -406,8 +409,8 @@ class CategoryTest extends Test with CategoryFactory {
 
     "factorUniquelyOnRight" >> {
       val sut = HalfSimplicial
-      sut.factorUniquelyOnRight("0_1","0_2")("0_1","0_2") must beTrue
-      sut.factorUniquelyOnRight("2_swap", "2_a")("0_1","0_2") must beFalse
+      sut.factorUniquelyOnRight("0_1", "0_2")("0_1", "0_2") must beTrue
+      sut.factorUniquelyOnRight("2_swap", "2_a")("0_1", "0_2") must beFalse
     }
 
     "equalizes" >> {
@@ -500,7 +503,7 @@ class CategoryTest extends Test with CategoryFactory {
       Square.isProduct("a", "a")(("ab", "ac")) === false
       Square.isProduct("b", "c")(("ab", "ac")) === true
     }
-    
+
     "product_none" >> {
       ParallelPair.product("0", "1").isBad must beTrue
     }
@@ -607,12 +610,12 @@ class CategoryTest extends Test with CategoryFactory {
       Square.initial === Good("a")
       _4_.initial === Good("0")
     }
-    
+
     "foreach" >> {
       _4_ foreach (i ⇒ (i.toInt >= 0 && i.toInt < 4) === true)
       ok
     }
-    
+
     "map" >> {
       val actual = Square map (x ⇒ x.toUpperCase)
       actual.toSet === Set("A", "B", "C", "D")
@@ -647,7 +650,7 @@ class CategoryTest extends Test with CategoryFactory {
         c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
-    
+
     "arrowsFromRootObjects" >> {
       M.arrowsFromRootObjects === Set("b", "ba", "bc", "d", "dc", "de")
       W.arrowsFromRootObjects === Set("a", "ab", "c", "cb", "cd", "e", "ed")
@@ -682,7 +685,7 @@ class CategoryTest extends Test with CategoryFactory {
       Pushout.buildBundles(Set("a", "b"), Set("a", "ab", "ac", "b")) ===
         Map("a" → Set("a", "ab", "ac"), "b" → Set("b"))
     }
-    
+
     "buildBundles Square" >> {
       Square.buildBundles(Set("a"), Set("a", "ab", "ac", "ad")) ===
         Map("a" → Set("a", "ab", "ac", "ad"))
@@ -694,7 +697,7 @@ class CategoryTest extends Test with CategoryFactory {
       _4_.isInitial("0") === true
       _4_.isInitial("1") === false
     }
-    
+
     "isInitial in HalfSimplicial" in {
       HalfSimplicial.isInitial("0") === true
       HalfSimplicial.isInitial("1") === false
@@ -708,7 +711,7 @@ class CategoryTest extends Test with CategoryFactory {
     "isInitial in Pullback" in {
       Pullback.isInitial("a") === false
     }
-    
+
     "op" in {
       val op3 = _3_.op
       import op3._
@@ -760,7 +763,7 @@ class CategoryTest extends Test with CategoryFactory {
       SplitMono.objects === Set("a", "b")
       SplitMono.arrows === Set("a", "b", "ab", "ba", "bb")
     }
-    
+
     "Detailed Composition Table Build" >> {
       import Graph._
       val graph = graph"({a,b}, {ab: a → b, ba: b → a, bb: b → b})"
@@ -771,30 +774,30 @@ class CategoryTest extends Test with CategoryFactory {
         ("bb", "ba") → "ba",
         ("bb", "bb") → "bb"
       )
-      
+
       val graphWithUnits = addUnitsToGraph(graph)
       val candidate1 = defineCompositionWithIdentities(graphWithUnits, composition)
-      candidate1.keySet must not contain ("bb", "a")
-      candidate1.keySet must not contain ("a", "bb")
+      candidate1.keySet must not contain("bb", "a")
+      candidate1.keySet must not contain("a", "bb")
       candidate1.get(("ba", "ab")) === Some("bb")
 
       val candidate2 = addUniqueCompositions(graphWithUnits, candidate1)
-      candidate2.keySet must not contain ("bb", "a")
-      candidate2.keySet must not contain ("a", "bb")
+      candidate2.keySet must not contain("bb", "a")
+      candidate2.keySet must not contain("a", "bb")
       candidate2.get(("ba", "ab")) === Some("bb")
-      
+
       val candidate3 = deduceCompositions(graphWithUnits, candidate2)
-      candidate3.keySet must not contain ("bb", "a")
-      candidate3.keySet must not contain ("a", "bb")
+      candidate3.keySet must not contain("bb", "a")
+      candidate3.keySet must not contain("a", "bb")
 
       val newComposition = fillCompositionTable(graphWithUnits, composition)
-      newComposition.keySet must not contain ("bb", "a")
-      newComposition.keySet must not contain ("a", "bb")
-      
+      newComposition.keySet must not contain("bb", "a")
+      newComposition.keySet must not contain("a", "bb")
+
       val sut1 = Category.fromPartialData("sut1", graph, composition)
       val graph1 = Category.addUnitsToGraph(graph)
       val sut2 = Category.fromGraphWithUnits[String]("sut1", graph1)((f, g) ⇒ composition.get((f, g)))
-      
+
       sut1 match {
         case Good(c) ⇒ ok
         case oops ⇒ oops.errorDetails match {
@@ -811,7 +814,7 @@ class CategoryTest extends Test with CategoryFactory {
           case None ⇒ failure("What happened?!")
         }
       }
-      
+
       ok
     }
 
@@ -824,7 +827,7 @@ class CategoryTest extends Test with CategoryFactory {
       sut === _3_
     }
   }
-  
+
   "Square" should {
     "pass a regression test of 3/31/19" in {
       val cd = Square.arrow("cd")
@@ -832,18 +835,38 @@ class CategoryTest extends Test with CategoryFactory {
       Square.d1(cd) === "d"
     }
   }
-  
+
   "complete subcategory" should {
     "be ok for Square" in {
       Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
       Square.completeSubcategory("diagonal", Set("a", "c")) === category"diagonal:({a,c}, {ac: a → c})"
-      
+
       {
         Square.completeSubcategory("abx", Set("a", "b", "x")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
       } must throwA[IllegalArgumentException]()
     }
   }
-  
+
+  "components" should {
+    "build 0" in {
+      _0_.connectedComponents.isEmpty === true
+    }
+    "build 3" in {
+      _3_.connectedComponents.map(_.name) === Set("_3_.1")
+    }
+    "build 1+1" in {
+      val c1: Category = category"Discrete_2.1:({a}, {a:a→a})"
+      val c2: Category = category"Discrete_2.2:({b}, {b:b→b})"
+      _1plus1_.connectedComponents === Set(c1, c2)
+    }
+    "build Z2+ParallelPair" in {
+      val sut = category"A:({1, 2, 3}, {1: 1 → 1, a: 1 → 1, b: 2 → 3, c: 2 → 3}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
+      sut.connectedComponents === Set(
+        category"A.1:({1}, {1: 1 → 1, a: 1 → 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})",
+        category"A:({2, 3}, {b: 2 → 3, c: 2 → 3})")
+    }
+  }
+
   "SetCategory" >> {
     "have products" >> {
       val first: set = Sets.setOf("a", "b")
