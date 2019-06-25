@@ -25,10 +25,6 @@ case class Layout1(cat: Category) {
     (objs union newOne, newOne)
   }
   
-  val (f, first) = next()
-  val (s, second) = next(f)
-  val (t, third) = next(s)
-  
   def graded: List[Set[cat.Obj]] = {
     Stream.iterate(next(Set.empty[cat.Obj])){
       case (sum, current) =>
@@ -44,20 +40,19 @@ case class Layout(c: Category) {
 
 object TestIt {
   def main(args: Array[String]): Unit = {
-    for {
+    val fullMap = for {
       c <- KnownFiniteCategories
       ls = Layout(c).layouts
       l <- ls
-    } {
+    } yield {
       val name = if (ls.size == 1) c.name else l.cat.name
-      def asString[T](os: Set[T]): String = os.map(_.toString).toList.sorted.mkString(",")
-      val first = asString(l.first)
-      val next = asString(l.second)
-      val third = asString(l.third)
-      println(s"$name -> $first; $next; $third")
+      def asString[T](os: Set[T]): String = os.map(x => s""""$x"""").toList.sorted.mkString(",")
       val all = l.graded map asString
-      
-      println(s"  ${all.mkString("; ")}")
+      s""""$name"->List(${all.map(x => s"Set($x)").mkString(", ")})"""
     }
+    
+    val repr = fullMap.mkString("Map(\n  ", ",\n  ", "\n)")
+    
+    println(repr)
   }
 }
