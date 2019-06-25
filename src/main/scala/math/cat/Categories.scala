@@ -496,6 +496,11 @@ object Categories extends CategoryFactory {
   lazy val Pushout = category"Pushout:({a,b,c}, {ab: a → b, ac: a → c})"
 
   /**
+    * Pushout3 category: b ← a → c
+    */
+  lazy val Pushout4 = category"Pushout4:({a,b,c,d,e}, {ab: a → b, ac: a → c, ad: a → d, ae: a → e})"
+
+  /**
     * Sample W-shaped category: a → b ← c → d ← e
     */
   lazy val W = category"W:({a,b,c,d,e}, {ab: a → b, cb: c → b, cd: c → d, ed: e → d})"
@@ -544,7 +549,7 @@ object Categories extends CategoryFactory {
 
   lazy val KnownCategories: List[Category] = List(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
-    ParallelPair, Pullback, Pushout, SplitMono, Square,
+    ParallelPair, Pullback, Pushout, Pushout4, SplitMono, Square,
     M, W,
     Z2, Z3,
     HalfSimplicial, NaturalNumbers).sortBy(_.arrows.size)

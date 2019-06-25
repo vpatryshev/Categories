@@ -22,6 +22,7 @@ class LayoutTest extends Specification {
         "ParallelPair"->List(Set("0"), Set("1")),
         "Pullback"->List(Set("a","b"), Set("c")),
         "Pushout"->List(Set("a"), Set("b","c")),
+        "Pushout4"->List(Set("a"), Set("b","c","d","e")),
         "SplitMono"->List(Set("a"), Set("b")),
         "_3_"->List(Set("0"), Set("1"), Set("2")),
         "Square"->List(Set("a"), Set("b","c"), Set("d")),
@@ -34,11 +35,11 @@ class LayoutTest extends Specification {
 
       val actual: Map[String, List[Set[String]]] = (for {
         c <- KnownFiniteCategories
-        ls = Layout(c).layouts
+        ls = Layout(c).gradedObjects
         l <- ls
       } yield {
         val name = if (ls.size == 1) c.name else l.cat.name
-        name -> l.graded.map(_.map(_.toString))
+        name -> l.layers.map(_.map(_.toString))
       }) toMap
       
       actual === expected
