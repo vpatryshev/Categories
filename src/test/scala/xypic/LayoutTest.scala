@@ -26,7 +26,7 @@ class LayoutTest extends Specification {
         "SplitMono"->List(Set("a"), Set("b")),
         "_3_"->List(Set("0"), Set("1"), Set("2")),
         "Square"->List(Set("a"), Set("b","c"), Set("d")),
-        "M"->List(Set("b","d"), Set("a","e"), Set("c")),
+        "M"->List(Set("b","d"), Set("a","e","c")),
         "W"->List(Set("a","c","e"), Set("b","d")),
         "_4_"->List(Set("0"), Set("1"), Set("2"), Set("3")),
         "HalfSimplicial"->List(Set("0"), Set("1"), Set("2")),
@@ -41,9 +41,12 @@ class LayoutTest extends Specification {
         val name = if (ls.size == 1) c.name else l.cat.name
         name -> l.layers.map(_.map(_.toString))
       }) toMap
+
+      for {
+        name <- expected.keySet
+      } actual(name) === expected(name)
       
       actual === expected
-      ok
     }
 
   }

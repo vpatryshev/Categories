@@ -18,12 +18,14 @@ case class GradedObjects(cat: Category) {
     group(arrows).toList.sortBy(_._1).headOption.map(_._2.toSet).toSet.flatten.toSet
   
   def arrowsNotTo(objs: Set[cat.Obj]): Set[cat.Arrow] = cat.arrows.filterNot(a => objs(cat.d1(a)))
+
+  def arrowsNotConnecting(objs: Set[cat.Obj]): Set[cat.Arrow] = cat.arrows.filterNot(a => objs(cat.d1(a)) || objs(cat.d0(a)))
   
   def arrowsFrom(o: cat.Obj): Set[cat.Arrow] =
     allArrows.filter(a => cat.d0(a) == o && cat.d1(a) != o)
   
   def next(objs: Set[cat.Obj] = Set.empty): (Set[cat.Obj], Set[cat.Obj]) = {
-    val newOne = head(arrowsNotTo(objs))
+    val newOne = head(arrowsNotConnecting(objs))
     (objs union newOne, newOne)
   }
   
