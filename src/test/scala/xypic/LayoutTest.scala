@@ -38,7 +38,7 @@ class LayoutTest extends Specification {
         ls = Layout(c).gradedObjects
         l <- ls
       } yield {
-        val name = if (ls.size == 1) c.name else l.cat.name
+        val name = if (ls.size == 1) c.name else l.graph.name
         name -> l.layers.map(_.map(_.toString))
       }) toMap
 

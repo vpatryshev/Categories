@@ -204,13 +204,13 @@ class GraphTest extends Test {
     "subgraph" >> {
       expect(sut ⇒ {
         import sut._
-        val sub1 = sut.subgraph(Set.empty)
+        val sub1 = sut.subgraph("0", Set.empty)
         sub1.nodes.isEmpty === true
         sub1.arrows.isEmpty === true
         
-        val sub2 = sut.subgraph(sut.nodes)
+        val sub2 = sut.subgraph("self", sut.nodes)
         sub2 === sut
-        val sub3 = sut.subgraph(Set(1, 3))
+        val sub3 = sut.subgraph("1,3", Set(1, 3))
         val expected = Graph.build(
           Set(1, 3),
           Set(11, 13),

@@ -671,23 +671,11 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   
   def completeSubcategory(name: String, setOfObjects: Objects): Category = {
     val src = this
-    new Category(name, subgraph(setOfObjects)) {
+    new Category(name, subgraph(name, setOfObjects)) {
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         src.m(src.arrow(f), src.arrow(g)) map arrow
-    }
-  }
-
-  def connectedComponents: Set[Category] = {
-    val connected: BinaryRelation[Obj, Obj] =
-      BinaryRelation((x, y) => arrows.exists(a =>
-        (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
-
-    val sets = new FactorSet(objects, connected)
-    
-    sets.zipWithIndex map {
-      case (s, i) => completeSubcategory(s"$name.${i+1}", s)
     }
   }
 }

@@ -2,9 +2,8 @@ package math.cat
 
 import java.io.Reader
 
-import math.sets.N
+import math.sets._
 import math.sets.Sets._
-import math.sets.{PoSet, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
@@ -106,9 +105,10 @@ trait Graph extends GraphData { graph ⇒
     def d1(f: Arrow): Node = graph.d0(f)
   }
   
-  def subgraph(setOfNodes: Nodes): Graph = {
+  def subgraph(aName: String, setOfNodes: Nodes): Graph = {
     require(setOfNodes.subsetOf(nodes), s"Unknown nodes: ${setOfNodes.diff(nodes)}")
     new Graph {
+      override val name = aName
       type Node = graph.Node
       type Arrow = graph.Arrow
 
@@ -121,6 +121,19 @@ trait Graph extends GraphData { graph ⇒
       def d1(f: Arrow): Node = graph.d1(f)
     }
   }
+ 
+  def connectedComponents: Set[Graph] = {
+    val connected: BinaryRelation[Node, Node] =
+      BinaryRelation((x, y) => arrows.exists(a =>
+        (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
+
+    val sets = new FactorSet(nodes, connected)
+
+    sets.zipWithIndex map {
+      case (s, i) => subgraph(s"$name.${i+1}", s)
+    }
+  }
+
 }
 
 private[cat] trait GraphData {
