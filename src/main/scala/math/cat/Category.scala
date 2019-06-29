@@ -678,6 +678,35 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
         src.m(src.arrow(f), src.arrow(g)) map arrow
     }
   }
+
+  private def canDeduce(a: Arrow) = isIdentity(a) || {
+    val from = d0(a)
+    val to = d1(a)
+    val split = for {
+      o <- objects
+      if hom(from, to).size == 1 && o != from && o != to
+      f <- hom(from, o)
+      g <- hom(o, to)
+    } yield (f, g)
+    
+    split.nonEmpty
+  }
+  
+  /**
+    * Remove the arrows that are not required for drawing:
+    * identities and uniquely-determined compositions.
+    * 
+    * @return a graph with the same nodes, but with less arrows
+    */
+  def baseGraph: Graph = {
+    val essentialArrows = arrows filterNot canDeduce
+    
+    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
+      a => a -> (d0(a), d1(a))
+    } toMap
+
+    Graph.fromArrowMap(nodes, essentialArrowsMap) iHope
+  }
 }
 
 object Category extends CategoryFactory {

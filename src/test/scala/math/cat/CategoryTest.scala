@@ -866,6 +866,34 @@ class CategoryTest extends Test with CategoryFactory {
         category"A:({2, 3}, {b: 2 → 3, c: 2 → 3})")
     }
   }
+  
+  "baseGraph" >> {
+    import Graph._
+    
+    "good for Pullback" >> {
+      Pullback.baseGraph === graph"({a,b,c}, {ac: a → c, bc: b → c})"
+    }
+    
+    "good for Square" >> {
+      Square.baseGraph === graph"({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d})"
+    }
+
+    "good for SplitMono" >> {
+      SplitMono.baseGraph === graph"({a,b}, {ab: a → b, ba: b → a, bb: b → b})"
+    }
+    
+    "good for ParallelPair" >> {
+      ParallelPair.baseGraph === graph"({0, 1}, {a:0→1, b:0→1})"
+    }
+
+    "good for Z3" >> {
+      Z3.baseGraph === graph"({0}, {1: 0 → 0, 2: 0 → 0})"
+    }
+
+    "good for HalfSimplicial" >> {
+      HalfSimplicial.baseGraph === graph"({0, 1, 2}, {2_b: 2→2, 2_a: 2→2, 2_swap: 2→2, 2_1: 2→1, b: 1→2, a: 1→2})"
+    }
+  }
 
   "SetCategory" >> {
     "have products" >> {

@@ -2,6 +2,7 @@ package math.cat
 
 import java.io.Reader
 
+import math.cat.Categories.{Cat, read}
 import math.sets._
 import math.sets.Sets._
 import scalakittens.{Good, Result}
