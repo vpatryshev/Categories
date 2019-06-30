@@ -2,8 +2,13 @@ package xypic
 
 import math.cat.{Category, Graph}
 import math.cat.Categories._
+import math.geometry2d.Pt
 
 import scala.collection.mutable
+
+
+
+
 
 case class GradedObjects(category: Category) {
   val allArrows: Set[category.Arrow] = category.arrows
@@ -43,7 +48,7 @@ case class Layout1(go: GradedObjects) {
   private val indexed = go.layers.zipWithIndex.map { case (s, i) => i -> s.toList.sortBy(_.toString)}.toMap
   private var dir = (1, 0)
   private var prevW = 1
-  private val taken: mutable.Set[(Int, Int)] = new mutable.HashSet[(Int, Int)]()
+  private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
   private val coordinates0 = for {
     (i, os) <- indexed
@@ -56,8 +61,8 @@ case class Layout1(go: GradedObjects) {
     }
 
     val row = for { (o, j) <- os.zipWithIndex } yield {
-      val newPoint = (i - j + scala.math.max(0, step._1 + (dw-1)/2), step._2 + (dw-1)/2 - j)
-      val actual = if (taken(newPoint)) (newPoint._1, newPoint._2 - 1) else newPoint
+      val newPoint = Pt(i - j + scala.math.max(0, step._1 + (dw-1)/2), step._2 + (dw-1)/2 - j)
+      val actual = if (taken(newPoint)) newPoint.shift(0, -1) else newPoint
       taken.add(actual)
       o -> actual
     }
@@ -65,7 +70,7 @@ case class Layout1(go: GradedObjects) {
     row
   }
   
-  val coordinates: Map[go.category.Node, (Int, Int)] = coordinates0.flatten.toMap
+  val coordinates: Map[go.category.Node, Pt] = coordinates0.flatten.toMap
     
   val sizes: List[(Int, Int)] = go.layers.zipWithIndex.map {
     case (s, i) => i -> s.size
@@ -75,22 +80,26 @@ case class Layout1(go: GradedObjects) {
   
   def print(): Unit = {
     val xys0 = coordinates.values.toList
-    val xys = xys0.headOption.getOrElse((0, 0)) :: xys0
-    val x0 = xys.minBy(_._1)._1
-    val x1 = xys.maxBy(_._1)._1
-    val y0 = xys.minBy(_._2)._2
-    val y1 = xys.maxBy(_._2)._2
+    val xys = xys0.headOption.getOrElse(Pt(0, 0)) :: xys0
+    val x0 = xys.minBy(_.x).x
+    val x1 = xys.maxBy(_.x).x
+    val y0 = xys.minBy(_.y).y
+    val y1 = xys.maxBy(_.y).y
+    val middle = Pt((x0+x1)/2, (y0+y1)/2)
     
-    val cx = 15 / (x1-x0+1)
-    val cy = (5 / (x1-x0+1)) * 30
+    val cx = 30 / (x1-x0+1)
+    val cy = 10 / (x1-x0+1)
     
     val buf = new StringBuilder(300)
     for (i <- 0 until 300) buf.append('.')
     
     for {
-      (obj, (x, y)) <- coordinates
+      (obj, p) <- coordinates
     } {
-      val pos: Int = (2*x - x0 - x1) * cx + 165 - (2*y - y0 - y1)*cy
+      val p1 = p - middle
+      val x = (p1.x * cx).toInt + 15
+      val y = (p1.y * cy).toInt + 5
+      val pos: Int = (x + 300 - y*30).toInt
       buf(pos) = obj.toString.head
     }
     println()

@@ -1,0 +1,15 @@
+package math.geometry2d
+import Rational._
+
+case class Pt(x: Rational, y: Rational) {
+  def +(other: Pt): Pt = shift(other.x, other.y)
+  def -(other: Pt): Pt = shift(-other.x, -other.y)
+  def *(c: Rational) = Pt(c*x, c*y)
+  def /(c: Rational) = Pt(x/c, y/c)
+  def shift(dx: Rational, dy: Rational): Pt = Pt(x + dx, y + dy)
+  def dot(other: Pt): Rational = x * other.x + y * other.y
+}
+
+object Pt {
+  def _0 = Pt(0, 0)
+}
