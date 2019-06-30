@@ -5,32 +5,32 @@ import math.cat.Categories._
 
 import scala.collection.mutable
 
-case class GradedObjects(graph: Graph) {
-  val allArrows: Set[graph.Arrow] = graph.arrows
+case class GradedObjects(category: Category) {
+  val allArrows: Set[category.Arrow] = category.arrows
   
-  def group(arrows: Set[graph.Arrow]): Map[Int, Set[graph.Node]] = {
-    val objWithSizes = arrows.groupBy(graph.d1).mapValues(_.size)
+  def group(arrows: Set[category.Arrow]): Map[Int, Set[category.Node]] = {
+    val objWithSizes = arrows.groupBy(category.d1).mapValues(_.size)
     val groupedBySize = objWithSizes.groupBy(_._2).mapValues(_.keySet)
     groupedBySize
   }
   
-  def head(arrows: Set[graph.Arrow]): Set[graph.Node] =
+  def head(arrows: Set[category.Arrow]): Set[category.Node] =
     group(arrows).toList.sortBy(_._1).headOption.map(_._2).toSet.flatten
   
-  def arrowsNotTo(objs: Set[graph.Node]): Set[graph.Arrow] = graph.arrows.filterNot(a => objs(graph.d1(a)))
+  def arrowsNotTo(objs: Set[category.Node]): Set[category.Arrow] = category.arrows.filterNot(a => objs(category.d1(a)))
 
-  def arrowsNotConnecting(objs: Set[graph.Node]): Set[graph.Arrow] = graph.arrows.filterNot(a => objs(graph.d1(a)) || objs(graph.d0(a)))
+  def arrowsNotConnecting(objs: Set[category.Node]): Set[category.Arrow] = category.arrows.filterNot(a => objs(category.d1(a)) || objs(category.d0(a)))
   
-  def arrowsFrom(o: graph.Node): Set[graph.Arrow] =
-    allArrows.filter(a => graph.d0(a) == o && graph.d1(a) != o)
+  def arrowsFrom(o: category.Node): Set[category.Arrow] =
+    allArrows.filter(a => category.d0(a) == o && category.d1(a) != o)
   
-  def next(objs: Set[graph.Node] = Set.empty): (Set[graph.Node], Set[graph.Node]) = {
+  def next(objs: Set[category.Node] = Set.empty): (Set[category.Node], Set[category.Node]) = {
     val newOne = head(arrowsNotConnecting(objs))
     (objs union newOne, newOne)
   }
   
-  lazy val layers: List[Set[graph.Node]] = {
-    Stream.iterate(next(Set.empty[graph.Node])){
+  lazy val layers: List[Set[category.Node]] = {
+    Stream.iterate(next(Set.empty[category.Node])){
       case (sum, current) =>
         val (ns, nc) = next(sum)
         (ns, nc)
@@ -39,7 +39,7 @@ case class GradedObjects(graph: Graph) {
 }
 
 case class Layout1(go: GradedObjects) {
-  val name: String = go.graph.name
+  val name: String = go.category.name
   private val indexed = go.layers.zipWithIndex.map { case (s, i) => i -> s.toList.sortBy(_.toString)}.toMap
   private var dir = (1, 0)
   private var prevW = 1
@@ -65,17 +65,21 @@ case class Layout1(go: GradedObjects) {
     row
   }
   
-  val coordinates: Map[go.graph.Node, (Int, Int)] = coordinates0.flatten.toMap
+  val coordinates: Map[go.category.Node, (Int, Int)] = coordinates0.flatten.toMap
     
   val sizes: List[(Int, Int)] = go.layers.zipWithIndex.map {
     case (s, i) => i -> s.size
   }
   
+  val baseGraph = go.category.baseGraph
+  
   def print(): Unit = {
-    val x0 = coordinates.values.minBy(_._1)._1
-    val x1 = coordinates.values.maxBy(_._1)._1
-    val y0 = coordinates.values.minBy(_._2)._2
-    val y1 = coordinates.values.maxBy(_._2)._2
+    val xys0 = coordinates.values.toList
+    val xys = xys0.headOption.getOrElse((0, 0)) :: xys0
+    val x0 = xys.minBy(_._1)._1
+    val x1 = xys.maxBy(_._1)._1
+    val y0 = xys.minBy(_._2)._2
+    val y1 = xys.maxBy(_._2)._2
     
     val cx = 15 / (x1-x0+1)
     val cy = (5 / (x1-x0+1)) * 30
@@ -95,8 +99,8 @@ case class Layout1(go: GradedObjects) {
   
 }
 
-case class Layout(graph: Graph) {
-  val gradedObjects: Set[GradedObjects] = graph.connectedComponents map GradedObjects
+case class Layout(category: Category) {
+  val gradedObjects: Set[GradedObjects] = category.connectedComponents map GradedObjects
 }
 
 object TestIt {
@@ -107,7 +111,7 @@ object TestIt {
       goss = Layout(c).gradedObjects
       gos <- goss
     } yield {
-      val name = if (goss.size == 1) c.name else gos.graph.name
+      val name = if (goss.size == 1) c.name else gos.category.name
       val l = Layout1(gos)
       def asString[T](os: Set[T]): String = os.map(x => s""""$x"""").toList.sorted.mkString(",")
       val all = gos.layers map asString

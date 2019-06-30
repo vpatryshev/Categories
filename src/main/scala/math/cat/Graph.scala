@@ -122,19 +122,6 @@ trait Graph extends GraphData { graph ⇒
       def d1(f: Arrow): Node = graph.d1(f)
     }
   }
- 
-  def connectedComponents: Set[Graph] = {
-    val connected: BinaryRelation[Node, Node] =
-      BinaryRelation((x, y) => arrows.exists(a =>
-        (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
-
-    val sets = new FactorSet(nodes, connected)
-
-    sets.zipWithIndex map {
-      case (s, i) => subgraph(s"$name.${i+1}", s)
-    }
-  }
-
 }
 
 private[cat] trait GraphData {

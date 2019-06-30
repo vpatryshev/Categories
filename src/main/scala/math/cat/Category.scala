@@ -707,6 +707,19 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
     Graph.fromArrowMap(nodes, essentialArrowsMap) iHope
   }
+
+  def connectedComponents: Set[Category] = {
+    val connected: BinaryRelation[Obj, Obj] =
+      BinaryRelation((x, y) => arrows.exists(a =>
+        (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
+
+    val sets = new FactorSet(objects, connected)
+
+    sets.zipWithIndex map {
+      case (s, i) => completeSubcategory(s"$name.${i+1}", s)
+    }
+  }
+
 }
 
 object Category extends CategoryFactory {
