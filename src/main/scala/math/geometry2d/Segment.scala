@@ -17,9 +17,9 @@ case class Segment(p0: Pt, p1: Pt) {
   
   def shift(vector: Pt) = Segment(p0 + vector, p1 + vector)
   
-  private def intersectsLine(seg: Segment): Boolean = {
-    val otherP0 = seg.p0
-    val otherP1 = seg.p1
+  private[geometry2d] def intersectsLine(seg: Segment): Boolean = {
+    val otherP0 = seg.p0 - p0
+    val otherP1 = seg.p1 - p0
     (otherP0 dot orthogonal) * (otherP1 dot orthogonal) <= 0
   }
   

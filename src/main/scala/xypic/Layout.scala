@@ -88,7 +88,7 @@ case class Layout1(go: GradedObjects) {
     val middle = Pt((x0+x1)/2, (y0+y1)/2)
     
     val cx = 30 / (x1-x0+1)
-    val cy = 10 / (x1-x0+1)
+    val cy = -10 / (x1-x0+1)
     
     val buf = new StringBuilder(300)
     for (i <- 0 until 300) buf.append('.')
@@ -97,9 +97,9 @@ case class Layout1(go: GradedObjects) {
       (obj, p) <- coordinates
     } {
       val p1 = p - middle
-      val x = (p1.x * cx).toInt + 15
-      val y = (p1.y * cy).toInt + 5
-      val pos: Int = (x + 300 - y*30).toInt
+      val x = (p1.x * cx).toInt
+      val y = (p1.y * cy).toInt
+      val pos: Int = x + 165 + y*30
       buf(pos) = obj.toString.head
     }
     println()
