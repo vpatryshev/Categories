@@ -1,5 +1,7 @@
 package xypic
 
+import java.io.FileWriter
+
 import math.cat.{Category, Graph}
 import math.cat.Categories._
 import math.geometry2d.Pt
@@ -69,43 +71,43 @@ case class Layout1(go: GradedObjects) {
     if (w > 2 * i + 1) dir = (1, 1)
     row
   }
+
+  private val coordinates1: Map[String, Pt] = coordinates0.flatten.toMap.map {
+      case (k, v) => k.toString -> v
+  }
   
-  val coordinates: Map[go.category.Node, Pt] = coordinates0.flatten.toMap
+  private val xys0 = coordinates1.values.toList
+  private val xys = xys0.headOption.getOrElse(Pt(0, 0)) :: xys0
+  private val x0 = xys.minBy(_.x).x
+  private val x1 = xys.maxBy(_.x).x
+  private val y0 = xys.minBy(_.y).y
+  private val y1 = xys.maxBy(_.y).y
+  val p0 = Pt(x0, y0)
+  private val middle = Pt((x0+x1)/2, (y0+y1)/2)
+
+  val coordinates: Map[String, Pt] = coordinates1 mapValues {
+    p => p - p0
+  }
     
   val sizes: List[(Int, Int)] = go.layers.zipWithIndex.map {
     case (s, i) => i -> s.size
   }
   
-  val baseGraph = go.category.baseGraph
+  val baseGraph: Graph = go.category.baseGraph
   
-  def print(): Unit = {
-    val xys0 = coordinates.values.toList
-    val xys = xys0.headOption.getOrElse(Pt(0, 0)) :: xys0
-    val x0 = xys.minBy(_.x).x
-    val x1 = xys.maxBy(_.x).x
-    val y0 = xys.minBy(_.y).y
-    val y1 = xys.maxBy(_.y).y
-    val middle = Pt((x0+x1)/2, (y0+y1)/2)
+  def draw[T](w: Int, h: Int, renderer: (String, Int, Int) => T): Iterable[T] = {
     
-    val cx = 30 / (x1-x0+1)
-    val cy = -10 / (x1-x0+1)
-    
-    val buf = new StringBuilder(300)
-    for (i <- 0 until 300) buf.append('.')
+    val s = Pt(w / (x1-x0+2), h / (y1-y0+2))
     
     for {
-      (obj, p) <- coordinates
-    } {
-      val p1 = p - middle
-      val x = (p1.x * cx).toInt
-      val y = (p1.y * cy).toInt
-      val pos: Int = x + 165 + y*30
-      buf(pos) = obj.toString.head
+      (obj, p) <- coordinates1
+    } yield {
+      val p1 = (p - middle).scale(s)
+      val x = p1.x.toInt + w/2
+      val y = (y1 - p1.y).toInt + h/2
+      renderer(obj.toString, x, y)
     }
-    println()
-    println(buf.grouped(30).mkString("\n"))
   }
-  
 }
 
 case class Layout(category: Category) {
@@ -114,23 +116,68 @@ case class Layout(category: Category) {
 
 object TestIt {
   
+  def html(content: String): String =
+    s"""
+       |<html>
+       |<head>
+       |<meta http-equiv="refresh" content="40">
+       |</head>
+       |<body>
+       |$content
+       |</body>
+       |</html>
+     """.stripMargin
+  
   def main(args: Array[String]): Unit = {
     val fullMap = for {
       c <- KnownFiniteCategories
       goss = Layout(c).gradedObjects
-      gos <- goss
+      layouts = goss map Layout1
+      l <- layouts
+      gos = l.go
     } yield {
       val name = if (goss.size == 1) c.name else gos.category.name
-      val l = Layout1(gos)
       def asString[T](os: Set[T]): String = os.map(x => s""""$x"""").toList.sorted.mkString(",")
       val all = gos.layers map asString
-      val s = s""""$name"->List(${all.map(x => s"Set($x)").mkString(", ")})"""
-      println(s)
-      println(l.coordinates)
-      l.print()
-      s
+      (name, l)
     }
     
+    def svg(layout: Layout1, w: Int, h: Int): String = {
+      
+      val strings = layout.draw(w, h, (txt, x, y) =>
+        s"""
+           |<text x="${x-4}" y=${y+4}>$txt</text>
+           |<circle cx="$x" cy="$y" r="10"
+           | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
+           |""".stripMargin
+      )
+      strings mkString "\n"
+    }
+
+    def draw(layout: Layout1, w: Int, h: Int): String = {
+      s"""<svg width="$w" height="$h">
+         |  <rect x="0" y="0" rx="15" ry="15" width="$w" height="$h"
+         |  style="fill:blue;stroke:black;stroke-width:5;opacity:0.03" />
+         |
+         |${svg(layout, w, h)}
+         |</svg>
+         |""".stripMargin
+    }
+    
+    val htmlVersion = fullMap map {
+      case (name, layout) =>
+        val c = layout.coordinates
+//        println(s)
+//        println(name)
+//        println(c)
+        s"<h3>$name</h3>${draw(layout, 200, 200)}"
+    } mkString("<hr/><p/>")
+
+    println(html(htmlVersion))
+    
+    val out = new FileWriter("cats.html")
+    out.write(html(htmlVersion))
+    out.close
     val repr = fullMap.mkString("Map(\n  ", ",\n  ", "\n)")
   }
 }

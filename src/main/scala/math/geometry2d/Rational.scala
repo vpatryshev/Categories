@@ -14,7 +14,8 @@ case class Rational(private val n0: BigInt, private val d0: BigInt) extends Orde
   def unary_- = Rational(-n, d)
   def isPositive: Boolean = n > 0
   def isNegative: Boolean = n < 0
-  def toInt = ((n + n.signum*d/2) / d).toInt
+  def toInt: Int = ((n + n.signum*d/2) / d).toInt
+  def toDouble: Double = n.toDouble / d.toDouble
   
   def min(other: Rational): Rational = if (this < other) this else other
   def max(other: Rational): Rational = if (this < other) other else this
