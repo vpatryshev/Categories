@@ -1,5 +1,6 @@
 package math.geometry2d
 import Rational._
+import SVG._
 
 case class Pt(x: Rational, y: Rational) {
   def +(other: Pt): Pt = shift(other.x, other.y)
@@ -9,7 +10,18 @@ case class Pt(x: Rational, y: Rational) {
   def shift(dx: Rational, dy: Rational): Pt = Pt(x + dx, y + dy)
   def dot(other: Pt): Rational = x * other.x + y * other.y
   def scale(scale: Pt): Pt = Pt(x * scale.x, y * scale.y)
-  def toDouble: (Double, Double) = (x.toDouble, y.toDouble)
+  def l2: Rational = {
+    val normSquare = this dot this
+    if (normSquare.isZero) 0 else {
+      val r = Math.sqrt(normSquare.toDouble)
+      val ndigits = Math.log10(r).toInt
+      val denom = Math.pow(10.0, ndigits).toInt
+      Rational((r * denom).toInt, denom)
+    }
+  }
+  
+  def svgWithPrefix(prefix: String): String =
+    s"${prefix}x=${x.toDouble} ${prefix}y=${y.toDouble}"
 }
 
 object Pt {
