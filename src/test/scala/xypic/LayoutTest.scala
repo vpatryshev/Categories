@@ -35,7 +35,7 @@ class LayoutTest extends Specification {
 
       val actual: Map[String, List[Set[String]]] = (for {
         c <- KnownFiniteCategories
-        ls = Layout(c).gradedObjects
+        ls = Layout(c, 300, 300).gradedObjects
         l <- ls
       } yield {
         val name = if (ls.size == 1) c.name else l.category.name

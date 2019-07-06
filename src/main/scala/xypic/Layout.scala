@@ -4,49 +4,17 @@ import java.io.FileWriter
 
 import math.cat.{Category, Graph}
 import math.cat.Categories._
-import math.geometry2d.Pt
+import math.geometry2d
+import math.geometry2d.{Pt, Rational, Segment}
 
 import scala.collection.mutable
 
 
 
-
-
-case class GradedObjects(category: Category) {
-  val allArrows: Set[category.Arrow] = category.arrows
-  
-  def group(arrows: Set[category.Arrow]): Map[Int, Set[category.Node]] = {
-    val objWithSizes = arrows.groupBy(category.d1).mapValues(_.size)
-    val groupedBySize = objWithSizes.groupBy(_._2).mapValues(_.keySet)
-    groupedBySize
-  }
-  
-  def head(arrows: Set[category.Arrow]): Set[category.Node] =
-    group(arrows).toList.sortBy(_._1).headOption.map(_._2).toSet.flatten
-  
-  def arrowsNotTo(objs: Set[category.Node]): Set[category.Arrow] = category.arrows.filterNot(a => objs(category.d1(a)))
-
-  def arrowsNotConnecting(objs: Set[category.Node]): Set[category.Arrow] = category.arrows.filterNot(a => objs(category.d1(a)) || objs(category.d0(a)))
-  
-  def arrowsFrom(o: category.Node): Set[category.Arrow] =
-    allArrows.filter(a => category.d0(a) == o && category.d1(a) != o)
-  
-  def next(objs: Set[category.Node] = Set.empty): (Set[category.Node], Set[category.Node]) = {
-    val newOne = head(arrowsNotConnecting(objs))
-    (objs union newOne, newOne)
-  }
-  
-  lazy val layers: List[Set[category.Node]] = {
-    Stream.iterate(next(Set.empty[category.Node])){
-      case (sum, current) =>
-        val (ns, nc) = next(sum)
-        (ns, nc)
-    } takeWhile(_._2.nonEmpty)
-  } map (_._2) toList
-}
-
-case class Layout1(go: GradedObjects) {
-  val name: String = go.category.name
+case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
+  val category = go.category
+  val base = category.baseGraph
+  val name: String = category.name
   private val indexed = go.layers.zipWithIndex.map { case (s, i) => i -> s.toList.sortBy(_.toString)}.toMap
   private var dir = (1, 0)
   private var prevW = 1
@@ -84,34 +52,98 @@ case class Layout1(go: GradedObjects) {
   private val y1 = xys.maxBy(_.y).y
   val p0 = Pt(x0, y0)
   private val middle = Pt((x0+x1)/2, (y0+y1)/2)
+  val s = Pt(w / (x1-x0+2), -h / (y1-y0+2))
 
   val coordinates: Map[String, Pt] = coordinates1 mapValues {
-    p => p - p0
-  }
-    
-  val sizes: List[(Int, Int)] = go.layers.zipWithIndex.map {
-    case (s, i) => i -> s.size
+    p => (p - middle).scale(s) + Pt(w/2, h/2)
   }
   
-  val baseGraph: Graph = go.category.baseGraph
-  
-  def draw[T](w: Int, h: Int, renderer: (String, Int, Int) => T): Iterable[T] = {
-    
-    val s = Pt(w / (x1-x0+2), h / (y1-y0+2))
+  def draw[T](renderer: (String, (Double, Double)) => T): Iterable[T] = {
     
     for {
-      (obj, p) <- coordinates1
+      (obj, p) <- coordinates
     } yield {
-      val p1 = (p - middle).scale(s)
-      val x = p1.x.toInt + w/2
-      val y = (y1 - p1.y).toInt + h/2
-      renderer(obj.toString, x, y)
+      renderer(obj.toString, p.toDouble)
     }
   }
+
+  def svg: String = {
+
+    val objects = draw((txt, p) =>
+      s"""
+         |<text x="${p._1-4}" y=${p._2+4}>$txt</text>
+         |<circle cx="${p._1}" cy="${p._2}" r="10"
+         | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
+         |""".stripMargin
+    )
+    
+    val arrowMap: Map[String, Segment] = base.arrows.map(a => a.toString -> {
+      val from = coordinates(base.d0(a).toString)
+      val to = coordinates(base.d1(a).toString)
+      Segment(from, to)
+    }
+    ).toMap
+    
+    def drawArrow(seg: Segment): String = {
+      val q = 10.0
+      val shorter = seg.shorterBy(25)
+      val p0 = shorter.p0.toDouble
+      val p1 = shorter.p1.toDouble
+      if (p0 != p1) {
+        val ortho = (p1._2 - p0._2, p0._1 - p1._1)
+        val norm = Math.sqrt(ortho._1*ortho._1 + ortho._2*ortho._2)
+        val ortho1 = (ortho._1 / norm, ortho._2 / norm)
+        val arrowhead = (p1._1 + (p0._1 - p1._1)/norm * q, p1._2 + (p0._2 - p1._2)/norm * q)
+        val ap0 = (arrowhead._1 - ortho1._1 * q/3, arrowhead._2 - ortho1._2 * q/3)
+        val ap1 = (arrowhead._1 + ortho1._1 * q/3, arrowhead._2 + ortho1._2 * q/3)
+        s"""<line x1="${p0._1}" y1="${p0._2}" x2="${p1._1}" y2="${p1._2}"
+           | style="stroke:darkgray;stroke-width:1" />
+           | <polyline points="${ap0._1},${ap0._2} ${p1._1},${p1._2} ${ap1._1},${ap1._2}"
+           | style="fill:none;stroke:darkgray;stroke-width:1" />
+           |""".stripMargin
+      }
+      else
+        s"""<line x1="${p0._1}" y1="${p0._2}" x2="${p1._1}" y2="${p1._2}"
+           | style="stroke:darkgray;stroke-width:1" />
+           |""".stripMargin
+    }
+    
+    val arrows: Iterable[String] = arrowMap.values map drawArrow
+    
+    s"""<svg width="$w" height="$h">
+       |  <rect x="0" y="0" rx="15" ry="15" width="$w" height="$h"
+       |  style="fill:blue;stroke:black;stroke-width:5;opacity:0.03" />
+       |
+       |${objects mkString "\n"}
+       |${arrows mkString "\n"}
+       |</svg>
+       |""".stripMargin
+  }
+  
+  def html(name: String): String = s"<h3>$name</h3>$svg"
 }
 
-case class Layout(category: Category) {
+case class Layout(category: Category, w: Int, h: Int) {
+  
   val gradedObjects: Set[GradedObjects] = category.connectedComponents map GradedObjects
+  
+  def wideDigit(c: Char): String = s"&#${c - '0' + 0x1D7D8};"
+  
+  private val digits = "_(\\d+)_".r
+  private val withIndex = "([^_]+)_?(\\d)".r
+  
+  val name = category.name match {
+    case digits(n) => n map wideDigit mkString
+    case withIndex(w, n) => s"$w<sub>$n</sub>"
+    case other => other
+  }
+  
+  private val layouts = gradedObjects map (ComponentLayout(_, w, h))
+  private val htmls = layouts map (_.svg)
+  val html = htmls.mkString(
+    s"<table><tr><th colspan=${htmls.size}><font size=+1>$name</font></th></tr><tr><td>",
+    "</td><td>",
+    "</td></tr></table>\n")
 }
 
 object TestIt {
@@ -131,53 +163,19 @@ object TestIt {
   def main(args: Array[String]): Unit = {
     val fullMap = for {
       c <- KnownFiniteCategories
-      goss = Layout(c).gradedObjects
-      layouts = goss map Layout1
-      l <- layouts
-      gos = l.go
-    } yield {
-      val name = if (goss.size == 1) c.name else gos.category.name
-      def asString[T](os: Set[T]): String = os.map(x => s""""$x"""").toList.sorted.mkString(",")
-      val all = gos.layers map asString
-      (name, l)
-    }
+      layout = Layout(c, 300, 300)
+      html = layout.html
+    } yield html
     
-    def svg(layout: Layout1, w: Int, h: Int): String = {
-      
-      val strings = layout.draw(w, h, (txt, x, y) =>
-        s"""
-           |<text x="${x-4}" y=${y+4}>$txt</text>
-           |<circle cx="$x" cy="$y" r="10"
-           | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
-           |""".stripMargin
-      )
-      strings mkString "\n"
-    }
+    val htmlVersion = fullMap mkString "<hr/><p/>"
 
-    def draw(layout: Layout1, w: Int, h: Int): String = {
-      s"""<svg width="$w" height="$h">
-         |  <rect x="0" y="0" rx="15" ry="15" width="$w" height="$h"
-         |  style="fill:blue;stroke:black;stroke-width:5;opacity:0.03" />
-         |
-         |${svg(layout, w, h)}
-         |</svg>
-         |""".stripMargin
-    }
-    
-    val htmlVersion = fullMap map {
-      case (name, layout) =>
-        val c = layout.coordinates
-//        println(s)
-//        println(name)
-//        println(c)
-        s"<h3>$name</h3>${draw(layout, 200, 200)}"
-    } mkString("<hr/><p/>")
-
-    println(html(htmlVersion))
-    
-    val out = new FileWriter("cats.html")
-    out.write(html(htmlVersion))
-    out.close
+    writeHtml(htmlVersion)
     val repr = fullMap.mkString("Map(\n  ", ",\n  ", "\n)")
+  }
+  
+  def writeHtml(content: String): Unit = {
+    val out = new FileWriter("cats.html")
+    out.write(html(content))
+    out.close
   }
 }

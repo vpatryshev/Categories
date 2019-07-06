@@ -7,6 +7,7 @@ case class Segment(p0: Pt, p1: Pt) {
   private val maxy = p0.y max p1.y
   private val dp = p1 - p0
   private val orthogonal = Pt(dp.y, -dp.x)
+  val middle: Pt = p0 + (dp / 2)
   
   def contains(p: Pt): Boolean = {
     val d = p - p0
@@ -25,4 +26,17 @@ case class Segment(p0: Pt, p1: Pt) {
   
   def interesectsWith(other: Segment): Boolean =
     intersectsLine(other) && other.intersectsLine(this)
+
+  def shorterBy(delta: Rational) = {
+    val length = Math.sqrt((dp dot dp).toDouble)
+    if (length == 0) this else {
+      val ndigits = Math.log10(length).toInt
+      val denom = Math.pow(10.0, ndigits).toInt
+      val rationalLength = Rational((length * denom).toInt, denom)
+      val q = (rationalLength - delta) / rationalLength
+      shorten(q)
+    }
+  }
+  
+  def shorten(coeff: Rational) = Segment(middle - (dp / 2 * coeff), middle + (dp / 2 * coeff))
 }

@@ -9,6 +9,7 @@ case class Pt(x: Rational, y: Rational) {
   def shift(dx: Rational, dy: Rational): Pt = Pt(x + dx, y + dy)
   def dot(other: Pt): Rational = x * other.x + y * other.y
   def scale(scale: Pt): Pt = Pt(x * scale.x, y * scale.y)
+  def toDouble: (Double, Double) = (x.toDouble, y.toDouble)
 }
 
 object Pt {
