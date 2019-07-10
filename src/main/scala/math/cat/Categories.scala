@@ -69,7 +69,7 @@ private[cat] trait CategoryFactory {
     val composition = (f1: data.Arrow, f2: data.Arrow) => data.m(f1, f2)
 
     data.validate returning (if (data.isFinite) {
-      newFiniteCategory(name, data)(ids, composition, data)
+      newFiniteCategory(name, data)
     } else {
       new Category(name, data) {
         def id(o: Obj): Arrow = ids(data.node(o))
@@ -84,30 +84,27 @@ private[cat] trait CategoryFactory {
     })
   }
 
-  private def newFiniteCategory(name: String, gr: Graph)(ids: gr.Node => gr.Arrow, composition: (gr.Arrow, gr.Arrow)
-    => Option[gr.Arrow], data: CategoryData): Category = {
+  private def newFiniteCategory(name: String, data: CategoryData): Category = {
+
     val d0Map: Map[Any, data.Obj] =
-      data.arrows.map(f ⇒ f -> data.asObj(gr.d0(gr.arrow(f)))).toMap
+      data.arrows.map(f ⇒ f -> data.asObj(data.d0(data.arrow(f)))).toMap
     val d1Map: Map[Any, data.Obj] =
-      data.arrows.map(f ⇒ f -> data.asObj(gr.d1(gr.arrow(f)))).toMap
-    val mMap: Map[(Any, Any), gr.Arrow] = {
+      data.arrows.map(f ⇒ f -> data.asObj(data.d1(data.arrow(f)))).toMap
+    val mMap: Map[(Any, Any), data.Arrow] = {
       for {f <- data.arrows
            g <- data.arrows
-           h <- composition(gr.arrow(f), gr.arrow(g))
+           h <- data.m(data.arrow(f), data.arrow(g))
       } yield (f, g) -> h
     } toMap
 
-    val idMap: Map[Any, gr.Arrow] =
-      data.objects.map(o ⇒ o -> ids(gr.node(o))).toMap
+    val idMap: Map[Any, data.Arrow] =
+      data.objects.map(o ⇒ o -> data.id(data.node(o))).toMap
 
-    new Category(name, gr) {
-      def id(o: Obj): Arrow = idMap(o)
-
-      def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
-
+    new Category(name, data) {
       override def d0(f: Arrow): Obj = asObj(d0Map(f))
-
       override def d1(f: Arrow): Obj = asObj(d1Map(f))
+      def id(o: Obj): Arrow = idMap(o)
+      def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
     }
   }
 

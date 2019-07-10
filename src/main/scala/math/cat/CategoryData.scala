@@ -6,8 +6,7 @@ import scalakittens.Result.OKif
 /**
   * The data used in building an instance of Category
   */
-private[cat] abstract class CategoryData(
-  val graph: Graph) extends Graph {
+private[cat] abstract class CategoryData(val graph: Graph) extends Graph {
 
   type Obj = Node
   type Objects = Set[Obj]
