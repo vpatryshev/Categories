@@ -31,7 +31,7 @@ private[cat] abstract class CategoryData(
         x ⇒
           val ux = id(x)
           OKif(d0(ux) == x, s"Domain of id $ux should be $x in $name") andAlso
-            OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
+          OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
       })
     }
 
@@ -40,7 +40,7 @@ private[cat] abstract class CategoryData(
         val u_f = m(id(d0(f)), f)
         val f_u = m(f, id(d1(f)))
         OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
-          OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
+        OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
       })
     }
 
@@ -102,4 +102,17 @@ private[cat] abstract class CategoryData(
 
   def d1(a: Arrow): Obj = obj(graph.d1(graph.arrow(a)))
 
+}
+
+object CategoryData {
+  def apply( gr: Graph)(
+    ids: gr.Node ⇒ gr.Arrow,
+    composition: (gr.Arrow, gr.Arrow) ⇒ Option[gr.Arrow]): CategoryData = {
+    new CategoryData(gr) {
+      override def id(o: Obj): Arrow = ids(gr.node(o))
+
+      override def m(f: Arrow, g: Arrow): Option[Arrow] =
+        composition(gr.arrow(f), gr.arrow(g)) map arrow
+    }
+  }
 }

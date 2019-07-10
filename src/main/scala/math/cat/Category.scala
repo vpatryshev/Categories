@@ -109,8 +109,8 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   }
 
   override def toString: String = s"${if (name.isEmpty) "" else {name + ": " }}({" +
-    objects.mkString(", ") + "}, {" +
-    (arrows map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
+    objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
+    (arrows.toList.sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect { case (first, second) ⇒
       s"$second ∘ $first = ${m(first, second).get}"
     }).mkString(", ") + "})"
@@ -679,14 +679,17 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     }
   }
 
-  private def canDeduce(a: Arrow) = isIdentity(a) || {
+  private[cat] def canDeduce(a: Arrow) = isIdentity(a) || {
     val from = d0(a)
     val to = d1(a)
+    val isUnique = hom(from, to).size == 1
     val split = for {
       o <- objects
-      if hom(from, to).size == 1 && o != from && o != to
+      if isUnique && o != from && o != to
       f <- hom(from, o)
       g <- hom(o, to)
+      if m(f, g) contains a
+      if !arrows.exists(h => m(a, h).contains(f))
     } yield (f, g)
     
     split.nonEmpty

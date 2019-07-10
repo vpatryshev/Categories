@@ -796,7 +796,14 @@ class CategoryTest extends Test with CategoryFactory {
 
       val sut1 = Category.fromPartialData("sut1", graph, composition)
       val graph1 = Category.addUnitsToGraph(graph)
-      val sut2 = Category.fromGraphWithUnits[String]("sut1", graph1)((f, g) ⇒ composition.get((f, g)))
+
+      val comp: (graph1.Arrow, graph1.Arrow) ⇒ Option[graph1.Arrow] =
+        (f, g) ⇒ composition.get((f.toString, g.toString)).map(graph1.arrow)
+      
+      val data: CategoryData = CategoryData(graph1)(
+        (x: graph1.Node) ⇒ graph1.arrow(x), comp)
+
+      val sut2 = Categories.build("sut1", data)
 
       sut1 match {
         case Good(c) ⇒ ok
@@ -836,6 +843,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
   }
 
+  "AAAAAA" should {
+    "pass a regression test of 7/7/19" in {
+      val cd = AAAAAA.arrow("23")
+      Square.d0(cd) === "2"
+      Square.d1(cd) === "3"
+    }
+  }
+
   "complete subcategory" should {
     "be ok for Square" in {
       Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
@@ -869,6 +884,14 @@ class CategoryTest extends Test with CategoryFactory {
   
   "baseGraph" >> {
     import Graph._
+
+    "good for _3_" >> {
+      _3_.baseGraph === graph"({0,1,2}, {0.1: 0 → 1, 1.2: 1 → 2})"
+    }
+
+    "good for _4_" >> {
+      _4_.baseGraph === graph"({0,1,2,3}, {0.1: 0 → 1, 1.2: 1 → 2, 2.3: 2 → 3})"
+    }
     
     "good for Pullback" >> {
       Pullback.baseGraph === graph"({a,b,c}, {ac: a → c, bc: b → c})"
@@ -891,7 +914,9 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "good for HalfSimplicial" >> {
-      HalfSimplicial.baseGraph === graph"({0, 1, 2}, {2_b: 2→2, 2_a: 2→2, 2_swap: 2→2, 2_1: 2→1, b: 1→2, a: 1→2})"
+      HalfSimplicial.canDeduce("0_1") === false
+      val baseGraph = HalfSimplicial.baseGraph
+      baseGraph === graph"({0, 1, 2}, {0_1: 0→1, 0_2: 0→2, 2_b: 2→2, 2_a: 2→2, 2_swap: 2→2, 2_1: 2→1, b: 1→2, a: 1→2})"
     }
   }
 

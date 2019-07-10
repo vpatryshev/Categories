@@ -43,9 +43,11 @@ private[cat] trait CategoryFactory {
       _ ← OKif(objects.size == source.objects.size, "some objects have the same string repr")
       _ ← OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
       g ← Graph.build(objects, arrows, d0, d1)
-      c ← build(source.name, g)(
-        ids.asInstanceOf[g.Node ⇒ g.Arrow], // TODO: find a way to avoid casting
+      data: CategoryData = CategoryData(g)(
+        ids.asInstanceOf[g.Node ⇒ g.Arrow],  // TODO: find a way to avoid casting
         composition.asInstanceOf[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]])
+
+        c ← build(source.name, data)
     } yield c.asInstanceOf[Cat]
   }
 
@@ -53,33 +55,27 @@ private[cat] trait CategoryFactory {
     * Builds a category given a graph, composition table, and a mapping for identity arrows.
     *
     * @param name        name of this category
-    * @param gr          the graph on which we are to create a category
+    * @param data          the graph on which we are to create a category
     * @param ids         maps objects to identity arrows
     * @param composition defines composition
     * @return a category built based on the data above
     *
     *         TODO: eliminate code duplication
     */
-  private def build(
+  private[cat] def build(
     name: String,
-    gr: Graph)(
-    ids: gr.Node ⇒ gr.Arrow,
-    composition: (gr.Arrow, gr.Arrow) ⇒ Option[gr.Arrow]): Result[Category] = {
-    val data: CategoryData = new CategoryData(gr) {
-      override def id(o: Obj): Arrow = ids(gr.node(o))
-
-      override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        composition(gr.arrow(f), gr.arrow(g)) map arrow
-    }
+    data: CategoryData): Result[Category] = {
+    val ids = (n: data.Node) => data.id(data.obj(n))
+    val composition = (f1: data.Arrow, f2: data.Arrow) => data.m(f1, f2)
 
     data.validate returning (if (data.isFinite) {
-      newFiniteCategory(name, gr)(ids, composition, data)
+      newFiniteCategory(name, data)(ids, composition, data)
     } else {
-      new Category(name, gr) {
-        def id(o: Obj): Arrow = ids(gr.node(o))
+      new Category(name, data) {
+        def id(o: Obj): Arrow = ids(data.node(o))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
-          composition(gr.arrow(f), gr.arrow(g)) map arrow
+          composition(data.arrow(f), data.arrow(g)) map arrow
 
         override def d0(f: Arrow): Obj = asObj(graph.d0(graph.arrow(f)))
 
@@ -209,23 +205,24 @@ private[cat] trait CategoryFactory {
           case ((first, second), value) ⇒ first == f && second == g
         }
       } map { m ⇒ graph1.arrow(m._2) }
+    val data: CategoryData = CategoryData(graph1)(
+      (x: graph1.Node) ⇒ graph1.arrow(x),
+      compositionFunction.asInstanceOf[(graph1.Arrow, graph1.Arrow) ⇒ Option[graph1.Arrow]])
 
-    fromGraphWithUnits(name, graph1)(compositionFunction)
+    build(name, data)
   }
 
   /**
     * Builds a category out of a graph with unites and a composition mapping
     *
     * @param name category name
-    * @param g    the graph
+    * @param data    the graph
     * @param m    the composition table
     * @tparam A type of arrow
     * @return
     */
-  private[cat] def fromGraphWithUnits[A](name: String, g: Graph)(m: (A, A) ⇒ Option[A]) = {
-    build(name, g)(
-      (x: g.Node) ⇒ g.arrow(x),
-      m.asInstanceOf[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]])
+  private[cat] def fromGraphWithUnits[A](name: String, data: CategoryData) = {
+    build(name, data)
   }
 
   private[cat] def addUnitsToGraph(graph: Graph): Graph = {
@@ -478,12 +475,12 @@ object Categories extends CategoryFactory {
     * Two objects, and a split monomorphism from a to b
     */
   lazy val SplitMono =
-    category"SplitMono: ({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ba ∘ ab = a, ab ∘ ba = bb, bb ∘ ab = ab, ba ∘ bb = ba, bb ∘ bb = bb})"
+    category"SplitMono: ({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ab ∘ ba = bb, bb ∘ bb = bb})"
 
   /**
     * Commutative square category
     */
-  lazy val Square = category"Square:({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d, ad: a → d}, {bd ∘ ab = ad, cd ∘ ac = ad})"
+  lazy val Square = category"Square:({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d, ad: a → d})"
 
   /**
     * Pullback category: a → c ← b
@@ -541,6 +538,8 @@ object Categories extends CategoryFactory {
     )
   ).
     getOrElse(throw new InstantiationException("Bad semisimplicial?")))
+  
+  lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 → 2, 23: 2 → 3, 34: 3 → 4, 45: 4 → 5, 56: 5 → 6, 61: 6 → 1})"
 
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
@@ -552,6 +551,7 @@ object Categories extends CategoryFactory {
     ParallelPair, Pullback, Pushout, Pushout4, SplitMono, Square,
     M, W,
     Z2, Z3,
+//    AAAAAA,
     HalfSimplicial, NaturalNumbers).sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =

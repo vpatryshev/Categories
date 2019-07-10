@@ -44,9 +44,9 @@ trait Graph extends GraphData { graph ⇒
   }
 
   override def toString: String = {
-    val nodess = nodes.mkString(", ")
+    val nodess = nodes.toList.sortBy(_.toString).mkString(", ")
     val arrowss =
-      arrows map ((a: Arrow) ⇒ s"$a: ${d0(a)}→${d1(a)}") mkString ", "
+      arrows.toList.sortBy(_.toString) map ((a: Arrow) ⇒ s"$a: ${d0(a)}→${d1(a)}") mkString ", "
     s"({$nodess}, {$arrowss})"
   }
 
@@ -100,6 +100,7 @@ trait Graph extends GraphData { graph ⇒
   def unary_~ : Graph = new Graph {
     type Node = graph.Node
     type Arrow = graph.Arrow
+    override val name = "~" + graph.name
     def nodes: Nodes = graph.nodes
     def arrows: Arrows = graph.arrows
     def d0(f: Arrow): Node = graph.d1(f)
