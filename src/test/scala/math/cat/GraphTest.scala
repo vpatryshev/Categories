@@ -16,7 +16,7 @@ class GraphTest extends Test {
         sut.arrow(111) === 111
         sut.arrow(112) should throwA[IllegalArgumentException]
       })(
-        Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10))
+        Graph.build("sut1", Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10))
     }
 
     "are parallel" >> {
@@ -26,6 +26,7 @@ class GraphTest extends Test {
         sut.areParallel(21, 32) === false
       })(
         Graph.build(
+          "g",
           Set(1, 2, 3),
           Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       )
@@ -38,6 +39,7 @@ class GraphTest extends Test {
         sut.sameDomain(13, 113) === true
         sut.sameDomain(21, 32) === false
       })(Graph.build(
+        "g",
         Set(1, 2, 3),
         Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       )
@@ -51,6 +53,7 @@ class GraphTest extends Test {
         sut.sameCodomain(21, 32) === false
       })(
         Graph.build(
+          "g",
           Set(1, 2, 3),
           Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       )
@@ -62,16 +65,29 @@ class GraphTest extends Test {
       (sut contains 7) === false
       })(
         Graph.build(
+          "g",
           Set(1, 2, 3),
           Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       )
     }
 
     "equal" >> {
-      val sut1 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
-      val sut2 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
-      val sut3 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
-      val sut4 = Graph.build(Set(1, 2, 3, 4), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+      val sut1 = Graph.build(
+        "sut1",
+        Set(1, 2, 3),
+        Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+      val sut2 = Graph.build(
+        "sut2",
+        Set(1, 2, 3),
+        Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+      val sut3 = Graph.build(
+        "sut3",
+        Set(1, 2, 3),
+        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+      val sut4 = Graph.build(
+        "sut4",
+        Set(1, 2, 3, 4),
+        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       (sut1 == sut1) === true
       (sut1 == sut2) === true
       (sut2 == sut1) === true
@@ -86,6 +102,7 @@ class GraphTest extends Test {
       sut.follows(111, 113) === false
       })(
         Graph.build(
+          "sut",
           Set(1, 2, 3),
           Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       )
@@ -105,7 +122,7 @@ class GraphTest extends Test {
         "2.a" → ("2", "2"),
         "2.b" → ("2", "2"),
         "2.swap" → ("2", "2"))
-      val testGraph = Graph.fromArrowMap(nodes, arrows)
+      val testGraph = Graph.fromArrowMap("sut", nodes, arrows)
       testGraph === testGraph.flatMap(g ⇒ Graph.read(g.toString))
     }
 
@@ -118,7 +135,7 @@ class GraphTest extends Test {
     "Constructor_plain_withmap" >> {
       val objects = Set(1, 2, 3)
       val map = Map("1a" → (1, 1), "1b" → (1, 1), "2to1" → (2, 1), "3to2" → (3, 2), "1to3" → (1, 3))
-      val sutOpt = Graph.fromArrowMap(objects, map)
+      val sutOpt = Graph.fromArrowMap("sut", objects, map)
 
       checkOpt(sutOpt, (sut: Graph) ⇒ {
         import sut._
@@ -141,6 +158,7 @@ class GraphTest extends Test {
       sut.d1(32) === 2
       })(
         Graph.build(
+          "sut",
           Set(1, 2, 3),
           Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       )
@@ -148,6 +166,7 @@ class GraphTest extends Test {
 
     "Constructor_negativeBadD0" >> {
       val sutOpt = Graph.build(
+        "sut",
         Set(1, 3),
         Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       sutOpt.isBad === true
@@ -155,6 +174,7 @@ class GraphTest extends Test {
 
     "Constructor_negativeBadD1" >> {
         val sutOpt = Graph.build(
+          "sut",
           Set(1, 2),
           Set(11, 111, 21, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
 
@@ -163,19 +183,29 @@ class GraphTest extends Test {
 
     "Equals_positive" >> {
       val map = Map(11 → (1, 1), 111 → (1, 1), 21 → (2, 1), 32 → (3, 2), 13 → (1, 3))
-      val sut1 = Graph.fromArrowMap(Set(1, 2, 3), map)
-      val sut2 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+      val sut1 = Graph.fromArrowMap("sut", Set(1, 2, 3), map)
+      val sut2 = Graph.build(
+        "sut",
+        Set(1, 2, 3),
+        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       sut1 === sut2
     }
 
     "Equals_negative" >> {
-      val sut1 = Graph.build(Set(1, 2, 3), Set(11, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
-      val sut2 = Graph.build(Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+      val sut1 = Graph.build(
+        "sut1",
+        Set(1, 2, 3),
+        Set(11, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+      val sut2 = Graph.build(
+        "sut2",
+        Set(1, 2, 3),
+        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
       (sut1 == sut2) must beFalse
     }
 
     "UnaryOp" >> {
       val sutOpt = Graph.build(
+        "sut",
         Set(1, 2, 3),
         Set(11, 21, 32, 13),
         (x: Int) ⇒ x / 10 % 10,
@@ -186,6 +216,7 @@ class GraphTest extends Test {
         sut.d0(32) === 3
         val opsut = ~sut
         val expected = Graph.build(
+          "sut",
           Set(1, 2, 3),
           Set(11, 21, 32, 13),
           (x: Int) ⇒ x % 10,
@@ -195,6 +226,7 @@ class GraphTest extends Test {
         sut === ~opsut
       })(
         Graph.build(
+          "sut",
           Set(1, 2, 3),
           Set(11, 21, 32, 13),
           (x: Int) ⇒ x / 10 % 10,
@@ -212,6 +244,7 @@ class GraphTest extends Test {
         sub2 === sut
         val sub3 = sut.subgraph("1,3", Set(1, 3))
         val expected = Graph.build(
+          "sut",
           Set(1, 3),
           Set(11, 13),
           (x: Int) ⇒ x / 10 % 10,
@@ -220,6 +253,7 @@ class GraphTest extends Test {
         sub3 === expected
       })(
         Graph.build(
+          "sut",
           Set(1, 2, 3),
           Set(11, 21, 32, 13),
           (x: Int) ⇒ x / 10 % 10,
@@ -228,16 +262,16 @@ class GraphTest extends Test {
 
     "Discrete" >> {
       val sut = Graph.discrete(Set(1, 2, 3))
-      val expected = Graph.build(Set(1, 2, 3), Set[Int](), (x: Int) ⇒ x, (x: Int) ⇒ x)
+      val expected = Graph.build("sut", Set(1, 2, 3), Set[Int](), (x: Int) ⇒ x, (x: Int) ⇒ x)
       Good(sut) === expected
       sut === ~sut
     }
 
     "FromPoset" >> {
       val nodes = Set("a", "b", "c")
-      val sut = Graph.ofPoset(PoSet(nodes, (a: String, b: String) ⇒ a <= b))
+      val sut = Graph.ofPoset("sut", PoSet(nodes, (a: String, b: String) ⇒ a <= b))
       val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
-      val expected = Graph.fromArrowMap(nodes, arrows) iHope
+      val expected = Graph.fromArrowMap("sut", nodes, arrows) iHope
       
       sut.nodes === expected.nodes
       sut.arrows === expected.arrows
@@ -263,7 +297,7 @@ class GraphTest extends Test {
       val objects = Set("1", "2", "3")
       val map = Map("1a" → ("1", "1"), "1b" → ("1", "1"), "2to1" → ("2", "1"), "3to2" → ("3", "2"), "1to3" →
         ("1", "3"))
-      val expected = Graph.fromArrowMap(objects, map).iHope
+      val expected = Graph.fromArrowMap("sut", objects, map).iHope
       val sut = graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 2 → 1, 3to2: 3 → 2, 1to3: 1 → 3})"
 
       sut.nodes === expected.nodes
@@ -287,6 +321,7 @@ class GraphTest extends Test {
     "be finite" >> {
 
       val g3 = Graph.build(
+        "g3",
         Set(1,2,3),
         Set(1,2,3),
         identity[Int],

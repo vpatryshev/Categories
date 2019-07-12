@@ -14,8 +14,7 @@ import scala.collection.{GenTraversableOnce, TraversableOnce, mutable}
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category(override val name: String, graph: Graph) extends CategoryData(graph) {
-
+abstract class Category(graph: Graph) extends CategoryData(graph) {
   lazy val terminal: Result[Obj] = objects.find(isTerminal)
   lazy val initial: Result[Obj] = objects.find(isInitial)
   /**
@@ -49,7 +48,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
     */
   lazy val op: Category = {
     val src = this
-    new Category(s"~$name", ~graph) {
+    new Category(~graph) {
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -72,50 +71,12 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
 
   def isIdentity(a: Arrow): Boolean = d0(a) == d1(a) && a == id(d0(a))
 
-  //@deprecated("category theory is not equational")
-  // cannot elimitate this: too many tests rely on comparing categories...
-  override def equals(x: Any): Boolean = // error ("category theory is not equational")
-  {
-    x match {
-      case other: Category ⇒ other.equal(this)
-      case _ ⇒ false
-    }
-  }
-
-  private lazy val hash: Int = if (isFinite) Objects.hash(objects, arrows) else -1
-  
-  // @deprecated("is category theory equational? does not seem like it is...")
-  private def equal(that: Category): Boolean = this.eq(that) || (hash == that.hash && {
-    
-    val objectsEqual = this.objects == that.objects && this.arrows == that.arrows
-    val idsEqual = objectsEqual && (objects forall { x ⇒ id(x) == that.id(that.obj(x)) })
-
-    val isEqual = idsEqual &&
-      (arrows forall { f ⇒
-        arrows forall { g ⇒
-          !follows(f, g) ||
-            this.m(f, g) == that.m(that.arrow(f), that.arrow(g))
-        }
-      })
-
-    isEqual
-  })
-
-  override def hashCode: Int = {
-    val c1 = getClass.hashCode
-    val c2 = objects.hashCode
-    val c3 = arrows.hashCode
-    c1 + c2 * 2 + c3 * 5
-  }
-
   override def toString: String = s"${if (name.isEmpty) "" else {name + ": " }}({" +
     objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
     (arrows.toList.sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect { case (first, second) ⇒
       s"$second ∘ $first = ${m(first, second).get}"
     }).mkString(", ") + "})"
-
-  def composablePairs: Iterable[(Arrow, Arrow)] = Categories.composablePairs(this)
 
   private def calculateHom(from: Obj, to: Obj): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
 
@@ -671,7 +632,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
   
   def completeSubcategory(name: String, setOfObjects: Objects): Category = {
     val src = this
-    new Category(name, subgraph(name, setOfObjects)) {
+    new Category(subgraph(name, setOfObjects)) {
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -708,7 +669,7 @@ abstract class Category(override val name: String, graph: Graph) extends Categor
       a => a -> (d0(a), d1(a))
     } toMap
 
-    Graph.fromArrowMap(nodes, essentialArrowsMap) iHope
+    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
   }
 
   def connectedComponents: Set[Category] = {

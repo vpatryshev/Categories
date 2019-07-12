@@ -12,7 +12,7 @@ import scalakittens.{Good, Result}
   */
 
 class SetCategory(objects: BigSet[set])
-  extends Category("Sets", graphOfSets(objects)) {
+  extends Category(graphOfSets(objects)) {
   type Node = set
   type Arrow = SetFunction
 
@@ -167,6 +167,7 @@ object SetCategory {
 
   private[cat] def graphOfSets(nodes0: BigSet[set]): Graph = {
     Graph.build[set, SetFunction](
+      "Sets",
       nodes0,
       BigSet.of[SetFunction],
       (f: SetFunction) ⇒ f.d0,

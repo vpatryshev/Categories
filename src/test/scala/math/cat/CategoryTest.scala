@@ -766,7 +766,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "Detailed Composition Table Build" >> {
       import Graph._
-      val graph = graph"({a,b}, {ab: a → b, ba: b → a, bb: b → b})"
+      val graph = graph"sut1: ({a,b}, {ab: a → b, ba: b → a, bb: b → b})"
       val composition: Map[(String, String), String] = Map(
         ("ab", "ba") → "bb",
         ("ba", "ab") → "bb",
@@ -794,16 +794,7 @@ class CategoryTest extends Test with CategoryFactory {
       newComposition.keySet must not contain("bb", "a")
       newComposition.keySet must not contain("a", "bb")
 
-      val sut1 = Category.fromPartialData("sut1", graph, composition)
-      val graph1 = Category.addUnitsToGraph(graph)
-
-      val comp: (graph1.Arrow, graph1.Arrow) ⇒ Option[graph1.Arrow] =
-        (f, g) ⇒ composition.get((f.toString, g.toString)).map(graph1.arrow)
-      
-      val data: CategoryData = CategoryData(graph1)(
-        (x: graph1.Node) ⇒ graph1.arrow(x), comp)
-
-      val sut2 = Categories.build("sut1", data)
+      val sut1 = new PartialData(graph, composition).build
 
       sut1 match {
         case Good(c) ⇒ ok
@@ -812,6 +803,25 @@ class CategoryTest extends Test with CategoryFactory {
           case None ⇒ failure("What happened?!")
         }
       }
+
+      val graph1 = Category.addUnitsToGraph(graph)
+
+      val comp: (graph1.Arrow, graph1.Arrow) ⇒ Option[graph1.Arrow] =
+        (f, g) ⇒ composition.get((f.toString, g.toString)).map(graph1.arrow)
+      
+      val data: CategoryData = CategoryData(graph1)(
+        (x: graph1.Node) ⇒ graph1.arrow(x), comp)
+
+// TODO: here composition is not properly defined; investigate
+//      val sut2 = data.build("sut1")
+//
+//      sut2 match {
+//        case Good(c) ⇒ ok
+//        case oops ⇒ oops.errorDetails match {
+//          case Some(errors) ⇒ failure(errors)
+//          case None ⇒ failure("What happened?!")
+//        }
+//      }
 
       val text = "({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ba ∘ ab = bb, ab ∘ ba = bb, bb ∘ ab = ab, ba ∘ bb = ba, bb ∘ bb = bb})"
       Category.read(text) match {
@@ -843,14 +853,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
   }
 
-// will have to fix the build process
-//  "AAAAAA" should {
-//    "pass a regression test of 7/7/19" in {
-//      val cd = AAAAAA.arrow("23")
-//      Square.d0(cd) === "2"
-//      Square.d1(cd) === "3"
-//    }
-//  }
+ // will have to fix the build process
+  "AAAAAA" should {
+    "pass a regression test of 7/7/19" in {
+      val cd = AAAAAA.arrow("23")
+      Square.d0(cd) === "2"
+      Square.d1(cd) === "3"
+    }
+  }
 
   "complete subcategory" should {
     "be ok for Square" in {
