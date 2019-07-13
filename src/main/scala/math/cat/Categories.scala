@@ -55,11 +55,13 @@ private[cat] trait CategoryFactory {
     * Builds a category out of a poset. Arrows are pairs (x,y) where x <= y.
     *
     * @tparam T poset element type
+    * @param theName the name we give to the category we build
     * @param poset original poset
     * @return category based on he poset
     */
-  def fromPoset[T](name: String = "", poset: PoSet[T]): Category = {
-    new Category(Graph.ofPoset(name, poset)) {
+  def fromPoset[T](theName: String = "", poset: PoSet[T]): Category = {
+    new Category {
+      val graph = Graph.ofPoset(theName, poset)
       type Node = T
       type Arrow = (T, T)
 
@@ -92,10 +94,11 @@ private[cat] trait CategoryFactory {
     objects: Set[T],
     domain: Map[T, T],
     codomain: Map[T, T],
-    compositionSource: Map[(T, T), T]): Result[Category] = {
+    comp: Map[(T, T), T]): Result[Category] = {
     for {
       g ← Graph.build(name, objects, domain.keySet, domain, codomain)
-      c ← new PartialData(g, compositionSource).build
+      val partial = CategoryData.partial(g)(comp.asInstanceOf[Map[(g.Arrow, g.Arrow), g.Arrow]]) // same type actually
+      c ← partial.build
     } yield c
   }
 
@@ -107,8 +110,7 @@ private[cat] trait CategoryFactory {
     * @return the category
     */
   def discrete[T](objects: Set[T]): Category = {
-    val name = s"Discrete_${objects.size}"
-    new PartialData(Graph.discrete[T](objects, name)).build iHope
+    new PartialData(Graph.discrete[T](objects, s"Discrete_${objects.size}")).build iHope
   }
 
   /**
@@ -143,107 +145,8 @@ private[cat] trait CategoryFactory {
     }
   }
 
-  /**
-    * This method helps fill in obvious choices for arrows composition.
-    * Case 1. There's an arrow f:a→b, and an arrow g:b→c; and there's just one arrow h:a→c.
-    * What would be the composition of f and g? h is the only choice.
-    * <p/>
-    * Case 2. h ∘ (g ∘ f) = k; what is (h ∘ g) ∘ f? It is k. and vice versa.
-    *
-    * @param graph             - the graph of this category
-    * @param compositionSource partially filled composition table
-    */
-  private[cat] def fillCompositionTable[A](graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
-    // First, add identities
-    val addedIds = defineCompositionWithIdentities(graph, compositionSource)
-
-    // Second, add unique solutions
-    val addedUniqueSolutions: Map[(A, A), A] = addUniqueCompositions(graph, addedIds)
-
-    // Third, deduce compositions from associativity law
-    val addedDeducedCompositions: Map[(A, A), A] = deduceCompositions(graph, addedUniqueSolutions)
-
-    addedDeducedCompositions
-  }
-
-  // adding composition with identities to a composition table
-  protected def defineCompositionWithIdentities[A](
-    graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
-    (compositionSource /: graph.arrows) ((m, f) ⇒ {
-      val fA = f.asInstanceOf[A]
-      val id_d0 = graph.d0(f).asInstanceOf[A]
-      val id_d1 = graph.d1(f).asInstanceOf[A]
-      m + ((id_d0, fA) → fA) + ((fA, id_d1) → fA)
-    })
-  }
-
-  // adding unique available compositions
-  protected def addUniqueCompositions[A](graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
-    // Second, add unique solutions
-    def candidates(f: A, g: A) =
-      graph.arrowsBetween(
-        graph.d0(graph.arrow(f)), graph.d1(graph.arrow(g)))
-
-    def hasUniqueCandidate(f: A, g: A) = {
-      val iterator = candidates(f, g).iterator
-      iterator.hasNext && ! {
-        iterator.next
-        iterator.hasNext
-      }
-    }
-
-    def candidate(f: A, g: A) = candidates(f, g).iterator.next
-
-    val pairsToScan = composablePairs(graph) filter (p ⇒ {
-      val (f, g) = p
-      hasUniqueCandidate(f.asInstanceOf[A], g.asInstanceOf[A])
-    })
-
-    val solutions: Map[(A, A), A] = (compositionSource /: pairsToScan) {
-      (m, p) ⇒ {
-        val (f, g) = p
-        val fA = f.asInstanceOf[A]
-        val gA = g.asInstanceOf[A]
-        m + ((fA, gA) → candidate(fA, gA).asInstanceOf[A])
-      }
-    }
-    solutions
-  }
-
   def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] = {
     for (f ← graph.arrows; g ← graph.arrows if graph.follows(g, f)) yield (f, g)
-  }
-
-  // adding composition that are deduced from associativity law
-  protected def deduceCompositions[A](graph: Graph, compositionSource: Map[(A, A), A]): Map[(A, A), A] = {
-    val triplesToScan = composableTriples(graph, compositionSource)
-
-    val compositions: Map[(A, A), A] = (compositionSource /: triplesToScan) {
-      (m, t) ⇒ {
-        val (f, g, h) = t
-        val gf = m((f, g))
-        val hg = m((g, h))
-        if ((m contains(gf, h)) && !(m contains(f, hg))) {
-          m + ((f, hg) → m((gf, h)))
-        } else if ((m contains(f, hg)) && !(m contains(gf, h))) {
-          m + ((gf, h) → m((f, hg)))
-        } else {
-          m
-        }
-      }
-    }
-    compositions
-  }
-
-  // this is a technical method to list all possible triples that have compositions defined pairwise
-  protected def composableTriples[A](graph: Graph, compositionSource: Map[(A, A), A]): Set[(A, A, A)] = {
-    val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
-      f ← graph.arrows
-      g ← graph.arrows if compositionSource.contains((f, g).asInstanceOf[(A, A)])
-      h ← graph.arrows if compositionSource.contains((g, h).asInstanceOf[(A, A)])
-    } yield (f, g, h)
-
-    triples.asInstanceOf[Set[(A, A, A)]]
   }
 
   /**
@@ -290,7 +193,10 @@ private[cat] trait CategoryFactory {
       multTable: Map[(String, String), String]): Result[Cat] = {
       for {
         g: Graph ← gOpt
-        raw ← new PartialData(g, multTable).build
+        raw ← new PartialData(g) {
+//          override val graph = g
+          override val compositionSource = multTable.asInstanceOf[Map[(graph.Arrow, graph.Arrow), graph.Arrow]]
+        }.build
         cat ← convert2Cat(raw)()
       } yield cat
     }

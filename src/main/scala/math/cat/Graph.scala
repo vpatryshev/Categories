@@ -8,7 +8,7 @@ import scalakittens.{Good, Result}
 import scalakittens.Result._
 
 trait Graph extends GraphData { graph ⇒
-  val name: String = "a graph"
+  def name: String = "a graph"
   
   def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception ⇒ false }
 

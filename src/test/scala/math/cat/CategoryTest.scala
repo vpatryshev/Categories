@@ -108,7 +108,7 @@ class CategoryTest extends Test with CategoryFactory {
         objects = Set("0", "1", "2"),
         domain = Map("0" → "0", "1" → "1", "2" → "2", "a" → "0", "b" → "1"),
         codomain = Map("0" → "0", "1" → "1", "2" → "2", "a" → "2", "b" → "2"),
-        compositionSource = EmptyComposition
+        comp = EmptyComposition
       ).iHope
 
       val sample1 = category"sample1:({0,1,2}, {a: 0 → 2, b: 1 → 2}, {a ∘ 0 = a})"
@@ -128,7 +128,7 @@ class CategoryTest extends Test with CategoryFactory {
         objects = Set("1"),
         domain = EmptyMap,
         codomain = EmptyMap,
-        compositionSource = EmptyComposition
+        comp = EmptyComposition
       )
       checkOpt(sutOpt, (sut: Category) ⇒ {
         sut.arrows must haveSize(1)
@@ -257,12 +257,12 @@ class CategoryTest extends Test with CategoryFactory {
           ("2_a", "2_a") → "2_a"
         )
       )
-      checkParsing(sutOpt);
+      checkParsing(sutOpt)
       ok
     }
 
     "parse_positive" >> {
-      checkParsing(Good(HalfSimplicial));
+      checkParsing(Good(HalfSimplicial))
       ok
     }
 
@@ -762,77 +762,6 @@ class CategoryTest extends Test with CategoryFactory {
     "SplitMono" >> {
       SplitMono.objects === Set("a", "b")
       SplitMono.arrows === Set("a", "b", "ab", "ba", "bb")
-    }
-
-    "Detailed Composition Table Build" >> {
-      import Graph._
-      val graph = graph"sut1: ({a,b}, {ab: a → b, ba: b → a, bb: b → b})"
-      val composition: Map[(String, String), String] = Map(
-        ("ab", "ba") → "bb",
-        ("ba", "ab") → "bb",
-        ("ab", "bb") → "ab",
-        ("bb", "ba") → "ba",
-        ("bb", "bb") → "bb"
-      )
-
-      val graphWithUnits = addUnitsToGraph(graph)
-      val candidate1 = defineCompositionWithIdentities(graphWithUnits, composition)
-      candidate1.keySet must not contain("bb", "a")
-      candidate1.keySet must not contain("a", "bb")
-      candidate1.get(("ba", "ab")) === Some("bb")
-
-      val candidate2 = addUniqueCompositions(graphWithUnits, candidate1)
-      candidate2.keySet must not contain("bb", "a")
-      candidate2.keySet must not contain("a", "bb")
-      candidate2.get(("ba", "ab")) === Some("bb")
-
-      val candidate3 = deduceCompositions(graphWithUnits, candidate2)
-      candidate3.keySet must not contain("bb", "a")
-      candidate3.keySet must not contain("a", "bb")
-
-      val newComposition = fillCompositionTable(graphWithUnits, composition)
-      newComposition.keySet must not contain("bb", "a")
-      newComposition.keySet must not contain("a", "bb")
-
-      val sut1 = new PartialData(graph, composition).build
-
-      sut1 match {
-        case Good(c) ⇒ ok
-        case oops ⇒ oops.errorDetails match {
-          case Some(errors) ⇒ failure(errors)
-          case None ⇒ failure("What happened?!")
-        }
-      }
-
-      val graph1 = Category.addUnitsToGraph(graph)
-
-      val comp: (graph1.Arrow, graph1.Arrow) ⇒ Option[graph1.Arrow] =
-        (f, g) ⇒ composition.get((f.toString, g.toString)).map(graph1.arrow)
-      
-      val data: CategoryData = CategoryData(graph1)(
-        (x: graph1.Node) ⇒ graph1.arrow(x), comp)
-
-// TODO: here composition is not properly defined; investigate
-//      val sut2 = data.build("sut1")
-//
-//      sut2 match {
-//        case Good(c) ⇒ ok
-//        case oops ⇒ oops.errorDetails match {
-//          case Some(errors) ⇒ failure(errors)
-//          case None ⇒ failure("What happened?!")
-//        }
-//      }
-
-      val text = "({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ba ∘ ab = bb, ab ∘ ba = bb, bb ∘ ab = ab, ba ∘ bb = ba, bb ∘ bb = bb})"
-      Category.read(text) match {
-        case Good(c) ⇒ ok
-        case oops ⇒ oops.errorDetails match {
-          case Some(errors) ⇒ failure(errors)
-          case None ⇒ failure("What happened?!")
-        }
-      }
-
-      ok
     }
 
     "M" >> {
