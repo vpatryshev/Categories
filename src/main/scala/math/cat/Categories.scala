@@ -110,7 +110,7 @@ private[cat] trait CategoryFactory {
     * @return the category
     */
   def discrete[T](objects: Set[T]): Category = {
-    new PartialData(Graph.discrete[T](objects, s"Discrete_${objects.size}")).build iHope
+    CategoryData.partial(Graph.discrete[T](objects, s"Discrete_${objects.size}"))().build iHope
   }
 
   /**
@@ -193,10 +193,8 @@ private[cat] trait CategoryFactory {
       multTable: Map[(String, String), String]): Result[Cat] = {
       for {
         g: Graph ← gOpt
-        raw ← new PartialData(g) {
-//          override val graph = g
-          override val compositionSource = multTable.asInstanceOf[Map[(graph.Arrow, graph.Arrow), graph.Arrow]]
-        }.build
+        raw ← CategoryData.partial(g)(multTable.asInstanceOf[Map[(g.Arrow, g.Arrow), g.Arrow]]
+        ).build
         cat ← convert2Cat(raw)()
       } yield cat
     }

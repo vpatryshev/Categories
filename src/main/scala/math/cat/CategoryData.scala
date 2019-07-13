@@ -198,7 +198,7 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
   * @return a newly-built category
   */
 private[cat] class PartialData(g: Graph) extends CategoryData {
-  val graph = Categories.addUnitsToGraph(g)
+  val graph = g
   def compositionSource: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = Map.empty[(graph.Arrow, graph.Arrow), graph
   .Arrow]
   lazy val composition: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = fillCompositionTable
@@ -326,11 +326,13 @@ object CategoryData {
     * @return a newly-built category
     */
   def partial(g: Graph)(
-    comp0: Map[(g.Arrow, g.Arrow), g.Arrow] = Map.empty[(g.Arrow, g.Arrow), g.Arrow]):
+    comp: Map[(g.Arrow, g.Arrow), g.Arrow] = Map.empty[(g.Arrow, g.Arrow), g.Arrow]):
   PartialData = {
-    new PartialData(g) {
+    val graph = Categories.addUnitsToGraph(g)
+
+    new PartialData(graph) {
       override def compositionSource: Map[(graph.Arrow, graph.Arrow), graph.Arrow] =
-        comp0.asInstanceOf[Map[(graph.Arrow, graph.Arrow), graph.Arrow]] // same type
+        comp.asInstanceOf[Map[(graph.Arrow, graph.Arrow), graph.Arrow]] // same type
     }
   }
 
