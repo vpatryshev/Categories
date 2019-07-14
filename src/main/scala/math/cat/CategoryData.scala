@@ -1,12 +1,13 @@
 package math.cat
 
-import scalakittens.Result
+import math.cat.CategoryData.Composition
+import scalakittens.{Good, Result}
 import scalakittens.Result._
 
 /**
   * The data used in building an instance of Category
   */
-private[cat] abstract class CategoryData extends Graph {
+private[cat] abstract class CategoryData extends Graph { data =>
   type Obj = Node
   type Objects = Set[Obj]
   lazy val listOfObjects: List[Obj] =
@@ -197,11 +198,10 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
   * @param compositionSource source table of arrows composition (may be incomplete)
   * @return a newly-built category
   */
-private[cat] class PartialData(g: Graph) extends CategoryData {
-  val graph = g
-  def compositionSource: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = Map.empty[(graph.Arrow, graph.Arrow), graph
-  .Arrow]
-  lazy val composition: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = fillCompositionTable
+private[cat] class PartialData(val graph: Graph) extends CategoryData { self =>
+  type CompositionTable = Composition[graph.Arrow]
+  val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
+  lazy val composition: CompositionTable = fillCompositionTable
 
   override def id(o: Obj): Arrow = o
 
@@ -218,26 +218,25 @@ private[cat] class PartialData(g: Graph) extends CategoryData {
     * <p/>
     * Case 2. h ∘ (g ∘ f) = k; what is (h ∘ g) ∘ f? It is k. and vice versa.
     */
-  private def fillCompositionTable: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = {
+  private def fillCompositionTable: CompositionTable = {
     // First, add identities
     val addedIds = defineCompositionWithIds
 
     // Second, add unique solutions
-    val addedUniqueSolutions: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = addUniqueCompositions(addedIds)
+    val addedUniqueSolutions: CompositionTable = addUniqueCompositions(addedIds)
 
     // Third, deduce compositions from associativity law
-    val addedDeducedCompositions: Map[(graph.Arrow, graph.Arrow), graph.Arrow] =
+    val addedDeducedCompositions: CompositionTable =
       deduceCompositions(addedUniqueSolutions)
 
     addedDeducedCompositions
   }
 
   // adding composition that are deduced from associativity law
-  private[cat] def deduceCompositions(compositionSource: Map[(graph.Arrow, graph.Arrow), graph.Arrow]): Map[(graph
-  .Arrow, graph.Arrow), graph.Arrow] = {
+  private[cat] def deduceCompositions(compositionSource: CompositionTable): CompositionTable = {
     val triplesToScan = composableTriples(compositionSource)
 
-    val compositions: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = (compositionSource /: triplesToScan) {
+    val compositions: CompositionTable = (compositionSource /: triplesToScan) {
       (m, t) ⇒ {
         val (f, g, h) = t
         val gf = m((f, g))
@@ -255,7 +254,7 @@ private[cat] class PartialData(g: Graph) extends CategoryData {
   }
 
   // this is a technical method to list all possible triples that have compositions defined pairwise
-  private[cat] def composableTriples(compositionSource: Map[(graph.Arrow, graph.Arrow), graph.Arrow]):
+  private[cat] def composableTriples(compositionSource: CompositionTable):
   Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = {
     val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
       a ← graph.arrows
@@ -263,11 +262,11 @@ private[cat] class PartialData(g: Graph) extends CategoryData {
       c ← graph.arrows if compositionSource.contains((b, c).asInstanceOf[(graph.Arrow, graph.Arrow)])
     } yield (a, b, c)
 
-    triples.asInstanceOf[Set[(graph.Arrow, graph.Arrow, graph.Arrow)]]
+    triples
   }
 
   // adding composition with identities to a composition table
-  private def defineCompositionWithIds: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = {
+  private def defineCompositionWithIds: CompositionTable = {
     (compositionSource /: graph.arrows) ((m, f) ⇒ {
       val fA = f.asInstanceOf[graph.Arrow]
       val id_d0 = graph.arrow(graph.d0(f))
@@ -283,28 +282,29 @@ private[cat] class PartialData(g: Graph) extends CategoryData {
 
 
   // adding unique available compositions
-  private[cat] def addUniqueCompositions(compositionSource: Map[(graph.Arrow, graph.Arrow), graph.Arrow]): Map[(graph
+  private[cat] def addUniqueCompositions(compositionSource: CompositionTable): Map[(graph
   .Arrow, graph.Arrow), graph.Arrow] = {
-    // Second, add unique solutions
     def candidates(a: graph.Arrow, b: graph.Arrow) =
-      graph.arrowsBetween(
-        graph.d0(graph.arrow(a)), graph.d1(graph.arrow(b)))
+      graph.arrowsBetween(graph.d0(a), graph.d1(b)).take(2).toList
 
     def hasUniqueCandidate(a: graph.Arrow, b: graph.Arrow) = {
-      val iterator = candidates(a, b).iterator
-      iterator.hasNext && ! {
-        iterator.next
-        iterator.hasNext
-      }
+      candidates(a, b).size == 1
     }
 
-    def candidate(a: graph.Arrow, b: graph.Arrow) = candidates(a, b).iterator.next
+//  def candidateMaybe(a: graph.Arrow, b: graph.Arrow) = candidates(a, b) match {
+//    case f::g::_ => None
+//    case f::Nil => Option(f)
+//    case Nil => 
+//  }
+
+
+  def candidate(a: graph.Arrow, b: graph.Arrow) = candidates(a, b).head
 
     val pairsToScan = composablePairs filter { case (a, b) ⇒
       hasUniqueCandidate(a.asInstanceOf[graph.Arrow], b.asInstanceOf[graph.Arrow])
     }
 
-    val solutions: Map[(graph.Arrow, graph.Arrow), graph.Arrow] = (compositionSource /: pairsToScan) {
+    val solutions: CompositionTable = (compositionSource /: pairsToScan) {
       case (m, (a, b)) ⇒ {
         val aA = a.asInstanceOf[graph.Arrow]
         val bA = b.asInstanceOf[graph.Arrow]
@@ -314,25 +314,56 @@ private[cat] class PartialData(g: Graph) extends CategoryData {
     solutions
   }
 
+  /**
+    * Builds a category given a data.
+    *
+    * @return a category built based on the data above
+    *
+    *         TODO: eliminate code duplication
+    */
+  private[cat] override def build: Result[Category] = Result.forValue{
+    CategoryData.transitiveClosure(this).validate map { validData => validData.newCategory }
+  }.flatten
 }
 
 object CategoryData {
+
+  type Composition[Arr] = Map[(Arr, Arr), Arr]
+  def Empty[Arr] = Map.empty[(Arr, Arr), Arr]
+  
+  private def addUnitsToGraph(graph: Graph): Graph = {
+
+    val nodesOpt: Option[Set[Any]] = if (graph.isFinite) Some(graph.nodes.toSet) else None
+
+    def isIdentity(f: Any): Boolean = nodesOpt map (_ contains f) getOrElse (graph contains f)
+
+    new Graph {
+      override val name = graph.name
+
+      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
+
+      lazy val arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
+
+      def d0(f: Arrow): Node =
+        if (isIdentity(f)) node(f) else node(graph.d0(graph.arrow(f)))
+
+      def d1(f: Arrow): Node =
+        if (isIdentity(f)) node(f) else node(graph.d1(graph.arrow(f)))
+    }
+  }
+
   /**
     * Builds a category given a limited (but sufficient) amount of data.
     * Objects have the same name as their identities.
     *
     * @param g                 the underlying graph
-    * @param composition source table of arrows composition (may be incomplete)
+    * @param comp source table of arrows composition (may be incomplete)
     * @return a newly-built category
     */
-  def partial(g: Graph)(
-    comp: Map[(g.Arrow, g.Arrow), g.Arrow] = Map.empty[(g.Arrow, g.Arrow), g.Arrow]):
+  def partial[Arr](g: Graph)(comp: Composition[Arr] = Empty[Arr]):
   PartialData = {
-    val graph = Categories.addUnitsToGraph(g)
-
-    new PartialData(graph) {
-      override def compositionSource: Map[(graph.Arrow, graph.Arrow), graph.Arrow] =
-        comp.asInstanceOf[Map[(graph.Arrow, graph.Arrow), graph.Arrow]] // same type
+    new PartialData(addUnitsToGraph(g)) {
+      override val compositionSource: CompositionTable = comp.asInstanceOf[CompositionTable] // same type
     }
   }
 
@@ -341,7 +372,6 @@ object CategoryData {
     composition: (gr.Arrow, gr.Arrow) ⇒ Option[gr.Arrow]): CategoryData = {
     new CategoryData {
       val graph = gr
-      val sourceGraph = gr
 
       override def id(o: Obj): Arrow = ids(gr.node(o))
 
@@ -349,5 +379,19 @@ object CategoryData {
         composition(gr.arrow(f), gr.arrow(g)) map arrow
     }
   }
+
+  private[cat] def transitiveClosure(data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData = {
+    val missing = data.missingCompositions
+    if (missing.isEmpty) data else {
+      if (missing.size >= previouslyMissing) {
+        throw new IllegalArgumentException(s"${data.name}: ${missing.size} arrows still missing, can't fix")
+      }
+      transitiveClosure(new PartialData(data) {
+        override val compositionSource: CompositionTable = data.composition.asInstanceOf[CompositionTable]
+      }, missing.size)
+    }
+  }
+
+
 
 }

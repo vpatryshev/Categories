@@ -44,9 +44,8 @@ private[cat] trait CategoryFactory {
       _ ← OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
       g ← Graph.build(source.name, objects, arrows, d0, d1)
       data: CategoryData = CategoryData(g)(
-        ids.asInstanceOf[g.Node ⇒ g.Arrow],  // TODO: find a way to avoid casting
+        ids.asInstanceOf[g.Node ⇒ g.Arrow], // TODO: find a way to avoid casting
         composition.asInstanceOf[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]])
-
         c ← data.build
     } yield c.asInstanceOf[Cat]
   }
@@ -61,7 +60,7 @@ private[cat] trait CategoryFactory {
     */
   def fromPoset[T](theName: String = "", poset: PoSet[T]): Category = {
     new Category {
-      val graph = Graph.ofPoset(theName, poset)
+      val graph: Graph = Graph.ofPoset(theName, poset)
       type Node = T
       type Arrow = (T, T)
 
@@ -97,8 +96,7 @@ private[cat] trait CategoryFactory {
     comp: Map[(T, T), T]): Result[Category] = {
     for {
       g ← Graph.build(name, objects, domain.keySet, domain, codomain)
-      val partial = CategoryData.partial(g)(comp.asInstanceOf[Map[(g.Arrow, g.Arrow), g.Arrow]]) // same type actually
-      c ← partial.build
+      c ← CategoryData.partial[T](g)(comp).build
     } yield c
   }
 
@@ -110,39 +108,7 @@ private[cat] trait CategoryFactory {
     * @return the category
     */
   def discrete[T](objects: Set[T]): Category = {
-    CategoryData.partial(Graph.discrete[T](objects, s"Discrete_${objects.size}"))().build iHope
-  }
-
-  /**
-    * Builds a category given a limited (but sufficient) amount of data.
-    * Objects have the same name as their identities.
-    *
-    * @tparam T arrow and node type
-    * @param name              category name
-    * @param graph             the underlying graph
-    * @param compositionSource source table of arrows composition (may be incomplete)
-    * @return a newly-built category
-    */
-
-  private[cat] def addUnitsToGraph(graph: Graph): Graph = {
-
-    val nodesOpt: Option[Set[Any]] = if (graph.isFinite) Some(graph.nodes.toSet) else None
-
-    def isIdentity(f: Any): Boolean = nodesOpt map (_ contains f) getOrElse (graph contains f)
-
-    new Graph {
-      override val name = graph.name
-      
-      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
-
-      lazy val arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
-
-      def d0(f: Arrow): Node =
-        if (isIdentity(f)) node(f) else node(graph.d0(graph.arrow(f)))
-
-      def d1(f: Arrow): Node =
-        if (isIdentity(f)) node(f) else node(graph.d1(graph.arrow(f)))
-    }
+    CategoryData.partial[T](Graph.discrete[T](objects, s"Discrete_${objects.size}"))().build iHope
   }
 
   def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] = {
@@ -193,8 +159,7 @@ private[cat] trait CategoryFactory {
       multTable: Map[(String, String), String]): Result[Cat] = {
       for {
         g: Graph ← gOpt
-        raw ← CategoryData.partial(g)(multTable.asInstanceOf[Map[(g.Arrow, g.Arrow), g.Arrow]]
-        ).build
+        raw ← CategoryData.partial[String](g)(multTable).build
         cat ← convert2Cat(raw)()
       } yield cat
     }
