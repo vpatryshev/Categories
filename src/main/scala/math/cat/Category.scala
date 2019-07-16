@@ -57,7 +57,6 @@ abstract class Category extends CategoryData {
   }
 
   private[cat] lazy val listOfRootObjects = allRootObjects.toList.sortBy(_.toString)
-  private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
 
   def foreach[U](f: Obj ⇒ U): Unit = objects foreach f
 
@@ -622,22 +621,6 @@ abstract class Category extends CategoryData {
   }
 
   def isIdentity(a: Arrow): Boolean = d0(a) == d1(a) && a == id(d0(a))
-
-  /**
-    * Produces a collection of arrows from x to y.
-    *
-    * @param from first object
-    * @param to   second object
-    * @return the set of all arrows from x to y
-    */
-  def hom(from: Obj, to: Obj): Arrows = {
-    if (isFinite) {
-      homCache.getOrElseUpdate((from, to), calculateHom(from, to))
-    } else calculateHom(from, to)
-  }
-
-  private def calculateHom(from: Obj, to: Obj): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) 
-    == to)))
 
   def connectedComponents: Set[Category] = {
     val connected: BinaryRelation[Obj, Obj] =

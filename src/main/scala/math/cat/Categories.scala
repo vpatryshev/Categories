@@ -85,7 +85,8 @@ private[cat] trait CategoryFactory {
     * @param objects           set of objects (same as identity arrows)
     * @param domain            maps arrows to domains
     * @param codomain          maps arrows to codomain
-    * @param compositionSource source table of arrows composition (may be incomplete)
+    * @param composition source table of arrows composition (may be incomplete)
+    * @param compositionFactory creates a new arrow for a composition of two arrows
     * @return a newly-built category
     */
   def apply[T](
@@ -93,10 +94,12 @@ private[cat] trait CategoryFactory {
     objects: Set[T],
     domain: Map[T, T],
     codomain: Map[T, T],
-    comp: Map[(T, T), T]): Result[Category] = {
+    composition: Map[(T, T), T],
+    compositionFactory: ((T, T)) => Option[T] = CategoryData.nothing
+  ): Result[Category] = {
     for {
       g ← Graph.build(name, objects, domain.keySet, domain, codomain)
-      c ← CategoryData.partial[T](g)(comp).build
+      c ← CategoryData.partial[T](g)(composition, compositionFactory).build
     } yield c
   }
 
@@ -108,7 +111,8 @@ private[cat] trait CategoryFactory {
     * @return the category
     */
   def discrete[T](objects: Set[T]): Category = {
-    CategoryData.partial[T](Graph.discrete[T](objects, s"Discrete_${objects.size}"))().build iHope
+    CategoryData.partial[T](Graph.discrete[T](objects, s"Discrete_${objects.size}")
+    )().build iHope
   }
 
   def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] = {
@@ -159,7 +163,8 @@ private[cat] trait CategoryFactory {
       multTable: Map[(String, String), String]): Result[Cat] = {
       for {
         g: Graph ← gOpt
-        raw ← CategoryData.partial[String](g)(multTable).build
+        data = CategoryData.partial[String](g)(multTable, arrowBuilder)
+        raw ← data.build
         cat ← convert2Cat(raw)()
       } yield cat
     }
@@ -177,6 +182,10 @@ private[cat] trait CategoryFactory {
       val parseResult = parseAll(category, input)
       explain(parseResult)
     }
+  }
+
+  val arrowBuilder = (p:(String, String)) => {
+    Option(s"${p._1}.${p._2}")
   }
 
 }
@@ -276,7 +285,6 @@ object Categories extends CategoryFactory {
     */
   lazy val M = category"M:({a,b,c,d,e}, {ba: b → a, bc: b → c, dc: d → c, de: d → e})"
 
-
   /**
     * A segment of simplicial category.
     * Represents three sets (empty, singleton and two-point) and
@@ -304,9 +312,9 @@ object Categories extends CategoryFactory {
       ("2_b", "2_b") → "2_b",
       ("2_a", "2_swap") → "2_b",
       ("2_b", "2_swap") → "2_a"
-    )
-  ).
-    getOrElse(throw new InstantiationException("Bad semisimplicial?")))
+    ),
+    arrowBuilder
+  ).getOrElse(throw new InstantiationException("Bad semisimplicial?")))
   
   lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 → 2, 23: 2 → 3, 34: 3 → 4, 45: 4 → 5, 56: 5 → 6, 61: 6 → 1})"
 
@@ -320,7 +328,7 @@ object Categories extends CategoryFactory {
     ParallelPair, Pullback, Pushout, Pushout4, SplitMono, Square,
     M, W,
     Z2, Z3,
-//    AAAAAA,
+    AAAAAA,
     HalfSimplicial, NaturalNumbers).sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =

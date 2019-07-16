@@ -123,6 +123,26 @@ trait Graph extends GraphData { graph ⇒
       def d1(f: Arrow): Node = graph.d1(f)
     }
   }
+
+  def addArrows(arrowsData: Map[Arrow, (Node, Node)]): Graph = new Graph {
+    override val name = graph.name
+
+    def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
+
+    lazy val arrows: Arrows = (arrowsData.keySet ++ graph.arrows).asInstanceOf[Arrows]
+
+    def d0(f: Arrow): Node = {
+      val fA = f.asInstanceOf[graph.Arrow]
+      val newOne: Option[Node] = arrowsData.get(fA).map(_._1)
+      newOne.getOrElse(node(graph.d0(fA)))
+    }
+
+    def d1(f: Arrow): Node = {
+      val fA = f.asInstanceOf[graph.Arrow]
+      val newOne: Option[Node] = arrowsData.get(fA).map(_._2)
+      newOne.getOrElse(node(graph.d1(fA)))
+    }
+  }
 }
 
 private[cat] trait GraphData { data =>
@@ -171,7 +191,6 @@ private[cat] trait GraphData { data =>
     def d0(f: Arrow): Node = data.d0(f)
     def d1(f: Arrow): Node = data.d1(f)
   }
-
 }
 
 object Graph {

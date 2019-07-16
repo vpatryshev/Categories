@@ -14,10 +14,12 @@ import scalakittens.{Good, Result}
 class CategoryTest extends Test with CategoryFactory {
 
   type SUT = Category
-
+  
   val EmptyComposition: Map[(String, String), String] = Map()
   val EmptyMap: Map[String, String] = Map()
 
+  val defineComposition = Categories.arrowBuilder
+  
   "Category" >> {
 
     "have segments" >> {
@@ -41,7 +43,7 @@ class CategoryTest extends Test with CategoryFactory {
         "2.swap" → ("2", "2")
       )
 
-      val sutOpt = Category("example1",
+      lazy val sutOpt = Category("example1",
         Set("0", "1", "2"), // objects
         d0d1.mapValues(_._1), // d0
         d0d1.mapValues(_._2), // d1
@@ -108,7 +110,8 @@ class CategoryTest extends Test with CategoryFactory {
         objects = Set("0", "1", "2"),
         domain = Map("0" → "0", "1" → "1", "2" → "2", "a" → "0", "b" → "1"),
         codomain = Map("0" → "0", "1" → "1", "2" → "2", "a" → "2", "b" → "2"),
-        comp = EmptyComposition
+        composition = EmptyComposition,
+        defineComposition
       ).iHope
 
       val sample1 = category"sample1:({0,1,2}, {a: 0 → 2, b: 1 → 2}, {a ∘ 0 = a})"
@@ -128,7 +131,8 @@ class CategoryTest extends Test with CategoryFactory {
         objects = Set("1"),
         domain = EmptyMap,
         codomain = EmptyMap,
-        comp = EmptyComposition
+        composition = EmptyComposition,
+        defineComposition
       )
       checkOpt(sutOpt, (sut: Category) ⇒ {
         sut.arrows must haveSize(1)
@@ -143,7 +147,8 @@ class CategoryTest extends Test with CategoryFactory {
         Category("constructor_1_full", Set("1"),
           Map("1" → "1"), // d0
           Map("1" → "1"), // d1
-          Map(("1", "1") → "1")
+          Map(("1", "1") → "1"),
+          defineComposition
         )
       )
     }
@@ -172,8 +177,10 @@ class CategoryTest extends Test with CategoryFactory {
         Map("0_1" → "0", "0_2" → "0", "a" → "1", "b" → "1", "2_1" → "2", "2_a" → "2", "2_b" → "2", "2_swap" → "2"), // d0
         Map("0_1" → "1", "0_2" → "2", "a" → "1", "b" → "1", "2_1" → "1", "2_a" → "2", "2_b" → "2", "2_swap" → "2"), // d1
         // breaking laws
-        Map(("0_1", "a") → "0_2", ("0_1", "b") → "0_2", ("2_1", "a") → "2_a", ("2_1", "b") → "2_b", ("a", "2_swap") → "b", ("b", "2_swap") → "a", ("2_swap", "2_swap") → "2"))
-      checkError(_.contains("12 arrows still missing, can't fix"), actual)
+        Map(("0_1", "a") → "0_2", ("0_1", "b") → "0_2", ("2_1", "a") → "2_a", ("2_1", "b") → "2_b", ("a", "2_swap") → "b", ("b", "2_swap") → "a", ("2_swap", "2_swap") → "2"),
+        defineComposition
+      )
+      checkError(_.contains("12 arrows still missing:"), actual)
       actual.isGood === false
     }
 
@@ -191,7 +198,8 @@ class CategoryTest extends Test with CategoryFactory {
         Category("sample", Set("1"),
           EmptyMap, // d0
           EmptyMap, // d1
-          EmptyComposition
+          EmptyComposition,
+          defineComposition
         ))
     }
 
@@ -199,7 +207,8 @@ class CategoryTest extends Test with CategoryFactory {
       val sutOpt = Category("sample0", Set("1"),
         EmptyMap, // d0
         EmptyMap, // d1
-        EmptyComposition
+        EmptyComposition,
+        defineComposition
       )
       checkParsing(sutOpt)
     }
@@ -222,7 +231,8 @@ class CategoryTest extends Test with CategoryFactory {
       val sutOpt = Category("sample5", Set("1", "2"),
         Map("2_1" → "2"), // d0
         Map("2_1" → "1"), // d1
-        EmptyComposition
+        EmptyComposition,
+        defineComposition
       )
 
       checkParsing(sutOpt)
@@ -232,7 +242,8 @@ class CategoryTest extends Test with CategoryFactory {
       checkParsing(Category("sample6", Set("1", "2"),
         Map("2_1" → "2", "2_a" → "2"), // d0
         Map("2_1" → "1", "2_a" → "2"), // d1
-        Map(("2_a", "2_a") → "2_a")
+        Map(("2_a", "2_a") → "2_a"),
+        defineComposition
       ))
     }
 
@@ -243,7 +254,8 @@ class CategoryTest extends Test with CategoryFactory {
         Map(("0_1", "a") → "0_2",
           ("2_1", "a") → "2_a",
           ("2_a", "2_a") → "2_a"
-        )
+        ),
+        defineComposition
       )
       checkParsing(sutOpt)
     }
@@ -255,7 +267,8 @@ class CategoryTest extends Test with CategoryFactory {
         Map(("0_1", "a") → "0_2",
           ("2_1", "a") → "2_a",
           ("2_a", "2_a") → "2_a"
-        )
+        ),
+        defineComposition
       )
       checkParsing(sutOpt)
       ok
@@ -786,8 +799,8 @@ class CategoryTest extends Test with CategoryFactory {
   "AAAAAA" should {
     "pass a regression test of 7/7/19" in {
       val cd = AAAAAA.arrow("23")
-      Square.d0(cd) === "2"
-      Square.d1(cd) === "3"
+      AAAAAA.d0(cd) === "2"
+      AAAAAA.d1(cd) === "3"
     }
   }
 
