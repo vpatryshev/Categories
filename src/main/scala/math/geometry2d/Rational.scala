@@ -39,4 +39,12 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
 object Rational {
   implicit def fromBigInt(n: BigInt): Rational = Rational(n)
   implicit def fromInt(n: Int): Rational = Rational(n)
+  implicit def fromDouble(d: Double): Rational = {
+    val s = d.signum
+    if (s == 0) Rational(0) else {
+      val ndigits = Math.min(0, Math.log10(d * s).toInt)
+      val denom = Math.pow(10.0, -ndigits).toInt
+      Rational((d * denom).toInt, denom)
+    }
+  }
 }

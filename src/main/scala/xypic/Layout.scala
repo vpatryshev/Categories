@@ -1,10 +1,11 @@
 package xypic
 
 import java.io.FileWriter
+import java.util.Date
 
 import math.cat.{Category, Graph}
 import math.cat.Categories._
-import math.geometry2d.{Pt, Segment, SVG}
+import math.geometry2d._
 
 import scala.collection.mutable
 
@@ -12,7 +13,7 @@ import scala.collection.mutable
 case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   val category: Category = go.category
   val base: Graph = category.baseGraph
-  val name: String = category.name
+
   private val indexed = go.layers.zipWithIndex.map {
     case (comps, i) => i -> comps.toList.sortBy(_.toString)
   }.toMap
@@ -40,84 +41,33 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     row
   }
 
-  private val coordinates1: Map[String, Pt] = coordinates0.flatten.toMap.map {
+  private val coordinates: Map[String, Pt] = coordinates0.flatten.toMap.map {
       case (k, v) => k.toString -> v
   }
   
-  private val xys0 = coordinates1.values.toList
+  private val xys0 = coordinates.values.toList
   private val xys = xys0.headOption.getOrElse(Pt(0, 0)) :: xys0
-  private val x0 = xys.minBy(_.x).x
-  private val x1 = xys.maxBy(_.x).x
-  private val y0 = xys.minBy(_.y).y
-  private val y1 = xys.maxBy(_.y).y
-  val p0 = Pt(x0, y0)
-  private val middle = Pt((x0+x1)/2, (y0+y1)/2)
-  val s = Pt(w / (x1-x0+2), -h / (y1-y0+2))
-
-  val coordinates: Map[String, Pt] = coordinates1 mapValues {
-    p => (p - middle).scale(s) + Pt(w/2, h/2)
-  }
+  val p0 = Pt(xys.minBy(_.x).x, xys.minBy(_.y).y)
+  val p1 = Pt(xys.maxBy(_.x).x, xys.maxBy(_.y).y)
   
-  def draw[T](renderer: (String, Pt) => T): Iterable[T] = {
-    
-    for {
-      (obj, p) <- coordinates
-    } yield {
-      renderer(obj.toString, p)
-    }
-  }
+  val frame = SVG.Frame(Pt(w, h), coordinates.values, 30)
 
   def svg: String = {
 
-    val objects = draw((txt, pt) => {
-      val tp = pt + Pt(-4, 4)
-      s"""
-         |<text ${tp.svgWithPrefix("")}>$txt</text>
-         |<circle ${pt.svgWithPrefix("c")} r="10"
-         | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
-         |""".stripMargin
-    }
-    )
+    for { (obj, p) <- coordinates } frame.CircleWithText(obj.toString, p).draw()
     
-    val arrowMap: Map[String, Segment] = base.arrows.map(a => a.toString -> {
+    val arrowMap: Map[String, Unit] = base.arrows.map(a => a.toString -> {
       val from = coordinates(base.d0(a).toString)
       val to = coordinates(base.d1(a).toString)
-      Segment(from, to)
+      frame.Arrow(Segment(from, to), 25).draw()
     }
     ).toMap
     
-    def drawArrow(seg: Segment): String = {
-      val space = 25
-      if (seg.isPoint) {
-        val sp0 = seg.p0
-        val s00 = Segment(sp0, sp0 + Pt(-70, -70))
-        val s0 = s00.shorterBy(space)
-        val sp1 = seg.p1
-        val s1 = Segment(seg.p1 + Pt(70, -70), sp1).shorterBy(space)
-        s"""
-           |<path d="M ${SVG(s0.p0)} C ${SVG(s0.p1)}, ${SVG(s1.p0)}, ${SVG(s1.p1)}"
-           | stroke="black" fill="transparent"/>
-           | ${SVG.arrowhead(Segment(s1.p0, s1.p1))}
-         """.stripMargin
-      }
-      else {
-        SVG.arrow(seg.shorterBy(space))
-      }
-    }
-    
-    val arrows: Iterable[String] = arrowMap.values map drawArrow
-    
-    s"""<svg width="$w" height="$h">
-       |  <rect x="0" y="0" rx="15" ry="15" width="$w" height="$h"
-       |  style="fill:blue;stroke:black;stroke-width:5;opacity:0.03" />
-       |
-       |${objects mkString "\n"}
-       |${arrows mkString "\n"}
-       |</svg>
-       |""".stripMargin
+//    def drawArrow(seg: Segment): Unit = frame.Arrow(seg, 25).draw()
+
+//    arrowMap.values foreach drawArrow
+    frame.toString
   }
-  
-  def html(name: String): String = s"<h3>$name</h3>$svg"
 }
 
 case class Layout(category: Category, w: Int, h: Int) {
@@ -152,10 +102,33 @@ object TestIt {
        |<meta http-equiv="refresh" content="40">
        |</head>
        |<body>
+       |<h3>${new Date}</h3>
        |$content
        |</body>
        |</html>
      """.stripMargin
+  
+  def polygon(seq: Seq[Any]): String = {
+    val w = 300
+    val h = 300
+    val frame = SVG.Frame(w, h, 20, Pt(0, 0), Pt(w, h))
+    val size = seq.size
+    val da = 2 * Math.PI / size
+    val step = 60 * 1.4142135
+    val r = step / 2 / Math.sin(da/2)
+    val c = Pt(w/2, step + Rational.fromDouble(r)) 
+    def p(i: Int): Pt = {
+      val a = da * i + Math.PI/6
+      val x = -r * Math.cos(a)
+      val y = r * Math.sin(a)
+      c + Pt(Rational.fromDouble(x), Rational.fromDouble(y))
+    }
+    for { (n, i) <- seq.zipWithIndex} {
+      frame.CircleWithText(n.toString, p(i)).draw()
+    }
+    
+    "<br/>" + frame
+  }
   
   def main(args: Array[String]): Unit = {
     val fullMap = for {
@@ -163,11 +136,11 @@ object TestIt {
       layout = Layout(c, 300, 300)
       html = layout.html
     } yield html
-    
+
     val htmlVersion = fullMap mkString "<hr/><p/>"
 
-    writeHtml(htmlVersion)
-    val repr = fullMap.mkString("Map(\n  ", ",\n  ", "\n)")
+    writeHtml(htmlVersion + polygon('a' until 'g'))
+    println(s"Done: ${new Date}")
   }
   
   def writeHtml(content: String): Unit = {

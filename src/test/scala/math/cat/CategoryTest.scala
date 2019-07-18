@@ -802,6 +802,14 @@ class CategoryTest extends Test with CategoryFactory {
       AAAAAA.d0(cd) === "2"
       AAAAAA.d1(cd) === "3"
     }
+    
+    "be one cluster" in {
+      val sut = AAAAAA.clusters
+      val clusters = sut.d1
+      clusters.size === 1
+      val cluster = clusters.head
+      cluster.size === 6
+    }
   }
 
   "complete subcategory" should {

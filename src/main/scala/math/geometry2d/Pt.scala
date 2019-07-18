@@ -12,12 +12,7 @@ case class Pt(x: Rational, y: Rational) {
   def scale(scale: Pt): Pt = Pt(x * scale.x, y * scale.y)
   def l2: Rational = {
     val normSquare = this dot this
-    if (normSquare.isZero) 0 else {
-      val r = Math.sqrt(normSquare.toDouble)
-      val ndigits = Math.log10(r).toInt
-      val denom = Math.pow(10.0, ndigits).toInt
-      Rational((r * denom).toInt, denom)
-    }
+    if (normSquare.isZero) 0 else Rational.fromDouble(Math.sqrt(normSquare.toDouble))
   }
   
   def svgWithPrefix(prefix: String): String =

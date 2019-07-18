@@ -2,7 +2,7 @@ package math.cat
 
 import math.cat.Categories._
 import math.sets.Sets._
-import math.sets.{BinaryRelation, FactorSet}
+import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
@@ -83,6 +83,10 @@ abstract class Category extends CategoryData {
     * @return true iff f is an isomorphism
     */
   def isIsomorphism(f: Arrow): Boolean = inverse(arrow(f)).isDefined
+
+  def isomorphic(a: Obj, b: Obj) = hom(a, b) exists isIsomorphism
+
+  lazy val clusters = Sets.factorset(objects, BinaryRelation(isomorphic _))
 
   /**
     * Returnes an inverse arrow.
