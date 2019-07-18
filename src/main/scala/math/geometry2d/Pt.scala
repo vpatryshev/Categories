@@ -10,10 +10,7 @@ case class Pt(x: Rational, y: Rational) {
   def shift(dx: Rational, dy: Rational): Pt = Pt(x + dx, y + dy)
   def dot(other: Pt): Rational = x * other.x + y * other.y
   def scale(scale: Pt): Pt = Pt(x * scale.x, y * scale.y)
-  def l2: Rational = {
-    val normSquare = this dot this
-    if (normSquare.isZero) 0 else Rational.fromDouble(Math.sqrt(normSquare.toDouble))
-  }
+  def l2: Rational = Math.sqrt(this dot this)
   
   def svgWithPrefix(prefix: String): String =
     s"${prefix}x=${x.toDouble} ${prefix}y=${y.toDouble}"

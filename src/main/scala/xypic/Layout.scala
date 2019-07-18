@@ -107,14 +107,14 @@ object TestIt {
        |</body>
        |</html>
      """.stripMargin
-  
+
   def polygon(seq: Seq[Any]): String = {
     val w = 300
     val h = 300
-    val frame = SVG.Frame(w, h, 20, Pt(0, 0), Pt(w, h))
+    val frame = SVG.Frame(w, h, 15, Pt(0, 0), Pt(w, h))
     val size = seq.size
     val da = 2 * Math.PI / size
-    val step = 60 * 1.4142135
+    val step = 30 * 1.4142135
     val r = step / 2 / Math.sin(da/2)
     val c = Pt(w/2, step + Rational.fromDouble(r)) 
     def p(i: Int): Pt = {

@@ -47,4 +47,5 @@ object Rational {
       Rational((d * denom).toInt, denom)
     }
   }
+  implicit def toDouble(r: Rational) = r.toDouble
 }
