@@ -3,34 +3,33 @@ package xypic
 import math.cat.Category
 
 case class GradedObjects(category: Category) {
-  val allArrows: Set[category.Arrow] = category.arrows
+  private val allArrows: category.Arrows = category.arrows
   
-  def group(arrows: Set[category.Arrow]): Map[Int, Set[category.Node]] = {
-    val objWithSizes = arrows.groupBy(category.d1).mapValues(_.size)
-    val groupedBySize = objWithSizes.groupBy(_._2).mapValues(_.keySet)
-    groupedBySize
+  private def groupByNumberOfIncoming(arrows: category.Arrows): Map[Int, category.Objects] = {
+    val objWithSizes: Map[category.Obj, Int] = arrows.groupBy(category.d1).mapValues(_.size)
+    objWithSizes.groupBy(_._2).mapValues(_.keySet)
   }
   
-  def head(arrows: Set[category.Arrow]): Set[category.Node] =
-    group(arrows).toList.sortBy(_._1).headOption.map(_._2).toSet.flatten
-  
-  def arrowsNotTo(objs: Set[category.Node]): Set[category.Arrow] = category.arrows.filterNot(a => objs(category.d1(a)))
+  private def objectsWithSmallersNumberOfIncoming(arrows: category.Arrows): category.Objects =
+    groupByNumberOfIncoming(arrows).toList.sortBy(_._1).headOption.map(_._2).toSet.flatten
 
-  def arrowsNotConnecting(objs: Set[category.Node]): Set[category.Arrow] = category.arrows.filterNot(a => objs(category.d1(a)) || objs(category.d0(a)))
+  private def arrowsNotConnecting(objs: category.Objects): category.Arrows =
+    category.arrows.filterNot(a => objs(category.d1(a)) || objs(category.d0(a)))
   
-  def arrowsFrom(o: category.Node): Set[category.Arrow] =
-    allArrows.filter(a => category.d0(a) == o && category.d1(a) != o)
-  
-  def next(objs: Set[category.Node] = Set.empty): (Set[category.Node], Set[category.Node]) = {
-    val newOne = head(arrowsNotConnecting(objs))
+  private def nextLayer(objs: category.Objects): (category.Objects, category.Objects) = {
+    val newOne = objectsWithSmallersNumberOfIncoming(arrowsNotConnecting(objs))
     (objs union newOne, newOne)
   }
   
-  lazy val layers: List[Set[category.Node]] = {
-    Stream.iterate(next(Set.empty[category.Node])){
+  lazy val layers: List[category.Objects] = {
+    Stream.iterate(nextLayer(Set.empty[category.Obj])){
       case (sum, current) =>
-        val (ns, nc) = next(sum)
+        val (ns, nc) = nextLayer(sum)
         (ns, nc)
     } takeWhile(_._2.nonEmpty)
   } map (_._2) toList
+  
+  lazy val layersOfClusters: List[Set[category.Objects]] = {
+    layers map(layer => layer.map(obj => category.clusters(obj)))
+  }
 }

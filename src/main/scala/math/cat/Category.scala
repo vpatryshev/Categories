@@ -84,9 +84,10 @@ abstract class Category extends CategoryData {
     */
   def isIsomorphism(f: Arrow): Boolean = inverse(arrow(f)).isDefined
 
-  def isomorphic(a: Obj, b: Obj) = hom(a, b) exists isIsomorphism
+  def isomorphic(a: Obj, b: Obj): Boolean = hom(a, b) exists isIsomorphism
 
-  lazy val clusters = Sets.factorset(objects, BinaryRelation(isomorphic _))
+  lazy val clusters: SetMorphism[Obj, Set[Obj]] =
+    Sets.factorset(objects, BinaryRelation(isomorphic _))
 
   /**
     * Returnes an inverse arrow.
