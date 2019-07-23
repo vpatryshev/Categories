@@ -29,7 +29,12 @@ case class GradedObjects(category: Category) {
     } takeWhile(_._2.nonEmpty)
   } map (_._2) toList
   
-  lazy val layersOfClusters: List[Set[category.Objects]] = {
-    layers map(layer => layer.map(obj => category.clusters(obj)))
+  case class Cluster(objects: category.Objects) {
+    def size: Int = objects.size
+    def code: String = s"$size.$objects"
+  }
+  
+  lazy val layersOfClusters: List[List[Cluster]] = {
+    layers map(layer => layer.map(obj => Cluster(category.clusters(obj))).toList.sortBy(_.code))
   }
 }

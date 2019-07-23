@@ -86,7 +86,7 @@ abstract class Category extends CategoryData {
 
   def isomorphic(a: Obj, b: Obj): Boolean = hom(a, b) exists isIsomorphism
 
-  lazy val clusters: SetMorphism[Obj, Set[Obj]] =
+  lazy val clusters: SetMorphism[Obj, Objects] =
     Sets.factorset(objects, BinaryRelation(isomorphic _))
 
   /**
