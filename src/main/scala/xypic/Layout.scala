@@ -48,7 +48,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
       case (cluster, coords) => cluster.objects.map(obj => obj.toString -> coords)
   }.flatten.toMap
   
-  val frame = SVG.Frame(Pt(w, h), coordinates.values, 30)
+  val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
 
   def svg: String = {
     for { (obj, p) <- coordinates } frame.CircleWithText(obj.toString, p).draw()
@@ -108,20 +108,23 @@ object TestIt {
   def polygon(seq: Seq[Any]): String = {
     val w = 300
     val h = 300
-    val frame = SVG.Frame(w, h, 15, Pt(0, 0), Pt(w, h))
-    val size = seq.size
-    val da = 2 * Math.PI / size
-    val step = 30 * 1.4142135
+    val size = 60
+    val frame = SVG.Frame(15, Pt(w, h))
+    val n = seq.size
+    val da = 2 * Math.PI / n
+    val step = size * 1.4142135
     val r = step / 2 / Math.sin(da/2)
-    val c = Pt(w/2, step + Rational.fromDouble(r)) 
+    val c = Pt(w/2, h/2)
     def p(i: Int): Pt = {
       val a = da * i + Math.PI/6
       val x = -r * Math.cos(a)
       val y = r * Math.sin(a)
-      c + Pt(Rational.fromDouble(x), Rational.fromDouble(y))
+      val relative = Pt(Rational.fromDouble(x), Rational.fromDouble(y))
+      c + relative
     }
     for { (n, i) <- seq.zipWithIndex} {
-      frame.CircleWithText(n.toString, p(i)).draw()
+      val element = frame.CircleWithText(n.toString, p(i))
+      element.draw()
     }
     
     "<br/>" + frame
@@ -130,8 +133,8 @@ object TestIt {
   
   
   def main(args: Array[String]): Unit = {
-    writeHtml(Layout(_3_, 300, 300).html)
-    writeHtml(Layout(AAAAAA, 300, 300).html)
+//    writeHtml(Layout(_3_, 300, 300).html)
+//    writeHtml(Layout(AAAAAA, 300, 300).html)
 
     showAll()
     println(s"Done: ${new Date}")
@@ -146,7 +149,7 @@ object TestIt {
 
     val htmlVersion = fullMap mkString "<hr/><p/>"
 
-    writeHtml(htmlVersion + polygon('a' until 'g'))
+    writeHtml(htmlVersion + polygon('a' until 'i'))
   }
 
   def writeHtml(content: String): Unit = {

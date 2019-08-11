@@ -28,20 +28,33 @@ object SVG {
     SVG.polyline(headStart - seg.orthonorm*q/3, seg.p1, headStart + seg.orthonorm*q/3)
   }
   
-  case class Frame(w: Int, h: Int, grid: Int, topLeft: Pt, bottomRight: Pt) { frame =>
+  case class Frame(diagonal: Pt, grid: Int, range: Segment) { frame =>
+    val w = diagonal.x.toInt
+    val h = diagonal.y.toInt
     private val dx = w/grid
     private val dy = h/grid
-    val center: Pt = (topLeft + bottomRight) / 2
+    val topLeft: Pt = range.p0
+    val bottomRight: Pt = range.p1
+    private val center: Pt = (topLeft + bottomRight) / 2
     private val origSize = bottomRight - topLeft + Pt(2, 2)
-    val scale = snap(Pt((w + origSize.x/2) / origSize.x, (-h - origSize.y/2) / origSize.y))
+    private val scale = {
+      val raw = Pt((w + origSize.x / 2) / origSize.x, (-h - origSize.y / 2) / origSize.y)
+      val snapped = snap(raw)
+      val result = Pt(Math.max(raw.x, snapped.x), Math.signum(raw.y) * Math.max(Math.abs(raw.y), snapped.y))
+      result
+    }
 
-    def snap(x: Rational) = Rational(((x*2+1)/2/grid).toInt*grid, 1)
+    private def snap(x: Rational) = {
+      val answer = Rational(((x*2+1)/2/grid).toInt*grid, 1)
+      answer
+    }
     
-    def snap(pt: Pt): Pt = Pt(snap(pt.x), snap(pt.y))
+    private def snap(pt: Pt): Pt = Pt(snap(pt.x), snap(pt.y))
 
     def rescale(p: Pt): Pt = {
-      val relativeToCenter = (p - center).scale(scale)
-      val absolute = relativeToCenter + Pt(w / 2, h / 2)
+      val relative = p - center
+      val relativeScaled = relative.scale(scale)
+      val absolute = relativeScaled + Pt(w / 2, h / 2)
       val p1 = snap(absolute)
       p1
     }
@@ -75,6 +88,9 @@ object SVG {
       def draw(): Unit = frame.draw(this)
     }
 
+    def asSvg(p: Pt, prefix: String = ""): String =
+      s"${prefix}x=${p.x.toDouble} ${prefix}y=${p.y.toDouble}"
+
     case class CircleWithText(txt: String, center: Pt) extends Shape {
 
       override def toString: String = {
@@ -82,8 +98,8 @@ object SVG {
 
         val tp = localCenter + Pt(-4, 4)
         s"""
-           |<text ${tp.svgWithPrefix("")}>$txt</text>
-           |<circle ${localCenter.svgWithPrefix("c")} r="10"
+           |<text ${asSvg(tp)}>$txt</text>
+           |<circle ${asSvg(localCenter, "c")} r="10"
            | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
            |""".stripMargin
       }
@@ -111,12 +127,16 @@ object SVG {
     }
   }
 
-  def Frame(diagonal: Pt, points: Iterable[Pt], raster: Int): Frame = {
-    val xys = points ++ (points.headOption.getOrElse(Pt(0, 0))::Nil)
+  def Frame(raster: Int, diagonal: Pt, points: Iterable[Pt] = Nil): Frame = {
+    val range = points match {
+      case Nil => Segment(Pt(0, 0), diagonal)
+      case other =>
+        val p0 = Pt(points.minBy(_.x).x, points.minBy(_.y).y)
+        val p1 = Pt(points.maxBy(_.x).x, points.maxBy(_.y).y)
+        Segment(p0, p1)
+    }
 
-    val p0 = Pt(xys.minBy(_.x).x, xys.minBy(_.y).y)
-    val p1 = Pt(xys.maxBy(_.x).x, xys.maxBy(_.y).y)
-    Frame(diagonal.x.toInt, diagonal.y.toInt, raster, p0, p1)
+    Frame(diagonal, raster, range)
   }
 
 }
