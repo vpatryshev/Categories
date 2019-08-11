@@ -14,11 +14,11 @@ object SVG {
   }
   def point(p: Pt): String = s"${p.x.toDouble} ${p.y.toDouble}"
   
-  def segment(seg: Segment): String = {
+  def segment(seg: Segment, color: String = "black"): String = {
     val p0 = seg.p0
     val p1 = seg.p1
     s"""<line x1="${p0.x.toDouble}" y1="${p0.y.toDouble}" x2="${p1.x.toDouble}" y2="${p1.y.toDouble}"
-       | style="stroke:black;stroke-width:1" />
+       | style="stroke:$color;stroke-width:1" />
      """.stripMargin
   }
 
@@ -33,18 +33,34 @@ object SVG {
     private val dy = h/grid
     val center: Pt = (topLeft + bottomRight) / 2
     private val origSize = bottomRight - topLeft + Pt(2, 2)
-    val scale = Pt(w / origSize.x, -h / origSize.y)
+    val scale = snap(Pt((w + origSize.x/2) / origSize.x, (-h - origSize.y/2) / origSize.y))
 
     def snap(x: Rational) = Rational(((x*2+1)/2/grid).toInt*grid, 1)
     
     def snap(pt: Pt): Pt = Pt(snap(pt.x), snap(pt.y))
 
-    def rescale(p: Pt): Pt = snap((p - center).scale(scale) + Pt(w / 2, h / 2))
+    def rescale(p: Pt): Pt = {
+      val relativeToCenter = (p - center).scale(scale)
+      val absolute = relativeToCenter + Pt(w / 2, h / 2)
+      val p1 = snap(absolute)
+      p1
+    }
 
     def rescale(seg: Segment): Segment = Segment(rescale(seg.p0), rescale(seg.p1))
     
     private val buffer: ArrayBuffer[String] = new ArrayBuffer
-    def draw(contents: Shape*): Unit = buffer.append(contents mkString "\n")    
+    def draw(contents: Shape*): Unit = buffer.append(contents mkString "\n")
+    
+    def gr(): Unit = {
+      for {
+        i <- 1 to grid - 1
+      } {
+        buffer.append(segment(Segment(Pt(dx * i, 0), Pt(dx * i, w)), "lightgray"))
+        buffer.append(segment(Segment(Pt(0, dy * i), Pt(h, dy * i)), "lightgray"))
+      }
+    }
+    
+    gr()
     
     override def toString: String =
       s"""<svg width="$w" height="$h">
@@ -63,7 +79,7 @@ object SVG {
 
       override def toString: String = {
         val localCenter = frame.rescale(center)
-//        println(s"$txt($localCenter")
+
         val tp = localCenter + Pt(-4, 4)
         s"""
            |<text ${tp.svgWithPrefix("")}>$txt</text>

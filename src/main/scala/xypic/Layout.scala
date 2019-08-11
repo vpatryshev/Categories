@@ -14,46 +14,43 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   val category: Category = go.category
   val base: Graph = category.baseGraph
 
-  private val indexed = go.layers.zipWithIndex.map {
-    case (comps, i) => i -> comps.toList.sortBy(_.toString)
-  }.toMap
   private var dir = (1, 0)
-  private var prevW = 1
+  private var previousLayerLength = 1
   private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
+  private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map {
+    case (comps, i) => i -> comps.toList.sortBy(_.toString)
+  }.toMap
+
   private val coordinates0 = for {
-    (i, os) <- indexed
+    (i, layer) <- indexedClusters
   } yield {
-    val w = os.length
-    val dw = w - prevW
-    prevW = w
-    val step = if (dir == (1, 0)) dir else {
-      (dir._1 * (i % 2), dir._2*((i+1) % 2))
+    val diameters = layer.map(_.diameter)
+    val layerLength = layer.length // diameters.sum
+    val layerWidth = (diameters.max + 1) / 2
+    val dw = layerLength - previousLayerLength
+    previousLayerLength = layerLength
+    val step = if (dir == (1, 0)) (layerWidth, 0) else {
+      (dir._1 * layerWidth * (i % 2), dir._2 * layerWidth * ((i+1) % 2))
     }
 
-    val row = for { (o, j) <- os.zipWithIndex } yield {
+    val row = for { (o, j) <- layer.zipWithIndex } yield {
       val newPoint = Pt(i - j + scala.math.max(0, step._1 + (dw-1)/2), step._2 + (dw-1)/2 - j)
       val actual = if (taken(newPoint)) newPoint.shift(0, -1) else newPoint
       taken.add(actual)
       o -> actual
     }
-    if (w > 2 * i + 1) dir = (1, 1)
+    if (layerLength > 2 * i * layerWidth + 1) dir = (layerWidth, layerWidth)
     row
   }
 
-  private val coordinates: Map[String, Pt] = coordinates0.flatten.toMap.map {
-      case (k, v) => k.toString -> v
-  }
-  
-  private val xys0 = coordinates.values.toList
-  private val xys = xys0.headOption.getOrElse(Pt(0, 0)) :: xys0
-  val p0 = Pt(xys.minBy(_.x).x, xys.minBy(_.y).y)
-  val p1 = Pt(xys.maxBy(_.x).x, xys.maxBy(_.y).y)
+  private val coordinates: Map[String, Pt] = coordinates0.flatten.map {
+      case (cluster, coords) => cluster.objects.map(obj => obj.toString -> coords)
+  }.flatten.toMap
   
   val frame = SVG.Frame(Pt(w, h), coordinates.values, 30)
 
   def svg: String = {
-
     for { (obj, p) <- coordinates } frame.CircleWithText(obj.toString, p).draw()
     
     val arrowMap: Map[String, Unit] = base.arrows.map(a => a.toString -> {
@@ -130,7 +127,17 @@ object TestIt {
     "<br/>" + frame
   }
   
+  
+  
   def main(args: Array[String]): Unit = {
+    writeHtml(Layout(_3_, 300, 300).html)
+    writeHtml(Layout(AAAAAA, 300, 300).html)
+
+    showAll()
+    println(s"Done: ${new Date}")
+  }
+
+  private def showAll() = {
     val fullMap = for {
       c <- KnownFiniteCategories
       layout = Layout(c, 300, 300)
@@ -140,9 +147,8 @@ object TestIt {
     val htmlVersion = fullMap mkString "<hr/><p/>"
 
     writeHtml(htmlVersion + polygon('a' until 'g'))
-    println(s"Done: ${new Date}")
   }
-  
+
   def writeHtml(content: String): Unit = {
     val out = new FileWriter("cats.html")
     out.write(html(content))

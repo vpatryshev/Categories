@@ -1,6 +1,7 @@
 package xypic
 
 import math.cat.Category
+import math.geometry2d.{Pt, Rational}
 
 case class GradedObjects(category: Category) {
   private val allArrows: category.Arrows = category.arrows
@@ -29,9 +30,20 @@ case class GradedObjects(category: Category) {
     } takeWhile(_._2.nonEmpty)
   } map (_._2) toList
   
+  def clusterDiameter(size: Int): Int = size match {
+    case 1 => 1
+    case 2 => 1
+    case n =>
+      val da = 2 * Math.PI / size
+      val step = 1.4142135
+      val d = step / Math.sin(da/2)
+      (d + 0.5).toInt
+  }
+  
   case class Cluster(objects: category.Objects) {
-    def size: Int = objects.size
-    def code: String = s"$size.$objects"
+    val size: Int = objects.size
+    lazy val code: String = s"$size.$objects"
+    lazy val diameter: Int = clusterDiameter(size)
   }
   
   lazy val layersOfClusters: List[List[Cluster]] = {
