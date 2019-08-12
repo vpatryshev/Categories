@@ -9,7 +9,7 @@ case class Segment(p0: Pt, p1: Pt) {
   val orthogonal = Pt(dp.y, -dp.x)
   val middle: Pt = p0 + (dp / 2)
   val isPoint: Boolean = p0 == p1
-  val l2: Rational = dp.l2
+  lazy val l2: Rational = dp.l2
   lazy val unit: Pt = dp / l2
   lazy val orthonorm: Pt = orthogonal / l2
   

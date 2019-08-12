@@ -41,6 +41,12 @@ case class GradedObjects(category: Category) {
   }
   
   case class Cluster(objects: category.Objects) {
+    def allocateAt(coords: Pt): Set[(String, Pt)] = objects.size match {
+      case 0 | 1 => objects.map(obj => obj.toString -> coords)
+      case n => 
+        objects.map(obj => obj.toString -> coords)
+    }
+
     val size: Int = objects.size
     lazy val code: String = s"$size.$objects"
     lazy val diameter: Int = clusterDiameter(size)

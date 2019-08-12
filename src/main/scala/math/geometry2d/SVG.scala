@@ -38,9 +38,11 @@ object SVG {
     private val center: Pt = (topLeft + bottomRight) / 2
     private val origSize = bottomRight - topLeft + Pt(2, 2)
     private val scale = {
-      val raw = Pt((w + origSize.x / 2) / origSize.x, (-h - origSize.y / 2) / origSize.y)
+      val raw = Pt(Rational(w) / origSize.x, Rational(-h) / origSize.y)
       val snapped = snap(raw)
-      val result = Pt(Math.max(raw.x, snapped.x), Math.signum(raw.y) * Math.max(Math.abs(raw.y), snapped.y))
+      val result = Pt(
+        (raw.x.abs max snapped.x) * raw.x.signum,
+        (raw.y.abs max snapped.y) * raw.y.signum)
       result
     }
 
@@ -97,11 +99,12 @@ object SVG {
         val localCenter = frame.rescale(center)
 
         val tp = localCenter + Pt(-4, 4)
-        s"""
+        val out = s"""
            |<text ${asSvg(tp)}>$txt</text>
            |<circle ${asSvg(localCenter, "c")} r="10"
            | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
            |""".stripMargin
+        out
       }
     }
 

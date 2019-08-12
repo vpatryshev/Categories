@@ -14,6 +14,8 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
   def unary_- = Rational(-n, d)
   def isPositive: Boolean = n > 0
   def isNegative: Boolean = n < 0
+  def signum: Int = if (isNegative) -1 else if (isPositive) 1 else 0
+  def abs: Rational = if (isNegative) -this else this
   def isZero: Boolean = n == 0
   def toInt: Int = ((n + n.signum*d/2) / d).toInt
   def toDouble: Double = n.toDouble / d.toDouble
@@ -40,7 +42,7 @@ object Rational {
   implicit def fromBigInt(n: BigInt): Rational = Rational(n)
   implicit def fromInt(n: Int): Rational = Rational(n)
   implicit def fromDouble(d: Double): Rational = {
-    val s = d.signum
+    val s = Math.signum(d).toInt
     if (s == 0) Rational(0) else {
       val ndigits = Math.min(0, Math.log10(d * s).toInt)
       val denom = Math.pow(10.0, -ndigits).toInt

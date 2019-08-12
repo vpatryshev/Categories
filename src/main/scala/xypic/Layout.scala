@@ -45,7 +45,9 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
 
   private val coordinates: Map[String, Pt] = coordinates0.flatten.map {
-      case (cluster, coords) => cluster.objects.map(obj => obj.toString -> coords)
+      case (cluster, coords) => {
+        cluster.allocateAt(coords)
+      }
   }.flatten.toMap
   
   val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
@@ -108,13 +110,26 @@ object TestIt {
   def polygon(seq: Seq[Any]): String = {
     val w = 300
     val h = 300
-    val size = 60
     val frame = SVG.Frame(15, Pt(w, h))
+    val withCoords: Set[(Any, Pt)] = buildPolygon(seq, w, h)
+
+    withCoords foreach {
+      case (name, p) => frame.CircleWithText(name.toString, p).draw()
+    }
+    
+    "<br/>" + frame
+  }
+
+  def buildPolygon(seq: Seq[Any], w0: Int, h0: Int) = {
+    val w: Rational = 300
+    val h: Rational = 300
+    val size = 60
     val n = seq.size
     val da = 2 * Math.PI / n
     val step = size * 1.4142135
     val r = step / 2 / Math.sin(da/2)
     val c = Pt(w/2, h/2)
+
     def p(i: Int): Pt = {
       val a = da * i + Math.PI/6
       val x = -r * Math.cos(a)
@@ -122,39 +137,38 @@ object TestIt {
       val relative = Pt(Rational.fromDouble(x), Rational.fromDouble(y))
       c + relative
     }
-    for { (n, i) <- seq.zipWithIndex} {
-      val element = frame.CircleWithText(n.toString, p(i))
-      element.draw()
-    }
     
-    "<br/>" + frame
+    (for {(n, i) <- seq.zipWithIndex} yield (n, p(i))).toSet
   }
-  
-  
-  
+
+  val out = new FileWriter("cats.html")
+
   def main(args: Array[String]): Unit = {
-//    writeHtml(Layout(_3_, 300, 300).html)
-//    writeHtml(Layout(AAAAAA, 300, 300).html)
+    writeHtml(polygon('a' until 'i'))
 
     showAll()
+
+    out.close()
     println(s"Done: ${new Date}")
+    
   }
 
-  private def showAll() = {
+//  private def show(c: Category)
+  
+  private def showAll(): Unit = {
     val fullMap = for {
       c <- KnownFiniteCategories
       layout = Layout(c, 300, 300)
       html = layout.html
     } yield html
 
-    val htmlVersion = fullMap mkString "<hr/><p/>"
+    val htmlVersion = fullMap mkString "<hr/>"
+    writeHtml(htmlVersion)
 
-    writeHtml(htmlVersion + polygon('a' until 'i'))
+    writeHtml(polygon('a' until 'j'))
   }
 
   def writeHtml(content: String): Unit = {
-    val out = new FileWriter("cats.html")
     out.write(html(content))
-    out.close()
   }
 }
