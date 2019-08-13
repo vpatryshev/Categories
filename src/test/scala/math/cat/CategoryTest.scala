@@ -879,6 +879,11 @@ class CategoryTest extends Test with CategoryFactory {
       val baseGraph = HalfSimplicial.baseGraph
       baseGraph === graph"({0, 1, 2}, {0_1: 0→1, 0_2: 0→2, 2_b: 2→2, 2_a: 2→2, 2_swap: 2→2, 2_1: 2→1, b: 1→2, a: 1→2})"
     }
+
+    "good for AAAAAA" >> {
+      val actual = AAAAAA.baseGraph
+      AAAAAA.baseGraph === graph"({1,2,3,4,5,6}, {12:1→2, 23:2→3, 34:3→4, 45:4→5, 56:5→6, 61:6→1})"
+    }
   }
 
   "SetCategory" >> {

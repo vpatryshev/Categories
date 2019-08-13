@@ -1,5 +1,7 @@
 package math.cat
 
+import java.util.Objects
+
 import math.cat.CategoryData.Composition
 import math.sets.Sets.asSet
 import scalakittens.Result
@@ -73,6 +75,8 @@ private[cat] abstract class CategoryData extends Graph {
   }
 
   def objects: Objects = nodes
+  
+  def objectByAlphabet: List[Obj] = objects.toList.sortBy(_.toString)
 
   def nodes: Objects = graph.nodes.asInstanceOf[Objects]
 

@@ -139,7 +139,8 @@ private[cat] trait CategoryFactory {
 
     def readCategory(input: CharSequence): Result[Cat] = {
       val parseResult = parseAll(category, input)
-      explain(parseResult)
+      val result = explain(parseResult)
+      result map (c => c.withSource(input.toString))
     }
 
     def category: Parser[Result[Cat]] =
@@ -189,7 +190,6 @@ private[cat] trait CategoryFactory {
   }
 
 }
-
 
 /**
   * A bunch of specific categories in this object

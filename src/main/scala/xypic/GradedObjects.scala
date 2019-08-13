@@ -1,7 +1,7 @@
 package xypic
 
 import math.cat.Category
-import math.geometry2d.{Pt, Rational}
+import math.geometry2d.{GroupOfObjects, Pt, Rational}
 
 case class GradedObjects(category: Category) {
   private val allArrows: category.Arrows = category.arrows
@@ -43,8 +43,9 @@ case class GradedObjects(category: Category) {
   case class Cluster(objects: category.Objects) {
     def allocateAt(coords: Pt): Set[(String, Pt)] = objects.size match {
       case 0 | 1 => objects.map(obj => obj.toString -> coords)
-      case n => 
-        objects.map(obj => obj.toString -> coords)
+      case n =>
+        GroupOfObjects(objects.map(_.toString)).
+          arrangeInCircle(coords, Rational(diameter, 2))
     }
 
     val size: Int = objects.size

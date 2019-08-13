@@ -69,7 +69,16 @@ abstract class Category extends CategoryData {
          g ← arrows
          h ← m(f, g)} yield (f, g, h)
 
-  override def toString: String = s"${if (name.isEmpty) "" else {name + ": " }}({" +
+  private var source: Option[String] = None
+  
+  def withSource(s: String): this.type = {
+    source = Option(s)
+    this
+  }
+  
+  override def toString: String =
+    source getOrElse
+    s"${if (name.isEmpty) "" else {name + ": " }}({" +
     objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
     (arrows.toList.sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect { case (first, second) ⇒
@@ -600,7 +609,10 @@ abstract class Category extends CategoryData {
     * @return a graph with the same nodes, but with less arrows
     */
   def baseGraph: Graph = {
-    val essentialArrows = arrows filterNot canDeduce
+    // first, remove compound arrows - those that were deduced during creation
+    val listOfArrows = arrows.toList.sortBy(d0(_).toString) filterNot(_.toString.contains("."))
+    // then, remove all those that are still deducible
+    val essentialArrows = listOfArrows filterNot canDeduce
 
     val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
       a => a -> (d0(a), d1(a))

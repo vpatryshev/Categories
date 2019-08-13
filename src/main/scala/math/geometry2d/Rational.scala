@@ -44,9 +44,10 @@ object Rational {
   implicit def fromDouble(d: Double): Rational = {
     val s = Math.signum(d).toInt
     if (s == 0) Rational(0) else {
-      val ndigits = Math.min(0, Math.log10(d * s).toInt)
+      val ndigits = Math.min(-5, Math.log10(d * s).toInt)
       val denom = Math.pow(10.0, -ndigits).toInt
-      Rational((d * denom).toInt, denom)
+      val res = Rational((d * denom).toInt, denom)
+      res
     }
   }
   implicit def toDouble(r: Rational) = r.toDouble

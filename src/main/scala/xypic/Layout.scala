@@ -45,9 +45,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
 
   private val coordinates: Map[String, Pt] = coordinates0.flatten.map {
-      case (cluster, coords) => {
-        cluster.allocateAt(coords)
-      }
+      case (cluster, coords) => cluster.allocateAt(coords)
   }.flatten.toMap
   
   val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
@@ -87,7 +85,9 @@ case class Layout(category: Category, w: Int, h: Int) {
   private val layouts = gradedObjects map (ComponentLayout(_, w, h))
   private val htmls = layouts map (_.svg)
   val html: String = htmls.mkString(
-    s"<table><tr><th colspan=${htmls.size}><font size=+1>$name</font></th></tr><tr><td>",
+    s"<table><tr><th colspan=${htmls.size}><font size=+1>$name</font></th></tr>" +
+    s"<tr><td><font size=-1>$category</font></td></tr>" +
+    "<tr><td>",
     "</td><td>",
     "</td></tr></table>\n")
 }
@@ -111,7 +111,8 @@ object TestIt {
     val w = 300
     val h = 300
     val frame = SVG.Frame(15, Pt(w, h))
-    val withCoords: Set[(Any, Pt)] = buildPolygon(seq, w, h)
+    val c = Pt(w/2, h/2)
+    val withCoords: Set[(Any, Pt)] = GroupOfObjects(seq).arrangeInCircle(c, 100)
 
     withCoords foreach {
       case (name, p) => frame.CircleWithText(name.toString, p).draw()
@@ -120,32 +121,10 @@ object TestIt {
     "<br/>" + frame
   }
 
-  def buildPolygon(seq: Seq[Any], w0: Int, h0: Int) = {
-    val w: Rational = 300
-    val h: Rational = 300
-    val size = 60
-    val n = seq.size
-    val da = 2 * Math.PI / n
-    val step = size * 1.4142135
-    val r = step / 2 / Math.sin(da/2)
-    val c = Pt(w/2, h/2)
-
-    def p(i: Int): Pt = {
-      val a = da * i + Math.PI/6
-      val x = -r * Math.cos(a)
-      val y = r * Math.sin(a)
-      val relative = Pt(Rational.fromDouble(x), Rational.fromDouble(y))
-      c + relative
-    }
-    
-    (for {(n, i) <- seq.zipWithIndex} yield (n, p(i))).toSet
-  }
-
   val out = new FileWriter("cats.html")
 
   def main(args: Array[String]): Unit = {
-    writeHtml(polygon('a' until 'i'))
-
+    writeHtml(Layout(AAAAAA, 400, 400).html)
     showAll()
 
     out.close()
