@@ -186,7 +186,7 @@ private[cat] trait CategoryFactory {
   }
 
   val arrowBuilder = (p:(String, String)) => {
-    Option(s"${p._1}.${p._2}")
+    Option(s"${p._2}∘${p._1}")
   }
 
 }

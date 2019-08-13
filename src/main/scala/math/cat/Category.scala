@@ -610,7 +610,7 @@ abstract class Category extends CategoryData {
     */
   def baseGraph: Graph = {
     // first, remove compound arrows - those that were deduced during creation
-    val listOfArrows = arrows.toList.sortBy(d0(_).toString) filterNot(_.toString.contains("."))
+    val listOfArrows = arrows.toList.sortBy(d0(_).toString) filterNot(_.toString.contains("∘"))
     // then, remove all those that are still deducible
     val essentialArrows = listOfArrows filterNot canDeduce
 

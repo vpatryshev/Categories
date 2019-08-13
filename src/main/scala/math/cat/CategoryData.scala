@@ -223,13 +223,11 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
 
 
 /**
-  * Builds a category given a limited (but sufficient) amount of data.
+  * partial data for a category
   * Objects have the same name as their identities.
   *
-  * @tparam T arrow and node type
-  * @param g                 the underlying graph
-  * @param compositionSource source table of arrows composition (may be incomplete)
-  * @return a newly-built category
+  * @param graph the underlying graph
+  * @return category data
   */
 private[cat] class PartialData(val graph: Graph) extends CategoryData {
   self =>
