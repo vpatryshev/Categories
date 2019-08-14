@@ -248,6 +248,8 @@ object Categories extends CategoryFactory {
 
   lazy val Z3 = category"Z3: ({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 0, 2 ∘ 1 = 0, 2 ∘ 2 = 1})"
 
+  lazy val Z4 = category"Z4: ({0}, {0: 0→0, 1: 0→0, 2: 0→0, 3:0→0}, {1 ∘ 1 = 2, 1 ∘ 2 = 3, 2 ∘ 1 = 3, 2 ∘ 2 = 0, 2 ∘ 3 = 1, 3 ∘ 2 = 1, 3 ∘ 3 = 2})"
+
   /**
     * "Split Monomorphism" category (see http://en.wikipedia.org/wiki/Morphism)
     * Two objects, and a split monomorphism from a to b
@@ -327,7 +329,7 @@ object Categories extends CategoryFactory {
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
     ParallelPair, Pullback, Pushout, Pushout4, SplitMono, Square,
     M, W,
-    Z2, Z3,
+    Z2, Z3, Z4,
     AAAAAA,
     HalfSimplicial, NaturalNumbers).sortBy(_.arrows.size)
 

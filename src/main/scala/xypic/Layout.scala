@@ -52,17 +52,37 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
 
   def svg: String = {
     for { (obj, p) <- coordinates } frame.CircleWithText(obj.toString, p).draw()
-    
-    val arrowMap: Map[String, Unit] = base.arrows.map(a => a.toString -> {
-      val from = coordinates(base.d0(a).toString)
-      val to = coordinates(base.d1(a).toString)
-      frame.Arrow(Segment(from, to), 25).draw()
-    }
-    ).toMap
-    
-//    def drawArrow(seg: Segment): Unit = frame.Arrow(seg, 25).draw()
 
-//    arrowMap.values foreach drawArrow
+    val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
+      base.arrows.map(a => (a, Set(base.d0(a), base.d1(a))))
+    
+    val arrows: Map[Set[base.Node], Set[base.Arrow]] =
+      arrowsWithDomainAndCodomain.groupBy(_._2).mapValues(_.map(_._1))
+    
+    def drawEndomorphisms(obj: base.Node, arrows: Set[base.Arrow]): Unit = {
+      val p = coordinates(obj.toString)
+      for {
+        (a, i) <- arrows.zipWithIndex
+      } frame.Endomorphism(p, 25, i).draw()
+    }
+    
+    arrows.foreach {
+      case (objs, arrows) if objs.size == 1 =>
+        drawEndomorphisms(objs.head, arrows)
+        
+      case (objs, arrows) =>
+        for {
+          (a, i) <- arrows.zipWithIndex
+        } {
+          val from = coordinates(base.d0(a).toString)
+          val to = coordinates(base.d1(a).toString)
+          val shift0 = i - arrows.size/2
+          val shift = if (arrows.size % 2 == 1 || shift0 < 0) shift0 else shift0 + 1
+          frame.Arrow(Segment(from, to), 25, shift).draw()
+        }
+        
+    }
+
     frame.toString
   }
 }
@@ -124,7 +144,7 @@ object TestIt {
   val out = new FileWriter("cats.html")
 
   def main(args: Array[String]): Unit = {
-    writeHtml(Layout(AAAAAA, 400, 400).html)
+    writeHtml(Layout(SplitMono, 400, 400).html)
     showAll()
 
     out.close()

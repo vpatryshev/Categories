@@ -108,23 +108,43 @@ object SVG {
       }
     }
 
-    case class Arrow(fullSegment: Segment, space: Int) extends Shape {
+    case class Endomorphism(p0: Pt, space: Int, ord: Int) extends Shape {
+      override def toString: String = {
+        val p = frame.rescale(p0)
+        val curve = 45 * (ord + 1)
+        val s00 = Segment(p, p + Pt(-curve, -curve))
+        val s0 = s00.shorterBy(space)
+        val s1 = Segment(p + Pt(curve, -curve), p).shorterBy(space)
+        val out = s"""
+        |<path d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
+        | stroke="black" fill="transparent"/>""".stripMargin +
+          arrowhead(Segment(s1.p0, s1.p1))
+        out
+      }
+      
+    }
+    
+    case class Arrow(fullSegment: Segment, space: Int, ord: Int) extends Shape {
       override def toString: String = {
         val localSegment = frame.rescale(fullSegment)
-        if (localSegment.isPoint) {
-          val sp0 = localSegment.p0
-          val s00 = Segment(sp0, sp0 + Pt(-70, -70))
-          val s0 = s00.shorterBy(space)
-          val sp1 = localSegment.p1
-          val s1 = Segment(localSegment.p1 + Pt(70, -70), sp1).shorterBy(space)
-          s"""
-             |<path d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
-             | stroke="black" fill="transparent"/>
-             | ${SVG.arrowhead(Segment(s1.p0, s1.p1))}
-         """.stripMargin
-        } else {
+        if (ord == 0) {
           val shortSegment = localSegment.shorterBy(space)
           segment(shortSegment) + arrowhead(shortSegment)
+        }
+        else {
+          val p0 = localSegment.p0
+          val p1 = localSegment.p1
+          val dx = Math.signum(p1.x - p0.x)
+          val curve = 50 * ord
+          val s00 = Segment(p0, p0 + Pt(dx*Math.abs(curve), -curve/2))
+          val s0 = s00.shorterBy(space)
+          val s01 = Segment(p1 + Pt(-dx*Math.abs(curve), -curve/2), p1)
+          val s1 = s01.shorterBy(space)
+          val out = s"""
+            |<path d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
+            | stroke="black" fill="transparent"/>""".stripMargin +
+            arrowhead(Segment(s1.p0, s1.p1))
+          out
         }
       }
     }
