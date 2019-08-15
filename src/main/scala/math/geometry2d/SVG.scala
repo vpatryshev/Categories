@@ -7,7 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 object SVG {
 
   def polyline(points: Pt*): String = {
-    points map ((p:Pt) => s"${p.x.toDouble},${p.y.toDouble}") mkString(
+    points map ((p:Pt) ⇒ s"${p.x.toDouble},${p.y.toDouble}") mkString(
       """<polyline points="""",
       " ",
       """style="fill:none;stroke:black;stroke-width:1" />""")
@@ -28,7 +28,7 @@ object SVG {
     SVG.polyline(headStart - seg.orthonorm*q/3, seg.p1, headStart + seg.orthonorm*q/3)
   }
   
-  case class Frame(diagonal: Pt, grid: Int, range: Segment) { frame =>
+  case class Frame(diagonal: Pt, grid: Int, range: Segment) { frame ⇒
     val w = diagonal.x.toInt
     val h = diagonal.y.toInt
     private val dx = w/grid
@@ -68,7 +68,7 @@ object SVG {
     
     def gr(): Unit = {
       for {
-        i <- 1 to grid - 1
+        i <- 1 to grid
       } {
         buffer.append(segment(Segment(Pt(dx * i, 0), Pt(dx * i, w)), "lightgray"))
         buffer.append(segment(Segment(Pt(0, dy * i), Pt(h, dy * i)), "lightgray"))
@@ -152,8 +152,8 @@ object SVG {
 
   def Frame(raster: Int, diagonal: Pt, points: Iterable[Pt] = Nil): Frame = {
     val range = points match {
-      case Nil => Segment(Pt(0, 0), diagonal)
-      case other =>
+      case Nil ⇒ Segment(Pt(0, 0), diagonal)
+      case other ⇒
         val p0 = Pt(points.minBy(_.x).x, points.minBy(_.y).y)
         val p1 = Pt(points.maxBy(_.x).x, points.maxBy(_.y).y)
         Segment(p0, p1)

@@ -116,7 +116,7 @@ trait Graph extends GraphData { graph ⇒
 
       def nodes: Nodes = setOfNodes
 
-      def arrows: Arrows = graph.arrows filter (a => setOfNodes(d0(a)) && setOfNodes(d1(a)))
+      def arrows: Arrows = graph.arrows filter (a ⇒ setOfNodes(d0(a)) && setOfNodes(d1(a)))
 
       def d0(f: Arrow): Node = graph.d0(f)
 
@@ -145,7 +145,7 @@ trait Graph extends GraphData { graph ⇒
   }
 }
 
-private[cat] trait GraphData { data =>
+private[cat] trait GraphData { data ⇒
   type Node
   type Arrow
   type Nodes = Set[Node]
@@ -223,7 +223,7 @@ object Graph {
     val parsed: Result[GraphData] = data[N, A](nodes0, arrows0, d00, d10)
 
     parsed map {
-      d =>
+      d ⇒
         new Graph {
           override val name: String = name0
           def nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast

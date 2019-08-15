@@ -1,11 +1,10 @@
 package math.geometry2d
 
-case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends Ordered[Rational] { R =>
-  require(d0 != 0)
+case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends Ordered[Rational] {
+  require(d0 != 0, s"denominator can't be null ($n0/$d0)")
   private val gcd = n0 gcd d0
-  private val sig = d0.signum
-  val n: BigInt = if (gcd == 0) 0 else sig*n0/gcd
-  val d: BigInt = sig*d0/gcd
+  private val sigd = d0.signum
+  val (n, d): (BigInt, BigInt) = if (gcd == 0) (0, 1) else (sigd*n0/gcd, sigd*d0/gcd)
   
   def +(other: Rational) = Rational(n * other.d + other.n * d, d * other.d)
   def -(other: Rational) = Rational(n * other.d - other.n * d, d * other.d)
@@ -26,16 +25,15 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
   override def toString = s"$n/$d"
   
   override def equals(o: Any): Boolean = o match {
-    case r: Rational => n * r.d == r.n * d
-    case other => false
+    case r: Rational ⇒ n * r.d == r.n * d
+    case other ⇒ false
   }
 
   override def hashCode(): Int = n.hashCode() * 2017 + d.hashCode()
 
-  override def compare(that: Rational): Int =
-    if (that == this) 0
-    else if((this - that).isPositive) 1
-    else -1
+  override def compare(that: Rational): Int = {
+      (this - that).n compare 0
+  }
 }
 
 object Rational {
@@ -50,5 +48,5 @@ object Rational {
       res
     }
   }
-  implicit def toDouble(r: Rational) = r.toDouble
+  implicit def toDouble(r: Rational): Double = r.toDouble
 }

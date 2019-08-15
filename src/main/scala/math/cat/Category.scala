@@ -6,7 +6,7 @@ import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
-import scala.collection.{GenTraversableOnce, TraversableOnce, mutable}
+import scala.collection.{GenTraversableOnce, TraversableOnce}
 
 /**
   * Category class, and the accompanying object.
@@ -80,9 +80,10 @@ abstract class Category extends CategoryData {
     source getOrElse
     s"${if (name.isEmpty) "" else {name + ": " }}({" +
     objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
-    (arrows.toList.sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
-    (composablePairs collect { case (first, second) ⇒
-      s"$second ∘ $first = ${m(first, second).get}"
+    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
+    (composablePairs collect {
+      case (first, second) if !isIdentity(first) && !isIdentity(second) ⇒
+        s"$second ∘ $first = ${m(first, second).get}"
     }).mkString(", ") + "})"
 
   /**
@@ -581,26 +582,20 @@ abstract class Category extends CategoryData {
       n match {
         case 0 ⇒ terminal map (x ⇒ (x, List()))
         case 1 ⇒ Good((x, id(x) :: Nil))
-        case _ ⇒
-          degree(x, n - 1) flatMap (
-            value ⇒ {
-              val (x_n_1, previous_projections) = value
-              val tentativeProduct = product(x, x_n_1)
-              tentativeProduct flatMap { xn ⇒ {
-                val (p1, p_n_1) = xn
+        case _ ⇒ degree(x, n - 1) flatMap {
+          case (x_n_1, previous_projections) ⇒ {
+            product(x, x_n_1) flatMap {
+              case (p1, p_n_1) ⇒
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
-                val res = Good((d0(p1), projections collect { case Some(f) ⇒ f }))
-                res
-              }
-              }
+                Good((d0(p1), projections.flatten))
             }
-            )
+          }
+        }
       }
     }
   }
 
-  def arrowsEndingAt(x: Obj): Arrows =
-    arrows filter { x == d1(_) }
+  def arrowsEndingAt(x: Obj): Arrows = arrows filter { x == d1(_) }
 
   /**
     * Remove the arrows that are not required for drawing:
@@ -609,45 +604,48 @@ abstract class Category extends CategoryData {
     * @return a graph with the same nodes, but with less arrows
     */
   def baseGraph: Graph = {
-    // first, remove compound arrows - those that were deduced during creation
-    val listOfArrows = arrows.toList.sortBy(d0(_).toString) filterNot(_.toString.contains("∘"))
+    // first, remove identities
+    val nontrivialArrows = arrows filterNot isIdentity toList
+    // then, remove compound arrows - those that were deduced during creation
+    val listOfArrows = nontrivialArrows sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
     // then, remove all those that are still deducible
-    val essentialArrows = listOfArrows filterNot canDeduce
+    val essentialArrows = selectBaseArrows(listOfArrows)
 
     val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
-      a => a -> (d0(a), d1(a))
+      a ⇒ a -> (d0(a), d1(a))
     } toMap
 
     Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
   }
 
-  private[cat] def canDeduce(a: Arrow) = isIdentity(a) || {
-    val from = d0(a)
-    val to = d1(a)
-    val isUnique = hom(from, to).size == 1
-    val split = for {
-      o <- objects
-      if isUnique && o != from && o != to
-      f <- hom(from, o)
-      g <- hom(o, to)
-      if m(f, g) contains a
-      if !arrows.exists(h => m(a, h).contains(f))
-    } yield (f, g)
-
-    split.nonEmpty
+  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
+    arrows.find(canDeduce(arrows)) match {
+      case None ⇒ arrows
+      case Some(f) ⇒ selectBaseArrows(arrows.filterNot(f ==))
+    }
   }
 
-  def isIdentity(a: Arrow): Boolean = d0(a) == d1(a) && a == id(d0(a))
+  private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean = {
+    val from = d0(a)
+    val to = d1(a)
+    hom(from, to).size == 1 && arrows.exists {
+      f ⇒ d1(f) != from && d1(f) != to && arrows.exists {
+        g ⇒ m(f, g) contains a
+      }
+    }
+  }
+
+  def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 
   def connectedComponents: Set[Category] = {
     val connected: BinaryRelation[Obj, Obj] =
-      BinaryRelation((x, y) => arrows.exists(a =>
+      BinaryRelation((x, y) ⇒ arrows.exists(a ⇒
         (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
 
     val sets = new FactorSet(objects, connected)
 
     sets.zipWithIndex map {
-      case (s, i) => completeSubcategory(s"$name.${i + 1}", s)
+      case (s, i) ⇒ completeSubcategory(s"$name.${i + 1}", s)
     }
   }
 
@@ -656,7 +654,7 @@ abstract class Category extends CategoryData {
     val sub = subgraph(name, setOfObjects)
 
     new Category {
-      val graph = sub
+      val graph: Graph = sub
 
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
@@ -664,46 +662,6 @@ abstract class Category extends CategoryData {
         src.m(src.arrow(f), src.arrow(g)) map arrow
     }
   }
-
-  protected def deg(n: Int)(x: Obj): Result[(Obj, List[Arrow])] = OKif(n >= 0) andThen {
-    n match {
-      case 0 ⇒ terminal map (x ⇒ (x, List()))
-      case 1 ⇒ Good((x, id(x) :: Nil))
-      case _ ⇒
-        degree(x, n - 1) flatMap (
-          value ⇒ {
-            val (x_n_1, previous_projections) = value
-            val tentativeProduct = product(x, x_n_1)
-            tentativeProduct flatMap { xn ⇒ {
-              val (p1, p_n_1) = xn
-              val projections = p1 :: previous_projections map (m(p_n_1, _))
-              val res = Good((d0(p1), projections collect { case Some(f) ⇒ f }))
-              res
-            }
-            }
-          }
-          )
-    }
-  }
-
 }
 
-object Category extends CategoryFactory {
-
-  implicit class CategoryString(val sc: StringContext) extends AnyVal {
-    def category(args: Any*): Cat = {
-      val strings = sc.parts.iterator
-      val expressions = args.iterator
-      var buf = new StringBuffer(strings.next)
-      while (strings.hasNext) {
-        buf append expressions.next
-        buf append strings.next
-      }
-      read(buf) match {
-        case Good(c) ⇒ c
-        case bad ⇒ throw new InstantiationException(bad.errorDetails.mkString)
-      }
-    }
-  }
-
-}
+object Category extends CategoryFactory

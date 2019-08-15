@@ -1,6 +1,6 @@
 package xypic
 
-import math.cat.Categories.KnownFiniteCategories
+import math.cat.Categories._
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import scalakittens._
@@ -36,7 +36,7 @@ class LayoutTest extends Specification {
       
       def U[T](ss: Set[Set[T]]): Set[T] = (Set.empty[T] /: ss)(_ union _)
       
-      val expectedLayers = expectedLayersOfClusters mapValues (_.map(ls => U(ls.toSet)))
+      val expectedLayers = expectedLayersOfClusters mapValues (_.map(ls ⇒ U(ls.toSet)))
 
       val actualLayersOfClusters: Map[String, List[List[Set[String]]]] = (for {
         c <- KnownFiniteCategories

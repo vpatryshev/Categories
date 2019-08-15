@@ -95,7 +95,7 @@ private[cat] trait CategoryFactory {
     domain: Map[T, T],
     codomain: Map[T, T],
     composition: Map[(T, T), T],
-    compositionFactory: ((T, T)) => Option[T] = CategoryData.nothing
+    compositionFactory: ((T, T)) ⇒ Option[T] = CategoryData.nothing
   ): Result[Category] = {
     for {
       g ← Graph.build(name, objects, domain.keySet, domain, codomain)
@@ -125,7 +125,9 @@ private[cat] trait CategoryFactory {
     * @param input input to parse
     * @return the category
     */
-  def read(input: Reader): Result[Cat] = (new Parser).readCategory(input)
+  def read(input: Reader): Result[Cat] = {
+    (new Parser).readCategory(input)
+  }
 
   /**
     * Factory method. Parses a string and builds a category from it.
@@ -133,15 +135,16 @@ private[cat] trait CategoryFactory {
     * @param input the string to parse
     * @return the category
     */
-  def read(input: CharSequence): Result[Cat] = (new Parser).readCategory(input)
+  def read(input: CharSequence): Result[Cat] = {
+    val r = (new Parser).readCategory(input)
+    val r1 = r.map { _.withSource(input.toString) }
+    r1
+  }
 
   class Parser extends Graph.Parser {
 
-    def readCategory(input: CharSequence): Result[Cat] = {
-      val parseResult = parseAll(category, input)
-      val result = explain(parseResult)
-      result map (c => c.withSource(input.toString))
-    }
+    def readCategory(input: CharSequence): Result[Cat] =
+      explain(parseAll(category, input))
 
     def category: Parser[Result[Cat]] =
       (name ?) ~ "(" ~ graphData ~ (("," ~ multTable) ?) ~ ")" ^^ {
@@ -180,12 +183,11 @@ private[cat] trait CategoryFactory {
     }
 
     def readCategory(input: Reader): Result[Cat] = {
-      val parseResult = parseAll(category, input)
-      explain(parseResult)
+      explain(parseAll(category, input))
     }
   }
 
-  val arrowBuilder = (p:(String, String)) => {
+  val arrowBuilder = (p:(String, String)) ⇒ {
     Option(s"${p._2}∘${p._1}")
   }
 
@@ -294,26 +296,26 @@ object Categories extends CategoryFactory {
     */
   lazy val HalfSimplicial: Cat = asCat(apply("HalfSimplicial",
     Set("0", "1", "2"),
-    Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2", "2_b" → "2", "a" → "1", "b" → "1", "2_swap" →
+    Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2", "2_b" → "2", "a" → "1", "b" → "1", "swap" →
       "2"), // d0
-    Map("0_1" → "1", "0_2" → "2", "2_1" → "1", "2_a" → "2", "2_b" → "2", "a" → "2", "b" → "2", "2_swap" →
+    Map("0_1" → "1", "0_2" → "2", "2_1" → "1", "2_a" → "2", "2_b" → "2", "a" → "2", "b" → "2", "swap" →
       "2"), // d1
     Map(("0_1", "a") → "0_2",
       ("0_1", "b") → "0_2",
       ("2_1", "a") → "2_a",
       ("2_1", "b") → "2_b",
-      ("a", "2_swap") → "b",
+      ("a", "swap") → "b",
       ("a", "2_a") → "a",
-      ("b", "2_swap") → "a",
+      ("b", "swap") → "a",
       ("b", "2_a") → "a",
       ("b", "2_b") → "b",
-      ("2_swap", "2_swap") → "2",
-      ("2_swap", "2_a") → "2_a",
-      ("2_swap", "2_b") → "2_b",
+      ("swap", "swap") → "2",
+      ("swap", "2_a") → "2_a",
+      ("swap", "2_b") → "2_b",
       ("2_a", "2_a") → "2_a",
       ("2_b", "2_b") → "2_b",
-      ("2_a", "2_swap") → "2_b",
-      ("2_b", "2_swap") → "2_a"
+      ("2_a", "swap") → "2_b",
+      ("2_b", "swap") → "2_a"
     ),
     arrowBuilder
   ).getOrElse(throw new InstantiationException("Bad semisimplicial?")))
@@ -346,7 +348,8 @@ object Categories extends CategoryFactory {
         buf append strings.next
       }
       read(buf) match {
-        case Good(c) ⇒ c
+        case Good(c) ⇒
+          c
         case bad ⇒ throw new InstantiationException(bad.errorDetails.mkString)
       }
     }

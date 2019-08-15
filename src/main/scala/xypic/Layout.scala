@@ -19,7 +19,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
   private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map {
-    case (comps, i) => i -> comps.toList.sortBy(_.toString)
+    case (comps, i) ⇒ i -> comps.toList.sortBy(_.toString)
   }.toMap
 
   private val coordinates0 = for {
@@ -45,7 +45,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
 
   private val coordinates: Map[String, Pt] = coordinates0.flatten.map {
-      case (cluster, coords) => cluster.allocateAt(coords)
+      case (cluster, coords) ⇒ cluster.allocateAt(coords)
   }.flatten.toMap
   
   val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
@@ -54,7 +54,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     for { (obj, p) <- coordinates } frame.CircleWithText(obj.toString, p).draw()
 
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
-      base.arrows.map(a => (a, Set(base.d0(a), base.d1(a))))
+      base.arrows.map(a ⇒ (a, Set(base.d0(a), base.d1(a))))
     
     val arrows: Map[Set[base.Node], Set[base.Arrow]] =
       arrowsWithDomainAndCodomain.groupBy(_._2).mapValues(_.map(_._1))
@@ -67,17 +67,17 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     }
     
     arrows.foreach {
-      case (objs, arrows) if objs.size == 1 =>
-        drawEndomorphisms(objs.head, arrows)
+      case (objs, arrs) if objs.size == 1 ⇒
+        drawEndomorphisms(objs.head, arrs)
         
-      case (objs, arrows) =>
+      case (objs, arrs) ⇒
         for {
-          (a, i) <- arrows.zipWithIndex
+          (a, i) <- arrs.zipWithIndex
         } {
           val from = coordinates(base.d0(a).toString)
           val to = coordinates(base.d1(a).toString)
-          val shift0 = i - arrows.size/2
-          val shift = if (arrows.size % 2 == 1 || shift0 < 0) shift0 else shift0 + 1
+          val shift0 = i - arrs.size/2
+          val shift = if (arrs.size % 2 == 1 || shift0 < 0) shift0 else shift0 + 1
           frame.Arrow(Segment(from, to), 25, shift).draw()
         }
         
@@ -97,9 +97,9 @@ case class Layout(category: Category, w: Int, h: Int) {
   private val withIndex = "([^_]+)_?(\\d+)".r
   
   val name: String = category.name match {
-    case digits(n) => n map wideDigit mkString
-    case withIndex(word, n) => s"$word<sub>$n</sub>"
-    case other => other
+    case digits(n) ⇒ n map wideDigit mkString
+    case withIndex(word, n) ⇒ s"$word<sub>$n</sub>"
+    case other ⇒ other
   }
   
   private val layouts = gradedObjects map (ComponentLayout(_, w, h))
@@ -135,7 +135,7 @@ object TestIt {
     val withCoords: Set[(Any, Pt)] = GroupOfObjects(seq).arrangeInCircle(c, 100)
 
     withCoords foreach {
-      case (name, p) => frame.CircleWithText(name.toString, p).draw()
+      case (name, p) ⇒ frame.CircleWithText(name.toString, p).draw()
     }
     
     "<br/>" + frame
@@ -144,7 +144,7 @@ object TestIt {
   val out = new FileWriter("cats.html")
 
   def main(args: Array[String]): Unit = {
-    writeHtml(Layout(SplitMono, 400, 400).html)
+    writeHtml(Layout(HalfSimplicial, 400, 400).html)
     showAll()
 
     out.close()
