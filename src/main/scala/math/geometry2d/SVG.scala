@@ -10,7 +10,7 @@ object SVG {
     points map ((p:Pt) ⇒ s"${p.x.toDouble},${p.y.toDouble}") mkString(
       """<polyline points="""",
       " ",
-      """style="fill:none;stroke:black;stroke-width:1" />""")
+      """" style="fill:none;stroke:black;stroke-width:1" />""")
   }
   def point(p: Pt): String = s"${p.x.toDouble} ${p.y.toDouble}"
   
@@ -47,7 +47,7 @@ object SVG {
     }
 
     private def snap(x: Rational) = {
-      val answer = Rational(((x*2+1)/2/grid).toInt*grid, 1)
+      val answer = Rational((x/grid).toInt*grid, 1)
       answer
     }
     
@@ -91,13 +91,13 @@ object SVG {
     }
 
     def asSvg(p: Pt, prefix: String = ""): String =
-      s"${prefix}x=${p.x.toDouble} ${prefix}y=${p.y.toDouble}"
+      s"""${prefix}x="${p.x.toDouble}" ${prefix}y="${p.y.toDouble}""""
 
-    case class CircleWithText(txt: String, center: Pt) extends Shape {
+    case class CircleWithText(txt: String, cc: Pt) extends Shape {
 
       override def toString: String = {
-        val localCenter = frame.rescale(center)
-
+        val localCenter = frame.rescale(cc)
+        println(s"$txt: ${cc.asDouble} => ${localCenter.asDouble} in $center")
         val tp = localCenter + Pt(-4, 4)
         val out = s"""
            |<text ${asSvg(tp)}>$txt</text>

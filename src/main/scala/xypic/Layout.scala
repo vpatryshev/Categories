@@ -44,14 +44,16 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     row
   }
 
-  private val coordinates: Map[String, Pt] = coordinates0.flatten.map {
+  private val coordinates: Map[String, Pt] = coordinates0.flatten.flatMap {
       case (cluster, coords) ⇒ cluster.allocateAt(coords)
-  }.flatten.toMap
+  }.toMap
   
   val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
 
   def svg: String = {
-    for { (obj, p) <- coordinates } frame.CircleWithText(obj.toString, p).draw()
+    for { (obj, p) <- coordinates } {
+      frame.CircleWithText(obj.toString, p).draw()
+    }
 
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
       base.arrows.map(a ⇒ (a, Set(base.d0(a), base.d1(a))))
@@ -144,7 +146,7 @@ object TestIt {
   val out = new FileWriter("cats.html")
 
   def main(args: Array[String]): Unit = {
-    writeHtml(Layout(HalfSimplicial, 400, 400).html)
+    writeHtml(Layout(AAAAAA, 300, 300).html)
     showAll()
 
     out.close()

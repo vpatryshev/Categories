@@ -11,6 +11,8 @@ case class Pt(x: Rational, y: Rational) {
   def dot(other: Pt): Rational = x * other.x + y * other.y
   def scale(scale: Pt): Pt = Pt(x * scale.x, y * scale.y)
   def l2: Rational = Math.sqrt(this dot this)
+  
+  def asDouble: (Double, Double) = (x.toDouble, y.toDouble)
 }
 
 object Pt {

@@ -12,8 +12,9 @@ case class GroupOfObjects[T](objects: Iterable[T]) {
           val a = da * i + Math.PI/6
           val x = -r * Math.cos(a)
           val y = r * Math.sin(a)
-          val relative = Pt(Rational.fromDouble(x), Rational.fromDouble(y))
-          c + relative
+          val relative = Pt(x, y)
+          val abs = c + relative
+          abs
         }
 
         (for {(name, i) <- objects.zipWithIndex} yield (name, p(i))).toSet

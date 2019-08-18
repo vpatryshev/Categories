@@ -35,7 +35,7 @@ case class GradedObjects(category: Category) {
     case 2 ⇒ 1
     case n ⇒
       val da = 2 * Math.PI / size
-      val step = 1.4142135
+      val step = 3
       val d = step / Math.sin(da/2)
       (d + 0.5).toInt
   }
