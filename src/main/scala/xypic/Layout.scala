@@ -7,7 +7,7 @@ import math.cat.{Category, Graph}
 import math.cat.Categories._
 import math.geometry2d._
 
-import scala.collection.mutable
+import scala.collection.{immutable, mutable}
 
 
 case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
@@ -22,7 +22,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     case (comps, i) ⇒ i -> comps.toList.sortBy(_.toString)
   }.toMap
 
-  private val coordinates0 = for {
+  private val coordinates0: immutable.Iterable[List[(go.Cluster, Pt)]] = for {
     (i, layer) <- indexedClusters
   } yield {
     val diameters = layer.map(_.diameter)
@@ -44,7 +44,42 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     row
   }
 
-  private val coordinates: Map[String, Pt] = coordinates0.flatten.flatMap {
+  def pullLeft(layers: List[List[(go.Cluster, Pt)]]): List[List[(go.Cluster, Pt)]] = {
+    layers map {
+      case p1::p2::tail =>
+        val altPoint = p1._2 - Pt(1, 0)
+        val newOne = if (!taken(altPoint)) {
+          taken.remove(p1._2)
+          taken.add(altPoint)
+          (p1._1, altPoint)
+        } else p1
+        
+        newOne::p2::tail
+      case other => other
+    }
+  }
+
+  def pullUp(layers: List[List[(go.Cluster, Pt)]]): List[List[(go.Cluster, Pt)]] = {
+    layers map (_.reverse) map {
+      case p1::p2::tail =>
+        val altPoint = p1._2 + Pt(0, 1)
+        val newOne = 
+        if (!taken(altPoint)) {
+          taken.remove(p1._2)
+          taken.add(altPoint)
+          (p1._1, altPoint)
+        } else p1
+        newOne::p2::tail
+      case other => other
+    } map (_.reverse)
+  }
+  
+  private val coordinates1 = coordinates0.toList match {
+    case layer1::tail => layer1::pullUp(pullLeft(tail))
+    case layer1::Nil => layer1::Nil
+  }
+  
+  private val coordinates: Map[String, Pt] = coordinates1.flatten.flatMap {
       case (cluster, coords) ⇒ cluster.allocateAt(coords)
   }.toMap
   
@@ -146,7 +181,7 @@ object TestIt {
   val out = new FileWriter("cats.html")
 
   def main(args: Array[String]): Unit = {
-    writeHtml(Layout(AAAAAA, 300, 300).html)
+    writeHtml(Layout(Pushout4, 300, 300).html)
     showAll()
 
     out.close()

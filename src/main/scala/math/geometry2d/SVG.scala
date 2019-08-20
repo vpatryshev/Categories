@@ -97,7 +97,6 @@ object SVG {
 
       override def toString: String = {
         val localCenter = frame.rescale(cc)
-        println(s"$txt: ${cc.asDouble} => ${localCenter.asDouble} in $center")
         val tp = localCenter + Pt(-4, 4)
         val out = s"""
            |<text ${asSvg(tp)}>$txt</text>
