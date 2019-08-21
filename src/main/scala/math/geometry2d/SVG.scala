@@ -88,6 +88,9 @@ object SVG {
 
     trait Shape {
       def draw(): Unit = frame.draw(this)
+      def text(txt: String)(p: Pt) = {
+        s"<text ${asSvg(p - Pt(txt.length*3, 0))}>$txt</text>"
+      }
     }
 
     def asSvg(p: Pt, prefix: String = ""): String =
@@ -97,9 +100,8 @@ object SVG {
 
       override def toString: String = {
         val localCenter = frame.rescale(cc)
-        val tp = localCenter + Pt(-4, 4)
-        val out = s"""
-           |<text ${asSvg(tp)}>$txt</text>
+        val tp = localCenter + Pt(0, 4)
+        val out = text(txt)(tp) + s"""
            |<circle ${asSvg(localCenter, "c")} r="10"
            | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
            |""".stripMargin
@@ -107,14 +109,14 @@ object SVG {
       }
     }
 
-    case class Endomorphism(p0: Pt, space: Int, ord: Int) extends Shape {
+    case class Endomorphism(name: String, p0: Pt, space: Int, ord: Int) extends Shape {
       override def toString: String = {
         val p = frame.rescale(p0)
         val curve = 45 * (ord + 1)
         val s00 = Segment(p, p + Pt(-curve, -curve))
         val s0 = s00.shorterBy(space)
         val s1 = Segment(p + Pt(curve, -curve), p).shorterBy(space)
-        val out = s"""
+        val out = text(name)(p+Pt(0, -curve*3/4)) + s"""
         |<path d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
         | stroke="black" fill="transparent"/>""".stripMargin +
           arrowhead(Segment(s1.p0, s1.p1))

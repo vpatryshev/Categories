@@ -93,14 +93,15 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
       base.arrows.map(a ⇒ (a, Set(base.d0(a), base.d1(a))))
     
-    val arrows: Map[Set[base.Node], Set[base.Arrow]] =
-      arrowsWithDomainAndCodomain.groupBy(_._2).mapValues(_.map(_._1))
+    val arrows: Map[Set[base.Node], List[base.Arrow]] =
+      arrowsWithDomainAndCodomain.groupBy(_._2).
+        mapValues(_.map(_._1).toList.sortBy(_.toString))
     
-    def drawEndomorphisms(obj: base.Node, arrows: Set[base.Arrow]): Unit = {
+    def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit = {
       val p = coordinates(obj.toString)
       for {
         (a, i) <- arrows.zipWithIndex
-      } frame.Endomorphism(p, 25, i).draw()
+      } frame.Endomorphism(a.toString, p, 25, i).draw()
     }
     
     arrows.foreach {
