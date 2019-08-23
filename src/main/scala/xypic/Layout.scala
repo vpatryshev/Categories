@@ -85,11 +85,13 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   
   val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
 
-  def svg: String = {
+  def svg: String = if (coordinates.isEmpty) "" else {
     for { (obj, p) <- coordinates } {
       frame.CircleWithText(obj.toString, p).draw()
     }
 
+    val center = coordinates.values.reduce(_+_) / coordinates.size
+    
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
       base.arrows.map(a ⇒ (a, Set(base.d0(a), base.d1(a))))
     
@@ -116,7 +118,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
           val to = coordinates(base.d1(a).toString)
           val shift0 = i - arrs.size/2
           val shift = if (arrs.size % 2 == 1 || shift0 < 0) shift0 else shift0 + 1
-          frame.Arrow(Segment(from, to), 25, shift).draw()
+          frame.Arrow(a.toString, Segment(from, to), 25, shift, center).draw()
         }
         
     }
@@ -182,6 +184,7 @@ object TestIt {
   val out = new FileWriter("cats.html")
 
   def main(args: Array[String]): Unit = {
+    writeHtml(Layout(Square, 300, 300).html)
     writeHtml(Layout(Pushout4, 300, 300).html)
     showAll()
 

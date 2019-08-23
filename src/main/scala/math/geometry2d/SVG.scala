@@ -53,13 +53,13 @@ object SVG {
     
     private def snap(pt: Pt): Pt = Pt(snap(pt.x), snap(pt.y))
 
-    def rescale(p: Pt): Pt = {
+    def toLocal(p: Pt): Pt = {
       val relative = p - center
       val relativeScaled = relative.scale(scale)
-      val absolute = relativeScaled + Pt(w / 2, h / 2)
-      val p1 = snap(absolute)
-      p1
+      relativeScaled + Pt(w / 2, h / 2)
     }
+    
+    def rescale(p: Pt): Pt = snap(toLocal(p))
 
     def rescale(seg: Segment): Segment = Segment(rescale(seg.p0), rescale(seg.p1))
     
@@ -109,6 +109,8 @@ object SVG {
       }
     }
 
+    // see also https://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath
+    
     case class Endomorphism(name: String, p0: Pt, space: Int, ord: Int) extends Shape {
       override def toString: String = {
         val p = frame.rescale(p0)
@@ -116,20 +118,36 @@ object SVG {
         val s00 = Segment(p, p + Pt(-curve, -curve))
         val s0 = s00.shorterBy(space)
         val s1 = Segment(p + Pt(curve, -curve), p).shorterBy(space)
-        val out = text(name)(p+Pt(0, -curve*3/4)) + s"""
-        |<path d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
-        | stroke="black" fill="transparent"/>""".stripMargin +
+        val id = s"endo_$name"
+        val out = text(name)(p+Pt(0, -curve*3/4)) + 
+          s"""
+        |<path id="$id" d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
+        | stroke="black" fill="none"/>""".stripMargin +
           arrowhead(Segment(s1.p0, s1.p1))
+//        s"""<text><textPath href="#$id">$name</textPath></text>"""
         out
       }
       
     }
     
-    case class Arrow(fullSegment: Segment, space: Int, ord: Int) extends Shape {
+    case class Arrow(
+      name: String,
+      fullSegment: Segment,
+      space: Int,
+      ord: Int,
+      center: Pt
+    ) extends Shape {
       override def toString: String = {
         val localSegment = frame.rescale(fullSegment)
         if (ord == 0) {
+          val localCenter = rescale(center)
           val shortSegment = localSegment.shorterBy(space)
+          val unit = localSegment.orthogonalUnit
+          val middle = localSegment.middle
+          val dx = unit.x * name.length * 5 + 1
+          val shift =
+            if (((middle - localCenter) dot unit) < 0) Pt(-dx, -unit.y * 12 + 2) else Pt(dx, unit.y * 4)
+          text(name)(localSegment.middle + shift) +
           segment(shortSegment) + arrowhead(shortSegment)
         }
         else {

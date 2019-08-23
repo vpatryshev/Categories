@@ -6,9 +6,10 @@ case class Segment(p0: Pt, p1: Pt) {
   private val miny = p0.y min p1.y
   private val maxy = p0.y max p1.y
   private val dp = p1 - p0
-  val orthogonal = Pt(dp.y, -dp.x)
-  val middle: Pt = p0 + (dp / 2)
-  val isPoint: Boolean = p0 == p1
+  lazy val orthogonal = Pt(dp.y, -dp.x)
+  lazy val orthogonalUnit = orthogonal / l2
+  lazy val middle: Pt = p0 + (dp / 2)
+  lazy val isPoint: Boolean = p0 == p1
   lazy val l2: Rational = dp.l2
   lazy val unit: Pt = dp / l2
   lazy val orthonorm: Pt = orthogonal / l2

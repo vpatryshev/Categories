@@ -3,6 +3,7 @@ import Rational._
 import SVG._
 
 case class Pt(x: Rational, y: Rational) {
+  def unary_- = Pt(-x, -y)
   def +(other: Pt): Pt = shift(other.x, other.y)
   def -(other: Pt): Pt = shift(-other.x, -other.y)
   def *(c: Rational) = Pt(c*x, c*y)
