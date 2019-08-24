@@ -89,7 +89,8 @@ object SVG {
     trait Shape {
       def draw(): Unit = frame.draw(this)
       def text(txt: String)(p: Pt) = {
-        s"<text ${asSvg(p - Pt(txt.length*3, 0))}>$txt</text>"
+        s"""<text text-anchor="middle" style="font: 14px sans-serif;" dominant-baseline="central"
+           |${asSvg(p)}>$txt</text>""".stripMargin
       }
     }
 
@@ -100,8 +101,7 @@ object SVG {
 
       override def toString: String = {
         val localCenter = frame.rescale(cc)
-        val tp = localCenter + Pt(0, 4)
-        val out = text(txt)(tp) + s"""
+        val out = text(txt)(localCenter) + s"""
            |<circle ${asSvg(localCenter, "c")} r="10"
            | style="fill:yellow;stroke:black;stroke-width:2;opacity:0.3" />
            |""".stripMargin
@@ -119,12 +119,11 @@ object SVG {
         val s0 = s00.shorterBy(space)
         val s1 = Segment(p + Pt(curve, -curve), p).shorterBy(space)
         val id = s"endo_$name"
-        val out = text(name)(p+Pt(0, -curve*3/4)) + 
+        val out = text(name)(p+Pt(0, -curve*3/4 - 5)) + 
           s"""
         |<path id="$id" d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
         | stroke="black" fill="none"/>""".stripMargin +
           arrowhead(Segment(s1.p0, s1.p1))
-//        s"""<text><textPath href="#$id">$name</textPath></text>"""
         out
       }
       
@@ -146,7 +145,7 @@ object SVG {
           val middle = localSegment.middle
           val dx = unit.x * name.length * 5 + 1
           val shift =
-            if (((middle - localCenter) dot unit) < 0) Pt(-dx, -unit.y * 12 + 2) else Pt(dx, unit.y * 4)
+            if (((middle - localCenter) dot unit) < 0) Pt(-dx, -unit.y * 10 - 2) else Pt(dx, unit.y * 12)
           text(name)(localSegment.middle + shift) +
           segment(shortSegment) + arrowhead(shortSegment)
         }
@@ -159,8 +158,9 @@ object SVG {
           val s0 = s00.shorterBy(space)
           val s01 = Segment(p1 + Pt(-dx*Math.abs(curve), -curve/2), p1)
           val s1 = s01.shorterBy(space)
-          val out = s"""
-            |<path d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
+          val midpoint = (s00.p1 + s01.p0) / 2
+          val out = text(name)(midpoint) +
+            s"""<path d="M ${point(s0.p0)} C ${point(s0.p1)}, ${point(s1.p0)}, ${point(s1.p1)}"
             | stroke="black" fill="transparent"/>""".stripMargin +
             arrowhead(Segment(s1.p0, s1.p1))
           out
