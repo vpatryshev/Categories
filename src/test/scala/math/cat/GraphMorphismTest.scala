@@ -14,10 +14,10 @@ class GraphMorphismTest extends Test {
       val objects = Set(1, 2, 3)
       val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
       val map = Map("1a" → (1, 1), "1b" → (1, 1), "2to1" → (2, 1), "3to2" → (3, 2), "1to3" → (1, 3))
-      val graph1 = Graph.fromArrowMap(objects, map).iHope
+      val graph1 = Graph.fromArrowMap("g", objects, map).iHope
       val arrows2 = Set(11, 111, 21, 32, 13)
       val graph2 =
-        Graph.build(objects, arrows2,
+        Graph.build("g2", objects, arrows2,
           (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10).iHope
       val nm = SetMorphism.id(objects)
       val am =
@@ -35,7 +35,7 @@ class GraphMorphismTest extends Test {
       val objects = Set(1, 2, 3)
       val arrows1 = Set("1a", "1b", "2to1", "3to2", "1to3")
       val map = Map("1a" → (1, 1), "1b" → (1, 1), "2to1" → (2, 1), "3to2" → (3, 2), "1to3" → (1, 3))
-      val graph = Graph.fromArrowMap(objects, map).iHope
+      val graph = Graph.fromArrowMap("g", objects, map).iHope
       val sut: GraphMorphism = GraphMorphism.id(graph)
       sut.d0 === graph
       sut.d1 === graph
@@ -46,15 +46,17 @@ class GraphMorphismTest extends Test {
 
     "compose" >> {
       def same[X, Y] = (i: X) ⇒ i.asInstanceOf[Y]
-      val g1: Graph = Graph.ofPoset(PoSet.range(0, 6, 1))
+      val g1: Graph = Graph.ofPoset("sut", PoSet.range(0, 6, 1))
       
       val g6: Graph = Graph.build(
+        "g",
         Set(1,2,3,4,5,6),
         Set(1,2,3,4,5,6),
         same,
         (i:Int) ⇒ i%6 + 1).iHope
       
       val g3 = Graph.build(
+        "g3",
         Set(1,2,3),
         Set(1,2,3),
         same,

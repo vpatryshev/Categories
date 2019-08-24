@@ -376,25 +376,7 @@ object Functor {
     val checked = Result.traverse {
       for {
         (fx, gx) ← Category.composablePairs(f.d0)
-      } yield {
-        val r = check(fx, gx)
-//        if (r.isBad) { // TODO: remove this block, it makes no sense
-//          println(r.asInstanceOf[Bad[_]].stackTrace)
-//          val fy = f.arrowsMapping(fx)
-//          val gy = f.arrowsMapping(gx)
-//          val gy_fy = f.d1.m(fy, gy)
-//          try {
-//            val g = gy_fy.get
-//            println(g)
-//            println(g)
-//          } catch {
-//            case x: Exception ⇒
-//              x.printStackTrace()
-//              throw x
-//          }
-//        }
-        r
-      }
+      } yield check(fx, gx)
     }
     
     checked andThen OK

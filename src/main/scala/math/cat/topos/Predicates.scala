@@ -83,7 +83,7 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
       * @param q another predicate
       * @return this implies q
       */
-    def ==>(q: Predicate): Predicate = binaryOp(q, "⇒", Ω.implication)
+    def =⇒(q: Predicate): Predicate = binaryOp(q, "⇒", Ω.implication)
   }
 
 

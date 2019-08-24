@@ -45,7 +45,7 @@ abstract class Diagram(
 
   lazy val points: List[Point] = {
     val objMappings = for {
-      values ← Sets.product(listOfComponents) //.view
+      values ← Sets.product(listOfComponents).view
       mapping = d0.listOfObjects zip values toMap;
       om: Point = point(mapping)
       if isCompatible(om)
@@ -228,7 +228,7 @@ abstract class Diagram(
     }
 
     val objMappings = for {
-      values ← Sets.product(listOfComponents) //.view
+      values ← Sets.product(listOfComponents).view
       om0: Point = point(listOfObjects zip values toMap)
       om: Map[d0.Obj, Sets.set] = d0.objects map (x ⇒ x → toSet(om0(x))) toMap;
       if isCompatible(om)

@@ -7,9 +7,9 @@ import math.sets._
 import scalakittens.Result
 
 class CategoryOfDiagrams(val domain: Category)
-  extends Category(s"Sets^${domain.name}", graphOfDiagrams)
+  extends Category
   with GrothendieckTopos { topos ⇒
-
+  val graph = graphOfDiagrams(domain.name)
   override def toString: String = name
   
   type Node = Diagram
@@ -264,8 +264,9 @@ object CategoryOfDiagrams {
       (a: topos.domain.Arrow) ⇒ SetFunction.id(value))
   }
 
-  def graphOfDiagrams: Graph =
+  def graphOfDiagrams(domainName: String): Graph =
     new Graph {
+      override val name = s"Sets^$domainName"
       type Node = Diagram
       type Arrow = DiagramArrow
 
