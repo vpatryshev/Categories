@@ -181,20 +181,15 @@ object TestIt {
     "<br/>" + frame
   }
 
-  val out = new FileWriter("cats.html")
+  val out = new FileWriter("samples.html")
 
   def main(args: Array[String]): Unit = {
-    writeHtml(Layout(AAAAAA, 300, 300).html)
-    writeHtml(Layout(Square, 300, 300).html)
-    writeHtml(Layout(Pushout4, 300, 300).html)
     showAll()
 
     out.close()
     println(s"Done: ${new Date}")
     
   }
-
-//  private def show(c: Category)
   
   private def showAll(): Unit = {
     val fullMap = for {
