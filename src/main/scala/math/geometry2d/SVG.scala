@@ -141,11 +141,12 @@ object SVG {
         if (ord == 0) {
           val localCenter = rescale(center)
           val shortSegment = localSegment.shorterBy(space)
-          val unit = localSegment.orthogonalUnit
           val middle = localSegment.middle
-          val dx = unit.x * name.length * 5 + 1
-          val shift =
-            if (((middle - localCenter) dot unit) < 0) Pt(-dx, -unit.y * 10 - 2) else Pt(dx, unit.y * 12)
+          val drawTextAbove = ((middle - localCenter) dot localSegment.orthogonalUnit) < 0
+          val unit = if (drawTextAbove) -localSegment.orthogonalUnit else localSegment.orthogonalUnit
+          val dx = unit.x * name.length * 5
+
+          val shift = Pt(dx, unit.y * 8)
           text(name)(localSegment.middle + shift) +
           segment(shortSegment) + arrowhead(shortSegment)
         }

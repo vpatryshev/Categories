@@ -76,7 +76,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   
   private val coordinates1 = coordinates0.toList match {
     case layer1::tail => layer1::pullUp(pullLeft(tail))
-    case layer1::Nil => layer1::Nil
+    case Nil => Nil
   }
   
   private val coordinates: Map[String, Pt] = coordinates1.flatten.flatMap {
@@ -110,14 +110,16 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
       case (objs, arrs) if objs.size == 1 ⇒
         drawEndomorphisms(objs.head, arrs)
         
-      case (objs, arrs) ⇒
+      case (objs, allArrowsBetweenTwoObjects) ⇒
+        // need to take first the arrows in the direction where there are less arrows
+        val arrs = allArrowsBetweenTwoObjects.groupBy(base.d0).values.toList.sortBy(_.size).flatten
         for {
           (a, i) <- arrs.zipWithIndex
         } {
           val from = coordinates(base.d0(a).toString)
           val to = coordinates(base.d1(a).toString)
-          val shift0 = i - arrs.size/2
-          val shift = if (arrs.size % 2 == 1 || shift0 < 0) shift0 else shift0 + 1
+          val shift0 = i
+          val shift = if (i % 2 == 1) -(shift0+1)/2 else (shift0 + 1)/2
           frame.Arrow(a.toString, Segment(from, to), 25, shift, center).draw()
         }
         
@@ -184,6 +186,8 @@ object TestIt {
   val out = new FileWriter("samples.html")
 
   def main(args: Array[String]): Unit = {
+    writeHtml(Layout(HalfSimplicial, 300, 300).html)
+
     showAll()
 
     out.close()
