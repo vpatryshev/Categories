@@ -19,6 +19,7 @@ class LayoutTest extends Specification {
         "Z2"->List(List(Set("1"))),
         "_2_"->List(List(Set("0")), List(Set("1"))),
         "Z3"->List(List(Set("0"))),
+        "Z4"->List(List(Set("0"))),
         "ParallelPair"->List(List(Set("0")), List(Set("1"))),
         "Pullback"->List(List(Set("a"),Set("b")), List(Set("c"))),
         "Pushout"->List(List(Set("a")), List(Set("b"),Set("c"))),
