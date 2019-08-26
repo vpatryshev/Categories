@@ -6,7 +6,7 @@ import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.{Good, Result}
-import Category._
+import math.cat.Categories._
 
 /**
   * Test for individual diagrams (functors with codomain=sets)
@@ -20,14 +20,14 @@ class DiagramTest extends Test with TestDiagrams {
 
       checkOpt[Functor](BuildPullbackDiagram.asFunctor,
         sut ⇒ {
-          sut.d0 === Category.Pullback
+          sut.d0 === Pullback
           sut.d1 === Setf
         }
       )
     }
 
     "test build" in {
-      val dom = Category.Pullback
+      val dom = Pullback
       val topos = new CategoryOfDiagrams(dom)
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
       sut1.objectsMapping(sut1.d0.obj("b")) === BuildPullbackDiagram.sb
@@ -45,7 +45,7 @@ class DiagramTest extends Test with TestDiagrams {
 
     "get validated - positive" in {
       val sut = SamplePullbackDiagram
-      sut.d0 === Category.Pullback
+      sut.d0 === Pullback
       sut.d1 === Setf
     }
 
@@ -65,7 +65,7 @@ class DiagramTest extends Test with TestDiagrams {
     }
 
     "validate empty diagram" in {
-      EmptyDiagram.d0 === Category._0_
+      EmptyDiagram.d0 === _0_
       EmptyDiagram.d1 === Setf
     }
   }
@@ -74,7 +74,7 @@ class DiagramTest extends Test with TestDiagrams {
     "exist for an empty diagram" in {
       check[Diagram](const(Set("a", "b")),
         sut ⇒ {
-          sut.d0 === Category._1_
+          sut.d0 === _1_
           sut.d1 === Setf
           sut.objectsMapping(sut.d0.obj("0")) === Set("a", "b")
         }
@@ -85,7 +85,7 @@ class DiagramTest extends Test with TestDiagrams {
       val x: set = Set("x", "y", "z")
       check[Diagram](const(x),
         sut ⇒ {
-          sut.d0 === Category._1_
+          sut.d0 === _1_
           sut.d1 === Setf
           sut.limit match {
             case Good(sut.Cone(vertex, arrowTo)) ⇒
@@ -248,7 +248,7 @@ class DiagramTest extends Test with TestDiagrams {
   "Diagram colimit" should {
     "exist for a empty diagram" in {
       val sut = EmptyDiagram
-      sut.d0 === Category._0_
+      sut.d0 === _0_
       sut.d1 === Setf
       sut.colimit match {
         case Good(sut.Cocone(Sets.Empty, arrowFrom)) ⇒ ok
@@ -261,7 +261,7 @@ class DiagramTest extends Test with TestDiagrams {
       val expected: set = Set("x", "y", "z")
       check[Diagram](const(expected),
         sut ⇒ {
-          sut.d0 === Category._1_
+          sut.d0 === _1_
           sut.d1 === Setf
           sut.colimit match {
             case Good(cocone) ⇒

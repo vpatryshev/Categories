@@ -26,13 +26,14 @@ What we have now:
 - representable functors
 - (lattice of) subobjects
 - build subobject classifiers,
+- define Heyting trait (challenging, with generalized points),
+- build logic, 
+- table of logic on points,
+- svg rendering of categories (see samples.html)
 
 WIP:
 
 Plans: 
-- define Heyting trait (challenging, with generalized points),
-- build logic, 
-- table of logic on points
 - Grothendieck topologies
 - sheaves
 - classifying arrow
@@ -41,6 +42,3 @@ Plans:
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
 
 TODO: use refinement maybe: https://github.com/fthomas/refined
-
-
-

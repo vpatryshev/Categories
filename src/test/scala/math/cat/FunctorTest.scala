@@ -1,7 +1,7 @@
 package math.cat
 
 import math.Test
-import math.cat.Category._
+import math.cat.Categories._
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
 import scalakittens.Good
@@ -236,14 +236,14 @@ class FunctorTest extends Test {
       val ac = SetFunction.build("f", a, c, _.toString.toInt % 2) iHope
       val bc = SetFunction.build("g", b, c, x ⇒ (x.toString.toInt + 1) % 2) iHope
       val sutOpt = Functor(
-        "pullback", Category.Pullback, SetCategory.Setf)(
+        "pullback", Pullback, SetCategory.Setf)(
         Map("a" → a, "b" → b, "c" → c),
         Map("ac" → ac, "bc" → bc)
       )
       
       checkOpt[Functor](sutOpt,
         sut ⇒ {
-          sut.d0 === Category.Pullback
+          sut.d0 === Pullback
           sut.d1 === Setf
           sut.objectsMapping(sut.d0.obj("a")) === a
           sut.objectsMapping(sut.d0.obj("b")) === b

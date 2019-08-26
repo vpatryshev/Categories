@@ -1,6 +1,6 @@
 package math.cat.topos
 
-import math.cat.Category._
+import math.cat.Categories._
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, SetFunction}
 import math.sets.Sets
@@ -336,7 +336,7 @@ class LogicTest extends Fixtures {
               val r2p = r ==> p
               val r2q = r ==> q
               val left = r2p ∧ r2q
-              val right = r ==> p_and_q
+              val right = r =⇒ p_and_q
               left === right
             }
           }
@@ -349,7 +349,7 @@ class LogicTest extends Fixtures {
               val p2r = p ==> r
               val q2r = q ==> r
               val left = p2r ∧ q2r
-              val right = p_or_q ==> r
+              val right = p_or_q =⇒ r
               left === right
             }
           }

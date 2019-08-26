@@ -1,7 +1,7 @@
 package math.cat
 
 import math.Test
-import math.cat.Category._
+import math.cat.Categories._
 
 /**
   * Natural transformations tests
