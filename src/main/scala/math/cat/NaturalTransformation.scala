@@ -62,35 +62,35 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
     } else ""
   })"
   
-  override def equals(x: Any): Boolean = x match {
+  override def equals(x: Any): Boolean = equalsWithDetails(x, printDetails = false)
+
+  private[cat] def equalsWithDetails(x: Any, printDetails: Boolean): Boolean = x match {
     case other: NaturalTransformation ⇒
       (this eq other) || (
         hashCode == other.hashCode &&
-        d0 == other.d0 &&
-        d1 == other.d1 && {
+          d0 == other.d0 &&
+          d1 == other.d1 && {
           val foundBad: Option[Any] = domainCategory.objects find (o ⇒ {
-            val first = transformPerObject(o)
+            val first: codomainCategory.Arrow = transformPerObject(o)
             val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
             val same = first == second
-// the following code is, sorry, for debugging. Maybe better to have tests. later.
-//            if (!same) {
-//              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
-//              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
-//              if (f1.keySet != f2.keySet) {
-//                val badkeys = f1.keySet.diff(f2.keySet).union(f2.keySet.diff(f1.keySet))
-//                println("wtf, bad keys $badkeys")
-//                badkeys
-//              } else {
-//                val whatbad = f1.keySet.find(k ⇒ f1(k) != f2(k))
-//
-//                println(whatbad)
-//                whatbad
-//              }
-//            }
+            if (!same && printDetails) {
+              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
+              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
+              if (f1.keySet != f2.keySet) {
+                val badkeys = f1.keySet.diff(f2.keySet).union(f2.keySet.diff(f1.keySet))
+                println("wow, bad keys $badkeys")
+                badkeys
+              } else {
+                val whatbad = f1.keySet.find(k ⇒ f1(k) != f2(k))
+                println(whatbad)
+                whatbad
+              }
+            }
             !same
           }
-          ) // checking it every time takes time
-          
+            ) // checking it every time takes time
+
           foundBad.isEmpty
         })
     case otherwise ⇒ false
@@ -151,7 +151,7 @@ object NaturalTransformation {
   ): Result[NaturalTransformation] = {
     val validated = validate(from0, to0, from0.d0, from0.d1)(mappings)
     validated returning new NaturalTransformation {
-      val tag = theTag
+      val tag: Any = theTag
       val d0: Functor = from0
       val d1: Functor = to0
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
