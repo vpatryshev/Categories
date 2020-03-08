@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.postfixOps
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets._
@@ -281,7 +282,7 @@ trait GrothendieckTopos
     * @param inclusion B >-→ A - a natural transformation from diagram B to diagram A
     * @return A → Ω
     */
-  def χ(inclusion: Arrow, theTag: Object): Predicate = {
+  def χ(inclusion: Arrow, theTag: Any): Predicate = {
     val objToFunction: domain.Obj ⇒ SetFunction = χAt(inclusion)
 
     new Predicate {

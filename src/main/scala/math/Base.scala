@@ -2,6 +2,7 @@ package math
 
 import scalakittens.Result
 
+import scala.language.postfixOps
 import scala.collection.breakOut
 
 /**
@@ -11,38 +12,6 @@ import scala.collection.breakOut
   */
 object Base {
   type IntMap[X] = Map[Int, X]
-
-  /**
-    * An empty iterator. This is a factory method,
-    * to avoid type problems.
-    *
-    * @tparam T element type (there are no elements actually)
-    * @return an iterator that has no next.
-    */
-  @deprecated
-  def emptyIterator[T]: Iterator[T] = Iterator.empty
-
-  /**
-    * Builds a list out of given vararg elements.
-    *
-    * @tparam T      element type
-    * @param elements the elements
-    * @return a list of all these elements
-    */
-  @deprecated
-  def list[T](elements: T*): List[T] = elements.toList
-
-  /**
-    * Creates a (virtual) disjoint union set from given collections.
-    * Collections are supposed not to have repeating elements; they
-    * also should be disjoint. Neither of these conditions is checked.
-    *
-    * @param collections vararg list of participating collections
-    * @return a set that contains all elements of those collections
-    */
-  @deprecated("neither the old one nor the new one check for disjunction, so there")
-  private[math] def disjointUnion[A](collections: Seq[A]*): Set[A] =
-    (Set.empty[A] /: collections)(_ ++ _)
 
   /**
     * Builds an inverse map. Assumes that the map is inversible.
@@ -63,26 +32,6 @@ object Base {
   }
 
   /**
-    * Selects one of non-null elements of a given Iterable of arguments.
-    *
-    * @tparam T        element type
-    * @param candidates the candidates to choose from
-    * @return optional candidate
-    */
-  @deprecated
-  def oneOf[T](candidates: Iterable[T]): Option[T] = candidates.headOption
-
-  /**
-    * Selects one of non-null elements of a given vararg of arguments.
-    *
-    * @tparam T        element type
-    * @param candidates the candidates to choose from
-    * @return optionally, a candidate that is not null
-    */
-  @deprecated
-  def oneOf[T](candidates: T*): Option[T] = candidates find (null !=)
-
-  /**
     * Builds a Cartesian product of two sets.
     *
     * @tparam X element type of first set
@@ -96,27 +45,6 @@ object Base {
       x ← xs; y ← ys
     } yield(x, y))(breakOut)
   }
-
-  /**
-    * Splits an Iterable into head and tail.
-    *
-    * @tparam T      element type
-    * @param iterable the Iterable to split
-    * @return a pair consisting of the Iterable's head and tail.
-    */
-  @deprecated
-  def split[T](iterable: Iterable[T]): (Option[T], Iterable[T]) =
-    (iterable.headOption, iterable.tail)
-
-  /**
-    * Spits a list into head and tail pair.
-    *
-    * @tparam T  element type
-    * @param list the list to split
-    * @return a pair consisting of head and tail
-    */
-  @deprecated
-  def split[T](list: List[T]): (Option[T], List[T]) = (list.headOption, list.tail)
 
   /**
     * Builds a (virtual) list of integers from 0 to n-1.
@@ -154,8 +82,6 @@ object Base {
     */
   def toMap[X](list: List[X]): IntMap[X] =
     list.zipWithIndex map { case (x, i) ⇒ i → x } toMap
-
-//  def id[T](set: Set[T]): Map[T, T] = set.map(t ⇒ t → t)(breakOut)
 
   implicit class Optimist[T](opt: Option[T]) {
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))

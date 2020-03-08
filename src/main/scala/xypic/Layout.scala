@@ -2,6 +2,7 @@ package xypic
 
 import java.io.FileWriter
 import java.util.Date
+import scala.language.postfixOps
 
 import math.cat.{Category, Graph}
 import math.cat.Categories._
@@ -19,7 +20,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
   private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map {
-    case (comps, i) ⇒ i -> comps.toList.sortBy(_.toString)
+    case (comps, i) ⇒ i -> comps.sortBy(_.toString)
   }.toMap
 
   private val coordinates0: immutable.Iterable[List[(go.Cluster, Pt)]] = for {
@@ -83,7 +84,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
       case (cluster, coords) ⇒ cluster.allocateAt(coords)
   }.toMap
   
-  val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
+  val frame: SVG.Frame = SVG.Frame(30, Pt(w, h), coordinates.values)
 
   def svg: String = if (coordinates.isEmpty) "" else {
     for { (obj, p) <- coordinates } {
@@ -122,7 +123,6 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
           val shift = if (i % 2 == 1) -(shift0+1)/2 else (shift0 + 1)/2
           frame.Arrow(a.toString, Segment(from, to), 25, shift, center).draw()
         }
-        
     }
 
     frame.toString

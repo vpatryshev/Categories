@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import scalakittens.Result
 import Result._
 import scalakittens.Result.Outcome

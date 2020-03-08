@@ -1,5 +1,8 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
+
 import math.cat.Categories._
 import math.sets.Sets._
 import math.sets.{BinaryRelation, FactorSet, Sets}

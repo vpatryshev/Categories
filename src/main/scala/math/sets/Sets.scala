@@ -5,6 +5,7 @@ import java.io.Reader
 import Functions.Injection
 import math.cat.SetMorphism
 
+import scala.language.postfixOps
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.ClassTag
@@ -220,12 +221,12 @@ object Sets {
 
   /**
     * Builds a factorset epimorphism that projects a set to its factorset,
-    * given a set and binary relationship.
-    * Factoring is done on the relationship's transitive closure.
+    * given a set and binary relation.
+    * Factoring is done on the relation's transitive closure.
     *
     * @tparam T set element type
     * @param sourceSet the main set
-    * @param r   binary relationship (not necessarily equivalence relationship) that determines factoring
+    * @param r   binary relation (not necessarily equivalence relation) that determines factoring
     * @return factorset epimorphism
     */
   def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {

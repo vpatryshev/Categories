@@ -1,5 +1,6 @@
 package math.sets
 
+import scala.language.postfixOps
 import scala.collection.mutable.ListBuffer
 
 class ZFC {

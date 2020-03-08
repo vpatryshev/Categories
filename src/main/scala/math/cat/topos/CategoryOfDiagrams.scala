@@ -1,5 +1,7 @@
 package math.cat.topos
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import math.cat._
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, _}
 import math.sets.Sets._

@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.postfixOps
 import math.cat.SetFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.{asSet, set}

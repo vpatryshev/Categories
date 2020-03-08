@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import math.cat.SetMorphism._
 import math.sets.Sets
 import math.sets.Sets._

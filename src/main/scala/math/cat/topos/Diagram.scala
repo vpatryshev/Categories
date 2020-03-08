@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.implicitConversions
 import math.Base
 import math.Base._
 import math.cat._
@@ -138,7 +139,7 @@ abstract class Diagram(
 
     val theFactorset: factorset = new FactorSet(typelessUnion)
 
-    // have to factor the union by the equivalence relationship caused
+    // have to factor the union by the equivalence relation caused
     // by two morphisms mapping the same element to two possibly different.
     for (o ← d0.objects) {
       val F_o = nodesMapping(o) // the set to which `o` maps

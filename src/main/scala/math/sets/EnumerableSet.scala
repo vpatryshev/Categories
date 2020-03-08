@@ -1,5 +1,7 @@
 package math.sets
 
+import scala.language.postfixOps
+
 trait EnumerableSet[T] extends Set[T] { thisOne: BigSet[T] ⇒
 
   override def +(value: T): BigSet[T] =

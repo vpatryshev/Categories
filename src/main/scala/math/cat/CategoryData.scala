@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import java.util.Objects
 
 import math.cat.CategoryData.Composition
@@ -112,7 +114,7 @@ private[cat] abstract class CategoryData extends Graph {
               s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
               OKif(sameCodomain(gf, g),
                 s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)} in $name")
-          } returning()
+          } returning ⊤
         }
         else {
           OKif(h.isEmpty, s"Wrongly defined composition of $f and $g in $name")
