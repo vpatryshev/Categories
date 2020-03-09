@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.reflectiveCalls
 import math.cat.Categories._
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, SetFunction}
@@ -10,7 +11,7 @@ import scalakittens.Result._
 
 class LogicTest extends Fixtures {
   
-  val categoriesToTest = SomeKnownCategories
+  val categoriesToTest: List[Cat] = SomeKnownCategories
   
   val enabled: Set[String] = Set("negation")
   def ignored(name: String) = false // !enabled(name)
