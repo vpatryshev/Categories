@@ -8,31 +8,35 @@ import scalakittens.Result
 class TopologyTest extends Fixtures {
 
   "Topologies" should {
-//    "exist for _0_" in {
-//      val topos: GrothendieckTopos = new CategoryOfDiagrams(_0_)
-//      import topos._
-//      val points = Ω.points
-//      val sut = for {
-//        point <- Result.forValue(points.head)
-//        inclusion <- topos inclusionOf point in Ω
-//        topology <- Topology.forInclusion[Diagram, DiagramArrow](topos, inclusion)
-//      } yield topology
-//
+    "exist for _0_" in {
+      val topos = new CategoryOfDiagrams(_0_)
+      import topos._
+      val truth = Ω.True.asPredicate
+      val sut = LawvereTopology.forPredicate(topos)(truth)
+
 //      sut.isGood aka sut.toString must beTrue
-//    }
+      ok
+    }
 
     "exist for _1_" in {
       val topos = new CategoryOfDiagrams(_1_)
       import topos._
-      val points = Ω.points
-      val omega0 = Ω("0").toList
-      omega0.size === 2
-      val omega00 :: omega01 :: Nil = omega0
-      omega00.asInstanceOf[Diagram]("0").isEmpty must beTrue
-      omega01.asInstanceOf[Diagram]("0").isEmpty must beFalse
-      points.size === 2
+      val subs: List[Diagram] = Ω.subobjects.toList
+      subs.size === 4
+      val predicates = Result.traverse( for {
+        sub <- subs
+        fOpt = inclusionOf(sub) in Ω
+        predicate = fOpt map predicateFor
+      } yield predicate) iHope
+      
+      val builder = LawvereTopology.forPredicate(topos)
 
-      points.map(_.toShortString) === List("p0(0→())", "p1(0→(0→{0.0}))")
+      val topologies = predicates map builder
+      
+      val sut = Result traverse topologies
+
+//      sut.isGood aka sut.toString must beTrue
+      ok
     }
 
     "exist for _2_" in {
