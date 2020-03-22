@@ -2,6 +2,7 @@ package math.cat
 
 import math.cat.SetMorphism._
 import math.sets.{N, Sets}
+import Sets._
 import org.specs2.mutable._
 import scalakittens._
 
@@ -102,13 +103,13 @@ class SetMorphismTest extends Specification {
   }
 
   "Variance_byX" >> {
-    val x = Sets.setOf(testSetX, testSetX.size, testSetX.contains _)
+    val x = setOf(testSetX, testSetX.size, testSetX.contains _)
     val sut = SetMorphism.build(x, testSetZ, (n: Int) ⇒ "#" + n).iHope
     ("#3" == sut(3)) must beTrue
   }
 
   "Variance_byY" >> {
-    val y = Sets.setOf(testSetZ, testSetZ.size, testSetZ.contains _)
+    val y = setOf(testSetZ, testSetZ.size, testSetZ.contains _)
     val sut = SetMorphism.build(testSetX, y, (n: Int) ⇒ "#" + n).iHope
     ("#3" == sut(3)) must beTrue
   }

@@ -296,15 +296,15 @@ class LogicTest extends Fixtures {
         val False = Ω.False.asPredicate
 
         for { pt1 ← Ω.points } {
-          println(s"  checking Truth =⇒ ${pt1.tag}")
+          println(s"  checking Truth ⟹ ${pt1.tag}")
           val p = pt1.asPredicate
-          (True =⇒ p) === p
-          println(s"  checking False =⇒ ${pt1.tag}")
-          (False =⇒ p) === True
-          println(s"  checking ${pt1.tag} =⇒ ${pt1.tag}")
-          (p =⇒ p) === True
-          println(s"  checking ${pt1.tag} =⇒ True")
-          (p =⇒ True) === True
+          (True ⟹ p) === p
+          println(s"  checking False ⟹ ${pt1.tag}")
+          (False ⟹ p) === True
+          println(s"  checking ${pt1.tag} ⟹ ${pt1.tag}")
+          (p ⟹ p) === True
+          println(s"  checking ${pt1.tag} ⟹ True")
+          (p ⟹ True) === True
 
           println(s"  checking adjunction for ${pt1.tag}")
           for { pt2 ← Ω.points } {
@@ -313,9 +313,9 @@ class LogicTest extends Fixtures {
 
             for { pt3 ← Ω.points } {
               val r = pt3.asPredicate
-              val q2r = q =⇒ r
-              val left = p_q =⇒ r
-              val right = p =⇒ q2r
+              val q2r = q ⟹ r
+              val left = p_q ⟹ r
+              val right = p ⟹ q2r
               left === right
             }
           }
@@ -327,9 +327,9 @@ class LogicTest extends Fixtures {
 
             for { pt3 ← Ω.points } {
               val r = pt3.asPredicate
-              val q2r = q =⇒ r
-              val left = p_q =⇒ r
-              val right = p =⇒ q2r
+              val q2r = q ⟹ r
+              val left = p_q ⟹ r
+              val right = p ⟹ q2r
               left === right
             }
           }
@@ -341,10 +341,10 @@ class LogicTest extends Fixtures {
 
             for { pt3 ← Ω.points } {
               val r = pt3.asPredicate
-              val r2p = r =⇒ p
-              val r2q = r =⇒ q
+              val r2p = r ⟹ p
+              val r2q = r ⟹ q
               val left = r2p ∧ r2q
-              val right = r =⇒ p_and_q
+              val right = r ⟹ p_and_q
               left === right
             }
           }
@@ -356,10 +356,10 @@ class LogicTest extends Fixtures {
 
             for { pt3 ← Ω.points } {
               val r = pt3.asPredicate
-              val p2r = p =⇒ r
-              val q2r = q =⇒ r
+              val p2r = p ⟹ r
+              val q2r = q ⟹ r
               val left = p2r ∧ q2r
-              val right = p_or_q =⇒ r
+              val right = p_or_q ⟹ r
               left === right
             }
           }

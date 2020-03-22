@@ -33,7 +33,7 @@ class SetsTest extends Specification {
 
     "Iterable should produce a set" >> {
       val source = List("one", "two", "three", "")
-      val actual = Sets.setOf[String](source, 4, source.contains(_: String))
+      val actual = setOf[String](source, 4, source.contains(_: String))
       val expected = Set("one", "two", "three", "")
       actual === expected
     }
@@ -49,10 +49,14 @@ class SetsTest extends Specification {
         }
       }
 
-      val actual = Sets.setOf(iterable.iterator, 4, (x: String) ⇒ source contains x)
+      val actual = setOf(iterable.iterator, 4, (x: String) ⇒ source contains x)
       iteratorCalled must beFalse
       val expected = Set("one", "two", "three", "")
+      actual("two") === true
       actual === expected
+      actual("two") === true
+      actual === expected
+      actual("two") === true
     }
 
     "building from a list should work" >> {
@@ -104,6 +108,13 @@ class SetsTest extends Specification {
     "range(1,2,3) should be set(1)" >> {
       val r = range(1, 2, 3)
       r must haveSize(1)
+    }
+    
+    "setOf(...) should only contain stuff" >> {
+      setOf(1,2,3).contains(1) === true
+      setOf(1,2,3).contains(2) === true
+      setOf(1,2,3).contains(3) === true
+      setOf(1,2,3).contains(4) === false
     }
 
     "range(1,3,2) should be set(1)" >> {
@@ -198,7 +209,7 @@ class SetsTest extends Specification {
     "product should not prematurely calculate size" >> {
       var wasCalled = false
       val source = Set(1,2)
-      val s = Sets.setOf(source, {wasCalled = true; 2}, (x: Int) ⇒ source contains x)
+      val s = setOf(source, {wasCalled = true; 2}, (x: Int) ⇒ source contains x)
 
       wasCalled must beFalse
       val ss = product2(s, s)
