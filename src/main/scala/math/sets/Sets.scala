@@ -88,7 +88,10 @@ object Sets {
     def apply[X](content: Iterable[X], predicate: X ⇒ Boolean): setOf[X] =
       apply(content, (0 /: content) ((n, x) ⇒ n + 1), predicate)
 
-    def apply[X](content: X*): setOf[X] = apply(content, x ⇒ content contains x)
+    def elements[X](content: X*): setOf[X] = apply(content, x ⇒ content contains x)
+
+    def apply[X](content: Iterable[X]): Set[X] = setOf(content, x ⇒ content exists (_ == x))
+
   }
 
   def cat[T](p: (T, List[T])): List[T] = p._1 :: p._2
@@ -293,10 +296,7 @@ object Sets {
     * @param step range step
     * @return the set of numbers
     */
-  def numbers(from: Int, to: Int, step: Int): Set[Int] = asSet(range(from, to, step))
-
-  def asSet[X](content: Iterable[X]): Set[X] =
-    setOf(content, x ⇒ content exists (_ == x))
+  def numbers(from: Int, to: Int, step: Int): Set[Int] = setOf(range(from, to, step))
 
   def range(first: Int, last1: Int, step: Int): Set[Int] =
     Range(first, last1, step).toSet

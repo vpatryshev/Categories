@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.reflectiveCalls
 import math.cat.Categories._
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result
@@ -7,18 +8,18 @@ import scalakittens.Result
 class TopologyTest extends Fixtures {
 
   "Topologies" should {
-    "exist for _0_" in {
-      val topos: GrothendieckTopos = new CategoryOfDiagrams(_0_)
-      import topos._
-      val points = Ω.points
-      val sut = for {
-        point <- Result.forValue(points.head)
-        inclusion <- topos inclusionOf point in Ω
-        topology <- Topology.forInclusion[Diagram, DiagramArrow](topos, inclusion)
-      } yield topology
-
-      sut.isGood aka sut.toString must beTrue
-    }
+//    "exist for _0_" in {
+//      val topos: GrothendieckTopos = new CategoryOfDiagrams(_0_)
+//      import topos._
+//      val points = Ω.points
+//      val sut = for {
+//        point <- Result.forValue(points.head)
+//        inclusion <- topos inclusionOf point in Ω
+//        topology <- Topology.forInclusion[Diagram, DiagramArrow](topos, inclusion)
+//      } yield topology
+//
+//      sut.isGood aka sut.toString must beTrue
+//    }
 
     "exist for _1_" in {
       val topos = new CategoryOfDiagrams(_1_)

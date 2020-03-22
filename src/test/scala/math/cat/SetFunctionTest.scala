@@ -128,7 +128,7 @@ class SetFunctionTest extends Specification {
     }
 
     "for factorset" >> {
-      val set0: Set[Int] = asSet(1 to 10)
+      val set0: Set[Int] = setOf(1 to 10)
       val set1 = set0.map(i ⇒ i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
       val br: BinaryRelation[Any, Any] = (a: Any, b: Any) ⇒ isOdd(a) == isOdd(b)
@@ -142,7 +142,7 @@ class SetFunctionTest extends Specification {
     }
 
     "exponent 2→2" >> {
-      val set1 = setOf[Any](1, 2)
+      val set1: set = setOf.elements(1, 2)
 
       val sut = SetFunction.exponent(set1, set1)
       sut.size === 4
@@ -151,8 +151,8 @@ class SetFunctionTest extends Specification {
     }
 
     "exponent 3→5" >> {
-      val set1 = setOf[Any](3, 4, 5)
-      val set2 = setOf[Any](1, 2, 3, 4, 5)
+      val set1: set = setOf.elements(3, 4, 5)
+      val set2: set = setOf.elements(1, 2, 3, 4, 5)
 
       val sut = SetFunction.exponent(set1, set2)
       sut.size === 125

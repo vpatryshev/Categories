@@ -5,7 +5,7 @@ import scala.language.postfixOps
 import java.util.Objects
 
 import math.cat.CategoryData.Composition
-import math.sets.Sets.asSet
+import math.sets.Sets.setOf
 import scalakittens.Result
 import scalakittens.Result._
 
@@ -164,7 +164,7 @@ private[cat] abstract class CategoryData extends Graph {
   }
 
   private def calculateHom(from: Obj, to: Obj): Arrows =
-    asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
+    setOf(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
 
 }
 

@@ -31,9 +31,9 @@ abstract class Diagram(
   type XArrow = d0.Arrow
   type XArrows = Set[d0.Arrow]
 
-  implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
+  implicit def setOf(x: d1.Obj): set = x.asInstanceOf[set]
 
-  private[topos] def setAt(x: Any): set = asSet(objectsMapping(d0.asObj(x)))
+  private[topos] def setAt(x: Any): set = setOf(objectsMapping(d0.asObj(x)))
   
   def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o ⇒ this(o) subsetOf other(o) }
@@ -68,7 +68,7 @@ abstract class Diagram(
     asFunction(arrowInSets)
   }
 
-  def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
+  def apply(x: Any): set = setOf(objectsMapping(d0.obj(x)))
 
   /**
     * Calculates this diagram's limit
@@ -112,7 +112,7 @@ abstract class Diagram(
     d0.buildBundles(d0.objects, participantArrows.asInstanceOf[XArrows])
     val listOfObjects: List[XObject] = op.listOfRootObjects.asInstanceOf[List[XObject]]
     // Here we have a non-repeating collection of sets to use for building a union
-    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping map asSet
+    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping map setOf
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
     val typelessUnion: set = union.unionSet untyped
     val directIndex: IntMap[XObject] = Base.toMap(listOfObjects)
@@ -180,7 +180,7 @@ abstract class Diagram(
       itsok
   }
 
-  lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map asSet
+  lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map setOf
   
   private def extendToArrows1(om: d0.Obj ⇒ Sets.set)(a: d0.Arrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
@@ -297,13 +297,13 @@ abstract class Diagram(
   private def arrowActionOnPoint(a: XArrow, point: Point): Any =
     arrowsMapping(a)(point(d0.d0(a)))
 
-  private[cat] def toSet(x: Any): set = asSet(d1.obj(x))
+  private[cat] def toSet(x: Any): set = setOf(d1.obj(x))
 
   private[cat] object limitBuilder {
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = rootObjects.toList.sortBy(_.toString)
     // Here we have a non-repeating collection of sets to use for building a limit
-    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map asSet
+    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map setOf
     // this is the product of these sets; will have to take a subset of this product
     final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
     final lazy private[cat] val cobundles: Map[XObject, XArrows] = d0.op.buildBundles(opo, opa)

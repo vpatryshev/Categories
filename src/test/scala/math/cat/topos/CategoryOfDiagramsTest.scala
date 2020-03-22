@@ -9,7 +9,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
   type SUT = Diagram
 
-  def representable(topos: CategoryOfDiagrams) =
+  def representable(topos: CategoryOfDiagrams): topos.domain.Obj => topos.Representable =
     (obj: topos.domain.Obj) ⇒ topos.Representable(obj)
 
   def checkConstSize(topos: CategoryOfDiagrams)(obj: topos.Obj, expected: Int): Unit = {
@@ -24,7 +24,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x::data)
-      def |(f: String ⇒ Any) = check(f)(data.reverse, data.reverse)
+      def |(f: String ⇒ Any): check = check(f)(data.reverse, data.reverse)
     }
 
     case class check(f: String ⇒ Any)(data: List[String], fullList: List[String]) {
@@ -78,7 +78,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         ob("d") | ""   | ""  | "dc" | "d" | "de" |
         ob("e") | ""   | ""  | ""   | ""  | "e"
 
-      val mults = for {
+      val mults: Unit = for {
         x ← topos.domain.objects
         a ← topos.domain.arrows
       } {
@@ -189,7 +189,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
       def fullSet(d: Diagram): List[String] = {
         d.d0.objects.toList map ((o:d.d0.Obj) ⇒ d.objectsMapping(o))
-      } map d.asSet map canonical
+      } map d.setOf map canonical
 
       val listOfSubobjects = sut.subobjects.toList
       val actual =

@@ -3,7 +3,7 @@ package math.cat.topos
 import scala.language.postfixOps
 import math.cat.SetFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.sets.Sets.{asSet, set}
+import math.sets.Sets.{setOf, set}
 import scalakittens.Result
 
 trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
@@ -22,7 +22,7 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
     private def setAt(o: Any): set = {
       val o1 = domainCategory.obj(o)
       val function = p.transformPerObject(o1).asInstanceOf[SetFunction]
-      asSet(function.d0)
+      setOf(function.d0)
     }
 
     private def transformAt(o: Any): SetFunction =

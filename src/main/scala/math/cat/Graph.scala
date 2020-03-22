@@ -59,7 +59,7 @@ trait Graph extends GraphData { graph ⇒
     * @param to   second node
     * @return the set of all arrows from x to y
     */
-  def arrowsBetween(from: Node, to: Node): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
+  def arrowsBetween(from: Node, to: Node): Arrows = setOf(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
   
   /**
     * Checks if one arrow follows another

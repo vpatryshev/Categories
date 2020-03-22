@@ -294,7 +294,7 @@ abstract class Category extends CategoryData {
     * @param y second object
     * @return a set of pairs of arrows with the same domain, ending at x and y.
     */
-  def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = asSet(
+  def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
       filter(p ⇒ {
         val (px, py) = p
@@ -363,7 +363,7 @@ abstract class Category extends CategoryData {
     * @param y second object
     * @return a set of pairs of arrows with the same codomain, starting at x and y.
     */
-  def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = asSet(
+  def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows) filter {
       case (px, py) ⇒
         sameCodomain(px, py) &&
@@ -434,7 +434,7 @@ abstract class Category extends CategoryData {
     * @return the set of all such pairs of arrows
     */
   def pairsEqualizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = {
-    asSet(
+    setOf(
       product2[Arrow, Arrow](arrows, arrows).
         filter(p ⇒ {
           val (px, py) = p
@@ -530,7 +530,7 @@ abstract class Category extends CategoryData {
     * @param g second arrow
     * @return an iterable of all such pairs of arrows
     */
-  def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = asSet(
+  def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
       filter(q ⇒ {
         val (qx, qy) = q

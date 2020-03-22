@@ -89,7 +89,7 @@ class DiagramTest extends Test with TestDiagrams {
           sut.d1 === Setf
           sut.limit match {
             case Good(sut.Cone(vertex, arrowTo)) ⇒
-              sut.asSet(sut.d1.obj(vertex)).size === x.size
+              sut.setOf(sut.d1.obj(vertex)).size === x.size
             case none ⇒ failure(s"We expected a limit, got $none")
           }
         }
@@ -100,7 +100,7 @@ class DiagramTest extends Test with TestDiagrams {
       val sut = SamplePullbackDiagram
       sut.limit match {
         case Good(cone) ⇒
-          val vertex = sut.asSet(cone.vertex)
+          val vertex = sut.setOf(cone.vertex)
           vertex.size === 5
           val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
           val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
@@ -125,7 +125,7 @@ class DiagramTest extends Test with TestDiagrams {
       val sut = SampleParallelPairDiagram1
       sut.limit match {
         case Good(cone) ⇒
-          val vertex = sut.asSet(cone.vertex)
+          val vertex = sut.setOf(cone.vertex)
           vertex.size === 3
           vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
           val ar0 = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("0"))))
@@ -160,7 +160,7 @@ class DiagramTest extends Test with TestDiagrams {
         val sut = SampleWDiagram
         sut.limit match {
           case Good(cone) ⇒
-            val vertex = sut.asSet(cone.vertex)
+            val vertex = sut.setOf(cone.vertex)
             vertex.size === 16
             val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
             val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
@@ -209,7 +209,7 @@ class DiagramTest extends Test with TestDiagrams {
         expect(sut ⇒
           sut.limit match {
             case Good(cone) ⇒
-              val vertex = sut.asSet(cone.vertex)
+              val vertex = sut.setOf(cone.vertex)
               vertex.size === 8
               val ara = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("a"))))
               val arb = sut.asFunction(sut.d1.arrow(cone.arrowTo(sut.d0.obj("b"))))
@@ -265,7 +265,7 @@ class DiagramTest extends Test with TestDiagrams {
           sut.d1 === Setf
           sut.colimit match {
             case Good(cocone) ⇒
-              val vertex = sut.asSet(cocone.vertex)
+              val vertex = sut.setOf(cocone.vertex)
               vertex.size === expected.size
             case x ⇒ failure(s"We expected a colimit, got $x")
           }
@@ -292,7 +292,7 @@ class DiagramTest extends Test with TestDiagrams {
       expect(sut ⇒
         sut.colimit match {
           case Good(cocone) ⇒
-            val vertex = sut.asSet(cocone.vertex)
+            val vertex = sut.setOf(cocone.vertex)
             val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
             val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))
             for {
@@ -328,7 +328,7 @@ class DiagramTest extends Test with TestDiagrams {
       expect(sut ⇒
         sut.colimit match {
           case Good(cocone) ⇒
-            val vertex = sut.asSet(cocone.vertex)
+            val vertex = sut.setOf(cocone.vertex)
             val ar0 = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("0"))))
             val ar1 = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("1"))))
             a.foreach(ar0(_) === element)
@@ -352,7 +352,7 @@ class DiagramTest extends Test with TestDiagrams {
       val sut = SampleMDiagram
       sut.colimit match {
         case Good(cocone) ⇒
-          val vertex = sut.asSet(cocone.vertex)
+          val vertex = sut.setOf(cocone.vertex)
           vertex.size === 8
           val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
           val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))

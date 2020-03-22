@@ -888,13 +888,13 @@ class CategoryTest extends Test with CategoryFactory {
 
   "SetCategory" >> {
     "have products" >> {
-      val first: set = Sets.setOf("a", "b")
-      val second: set = Sets.setOf(1, 2, 3)
+      val first: set = setOf.elements("a", "b")
+      val second: set = setOf.elements(1, 2, 3)
       val product = Setf.product(first, second)
 
       product match {
         case Good((x, y)) ⇒
-          x.d0 === Sets.setOf(
+          x.d0 === setOf.elements(
             ("a", 1), ("a", 2), ("a", 3),
             ("b", 1), ("b", 2), ("b", 3))
         case otherwise ⇒ failure("product not found")

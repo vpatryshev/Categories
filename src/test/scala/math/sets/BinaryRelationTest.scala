@@ -8,7 +8,7 @@ class BinaryRelationTest extends Specification {
   "BinaryRelation" should {
 
     "buildFromPairs" in {
-      val r = BinaryRelation(setOf(("one", 1), ("two", 2)))
+      val r = BinaryRelation(setOf.elements(("one", 1), ("two", 2)))
       r("one", 1) === true
       r("one", 2) === false
       r("two", 1) === false

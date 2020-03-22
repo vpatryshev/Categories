@@ -110,7 +110,7 @@ class SetCategory(objects: BigSet[set])
   override lazy val initial: Result[set] = Good(Sets.Empty) filter contains
 
   override lazy val terminal: Result[set] = {
-    val option1: Result[set] = initial map (setOf(_))
+    val option1: Result[set] = initial map (setOf.elements(_))
     // need to filter, to eliminate the value that does not belong
     option1 filter contains
   }

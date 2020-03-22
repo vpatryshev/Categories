@@ -93,7 +93,7 @@ object Functions {
 
 //    override def applyTo(s: Set[X]): Set[Y] = {
 //      val target: Iterable[Y] = s.map(this)
-//      Sets.setOf(target, s.size, (y:Y) ⇒ s contains unapply(y))
+//      setOf(target, s.size, (y:Y) ⇒ s contains unapply(y))
 //    }
   }
 
