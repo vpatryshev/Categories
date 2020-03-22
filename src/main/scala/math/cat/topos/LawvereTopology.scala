@@ -20,6 +20,8 @@ trait LawvereTopology {
 }
 
 object LawvereTopology {
+  private[topos] var DEBUG: Boolean = false
+
 
   def forPredicate(theTopos: CategoryOfDiagrams): theTopos.Predicate => Result[LawvereTopology] =
     (predicate: theTopos.Predicate) => {
@@ -43,6 +45,8 @@ object LawvereTopology {
   def mustBeClosed[O, A](topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome = {
     val j = topos.χ(predicate)
     val jj = j compose j
+    val sameThing = jj.equalsWithDetails(j, DEBUG)
+    println(sameThing)
     OKif(jj == j, s"Should be closed: ${predicate.tag}")
   }
 

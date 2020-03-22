@@ -28,17 +28,17 @@ case class SetFunction private[cat](
     * Composes this morphism with the next one.
     *
     * @param g second morphism: Y → Z
-    * @return their composition g compose f: X → Z
+    * @return their composition g ∘ f: X → Z
     */
   def andThen(g: SetFunction): SetFunction = {
-    this compose g getOrElse (
+    compose(g) getOrElse (
       throw new IllegalArgumentException(s"Composition not defined for $self and $g")
     )
   }
 
   private def tagOfComposition(tag1: String, tag2: String): String = {
-    def maybeParens(tag: String) = if (tag contains "compose") s"($tag)" else tag
-    maybeParens(tag1) + " compose " + maybeParens(tag2)
+    def maybeParens(tag: String) = if (tag contains "∘") s"($tag)" else tag
+    maybeParens(tag1) + " ∘ " + maybeParens(tag2)
   }
   
   
@@ -46,7 +46,7 @@ case class SetFunction private[cat](
     * Composes with another morphism, optionally
     *
     * @param g next morphism: Y → Z
-    * @return their composition g compose f: X → Z
+    * @return their composition g ∘ f: X → Z
     */
   def compose(g: SetFunction): Option[SetFunction] = {
     if (d1 == g.d0) {

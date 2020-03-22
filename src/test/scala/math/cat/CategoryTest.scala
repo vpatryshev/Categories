@@ -114,7 +114,7 @@ class CategoryTest extends Test with CategoryFactory {
         defineComposition
       ).iHope
 
-      val sample1 = category"sample1:({0,1,2}, {a: 0 → 2, b: 1 → 2}, {a compose 0 = a})"
+      val sample1 = category"sample1:({0,1,2}, {a: 0 → 2, b: 1 → 2}, {a ∘ 0 = a})"
       sample1 === expected
 
       val sample2 = category"sample2:({0,1,2}, {a: 0 → 2, b: 1 → 2})"
@@ -214,7 +214,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive_3" >> {
-      val parsed = category"({1, 2}, {1: 1→1, 2: 2→2, 2_1: 2→1}, {2_1 compose 2 = 2_1})"
+      val parsed = category"({1, 2}, {1: 1→1, 2: 2→2, 2_1: 2→1}, {2_1 ∘ 2 = 2_1})"
       parsed.objects.size === 2
     }
 
@@ -222,7 +222,7 @@ class CategoryTest extends Test with CategoryFactory {
       val parsed = category"""(
         {1, 2},
         {1: 1→1, 2: 2→2, 2_1: 2→1, 2_a: 2→2}, 
-        {2_1 compose 2 = 2_1, 2_a compose 2_a = 2_a, 2 compose 2_a = 2_a, 2_1 compose 2_a = 2_1, 2_a compose 2 = 2_a, 2 compose 2 = 2, 1 compose 1 = 1, 1 compose 2_1 = 2_1}
+        {2_1 ∘ 2 = 2_1, 2_a ∘ 2_a = 2_a, 2 ∘ 2_a = 2_a, 2_1 ∘ 2_a = 2_1, 2_a ∘ 2 = 2_a, 2 ∘ 2 = 2, 1 ∘ 1 = 1, 1 ∘ 2_1 = 2_1}
       )"""
       parsed.objects.size === 2
     }
@@ -320,8 +320,8 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "equals_positive_mult()" >> {
-      val c1 = category"({0, 1}, {a: 0 → 1, b: 1 → 1, c: 1 → 1}, {b compose a = a, c compose a = c, b compose b = b, c compose b = c, b compose c = b, c compose c = c})"
-      val c2 = category"({1, 0}, {b: 1 → 1, c: 1 → 1, a: 0 → 1}, {b compose b = b, c compose b = c, b compose a = a, c compose a = c, b compose c = b, c compose c = c})"
+      val c1 = category"({0, 1}, {a: 0 → 1, b: 1 → 1, c: 1 → 1}, {b ∘ a = a, c ∘ a = c, b ∘ b = b, c ∘ b = c, b ∘ c = b, c ∘ c = c})"
+      val c2 = category"({1, 0}, {b: 1 → 1, c: 1 → 1, a: 0 → 1}, {b ∘ b = b, c ∘ b = c, b ∘ a = a, c ∘ a = c, b ∘ c = b, c ∘ c = c})"
       (c1 == c2) must beTrue
     }
 
@@ -348,7 +348,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "isIsomorphism_negative()" >> {
-      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 compose 1 = 2, 1 compose 2 = 2, 2 compose 1 = 2, 2 compose 2 = 2})"
+      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
       sut.isIsomorphism("2") must beFalse
     }
 
@@ -360,14 +360,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "isMonomorphism_negative()" >> {
-      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 compose 1 = 2, 1 compose 2 = 2, 2 compose 1 = 2, 2 compose 2 = 2})"
+      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
       sut.isMonomorphism("0") must beTrue
       sut.isMonomorphism("1") must beFalse
       sut.isMonomorphism("2") must beFalse
     }
 
     "isEpimorphism()" >> {
-      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 compose 1 = 1, 1 compose 2 = 2, 2 compose 1 = 2, 2 compose 2 = 2})"
+      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 1, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
       sut.isEpimorphism("0") must beTrue
       sut.isEpimorphism("1") must beFalse
       sut.isEpimorphism("2") must beFalse
@@ -814,11 +814,11 @@ class CategoryTest extends Test with CategoryFactory {
 
   "complete subcategory" should {
     "be ok for Square" in {
-      Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd compose ab = ad})"
+      Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
       Square.completeSubcategory("diagonal", Set("a", "c")) === category"diagonal:({a,c}, {ac: a → c})"
 
       {
-        Square.completeSubcategory("abx", Set("a", "b", "x")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd compose ab = ad})"
+        Square.completeSubcategory("abx", Set("a", "b", "x")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
       } must throwA[IllegalArgumentException]()
     }
   }
@@ -836,9 +836,9 @@ class CategoryTest extends Test with CategoryFactory {
       _1plus1_.connectedComponents === Set(c1, c2)
     }
     "build Z2+ParallelPair" in {
-      val sut = category"A:({1, 2, 3}, {1: 1 → 1, a: 1 → 1, b: 2 → 3, c: 2 → 3}, {1 compose 1 = 1, 1 compose a = a, a compose 1 = a, a compose a = 1})"
+      val sut = category"A:({1, 2, 3}, {1: 1 → 1, a: 1 → 1, b: 2 → 3, c: 2 → 3}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
       sut.connectedComponents === Set(
-        category"A.1:({1}, {1: 1 → 1, a: 1 → 1}, {1 compose 1 = 1, 1 compose a = a, a compose 1 = a, a compose a = 1})",
+        category"A.1:({1}, {1: 1 → 1, a: 1 → 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})",
         category"A:({2, 3}, {b: 2 → 3, c: 2 → 3})")
     }
   }

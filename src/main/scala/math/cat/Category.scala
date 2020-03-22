@@ -86,7 +86,7 @@ abstract class Category extends CategoryData {
     (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect {
       case (first, second) if !isIdentity(first) && !isIdentity(second) ⇒
-        s"$second compose $first = ${m(first, second).get}"
+        s"$second ∘ $first = ${m(first, second).get}"
     }).mkString(", ") + "})"
 
   /**
@@ -132,7 +132,7 @@ abstract class Category extends CategoryData {
 
   /**
     * Builds a predicate that checks whether an arrow equalizes two other arrows,
-    * that is, whether f compose h = g compose h  for a given arrow h.
+    * that is, whether f ∘ h = g ∘ h  for a given arrow h.
     *
     * @param f first arrow
     * @param g second arrow
@@ -159,11 +159,11 @@ abstract class Category extends CategoryData {
   }
 
   /**
-    * Checks if arrow h coequalizes arrows f and g (that is, whether h compose f == h compose g).
+    * Checks if arrow h coequalizes arrows f and g (that is, whether h ∘ f == h ∘ g).
     *
     * @param f first arrow
     * @param g second arrow
-    * @return true iff h compose f == h compose g
+    * @return true iff h ∘ f == h ∘ g
     */
   def coequalizes(f: Arrow, g: Arrow): Arrow ⇒ Boolean = {
     h: Arrow ⇒ areParallel(f, g) && follows(h, f) && (m(f, h) == m(g, h))
@@ -171,7 +171,7 @@ abstract class Category extends CategoryData {
 
   /**
     * Builds a predicate that checks whether an arrow h: B → A is such that
-    * px compose h = qx and py compose h = qy
+    * px ∘ h = qx and py ∘ h = qy
     * where qx: B → X, qy: B → Y, px: A → X, py: A → Y.
     *
     * @param q factoring pair of arrows
@@ -212,7 +212,7 @@ abstract class Category extends CategoryData {
   /**
     * Builds a predicate that checks if arrow g: y → z
     * uniquely factors on the left the arrow f: x → z - that is,
-    * there is just one h: x → y such that f = g compose h.
+    * there is just one h: x → y such that f = g ∘ h.
     *
     * @param f arrow being factored
     * @return the specified predicate
@@ -223,7 +223,7 @@ abstract class Category extends CategoryData {
 
   /**
     * Builds a set of all arrows that equalize f: A → B and g: A → B, that is,
-    * such arrows h: X → A that f compose h = g compose h.
+    * such arrows h: X → A that f ∘ h = g ∘ h.
     *
     * @param f first arrow
     * @param g second arrow
@@ -257,7 +257,7 @@ abstract class Category extends CategoryData {
   /**
     * Builds a predicate that checks if arrow g: x → y
     * uniquely factors on the right the arrow f: x → z - that is,
-    * there is just one h: y → z such that f = h compose g.
+    * there is just one h: y → z such that f = h ∘ g.
     *
     * @param f factored arrow
     * @return the specified predicate
@@ -270,7 +270,7 @@ abstract class Category extends CategoryData {
 
   /**
     * Builds a set of all arrows that coequalize f: A → B and g: A → B, that is,
-    * such arrows h: B → X that h compose f = h compose g.
+    * such arrows h: B → X that h ∘ f = h ∘ g.
     *
     * @param f first arrow
     * @param g second arrow
@@ -403,7 +403,7 @@ abstract class Category extends CategoryData {
   /**
     * Builds a predicate that checks if a pair of arrows p = (px, py) : A → X x Y
     * factors uniquely a pair q = (qx, qy): B → X x Y on the right,
-    * that is, if there exists a unique arrow h: B → A such that qx = px compose h and qy = py compose h.
+    * that is, if there exists a unique arrow h: B → A such that qx = px ∘ h and qy = py ∘ h.
     *
     * @return true if p factors q uniquely on the right
     */
@@ -416,7 +416,7 @@ abstract class Category extends CategoryData {
 
   /**
     * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
-    * at d0(f) and d0(g), equalizing them: f compose px = g compose py, that is, making the square
+    * at d0(f) and d0(g), equalizing them: f ∘ px = g ∘ py, that is, making the square
     * <pre>
     * py
     * U —————→ Y
@@ -483,7 +483,7 @@ abstract class Category extends CategoryData {
     * px: X → A, py: Y → A, factors uniquely a pair q = (qx, qy)
     * (where qx: X → B, qy: Y → B) on the left,
     * that is, if there exists a unique arrow h: A → B
-    * such that qx = h compose px and qy = h compose py.
+    * such that qx = h ∘ px and qy = h ∘ py.
     *
     * @return true if q factors p uniquely on the left
     */
@@ -495,7 +495,7 @@ abstract class Category extends CategoryData {
 
   /**
     * Builds a predicate that checks whether an arrow h: A → B is such that
-    * h compose px = qx and h compose py = qy for q = (qx, qy), and p = (px, py)
+    * h ∘ px = qx and h ∘ py = qy for q = (qx, qy), and p = (px, py)
     * where qx: X → B, qy: Y → B, px: X → A, py: Y → A.
     *
     * @param q factoring pair of arrows
@@ -610,7 +610,7 @@ abstract class Category extends CategoryData {
     // first, remove identities
     val nontrivialArrows = arrows filterNot isIdentity toList
     // then, remove compound arrows - those that were deduced during creation
-    val listOfArrows = nontrivialArrows sortBy(_.toString) filterNot (_.toString.contains("compose")) reverse
+    val listOfArrows = nontrivialArrows sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
     // then, remove all those that are still deducible
     val essentialArrows = selectBaseArrows(listOfArrows)
 

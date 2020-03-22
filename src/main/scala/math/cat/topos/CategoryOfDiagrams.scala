@@ -81,7 +81,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
     new DiagramArrow() {
-      val tag = s"${g.tag} compose ${f.tag}"
+      val tag = s"${g.tag} ∘ ${f.tag}"
       val d0: Functor = f.d0
       val d1: Functor = g.d1
 

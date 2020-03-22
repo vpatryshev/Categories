@@ -86,7 +86,7 @@ trait GraphMorphism
     val nm: d0.Node ⇒ g.d1.Node = x ⇒ g.nodesMapping(g.d0.node(nodesMapping(x)))
     val am: d0.Arrow ⇒ g.d1.Arrow = a ⇒ g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
     
-    GraphMorphism(m.tag + " compose " + g.tag, m.d0, g.d1)(nm, am)
+    GraphMorphism(m.tag + " ∘ " + g.tag, m.d0, g.d1)(nm, am)
   }
 }
 

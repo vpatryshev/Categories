@@ -180,7 +180,7 @@ private[cat] trait CategoryFactory {
     }
 
     def multiplication: Parser[((String, String), String)] = {
-      word ~ ("o"|"compose") ~ word ~ "=" ~ word ^^ { case g ~ o ~ f ~ "=" ~ h ⇒ ((f, g), h)
+      word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { case g ~ o ~ f ~ "=" ~ h ⇒ ((f, g), h)
       }
     }
 
@@ -190,7 +190,7 @@ private[cat] trait CategoryFactory {
   }
 
   val arrowBuilder = (p:(String, String)) ⇒ {
-    Option(s"${p._2}compose${p._1}")
+    Option(s"${p._2}∘${p._1}")
   }
 
 }
@@ -248,18 +248,18 @@ object Categories extends CategoryFactory {
   /**
     * Category <b>Z2</2> - a two-element monoid
     */
-  lazy val Z2 = category"Z2: ({1}, {1: 1 → 1, a: 1 → 1}, {1 compose 1 = 1, 1 compose a = a, a compose 1 = a, a compose a = 1})"
+  lazy val Z2 = category"Z2: ({1}, {1: 1 → 1, a: 1 → 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
 
-  lazy val Z3 = category"Z3: ({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 compose 1 = 2, 1 compose 2 = 0, 2 compose 1 = 0, 2 compose 2 = 1})"
+  lazy val Z3 = category"Z3: ({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 0, 2 ∘ 1 = 0, 2 ∘ 2 = 1})"
 
-  lazy val Z4 = category"Z4: ({0}, {0: 0→0, 1: 0→0, 2: 0→0, 3:0→0}, {1 compose 1 = 2, 1 compose 2 = 3, 2 compose 1 = 3, 2 compose 2 = 0, 2 compose 3 = 1, 3 compose 2 = 1, 3 compose 3 = 2})"
+  lazy val Z4 = category"Z4: ({0}, {0: 0→0, 1: 0→0, 2: 0→0, 3:0→0}, {1 ∘ 1 = 2, 1 ∘ 2 = 3, 2 ∘ 1 = 3, 2 ∘ 2 = 0, 2 ∘ 3 = 1, 3 ∘ 2 = 1, 3 ∘ 3 = 2})"
 
   /**
     * "Split Monomorphism" category (see http://en.wikipedia.org/wiki/Morphism)
     * Two objects, and a split monomorphism from a to b
     */
   lazy val SplitMono =
-    category"SplitMono: ({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ab compose ba = bb, bb compose bb = bb})"
+    category"SplitMono: ({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ab ∘ ba = bb, bb ∘ bb = bb})"
 
   /**
     * Commutative square category
