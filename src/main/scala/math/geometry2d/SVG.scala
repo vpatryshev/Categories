@@ -68,7 +68,7 @@ object SVG {
     
     def gr(): Unit = {
       for {
-        i <- 1 to grid
+        i ← 1 to grid
       } {
         buffer.append(segment(Segment(Pt(dx * i, 0), Pt(dx * i, w)), "lightgray"))
         buffer.append(segment(Segment(Pt(0, dy * i), Pt(h, dy * i)), "lightgray"))

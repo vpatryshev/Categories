@@ -13,7 +13,6 @@ import scalakittens.{Good, Result}
 /**
   * Category where objects are sets
   */
-
 class SetCategory(objects: BigSet[set])
   extends Category {
   val graph = graphOfSets(objects)

@@ -6,7 +6,7 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.{setOf, set}
 import scalakittens.Result
 
-trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
+trait Predicates { topos: CategoryOfDiagrams ⇒
 
   trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
     val d0: Diagram
@@ -97,23 +97,30 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
   lazy val TruePredicate: Predicate = predicateFor(Ω.True)
 
   /**
-    * Builds a predicate for a point in Ω
-    * @param p the point
-    * @return an arrow ⊤ → Ω
+    * Builds a predicate for an arrow to Ω
+    * @param f arrow from an object to Ω
+    * @return an arrow X → Ω
     */
-  def predicateFor(p: Point): Predicate = {
-
-    val inclusion: DiagramArrow = standardInclusion(p, Ω) iHope
+  def predicateFor(f: DiagramArrow): Predicate = {
 
     new Predicate {
       override val d0: Obj = _1
-      override val tag: Any = p.tag
+      override val tag: Any = f.tag
 
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
-        val xInInclusion = inclusion.domainCategory.obj(x)
-        val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
-        codomainCategory.arrow(arrowInInclusion)
+        val x_in_domain_of_f = f.domainCategory.obj(x)
+        val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
+        codomainCategory.arrow(arrow_in_domain_of_f)
       }
     }
+  }
+
+  /**
+    * Builds a predicate for a point in Ω
+    * @param p the point
+    * @return an arrow p → Ω
+    */
+  def predicateFor(p: Point): Predicate = {
+    predicateFor(standardInclusion(p, Ω) iHope)
   }
 }

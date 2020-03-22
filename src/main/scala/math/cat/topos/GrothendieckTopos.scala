@@ -47,8 +47,8 @@ trait GrothendieckTopos
         // this is how, given an arrow `b`, the new diagram gets from one point to another
         def am1(b: Ω.topos.domain.Arrow): SetFunction = {
           val same_b = domain.arrow(b)
-          val x1 = om1(domain.d0(same_b)) //  {f ∈ hom(y, d0(b)) | a ∘ f ∈ r1(d0(b)}
-          val y1 = om1(domain.d1(same_b)) //  {f ∈ hom(y, d1(b)) | a ∘ f ∈ r1(d1(b)}
+          val x1 = om1(domain.d0(same_b)) //  {f ∈ hom(y, d0(b)) | a compose f ∈ r1(d0(b)}
+          val y1 = om1(domain.d1(same_b)) //  {f ∈ hom(y, d1(b)) | a compose f ∈ r1(d1(b)}
 
           // A function fom x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g ⇒ domain.m(domain.arrow(g), same_b).get)
@@ -66,7 +66,7 @@ trait GrothendieckTopos
 
     /**
       * Given an arrow `a`, 
-      * {f ∈ hom(y, x1) | a ∘ f ∈ r1(x1)}
+      * {f ∈ hom(y, x1) | a compose f ∈ r1(x1)}
       *
       * @param a  an arrow
       * @param rx a subrepresentable
@@ -214,7 +214,7 @@ trait GrothendieckTopos
     }
   }
 
-  lazy val ΩxΩ = product2(Ω, Ω)
+  lazy val ΩxΩ: Obj = product2(Ω, Ω)
  
   private lazy val firstProjectionOf_ΩxΩ =
     buildArrow("π1", ΩxΩ, Ω, π1)
@@ -229,7 +229,7 @@ trait GrothendieckTopos
   )
 
   /**
-    * Gvien an inclusion (a natural transformation from a diagram A to a diagram B), and an object x in domain
+    * Given an inclusion (a natural transformation from a diagram A to a diagram B), and an object x in domain
     * produce a function that maps elements of A(x) to elements of Ω(x)
     * @param inclusion the inclusion
     * @param x an object of domain

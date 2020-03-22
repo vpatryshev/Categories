@@ -46,7 +46,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
     }
 
     new NaturalTransformation {
-      val tag = s"${next.tag} âˆ˜ ${self.tag}"
+      val tag = s"${next.tag} compose ${self.tag}"
       val d0: Functor = self.d0
       val d1: Functor = next.d1
       def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = codomainCategory.arrow(composed(x))

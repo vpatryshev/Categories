@@ -198,9 +198,9 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
     val idMap: Map[Any, Arrow] = objects.map(o ⇒ o -> id(node(o))).toMap
 
     val mMap: Map[(Any, Any), Arrow] = {
-      for {f <- arrows
-           g <- arrows
-           h <- m(arrow(f), arrow(g))
+      for {f ← arrows
+           g ← arrows
+           h ← m(arrow(f), arrow(g))
       } yield (f, g) -> h
     } toMap
 
@@ -250,7 +250,7 @@ private[cat] class PartialData(val graph: Graph) extends CategoryData {
     * Case 1. There's an arrow f:a→b, and an arrow g:b→c; and there's just one arrow h:a→c.
     * What would be the composition of f and g? h is the only choice.
     * <p/>
-    * Case 2. h ∘ (g ∘ f) = k; what is (h ∘ g) ∘ f? It is k. and vice versa.
+    * Case 2. h compose (g compose f) = k; what is (h compose g) compose f? It is k. and vice versa.
     */
   private def fillCompositionTable: CompositionTable = {
     // First, add identities

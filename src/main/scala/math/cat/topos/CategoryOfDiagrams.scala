@@ -81,7 +81,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
     new DiagramArrow() {
-      val tag = s"${g.tag} ∘ ${f.tag}"
+      val tag = s"${g.tag} compose ${f.tag}"
       val d0: Functor = f.d0
       val d1: Functor = g.d1
 
@@ -191,14 +191,14 @@ class CategoryOfDiagrams(val domain: Category)
   private[topos] case class product2builder(x: Diagram, y: Diagram) {
 
     private def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
-    private def om(o: domain.Obj): set = productAt(o).untyped
+    private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
     
     def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
       val sf: SetFunction = z.asFunction(z.arrowsMapping(z.d0.arrow(a)))
       sf(pz)
     }
     
-    private def am(a: domain.Arrow): SetFunction = {
+    private def mappingOfArrows(a: domain.Arrow): SetFunction = {
       val from = productAt(domain.d0(a))
       val to = productAt(domain.d1(a))
       def f(p: Any): Any = p match {
@@ -209,7 +209,7 @@ class CategoryOfDiagrams(val domain: Category)
       new SetFunction("", from.untyped, to.untyped, f)
     }
     
-    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(om, a ⇒ am(a))
+    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(mappingOfObjects, a ⇒ mappingOfArrows(a))
   }
 
   /**
@@ -233,7 +233,7 @@ class CategoryOfDiagrams(val domain: Category)
   def inclusionOf(p: Point): includer = inclusionOf(p.asDiagram)
   
   def standardInclusion(p: Point, d: Diagram): Result[Arrow] = {
-    inclusionOf(p) in d map uniqueFromTerminalTo(p).compose
+    inclusionOf(p) in d map { q => uniqueFromTerminalTo(p) compose q }
   }
 
   /**

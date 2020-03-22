@@ -20,8 +20,6 @@ class Point(
   
   def named(name: Any): Point = new Point(name, topos, mapping)
 
-  def ∈(diagram: Diagram): Boolean = domainCategory.objects.forall { o ⇒ diagram(o)(this(o)) }
-
   def transform(f: DiagramArrow): Point = {
     def apply(o: Any) = {
       f(o) match {
@@ -55,6 +53,9 @@ class Point(
     }
   }
 
+
+  def ∈(container: Diagram): Boolean = asDiagram ∈ container
+
   private lazy val predicate: topos.Predicate = topos predicateFor this
 
   def asPredicate[T <: GrothendieckTopos]: T#Predicate = predicate.asInstanceOf[T#Predicate]
@@ -64,7 +65,7 @@ class Point(
     Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
   }
 
-  def toShortString = {
+  def toShortString: String = {
     val raw = domainCategory.objects.map(x ⇒ s"$x→${apply(x)}").mkString(s"$tag(", ", ", ")")
     val short = Diagram.cleanupString(raw)
 

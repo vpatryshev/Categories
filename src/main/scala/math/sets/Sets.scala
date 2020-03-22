@@ -67,33 +67,6 @@ object Sets {
     result
   }
 
-  class setOf[X] protected(
-    sourceIterator: ⇒ Iterator[X],
-    sizeEvaluator: ⇒ Int,
-    predicate: X ⇒ Boolean) extends
-    setForIterator[X](sourceIterator, sizeEvaluator, predicate)
-
-  object setOf {
-    def apply[X](
-      sourceIterator: ⇒ Iterator[X],
-      sizeEvaluator: ⇒ Int,
-      predicate: X ⇒ Boolean) = new setOf(sourceIterator, sizeEvaluator, predicate)
-    
-    def apply[X](
-      source: Iterable[X],
-      sizeEvaluator: ⇒ Int,
-    predicate: X ⇒ Boolean): setOf[X] =
-    new setOf(source.iterator, sizeEvaluator, predicate)
-    
-    def apply[X](content: Iterable[X], predicate: X ⇒ Boolean): setOf[X] =
-      apply(content, (0 /: content) ((n, x) ⇒ n + 1), predicate)
-
-    def elements[X](content: X*): setOf[X] = apply(content, x ⇒ content contains x)
-
-    def apply[X](content: Iterable[X]): Set[X] = setOf(content, x ⇒ content exists (_ == x))
-
-  }
-
   def cat[T](p: (T, List[T])): List[T] = p._1 :: p._2
 
   def product[X](xss: List[Set[X]]): Set[List[X]] =
@@ -143,11 +116,18 @@ object Sets {
   def product2[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] = {
     val predicate = (p: (X, Y)) ⇒ xs.contains(p._1) && ys.contains(p._2)
     setOf(
-      cantorIterator(xs, ys),
+      cantorIterable(xs, ys),
       if (isFinite(xs) && isFinite(ys)) xs.size * ys.size else InfiniteSize,
       predicate
     )
   }
+
+  def isFinite(s: Set[_]): Boolean = s.size != InfiniteSize
+  
+  def cantorIterable[X, Y](xs: Iterable[X], ys: Iterable[Y]): Iterable[(X, Y)] =
+    new Iterable[(X, Y)] {
+      override def iterator: Iterator[(X, Y)] = cantorIterator(xs, ys)
+    }
 
   def cantorIterator[X, Y](xs: Iterable[X], ys: Iterable[Y]): Iterator[(X, Y)] =
     new Iterator[(X, Y)] {
@@ -209,12 +189,12 @@ object Sets {
 
   def isUnique[T](seq: Iterable[T]): Boolean = isSingleton(seq)
 
-  def existsUnique[T](seq: Iterable[T], p: T ⇒ Boolean): Boolean = isSingleton(seq filter p take 2)
-
   def isSingleton[T](ts: Iterable[T]): Boolean = {
     val i = ts.iterator
     i.hasNext && { i.next; !i.hasNext }
   }
+
+  def existsUnique[T](seq: Iterable[T], p: T ⇒ Boolean): Boolean = isSingleton(seq filter p take 2)
 
   def main(args: Array[String]) {
     val a = Set("a", "b", "c")
@@ -257,13 +237,11 @@ object Sets {
   }
 
   def filter[X](sourceSet: Set[X], p: X ⇒ Boolean): Set[X] = {
-    if (isFinite(sourceSet)) filteredSet(sourceSet.iterator, p)
+    if (isFinite(sourceSet)) filteredSet(sourceSet, p)
     else setOf(sourceSet, InfiniteSize, p)
   }
 
-  def isFinite(s: Set[_]): Boolean = s.size != InfiniteSize
-
-  private def filteredSet[X](i: ⇒ Iterator[X], p: X ⇒ Boolean): Set[X] = {
+  private def filteredSet[X](i: ⇒ Iterable[X], p: X ⇒ Boolean): Set[X] = {
     def j = i filter p
 
     val n = (0 /: j) ((k, x) ⇒ k + 1)
@@ -305,6 +283,12 @@ object Sets {
     if (size == InfiniteSize) size
     else if (delta < 0) Math.max(0, size + delta)
     else delta + Math.min(size, InfiniteSize - delta)
+
+  class setOf[X] protected(
+    source: ⇒ Iterable[X],
+    sizeEvaluator: ⇒ Int,
+    predicate: X ⇒ Boolean) extends
+    setForIterable[X](source, sizeEvaluator, predicate)
 
   /**
     * Encapsulates disjoint union of a list of sets. Disjoint means that even if the 
@@ -392,23 +376,21 @@ object Sets {
     def word: Parser[String] = regex("""[\w\\.]+""".r)
   }
 
-  private[math] class setForIterator[X](
-    sourceIterator: ⇒ Iterator[X],
+  private[math] class setForIterable[X](
+    source: ⇒ Iterable[X],
     sizeEvaluator: ⇒ Int,
     predicate: X ⇒ Boolean) extends Set[X] {
     override def contains(x: X) = predicate(x)
 
     override def isEmpty: Boolean = !iterator.hasNext
 
-    override def iterator: Iterator[X] = sourceIterator filter predicate
-
-    override def -(x: X): Set[X] = new setForIterator(
-      sourceIterator,
+    override def -(x: X): Set[X] = new setForIterable(
+      source,
       sizePlus(sizeEvaluator, -1),
       y ⇒ y != x && predicate(y))
 
-    override def +(x: X): Set[X] = new setForIterator(
-      List(x).iterator ++ sourceIterator,
+    override def +(x: X): Set[X] = new setForIterable(
+      List(x) ++ source,
       sizePlus(sizeEvaluator, +1),
       y ⇒ y == x || predicate(y))
 
@@ -421,12 +403,12 @@ object Sets {
 
     override def size: Int = sizeEvaluator
 
+    override def iterator: Iterator[X] = source.iterator filter predicate
+
     override def filter(p: X ⇒ Boolean): Set[X] =
-      filteredSet(sourceIterator, (x: X) ⇒ predicate(x) && p(x))
+      filteredSet(source, (x: X) ⇒ predicate(x) && p(x))
 
     override def hashCode: Int = if (isInfinite(this)) sample.hashCode else super.hashCode
-
-    def sample: Set[X] = if (isInfinite(this)) take(3) else this
 
     override def equals(other: Any): Boolean = other match {
       case s: Set[_] ⇒ if (isInfinite(this)) this.eq(s) else super.equals(s)
@@ -440,6 +422,23 @@ object Sets {
         super.toString
       }
     }
+
+    def sample: Set[X] = if (isInfinite(this)) take(3) else this
+  }
+
+  object setOf {
+    def elements[X](content: X*): setOf[X] = apply(content, x ⇒ content contains x)
+
+    def apply[X](content: Iterable[X], predicate: X ⇒ Boolean): setOf[X] =
+      apply(content, (0 /: content) ((n, x) ⇒ n + 1), predicate)
+
+    def apply[X](
+      source: Iterable[X],
+      sizeEvaluator: ⇒ Int,
+      predicate: X ⇒ Boolean): setOf[X] =
+      new setOf(source, sizeEvaluator, predicate)
+
+    def apply[X](content: Iterable[X]): Set[X] = setOf(content, x ⇒ content exists (_ == x))
   }
 
 }
