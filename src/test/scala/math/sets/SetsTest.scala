@@ -33,9 +33,12 @@ class SetsTest extends Specification {
 
     "Iterable should produce a set" >> {
       val source = List("one", "two", "three", "")
-      val actual = setOf[String](source, 4, source.contains(_: String))
+      val actual = setOf(source, 4, source.contains(_: String))
       val expected = Set("one", "two", "three", "")
+      actual("four") === false
+      actual("two") === true
       actual === expected
+      actual("two") === true
     }
 
     "Lazy iterator should not be called when building a set" >> {
@@ -49,7 +52,7 @@ class SetsTest extends Specification {
         }
       }
 
-      val actual = setOf(iterable.iterator, 4, (x: String) ⇒ source contains x)
+      val actual = setOf(iterable, 4, (x: String) ⇒ source contains x)
       iteratorCalled must beFalse
       val expected = Set("one", "two", "three", "")
       actual("two") === true

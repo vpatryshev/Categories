@@ -25,8 +25,8 @@ class LogicTest extends Fixtures {
       tTrue === tFalse // that's a degenerate topos, but tags are still distinct
     }
 
-    def checkAt(point0: Any)(mappings: (String, set)*): MatchResult[Any] = {
-      point0 match {
+    def checkAt(point: Any)(mappings: (String, set)*): MatchResult[Any] = {
+      point match {
         case d: Diagram ⇒
           (traverse {
             for {(k, v) ← mappings } yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
