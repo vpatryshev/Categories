@@ -3,7 +3,7 @@ package math.cat
 import scala.language.implicitConversions
 import scala.language.postfixOps
 
-import math.cat.Categories._
+import math.Base._
 import math.sets.Sets._
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
@@ -83,10 +83,10 @@ abstract class Category extends CategoryData {
     source getOrElse
     s"${if (name.isEmpty) "" else {name + ": " }}({" +
     objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
-    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
+    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)} →${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect {
       case (first, second) if !isIdentity(first) && !isIdentity(second) ⇒
-        s"$second ∘ $first = ${m(first, second).get}"
+        concat(second, "∘", first) + s" = ${m(first, second).get}"
     }).mkString(", ") + "})"
 
   /**
@@ -586,13 +586,12 @@ abstract class Category extends CategoryData {
         case 0 ⇒ terminal map (x ⇒ (x, List()))
         case 1 ⇒ Good((x, id(x) :: Nil))
         case _ ⇒ degree(x, n - 1) flatMap {
-          case (x_n_1, previous_projections) ⇒ {
-            product(x, x_n_1) flatMap {
+          case (x_n_1, previous_projections) ⇒
+            product(x, x_n_1) map {
               case (p1, p_n_1) ⇒
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
-                Good((d0(p1), projections.flatten))
+                (d0(p1), projections.flatten)
             }
-          }
         }
       }
     }

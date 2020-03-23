@@ -46,7 +46,7 @@ object LawvereTopology {
     val j = topos.χ(predicate)
     val jj = j compose j
     val sameThing = jj.equalsWithDetails(j, DEBUG)
-    println(sameThing)
+    if (DEBUG) println(sameThing)
     OKif(jj == j, s"Should be closed: ${predicate.tag}")
   }
 

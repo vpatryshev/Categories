@@ -20,6 +20,7 @@ class LogicTest extends Fixtures {
     "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
       import topos._
+      Ω.True.toString === "⊤"
       val tTrue = Ω.True.mapping
       val tFalse = Ω.False.mapping
       tTrue === tFalse // that's a degenerate topos, but tags are still distinct

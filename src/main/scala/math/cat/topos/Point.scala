@@ -61,8 +61,10 @@ class Point(
   def asPredicate[T <: GrothendieckTopos]: T#Predicate = predicate.asInstanceOf[T#Predicate]
 
   override def toString: String = {
-    val raw = domainCategory.listOfObjects.map(x ⇒ s"$x→${apply(x)}")
-    Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
+    if (tag.toString.nonEmpty) tag.toString else {
+      val raw = domainCategory.listOfObjects.map(x ⇒ s"$x → ${apply(x)}")
+      Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
+    }
   }
 
   def toShortString: String = {

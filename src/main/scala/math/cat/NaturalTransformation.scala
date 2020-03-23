@@ -53,12 +53,26 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
     }
   }
   
+  def named(newTag: Any): NaturalTransformation = new NaturalTransformation {
+    val tag = newTag
+    val d0: Functor = self.d0
+    val d1: Functor = self.d1
+    def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+      self.transformPerObject(x.asInstanceOf[self.domainCategory.Obj]).asInstanceOf[codomainCategory.Arrow]
+  }
+
+
   private[cat] lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
     if (domainCategory.isFinite) domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap else Map.empty
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
-  override def toString = s"NT($tag)(${
+  override def toString: String = {
+    val s = String valueOf tag
+    if (s.isEmpty) details else s
+  }
+  
+  def details = s"NT($tag)(${
     if (domainCategory.isFinite) {
       domainCategory.listOfObjects.map(o ⇒ s"$o→(${transformPerObject(o)})").mkString(", ")
     } else ""

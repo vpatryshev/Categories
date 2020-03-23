@@ -2,6 +2,7 @@ package math.cat.topos
 
 import scala.language.implicitConversions
 import scala.language.postfixOps
+import math.Base._
 import math.cat._
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, _}
 import math.sets.Sets._
@@ -233,7 +234,9 @@ class CategoryOfDiagrams(val domain: Category)
   def inclusionOf(p: Point): includer = inclusionOf(p.asDiagram)
   
   def standardInclusion(p: Point, d: Diagram): Result[Arrow] = {
-    inclusionOf(p) in d map { q => uniqueFromTerminalTo(p) compose q }
+    inclusionOf(p) in d map { q => {
+      uniqueFromTerminalTo(p) compose q named p.tag
+    } }
   }
 
   /**
@@ -242,7 +245,7 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def uniqueFromTerminalTo(p: Point): Arrow = {
     new DiagramArrow {
-      val tag = s"⊤→${p.tag}"
+      val tag = p.tag
 
       override val d0: Diagram = _1
       override val d1: Diagram = p.asDiagram

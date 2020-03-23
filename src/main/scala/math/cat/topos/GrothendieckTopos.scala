@@ -296,6 +296,6 @@ trait GrothendieckTopos
 
 
   def χ(inclusion: Arrow): Predicate = {
-    χ(inclusion, s"(χ${inclusion.tag})")
+    χ(inclusion, s"χ(${inclusion.tag})")
   }
 }

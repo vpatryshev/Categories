@@ -6,12 +6,15 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result
 
 class TopologyTest extends Fixtures {
-
+  
   "Topologies" should {
     "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
       import topos._
+      Ω.True.toString === "⊤"
       val truth = Ω.True.asPredicate
+      val ts = truth.toString
+      ts === "⊤"
       val sut = LawvereTopology.forPredicate(topos)(truth)
 
 //      sut.isGood aka sut.toString must beTrue
@@ -23,14 +26,20 @@ class TopologyTest extends Fixtures {
       import topos._
       val subs: List[Diagram] = Ω.subobjects.toList
       subs.size === 4
+      LawvereTopology.DEBUG = true
+
+      val builder = LawvereTopology.forPredicate(topos)
+
       val predicates = Result.traverse( for {
         sub <- subs
         fOpt = inclusionOf(sub) in Ω
         predicate = fOpt map predicateFor
-      } yield predicate) iHope
-      
-      val builder = LawvereTopology.forPredicate(topos)
+      } yield predicate).iHope.toList
 
+      val t0 = builder(predicates(0))
+      val t1 = builder(predicates(1))
+      val t2 = builder(predicates(2))
+      val t3 = builder(predicates(3))
       val topologies = predicates map builder
       
       val sut = Result traverse topologies

@@ -6,8 +6,6 @@ import scala.language.postfixOps
 import scala.collection.breakOut
 
 /**
-  * This class, I hope, exists only temporarily, being translated from Java.
-  * It will go once conversion to Scala is done.
   * Base tools used in this package.
   */
 object Base {
@@ -32,48 +30,6 @@ object Base {
   }
 
   /**
-    * Builds a Cartesian product of two sets.
-    *
-    * @tparam X element type of first set
-    * @tparam Y element type of second set
-    * @param xs first set
-    * @param ys second set
-    * @return Cartesian product of two sets: the set of all possible pairs.
-    */
-  def setProduct[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] = {
-    (for {
-      x ← xs; y ← ys
-    } yield(x, y))(breakOut)
-  }
-
-  /**
-    * Builds a (virtual) list of integers from 0 to n-1.
-    *
-    * @param n number of elements in the list
-    * @return the list
-    */
-  def range(n: Int): List[Int] = range(0, n)
-
-  /**
-    * Builds a (virtual) list of integers from a to b-1.
-    *
-    * @param a first integer
-    * @param b next after the last integer
-    * @return the list
-    */
-  def range(a: Int, b: Int): List[Int] = range(a, b, 1)
-
-  /**
-    * Builds a (virtual) list of integers from a to b-c, with a step c.
-    *
-    * @param a first integer
-    * @param b next after the last integer
-    * @param c step
-    * @return the list
-    */
-  def range(a: Int, b: Int, c: Int): List[Int] = Range(a, b, c).toList
-
-  /**
     * Builds a map that returns a list element by its index.
     *
     * @tparam X  element type
@@ -85,6 +41,22 @@ object Base {
 
   implicit class Optimist[T](opt: Option[T]) {
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
+  }
+
+  /**
+    * Concatenates two strings with a connector; inserte
+    * @param first
+    * @param conn
+    * @param second
+    * @return
+    */
+  def concat(first: Any, conn: String, second: Any): String = {
+    val s10 = String valueOf first trim
+    val s1 = if (s10 contains " ") s"($s10)" else s10
+    val s20 = String valueOf second trim
+    val s2 = if (s20 contains " ") s"($s20)" else s20
+    val insert = if (s1.length > 1 || s2.length > 1) s" $conn " else conn
+    s1 + insert + s2
   }
 
 }
