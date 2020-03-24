@@ -1,5 +1,7 @@
 package math.cat.topos
 
+import math.Base
+
 import scala.language.implicitConversions
 import scala.language.postfixOps
 import math.Base._
@@ -215,20 +217,40 @@ class CategoryOfDiagrams(val domain: Category)
 
   /**
     * Cartesian product of two diagrams
-    * TODO: figure out how to ensure the same d0 in bothDi
+    * TODO: figure out how to ensure the same d0 in both Di
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
-  val π1: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
+  // π1
+  protected val firstProjection: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
     case (a, b) ⇒ a
     case trash ⇒
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
   }
 
-  val π2: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
+  // π2
+  protected val secondProjection: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
     case (a, b) ⇒ b
     case trash ⇒
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
+  }
+
+  /**
+    * Given arrows `f` and `g`, builds an arrow (f×g): dom(f)×dom(g) → codom(f)×codom(g)
+    *
+    * @param f first component
+    * @param g second component
+    * @return a product of `f` and `g`
+    */
+  def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow = {
+
+    val mapping: Mapping = ???
+
+    buildArrow(
+      Base.concat(f.tag, "×", g.tag),
+      product2(f.d0, g.d0),
+      product2(f.d1, g.d1),
+      mapping)
   }
 
   def inclusionOf(p: Point): includer = inclusionOf(p.asDiagram)

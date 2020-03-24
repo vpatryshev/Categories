@@ -237,8 +237,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val actual = topos.product2(d1, d2)
       actual("0").size === 15
       actual("1") === Set((0,0), (1,0), (2,0), (3,0), (0,1), (1,1), (2,1), (3,1))
-      
     }
+    
     "exist in Set^M" in {
       val topos = new CategoryOfDiagrams(M)
 

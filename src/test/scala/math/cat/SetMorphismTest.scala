@@ -2,7 +2,7 @@ package math.cat
 
 import math.cat.SetMorphism._
 import math.sets.{N, Sets}
-import Sets._
+import Sets.{product2, _}
 import org.specs2.mutable._
 import scalakittens._
 
@@ -165,6 +165,28 @@ class SetMorphismTest extends Specification {
     }
     ok
   }
+
+  "product of two morphisms" >> {
+    val fd0 = Set("a", "b", "c")
+    val gd0 = Set("A", "B")
+    val expected_d0 = Set(("a", "A"), ("a", "B"), ("b", "A"), ("b", "B"), ("c", "A"), ("c", "B"))
+
+    val fd1 = Set("A", "B", "C")
+    val gd1 = Set("a", "b")
+    val expected_d1 = Set(("A", "a"), ("A", "b"), ("B", "a"), ("B", "b"), ("C", "a"), ("C", "b"))
+    
+    val f = new SetMorphism("f", fd0, fd1, (_: String).toUpperCase)
+    val g = new SetMorphism("g", gd0, gd1, (_: String).toLowerCase)
+    val product = SetMorphism.product2(f, g)
+    product.tag === "f×g"
+    product.d0 === expected_d0
+    product.d1 === expected_d1
+    for {
+      (x, y) <- expected_d0
+    } product((x, y)) === (x.toUpperCase, y.toLowerCase)
+    ok
+  }
+
 
 
 }

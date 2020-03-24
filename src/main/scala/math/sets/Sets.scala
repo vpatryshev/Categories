@@ -2,6 +2,7 @@ package math.sets
 
 import java.io.Reader
 
+import math.Base
 import math.cat.SetMorphism
 import math.sets.Functions.Injection
 

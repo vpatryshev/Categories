@@ -1,5 +1,7 @@
 package math.cat
 
+import math.Base
+
 import scala.language.implicitConversions
 import scala.language.postfixOps
 import math.cat.SetMorphism._
@@ -98,7 +100,7 @@ object SetMorphism {
       val maps = Sets.exponent(xs, ys)
       val morphisms = maps flatMap (build(xs, ys, _).asOption)
       def predicate(m: SetMorphism[X, Y]) = m.d0 == xs && m.d1 == ys && maps.contains(m)
-      setOf(morphisms, maps.size, predicate _)
+      setOf(morphisms, maps.size, predicate)
   }
 
   def pullback[X, Y, Z](f: SetMorphism[X, Z], g: SetMorphism[Y, Z]): (SetMorphism[(X, Y), X], SetMorphism[(X, Y), Y]) = {
@@ -107,4 +109,17 @@ object SetMorphism {
     val p1 = (p: (X, Y)) ⇒ p._2
     (build(pullbackSet, f.d0, p0) andAlso build(pullbackSet, g.d0, p1)) iHope
   }
+
+  /**
+    * Cartesian product of two set morphisms (that is, functions)
+    */
+  def product2[X1, X2, Y1, Y2](f: SetMorphism[X1, Y1], g: SetMorphism[X2, Y2]):
+  SetMorphism[(X1, X2), (Y1, Y2)] = {
+    new SetMorphism[(X1, X2), (Y1, Y2)](
+      Base.concat(f.tag, "×", g.tag),
+      Sets.product2(f.d0, g.d0),
+      Sets.product2(f.d1, g.d1),
+      p => (f(p._1), g(p._2)))
+  }
+
 }

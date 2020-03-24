@@ -217,7 +217,7 @@ trait GrothendieckTopos
   lazy val ΩxΩ: Obj = product2(Ω, Ω)
  
   private lazy val firstProjectionOf_ΩxΩ =
-    buildArrow("π1", ΩxΩ, Ω, π1)
+    buildArrow("π1", ΩxΩ, Ω, firstProjection)
 
   /**
     * An equalizer of first projection and intersection

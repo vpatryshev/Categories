@@ -53,7 +53,9 @@ object LawvereTopology {
   // like j^j=j, or something?
   def mustBeClosedUnderConjunction[O, A](topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome = {
     val j = topos.χ(predicate)
-
+    
+    // have to compare /\ o pair(j,j) and j o /\ from OmegaxOmega to Omega
+    // question is, how do we build pair(j,j)? No definition yet
     OKif(false, s"Should be closed under conjunction: ${predicate.tag}")
   }
 }
