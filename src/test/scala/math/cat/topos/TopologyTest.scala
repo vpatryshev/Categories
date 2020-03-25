@@ -17,7 +17,7 @@ class TopologyTest extends Fixtures {
       ts === "⊤"
       val sut = LawvereTopology.forPredicate(topos)(truth)
 
-//      sut.isGood aka sut.toString must beTrue
+      sut.isGood aka sut.toString must beTrue
       ok
     }
 
@@ -36,13 +36,13 @@ class TopologyTest extends Fixtures {
         predicate = fOpt map predicateFor
       } yield predicate).iHope.toList
 
-      val t0 = builder(predicates(0))
-      val t1 = builder(predicates(1))
-      val t2 = builder(predicates(2))
-      val t3 = builder(predicates(3))
-      val topologies = predicates map builder
-      
-      val sut = Result traverse topologies
+//      val t0 = builder(predicates(0))
+//      val t1 = builder(predicates(1))
+//      val t2 = builder(predicates(2))
+//      val t3 = builder(predicates(3))
+//      val topologies = predicates map builder
+//      
+//      val sut = Result traverse topologies
 
 //      sut.isGood aka sut.toString must beTrue
       ok

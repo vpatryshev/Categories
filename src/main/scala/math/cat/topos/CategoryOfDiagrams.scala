@@ -244,7 +244,7 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow = {
 
-    val mapping: Mapping = ???
+    val mapping: Mapping = x => { case (a, b) => (f(a), g(b)) }
 
     buildArrow(
       Base.concat(f.tag, "×", g.tag),
