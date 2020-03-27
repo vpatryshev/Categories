@@ -25,10 +25,13 @@ private[cat] abstract class CategoryData extends Graph {
 
   override def name: String = graph.name
 
-  def obj(x: Any): Obj =
-    Result.forValue(asObj(x)) filter (objects contains) getOrElse {
+  def obj(x: Any): Obj = {
+    val objectMaybe = Result.forValue(asObj(x))
+    objectMaybe filter (objects contains) getOrElse {
+      System.out.println(objectMaybe filter (objects contains))
       throw new IllegalArgumentException(s"$x is not an object in $name")
     }
+  }
 
   def id(o: Obj): Arrow
 

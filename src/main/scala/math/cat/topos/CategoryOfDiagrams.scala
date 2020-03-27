@@ -244,7 +244,12 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow = {
 
-    val mapping: Mapping = x => { case (a, b) => (f(a), g(b)) }
+    val mapping: Mapping = x => {
+      val fx = f(x).asInstanceOf[SetMorphism[Any, Any]]
+      val gx = g(x).asInstanceOf[SetMorphism[Any, Any]]
+      
+      { case (a, b) => (fx(a), gx(b)) }
+    }
 
     buildArrow(
       Base.concat(f.tag, "×", g.tag),
