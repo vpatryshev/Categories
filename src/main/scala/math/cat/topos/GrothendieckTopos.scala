@@ -61,7 +61,7 @@ trait GrothendieckTopos
       new SetFunction(s"[$a]", d0.untyped, d1.untyped, d ⇒ diaMap(d.asInstanceOf[Diagram]))
     }
 
-    val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
+    protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
       (a: XArrow) ⇒ d1.arrow(am(domain.arrow(a)))
 
     /**
@@ -224,6 +224,9 @@ trait GrothendieckTopos
     */
   lazy val Ω1: Diagram = ΩxΩ.filter("<", _ ⇒ { case (a: Any, b: Any) ⇒ a ⊂ b })
 
+  /**
+    * Diagonal for Ω
+    */
   lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
     _ ⇒ (subrep: Any) ⇒ (subrep, subrep)
   )

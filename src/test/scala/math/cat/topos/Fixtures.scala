@@ -2,9 +2,23 @@ package math.cat.topos
 
 import math.Test
 import org.specs2.matcher.MatchResult
+import scalakittens.Result
 
 class Fixtures extends Test with TestDiagrams {
   type SUT = Diagram
+  
+  def expectOk(r: Result[_]): Unit = {
+    r.isGood aka r.toString must beTrue
+  }
+  
+  def expectError(r: Result[_], message: String): Unit = {
+    r.isBad must beTrue
+    r.errorDetails match {
+      case Some(things) => things must contain(message)
+        
+      case None => failure(s"Expected errors in $r")
+    }
+  }
 
   case class checkThatIn(topos: GrothendieckTopos) {
     def mustBeMonoid[P](what: String,

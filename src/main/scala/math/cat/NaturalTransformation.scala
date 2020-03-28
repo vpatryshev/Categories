@@ -28,17 +28,25 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
   def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow
   def apply(x: Any): codomainCategory.Arrow = transformPerObject(domainCategory.obj(x))
 
-  // TODO: check the preconditions, return an option
-  def compose(next: NaturalTransformation): NaturalTransformation = {
+  /**
+    * Produces gâˆ˜f
+    * @param g next
+    * @return
+    */
+  def andThen(g: NaturalTransformation): NaturalTransformation = {
     
     def comp(x: domainCategory.Obj): codomainCategory.Arrow = {
       val fHere: codomainCategory.Arrow =
-        codomainCategory.arrow(transformPerObject(domainCategory.obj(x)))
+        codomainCategory.arrow(self(x))
       val fThere: codomainCategory.Arrow =
-        codomainCategory.arrow(next.transformPerObject(next.domainCategory.obj(x)))
+        codomainCategory.arrow(g(x))
       val compOpt: Option[codomainCategory.Arrow] = codomainCategory.m(fHere, fThere)
       compOpt getOrElse(
-          throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere"))
+        {
+          println(s"Bad transformation for $x for $fHere and $fThere")
+          throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere")
+        }
+      )
     }
 
     def composed[T](x: T) = {
@@ -46,9 +54,9 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
     }
 
     new NaturalTransformation {
-      val tag = s"${next.tag} âˆ˜ ${self.tag}"
+      val tag = s"${g.tag} âˆ˜ ${self.tag}"
       val d0: Functor = self.d0
-      val d1: Functor = next.d1
+      val d1: Functor = g.d1
       def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = codomainCategory.arrow(composed(x))
     }
   }

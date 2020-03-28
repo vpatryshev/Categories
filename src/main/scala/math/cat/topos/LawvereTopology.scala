@@ -39,12 +39,14 @@ object LawvereTopology {
         }
     }
 
-  def mustContainTruth(topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome =
-    OKif(topos.Ω.True ∈ predicate.d0, s"Should contain truth: ${predicate.tag}")
+  def mustContainTruth(topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome = {
+    val itsthere = topos.Ω.True ∈ predicate.d0
+    OKif(itsthere, s"Should contain truth: ${predicate.tag}")
+  }
 
   def mustBeClosed[O, A](topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome = {
     val j = topos.χ(predicate)
-    val jj = j compose j
+    val jj = j andThen j
 //    val sameThing = jj.equalsWithDetails(j, DEBUG)
 //    if (DEBUG) println(sameThing)
     OKif(jj == j, s"Should be closed: ${predicate.tag}")
@@ -55,7 +57,7 @@ object LawvereTopology {
     val j = topos.χ(predicate)
     val jxj = topos.productOfArrows(j, j)
     val conjunction = topos.Ω.conjunction
-    OKif((conjunction compose jxj) == (j compose conjunction),
+    OKif((jxj andThen conjunction) == (conjunction andThen j),
       s"Should be closed under conjunction: ${predicate.tag}")
   }
 }

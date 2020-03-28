@@ -240,7 +240,7 @@ abstract class Diagram(
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) ⇒
         def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
-        Diagram.build(i+1, topos)(same_om, extendToArrows3(same_om) _)
+        Diagram.build(i, topos)(same_om, extendToArrows3(same_om) _)
     }
     
     val goodOnes = allCandidates.collect { case Good(d) ⇒ d}
@@ -356,7 +356,7 @@ object Diagram {
         d1.asObj(y)
       }
 
-      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
+      override protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
         (a: XArrow) ⇒ d1.arrow(arrowMap(t.domain.arrow(a)))
     }
   }

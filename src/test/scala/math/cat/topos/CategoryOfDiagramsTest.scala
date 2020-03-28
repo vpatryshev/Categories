@@ -120,7 +120,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val idtrans = topos.id(d)
       idtrans.d0 === d
       idtrans.d1 === d
-      idtrans.compose(idtrans) === idtrans
+      idtrans.andThen(idtrans) === idtrans
     }
 
     "exist in Set^M" in {

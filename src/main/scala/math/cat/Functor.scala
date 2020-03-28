@@ -20,7 +20,7 @@ abstract class Functor(
   def domainObjects: d0.Objects = d0.objects
 
   val objectsMapping: d0.Obj ⇒ d1.Obj
-  val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow
+  protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow
   
   override def toString: String = s"Functor $tag"
 
@@ -57,7 +57,7 @@ abstract class Functor(
         override val objectsMapping: d0.Obj ⇒ d1.Obj =
           (x: d0.Obj) ⇒ d1.obj(objectMap(Functor.this.d0.obj(x)))
 
-        override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
+        override protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
           (a: d0.Arrow) ⇒ d1.arrow(g.arrowsMapping(g.d0.arrow(f.arrowsMapping(f.d0.arrow(a)))))
 
         // the following override is not required, because it's just another name for object mapping
@@ -289,7 +289,7 @@ object Functor {
   def id(c: Category): Functor = new Functor("id", c, c) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(x)
 
-      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
+      override protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
         (a: d0.Arrow) ⇒ d1.arrow(a)
 
       override def nodesMapping(n: d0.Node): d1.Node = d1.node(n)
@@ -318,7 +318,7 @@ object Functor {
     new Functor(tag, dom, codom) {
       override val objectsMapping: d0.Obj ⇒ d1.Obj = (x: d0.Obj) ⇒ d1.obj(objectsMorphism(dom.obj(x)))
 
-      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
+      override protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
         (a: d0.Arrow) ⇒ d1.arrow(arrowsMorphism(dom.arrow(a)))
     }
 

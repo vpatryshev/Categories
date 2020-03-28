@@ -165,7 +165,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos, topos.domain) {
     override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(domain.obj(x)))
-    override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
+    override protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
       am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
     }
     // have to validate right here, because a representable must exist, and all checks should be passing
@@ -262,7 +262,7 @@ class CategoryOfDiagrams(val domain: Category)
   
   def standardInclusion(p: Point, d: Diagram): Result[Arrow] = {
     inclusionOf(p) in d map { q => {
-      uniqueFromTerminalTo(p) compose q named p.tag
+      uniqueFromTerminalTo(p) andThen q named p.tag
     } }
   }
 

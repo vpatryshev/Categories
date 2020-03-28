@@ -9,7 +9,7 @@ import math.sets.Sets.set
 import org.specs2.matcher.MatchResult
 import scalakittens.Result._
 
-class LogicTest extends Fixtures {
+class ToposLogicTest extends Fixtures {
   
   val categoriesToTest: List[Cat] = SomeKnownCategories
   
@@ -145,6 +145,9 @@ class LogicTest extends Fixtures {
       val conjunction = Ω.conjunction
 
       val True = Ω.True
+      
+      // TODO(vlad): stop using this `transform`, it makes no sense.
+      // We just need an composition of point with Δ_Ω
       val pointOfTrueAndTrue = True.transform(Δ_Ω)
 
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ

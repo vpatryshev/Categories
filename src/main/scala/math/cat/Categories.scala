@@ -350,8 +350,7 @@ object Categories extends CategoryFactory {
         buf append strings.next
       }
       read(buf) match {
-        case Good(c) ⇒
-          c
+        case Good(c) ⇒ c
         case bad ⇒ throw new InstantiationException(bad.errorDetails.mkString)
       }
     }

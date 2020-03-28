@@ -102,17 +102,21 @@ trait Predicates { topos: CategoryOfDiagrams ⇒
     * @return an arrow X → Ω
     */
   def predicateFor(f: DiagramArrow): Predicate = {
-
-    new Predicate {
-      override val d0: Obj = _1
+    println(s"predicate for ${f.tag}")
+    throw new NotImplementedError("oops")
+    val p = new Predicate {
+      override val d0: Obj = f.d1
       override val tag: Any = f.tag
-
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
         val x_in_domain_of_f = f.domainCategory.obj(x)
         val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
-        codomainCategory.arrow(arrow_in_domain_of_f)
+        val arrow_in_codomain_of_f = codomainCategory.arrow(arrow_in_domain_of_f)
+        arrow_in_codomain_of_f
       }
+      
+      println("tfo?")
     }
+    p
   }
 
   /**
@@ -120,7 +124,20 @@ trait Predicates { topos: CategoryOfDiagrams ⇒
     * @param p the point
     * @return an arrow p → Ω
     */
-  def predicateFor(p: Point): Predicate = {
-    predicateFor(standardInclusion(p, Ω) iHope)
+  def predicateFor(pt: Point): Predicate = {
+
+    val inclusion: DiagramArrow = standardInclusion(pt, Ω) iHope
+
+    val p = new Predicate {
+      override val d0: Obj = _1
+      override val tag: Any = pt.tag
+
+      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
+        val xInInclusion = inclusion.domainCategory.obj(x)
+        val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
+        codomainCategory.arrow(arrowInInclusion)
+      }
+    }
+    p
   }
 }
