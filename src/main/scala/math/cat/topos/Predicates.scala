@@ -110,15 +110,13 @@ trait Predicates { topos: CategoryOfDiagrams ⇒
         val arrow_in_codomain_of_f = codomainCategory.arrow(arrow_in_domain_of_f)
         arrow_in_codomain_of_f
       }
-      
-      println("tfo?")
     }
     p
   }
 
   /**
     * Builds a predicate for a point in Ω
-    * @param p the point
+    * @param pt the point
     * @return an arrow p → Ω
     */
   def predicateFor(pt: Point): Predicate = {

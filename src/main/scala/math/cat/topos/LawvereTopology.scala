@@ -47,8 +47,6 @@ object LawvereTopology {
   def mustBeClosed[O, A](topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome = {
     val j = topos.χ(predicate)
     val jj = j andThen j
-//    val sameThing = jj.equalsWithDetails(j, DEBUG)
-//    if (DEBUG) println(sameThing)
     OKif(jj == j, s"Should be closed: ${predicate.tag}")
   }
 

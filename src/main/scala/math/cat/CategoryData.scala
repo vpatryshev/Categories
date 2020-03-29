@@ -28,7 +28,6 @@ private[cat] abstract class CategoryData extends Graph {
   def obj(x: Any): Obj = {
     val objectMaybe = Result.forValue(asObj(x))
     objectMaybe filter (objects contains) getOrElse {
-      System.out.println(objectMaybe filter (objects contains))
       throw new IllegalArgumentException(s"$x is not an object in $name")
     }
   }

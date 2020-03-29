@@ -43,7 +43,6 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
       val compOpt: Option[codomainCategory.Arrow] = codomainCategory.m(fHere, fThere)
       compOpt getOrElse(
         {
-          println(s"Bad transformation for $x for $fHere and $fThere")
           throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere")
         }
       )
