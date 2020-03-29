@@ -7,42 +7,39 @@ import scalakittens.Result
 
 class TopologyTest extends Fixtures {
   
+  def topologiesOn(cat: Cat): List[Result[LawvereTopology]] = {
+    val topos = new CategoryOfDiagrams(cat)
+    import topos._
+    val subs: List[Diagram] = Ω.subobjects.toList
+
+    val inclusions = subs map (inclusionOf(_)  in Ω)
+
+    val builder = LawvereTopology.forPredicate(topos)
+
+    val predicates = Result.traverse( for {
+      fOpt <- inclusions
+      predicateOpt = fOpt map predicateFor
+    } yield predicateOpt).iHope.toList
+
+    val topologies = predicates map builder
+    topologies
+  }
+  
   "Topologies" should {
     "exist for _0_" in {
-      val topos = new CategoryOfDiagrams(_0_)
-      import topos._
-      Ω.True.toString === "⊤"
-      val truth = Ω.True.asPredicate
-      val ts = truth.toString
-      ts === "⊤"
-      val sut = LawvereTopology.forPredicate(topos)(truth)
-
-      sut.isGood aka sut.toString must beTrue
-      ok
+      val topologies = topologiesOn(_0_)
+      topologies.length === 1
+      expectOk(topologies.head)
     }
 
     "exist for _1_" in {
-      val topos = new CategoryOfDiagrams(_1_)
-      import topos._
-      val subs: List[Diagram] = Ω.subobjects.toList
-      subs.size === 4
-      LawvereTopology.DEBUG = true
+      val topologies = topologiesOn(_1_)
+      topologies.size === 4
       
-      val inclusions = subs map (inclusionOf(_)  in Ω)
-
-      val builder = LawvereTopology.forPredicate(topos)
-
-      val predicates = Result.traverse( for {
-        fOpt <- inclusions
-        predicateOpt = fOpt map predicateFor
-      } yield predicateOpt).iHope.toList
-
-      expectOk(builder(predicates(3)))
-      expectError(builder(predicates(0)), "Should contain truth")
-      expectOk(builder(predicates(1)))
-      expectError(builder(predicates(2)), "Should be closed:", "under conjunction")
-      
-      ok
+      expectOk(topologies(3))
+      expectError(topologies(0), "Should contain truth")
+      expectOk(topologies(1))
+      expectError(topologies(2), "Should be closed:", "under conjunction")
     }
 
     "exist for _2_" in {
