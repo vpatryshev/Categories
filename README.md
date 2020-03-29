@@ -31,12 +31,12 @@ What we have now:
 - table of logic on points,
 - svg rendering of categories (see samples.html)
 - classifying arrow
+- Lawvere topologies
 
 WIP:
 
 Plans: 
-- Grothendieck topologies
-- sheaves (not there?)
+- sheaves
 - pullback in topos
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
