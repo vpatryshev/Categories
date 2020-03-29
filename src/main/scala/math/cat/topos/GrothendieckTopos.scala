@@ -17,7 +17,9 @@ trait GrothendieckTopos
   val domain: Category
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
-  
+
+  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]]
+
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
