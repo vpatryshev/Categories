@@ -15,9 +15,9 @@ class TopologyTest extends Fixtures {
       val truth = Ω.True.asPredicate
       val ts = truth.toString
       ts === "⊤"
-//      val sut = LawvereTopology.forPredicate(topos)(truth)
-//
-//      sut.isGood aka sut.toString must beTrue
+      val sut = LawvereTopology.forPredicate(topos)(truth)
+
+      sut.isGood aka sut.toString must beTrue
       ok
     }
 
@@ -30,25 +30,18 @@ class TopologyTest extends Fixtures {
       
       val inclusions = subs map (inclusionOf(_)  in Ω)
 
-//      val builder = LawvereTopology.forPredicate(topos)
-//
-//      val predicates = Result.traverse( for {
-//        fOpt <- inclusions
-//        f = fOpt.iHope
-//        predicate = predicateFor(f)
-//        predicateOpt = fOpt map predicateFor
-//        p0 = predicate("0")
-//        _ = println(s"fOpt $fOpt, predicate $predicate; $p0")
-//      } yield predicateOpt).iHope.toList
-//
-//      expectOk(builder(predicates(3)))
-//      expectError(builder(predicates(0)), "Should contain truth")
-//      expectError(builder(predicates(1)), "Should contain truth")
-////      expectOk(builder(predicates(2)))
-//      
-//      val topologies = predicates map builder
-//
-//      expectOk(Result traverse topologies)
+      val builder = LawvereTopology.forPredicate(topos)
+
+      val predicates = Result.traverse( for {
+        fOpt <- inclusions
+        predicateOpt = fOpt map predicateFor
+      } yield predicateOpt).iHope.toList
+
+      expectOk(builder(predicates(3)))
+      expectError(builder(predicates(0)), "Should contain truth")
+      expectOk(builder(predicates(1)))
+      expectError(builder(predicates(2)), "Should be closed:", "under conjunction")
+      
       ok
     }
 

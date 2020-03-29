@@ -9,7 +9,6 @@ import scalakittens.Result
 trait Predicates { topos: CategoryOfDiagrams ⇒
 
   trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
-    val d0: Diagram
     val d1: Diagram = Ω
 
     private def wrapTag(tag: Any): String = {
@@ -102,10 +101,8 @@ trait Predicates { topos: CategoryOfDiagrams ⇒
     * @return an arrow X → Ω
     */
   def predicateFor(f: DiagramArrow): Predicate = {
-    println(s"predicate for ${f.tag}")
-    throw new NotImplementedError("oops")
     val p = new Predicate {
-      override val d0: Obj = f.d1
+      override val d0: Obj = f.d0
       override val tag: Any = f.tag
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
         val x_in_domain_of_f = f.domainCategory.obj(x)

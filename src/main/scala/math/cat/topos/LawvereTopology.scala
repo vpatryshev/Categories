@@ -40,7 +40,7 @@ object LawvereTopology {
     }
 
   def mustContainTruth(topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome = {
-    val itsthere = topos.Ω.True ∈ predicate.d0
+    val itsthere = topos.Ω.True ∈ predicate.d0.asInstanceOf[Diagram] // !! TODO
     OKif(itsthere, s"Should contain truth: ${predicate.tag}")
   }
 

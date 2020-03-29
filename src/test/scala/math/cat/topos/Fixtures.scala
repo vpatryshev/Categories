@@ -11,10 +11,10 @@ class Fixtures extends Test with TestDiagrams {
     r.isGood aka r.toString must beTrue
   }
   
-  def expectError(r: Result[_], message: String): Unit = {
+  def expectError(r: Result[_], messages: String*): Unit = {
     r.isBad must beTrue
     r.errorDetails match {
-      case Some(things) => things must contain(message)
+      case Some(things) => messages foreach { message => things must contain(message) }
         
       case None => failure(s"Expected errors in $r")
     }

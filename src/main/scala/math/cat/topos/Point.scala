@@ -55,7 +55,7 @@ class Point(
   }
 
 
-  def ∈(container: Diagram): Boolean = asDiagram ∈ container
+  def ∈(container: Diagram): Boolean = asDiagram ⊂ container
 
   private lazy val predicate: topos.Predicate = topos predicateFor this
 
