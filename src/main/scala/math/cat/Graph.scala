@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import java.io.Reader
 
 import math.sets._
@@ -57,7 +59,7 @@ trait Graph extends GraphData { graph ⇒
     * @param to   second node
     * @return the set of all arrows from x to y
     */
-  def arrowsBetween(from: Node, to: Node): Arrows = asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
+  def arrowsBetween(from: Node, to: Node): Arrows = setOf(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
   
   /**
     * Checks if one arrow follows another
@@ -125,7 +127,7 @@ trait Graph extends GraphData { graph ⇒
   }
 
   def addArrows(arrowsData: Map[Arrow, (Node, Node)]): Graph = new Graph {
-    override val name = graph.name
+    override val name: String = graph.name
 
     def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
 
@@ -178,7 +180,7 @@ private[cat] trait GraphData { data ⇒
       Result.fold(arrows map {
         a ⇒
           OKif(nodes contains d0(a), " d0 for " + a + " should be in set of nodes") andAlso
-          OKif(nodes contains d1(a), " d1 for " + a + " should be in set of nodes") returning ()
+          OKif(nodes contains d1(a), " d1 for " + a + " should be in set of nodes") returning ⊤
       })
     } returning this
   
@@ -242,7 +244,7 @@ object Graph {
 
   def discrete[N](points: Set[N], name0: String = ""): Graph =
     new Graph {
-      override val name = if (name0 == "") s"DiscreteGraph_${points.size}" else name0
+      override val name: String = if (name0 == "") s"DiscreteGraph_${points.size}" else name0
       type Node = N
       type Arrow = N
       def nodes: Nodes = points

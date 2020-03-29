@@ -2,6 +2,7 @@ package math.cat
 
 import math.cat.SetMorphism._
 import math.sets.{N, Sets}
+import Sets.{product2, _}
 import org.specs2.mutable._
 import scalakittens._
 
@@ -32,8 +33,8 @@ class SetMorphismTest extends Specification {
   }
 
   "Composition with id" >>  {
-    m.compose(id(strings)) === Some(m)
-    id(ints).compose(m) === Some(m)
+    m.andThen(id(strings)) === Some(m)
+    id(ints).andThen(m) === Some(m)
   }
 
  "Constructor2" >> {
@@ -62,7 +63,7 @@ class SetMorphismTest extends Specification {
     val x = Set(11, 12, 13, 14, 15)
     val f = SetMorphism.build(x, testSetX, (n: Int) ⇒ n - 10).iHope
     val g = SetMorphism.build(testSetX, testSetZ, (n: Int) ⇒ "#" + n).iHope
-    val h = f compose g
+    val h = f andThen g
     
     h === Some(SetMorphism.build(x, testSetZ, (n: Int) ⇒ "#" + (n - 10)).iHope)
   }
@@ -102,13 +103,13 @@ class SetMorphismTest extends Specification {
   }
 
   "Variance_byX" >> {
-    val x = Sets.setOf(testSetX, testSetX.size, testSetX.contains _)
+    val x = setOf(testSetX, testSetX.size, testSetX.contains _)
     val sut = SetMorphism.build(x, testSetZ, (n: Int) ⇒ "#" + n).iHope
     ("#3" == sut(3)) must beTrue
   }
 
   "Variance_byY" >> {
-    val y = Sets.setOf(testSetZ, testSetZ.size, testSetZ.contains _)
+    val y = setOf(testSetZ, testSetZ.size, testSetZ.contains _)
     val sut = SetMorphism.build(testSetX, y, (n: Int) ⇒ "#" + n).iHope
     ("#3" == sut(3)) must beTrue
   }
@@ -164,6 +165,28 @@ class SetMorphismTest extends Specification {
     }
     ok
   }
+
+  "product of two morphisms" >> {
+    val fd0 = Set("a", "b", "c")
+    val gd0 = Set("A", "B")
+    val expected_d0 = Set(("a", "A"), ("a", "B"), ("b", "A"), ("b", "B"), ("c", "A"), ("c", "B"))
+
+    val fd1 = Set("A", "B", "C")
+    val gd1 = Set("a", "b")
+    val expected_d1 = Set(("A", "a"), ("A", "b"), ("B", "a"), ("B", "b"), ("C", "a"), ("C", "b"))
+    
+    val f = new SetMorphism("f", fd0, fd1, (_: String).toUpperCase)
+    val g = new SetMorphism("g", gd0, gd1, (_: String).toLowerCase)
+    val product = SetMorphism.product2(f, g)
+    product.tag === "f×g"
+    product.d0 === expected_d0
+    product.d1 === expected_d1
+    for {
+      (x, y) <- expected_d0
+    } product((x, y)) === (x.toUpperCase, y.toLowerCase)
+    ok
+  }
+
 
 
 }

@@ -400,7 +400,7 @@ object Result {
     }
   }
 
-  object OK extends Good(()) with Outcome {
+  object OK extends Good(⊤) with Outcome {
     override def toString = "OK"
   }
   def OKif(cond: ⇒ Boolean): Outcome = OK filter(_ ⇒ cond)
@@ -408,5 +408,6 @@ object Result {
   def OKifNot(cond: ⇒ Boolean): Outcome = OK filterNot (_ ⇒ cond)
   def Oops[T](complaint: Any): Bad[T] = error(complaint)
   def NotImplemented[T]: Bad[T] = Oops[T]("not implemented")
+  val ⊤ : Unit = ()
 }
 

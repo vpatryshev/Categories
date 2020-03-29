@@ -1,5 +1,9 @@
 package math.cat
 
+import math.Base
+
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import math.cat.SetMorphism._
 import math.sets.Sets
 import math.sets.Sets._
@@ -33,8 +37,14 @@ class SetMorphism[X, Y] (
   def equals(other: SetMorphism[X, Y]): Boolean = {
     ((d0 == other.d0 && d1 == other.d1) /: d0) ((eq, x) ⇒ eq & this(x) == other(x))
   }
-  
-  def compose[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
+
+  /**
+    * Composes with another morphism, optionally
+    *
+    * @param g next morphism: Y → Z
+    * @return their composition g ∘ f: X → Z
+    */
+  def andThen[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
     OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) ⇒ g(this(x))) asOption
   }
   
@@ -96,7 +106,7 @@ object SetMorphism {
       val maps = Sets.exponent(xs, ys)
       val morphisms = maps flatMap (build(xs, ys, _).asOption)
       def predicate(m: SetMorphism[X, Y]) = m.d0 == xs && m.d1 == ys && maps.contains(m)
-      setOf(morphisms, maps.size, predicate _)
+      setOf(morphisms, maps.size, predicate)
   }
 
   def pullback[X, Y, Z](f: SetMorphism[X, Z], g: SetMorphism[Y, Z]): (SetMorphism[(X, Y), X], SetMorphism[(X, Y), Y]) = {
@@ -105,4 +115,17 @@ object SetMorphism {
     val p1 = (p: (X, Y)) ⇒ p._2
     (build(pullbackSet, f.d0, p0) andAlso build(pullbackSet, g.d0, p1)) iHope
   }
+
+  /**
+    * Cartesian product of two set morphisms (that is, functions)
+    */
+  def product2[X1, X2, Y1, Y2](f: SetMorphism[X1, Y1], g: SetMorphism[X2, Y2]):
+  SetMorphism[(X1, X2), (Y1, Y2)] = {
+    new SetMorphism[(X1, X2), (Y1, Y2)](
+      Base.concat(f.tag, "×", g.tag),
+      Sets.product2(f.d0, g.d0),
+      Sets.product2(f.d1, g.d1),
+      p => (f(p._1), g(p._2)))
+  }
+
 }

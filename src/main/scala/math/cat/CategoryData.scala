@@ -1,9 +1,11 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import java.util.Objects
 
 import math.cat.CategoryData.Composition
-import math.sets.Sets.asSet
+import math.sets.Sets.setOf
 import scalakittens.Result
 import scalakittens.Result._
 
@@ -23,10 +25,12 @@ private[cat] abstract class CategoryData extends Graph {
 
   override def name: String = graph.name
 
-  def obj(x: Any): Obj =
-    Result.forValue(asObj(x)) filter (objects contains) getOrElse {
+  def obj(x: Any): Obj = {
+    val objectMaybe = Result.forValue(asObj(x))
+    objectMaybe filter (objects contains) getOrElse {
       throw new IllegalArgumentException(s"$x is not an object in $name")
     }
+  }
 
   def id(o: Obj): Arrow
 
@@ -112,7 +116,7 @@ private[cat] abstract class CategoryData extends Graph {
               s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
               OKif(sameCodomain(gf, g),
                 s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)} in $name")
-          } returning()
+          } returning ⊤
         }
         else {
           OKif(h.isEmpty, s"Wrongly defined composition of $f and $g in $name")
@@ -162,7 +166,7 @@ private[cat] abstract class CategoryData extends Graph {
   }
 
   private def calculateHom(from: Obj, to: Obj): Arrows =
-    asSet(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
+    setOf(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
 
 }
 
@@ -196,9 +200,9 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
     val idMap: Map[Any, Arrow] = objects.map(o ⇒ o -> id(node(o))).toMap
 
     val mMap: Map[(Any, Any), Arrow] = {
-      for {f <- arrows
-           g <- arrows
-           h <- m(arrow(f), arrow(g))
+      for {f ← arrows
+           g ← arrows
+           h ← m(arrow(f), arrow(g))
       } yield (f, g) -> h
     } toMap
 

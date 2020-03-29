@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.implicitConversions
 import math.Base
 import math.Base._
 import math.cat._
@@ -30,9 +31,9 @@ abstract class Diagram(
   type XArrow = d0.Arrow
   type XArrows = Set[d0.Arrow]
 
-  implicit def asSet(x: d1.Obj): set = x.asInstanceOf[set]
+  implicit def setOf(x: d1.Obj): set = x.asInstanceOf[set]
 
-  private[topos] def setAt(x: Any): set = asSet(objectsMapping(d0.asObj(x)))
+  private[topos] def setAt(x: Any): set = setOf(objectsMapping(d0.asObj(x)))
   
   def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o ⇒ this(o) subsetOf other(o) }
@@ -67,7 +68,7 @@ abstract class Diagram(
     asFunction(arrowInSets)
   }
 
-  def apply(x: Any): set = asSet(objectsMapping(d0.obj(x)))
+  def apply(x: Any): set = setOf(objectsMapping(d0.obj(x)))
 
   /**
     * Calculates this diagram's limit
@@ -111,7 +112,7 @@ abstract class Diagram(
     d0.buildBundles(d0.objects, participantArrows.asInstanceOf[XArrows])
     val listOfObjects: List[XObject] = op.listOfRootObjects.asInstanceOf[List[XObject]]
     // Here we have a non-repeating collection of sets to use for building a union
-    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping map asSet
+    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping map setOf
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
     val typelessUnion: set = union.unionSet untyped
     val directIndex: IntMap[XObject] = Base.toMap(listOfObjects)
@@ -127,9 +128,9 @@ abstract class Diagram(
       a ← bundles(o)
       from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
-      embeddingToUnion =
-      SetFunction.build("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a))).iHope
-      g = aAsMorphism.andThen(embeddingToUnion) // do we need it?
+      embeddingToUnion ←
+      SetFunction.build("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a))).asOption
+      g ← aAsMorphism andThen embeddingToUnion // do we need it?
     } yield (o, g)
 
     // Account for all canonical functions
@@ -138,7 +139,7 @@ abstract class Diagram(
 
     val theFactorset: factorset = new FactorSet(typelessUnion)
 
-    // have to factor the union by the equivalence relationship caused
+    // have to factor the union by the equivalence relation caused
     // by two morphisms mapping the same element to two possibly different.
     for (o ← d0.objects) {
       val F_o = nodesMapping(o) // the set to which `o` maps
@@ -163,7 +164,7 @@ abstract class Diagram(
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
 
     def coconeMap(x: XObject): d1.Arrow = d1.arrow {
-      canonicalFunctionPerObject(x) andThen factorMorphism
+      canonicalFunctionPerObject(x) andThen factorMorphism iHope
     }
 
     Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
@@ -179,7 +180,7 @@ abstract class Diagram(
       itsok
   }
 
-  lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map asSet
+  lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map setOf
   
   private def extendToArrows1(om: d0.Obj ⇒ Sets.set)(a: d0.Arrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
@@ -239,7 +240,7 @@ abstract class Diagram(
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) ⇒
         def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
-        Diagram.build(i+1, topos)(same_om, extendToArrows3(same_om) _)
+        Diagram.build(i, topos)(same_om, extendToArrows3(same_om) _)
     }
     
     val goodOnes = allCandidates.collect { case Good(d) ⇒ d}
@@ -296,13 +297,13 @@ abstract class Diagram(
   private def arrowActionOnPoint(a: XArrow, point: Point): Any =
     arrowsMapping(a)(point(d0.d0(a)))
 
-  private[cat] def toSet(x: Any): set = asSet(d1.obj(x))
+  private[cat] def toSet(x: Any): set = setOf(d1.obj(x))
 
   private[cat] object limitBuilder {
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = rootObjects.toList.sortBy(_.toString)
     // Here we have a non-repeating collection of sets to use for building a limit
-    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map asSet
+    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map setOf
     // this is the product of these sets; will have to take a subset of this product
     final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
     final lazy private[cat] val cobundles: Map[XObject, XArrows] = d0.op.buildBundles(opo, opa)
@@ -355,7 +356,7 @@ object Diagram {
         d1.asObj(y)
       }
 
-      override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
+      override protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow =
         (a: XArrow) ⇒ d1.arrow(arrowMap(t.domain.arrow(a)))
     }
   }

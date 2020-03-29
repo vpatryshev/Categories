@@ -24,23 +24,22 @@ case class SetFunction private[cat](
   override lazy val hashCode: Int =
     d1.hashCode + 2 * d0.map(x ⇒ (x, mapping(x))).hashCode
 
-  /**
-    * Composes this morphism with the next one.
-    *
-    * @param g second morphism: Y → Z
-    * @return their composition g ∘ f: X → Z
-    */
-  def andThen(g: SetFunction): SetFunction = {
-    compose(g) getOrElse (
-      throw new IllegalArgumentException(s"Composition not defined for $self and $g")
-      )
-  }
+//  /**
+//    * Composes this morphism with the next one.
+//    *
+//    * @param g second morphism: Y → Z
+//    * @return their composition g ∘ f: X → Z
+//    */
+//  def andThen(g: SetFunction): SetFunction = {
+//    andThen(g) getOrElse (
+//      throw new IllegalArgumentException(s"Composition not defined for $self and $g")
+//    )
+//  }
 
   private def tagOfComposition(tag1: String, tag2: String): String = {
     def maybeParens(tag: String) = if (tag contains "∘") s"($tag)" else tag
     maybeParens(tag1) + " ∘ " + maybeParens(tag2)
   }
-  
   
   /**
     * Composes with another morphism, optionally
@@ -48,13 +47,16 @@ case class SetFunction private[cat](
     * @param g next morphism: Y → Z
     * @return their composition g ∘ f: X → Z
     */
-  def compose(g: SetFunction): Option[SetFunction] = {
+  def andThen(g: SetFunction): Option[SetFunction] = {
     if (d1 == g.d0) {
       val transform = (x: Any) ⇒ g(self(x))
       Some(new SetFunction(tagOfComposition(g.tag, tag), d0, g.d1, transform))
     }
     else None
   }
+//  def andThen[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
+//    OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) ⇒ g(this(x))) asOption
+//  }
 
   /**
     * Restricts this function to a new domain

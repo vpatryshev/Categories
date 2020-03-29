@@ -30,13 +30,13 @@ What we have now:
 - build logic, 
 - table of logic on points,
 - svg rendering of categories (see samples.html)
+- classifying arrow
 
 WIP:
 
 Plans: 
 - Grothendieck topologies
-- sheaves
-- classifying arrow
+- sheaves (not there?)
 - pullback in topos
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f

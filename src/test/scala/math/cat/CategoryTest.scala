@@ -123,7 +123,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "constructor_halfSimplicial" >> {
-      HalfSimplicial.objects must haveSize(3)
+      Simplicial3.objects must haveSize(3)
     }
 
     "constructor_1_bare" >> {
@@ -275,20 +275,20 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive" >> {
-      checkParsing(Good(HalfSimplicial))
+      checkParsing(Good(Simplicial3))
       ok
     }
 
     "D0_positive()" >> {
-      HalfSimplicial.d0("0") === "0"
-      HalfSimplicial.d0("1") === "1"
-      HalfSimplicial.d0("a") === "1"
-      HalfSimplicial.d0("swap") === "2"
+      Simplicial3.d0("0") === "0"
+      Simplicial3.d0("1") === "1"
+      Simplicial3.d0("a") === "1"
+      Simplicial3.d0("swap") === "2"
     }
 
     "D0_negative()" >> {
       try {
-        val unknown = HalfSimplicial.d0("qq")
+        val unknown = Simplicial3.d0("qq")
         failure("Should have failed")
       } catch {
         case e: Exception ⇒ // as expected
@@ -298,10 +298,10 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "D1_positive()" >> {
-      HalfSimplicial.d1("0") === "0"
-      HalfSimplicial.d1("1") === "1"
-      HalfSimplicial.d1("a") === "2"
-      HalfSimplicial.d1("swap") === "2"
+      Simplicial3.d1("0") === "0"
+      Simplicial3.d1("1") === "1"
+      Simplicial3.d1("a") === "2"
+      Simplicial3.d1("swap") === "2"
     }
 
     "equals_positive_arrows()" >> {
@@ -343,7 +343,7 @@ class CategoryTest extends Test with CategoryFactory {
         case s ⇒ failure(s"$s does not look like an arrow in a poset"); false
       }
 
-      HalfSimplicial.arrows.filter(HalfSimplicial.isIsomorphism) ===
+      Simplicial3.arrows.filter(Simplicial3.isIsomorphism) ===
         Set("0", "1", "2", "swap")
     }
 
@@ -379,12 +379,12 @@ class CategoryTest extends Test with CategoryFactory {
         case s ⇒ failure(s"$s does not look like an arrow in a poset"); false
       }
 
-      HalfSimplicial.arrows.filter(HalfSimplicial.isEndomorphism) ===
+      Simplicial3.arrows.filter(Simplicial3.isEndomorphism) ===
         Set("0", "1", "2", "2_a", "2_b", "swap")
     }
 
     "factorsOnLeft" >> {
-      val sut = HalfSimplicial
+      val sut = Simplicial3
       val predicate = sut.factorsOnLeft(("a", "b"), ("2_a", "2_b"))
 
       predicate("2_1") must beTrue
@@ -394,40 +394,40 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "factorsOnRight" >> {
-      val predicate = HalfSimplicial.factorsOnRight(("2", "b"), ("2_b", "b"))
+      val predicate = Simplicial3.factorsOnRight(("2", "b"), ("2_b", "b"))
       predicate("2_b") must beTrue
       predicate("2_a") must beFalse
     }
 
     "factorsUniquelyOnLeft" >> {
-      HalfSimplicial.factorsUniquelyOnLeft("0_2")("swap") must beTrue
-      HalfSimplicial.factorsUniquelyOnLeft("a")("swap") must beTrue
-      HalfSimplicial.factorsUniquelyOnLeft("a")("2_b") must beFalse
+      Simplicial3.factorsUniquelyOnLeft("0_2")("swap") must beTrue
+      Simplicial3.factorsUniquelyOnLeft("a")("swap") must beTrue
+      Simplicial3.factorsUniquelyOnLeft("a")("2_b") must beFalse
     }
 
     "factorsUniquelyOnRight" >> {
-      val sut = HalfSimplicial
+      val sut = Simplicial3
       val mustDo = sut.factorsUniquelyOnRight("0_1")("0_2")
       mustDo must beTrue
       sut.factorsUniquelyOnRight("swap")("2_a") must beFalse
       sut.factorsUniquelyOnRight("swap")("0_2") must beFalse
-      HalfSimplicial.factorsUniquelyOnRight("2_1")("swap") must beTrue
-      HalfSimplicial.factorsUniquelyOnLeft("a")("b") must beFalse
+      Simplicial3.factorsUniquelyOnRight("2_1")("swap") must beTrue
+      Simplicial3.factorsUniquelyOnLeft("a")("b") must beFalse
     }
 
     "factorUniquelyOnLeft" >> {
-      HalfSimplicial.factorUniquelyOnLeft("0_2", "swap")("0_2", "swap") must beTrue
-      HalfSimplicial.factorUniquelyOnLeft("a", "swap")("0_2", "swap") must beFalse
+      Simplicial3.factorUniquelyOnLeft("0_2", "swap")("0_2", "swap") must beTrue
+      Simplicial3.factorUniquelyOnLeft("a", "swap")("0_2", "swap") must beFalse
     }
 
     "factorUniquelyOnRight" >> {
-      val sut = HalfSimplicial
+      val sut = Simplicial3
       sut.factorUniquelyOnRight("0_1", "0_2")("0_1", "0_2") must beTrue
       sut.factorUniquelyOnRight("swap", "2_a")("0_1", "0_2") must beFalse
     }
 
     "equalizes" >> {
-      val sut = HalfSimplicial
+      val sut = Simplicial3
       sut.equalizes("2_a", "2_b")("0_2") must beTrue
       sut.equalizes("2_a", "2_b")("2_1") must beFalse
       sut.equalizes("2_a", "2_b")("2") must beFalse
@@ -435,7 +435,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "coqualizes" >> {
-      val sut = HalfSimplicial
+      val sut = Simplicial3
       sut.coequalizes("2_a", "2_b")("2_1") must beTrue
       sut.coequalizes("2_a", "2_b")("0_2") must beFalse
       sut.coequalizes("2_a", "2_b")("swap") must beFalse
@@ -443,19 +443,19 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "allEqualizingArrows" >> {
-      HalfSimplicial.allEqualizingArrows("2_a", "2_b") === Set("0_2")
+      Simplicial3.allEqualizingArrows("2_a", "2_b") === Set("0_2")
     }
 
     "isEqualizer_positive" >> {
-      HalfSimplicial.isEqualizer("2_a", "2_b")("0_2") must beTrue
+      Simplicial3.isEqualizer("2_a", "2_b")("0_2") must beTrue
     }
 
     "isEqualizer_negative" >> {
-      HalfSimplicial.isEqualizer("2_a", "2_b")("2") must beFalse
+      Simplicial3.isEqualizer("2_a", "2_b")("2") must beFalse
     }
 
     "equalizer_positive" >> {
-      HalfSimplicial.equalizer("2_a", "2_b") === Good("0_2")
+      Simplicial3.equalizer("2_a", "2_b") === Good("0_2")
     }
 
     "equalizer_negative" >> {
@@ -463,19 +463,19 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "allCoequalizingArrows" >> {
-      HalfSimplicial.allCoequalizingArrows("2_a", "2_b") === Set("2_a", "2_b", "2_1")
+      Simplicial3.allCoequalizingArrows("2_a", "2_b") === Set("2_a", "2_b", "2_1")
     }
 
     "isCoequalizer_positive" >> {
-      HalfSimplicial.isCoequalizer("2_a", "2_b")("2_1") must beTrue
+      Simplicial3.isCoequalizer("2_a", "2_b")("2_1") must beTrue
     }
 
     "isCoequalizer_negative" >> {
-      HalfSimplicial.isCoequalizer("2_a", "2_b")("2") must beFalse
+      Simplicial3.isCoequalizer("2_a", "2_b")("2") must beFalse
     }
 
     "Coequalizer_positive" >> {
-      HalfSimplicial.coequalizer("2_a", "2_b") === Good("2_1")
+      Simplicial3.coequalizer("2_a", "2_b") === Good("2_1")
     }
 
     "Coequalizer_negative" >> {
@@ -483,13 +483,13 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "pairsEqualizing" >> {
-      val actual = HalfSimplicial.pairsEqualizing("a", "swap")
+      val actual = Simplicial3.pairsEqualizing("a", "swap")
       val expected = Set(("0_1", "0_2"), ("2_1", "2_b"), ("1", "b"))
       actual === expected
     }
 
     "pairsCoequalizing" >> {
-      val actual = HalfSimplicial.pairsCoequalizing("2_1", "swap")
+      val actual = Simplicial3.pairsCoequalizing("2_1", "swap")
       val expected = Set(("a", "2_a"), ("1", "2_1"), ("b", "2_b"))
       actual === expected
     }
@@ -499,13 +499,13 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "pairsWithTheSameDomain" >> {
-      val actual = HalfSimplicial.pairsWithTheSameDomain("1", "2")
+      val actual = Simplicial3.pairsWithTheSameDomain("1", "2")
       val expected = Set(("1", "b"), ("2_1", "2_b"), ("2_1", "2"), ("2_1", "swap"), ("0_1", "0_2"), ("2_1", "2_a"), ("1", "a"))
       actual === expected
     }
 
     "pairsWithTheSameCodomain" >> {
-      val actual = HalfSimplicial.pairsWithTheSameCodomain("0", "2")
+      val actual = Simplicial3.pairsWithTheSameCodomain("0", "2")
       val expected = Set(("0_2", "2"), ("0_1", "2_1"), ("0_2", "swap"), ("0_2", "2_b"), ("0_2", "2_a"))
       actual === expected
     }
@@ -712,9 +712,9 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "isInitial in HalfSimplicial" in {
-      HalfSimplicial.isInitial("0") === true
-      HalfSimplicial.isInitial("1") === false
-      HalfSimplicial.isInitial("2") === false
+      Simplicial3.isInitial("0") === true
+      Simplicial3.isInitial("1") === false
+      Simplicial3.isInitial("2") === false
     }
 
     "isInitial in ParallelPair" in {
@@ -876,7 +876,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "good for HalfSimplicial" >> {
 //      HalfSimplicial.canDeduce(HalfSimplicial.arrows)("0_1") === false
-      val baseGraph = HalfSimplicial.baseGraph
+      val baseGraph = Simplicial3.baseGraph
       baseGraph === graph"({0, 1, 2}, {0_1: 0→1, 2_b: 2→2, 2_a: 2→2, swap: 2→2, 2_1: 2→1, b: 1→2, a: 1→2})"
     }
 
@@ -888,13 +888,13 @@ class CategoryTest extends Test with CategoryFactory {
 
   "SetCategory" >> {
     "have products" >> {
-      val first: set = Sets.setOf("a", "b")
-      val second: set = Sets.setOf(1, 2, 3)
+      val first: set = setOf.elements("a", "b")
+      val second: set = setOf.elements(1, 2, 3)
       val product = Setf.product(first, second)
 
       product match {
         case Good((x, y)) ⇒
-          x.d0 === Sets.setOf(
+          x.d0 === setOf.elements(
             ("a", 1), ("a", 2), ("a", 3),
             ("b", 1), ("b", 2), ("b", 3))
         case otherwise ⇒ failure("product not found")

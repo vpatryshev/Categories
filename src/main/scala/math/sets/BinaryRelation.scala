@@ -1,14 +1,15 @@
 package math.sets
+import scala.language.postfixOps
+import scala.language.implicitConversions
 
 /**
- * Representing binary relationships here
+ * Representing binary relations
  */
-
 abstract class BinaryRelation[X, Y] extends Function2[X, Y, Boolean] {}
 
 object BinaryRelation {
   /**
-   * Creates a relationship that checks against a set of given pairs.
+   * Creates a relation that checks against a set of given pairs.
    *
    * @param pairs the set
    * @return the predicate

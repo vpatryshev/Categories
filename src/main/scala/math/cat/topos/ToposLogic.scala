@@ -1,14 +1,14 @@
 package math.cat.topos
 
+import scala.language.postfixOps
 import math.cat.SetFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.sets.Sets.{asSet, set}
+import math.sets.Sets.{setOf, set}
 import scalakittens.Result
 
-trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
+trait ToposLogic { topos: CategoryOfDiagrams ⇒
 
   trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
-    val d0: Diagram
     val d1: Diagram = Ω
 
     private def wrapTag(tag: Any): String = {
@@ -21,7 +21,7 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
     private def setAt(o: Any): set = {
       val o1 = domainCategory.obj(o)
       val function = p.transformPerObject(o1).asInstanceOf[SetFunction]
-      asSet(function.d0)
+      setOf(function.d0)
     }
 
     private def transformAt(o: Any): SetFunction =
@@ -31,7 +31,7 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
       binaryOpNamed(q, ΩxΩ_to_Ω, tag2(p.tag, opTag, q.tag))
     }
 
-    private[Predicates] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
+    private[ToposLogic] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
       require(q.d0 == p.d0)
       
       for (o ← domainCategory.objects) {
@@ -58,7 +58,7 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
 
           val conj: SetFunction = Ω.conjunction(o).asInstanceOf[SetFunction]
           val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
-          val maybeFunction = PQtoΩxΩ compose op
+          val maybeFunction = PQtoΩxΩ andThen op
           codomainCategory.arrow(Result(maybeFunction).iHope)
         }
       }
@@ -83,7 +83,7 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
       * @param q another predicate
       * @return this implies q
       */
-    def =⇒(q: Predicate): Predicate = binaryOp(q, "⇒", Ω.implication)
+    def ⟹(q: Predicate): Predicate = binaryOp(q, "⟹", Ω.implication)
   }
 
 
@@ -96,17 +96,36 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
   lazy val TruePredicate: Predicate = predicateFor(Ω.True)
 
   /**
-    * Builds a predicate for a point in Ω
-    * @param p the point
-    * @return an arrow ⊤ → Ω
+    * Builds a predicate for an arrow to Ω
+    * @param f arrow from an object to Ω
+    * @return an arrow X → Ω
     */
-  def predicateFor(p: Point): Predicate = {
+  def predicateFor(f: DiagramArrow): Predicate = {
+    val p = new Predicate {
+      override val d0: Obj = f.d0
+      override val tag: Any = f.tag
+      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
+        val x_in_domain_of_f = f.domainCategory.obj(x)
+        val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
+        val arrow_in_codomain_of_f = codomainCategory.arrow(arrow_in_domain_of_f)
+        arrow_in_codomain_of_f
+      }
+    }
+    p
+  }
 
-    val inclusion: DiagramArrow = standardInclusion(p, Ω) iHope
+  /**
+    * Builds a predicate for a point in Ω
+    * @param pt the point
+    * @return an arrow p → Ω
+    */
+  def predicateFor(pt: Point): Predicate = {
 
-    new Predicate {
+    val inclusion: DiagramArrow = standardInclusion(pt, Ω) iHope
+
+    val p = new Predicate {
       override val d0: Obj = _1
-      override val tag: Any = p.tag
+      override val tag: Any = pt.tag
 
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
         val xInInclusion = inclusion.domainCategory.obj(x)
@@ -114,5 +133,6 @@ trait Predicates { topos: GrothendieckTopos with CategoryOfDiagrams ⇒
         codomainCategory.arrow(arrowInInclusion)
       }
     }
+    p
   }
 }

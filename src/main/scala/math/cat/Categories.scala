@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import java.io.Reader
 import java.util.Objects
 
@@ -294,7 +296,7 @@ object Categories extends CategoryFactory {
     * Represents three sets (empty, singleton and two-point) and
     * all their possible functions.
     */
-  lazy val HalfSimplicial: Cat = asCat(apply("HalfSimplicial",
+  lazy val Simplicial3: Cat = asCat(apply("Simplicial3",
     Set("0", "1", "2"),
     Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2", "2_b" → "2", "a" → "1", "b" → "1", "swap" →
       "2"), // d0
@@ -333,7 +335,7 @@ object Categories extends CategoryFactory {
     M, W,
     Z2, Z3, Z4,
     AAAAAA,
-    HalfSimplicial, NaturalNumbers).sortBy(_.arrows.size)
+    Simplicial3, NaturalNumbers).sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)
@@ -348,8 +350,7 @@ object Categories extends CategoryFactory {
         buf append strings.next
       }
       read(buf) match {
-        case Good(c) ⇒
-          c
+        case Good(c) ⇒ c
         case bad ⇒ throw new InstantiationException(bad.errorDetails.mkString)
       }
     }

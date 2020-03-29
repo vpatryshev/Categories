@@ -31,7 +31,7 @@ class NaturalTransformationTest extends Test {
       Map("0" → g.d1.arrow("1.2"), "1" → g.d1.arrow("2.3"))).iHope
 
     "compose" in {
-        val fgh = fg compose gh
+        val fgh = fg andThen gh
         fgh.d0 === f
         fgh.d1 === h
         fgh.transformPerObject(fgh.domainCategory.obj("0")) === "0.2"
@@ -39,11 +39,11 @@ class NaturalTransformationTest extends Test {
     }
 
     "have identity" in {
-        val idThen_fg = NaturalTransformation.id(f) compose fg
+        val idThen_fg = NaturalTransformation.id(f) andThen fg
         idThen_fg === fg
-        val idThen_gh = NaturalTransformation.id(g) compose gh
+        val idThen_gh = NaturalTransformation.id(g) andThen gh
         idThen_gh === gh
-        val fgThenId = fg compose NaturalTransformation.id(g)
+        val fgThenId = fg andThen NaturalTransformation.id(g)
         fgThenId === fg
     }
   }

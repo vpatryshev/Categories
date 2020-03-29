@@ -1,5 +1,10 @@
 package math.cat.topos
 
+import math.Base
+
+import scala.language.implicitConversions
+import scala.language.postfixOps
+import math.Base._
 import math.cat._
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, _}
 import math.sets.Sets._
@@ -160,7 +165,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos, topos.domain) {
     override val objectsMapping: d0.Obj ⇒ d1.Obj = x ⇒ d1.obj(om(domain.obj(x)))
-    override val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
+    override protected val arrowsMappingCandidate: d0.Arrow ⇒ d1.Arrow = (f: XArrow) ⇒ {
       am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
     }
     // have to validate right here, because a representable must exist, and all checks should be passing
@@ -189,14 +194,14 @@ class CategoryOfDiagrams(val domain: Category)
   private[topos] case class product2builder(x: Diagram, y: Diagram) {
 
     private def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
-    private def om(o: domain.Obj): set = productAt(o).untyped
+    private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
     
     def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
       val sf: SetFunction = z.asFunction(z.arrowsMapping(z.d0.arrow(a)))
       sf(pz)
     }
     
-    private def am(a: domain.Arrow): SetFunction = {
+    private def mappingOfArrows(a: domain.Arrow): SetFunction = {
       val from = productAt(domain.d0(a))
       val to = productAt(domain.d1(a))
       def f(p: Any): Any = p match {
@@ -207,31 +212,58 @@ class CategoryOfDiagrams(val domain: Category)
       new SetFunction("", from.untyped, to.untyped, f)
     }
     
-    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(om, a ⇒ am(a))
+    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(mappingOfObjects, a ⇒ mappingOfArrows(a))
   }
 
   /**
     * Cartesian product of two diagrams
-    * TODO: figure out how to ensure the same d0 in bothDi
+    * TODO: figure out how to ensure the same d0 in both Di
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
-  val π1: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
+  // π1
+  protected val firstProjection: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
     case (a, b) ⇒ a
     case trash ⇒
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
   }
 
-  val π2: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
+  // π2
+  protected val secondProjection: Mapping = Functions.constant[domain.Obj, Any ⇒ Any] {
     case (a, b) ⇒ b
     case trash ⇒
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
   }
 
+  /**
+    * Given arrows `f` and `g`, builds an arrow (f×g): dom(f)×dom(g) → codom(f)×codom(g)
+    *
+    * @param f first component
+    * @param g second component
+    * @return a product of `f` and `g`
+    */
+  def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow = {
+
+    val mapping: Mapping = x => {
+      val fx = f(x).asInstanceOf[SetMorphism[Any, Any]]
+      val gx = g(x).asInstanceOf[SetMorphism[Any, Any]]
+      
+      { case (a, b) => (fx(a), gx(b)) }
+    }
+
+    buildArrow(
+      Base.concat(f.tag, "×", g.tag),
+      product2(f.d0, g.d0),
+      product2(f.d1, g.d1),
+      mapping)
+  }
+
   def inclusionOf(p: Point): includer = inclusionOf(p.asDiagram)
   
   def standardInclusion(p: Point, d: Diagram): Result[Arrow] = {
-    inclusionOf(p) in d map uniqueFromTerminalTo(p).compose
+    inclusionOf(p) in d map { q => {
+      uniqueFromTerminalTo(p) andThen q named p.tag
+    } }
   }
 
   /**
@@ -240,7 +272,7 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def uniqueFromTerminalTo(p: Point): Arrow = {
     new DiagramArrow {
-      val tag = s"⊤→${p.tag}"
+      val tag = p.tag
 
       override val d0: Diagram = _1
       override val d1: Diagram = p.asDiagram

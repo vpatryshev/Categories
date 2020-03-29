@@ -17,7 +17,7 @@ case class GroupOfObjects[T](objects: Iterable[T]) {
           abs
         }
 
-        (for {(name, i) <- objects.zipWithIndex} yield (name, p(i))).toSet
+        (for {(name, i) ← objects.zipWithIndex} yield (name, p(i))).toSet
     }
   }
 
