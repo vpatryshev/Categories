@@ -3,7 +3,7 @@ package math.cat.topos
 import scala.language.reflectiveCalls
 import math.cat.Categories._
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import scalakittens.Result
+import scalakittens.{Good, Result}
 
 class TopologyTest extends Fixtures {
   
@@ -21,67 +21,80 @@ class TopologyTest extends Fixtures {
       predicateOpt = fOpt map predicateFor
     } yield predicateOpt).iHope.toList
 
-    val topologies = predicates map builder
-    topologies
+    val topologiesMaybe = predicates map builder
+    topologiesMaybe
   }
   
   "Topologies" should {
     "exist for _0_" in {
-      val topologies = topologiesOn(_0_)
-      topologies.length === 1
-      expectOk(topologies.head)
+      val topologiesMaybe = topologiesOn(_0_)
+      topologiesMaybe.length === 1
+      expectOk(topologiesMaybe.head)
     }
 
     "exist for _1_" in {
-      val topologies = topologiesOn(_1_)
-      topologies.size === 4
+      val topologiesMaybe = topologiesOn(_1_)
+      topologiesMaybe.size === 4
       
-      expectOk(topologies(3))
-      expectError(topologies(0), "Should contain truth")
-      expectOk(topologies(1))
-      expectError(topologies(2), "Should be closed:", "under conjunction")
+      expectOk(topologiesMaybe(3))
+      expectError(topologiesMaybe(0), "Should contain truth")
+      expectOk(topologiesMaybe(1))
+      expectError(topologiesMaybe(2), "Should be closed:", "under conjunction")
     }
 
     "exist for _2_" in {
-      val topologies = topologiesOn(_2_)
-      topologies.size === 15
-
-//      expectOk(topologies(3))
-//      expectError(topologies(0), "Should contain truth")
-//      expectOk(topologies(1))
-//      expectError(topologies(2), "Should be closed:", "under conjunction")
+      val topologiesMaybe = topologiesOn(_2_)
+      topologiesMaybe.size === 15
+      val topologies = topologiesMaybe collect { case Good(topo) => topo}
+      topologies.size === 4
     }
 
     "exist for _3_" in {
-      val topologies = topologiesOn(_3_)
-      topologies.size === 64
-
-//      expectOk(topologies(3))
-//      expectError(topologies(0), "Should contain truth")
-//      expectOk(topologies(1))
-//      expectError(topologies(2), "Should be closed:", "under conjunction")
+      val topologiesMaybe = topologiesOn(_3_)
+      topologiesMaybe.size === 64
+      val topologies = topologiesMaybe collect { case Good(topo) => topo}
+      topologies.size === 8
     }
 
     "exist for ParallelPair" in {
-      val topologies = topologiesOn(ParallelPair)
-      topologies.size === 39
+      val topologiesMaybe = topologiesOn(ParallelPair)
+      topologiesMaybe.size === 39
 
-//      expectOk(topologies(3))
-//      expectError(topologies(0), "Should contain truth")
-//      expectOk(topologies(1))
-//      expectError(topologies(2), "Should be closed:", "under conjunction")
+      val topologies = topologiesMaybe collect { case Good(topo) => topo}
+      topologies.size === 4
     }
 
     "exist for Pullback" in {
-      ok
+      val topologiesMaybe = topologiesOn(Pullback)
+      topologiesMaybe.size === 85
+
+      val topologies = topologiesMaybe collect { case Good(topo) => topo}
+      topologies.size === 8
     }
 
     "exist for Pushout" in {
-      ok
+      val topologiesMaybe = topologiesOn(Pushout)
+      topologiesMaybe.size === 73
+
+      val topologies = topologiesMaybe collect { case Good(topo) => topo}
+      topologies.size === 8
     }
 
     "exist for Z3" in {
-      ok
+      val topologiesMaybe = topologiesOn(Z3)
+      topologiesMaybe.size === 4
+
+      val topologies = topologiesMaybe collect { case Good(topo) => topo}
+      topologies.size === 2
     }
+
+    "exist for HalfSimplicial" in {
+      val topologiesMaybe = topologiesOn(Simplicial3)
+      topologiesMaybe.size === 27
+
+      val topologies = topologiesMaybe collect { case Good(topo) => topo}
+      topologies.size === 6
+    }
+
   }
 }
