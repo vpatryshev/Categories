@@ -6,7 +6,7 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.{setOf, set}
 import scalakittens.Result
 
-trait Predicates { topos: CategoryOfDiagrams ⇒
+trait ToposLogic { topos: CategoryOfDiagrams ⇒
 
   trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
     val d1: Diagram = Ω
@@ -31,7 +31,7 @@ trait Predicates { topos: CategoryOfDiagrams ⇒
       binaryOpNamed(q, ΩxΩ_to_Ω, tag2(p.tag, opTag, q.tag))
     }
 
-    private[Predicates] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
+    private[ToposLogic] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
       require(q.d0 == p.d0)
       
       for (o ← domainCategory.objects) {
