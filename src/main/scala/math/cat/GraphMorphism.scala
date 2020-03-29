@@ -81,7 +81,7 @@ trait GraphMorphism
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
-  def compose(g: GraphMorphism): GraphMorphism = {
+  def andThen(g: GraphMorphism): GraphMorphism = {
     require(this.d1 == g.d0, "Composition not defined")
     val nm: d0.Node ⇒ g.d1.Node = x ⇒ g.nodesMapping(g.d0.node(nodesMapping(x)))
     val am: d0.Arrow ⇒ g.d1.Arrow = a ⇒ g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))

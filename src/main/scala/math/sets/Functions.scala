@@ -17,7 +17,7 @@ object Functions {
     self ⇒
     /**
       * Composes this Injection with another Injection.
-      * (f compose g)(x) ==  f(g(x))
+      * (f compose g)(x) == f(g(x))
       *
       * @param g another Injection
       * @return a composition

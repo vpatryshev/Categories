@@ -43,7 +43,7 @@ abstract class Functor(
     * @param g : Y → Z - second functor
     * @return g ∘ this : X → Z - composition of this functor with functor g
     */
-  def compose(g: Functor): Option[Functor] = {
+  def andThen(g: Functor): Option[Functor] = {
     if (d1 != g.d0) None else Some {
       val f = this
       val objectMap = (x: d0.Obj) ⇒ {

@@ -128,9 +128,9 @@ abstract class Diagram(
       a ← bundles(o)
       from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
-      embeddingToUnion =
-      SetFunction.build("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a))).iHope
-      g = aAsMorphism.andThen(embeddingToUnion) // do we need it?
+      embeddingToUnion ←
+      SetFunction.build("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a))).asOption
+      g ← aAsMorphism andThen embeddingToUnion // do we need it?
     } yield (o, g)
 
     // Account for all canonical functions
@@ -164,7 +164,7 @@ abstract class Diagram(
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
 
     def coconeMap(x: XObject): d1.Arrow = d1.arrow {
-      canonicalFunctionPerObject(x) andThen factorMorphism
+      canonicalFunctionPerObject(x) andThen factorMorphism iHope
     }
 
     Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))

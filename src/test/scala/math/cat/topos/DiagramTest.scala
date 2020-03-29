@@ -293,8 +293,10 @@ class DiagramTest extends Test with TestDiagrams {
         sut.colimit match {
           case Good(cocone) ⇒
             val vertex = sut.setOf(cocone.vertex)
-            val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("a"))))
-            val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(sut.d0.obj("b"))))
+            val a = sut.d0.obj("a")
+            val b = sut.d0.obj("b")
+            val ara = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(a)))
+            val arb = sut.asFunction(sut.d1.arrow(cocone.arrowFrom(b)))
             for {
               i ← 1 to 3
             } {

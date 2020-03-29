@@ -58,7 +58,7 @@ trait Predicates { topos: CategoryOfDiagrams ⇒
 
           val conj: SetFunction = Ω.conjunction(o).asInstanceOf[SetFunction]
           val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
-          val maybeFunction = PQtoΩxΩ compose op
+          val maybeFunction = PQtoΩxΩ andThen op
           codomainCategory.arrow(Result(maybeFunction).iHope)
         }
       }

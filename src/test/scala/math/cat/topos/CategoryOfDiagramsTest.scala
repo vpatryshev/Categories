@@ -25,7 +25,6 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x :: data)
-
       def |(f: String ⇒ Any): check = check(f)(data.reverse, data.reverse)
     }
 

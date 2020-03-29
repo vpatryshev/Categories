@@ -33,8 +33,8 @@ class SetMorphismTest extends Specification {
   }
 
   "Composition with id" >>  {
-    m.compose(id(strings)) === Some(m)
-    id(ints).compose(m) === Some(m)
+    m.andThen(id(strings)) === Some(m)
+    id(ints).andThen(m) === Some(m)
   }
 
  "Constructor2" >> {
@@ -63,7 +63,7 @@ class SetMorphismTest extends Specification {
     val x = Set(11, 12, 13, 14, 15)
     val f = SetMorphism.build(x, testSetX, (n: Int) ⇒ n - 10).iHope
     val g = SetMorphism.build(testSetX, testSetZ, (n: Int) ⇒ "#" + n).iHope
-    val h = f compose g
+    val h = f andThen g
     
     h === Some(SetMorphism.build(x, testSetZ, (n: Int) ⇒ "#" + (n - 10)).iHope)
   }

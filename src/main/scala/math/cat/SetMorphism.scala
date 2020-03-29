@@ -37,8 +37,14 @@ class SetMorphism[X, Y] (
   def equals(other: SetMorphism[X, Y]): Boolean = {
     ((d0 == other.d0 && d1 == other.d1) /: d0) ((eq, x) ⇒ eq & this(x) == other(x))
   }
-  
-  def compose[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
+
+  /**
+    * Composes with another morphism, optionally
+    *
+    * @param g next morphism: Y → Z
+    * @return their composition g ∘ f: X → Z
+    */
+  def andThen[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
     OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) ⇒ g(this(x))) asOption
   }
   

@@ -4,6 +4,7 @@ import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BinaryRelation, Sets}
 import org.specs2.mutable._
+import scalakittens.Result
 
 /**
  * Test suite for Typeless Set Morphisms object
@@ -32,8 +33,8 @@ class SetFunctionTest extends Specification {
       val f = SetFunction.build("f", x, y, (x: Any) ⇒ "x" + x) iHope
       val g = SetFunction.build("g", y, z, (y: Any) ⇒ y.toString.length) iHope
       
-      g.compose(f).isDefined === false
-      f.compose(g).isDefined === true
+      g.andThen(f).isDefined === false
+      f.andThen(g).isDefined === true
     }
 
     "TypelessSetMorphism then another" >> {
@@ -42,7 +43,8 @@ class SetFunctionTest extends Specification {
       val z = Set(2, 28, x)
       val f = SetFunction.build("f", x, y, (x: Any) ⇒ "x" + x) iHope
       val g = SetFunction.build("g", y, z, (y: Any) ⇒ y.toString.length) iHope
-      val sut = f andThen g
+      val sut = Result(f andThen g) iHope
+      
       sut(1) === 2
       sut("a") === 2
       try {
