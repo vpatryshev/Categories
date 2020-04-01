@@ -290,13 +290,13 @@ object Categories extends CategoryFactory {
     * Sample M-shaped category: a ← b → c ← d → e
     */
   lazy val M = category"M:({a,b,c,d,e}, {ba: b → a, bc: b → c, dc: d → c, de: d → e})"
-
+  
   /**
-    * A segment of simplicial category.
+    * A segment of simplex category.
     * Represents three sets (empty, singleton and two-point) and
     * all their possible functions.
     */
-  lazy val Simplicial3: Cat = asCat(apply("Simplicial3",
+  lazy val Simplex3: Cat = asCat(apply("Simplex3",
     Set("0", "1", "2"),
     Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2", "2_b" → "2", "a" → "1", "b" → "1", "swap" →
       "2"), // d0
@@ -320,7 +320,7 @@ object Categories extends CategoryFactory {
       ("2_b", "swap") → "2_a"
     ),
     arrowBuilder
-  ).getOrElse(throw new InstantiationException("Bad semisimplicial?")))
+  ).getOrElse(throw new InstantiationException("Bad Simplex3")))
   
   lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 → 2, 23: 2 → 3, 34: 3 → 4, 45: 4 → 5, 56: 5 → 6, 61: 6 → 1})"
 
@@ -335,7 +335,8 @@ object Categories extends CategoryFactory {
     M, W,
     Z2, Z3, Z4,
     AAAAAA,
-    Simplicial3, NaturalNumbers).sortBy(_.arrows.size)
+    Simplex3,
+    NaturalNumbers).sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)

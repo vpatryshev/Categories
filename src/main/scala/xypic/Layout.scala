@@ -186,7 +186,7 @@ object TestIt {
   val out = new FileWriter("samples.html")
 
   def main(args: Array[String]): Unit = {
-    writeHtml(Layout(Simplicial3, 300, 300).html)
+    writeHtml(Layout(Simplex3, 300, 300).html)
 
     showAll()
 
