@@ -88,8 +88,8 @@ class TopologyTest extends Fixtures {
       topologies.size === 2
     }
 
-    "exist for HalfSimplex" in {
-      val topologiesMaybe = topologiesOn(Simplex3)
+    "exist for HalfSimplicial" in {
+      val topologiesMaybe = topologiesOn(Simplicial3)
       topologiesMaybe.size === 27
 
       val topologies = topologiesMaybe collect { case Good(topo) => topo}
