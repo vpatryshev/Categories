@@ -129,7 +129,6 @@ trait GrothendieckTopos
         val dom = ΩxΩ(x)
         val codom = Ω(x)
         new SetFunction(s"∧[$x]", dom.untyped, codom, pair ⇒ conjunctionOfTwoSubreps(pair))
-//        SetFunction.build(s"∧[$x]", dom.untyped, codom, pair ⇒ conjunctionOfTwoSubreps(pair)).iHope
       }
 
 

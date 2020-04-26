@@ -294,8 +294,8 @@ private[cat] class PartialData(val graph: Graph) extends CategoryData {
   Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = {
     val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
       a ← graph.arrows
-      b ← graph.arrows if compositionSource.contains((a, b).asInstanceOf[(graph.Arrow, graph.Arrow)])
-      c ← graph.arrows if compositionSource.contains((b, c).asInstanceOf[(graph.Arrow, graph.Arrow)])
+      b ← graph.arrows if compositionSource.contains((a, b))
+      c ← graph.arrows if compositionSource.contains((b, c))
     } yield (a, b, c)
 
     triples

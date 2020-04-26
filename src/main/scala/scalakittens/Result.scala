@@ -409,5 +409,9 @@ object Result {
   def Oops[T](complaint: Any): Bad[T] = error(complaint)
   def NotImplemented[T]: Bad[T] = Oops[T]("not implemented")
   val ⊤ : Unit = ()
+
+  implicit class RuntimeTyped(x: Any) {
+    def typed[T]: Result[T] = Result.forValue(x.asInstanceOf[T])
+  }
 }
 

@@ -182,7 +182,7 @@ class SetMorphismTest extends Specification {
     product.d0 === expected_d0
     product.d1 === expected_d1
     for {
-      (x, y) <- expected_d0
+      (x, y) ← expected_d0
     } product((x, y)) === (x.toUpperCase, y.toLowerCase)
     ok
   }

@@ -100,8 +100,8 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
     * @param f arrow from an object to Ω
     * @return an arrow X → Ω
     */
-  def predicateFor(f: DiagramArrow): Predicate = {
-    val p = new Predicate {
+  def predicateForArrowToΩ(f: DiagramArrow): Predicate = {
+    new Predicate {
       override val d0: Obj = f.d0
       override val tag: Any = f.tag
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
@@ -111,19 +111,18 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
         arrow_in_codomain_of_f
       }
     }
-    p
   }
 
   /**
     * Builds a predicate for a point in Ω
     * @param pt the point
-    * @return an arrow p → Ω
+    * @return an arrow pt → Ω
     */
   def predicateFor(pt: Point): Predicate = {
 
     val inclusion: DiagramArrow = standardInclusion(pt, Ω) iHope
 
-    val p = new Predicate {
+    new Predicate {
       override val d0: Obj = _1
       override val tag: Any = pt.tag
 
@@ -133,6 +132,5 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
         codomainCategory.arrow(arrowInInclusion)
       }
     }
-    p
   }
 }
