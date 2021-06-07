@@ -21,7 +21,7 @@ private[cat] abstract class CategoryData extends Graph {
   lazy val listOfObjects: List[Obj] =
     if (isFinite) objects.toList.sortBy(_.toString)
     else throw new IllegalStateException("Cannot sort infinite set")
-  val graph: Graph
+  val graph: Graph = this
 
   override def name: String = graph.name
 
@@ -172,13 +172,13 @@ private[cat] abstract class CategoryData extends Graph {
 
 class ValidCategoryData(source: CategoryData) extends CategoryData {
   data ⇒
-  val graph = source.graph
+  override val graph = source.graph
 
   def newCategory: Category = {
     if (isFinite) newFiniteCategory
     else {
       new Category {
-        val graph = data.graph
+        override val graph = data.graph
 
         override def d0(f: Arrow): Obj = data.d0(data.arrow(f))
 
@@ -207,7 +207,7 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
     } toMap
 
     new Category {
-      val graph = data.graph
+      override val graph = data.graph
 
       override def d0(f: Arrow): Obj = asObj(d0Map(f))
 
@@ -233,7 +233,7 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
   * @param graph the underlying graph
   * @return category data
   */
-private[cat] class PartialData(val graph: Graph) extends CategoryData {
+private[cat] class PartialData(override val graph: Graph) extends CategoryData {
   self ⇒
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
@@ -408,7 +408,7 @@ object CategoryData {
     ids: gr.Node ⇒ gr.Arrow,
     composition: (gr.Arrow, gr.Arrow) ⇒ Option[gr.Arrow]): CategoryData = {
     new CategoryData {
-      val graph = gr
+      override val graph = gr
 
       override def id(o: Obj): Arrow = ids(gr.node(o))
 

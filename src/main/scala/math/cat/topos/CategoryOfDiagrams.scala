@@ -14,7 +14,7 @@ import scalakittens.Result
 class CategoryOfDiagrams(val domain: Category)
   extends Category
   with GrothendieckTopos { topos ⇒
-  val graph = graphOfDiagrams(domain.name)
+  override val graph = graphOfDiagrams(domain.name)
   override def toString: String = name
   
   type Node = Diagram

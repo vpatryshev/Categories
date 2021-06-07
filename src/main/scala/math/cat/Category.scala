@@ -48,9 +48,8 @@ abstract class Category extends CategoryData {
     */
   lazy val op: Category = {
     val src = this
-    val opGraph = ~graph
     new Category {
-      val graph: Graph = opGraph
+      override val graph: Graph = ~src
 
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
@@ -656,7 +655,7 @@ abstract class Category extends CategoryData {
     val sub = subgraph(name, setOfObjects)
 
     new Category {
-      val graph: Graph = sub
+      override val graph: Graph = sub
 
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 

@@ -436,12 +436,15 @@ class SetsTest extends Specification {
       }
       worker.setPriority(1)
       worker.start()
-      worker.join(time.toMillis)
-      if (worker.isAlive) {
-        worker.interrupt()
-        parkUntil(finalDeadline)
+      try {
+        worker.join(time.toMillis)
+      } finally {
+        if (worker.isAlive) {
+          worker.interrupt()
+          parkUntil(finalDeadline)
+        }
+        if (worker.isAlive) worker.stop()
       }
-      if (worker.isAlive) worker.stop()
       if (done.get) res else Result.error(s"Timeout after $time")
     }
   }

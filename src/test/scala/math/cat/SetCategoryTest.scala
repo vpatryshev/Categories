@@ -7,7 +7,6 @@ import math.sets.{BigSet, Sets}
 import org.specs2.mutable._
 import scalakittens.Good
 
-
 /**
   * Set Category tests
   */

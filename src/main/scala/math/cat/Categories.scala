@@ -7,7 +7,6 @@ import java.util.Objects
 
 import math.cat.Categories._
 import math.sets.PoSet
-import math.sets.Sets._
 import scalakittens.Result._
 import scalakittens.{Bad, Good, Result}
 
@@ -62,7 +61,7 @@ private[cat] trait CategoryFactory {
     */
   def fromPoset[T](theName: String = "", poset: PoSet[T]): Category = {
     new Category {
-      val graph: Graph = Graph.ofPoset(theName, poset)
+      override val graph: Graph = Graph.ofPoset(theName, poset)
       type Node = T
       type Arrow = (T, T)
 
