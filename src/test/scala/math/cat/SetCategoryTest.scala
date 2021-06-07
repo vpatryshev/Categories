@@ -115,7 +115,7 @@ class SetCategoryTest extends Specification {
     }
 
     "produce 4th degree of an object" in {
-      val source: set = Sets.setOf(1, 2, 3)
+      val source: set = setOf.elements(1, 2, 3)
       val sut = Setf.degree(source, 4).map(_._1)
 
       sut match {

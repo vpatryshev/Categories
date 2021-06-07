@@ -4,6 +4,7 @@ import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BinaryRelation, Sets}
 import org.specs2.mutable._
+import scalakittens.Result
 
 /**
  * Test suite for Typeless Set Morphisms object
@@ -32,8 +33,8 @@ class SetFunctionTest extends Specification {
       val f = SetFunction.build("f", x, y, (x: Any) ⇒ "x" + x) iHope
       val g = SetFunction.build("g", y, z, (y: Any) ⇒ y.toString.length) iHope
       
-      g.compose(f).isDefined === false
-      f.compose(g).isDefined === true
+      g.andThen(f).isDefined === false
+      f.andThen(g).isDefined === true
     }
 
     "TypelessSetMorphism then another" >> {
@@ -42,7 +43,8 @@ class SetFunctionTest extends Specification {
       val z = Set(2, 28, x)
       val f = SetFunction.build("f", x, y, (x: Any) ⇒ "x" + x) iHope
       val g = SetFunction.build("g", y, z, (y: Any) ⇒ y.toString.length) iHope
-      val sut = f andThen g
+      val sut = Result(f andThen g) iHope
+      
       sut(1) === 2
       sut("a") === 2
       try {
@@ -128,7 +130,7 @@ class SetFunctionTest extends Specification {
     }
 
     "for factorset" >> {
-      val set0: Set[Int] = asSet(1 to 10)
+      val set0: Set[Int] = setOf(1 to 10)
       val set1 = set0.map(i ⇒ i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
       val br: BinaryRelation[Any, Any] = (a: Any, b: Any) ⇒ isOdd(a) == isOdd(b)
@@ -142,7 +144,7 @@ class SetFunctionTest extends Specification {
     }
 
     "exponent 2→2" >> {
-      val set1 = setOf[Any](1, 2)
+      val set1: set = setOf.elements(1, 2)
 
       val sut = SetFunction.exponent(set1, set1)
       sut.size === 4
@@ -151,8 +153,8 @@ class SetFunctionTest extends Specification {
     }
 
     "exponent 3→5" >> {
-      val set1 = setOf[Any](3, 4, 5)
-      val set2 = setOf[Any](1, 2, 3, 4, 5)
+      val set1: set = setOf.elements(3, 4, 5)
+      val set2: set = setOf.elements(1, 2, 3, 4, 5)
 
       val sut = SetFunction.exponent(set1, set2)
       sut.size === 125

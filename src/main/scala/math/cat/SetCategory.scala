@@ -1,5 +1,8 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
+
 import math.cat.SetCategory._
 import math.cat.SetFunction._
 import math.sets.Sets._
@@ -10,7 +13,6 @@ import scalakittens.{Good, Result}
 /**
   * Category where objects are sets
   */
-
 class SetCategory(objects: BigSet[set])
   extends Category {
   val graph = graphOfSets(objects)
@@ -21,7 +23,7 @@ class SetCategory(objects: BigSet[set])
 
   override def d1(f: SetFunction): set = f.d1
 
-  override def m(f: Arrow, g: Arrow): Option[Arrow] = f compose g
+  override def m(f: Arrow, g: Arrow): Option[Arrow] = f andThen g
 
   override def id(s: set): SetFunction = SetFunction.id(s)
 
@@ -107,7 +109,7 @@ class SetCategory(objects: BigSet[set])
   override lazy val initial: Result[set] = Good(Sets.Empty) filter contains
 
   override lazy val terminal: Result[set] = {
-    val option1: Result[set] = initial map (setOf(_))
+    val option1: Result[set] = initial map (setOf.elements(_))
     // need to filter, to eliminate the value that does not belong
     option1 filter contains
   }
@@ -124,14 +126,12 @@ class SetCategory(objects: BigSet[set])
   Result[(SetFunction, SetFunction)] =
     for {
       prod ← product(f.d0, g.d0)
-    } yield {
-      val productSet = prod._1.d0
-      val pullbackInProduct =
+      productSet = prod._1.d0
+      pullbackInProduct =
         filterByPredicate(productSet)(predicate = { case (a, b) ⇒ f(a) == g(b) })
-      
-      (pullbackInProduct andThen prod._1,
-       pullbackInProduct andThen prod._2)
-    }
+      left ← pullbackInProduct andThen prod._1
+      right ← pullbackInProduct andThen prod._2
+    } yield (left, right)
 
   override def union(x: set, y: set): Result[(SetFunction, SetFunction)] = {
     def tagX(x: Any) = ("x", x)
@@ -141,10 +141,10 @@ class SetCategory(objects: BigSet[set])
     val unionSet: set = Sets.union(taggedX, taggedY)
     val ix0 = SetFunction.build("ix", x, taggedX, tagX)
     val ix1 = SetFunction.inclusion(taggedX, unionSet)
-    val ix =ix0 andAlso ix1 map { case (f, g) ⇒ f andThen g }
+    val ix =ix0 andAlso ix1 flatMap { case (f, g) ⇒ Result(f andThen g) }
     val iy0 = SetFunction.build("iy", y, taggedY, tagY)
     val iy1 = SetFunction.inclusion(taggedY, unionSet)
-    val iy = iy0 andAlso iy1 map { case (f, g) ⇒ f andThen g }
+    val iy = iy0 andAlso iy1 flatMap { case (f, g) ⇒ Result(f andThen g) }
     val union = ix andAlso iy
     union
   }
@@ -152,8 +152,12 @@ class SetCategory(objects: BigSet[set])
   override def pushout(f: SetFunction, g: SetFunction): Result[(SetFunction, SetFunction)] =
     for {
       (left, right) ← union(f.d1, g.d1)
-      coeq ← coequalizer(f andThen left, g andThen right)
-    } yield (left andThen coeq, right andThen coeq)
+      leftSide ← Result(f andThen left)
+      rightSide ← Result(g andThen right)
+      coeq ← coequalizer(leftSide, rightSide)
+      leftCorner ← Result(left andThen coeq)
+      rightCorner ← Result(right andThen coeq)
+    } yield (leftCorner, rightCorner)
 
   override def hashCode: Int = getClass.hashCode * 7 + objects.hashCode
 

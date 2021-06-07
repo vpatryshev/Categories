@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import scalakittens.Result
 import Result._
 import scalakittens.Result.Outcome
@@ -26,17 +28,24 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
   def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow
   def apply(x: Any): codomainCategory.Arrow = transformPerObject(domainCategory.obj(x))
 
-  // TODO: check the preconditions, return an option
-  def compose(next: NaturalTransformation): NaturalTransformation = {
+  /**
+    * Produces g∘f
+    * @param g next
+    * @return
+    */
+  def andThen(g: NaturalTransformation): NaturalTransformation = {
     
     def comp(x: domainCategory.Obj): codomainCategory.Arrow = {
       val fHere: codomainCategory.Arrow =
-        codomainCategory.arrow(transformPerObject(domainCategory.obj(x)))
+        codomainCategory.arrow(self(x))
       val fThere: codomainCategory.Arrow =
-        codomainCategory.arrow(next.transformPerObject(next.domainCategory.obj(x)))
+        codomainCategory.arrow(g(x))
       val compOpt: Option[codomainCategory.Arrow] = codomainCategory.m(fHere, fThere)
       compOpt getOrElse(
-          throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere"))
+        {
+          throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere")
+        }
+      )
     }
 
     def composed[T](x: T) = {
@@ -44,49 +53,63 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self �
     }
 
     new NaturalTransformation {
-      val tag = s"${next.tag} ∘ ${self.tag}"
+      val tag = s"${g.tag} ∘ ${self.tag}"
       val d0: Functor = self.d0
-      val d1: Functor = next.d1
+      val d1: Functor = g.d1
       def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = codomainCategory.arrow(composed(x))
     }
   }
   
+  def named(newTag: Any): NaturalTransformation = new NaturalTransformation {
+    val tag = newTag
+    val d0: Functor = self.d0
+    val d1: Functor = self.d1
+    def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+      self.transformPerObject(x.asInstanceOf[self.domainCategory.Obj]).asInstanceOf[codomainCategory.Arrow]
+  }
+
+
   private[cat] lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
     if (domainCategory.isFinite) domainCategory.objects map (o ⇒ o → transformPerObject(o)) toMap else Map.empty
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
-  override def toString = s"NT($tag)(${
+  override def toString: String = {
+    val s = String valueOf tag
+    if (s.isEmpty) details else s
+  }
+  
+  def details = s"NT($tag)(${
     if (domainCategory.isFinite) {
       domainCategory.listOfObjects.map(o ⇒ s"$o→(${transformPerObject(o)})").mkString(", ")
     } else ""
   })"
   
-  override def equals(x: Any): Boolean = x match {
+  override def equals(x: Any): Boolean = equalsWithDetails(x, printDetails = false)
+
+  private[cat] def equalsWithDetails(x: Any, printDetails: Boolean): Boolean = x match {
     case other: NaturalTransformation ⇒
       (this eq other) || (
         hashCode == other.hashCode &&
         d0 == other.d0 &&
         d1 == other.d1 && {
           val foundBad: Option[Any] = domainCategory.objects find (o ⇒ {
-            val first = transformPerObject(o)
+            val first: codomainCategory.Arrow = transformPerObject(o)
             val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
             val same = first == second
-// the following code is, sorry, for debugging. Maybe better to have tests. later.
-//            if (!same) {
-//              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
-//              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
-//              if (f1.keySet != f2.keySet) {
-//                val badkeys = f1.keySet.diff(f2.keySet).union(f2.keySet.diff(f1.keySet))
-//                println("wtf, bad keys $badkeys")
-//                badkeys
-//              } else {
-//                val whatbad = f1.keySet.find(k ⇒ f1(k) != f2(k))
-//
-//                println(whatbad)
-//                whatbad
-//              }
-//            }
+            if (!same && printDetails) {
+              val f1 = first.asInstanceOf[SetFunction].toSet.toMap
+              val f2 = second.asInstanceOf[SetFunction].toSet.toMap
+              if (f1.keySet != f2.keySet) {
+                val badkeys = f1.keySet.diff(f2.keySet).union(f2.keySet.diff(f1.keySet))
+                println("wow, bad keys $badkeys")
+                badkeys
+              } else {
+                val whatbad = f1.keySet.find(k ⇒ f1(k) != f2(k))
+                println(whatbad)
+                whatbad
+              }
+            }
             !same
           }
           ) // checking it every time takes time
@@ -151,7 +174,7 @@ object NaturalTransformation {
   ): Result[NaturalTransformation] = {
     val validated = validate(from0, to0, from0.d0, from0.d1)(mappings)
     validated returning new NaturalTransformation {
-      val tag = theTag
+      val tag: Any = theTag
       val d0: Functor = from0
       val d1: Functor = to0
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =

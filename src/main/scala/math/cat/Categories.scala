@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import java.io.Reader
 import java.util.Objects
 
@@ -7,7 +9,7 @@ import math.cat.Categories._
 import math.sets.PoSet
 import math.sets.Sets._
 import scalakittens.Result._
-import scalakittens.{Good, Result}
+import scalakittens.{Bad, Good, Result}
 
 import scala.collection.{GenTraversableOnce, TraversableOnce, mutable}
 
@@ -21,21 +23,20 @@ private[cat] trait CategoryFactory {
   def segment(n: Int): Cat = {
     val numbers = fromPoset(s"_${n}_", PoSet.range(0, n, 1))
     val maybeSegment = convert2Cat(numbers)(
-      _.toString,
       { case (a, b) ⇒ s"$a.$b" })
     maybeSegment.fold(identity, err ⇒ throw new InstantiationException(err.toString))
   }
 
   private def convert2Cat[O, A](source: Category)(
-    object2string: source.Obj ⇒ String = (_: source.Obj).toString,
-    arrow2string: source.Arrow ⇒ String = (_: source.Arrow).toString): Result[Cat] = {
-    val stringToObject = source.objects map (o ⇒ object2string(o) → o) toMap
+    arrow2string: source.Arrow ⇒ String = _.toString): Result[Cat] = {
+    val stringToObject: Map[String, source.Obj] = source.objects map (o ⇒ o.toString → o) toMap
     val string2Arrow = source.arrows map (a ⇒ arrow2string(a) → a) toMap
     val objects = stringToObject.keySet
     val arrows = string2Arrow.keySet
-    val d0 = (f: String) ⇒ object2string(source.d0(string2Arrow(f)))
-    val d1 = (f: String) ⇒ object2string(source.d1(string2Arrow(f)))
+    val d0 = (f: String) ⇒ source.d0(string2Arrow(f)).toString
+    val d1 = (f: String) ⇒ source.d1(string2Arrow(f)).toString
     val ids = (o: String) ⇒ arrow2string(source.id(stringToObject(o)))
+    
     val composition = (f: String, g: String) ⇒ source.m(string2Arrow(f), string2Arrow(g)) map arrow2string
 
     for {
@@ -43,11 +44,12 @@ private[cat] trait CategoryFactory {
       _ ← OKif(objects.size == source.objects.size, "some objects have the same string repr")
       _ ← OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
       g ← Graph.build(source.name, objects, arrows, d0, d1)
-      data: CategoryData = CategoryData(g)(
-        ids.asInstanceOf[g.Node ⇒ g.Arrow], // TODO: find a way to avoid casting
-        composition.asInstanceOf[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]])
-        c ← data.build
-    } yield c.asInstanceOf[Cat]
+      typedIds ← ids.typed[g.Node => g.Arrow]
+      typedComp ← composition.typed[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]]
+      data = CategoryData(g)(typedIds, typedComp)
+      category ← data.build
+      c ← category.typed[Cat]
+    } yield c
   }
 
   /**
@@ -73,7 +75,7 @@ private[cat] trait CategoryFactory {
     }
   }
 
-  def asCat(source: Category): Cat = convert2Cat(source)(_.toString, _.toString).getOrElse(
+  def asCat(source: Category): Cat = convert2Cat(source)(_.toString).getOrElse(
     throw new InstantiationException("Failed to convert to Cat")
   )
 
@@ -275,17 +277,25 @@ object Categories extends CategoryFactory {
   lazy val Pushout = category"Pushout:({a,b,c}, {ab: a → b, ac: a → c})"
 
   /**
-    * Pushout3 category: b ← a → c
+    *                        c  
+    *                        ↑
+    * Pushout4 category: b ← a → d
+    *                        ↓
+    *                        e
     */
   lazy val Pushout4 = category"Pushout4:({a,b,c,d,e}, {ab: a → b, ac: a → c, ad: a → d, ae: a → e})"
 
   /**
-    * Sample W-shaped category: a → b ← c → d ← e
+    * Sample W-shaped category: a     c      e
+    *                            ↘  ↙ ↘  ↙
+    *                              b     d
     */
   lazy val W = category"W:({a,b,c,d,e}, {ab: a → b, cb: c → b, cd: c → d, ed: e → d})"
 
   /**
-    * Sample M-shaped category: a ← b → c ← d → e
+    * Sample M-shaped category:     b      d
+    *                             ↙  ↘  ↙  ↘
+    *                            a     c      e
     */
   lazy val M = category"M:({a,b,c,d,e}, {ba: b → a, bc: b → c, dc: d → c, de: d → e})"
 
@@ -294,7 +304,7 @@ object Categories extends CategoryFactory {
     * Represents three sets (empty, singleton and two-point) and
     * all their possible functions.
     */
-  lazy val HalfSimplicial: Cat = asCat(apply("HalfSimplicial",
+  lazy val Simplicial3: Cat = asCat(apply("Simplicial3",
     Set("0", "1", "2"),
     Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2", "2_b" → "2", "a" → "1", "b" → "1", "swap" →
       "2"), // d0
@@ -318,14 +328,14 @@ object Categories extends CategoryFactory {
       ("2_b", "swap") → "2_a"
     ),
     arrowBuilder
-  ).getOrElse(throw new InstantiationException("Bad semisimplicial?")))
+  ).getOrElse(throw new InstantiationException("Bad Simplicial3")))
   
   lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 → 2, 23: 2 → 3, 34: 3 → 4, 45: 4 → 5, 56: 5 → 6, 61: 6 → 1})"
 
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
   lazy val SomeKnownCategories = List(
-    _0_, _1_, _3_, ParallelPair, SplitMono, W, M, Z3)
+    _0_, _1_, _3_, ParallelPair, Pullback, Pushout, SplitMono, W, M, Z3)
 
   lazy val KnownCategories: List[Category] = List(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
@@ -333,7 +343,8 @@ object Categories extends CategoryFactory {
     M, W,
     Z2, Z3, Z4,
     AAAAAA,
-    HalfSimplicial, NaturalNumbers).sortBy(_.arrows.size)
+    Simplicial3,
+    NaturalNumbers).sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)
@@ -348,8 +359,7 @@ object Categories extends CategoryFactory {
         buf append strings.next
       }
       read(buf) match {
-        case Good(c) ⇒
-          c
+        case Good(c) ⇒ c
         case bad ⇒ throw new InstantiationException(bad.errorDetails.mkString)
       }
     }

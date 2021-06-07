@@ -2,6 +2,7 @@ package math.cat.topos
 
 import math.Test
 import math.cat.Categories._
+import math.cat.SetFunction
 import math.sets.Sets.set
 import scalakittens.Good
 
@@ -9,7 +10,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
   type SUT = Diagram
 
-  def representable(topos: CategoryOfDiagrams) =
+  def representable(topos: CategoryOfDiagrams): topos.domain.Obj => topos.Representable =
     (obj: topos.domain.Obj) ⇒ topos.Representable(obj)
 
   def checkConstSize(topos: CategoryOfDiagrams)(obj: topos.Obj, expected: Int): Unit = {
@@ -24,7 +25,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x::data)
-      def |(f: String ⇒ Any) = check(f)(data.reverse, data.reverse)
+      def |(f: String ⇒ Any): check = check(f)(data.reverse, data.reverse)
     }
 
     case class check(f: String ⇒ Any)(data: List[String], fullList: List[String]) {
@@ -47,7 +48,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "be good in Set^W" in {
       val topos = new CategoryOfDiagrams(W)
       import topos.domain._
-      val ob = (o: String) ⇒ representable(topos)(obj(o))(_)
+      val ob = (o: String) ⇒ {
+        val r = representable(topos)(obj(o))
+        name: String ⇒ r(name)
+      }
 
       appliesTo | "a" | "b"  | "c" | "d"  | "e" |
         ob("a") | "a" | "ab" | ""  | ""   | ""  |
@@ -63,7 +67,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(M)
       import topos.domain._
       val rep = representable(topos)
-      val ob = (o: Obj) ⇒ rep(o)(_)
+      val ob = (o: Obj) ⇒ {
+        val r = rep(o)
+        name: String ⇒ r(name)
+      }
 
       appliesTo | "a"  | "b" | "c"  | "d" | "e"  |
         ob("a") | "a"  | ""  | ""   | ""  | ""   |
@@ -72,7 +79,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         ob("d") | ""   | ""  | "dc" | "d" | "de" |
         ob("e") | ""   | ""  | ""   | ""  | "e"
 
-      for {
+      val mults: Unit = for {
         x ← topos.domain.objects
         a ← topos.domain.arrows
       } {
@@ -112,7 +119,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val idtrans = topos.id(d)
       idtrans.d0 === d
       idtrans.d1 === d
-      idtrans.compose(idtrans) === idtrans
+      idtrans.andThen(idtrans) === idtrans
     }
 
     "exist in Set^M" in {
@@ -183,7 +190,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
       def fullSet(d: Diagram): List[String] = {
         d.d0.objects.toList map ((o:d.d0.Obj) ⇒ d.objectsMapping(o))
-      } map d.asSet map canonical
+      } map d.setOf map canonical
 
       val listOfSubobjects = sut.subobjects.toList
       val actual =
@@ -225,14 +232,13 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(ParallelPair)
       val d1 = SampleParallelPairDiagram1
       val d2 = SampleParallelPairDiagram2
-      val sample = topos.product2builder(d1, d2)
       
       // no need to check f1 and f2 for now
       val actual = topos.product2(d1, d2)
       actual("0").size === 15
       actual("1") === Set((0,0), (1,0), (2,0), (3,0), (0,1), (1,1), (2,1), (3,1))
-      
     }
+      
     "exist in Set^M" in {
       val topos = new CategoryOfDiagrams(M)
 
@@ -243,6 +249,111 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         actual(x).size == SampleMDiagram(x).size*SampleMDiagram(x).size
       }
       ok
+    }
+  }
+
+  "Cartesian product of arrows" should {
+    "exist in Set^_1_" in {
+      val topos = new CategoryOfDiagrams(_1_)
+      val d01 = build(s"d01", _1_)(
+        Map[String, set]("0" → Set(11, 12)),
+        Map[String, SetFunction]()
+      )
+      val d02 = build(s"d02", _1_)(
+        Map[String, set]("0" → Set(21, 22)),
+        Map[String, SetFunction]()
+      )
+      val d11 = build(s"d11", _1_)(
+        Map[String, set]("0" → Set("a11", "a12")),
+        Map[String, SetFunction]()
+      )
+      val d12 = build(s"d12", _1_)(
+        Map[String, set]("0" → Set("b21", "b22")),
+        Map[String, SetFunction]()
+      )
+
+      val f = topos.buildArrow("f",
+        d01, d11,
+        x => i => "a" + i)
+
+      val g = topos.buildArrow("g",
+        d02, d12,
+        x => i => "b" + i)
+
+      val expected = topos.buildArrow("f×g",
+        topos.product2(d01, d02),
+        topos.product2(d11, d12),
+        x => {case (i, j) => ("a" + i, "b" + j)})
+
+      val actual = topos.productOfArrows(f, g)
+
+      actual === expected
+    }
+    "exist in Set^ParallelPair" in {
+      val topos = new CategoryOfDiagrams(ParallelPair)
+
+      val dom1a = Set[Any](101, 102)
+      val dom1b = Set[Any](111, 112, 121, 122)
+      val d01 = build(s"d01", ParallelPair)(
+        Map[String, set]("0" → dom1a, "1" → dom1b),
+        Map[String, SetFunction](
+          "a" -> SetFunction("_a_", dom1a, dom1b, x => x.toString.toInt + 10),
+          "b" -> SetFunction("_b_", dom1a, dom1b, x => x.toString.toInt + 20)
+        ))
+
+      val dom2a = Set[Any](201, 202)
+      val dom2b = Set[Any](211, 212, 221, 222)
+
+      val d02 = build(s"d02", ParallelPair)(
+        Map[String, set]("0" → dom2a, "1" → dom2b),
+        Map[String, SetFunction](
+          "a" -> SetFunction("_a_", dom2a, dom2b, x => x.toString.toInt + 10),
+          "b" -> SetFunction("_b_", dom2a, dom2b, x => x.toString.toInt + 20)
+        )
+      )
+      val codom1a = Set[Any]("a101", "a102")
+      val codom1b = Set[Any]("a111", "a112", "a121", "a122")
+      val d11 = build(s"d11", ParallelPair)(
+        Map[String, set]("0" → codom1a, "1" → codom1b),
+        Map[String, SetFunction](
+          "a" -> SetFunction("_a_", codom1a, codom1b,
+            s => s.toString.replace("0", "1")),
+          "b" -> SetFunction("_b_", codom1a, codom1b,
+            s => s.toString.replace("0", "2"))
+        )
+      )
+
+      val codom2a = Set[Any]("b201", "b202")
+      val codom2b = Set[Any]("b211", "b212", "b221", "b222")
+
+      val d12 = build(s"d12", ParallelPair)(
+        Map[String, set]("0" → codom2a, "1" → codom2b),
+        Map[String, SetFunction](
+          "a" -> SetFunction("_a_", codom2a, codom2b,
+            s => s.toString.replace("0", "1")),
+          "b" -> SetFunction("_b_", codom2a, codom2b,
+            s => s.toString.replace("0", "2"))
+        )
+      )
+
+      val f = topos.buildArrow("f",
+        d01, d11,
+        x => i => "a" + i)
+
+      val g = topos.buildArrow("g",
+        d02, d12,
+        x => i => "b" + i)
+
+      val expected = topos.buildArrow("f×g",
+        topos.product2(d01, d02),
+        topos.product2(d11, d12),
+        x => {
+          case (i, j) => ("a" + i, "b" + j)
+        })
+
+      val actual = topos.productOfArrows(f, g)
+
+      actual === expected
     }
   }
 
@@ -258,7 +369,6 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "exist in paralel pair" in {
       val sut = SampleParallelPairDiagram1
       val topos = new CategoryOfDiagrams(ParallelPair)
-      import topos._
       val actual = sut.points
       actual.size === 3
       val check = checkPoint(sut) _
@@ -271,7 +381,6 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "exist in pullback" in {
       val sut = SamplePullbackDiagram
       val topos = new CategoryOfDiagrams(Pullback)
-      import topos._
       val actual = sut.points
       actual.size === 5
       val p1 :: p2 :: p3 :: p4 :: p5 :: Nil = actual

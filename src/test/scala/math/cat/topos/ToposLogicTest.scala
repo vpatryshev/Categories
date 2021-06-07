@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.reflectiveCalls
 import math.cat.Categories._
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, SetFunction}
@@ -8,9 +9,9 @@ import math.sets.Sets.set
 import org.specs2.matcher.MatchResult
 import scalakittens.Result._
 
-class LogicTest extends Fixtures {
+class ToposLogicTest extends Fixtures {
 
-  val categoriesToTest = SomeKnownCategories
+  val categoriesToTest: List[Cat] = SomeKnownCategories
 
   val enabled: Set[String] = Set("negation")
   def ignored(name: String) = false // !enabled(name)
@@ -19,13 +20,14 @@ class LogicTest extends Fixtures {
     "exist for _0_" in {
       val topos = new CategoryOfDiagrams(_0_)
       import topos._
+      Ω.True.toString === "⊤"
       val tTrue = Ω.True.mapping
       val tFalse = Ω.False.mapping
       tTrue === tFalse // that's a degenerate topos, but tags are still distinct
     }
 
-    def checkAt(point0: Any)(mappings: (String, set)*): MatchResult[Any] = {
-      point0 match {
+    def checkAt(point: Any)(mappings: (String, set)*): MatchResult[Any] = {
+      point match {
         case d: Diagram ⇒
           (traverse {
             for {(k, v) ← mappings } yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
@@ -143,6 +145,9 @@ class LogicTest extends Fixtures {
       val conjunction = Ω.conjunction
 
       val True = Ω.True
+      
+      // TODO(vlad): stop using this `transform`, it makes no sense.
+      // We just need a composition of point with Δ_Ω
       val pointOfTrueAndTrue = True.transform(Δ_Ω)
 
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
@@ -294,62 +299,71 @@ class LogicTest extends Fixtures {
         val True = Ω.True.asPredicate
         val False = Ω.False.asPredicate
 
-        for { p ← Ω.points  map (_.asPredicate)} {
-          println(s"  checking Truth ==> ${p.tag}")
-          (True ==> p) === p
-          println(s"  checking False ==> ${p.tag}")
-          (False ==> p) === True
-          println(s"  checking ${p.tag} ==> ${p.tag}")
-          (p ==> p) === True
-          println(s"  checking ${p.tag} ==> True")
-          (p ==> True) === True
+        for { pt1 ← Ω.points } {
+          println(s"  checking Truth ⟹ ${pt1.tag}")
+          val p = pt1.asPredicate
+          (True ⟹ p) === p
+          println(s"  checking False ⟹ ${pt1.tag}")
+          (False ⟹ p) === True
+          println(s"  checking ${pt1.tag} ⟹ ${pt1.tag}")
+          (p ⟹ p) === True
+          println(s"  checking ${pt1.tag} ⟹ True")
+          (p ⟹ True) === True
 
-          println(s"  checking adjunction for ${p.tag}")
-          for { q ← Ω.points map (_.asPredicate) } {
+          println(s"  checking adjunction for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = pt2.asPredicate
             val p_q = p ∧ q
 
-            for { r ← Ω.points map (_.asPredicate) } {
-              val q2r = q ==> r
-              val left = p_q ==> r
-              val right = p ==> q2r
+            for { pt3 ← Ω.points } {
+              val r = pt3.asPredicate
+              val q2r = q ⟹ r
+              val left = p_q ⟹ r
+              val right = p ⟹ q2r
               left === right
             }
           }
 
-          println(s"  checking adjunction for ${p.tag}")
-          for { q ← Ω.points map (_.asPredicate) } {
+          println(s"  checking adjunction for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = pt2.asPredicate
             val p_q = p ∧ q
 
-            for { r ← Ω.points map (_.asPredicate) } {
-              val q2r = q ==> r
-              val left = p_q ==> r
-              val right = p ==> q2r
+            for { pt3 ← Ω.points } {
+              val r = pt3.asPredicate
+              val q2r = q ⟹ r
+              val left = p_q ⟹ r
+              val right = p ⟹ q2r
               left === right
             }
           }
 
-          println(s"  checking conjunction distributivity for ${p.tag}")
-          for { q ← Ω.points map (_.asPredicate) } {
+          println(s"  checking conjunction distributivity for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = pt2.asPredicate
             val p_and_q = p ∧ q
 
-            for { r ← Ω.points map (_.asPredicate) } {
-              val r2p = r ==> p
-              val r2q = r ==> q
+            for { pt3 ← Ω.points } {
+              val r = pt3.asPredicate
+              val r2p = r ⟹ p
+              val r2q = r ⟹ q
               val left = r2p ∧ r2q
-              val right = r =⇒ p_and_q
+              val right = r ⟹ p_and_q
               left === right
             }
           }
 
-          println(s"  checking disjunction distributivity for ${p.tag}")
-          for { q ← Ω.points map (_.asPredicate) } {
+          println(s"  checking disjunction distributivity for ${pt1.tag}")
+          for { pt2 ← Ω.points } {
+            val q = pt2.asPredicate
             val p_or_q = p ∨ q
 
-            for { r ← Ω.points map (_.asPredicate) } {
-              val p2r = p ==> r
-              val q2r = q ==> r
+            for { pt3 ← Ω.points } {
+              val r = pt3.asPredicate
+              val p2r = p ⟹ r
+              val q2r = q ⟹ r
               val left = p2r ∧ q2r
-              val right = p_or_q =⇒ r
+              val right = p_or_q ⟹ r
               left === right
             }
           }

@@ -1,11 +1,15 @@
 package math.cat
 
-import math.cat.Categories._
+import scala.language.implicitConversions
+import scala.language.postfixOps
+
+import math.Base._
 import math.sets.Sets._
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
+import scala.annotation.tailrec
 import scala.collection.{GenTraversableOnce, TraversableOnce}
 
 /**
@@ -83,7 +87,7 @@ abstract class Category extends CategoryData {
     (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect {
       case (first, second) if !isIdentity(first) && !isIdentity(second) ⇒
-        s"$second ∘ $first = ${m(first, second).get}"
+        concat(second, "∘", first) + s" = ${m(first, second).get}"
     }).mkString(", ") + "})"
 
   /**
@@ -291,7 +295,7 @@ abstract class Category extends CategoryData {
     * @param y second object
     * @return a set of pairs of arrows with the same domain, ending at x and y.
     */
-  def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = asSet(
+  def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
       filter(p ⇒ {
         val (px, py) = p
@@ -360,7 +364,7 @@ abstract class Category extends CategoryData {
     * @param y second object
     * @return a set of pairs of arrows with the same codomain, starting at x and y.
     */
-  def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = asSet(
+  def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows) filter {
       case (px, py) ⇒
         sameCodomain(px, py) &&
@@ -431,7 +435,7 @@ abstract class Category extends CategoryData {
     * @return the set of all such pairs of arrows
     */
   def pairsEqualizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = {
-    asSet(
+    setOf(
       product2[Arrow, Arrow](arrows, arrows).
         filter(p ⇒ {
           val (px, py) = p
@@ -527,7 +531,7 @@ abstract class Category extends CategoryData {
     * @param g second arrow
     * @return an iterable of all such pairs of arrows
     */
-  def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = asSet(
+  def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
       filter(q ⇒ {
         val (qx, qy) = q
@@ -583,12 +587,11 @@ abstract class Category extends CategoryData {
         case 0 ⇒ terminal map (x ⇒ (x, List()))
         case 1 ⇒ Good((x, id(x) :: Nil))
         case _ ⇒ degree(x, n - 1) flatMap {
-          case (x_n_1, previous_projections) ⇒ {
-            product(x, x_n_1) flatMap {
+          case (x_n_1, previous_projections) ⇒
+            product(x, x_n_1) map {
               case (p1, p_n_1) ⇒
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
-                Good((d0(p1), projections.flatten))
-            }
+                (d0(p1), projections.flatten)
           }
         }
       }
@@ -611,37 +614,13 @@ abstract class Category extends CategoryData {
     // then, remove all those that are still deducible
     val essentialArrows = selectBaseArrows(listOfArrows)
 
-  private def convert2Cat[O, A](source: Category)(
-    object2string: source.Obj ⇒ String = (_: source.Obj).toString,
-    arrow2string: source.Arrow ⇒ String = (_: source.Arrow).toString): Result[Cat] = {
-    val stringToObject = source.objects map (o ⇒ object2string(o) → o) toMap
-    val string2Arrow = source.arrows map (a ⇒ arrow2string(a) → a) toMap
-    val objects = stringToObject.keySet
-    val arrows = string2Arrow.keySet
-    val d0 = (f: String) ⇒ object2string(source.d0(string2Arrow(f)))
-    val d1 = (f: String) ⇒ object2string(source.d1(string2Arrow(f)))
-    val ids = (o: String) ⇒ arrow2string(source.id(stringToObject(o)))
-    val composition = (f: String, g: String) ⇒ source.m(string2Arrow(f), string2Arrow(g)) map arrow2string
-
-    for {
-      _ ← OKif(source.isFinite, "Need a finite category")
-      _ ← OKif(objects.size == source.objects.size, "some objects have the same string repr")
-      _ ← OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
-      g ← Graph.build(objects, arrows, d0, d1)
-      
-      c ← build(source.name, g)(
-        ids.asInstanceOf[g.Node ⇒ g.Arrow], // TODO: find a way to avoid casting
-        composition.asInstanceOf[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]])
-
-    } yield c.asInstanceOf[Cat]
-  }
     val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
       a ⇒ a -> (d0(a), d1(a))
     } toMap
 
     Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
   }
-
+  
   private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
     arrows.find(canDeduce(arrows)) match {
       case None ⇒ arrows
