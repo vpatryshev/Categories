@@ -9,9 +9,12 @@ Long story.
 
 The idea is to be able to do all categorical calculations, then be able to calculate topos logic and topologies.
 
+A bunch of slide sets can be found here:
+- [Calculating Intuitionistic Logic in Scala](https://tinyurl.com/lambda19cils)
+- [Topologies in Intuitionistic Logic](https://tinyurl.com/lambda20topologies)
+
 ### Current Status
-Java code works, and it's frozen
-Scala code works, but has too many `.asInstanceOf[]` injected, will have to get rid of them eventually.
+Everything works, but has too many `.asInstanceOf[]` injected, will have to get rid of them eventually.
 
 What we have now:
 - sets (including infinite and finite sets, including ZFC and the set of Natural Numbers)
@@ -30,14 +33,15 @@ What we have now:
 - build logic, 
 - table of logic on points,
 - svg rendering of categories (see samples.html)
+- classifying arrow
+- Lawvere topologies
 
 WIP:
 
 Plans: 
-- Grothendieck topologies
 - sheaves
-- classifying arrow
 - pullback in topos
+- Scala 3
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
 

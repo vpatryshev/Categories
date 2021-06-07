@@ -21,7 +21,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       setAtx.size === expected
     }
   }
-  
+
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x::data)
@@ -53,12 +53,12 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         name: String ⇒ r(name)
       }
 
-      appliesTo | "a" | "b"  | "c" | "d"  | "e" |
-        ob("a") | "a" | "ab" | ""  | ""   | ""  |
-        ob("b") | ""  | "b"  | ""  | ""   | ""  |
-        ob("c") | ""  | "cb" | "c" | "cd" | ""  |
-        ob("d") | ""  | ""   | ""  | "d"  | ""  |
-        ob("e") | ""  | ""   | ""  | "ed" | "e"
+      appliesTo | "a" | "b" | "c" | "d" | "e" |
+        ob("a") | "a" | "ab" | "" | "" | "" |
+        ob("b") | "" | "b" | "" | "" | "" |
+        ob("c") | "" | "cb" | "c" | "cd" | "" |
+        ob("d") | "" | "" | "" | "d" | "" |
+        ob("e") | "" | "" | "" | "ed" | "e"
 
       ok
     }
@@ -72,12 +72,12 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         name: String ⇒ r(name)
       }
 
-      appliesTo | "a"  | "b" | "c"  | "d" | "e"  |
-        ob("a") | "a"  | ""  | ""   | ""  | ""   |
-        ob("b") | "ba" | "b" | "bc" | ""  | ""   |
-        ob("c") | ""   | ""  | "c"  | ""  | ""   |
-        ob("d") | ""   | ""  | "dc" | "d" | "de" |
-        ob("e") | ""   | ""  | ""   | ""  | "e"
+      appliesTo | "a" | "b" | "c" | "d" | "e" |
+        ob("a") | "a" | "" | "" | "" | "" |
+        ob("b") | "ba" | "b" | "bc" | "" | "" |
+        ob("c") | "" | "" | "c" | "" | "" |
+        ob("d") | "" | "" | "dc" | "d" | "de" |
+        ob("e") | "" | "" | "" | "" | "e"
 
       val mults: Unit = for {
         x ← topos.domain.objects
@@ -88,7 +88,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         val ra = r.arrowsMapping(arrow)
         ra should not be null
       }
-      
+
       ok
     }
 
@@ -104,14 +104,14 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         a: String ⇒ r.arrowsMapping(r.d0.arrow(a)).toString
       }
 
-      appliesTo | "0"     |
+      appliesTo | "0" |
         ob("0") | "0,1,2"
 
       ok
     }
-    
+
   }
-  
+
   "Identity arrow" should {
     "exist in Set^W" in {
       val topos = new CategoryOfDiagrams(W)
@@ -145,7 +145,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       ok
     }
   }
-  
+
   "Terminal object" should {
 
     "exist in Set^W" in {
@@ -171,7 +171,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       subterminals must contain(topos._1)
     }
   }
-  
+
   "List of subobjects" should {
     "be good for empty diagram" in {
       val sut = EmptyDiagram
@@ -189,7 +189,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
 
       def fullSet(d: Diagram): List[String] = {
-        d.d0.objects.toList map ((o:d.d0.Obj) ⇒ d.objectsMapping(o))
+        d.d0.objects.toList map ((o: d.d0.Obj) ⇒ d.objectsMapping(o))
       } map d.setOf map canonical
 
       val listOfSubobjects = sut.subobjects.toList
@@ -212,33 +212,33 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       actual.forall(_ ⊂ sut)
 
     }
-    
+
     "exist for representables in Set^_2_" in {
       val topos = new CategoryOfDiagrams(_2_)
       val r0 = topos.Representable(topos.objectNamed("0"))
 
       val obj0 = topos.objectNamed("0")
       val obj1 = topos.objectNamed("1")
-      
+
       val sor = topos.subobjectsOfRepresentables
       sor.size === 2
       sor(obj0).size === 3
       sor(obj1).size === 2
     }
   }
-  
+
   "Cartesian product" should {
     "exist in Set^ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
       val d1 = SampleParallelPairDiagram1
       val d2 = SampleParallelPairDiagram2
-      
+
       // no need to check f1 and f2 for now
       val actual = topos.product2(d1, d2)
       actual("0").size === 15
-      actual("1") === Set((0,0), (1,0), (2,0), (3,0), (0,1), (1,1), (2,1), (3,1))
+      actual("1") === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
     }
-      
+
     "exist in Set^M" in {
       val topos = new CategoryOfDiagrams(M)
 
@@ -246,7 +246,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       for {
         x ← topos.domain.objects
       } {
-        actual(x).size == SampleMDiagram(x).size*SampleMDiagram(x).size
+        actual(x).size == SampleMDiagram(x).size * SampleMDiagram(x).size
       }
       ok
     }

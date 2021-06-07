@@ -16,11 +16,11 @@ import scala.util.parsing.combinator.RegexParsers
 object Sets {
   type set = Set[Any]
   type factorset = FactorSet[Any]
-  
+
   implicit class converter[T](s: Set[T]) {
     def untyped: set = s.asInstanceOf[set]
   }
-  
+
   val InfiniteSize: Int = Int.MaxValue
   val Empty: set = Set.empty[Any]
   val Unit: set = Set(Empty)
@@ -28,17 +28,17 @@ object Sets {
     * A big set of all finite sets in Scala. This set is infinite, of course.
     */
   val FiniteSets: BigSet[Set[Any]] = BigSet.comprehension(isFinite)
-  
+
   def isInfinite(s: Set[_]): Boolean = s.size == InfiniteSize
 
   def itsImmutable = throw new UnsupportedOperationException("Immutable class")
 
   def range(n: Int): Set[Int] = range(0, n, 1)
-  
+
   /**
     * Builds a union of two non-intersecting sets
     */
-  def union[X : ClassTag, X1 <: X : ClassTag, X2 <: X : ClassTag](set1: Set[X1], set2: Set[X2]): Set[X] = {
+  def union[X: ClassTag, X1 <: X : ClassTag, X2 <: X : ClassTag](set1: Set[X1], set2: Set[X2]): Set[X] = {
     lazy val parIterable: Iterable[X] = new ParallelIterable(set1, set2)
     lazy val size = if (isFinite(set1) && isFinite(set2)) set1.size + set2.size else InfiniteSize
 
@@ -99,10 +99,10 @@ object Sets {
   }
 
   def allMaps[X, Y](xs: List[X], ys: List[Y]): List[Map[X, Y]] =
-    (List(Map.empty[X, Y]) /: xs)((maps, x) ⇒
+    (List(Map.empty[X, Y]) /: xs) ((maps, x) ⇒
       maps flatMap (m ⇒ ys map (y ⇒ m + (x → y)))
     )
-  
+
   def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X ⇒ Y): Y ⇒ Set[X] = {
     y ⇒ Set.empty[X] ++ xs.filter(f(_) == y)
   }
@@ -195,7 +195,7 @@ object Sets {
   }
 
   def existsUnique[T](seq: Iterable[T], p: T ⇒ Boolean): Boolean = isSingleton(seq filter p take 2)
-  
+
   def main(args: Array[String]) {
     val a = Set("a", "b", "c")
     val b = Set("x", "y")
@@ -235,7 +235,7 @@ object Sets {
     val source = List(Set("a", "b", "c"), Set("1", "2"), Set("Ebony", "Ivory"), Set("Hi", "Lo"))
     println(product(source))
   }
-  
+
   def filter[X](sourceSet: Set[X], p: X ⇒ Boolean): Set[X] = {
     if (isFinite(sourceSet)) filteredSet(sourceSet, p)
     else setOf(sourceSet, InfiniteSize, p)
@@ -261,7 +261,7 @@ object Sets {
     * set of numbers from `from` to `to`
     *
     * @param from first element of numbers range
-    * @param to upper limit of the numbers in the range (exclusive)
+    * @param to   upper limit of the numbers in the range (exclusive)
     * @return the set of numbers
     */
   def numbers(from: Int, to: Int): Set[Int] = numbers(from, to, 1)
@@ -270,7 +270,7 @@ object Sets {
     * set of numbers from `from` to `to`, step `step`
     *
     * @param from first element of numbers range
-    * @param to upper limit of the numbers in the range (exclusive)
+    * @param to   upper limit of the numbers in the range (exclusive)
     * @param step range step
     * @return the set of numbers
     */
@@ -328,8 +328,8 @@ object Sets {
   }
 
   class InterleavingIterator[X, X1 <: X, X2 <: X](
-      iterator1: Iterator[X1],
-      iterator2: Iterator[X2]) extends Iterator[X] {
+    iterator1: Iterator[X1],
+    iterator2: Iterator[X2]) extends Iterator[X] {
     private var i2: (Iterator[X], Iterator[X]) = (iterator1, iterator2)
 
     def hasNext: Boolean = iterator1.hasNext || iterator2.hasNext
@@ -380,14 +380,14 @@ object Sets {
     source: ⇒ Iterable[X],
     sizeEvaluator: ⇒ Int,
     predicate: X ⇒ Boolean) extends Set[X] {
-    override def contains(x: X): Boolean = predicate(x)
+    override def contains(x: X) = predicate(x)
 
     override def isEmpty: Boolean = !iterator.hasNext
 
     override def -(x: X): Set[X] = new setForIterable(
       source,
       sizePlus(sizeEvaluator, -1),
-      (y: X) ⇒ y != x && predicate(y))
+      y ⇒ y != x && predicate(y))
 
     override def +(x: X): Set[X] = new setForIterable(
       List(x) ++ source,

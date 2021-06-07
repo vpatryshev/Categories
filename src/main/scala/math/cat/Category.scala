@@ -49,9 +49,8 @@ abstract class Category extends CategoryData {
     */
   lazy val op: Category = {
     val src = this
-    val opGraph = ~graph
     new Category {
-      val graph: Graph = opGraph
+      override val graph: Graph = ~src
 
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
@@ -84,7 +83,7 @@ abstract class Category extends CategoryData {
     source getOrElse
     s"${if (name.isEmpty) "" else {name + ": " }}({" +
     objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
-    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)}→${d1(a)}")).mkString(", ") + "}, {" +
+    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)} →${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect {
       case (first, second) if !isIdentity(first) && !isIdentity(second) ⇒
         concat(second, "∘", first) + s" = ${m(first, second).get}"
@@ -592,7 +591,7 @@ abstract class Category extends CategoryData {
               case (p1, p_n_1) ⇒
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
                 (d0(p1), projections.flatten)
-          }
+            }
         }
       }
     }
@@ -657,7 +656,7 @@ abstract class Category extends CategoryData {
     val sub = subgraph(name, setOfObjects)
 
     new Category {
-      val graph: Graph = sub
+      override val graph: Graph = sub
 
       override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 

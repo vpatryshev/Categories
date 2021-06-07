@@ -11,10 +11,10 @@ class SegmentTest extends Specification {
   "intersection" should {
     "work" in {
       for {
-        x10 <- 0 to 10
-        x11 <- 0 to 10
-        x20 <- 0 to 10
-        x21 <- 0 to 10
+        x10 ← 0 to 10
+        x11 ← 0 to 10
+        x20 ← 0 to 10
+        x21 ← 0 to 10
       } {
         val i0 = Pt(x10, 0)
         val i1 = Pt(x11, 1)

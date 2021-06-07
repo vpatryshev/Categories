@@ -1,5 +1,6 @@
 package math.sets
 
+import scala.language.postfixOps
 import math.cat.SetMorphism
 import math.sets.Sets.itsImmutable
 
@@ -23,23 +24,23 @@ class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
   private var equivalenceClasses: Map[X, Set[X]] = (Map[X, Set[X]]() /: base) ((m, x) ⇒ m + (x → Set(x)))
 
   /**
-    * Builds a factorset of a given set, by the transitive closure of a given relationship.
+    * Builds a factorset of a given set, by the transitive closure of a given relation.
     *
     * @param sourceSet base set
-    * @param r   binary relationship
+    * @param r   binary relation
     */
   def this(sourceSet: Set[X], r: BinaryRelation[X, X]) {
     this(sourceSet)
-    factorByRelationship(r)
+    factorByRelation(r)
   }
 
   /**
     * Given a <code>BinaryRelation r</code>, merges equivalent classes if they
     * contain elements that are in <code>r</code>.
     *
-    * @param r the binary relationship. Does not have to be symmetrical or transitive.
+    * @param r the binary relation. Does not have to be symmetrical or transitive.
     */
-  private def factorByRelationship(r: BinaryRelation[X, X]): Unit =
+  private def factorByRelation(r: BinaryRelation[X, X]): Unit =
     for {
       x1 ← base
       x2 ← base

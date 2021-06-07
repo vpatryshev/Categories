@@ -14,7 +14,7 @@ import scalakittens.Result
 class CategoryOfDiagrams(val domain: Category)
   extends Category
   with GrothendieckTopos { topos ⇒
-  val graph = graphOfDiagrams(domain.name)
+  override val graph = graphOfDiagrams(domain.name)
   override def toString: String = name
   
   type Node = Diagram
@@ -217,7 +217,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   /**
     * Cartesian product of two diagrams
-    * TODO: figure out how to ensure the same d0 in bothDi
+    * TODO: figure out how to ensure the same d0 in both Di
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 

@@ -1,5 +1,7 @@
 package math.cat
 
+import scala.language.implicitConversions
+import scala.language.postfixOps
 import java.util.Objects
 
 import math.cat.CategoryData.Composition
@@ -19,14 +21,16 @@ private[cat] abstract class CategoryData extends Graph {
   lazy val listOfObjects: List[Obj] =
     if (isFinite) objects.toList.sortBy(_.toString)
     else throw new IllegalStateException("Cannot sort infinite set")
-  val graph: Graph
+  val graph: Graph = this
 
   override def name: String = graph.name
 
-  def obj(x: Any): Obj =
-    Result.forValue(asObj(x)) filter (objects contains) getOrElse {
+  def obj(x: Any): Obj = {
+    val objectMaybe = Result.forValue(asObj(x))
+    objectMaybe filter (objects contains) getOrElse {
       throw new IllegalArgumentException(s"$x is not an object in $name")
     }
+  }
 
   def id(o: Obj): Arrow
 
@@ -112,7 +116,7 @@ private[cat] abstract class CategoryData extends Graph {
               s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
               OKif(sameCodomain(gf, g),
                 s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)} in $name")
-          } returning()
+          } returning ⊤
         }
         else {
           OKif(h.isEmpty, s"Wrongly defined composition of $f and $g in $name")
@@ -168,13 +172,13 @@ private[cat] abstract class CategoryData extends Graph {
 
 class ValidCategoryData(source: CategoryData) extends CategoryData {
   data ⇒
-  val graph = source.graph
+  override val graph = source.graph
 
   def newCategory: Category = {
     if (isFinite) newFiniteCategory
     else {
       new Category {
-        val graph = data.graph
+        override val graph = data.graph
 
         override def d0(f: Arrow): Obj = data.d0(data.arrow(f))
 
@@ -196,14 +200,14 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
     val idMap: Map[Any, Arrow] = objects.map(o ⇒ o -> id(node(o))).toMap
 
     val mMap: Map[(Any, Any), Arrow] = {
-      for {f <- arrows
-           g <- arrows
-           h <- m(arrow(f), arrow(g))
+      for {f ← arrows
+           g ← arrows
+           h ← m(arrow(f), arrow(g))
       } yield (f, g) -> h
     } toMap
 
     new Category {
-      val graph = data.graph
+      override val graph = data.graph
 
       override def d0(f: Arrow): Obj = asObj(d0Map(f))
 
@@ -229,7 +233,7 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
   * @param graph the underlying graph
   * @return category data
   */
-private[cat] class PartialData(val graph: Graph) extends CategoryData {
+private[cat] class PartialData(override val graph: Graph) extends CategoryData {
   self ⇒
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
@@ -290,8 +294,8 @@ private[cat] class PartialData(val graph: Graph) extends CategoryData {
   Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = {
     val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
       a ← graph.arrows
-      b ← graph.arrows if compositionSource.contains((a, b).asInstanceOf[(graph.Arrow, graph.Arrow)])
-      c ← graph.arrows if compositionSource.contains((b, c).asInstanceOf[(graph.Arrow, graph.Arrow)])
+      b ← graph.arrows if compositionSource.contains((a, b))
+      c ← graph.arrows if compositionSource.contains((b, c))
     } yield (a, b, c)
 
     triples
@@ -404,7 +408,7 @@ object CategoryData {
     ids: gr.Node ⇒ gr.Arrow,
     composition: (gr.Arrow, gr.Arrow) ⇒ Option[gr.Arrow]): CategoryData = {
     new CategoryData {
-      val graph = gr
+      override val graph = gr
 
       override def id(o: Obj): Arrow = ids(gr.node(o))
 

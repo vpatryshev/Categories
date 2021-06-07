@@ -10,9 +10,9 @@ import org.specs2.matcher.MatchResult
 import scalakittens.Result._
 
 class ToposLogicTest extends Fixtures {
-
+  
   val categoriesToTest: List[Cat] = SomeKnownCategories
-
+  
   val enabled: Set[String] = Set("negation")
   def ignored(name: String) = false // !enabled(name)
 
@@ -147,7 +147,7 @@ class ToposLogicTest extends Fixtures {
       val True = Ω.True
       
       // TODO(vlad): stop using this `transform`, it makes no sense.
-      // We just need a composition of point with Δ_Ω
+      // We just need an composition of point with Δ_Ω
       val pointOfTrueAndTrue = True.transform(Δ_Ω)
 
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ

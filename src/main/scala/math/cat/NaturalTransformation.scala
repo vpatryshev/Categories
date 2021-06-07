@@ -91,8 +91,8 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
     case other: NaturalTransformation â‡’
       (this eq other) || (
         hashCode == other.hashCode &&
-        d0 == other.d0 &&
-        d1 == other.d1 && {
+          d0 == other.d0 &&
+          d1 == other.d1 && {
           val foundBad: Option[Any] = domainCategory.objects find (o â‡’ {
             val first: codomainCategory.Arrow = transformPerObject(o)
             val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
@@ -112,8 +112,8 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self â
             }
             !same
           }
-          ) // checking it every time takes time
-          
+            ) // checking it every time takes time
+
           foundBad.isEmpty
         })
     case otherwise â‡’ false

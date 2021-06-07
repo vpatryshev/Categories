@@ -63,9 +63,9 @@ class Point(
 
   override def toString: String = {
     if (tag.toString.nonEmpty) tag.toString else {
-    val raw = domainCategory.listOfObjects.map(x ⇒ s"$x→${apply(x)}")
-    Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
-  }
+      val raw = domainCategory.listOfObjects.map(x ⇒ s"$x → ${apply(x)}")
+      Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
+    }
   }
 
   def toShortString: String = {

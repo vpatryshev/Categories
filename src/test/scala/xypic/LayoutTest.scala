@@ -40,9 +40,9 @@ class LayoutTest extends Specification {
       val expectedLayers = expectedLayersOfClusters mapValues (_.map(ls ⇒ U(ls.toSet)))
 
       val actualLayersOfClusters: Map[String, List[List[Set[String]]]] = (for {
-        c <- KnownFiniteCategories
+        c ← KnownFiniteCategories
         ls = Layout(c, 300, 300).gradedObjects
-        l <- ls
+        l ← ls
         name = if (ls.size == 1) c.name else l.category.name
         loc = l.layersOfClusters
       } yield {
@@ -50,22 +50,22 @@ class LayoutTest extends Specification {
       }) toMap
 
       for {
-        name <- actualLayersOfClusters.keySet
+        name ← actualLayersOfClusters.keySet
       } actualLayersOfClusters(name) === expectedLayersOfClusters(name)
 
       actualLayersOfClusters === expectedLayersOfClusters
 
       val actualLayers: Map[String, List[Set[String]]] = (for {
-        c <- KnownFiniteCategories
+        c ← KnownFiniteCategories
         ls = Layout(c, 300, 300).gradedObjects
-        l <- ls
+        l ← ls
       } yield {
         val name = if (ls.size == 1) c.name else l.category.name
         name -> l.layers.map(_.map(_.toString))
       }) toMap
 
       for {
-        name <- expectedLayers.keySet
+        name ← expectedLayers.keySet
       } actualLayers(name) === expectedLayers(name)
       
       actualLayers === expectedLayers

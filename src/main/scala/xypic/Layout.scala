@@ -2,6 +2,7 @@ package xypic
 
 import java.io.FileWriter
 import java.util.Date
+import scala.language.postfixOps
 
 import math.cat.{Category, Graph}
 import math.cat.Categories._
@@ -19,11 +20,11 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
   private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map {
-    case (comps, i) ⇒ i -> comps.toList.sortBy(_.toString)
+    case (comps, i) ⇒ i -> comps.sortBy(_.toString)
   }.toMap
 
   private val coordinates0: immutable.Iterable[List[(go.Cluster, Pt)]] = for {
-    (i, layer) <- indexedClusters
+    (i, layer) ← indexedClusters
   } yield {
     val diameters = layer.map(_.diameter)
     val layerLength = layer.length // diameters.sum
@@ -34,7 +35,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
       (dir._1 * layerWidth * (i % 2), dir._2 * layerWidth * ((i+1) % 2))
     }
 
-    val row = for { (o, j) <- layer.zipWithIndex } yield {
+    val row = for { (o, j) ← layer.zipWithIndex } yield {
       val newPoint = Pt(i - j + scala.math.max(0, step._1 + (dw-1)/2), step._2 + (dw-1)/2 - j)
       val actual = if (taken(newPoint)) newPoint.shift(0, -1) else newPoint
       taken.add(actual)
@@ -83,10 +84,10 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
       case (cluster, coords) ⇒ cluster.allocateAt(coords)
   }.toMap
   
-  val frame = SVG.Frame(30, Pt(w, h), coordinates.values)
+  val frame: SVG.Frame = SVG.Frame(30, Pt(w, h), coordinates.values)
 
   def svg: String = if (coordinates.isEmpty) "" else {
-    for { (obj, p) <- coordinates } {
+    for { (obj, p) ← coordinates } {
       frame.CircleWithText(obj.toString, p).draw()
     }
 
@@ -102,7 +103,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit = {
       val p = coordinates(obj.toString)
       for {
-        (a, i) <- arrows.zipWithIndex
+        (a, i) ← arrows.zipWithIndex
       } frame.Endomorphism(a.toString, p, 25, i).draw()
     }
     
@@ -114,7 +115,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
         // need to take first the arrows in the direction where there are less arrows
         val arrs = allArrowsBetweenTwoObjects.groupBy(base.d0).values.toList.sortBy(_.size).flatten
         for {
-          (a, i) <- arrs.zipWithIndex
+          (a, i) ← arrs.zipWithIndex
         } {
           val from = coordinates(base.d0(a).toString)
           val to = coordinates(base.d1(a).toString)
@@ -122,7 +123,6 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
           val shift = if (i % 2 == 1) -(shift0+1)/2 else (shift0 + 1)/2
           frame.Arrow(a.toString, Segment(from, to), 25, shift, center).draw()
         }
-        
     }
 
     frame.toString
@@ -197,7 +197,7 @@ object TestIt {
   
   private def showAll(): Unit = {
     val fullMap = for {
-      c <- KnownFiniteCategories
+      c ← KnownFiniteCategories
       layout = Layout(c, 300, 300)
       html = layout.html
     } yield html

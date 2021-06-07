@@ -17,7 +17,7 @@ trait GrothendieckTopos
   val domain: Category
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
-  
+
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]]
 
   /**
@@ -68,7 +68,7 @@ trait GrothendieckTopos
 
     /**
       * Given an arrow `a`, 
-      * {f ∈ hom(y, x1) | a ∘ f ∈ r1(x1)}
+      * {f ∈ hom(y, x1) | a compose f ∈ r1(x1)}
       *
       * @param a  an arrow
       * @param rx a subrepresentable

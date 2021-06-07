@@ -1,5 +1,6 @@
 package xypic
 
+import scala.language.postfixOps
 import math.cat.Category
 import math.geometry2d.{GroupOfObjects, Pt, Rational}
 

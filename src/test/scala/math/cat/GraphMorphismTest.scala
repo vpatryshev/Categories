@@ -81,7 +81,7 @@ class GraphMorphismTest extends Test {
         add1mod3.asInstanceOf[g1.Node ⇒ g3.Node],
         (p:g1.Arrow) ⇒ g3.arrow(add1mod3(p.asInstanceOf[(Int, Int)]._1)))
 
-      val actual = sut1 compose sut2
+      val actual = sut1 andThen sut2
       actual.d0 === expected.d0
       actual.d1 === expected.d1
       val nodeDiff: List[expected.d0.Node] = expected.d0.nodes.filterNot(expected.sameNodesMapping(actual)).toList
