@@ -120,6 +120,34 @@ abstract class Functor(
     */
   def limit: Result[Cone] = allCones find isLimit
 
+  def Lan(X: Functor): Functor = {
+    require(X.d0 == d0)
+    
+    new Functor(s"Lan_$tag(${X.tag}", d1, X.d1) {
+      override val objectsMapping: d0.Obj => d1.Obj = {
+        
+        ???
+      }
+      override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow = {
+        ???
+      }
+    }
+  }
+
+  def Ran(X: Functor): Functor = {
+    require(X.d0 == d0)
+
+    new Functor(s"Lan_$tag(${X.tag}", d1, X.d1) {
+      override val objectsMapping: d0.Obj => d1.Obj = {
+
+        ???
+      }
+      override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow = {
+        ???
+      }
+    }
+  }
+  
   def cocone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cocone] = {
     Option(Cocone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
   }
