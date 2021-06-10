@@ -3,7 +3,6 @@ package math
 import scalakittens.Result
 
 import scala.language.postfixOps
-import scala.collection.breakOut
 
 /**
   * Base tools used in this package.
@@ -21,9 +20,9 @@ object Base {
     */
   def inverse[A, B](m: Map[A, B]): Map[B, A] = {
     
-    val result: Map[B, A] = (m map {
-      case (k, v) ⇒ v → k
-    })(breakOut)
+    val result: Map[B, A] = m map {
+      case (k, v) => v -> k
+    }
         
     require(result.size == m.size, "map not invertible")
     result
@@ -37,26 +36,50 @@ object Base {
     * @return the
     */
   def toMap[X](list: List[X]): IntMap[X] =
-    list.zipWithIndex map { case (x, i) ⇒ i → x } toMap
+    list.zipWithIndex map { case (x, i) => i -> x } toMap
 
   implicit class Optimist[T](opt: Option[T]) {
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
   }
 
   /**
-    * Concatenates two strings with a connector; inserte
-    * @param first
-    * @param conn
-    * @param second
+    * Concatenates two strings with a connector
+    * @param first first value (can be anything)
+    * @param conn connector string
+    * @param second second value (can be anything)
     * @return
     */
   def concat(first: Any, conn: String, second: Any): String = {
-    val s10 = String valueOf first trim
-    val s1 = if (s10 contains " ") s"($s10)" else s10
-    val s20 = String valueOf second trim
-    val s2 = if (s20 contains " ") s"($s20)" else s20
+    def stringOf(x: Any): String = {
+      val s0 = String valueOf x trim
+      
+      if (s0 contains " ") s"($s0)" else s0
+    }
+    val s1 = stringOf(first)
+    val s2 = stringOf(second)
     val insert = if (s1.length > 1 || s2.length > 1) s" $conn " else conn
     s1 + insert + s2
   }
 
+  /**
+   * Use this method for building objects from strings
+   * @param sc context
+   * @param args args
+   * @return a StringBuffer
+   */
+  def bufferFromContext(sc: StringContext, args: Any*) = {
+    val strings = sc.parts.iterator
+    val expressions = args.iterator
+    var buf = new StringBuffer(strings.next())
+    while (strings.hasNext) {
+      buf append expressions.next()
+      buf append strings.next()
+    }
+    buf
+  }
+
+  def itsImmutable: Nothing = cannotDo("Immutable class")
+
+  def cannotDo(message: String): Nothing =
+    throw new UnsupportedOperationException(message)
 }

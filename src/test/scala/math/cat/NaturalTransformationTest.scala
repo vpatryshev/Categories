@@ -15,20 +15,20 @@ class NaturalTransformationTest extends Test {
     val c = _2_
     val d = _5_
 
-    def buildFunctor(name: String, op: Int ⇒ Int) =
+    def buildFunctor(name: String, op: Int => Int) =
       Functor(name, c, d)(
-        { case s ⇒ op(s.toInt).toString },
-        { case PairRegex(x, y) ⇒ s"${op(x.toInt)}.${op(y.toInt)}" })
+        { case s => op(s.toInt).toString },
+        { case PairRegex(x, y) => s"${op(x.toInt)}.${op(y.toInt)}" })
 
     lazy val f: F = buildFunctor("f", 2 *).iHope
     lazy val g: F = buildFunctor("g", 1 +).iHope
     lazy val h: F = buildFunctor("g", 2 +).iHope
 
     lazy val fg: NT = NaturalTransformation.build("test_fg", f, g)(Map(
-      f.d0.obj("0") → f.d1.arrow("0.1"), f.d0.obj("1") → f.d1.arrow("2.2"))).iHope
+      f.d0.obj("0") -> f.d1.arrow("0.1"), f.d0.obj("1") -> f.d1.arrow("2.2"))).iHope
 
     lazy val gh: NT = NaturalTransformation.build("test_gh", g, h)(
-      Map("0" → g.d1.arrow("1.2"), "1" → g.d1.arrow("2.3"))).iHope
+      Map("0" -> g.d1.arrow("1.2"), "1" -> g.d1.arrow("2.3"))).iHope
 
     "compose" in {
         val fgh = fg andThen gh

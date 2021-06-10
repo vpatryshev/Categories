@@ -14,7 +14,7 @@ object Functions {
    */
 
   trait Injection[X, Y] extends Function[X, Y] {
-    self ⇒
+    self =>
     /**
       * Composes this Injection with another Injection.
       * (f compose g)(x) == f(g(x))
@@ -22,7 +22,7 @@ object Functions {
       * @param g another Injection
       * @return a composition
       */
-    def compose[T](g: Injection[T, X]): Injection[T, Y] = injection { t: T ⇒ apply(g(t)) }
+    def compose[T](g: Injection[T, X]): Injection[T, Y] = injection { t: T => apply(g(t)) }
 
     /**
       * Composes this Injection with another Injection.
@@ -34,7 +34,7 @@ object Functions {
     def andThen[Z](g: Injection[Y, Z]): Injection[X, Z] = g compose this
   }
   
-  def injection[X, Y] (f: X ⇒ Y): Injection[X, Y] = new Injection[X, Y] { def apply(x: X) = f(x) }
+  def injection[X, Y] (f: X => Y): Injection[X, Y] = new Injection[X, Y] { def apply(x: X) = f(x) }
 
 /**
    * Injection of values of a certain type T1 to themselves, as a super type T.
@@ -75,7 +75,7 @@ object Functions {
      * @param g another Injection
      * @return a composition
      */
-    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = bijection((t:T) ⇒ apply(g(t)), (y: Y) ⇒ g.unapply(unapply(y)))
+    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
 
     /**
      * Inverse to this bijection
@@ -93,11 +93,11 @@ object Functions {
 
 //    override def applyTo(s: Set[X]): Set[Y] = {
 //      val target: Iterable[Y] = s.map(this)
-//      setOf(target, s.size, (y:Y) ⇒ s contains unapply(y))
+//      setOf(target, s.size, (y:Y) => s contains unapply(y))
 //    }
   }
 
-  def bijection[X, Y](f: X ⇒ Y, g: Y ⇒ X): Bijection[X, Y] =
+  def bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
     new Bijection[X, Y] {
       def apply(x: X) = f(x)
       def unapply(y: Y) = g(y)
@@ -130,10 +130,10 @@ object Functions {
    * @param f function to apply
    * @return a function that builds pairs.
    */
-  def schwartzianTransform[X,Y] (f: X ⇒ Y): Bijection[X, Product2[X, Y]] = {
+  def schwartzianTransform[X,Y] (f: X => Y): Bijection[X, Product2[X, Y]] = {
     def first(p:Product2[X,Y]) = p._1 // patch for scala 2.8 compiler bug
     bijection(
-      (x: X) ⇒ (x, f(x)),
+      (x: X) => (x, f(x)),
       first
     )
   }
@@ -145,7 +145,7 @@ object Functions {
     * @param list the list
     * @return the function
     */
-  def forList[X](list: List[X]): Int ⇒ X = list
+  def forList[X](list: List[X]): Int => X = list
 
   /**
    * Builds constant function
@@ -154,14 +154,14 @@ object Functions {
    * @param value the only value it ever returns
    * @return the constant function
    */
-  def constant[X, Y] (value: Y): X ⇒ Y = (x: X) ⇒ value
+  def constant[X, Y] (value: Y): X => Y = (x: X) => value
 
-  def restrict[X, X1 <: X, Y](fun: X ⇒ Y): X1 ⇒ Y = (x1: X1) ⇒ fun(x1)
+  def restrict[X, X1 <: X, Y](fun: X => Y): X1 => Y = (x1: X1) => fun(x1)
 
   // This should not even exist! What exception?! what extension? Be contravariant.
   /**
    * Extends a function to a wider domain and codomain
    * the result will throw an exception if argument is not right
    */
-//  def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 ⇒ Y0): (X1 ⇒ Y1) = { case (x0: X0) ⇒ f(x0) }
+//  def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): (X1 => Y1) = { case (x0: X0) => f(x0) }
 }

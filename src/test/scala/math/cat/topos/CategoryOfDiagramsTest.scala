@@ -11,11 +11,11 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
   type SUT = Diagram
 
   def representable(topos: CategoryOfDiagrams): topos.domain.Obj => topos.Representable =
-    (obj: topos.domain.Obj) ⇒ topos.Representable(obj)
+    (obj: topos.domain.Obj) => topos.Representable(obj)
 
   def checkConstSize(topos: CategoryOfDiagrams)(obj: topos.Obj, expected: Int): Unit = {
     for {
-      x ← topos.domain.objects
+      x <- topos.domain.objects
     } {
       val setAtx: Set[_] = obj apply x
       setAtx.size === expected
@@ -25,10 +25,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x::data)
-      def |(f: String ⇒ Any): check = check(f)(data.reverse, data.reverse)
+      def |(f: String => Any): check = check(f)(data.reverse, data.reverse)
     }
 
-    case class check(f: String ⇒ Any)(data: List[String], fullList: List[String]) {
+    case class check(f: String => Any)(data: List[String], fullList: List[String]) {
       private def check1(x: String, y: String) = {
         val expected = x.split(",").toSet.filter(_.nonEmpty)
         val actual = f(y)
@@ -40,7 +40,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         check(f)(data.tail, fullList)
       }
 
-      def |(f: String ⇒ Any): check = check(f)(fullList, fullList)
+      def |(f: String => Any): check = check(f)(fullList, fullList)
     }
 
     val appliesTo = new diagramTable
@@ -48,9 +48,9 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "be good in Set^W" in {
       val topos = new CategoryOfDiagrams(W)
       import topos.domain._
-      val ob = (o: String) ⇒ {
+      val ob = (o: String) => {
         val r = representable(topos)(obj(o))
-        name: String ⇒ r(name)
+        name: String => r(name)
       }
 
       appliesTo | "a" | "b" | "c" | "d" | "e" |
@@ -67,9 +67,9 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(M)
       import topos.domain._
       val rep = representable(topos)
-      val ob = (o: Obj) ⇒ {
+      val ob = (o: Obj) => {
         val r = rep(o)
-        name: String ⇒ r(name)
+        name: String => r(name)
       }
 
       appliesTo | "a" | "b" | "c" | "d" | "e" |
@@ -80,8 +80,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
         ob("e") | "" | "" | "" | "" | "e"
 
       val mults: Unit = for {
-        x ← topos.domain.objects
-        a ← topos.domain.arrows
+        x <- topos.domain.objects
+        a <- topos.domain.arrows
       } {
         val r = rep(x)
         val arrow = r.d0.arrow(a)
@@ -95,13 +95,13 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "be good in Set^Z3" in {
       val topos = new CategoryOfDiagrams(Z3)
       import topos.domain._
-      val ob = (o: Obj) ⇒ {
+      val ob = (o: Obj) => {
         val r = representable(topos)(o)
-        name: String ⇒ r(obj(name)).toString
+        name: String => r(obj(name)).toString
       }
-      val ar = (o: Obj) ⇒ {
+      val ar = (o: Obj) => {
         val r = representable(topos)(o)
-        a: String ⇒ r.arrowsMapping(r.d0.arrow(a)).toString
+        a: String => r.arrowsMapping(r.d0.arrow(a)).toString
       }
 
       appliesTo | "0" |
@@ -138,8 +138,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
       val initialOpt = topos.initial
       initialOpt match {
-        case Good(initial) ⇒ checkConstSize(topos)(initial, 0)
-        case none ⇒ failure(s"Could not build an initial in $topos: $none")
+        case Good(initial) => checkConstSize(topos)(initial, 0)
+        case none => failure(s"Could not build an initial in $topos: $none")
       }
       checkConstSize(topos)(topos._0, 0)
       ok
@@ -153,12 +153,12 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
       val terminalOpt = topos.terminal
       terminalOpt match {
-        case Good(terminal) ⇒
+        case Good(terminal) =>
           terminal === topos._1
           checkConstSize(topos)(terminal, 1)
           val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
           terminal.asFunction(ab).d0 === Set(Set())
-        case none ⇒ failure(s"Could not build a terminal in $topos: $none")
+        case none => failure(s"Could not build a terminal in $topos: $none")
       }
       ok
     }
@@ -184,12 +184,12 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "be good for pullback diagram" in {
       val sut = SamplePullbackDiagram
       val topos = new CategoryOfDiagrams(Pullback)
-      val sample = sut.d0.objects map (ob ⇒ sut.objectsMapping(ob))
+      val sample = sut.d0.objects map (ob => sut.objectsMapping(ob))
 
       def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
 
       def fullSet(d: Diagram): List[String] = {
-        d.d0.objects.toList map ((o: d.d0.Obj) ⇒ d.objectsMapping(o))
+        d.d0.objects.toList map ((o: d.d0.Obj) => d.objectsMapping(o))
       } map d.setOf map canonical
 
       val listOfSubobjects = sut.subobjects.toList
@@ -244,7 +244,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
       val actual = topos.product2(SampleMDiagram, SampleMDiagram)
       for {
-        x ← topos.domain.objects
+        x <- topos.domain.objects
       } {
         actual(x).size == SampleMDiagram(x).size * SampleMDiagram(x).size
       }
@@ -256,19 +256,19 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "exist in Set^_1_" in {
       val topos = new CategoryOfDiagrams(_1_)
       val d01 = build(s"d01", _1_)(
-        Map[String, set]("0" → Set(11, 12)),
+        Map[String, set]("0" -> Set(11, 12)),
         Map[String, SetFunction]()
       )
       val d02 = build(s"d02", _1_)(
-        Map[String, set]("0" → Set(21, 22)),
+        Map[String, set]("0" -> Set(21, 22)),
         Map[String, SetFunction]()
       )
       val d11 = build(s"d11", _1_)(
-        Map[String, set]("0" → Set("a11", "a12")),
+        Map[String, set]("0" -> Set("a11", "a12")),
         Map[String, SetFunction]()
       )
       val d12 = build(s"d12", _1_)(
-        Map[String, set]("0" → Set("b21", "b22")),
+        Map[String, set]("0" -> Set("b21", "b22")),
         Map[String, SetFunction]()
       )
 
@@ -295,7 +295,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val dom1a = Set[Any](101, 102)
       val dom1b = Set[Any](111, 112, 121, 122)
       val d01 = build(s"d01", ParallelPair)(
-        Map[String, set]("0" → dom1a, "1" → dom1b),
+        Map[String, set]("0" -> dom1a, "1" -> dom1b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", dom1a, dom1b, x => x.toString.toInt + 10),
           "b" -> SetFunction("_b_", dom1a, dom1b, x => x.toString.toInt + 20)
@@ -305,7 +305,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val dom2b = Set[Any](211, 212, 221, 222)
 
       val d02 = build(s"d02", ParallelPair)(
-        Map[String, set]("0" → dom2a, "1" → dom2b),
+        Map[String, set]("0" -> dom2a, "1" -> dom2b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", dom2a, dom2b, x => x.toString.toInt + 10),
           "b" -> SetFunction("_b_", dom2a, dom2b, x => x.toString.toInt + 20)
@@ -314,7 +314,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val codom1a = Set[Any]("a101", "a102")
       val codom1b = Set[Any]("a111", "a112", "a121", "a122")
       val d11 = build(s"d11", ParallelPair)(
-        Map[String, set]("0" → codom1a, "1" → codom1b),
+        Map[String, set]("0" -> codom1a, "1" -> codom1b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", codom1a, codom1b,
             s => s.toString.replace("0", "1")),
@@ -327,7 +327,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val codom2b = Set[Any]("b211", "b212", "b221", "b222")
 
       val d12 = build(s"d12", ParallelPair)(
-        Map[String, set]("0" → codom2a, "1" → codom2b),
+        Map[String, set]("0" -> codom2a, "1" -> codom2b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", codom2a, codom2b,
             s => s.toString.replace("0", "1")),

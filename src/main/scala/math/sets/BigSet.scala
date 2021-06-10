@@ -13,9 +13,9 @@ abstract class BigSet[T] extends Set[T] {
 
   override def toString: String = whoami
 
-  def map[U](f: Functions.Bijection[T, U]): BigSet[U] = BigSet.comprehension((u: U) ⇒ this contains (f unapply u))
+  def map[U](f: Functions.Bijection[T, U]): BigSet[U] = BigSet.comprehension((u: U) => this contains (f unapply u))
 
-  override def filter(p: T ⇒ Boolean): BigSet[T] = BigSet.comprehension((t: T) ⇒ p(t) && (this contains t))
+  override def filter(p: T => Boolean): BigSet[T] = BigSet.comprehension((t: T) => p(t) && (this contains t))
 
   override def hashCode: Int = System.identityHashCode(this)
 
@@ -25,8 +25,8 @@ abstract class BigSet[T] extends Set[T] {
     * @return true if it is the same set
     */
   override def equals(other: Any): Boolean = other match {
-    case ref: AnyRef ⇒ this eq ref
-    case notaref ⇒ false
+    case ref: AnyRef => this eq ref
+    case notaref => false
   }
 }
 
@@ -43,7 +43,7 @@ object BigSet {
       override def contains(t: T) = true
     }
 
-  def comprehension[T](p: T ⇒ Boolean): BigSet[T] =
+  def comprehension[T](p: T => Boolean): BigSet[T] =
     new BigSet[T] with NonEnumerableSet[T] {
       override def contains(t: T) = p(t)
     }

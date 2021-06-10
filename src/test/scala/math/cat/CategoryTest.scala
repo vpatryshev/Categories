@@ -24,7 +24,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "have segments" >> {
       for {
-        i ← 0 until 10
+        i <- 0 until 10
       } {
         Category.segment(i).arrows.size === i * (i + 1) / 2
       }
@@ -33,45 +33,45 @@ class CategoryTest extends Test with CategoryFactory {
 
     "parsing example1" >> {
       val d0d1 = Map(
-        "0.1" → ("0", "1"),
-        "0.2" → ("0", "2"),
-        "a" → ("1", "2"),
-        "b" → ("1", "2"),
-        "2.1" → ("2", "1"),
-        "2.a" → ("2", "2"),
-        "2.b" → ("2", "2"),
-        "2.swap" → ("2", "2")
+        "0.1" -> ("0", "1"),
+        "0.2" -> ("0", "2"),
+        "a" -> ("1", "2"),
+        "b" -> ("1", "2"),
+        "2.1" -> ("2", "1"),
+        "2.a" -> ("2", "2"),
+        "2.b" -> ("2", "2"),
+        "2.swap" -> ("2", "2")
       )
 
       lazy val sutOpt = Category("example1",
         Set("0", "1", "2"), // objects
-        d0d1.mapValues(_._1), // d0
-        d0d1.mapValues(_._2), // d1
+        d0d1.view.mapValues(_._1).toMap, // d0
+        d0d1.view.mapValues(_._2).toMap, // d1
         Map(
-          ("0.1", "a") → "0.2",
-          ("0.1", "b") → "0.2",
-          ("2.1", "a") → "2.a",
-          ("2.1", "b") → "2.b",
-          ("a", "2.a") → "a",
-          ("a", "2.b") → "b",
-          ("a", "2.swap") → "b",
-          ("b", "2.a") → "a",
-          ("b", "2.b") → "b",
-          ("b", "2.swap") → "a",
-          ("2.a", "2.a") → "2.a",
-          ("2.a", "2.b") → "2.b",
-          ("2.b", "2.a") → "2.a",
-          ("2.b", "2.b") → "2.b",
-          ("2.swap", "2.a") → "2.a",
-          ("2.swap", "2.b") → "2.b",
-          ("2.swap", "2.swap") → "2") // composition map
+          ("0.1", "a") -> "0.2",
+          ("0.1", "b") -> "0.2",
+          ("2.1", "a") -> "2.a",
+          ("2.1", "b") -> "2.b",
+          ("a", "2.a") -> "a",
+          ("a", "2.b") -> "b",
+          ("a", "2.swap") -> "b",
+          ("b", "2.a") -> "a",
+          ("b", "2.b") -> "b",
+          ("b", "2.swap") -> "a",
+          ("2.a", "2.a") -> "2.a",
+          ("2.a", "2.b") -> "2.b",
+          ("2.b", "2.a") -> "2.a",
+          ("2.b", "2.b") -> "2.b",
+          ("2.swap", "2.a") -> "2.a",
+          ("2.swap", "2.b") -> "2.b",
+          ("2.swap", "2.swap") -> "2") // composition map
       )
 
       sutOpt match {
-        case Good(cat) ⇒
+        case Good(cat) =>
           val string = cat.toString
           Category.read(string) === sutOpt
-        case oops ⇒ failure(oops.toString)
+        case oops => failure(oops.toString)
       }
       ok
     }
@@ -108,16 +108,16 @@ class CategoryTest extends Test with CategoryFactory {
     "regression from 6/9/15" >> {
       val expected = Category("regression from 6/9/15",
         objects = Set("0", "1", "2"),
-        domain = Map("0" → "0", "1" → "1", "2" → "2", "a" → "0", "b" → "1"),
-        codomain = Map("0" → "0", "1" → "1", "2" → "2", "a" → "2", "b" → "2"),
+        domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
+        codomain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "2", "b" -> "2"),
         composition = EmptyComposition,
         defineComposition
       ).iHope
 
-      val sample1 = category"sample1:({0,1,2}, {a: 0 → 2, b: 1 → 2}, {a ∘ 0 = a})"
+      val sample1 = category"sample1:({0,1,2}, {a: 0 -> 2, b: 1 -> 2}, {a ∘ 0 = a})"
       sample1 === expected
 
-      val sample2 = category"sample2:({0,1,2}, {a: 0 → 2, b: 1 → 2})"
+      val sample2 = category"sample2:({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
       sample2 === expected
 
     }
@@ -134,20 +134,20 @@ class CategoryTest extends Test with CategoryFactory {
         composition = EmptyComposition,
         defineComposition
       )
-      checkOpt(sutOpt, (sut: Category) ⇒ {
+      checkOpt(sutOpt, (sut: Category) => {
         sut.arrows must haveSize(1)
       })
       ok
     }
 
     "constructor_1_full" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         sut.arrows must haveSize(1)
       })(
         Category("constructor_1_full", Set("1"),
-          Map("1" → "1"), // d0
-          Map("1" → "1"), // d1
-          Map(("1", "1") → "1"),
+          Map("1" -> "1"), // d0
+          Map("1" -> "1"), // d1
+          Map(("1", "1") -> "1"),
           defineComposition
         )
       )
@@ -164,7 +164,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_2" >> {
-      val sut = category"({1, 0}, {a: 0 → 1}, {})"
+      val sut = category"({1, 0}, {a: 0 -> 1}, {})"
       sut.objects === Set("0", "1")
     }
 
@@ -174,10 +174,10 @@ class CategoryTest extends Test with CategoryFactory {
 
     "parse_negative" >> {
       val actual = Category("must fail", Set("0", "1", "2"),
-        Map("0_1" → "0", "0_2" → "0", "a" → "1", "b" → "1", "2_1" → "2", "2_a" → "2", "2_b" → "2", "swap" → "2"), // d0
-        Map("0_1" → "1", "0_2" → "2", "a" → "1", "b" → "1", "2_1" → "1", "2_a" → "2", "2_b" → "2", "swap" → "2"), // d1
+        Map("0_1" -> "0", "0_2" -> "0", "a" -> "1", "b" -> "1", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "swap" -> "2"), // d0
+        Map("0_1" -> "1", "0_2" -> "2", "a" -> "1", "b" -> "1", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "swap" -> "2"), // d1
         // breaking laws
-        Map(("0_1", "a") → "0_2", ("0_1", "b") → "0_2", ("2_1", "a") → "2_a", ("2_1", "b") → "2_b", ("a", "swap") → "b", ("b", "swap") → "a", ("swap", "swap") → "2"),
+        Map(("0_1", "a") -> "0_2", ("0_1", "b") -> "0_2", ("2_1", "a") -> "2_a", ("2_1", "b") -> "2_b", ("a", "swap") -> "b", ("b", "swap") -> "a", ("swap", "swap") -> "2"),
         defineComposition
       )
       checkError(_.contains("12 arrows still missing:"), actual)
@@ -185,14 +185,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     def checkParsing(catOpt: Result[Category]): MatchResult[Any] =
-      expect(sut ⇒ {
+      expect(sut => {
         val string = sut.toString
         val parsed = Category.read(string)
         parsed === catOpt
       })(catOpt)
 
     "toString_1" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         sut.toString === "sample: ({1}, {}, {})"
       })(
         Category("sample", Set("1"),
@@ -214,14 +214,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "parse_positive_3" >> {
-      val parsed = category"({1, 2}, {1: 1→1, 2: 2→2, 2_1: 2→1}, {2_1 ∘ 2 = 2_1})"
+      val parsed = category"({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2_1 ∘ 2 = 2_1})"
       parsed.objects.size === 2
     }
 
     "parse_positive_4" >> {
       val parsed = category"""(
         {1, 2},
-        {1: 1→1, 2: 2→2, 2_1: 2→1, 2_a: 2→2}, 
+        {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, 
         {2_1 ∘ 2 = 2_1, 2_a ∘ 2_a = 2_a, 2 ∘ 2_a = 2_a, 2_1 ∘ 2_a = 2_1, 2_a ∘ 2 = 2_a, 2 ∘ 2 = 2, 1 ∘ 1 = 1, 1 ∘ 2_1 = 2_1}
       )"""
       parsed.objects.size === 2
@@ -229,8 +229,8 @@ class CategoryTest extends Test with CategoryFactory {
 
     "parse_positive_5" >> {
       val sutOpt = Category("sample5", Set("1", "2"),
-        Map("2_1" → "2"), // d0
-        Map("2_1" → "1"), // d1
+        Map("2_1" -> "2"), // d0
+        Map("2_1" -> "1"), // d1
         EmptyComposition,
         defineComposition
       )
@@ -240,20 +240,20 @@ class CategoryTest extends Test with CategoryFactory {
 
     "parse_positive_6" >> {
       checkParsing(Category("sample6", Set("1", "2"),
-        Map("2_1" → "2", "2_a" → "2"), // d0
-        Map("2_1" → "1", "2_a" → "2"), // d1
-        Map(("2_a", "2_a") → "2_a"),
+        Map("2_1" -> "2", "2_a" -> "2"), // d0
+        Map("2_1" -> "1", "2_a" -> "2"), // d1
+        Map(("2_a", "2_a") -> "2_a"),
         defineComposition
       ))
     }
 
     "parse_positive_7" >> {
       val sutOpt = Category("sample7", Set("0", "1", "2"),
-        Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2"), // d0
-        Map("0_1" → "1", "0_2" → "2", "2_1" → "1", "2_a" → "2"), // d1
-        Map(("0_1", "a") → "0_2",
-          ("2_1", "a") → "2_a",
-          ("2_a", "2_a") → "2_a"
+        Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
+        Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
+        Map(("0_1", "a") -> "0_2",
+          ("2_1", "a") -> "2_a",
+          ("2_a", "2_a") -> "2_a"
         ),
         defineComposition
       )
@@ -262,11 +262,11 @@ class CategoryTest extends Test with CategoryFactory {
 
     "parse_positive_8" >> {
       val sutOpt = Category("sample8", Set("0", "1", "2"),
-        Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2"), // d0
-        Map("0_1" → "1", "0_2" → "2", "2_1" → "1", "2_a" → "2"), // d1
-        Map(("0_1", "a") → "0_2",
-          ("2_1", "a") → "2_a",
-          ("2_a", "2_a") → "2_a"
+        Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
+        Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
+        Map(("0_1", "a") -> "0_2",
+          ("2_1", "a") -> "2_a",
+          ("2_a", "2_a") -> "2_a"
         ),
         defineComposition
       )
@@ -291,8 +291,8 @@ class CategoryTest extends Test with CategoryFactory {
         val unknown = Simplicial3.d0("qq")
         failure("Should have failed")
       } catch {
-        case e: Exception ⇒ // as expected
-        case _: Throwable ⇒ failure("should have thrown a NoSuchElementException")
+        case e: Exception => // as expected
+        case _: Throwable => failure("should have thrown a NoSuchElementException")
       }
       ok
     }
@@ -305,8 +305,8 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "equals_positive_arrows()" >> {
-      val c1 = category"({0, 1}, {a: 0 → 1, b: 0 → 1}, {})"
-      val c2 = category"({1, 0}, {b: 0 → 1, a: 0 → 1}, {})"
+      val c1 = category"({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})"
+      val c2 = category"({1, 0}, {b: 0 -> 1, a: 0 -> 1}, {})"
       c1.objects === Set("0", "1")
       c2.objects === c1.objects
       c2.arrows === c1.arrows
@@ -314,14 +314,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "equals_negative_arrows()" >> {
-      val c1 = category"({0, 1}, {a: 0 → 1, b: 0 → 1}, {})"
-      val c3 = category"({1, 0}, {a: 0 → 1, c: 0 → 1}, {})"
+      val c1 = category"({0, 1}, {a: 0 -> 1, b: 0 -> 1}, {})"
+      val c3 = category"({1, 0}, {a: 0 -> 1, c: 0 -> 1}, {})"
       (c1 == c3) must beFalse
     }
 
     "equals_positive_mult()" >> {
-      val c1 = category"({0, 1}, {a: 0 → 1, b: 1 → 1, c: 1 → 1}, {b ∘ a = a, c ∘ a = c, b ∘ b = b, c ∘ b = c, b ∘ c = b, c ∘ c = c})"
-      val c2 = category"({1, 0}, {b: 1 → 1, c: 1 → 1, a: 0 → 1}, {b ∘ b = b, c ∘ b = c, b ∘ a = a, c ∘ a = c, b ∘ c = b, c ∘ c = c})"
+      val c1 = category"({0, 1}, {a: 0 -> 1, b: 1 -> 1, c: 1 -> 1}, {b ∘ a = a, c ∘ a = c, b ∘ b = b, c ∘ b = c, b ∘ c = b, c ∘ c = c})"
+      val c2 = category"({1, 0}, {b: 1 -> 1, c: 1 -> 1, a: 0 -> 1}, {b ∘ b = b, c ∘ b = c, b ∘ a = a, c ∘ a = c, b ∘ c = b, c ∘ c = c})"
       (c1 == c2) must beTrue
     }
 
@@ -339,8 +339,8 @@ class CategoryTest extends Test with CategoryFactory {
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
       _3_.arrows.forall {
-        case a@PairRegex(x, y) ⇒ (x == y) === _3_.isIsomorphism(a)
-        case s ⇒ failure(s"$s does not look like an arrow in a poset"); false
+        case a@PairRegex(x, y) => (x == y) === _3_.isIsomorphism(a)
+        case s => failure(s"$s does not look like an arrow in a poset"); false
       }
 
       Simplicial3.arrows.filter(Simplicial3.isIsomorphism) ===
@@ -348,7 +348,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "isIsomorphism_negative()" >> {
-      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
+      val sut = category"({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
       sut.isIsomorphism("2") must beFalse
     }
 
@@ -360,14 +360,14 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "isMonomorphism_negative()" >> {
-      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
+      val sut = category"({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
       sut.isMonomorphism("0") must beTrue
       sut.isMonomorphism("1") must beFalse
       sut.isMonomorphism("2") must beFalse
     }
 
     "isEpimorphism()" >> {
-      val sut = category"({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 1, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
+      val sut = category"({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 ∘ 1 = 1, 1 ∘ 2 = 2, 2 ∘ 1 = 2, 2 ∘ 2 = 2})"
       sut.isEpimorphism("0") must beTrue
       sut.isEpimorphism("1") must beFalse
       sut.isEpimorphism("2") must beFalse
@@ -375,8 +375,8 @@ class CategoryTest extends Test with CategoryFactory {
 
     "isEndomorphism" in {
       _3_.arrows.forall {
-        case a@PairRegex(x, y) ⇒ (x == y) === _3_.isEndomorphism(a)
-        case s ⇒ failure(s"$s does not look like an arrow in a poset"); false
+        case a@PairRegex(x, y) => (x == y) === _3_.isEndomorphism(a)
+        case s => failure(s"$s does not look like an arrow in a poset"); false
       }
 
       Simplicial3.arrows.filter(Simplicial3.isEndomorphism) ===
@@ -625,12 +625,12 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "foreach" >> {
-      _4_ foreach (i ⇒ (i.toInt >= 0 && i.toInt < 4) === true)
+      _4_ foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
       ok
     }
 
     "map" >> {
-      val actual = Square map (x ⇒ x.toUpperCase)
+      val actual = Square map (x => x.toUpperCase)
       actual.toSet === Set("A", "B", "C", "D")
     }
 
@@ -659,7 +659,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "allRootObjects_forKnownCategories" >> {
-      KnownCategories.filter(c ⇒ Sets.isFinite(c.objects)).forall { c ⇒
+      KnownCategories.filter(c => Sets.isFinite(c.objects)).forall { c =>
         c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
@@ -675,35 +675,35 @@ class CategoryTest extends Test with CategoryFactory {
 
     "buildBundles M" >> {
       M.buildBundles(Set("a", "d"), Set("a", "d", "dc", "de")) ===
-        Map("a" → Set("a"), "d" → Set("d", "dc", "de"))
+        Map("a" -> Set("a"), "d" -> Set("d", "dc", "de"))
     }
 
     "buildBundles W" >> {
       W.buildBundles(Set("a", "d"), Set("a", "ab")) ===
-        Map("a" → Set("a", "ab"), "d" → Set())
+        Map("a" -> Set("a", "ab"), "d" -> Set())
     }
 
     "buildBundles ParallelPair" >> {
       ParallelPair.buildBundles(Set("0"), Set("0", "a", "b")) ===
-        Map("0" → Set("0", "a", "b"))
+        Map("0" -> Set("0", "a", "b"))
       ParallelPair.buildBundles(Set("1"), Set("0", "a", "b")) must throwA[IllegalArgumentException]
     }
 
     "buildBundles Pullback" >> {
       Pullback.buildBundles(Set("a", "c"), Set("a", "ac", "c")) ===
-        Map("a" → Set("a", "ac"), "c" → Set("c"))
+        Map("a" -> Set("a", "ac"), "c" -> Set("c"))
     }
 
     "buildBundles Pushout" >> {
       Pushout.buildBundles(Set("a", "b"), Set("a", "ab", "ac", "b")) ===
-        Map("a" → Set("a", "ab", "ac"), "b" → Set("b"))
+        Map("a" -> Set("a", "ab", "ac"), "b" -> Set("b"))
     }
 
     "buildBundles Square" >> {
       Square.buildBundles(Set("a"), Set("a", "ab", "ac", "ad")) ===
-        Map("a" → Set("a", "ab", "ac", "ad"))
+        Map("a" -> Set("a", "ab", "ac", "ad"))
       Square.buildBundles(Set("b", "c"), Set()) ===
-        Map("b" → Set(), "c" → Set())
+        Map("b" -> Set(), "c" -> Set())
     }
 
     "isInitial _4_" in {
@@ -814,11 +814,11 @@ class CategoryTest extends Test with CategoryFactory {
 
   "complete subcategory" should {
     "be ok for Square" in {
-      Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
-      Square.completeSubcategory("diagonal", Set("a", "c")) === category"diagonal:({a,c}, {ac: a → c})"
+      Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})"
+      Square.completeSubcategory("diagonal", Set("a", "c")) === category"diagonal:({a,c}, {ac: a -> c})"
 
       {
-        Square.completeSubcategory("abx", Set("a", "b", "x")) === category"abd:({a,b,d}, {ab: a → b, bd: b → d, ad: a → d}, {bd ∘ ab = ad})"
+        Square.completeSubcategory("abx", Set("a", "b", "x")) === category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})"
       } must throwA[IllegalArgumentException]()
     }
   }
@@ -831,15 +831,15 @@ class CategoryTest extends Test with CategoryFactory {
       _3_.connectedComponents.map(_.name) === Set("_3_.1")
     }
     "build 1+1" in {
-      val c1: Category = category"Discrete_2.1:({a}, {a:a→a})"
-      val c2: Category = category"Discrete_2.2:({b}, {b:b→b})"
+      val c1: Category = category"Discrete_2.1:({a}, {a:a->a})"
+      val c2: Category = category"Discrete_2.2:({b}, {b:b->b})"
       _1plus1_.connectedComponents === Set(c1, c2)
     }
     "build Z2+ParallelPair" in {
-      val sut = category"A:({1, 2, 3}, {1: 1 → 1, a: 1 → 1, b: 2 → 3, c: 2 → 3}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
+      val sut = category"A:({1, 2, 3}, {1: 1 -> 1, a: 1 -> 1, b: 2 -> 3, c: 2 -> 3}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
       sut.connectedComponents === Set(
-        category"A.1:({1}, {1: 1 → 1, a: 1 → 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})",
-        category"A:({2, 3}, {b: 2 → 3, c: 2 → 3})")
+        category"A.1:({1}, {1: 1 -> 1, a: 1 -> 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})",
+        category"A:({2, 3}, {b: 2 -> 3, c: 2 -> 3})")
     }
   }
   
@@ -847,42 +847,42 @@ class CategoryTest extends Test with CategoryFactory {
     import Graph._
 
     "good for _3_" >> {
-      _3_.baseGraph === graph"({0,1,2}, {0.1: 0 → 1, 1.2: 1 → 2})"
+      _3_.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
     }
 
     "good for _4_" >> {
-      _4_.baseGraph === graph"({0,1,2,3}, {0.1: 0 → 1, 1.2: 1 → 2, 2.3: 2 → 3})"
+      _4_.baseGraph === graph"({0,1,2,3}, {0.1: 0 -> 1, 1.2: 1 -> 2, 2.3: 2 -> 3})"
     }
     
     "good for Pullback" >> {
-      Pullback.baseGraph === graph"({a,b,c}, {ac: a → c, bc: b → c})"
+      Pullback.baseGraph === graph"({a,b,c}, {ac: a -> c, bc: b -> c})"
     }
     
     "good for Square" >> {
-      Square.baseGraph === graph"({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d})"
+      Square.baseGraph === graph"({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d})"
     }
 
     "good for SplitMono" >> {
-      SplitMono.baseGraph === graph"({a,b}, {ab: a → b, ba: b → a, bb: b → b})"
+      SplitMono.baseGraph === graph"({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b})"
     }
     
     "good for ParallelPair" >> {
-      ParallelPair.baseGraph === graph"({0, 1}, {a:0→1, b:0→1})"
+      ParallelPair.baseGraph === graph"({0, 1}, {a:0->1, b:0->1})"
     }
 
     "good for Z3" >> {
-      Z3.baseGraph === graph"({0}, {1: 0 → 0, 2: 0 → 0})"
+      Z3.baseGraph === graph"({0}, {1: 0 -> 0, 2: 0 -> 0})"
     }
 
     "good for Simplicial3" >> {
 //      Simplicial3.canDeduce(Simplicial3.arrows)("0_1") === false
       val baseGraph = Simplicial3.baseGraph
-      baseGraph === graph"({0, 1, 2}, {0_1: 0→1, 2_b: 2→2, 2_a: 2→2, swap: 2→2, 2_1: 2→1, b: 1→2, a: 1→2})"
+      baseGraph === graph"({0, 1, 2}, {0_1: 0->1, 2_b: 2->2, 2_a: 2->2, swap: 2->2, 2_1: 2->1, b: 1->2, a: 1->2})"
     }
 
     "good for AAAAAA" >> {
       val actual = AAAAAA.baseGraph
-      AAAAAA.baseGraph === graph"({1,2,3,4,5,6}, {12:1→2, 23:2→3, 34:3→4, 45:4→5, 56:5→6, 61:6→1})"
+      AAAAAA.baseGraph === graph"({1,2,3,4,5,6}, {12:1->2, 23:2->3, 34:3->4, 45:4->5, 56:5->6, 61:6->1})"
     }
   }
 
@@ -893,11 +893,11 @@ class CategoryTest extends Test with CategoryFactory {
       val product = Setf.product(first, second)
 
       product match {
-        case Good((x, y)) ⇒
+        case Good((x, y)) =>
           x.d0 === setOf.elements(
             ("a", 1), ("a", 2), ("a", 3),
             ("b", 1), ("b", 2), ("b", 3))
-        case otherwise ⇒ failure("product not found")
+        case otherwise => failure("product not found")
       }
       ok
     }

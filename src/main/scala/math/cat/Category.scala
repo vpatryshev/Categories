@@ -10,7 +10,7 @@ import scalakittens.Result._
 import scalakittens.{Good, Result}
 
 import scala.annotation.tailrec
-import scala.collection.{GenTraversableOnce, TraversableOnce}
+import scala.collection.IterableOnce
 
 /**
   * Category class, and the accompanying object.
@@ -28,7 +28,7 @@ abstract class Category extends CategoryData {
     * a cheap alternative for the iterable (actually, a set) of initial objects
     */
   lazy val allRootObjects_programmersShortcut: Objects = {
-    val wrongStuff = arrows filter (f ⇒ !isEndomorphism(f)) map d1
+    val wrongStuff = arrows filter (f => !isEndomorphism(f)) map d1
     objects -- wrongStuff
   }
   /**
@@ -61,16 +61,16 @@ abstract class Category extends CategoryData {
 
   private[cat] lazy val listOfRootObjects = allRootObjects.toList.sortBy(_.toString)
 
-  def foreach[U](f: Obj ⇒ U): Unit = objects foreach f
+  def foreach[U](f: Obj => U): Unit = objects foreach f
 
-  def map[B](f: Obj ⇒ B): TraversableOnce[B] = objects.map(f)
+  def map[B](f: Obj => B): IterableOnce[B] = objects.map(f)
 
-  def flatMap[B](f: Obj ⇒ GenTraversableOnce[B]): TraversableOnce[B] = objects.flatMap(f)
+  def flatMap[B](f: Obj => IterableOnce[B]): IterableOnce[B] = objects.flatMap(f)
 
   def compositions: Iterable[(Arrow, Arrow, Arrow)] =
-    for {f ← arrows
-         g ← arrows
-         h ← m(f, g)} yield (f, g, h)
+    for {f <- arrows
+         g <- arrows
+         h <- m(f, g)} yield (f, g, h)
 
   private var source: Option[String] = None
   
@@ -83,9 +83,9 @@ abstract class Category extends CategoryData {
     source getOrElse
     s"${if (name.isEmpty) "" else {name + ": " }}({" +
     objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
-    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a ⇒ s"$a: ${d0(a)} →${d1(a)}")).mkString(", ") + "}, {" +
+    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
     (composablePairs collect {
-      case (first, second) if !isIdentity(first) && !isIdentity(second) ⇒
+      case (first, second) if !isIdentity(first) && !isIdentity(second) =>
         concat(second, "∘", first) + s" = ${m(first, second).get}"
     }).mkString(", ") + "})"
 
@@ -123,11 +123,11 @@ abstract class Category extends CategoryData {
     */
   def isMonomorphism(f: Arrow): Boolean = {
 
-    val iterable = for {g ← arrows if follows(f, g)
-                        h ← arrows if follows(f, h) && equalizes(g, h)(f)
+    val iterable = for {g <- arrows if follows(f, g)
+                        h <- arrows if follows(f, h) && equalizes(g, h)(f)
     } yield g == h
 
-    iterable forall (x ⇒ x)
+    iterable forall (x => x)
   }
 
   /**
@@ -138,8 +138,8 @@ abstract class Category extends CategoryData {
     * @param g second arrow
     * @return a predicate defined on arrows.
     */
-  def equalizes(f: Arrow, g: Arrow): Arrow ⇒ Boolean = {
-    h: Arrow ⇒ areParallel(f, g) && follows(f, h) && (m(h, f) == m(h, g))
+  def equalizes(f: Arrow, g: Arrow): Arrow => Boolean = {
+    h: Arrow => areParallel(f, g) && follows(f, h) && (m(h, f) == m(h, g))
   }
 
   /**
@@ -149,13 +149,13 @@ abstract class Category extends CategoryData {
     * @return true iff f is an epimorphism
     */
   def isEpimorphism(f: Arrow): Boolean = {
-    val iterable = for (g ← arrows if follows(g, f);
-                        h ← arrows if follows(h, f) &&
+    val iterable = for (g <- arrows if follows(g, f);
+                        h <- arrows if follows(h, f) &&
       coequalizes(g, h)(f)) yield {
       g == h
     }
 
-    iterable forall (x ⇒ x)
+    iterable forall (x => x)
   }
 
   /**
@@ -165,20 +165,20 @@ abstract class Category extends CategoryData {
     * @param g second arrow
     * @return true iff h ∘ f == h ∘ g
     */
-  def coequalizes(f: Arrow, g: Arrow): Arrow ⇒ Boolean = {
-    h: Arrow ⇒ areParallel(f, g) && follows(h, f) && (m(f, h) == m(g, h))
+  def coequalizes(f: Arrow, g: Arrow): Arrow => Boolean = {
+    h: Arrow => areParallel(f, g) && follows(h, f) && (m(f, h) == m(g, h))
   }
 
   /**
-    * Builds a predicate that checks whether an arrow h: B → A is such that
+    * Builds a predicate that checks whether an arrow h: B -> A is such that
     * px ∘ h = qx and py ∘ h = qy
-    * where qx: B → X, qy: B → Y, px: A → X, py: A → Y.
+    * where qx: B -> X, qy: B -> Y, px: A -> X, py: A -> Y.
     *
     * @param q factoring pair of arrows
     * @param p factored pair of arrows
     * @return the specified predicate.
     */
-  def factorsOnLeft(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow ⇒ Boolean = (h: Arrow) ⇒ {
+  def factorsOnLeft(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean = (h: Arrow) => {
     val (px, py) = p
     val (qx, qy) = q
     sameDomain(h, qx) && sameDomain(h, qy) &&
@@ -210,20 +210,20 @@ abstract class Category extends CategoryData {
       allEqualizingArrows(f, g).forall(factorsUniquelyOnLeft(h))
 
   /**
-    * Builds a predicate that checks if arrow g: y → z
-    * uniquely factors on the left the arrow f: x → z - that is,
-    * there is just one h: x → y such that f = g ∘ h.
+    * Builds a predicate that checks if arrow g: y -> z
+    * uniquely factors on the left the arrow f: x -> z - that is,
+    * there is just one h: x -> y such that f = g ∘ h.
     *
     * @param f arrow being factored
     * @return the specified predicate
     */
   def factorsUniquelyOnLeft(f: Arrow)(g: Arrow): Boolean =
     sameCodomain(g, f) &&
-      existsUnique(arrowsBetween(d0(f), d0(g)), (h: Arrow) ⇒ m(h, g) contains f)
+      existsUnique(arrowsBetween(d0(f), d0(g)), (h: Arrow) => m(h, g) contains f)
 
   /**
-    * Builds a set of all arrows that equalize f: A → B and g: A → B, that is,
-    * such arrows h: X → A that f ∘ h = g ∘ h.
+    * Builds a set of all arrows that equalize f: A -> B and g: A -> B, that is,
+    * such arrows h: X -> A that f ∘ h = g ∘ h.
     *
     * @param f first arrow
     * @param g second arrow
@@ -247,30 +247,30 @@ abstract class Category extends CategoryData {
     * @param g second arrow
     * @return true if it is a coequalizer
     */
-  def isCoequalizer(f: Arrow, g: Arrow): Arrow ⇒ Boolean = {
+  def isCoequalizer(f: Arrow, g: Arrow): Arrow => Boolean = {
     require(areParallel(f, g))
-    h: Arrow ⇒
+    h: Arrow =>
       coequalizes(f, g)(h) &&
         (allCoequalizingArrows(f, g) forall factorsUniquelyOnRight(h))
   }
 
   /**
-    * Builds a predicate that checks if arrow g: x → y
-    * uniquely factors on the right the arrow f: x → z - that is,
-    * there is just one h: y → z such that f = h ∘ g.
+    * Builds a predicate that checks if arrow g: x -> y
+    * uniquely factors on the right the arrow f: x -> z - that is,
+    * there is just one h: y -> z such that f = h ∘ g.
     *
     * @param f factored arrow
     * @return the specified predicate
     */
-  def factorsUniquelyOnRight(f: Arrow): Arrow ⇒ Boolean =
-    (g: Arrow) ⇒ {
+  def factorsUniquelyOnRight(f: Arrow): Arrow => Boolean =
+    (g: Arrow) => {
       sameDomain(g, f) &&
         isUnique(arrowsBetween(d1(g), d1(f)).filter(m(g, _) contains f))
     }
 
   /**
-    * Builds a set of all arrows that coequalize f: A → B and g: A → B, that is,
-    * such arrows h: B → X that h ∘ f = h ∘ g.
+    * Builds a set of all arrows that coequalize f: A -> B and g: A -> B, that is,
+    * such arrows h: B -> X that h ∘ f = h ∘ g.
     *
     * @param f first arrow
     * @param g second arrow
@@ -296,7 +296,7 @@ abstract class Category extends CategoryData {
     */
   def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
-      filter(p ⇒ {
+      filter(p => {
         val (px, py) = p
         sameDomain(px, py) &&
           d1(px) == x &&
@@ -312,8 +312,8 @@ abstract class Category extends CategoryData {
     * @param y second object
     * @return true if this is a cartesian product
     */
-  def isProduct(x: Obj, y: Obj): ((Arrow, Arrow)) ⇒ Boolean = {
-    case (px, py) ⇒
+  def isProduct(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean = {
+    case (px, py) =>
       d0(arrow(px)) == d0(arrow(py)) &&
         d1(px) == x &&
         d1(py) == y &&
@@ -350,7 +350,7 @@ abstract class Category extends CategoryData {
     * @param y second object
     * @return true if this is a union
     */
-  def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) ⇒ Boolean = (i: (Arrow, Arrow)) ⇒ {
+  def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean = (i: (Arrow, Arrow)) => {
     val (ix, iy) = i
     d0(arrow(ix)) == x && d0(arrow(iy)) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
@@ -365,7 +365,7 @@ abstract class Category extends CategoryData {
     */
   def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows) filter {
-      case (px, py) ⇒
+      case (px, py) =>
         sameCodomain(px, py) &&
           d0(px) == x &&
           d0(py) == y
@@ -393,7 +393,7 @@ abstract class Category extends CategoryData {
     * @param g second arrow
     * @return true if this is a pullback
     */
-  def isPullback(f: Arrow, g: Arrow): ((Arrow, Arrow)) ⇒ Boolean = (p: (Arrow, Arrow)) ⇒ {
+  def isPullback(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean = (p: (Arrow, Arrow)) => {
     val (px, py) = p
     follows(f, px) && follows(g, py) &&
       m(px, f) == m(py, g) &&
@@ -401,17 +401,17 @@ abstract class Category extends CategoryData {
   }
 
   /**
-    * Builds a predicate that checks if a pair of arrows p = (px, py) : A → X x Y
-    * factors uniquely a pair q = (qx, qy): B → X x Y on the right,
-    * that is, if there exists a unique arrow h: B → A such that qx = px ∘ h and qy = py ∘ h.
+    * Builds a predicate that checks if a pair of arrows p = (px, py) : A -> X x Y
+    * factors uniquely a pair q = (qx, qy): B -> X x Y on the right,
+    * that is, if there exists a unique arrow h: B -> A such that qx = px ∘ h and qy = py ∘ h.
     *
     * @return true if p factors q uniquely on the right
     */
-  def factorUniquelyOnRight(px: Arrow, py: Arrow): ((Arrow, Arrow)) ⇒ Boolean = {
-    case (qx, qy) ⇒
+  def factorUniquelyOnRight(px: Arrow, py: Arrow): ((Arrow, Arrow)) => Boolean = {
+    case (qx, qy) =>
       sameCodomain(px, qx) &&
         sameCodomain(py, qy) &&
-        isUnique(arrowsBetween(d0(qx), d0(px)).filter((h: Arrow) ⇒ (m(h, px) contains qx) && (m(h, py) contains qy)))
+        isUnique(arrowsBetween(d0(qx), d0(px)).filter((h: Arrow) => (m(h, px) contains qx) && (m(h, py) contains qy)))
   }
 
   /**
@@ -419,12 +419,12 @@ abstract class Category extends CategoryData {
     * at d0(f) and d0(g), equalizing them: f ∘ px = g ∘ py, that is, making the square
     * <pre>
     * py
-    * U —————→ Y
+    * U —————-> Y
     * |        |
     * px|        | g
     * |        |
     * ↓        ↓
-    * X —————→ Z
+    * X —————-> Z
     * f
     * </pre>
     * commutative.
@@ -436,7 +436,7 @@ abstract class Category extends CategoryData {
   def pairsEqualizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = {
     setOf(
       product2[Arrow, Arrow](arrows, arrows).
-        filter(p ⇒ {
+        filter(p => {
           val (px, py) = p
           sameDomain(px, py) &&
             follows(f, px) &&
@@ -468,7 +468,7 @@ abstract class Category extends CategoryData {
     * @param g second arrow
     * @return true if this is a pushout
     */
-  def isPushout(f: Arrow, g: Arrow): ((Arrow, Arrow)) ⇒ Boolean = (p: (Arrow, Arrow)) ⇒ {
+  def isPushout(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean = (p: (Arrow, Arrow)) => {
     val (px, py) = p
     val pushoutObject = d1(px)
     d1(py) == pushoutObject &&
@@ -480,29 +480,29 @@ abstract class Category extends CategoryData {
 
   /**
     * Builds a predicate that checks if a pair of arrows p = (px, py), where
-    * px: X → A, py: Y → A, factors uniquely a pair q = (qx, qy)
-    * (where qx: X → B, qy: Y → B) on the left,
-    * that is, if there exists a unique arrow h: A → B
+    * px: X -> A, py: Y -> A, factors uniquely a pair q = (qx, qy)
+    * (where qx: X -> B, qy: Y -> B) on the left,
+    * that is, if there exists a unique arrow h: A -> B
     * such that qx = h ∘ px and qy = h ∘ py.
     *
     * @return true if q factors p uniquely on the left
     */
-  def factorUniquelyOnLeft(f: Arrow, g: Arrow): ((Arrow, Arrow)) ⇒ Boolean =
-    (q: (Arrow, Arrow)) ⇒ {
+  def factorUniquelyOnLeft(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean =
+    (q: (Arrow, Arrow)) => {
       val (qx, qy) = q
       isUnique(arrowsBetween(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
     }
 
   /**
-    * Builds a predicate that checks whether an arrow h: A → B is such that
+    * Builds a predicate that checks whether an arrow h: A -> B is such that
     * h ∘ px = qx and h ∘ py = qy for q = (qx, qy), and p = (px, py)
-    * where qx: X → B, qy: Y → B, px: X → A, py: Y → A.
+    * where qx: X -> B, qy: Y -> B, px: X -> A, py: Y -> A.
     *
     * @param q factoring pair of arrows
     * @param p factored pair of arrows
     * @return the predicate described above.
     */
-  def factorsOnRight(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow ⇒ Boolean = (h: Arrow) ⇒ {
+  def factorsOnRight(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean = (h: Arrow) => {
     val (px, py) = p
     val (qx, qy) = q
     sameDomain(px, qx) && sameDomain(py, qy) &&
@@ -516,12 +516,12 @@ abstract class Category extends CategoryData {
     * at d1(f) and d1(g), coequalizing them: m(f, qx) = m(g, qy), making the square
     * <pre>
     * g
-    * Z —————→ Y
+    * Z —————-> Y
     * |        |
     * f |        | qy
     * |        |
     * ↓        ↓
-    * X —————→ U
+    * X —————-> U
     * qx
     * </pre>
     * commutative.
@@ -532,7 +532,7 @@ abstract class Category extends CategoryData {
     */
   def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
-      filter(q ⇒ {
+      filter(q => {
         val (qx, qy) = q
         sameCodomain(qx, qy) &&
           follows(qx, f) &&
@@ -547,13 +547,13 @@ abstract class Category extends CategoryData {
     * Terminal object is the one which has just one arrow from every other object.
     */
   def isTerminal(t: Obj): Boolean =
-    objects.forall((x: Obj) ⇒ isUnique(arrowsBetween(x, t)))
+    objects.forall((x: Obj) => isUnique(arrowsBetween(x, t)))
 
   /**
     * Checks if a given object (candidate) is an initial object (aka zero).
     * Initial object is the one which has just one arrow to every other object.
     */
-  def isInitial(i: Obj): Boolean = objects.forall((x: Obj) ⇒ isUnique(arrowsBetween(i, x)))
+  def isInitial(i: Obj): Boolean = objects.forall((x: Obj) => isUnique(arrowsBetween(i, x)))
 
   /**
     * Given a set of objects and a set of arrows, build a map that maps each object to
@@ -564,12 +564,12 @@ abstract class Category extends CategoryData {
     * @return a map.
     */
   def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] = {
-    val badArrows: Arrows = arrows.filterNot(a ⇒ setOfObjects(d0(a)))
+    val badArrows: Arrows = arrows.filterNot(a => setOfObjects(d0(a)))
 
     require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")} in $name")
 
     val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
-    setOfObjects.map(o ⇒ o → mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
+    setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
   }
 
   /**
@@ -583,12 +583,12 @@ abstract class Category extends CategoryData {
   def degree(x: Obj, n: Int): Result[(Obj, List[Arrow])] = {
     OKif(n >= 0) andThen {
       n match {
-        case 0 ⇒ terminal map (x ⇒ (x, List()))
-        case 1 ⇒ Good((x, id(x) :: Nil))
-        case _ ⇒ degree(x, n - 1) flatMap {
-          case (x_n_1, previous_projections) ⇒
+        case 0 => terminal map (x => (x, List()))
+        case 1 => Good((x, id(x) :: Nil))
+        case _ => degree(x, n - 1) flatMap {
+          case (x_n_1, previous_projections) =>
             product(x, x_n_1) map {
-              case (p1, p_n_1) ⇒
+              case (p1, p_n_1) =>
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
                 (d0(p1), projections.flatten)
             }
@@ -614,7 +614,7 @@ abstract class Category extends CategoryData {
     val essentialArrows = selectBaseArrows(listOfArrows)
 
     val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
-      a ⇒ a -> (d0(a), d1(a))
+      a => a -> (d0(a), d1(a))
     } toMap
 
     Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
@@ -622,8 +622,8 @@ abstract class Category extends CategoryData {
   
   private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
     arrows.find(canDeduce(arrows)) match {
-      case None ⇒ arrows
-      case Some(f) ⇒ selectBaseArrows(arrows.filterNot(f ==))
+      case None => arrows
+      case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
     }
   }
 
@@ -631,8 +631,8 @@ abstract class Category extends CategoryData {
     val from = d0(a)
     val to = d1(a)
     hom(from, to).size == 1 && arrows.exists {
-      f ⇒ d1(f) != from && d1(f) != to && arrows.exists {
-        g ⇒ m(f, g) contains a
+      f => d1(f) != from && d1(f) != to && arrows.exists {
+        g => m(f, g) contains a
       }
     }
   }
@@ -641,13 +641,13 @@ abstract class Category extends CategoryData {
 
   def connectedComponents: Set[Category] = {
     val connected: BinaryRelation[Obj, Obj] =
-      BinaryRelation((x, y) ⇒ arrows.exists(a ⇒
+      BinaryRelation((x, y) => arrows.exists(a =>
         (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
 
     val sets = new FactorSet(objects, connected)
 
     sets.zipWithIndex map {
-      case (s, i) ⇒ completeSubcategory(s"$name.${i + 1}", s)
+      case (s, i) => completeSubcategory(s"$name.${i + 1}", s)
     }
   }
 

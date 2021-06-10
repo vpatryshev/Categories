@@ -3,12 +3,11 @@ package xypic
 import java.io.FileWriter
 import java.util.Date
 import scala.language.postfixOps
-
 import math.cat.{Category, Graph}
 import math.cat.Categories._
 import math.geometry2d._
 
-import scala.collection.{immutable, mutable}
+import scala.collection.{MapView, immutable, mutable}
 
 
 case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
@@ -20,11 +19,11 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
   private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map {
-    case (comps, i) ⇒ i -> comps.sortBy(_.toString)
+    case (comps, i) => i -> comps.sortBy(_.toString)
   }.toMap
 
   private val coordinates0: immutable.Iterable[List[(go.Cluster, Pt)]] = for {
-    (i, layer) ← indexedClusters
+    (i, layer) <- indexedClusters
   } yield {
     val diameters = layer.map(_.diameter)
     val layerLength = layer.length // diameters.sum
@@ -35,7 +34,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
       (dir._1 * layerWidth * (i % 2), dir._2 * layerWidth * ((i+1) % 2))
     }
 
-    val row = for { (o, j) ← layer.zipWithIndex } yield {
+    val row = for { (o, j) <- layer.zipWithIndex } yield {
       val newPoint = Pt(i - j + scala.math.max(0, step._1 + (dw-1)/2), step._2 + (dw-1)/2 - j)
       val actual = if (taken(newPoint)) newPoint.shift(0, -1) else newPoint
       taken.add(actual)
@@ -81,41 +80,41 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
   
   private val coordinates: Map[String, Pt] = coordinates1.flatten.flatMap {
-      case (cluster, coords) ⇒ cluster.allocateAt(coords)
+      case (cluster, coords) => cluster.allocateAt(coords)
   }.toMap
   
   val frame: SVG.Frame = SVG.Frame(30, Pt(w, h), coordinates.values)
 
   def svg: String = if (coordinates.isEmpty) "" else {
-    for { (obj, p) ← coordinates } {
-      frame.CircleWithText(obj.toString, p).draw()
+    for { (obj, p) <- coordinates } {
+      frame.CircleWithText(obj, p).draw()
     }
 
     val center = coordinates.values.reduce(_+_) / coordinates.size
     
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
-      base.arrows.map(a ⇒ (a, Set(base.d0(a), base.d1(a))))
+      base.arrows.map(a => (a, Set(base.d0(a), base.d1(a))))
     
-    val arrows: Map[Set[base.Node], List[base.Arrow]] =
-      arrowsWithDomainAndCodomain.groupBy(_._2).
+    val arrows: MapView[Set[base.Node], List[base.Arrow]] =
+      arrowsWithDomainAndCodomain.groupBy(_._2).view.
         mapValues(_.map(_._1).toList.sortBy(_.toString))
     
     def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit = {
       val p = coordinates(obj.toString)
       for {
-        (a, i) ← arrows.zipWithIndex
+        (a, i) <- arrows.zipWithIndex
       } frame.Endomorphism(a.toString, p, 25, i).draw()
     }
     
     arrows.foreach {
-      case (objs, arrs) if objs.size == 1 ⇒
+      case (objs, arrs) if objs.size == 1 =>
         drawEndomorphisms(objs.head, arrs)
         
-      case (objs, allArrowsBetweenTwoObjects) ⇒
+      case (objs, allArrowsBetweenTwoObjects) =>
         // need to take first the arrows in the direction where there are less arrows
         val arrs = allArrowsBetweenTwoObjects.groupBy(base.d0).values.toList.sortBy(_.size).flatten
         for {
-          (a, i) ← arrs.zipWithIndex
+          (a, i) <- arrs.zipWithIndex
         } {
           val from = coordinates(base.d0(a).toString)
           val to = coordinates(base.d1(a).toString)
@@ -139,9 +138,9 @@ case class Layout(category: Category, w: Int, h: Int) {
   private val withIndex = "([^_]+)_?(\\d+)".r
   
   val name: String = category.name match {
-    case digits(n) ⇒ n map wideDigit mkString
-    case withIndex(word, n) ⇒ s"$word<sub>$n</sub>"
-    case other ⇒ other
+    case digits(n) => n map wideDigit mkString
+    case withIndex(word, n) => s"$word<sub>$n</sub>"
+    case other => other
   }
   
   private val layouts = gradedObjects map (ComponentLayout(_, w, h))
@@ -177,7 +176,7 @@ object TestIt {
     val withCoords: Set[(Any, Pt)] = GroupOfObjects(seq).arrangeInCircle(c, 100)
 
     withCoords foreach {
-      case (name, p) ⇒ frame.CircleWithText(name.toString, p).draw()
+      case (name, p) => frame.CircleWithText(name.toString, p).draw()
     }
     
     "<br/>" + frame
@@ -197,7 +196,7 @@ object TestIt {
   
   private def showAll(): Unit = {
     val fullMap = for {
-      c ← KnownFiniteCategories
+      c <- KnownFiniteCategories
       layout = Layout(c, 300, 300)
       html = layout.html
     } yield html

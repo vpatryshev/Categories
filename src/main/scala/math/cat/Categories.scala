@@ -3,14 +3,14 @@ package math.cat
 import scala.language.implicitConversions
 import scala.language.postfixOps
 import java.io.Reader
-import java.util.Objects
 
+import math.Base._
 import math.cat.Categories._
 import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Bad, Good, Result}
 
-import scala.collection.{GenTraversableOnce, TraversableOnce, mutable}
+import scala.collection.{IterableOnce, mutable}
 
 private[cat] trait CategoryFactory {
   /**
@@ -22,32 +22,32 @@ private[cat] trait CategoryFactory {
   def segment(n: Int): Cat = {
     val numbers = fromPoset(s"_${n}_", PoSet.range(0, n, 1))
     val maybeSegment = convert2Cat(numbers)(
-      { case (a, b) ⇒ s"$a.$b" })
-    maybeSegment.fold(identity, err ⇒ throw new InstantiationException(err.toString))
+      { case (a, b) => s"$a.$b" })
+    maybeSegment.fold(identity, err => throw new InstantiationException(err.toString))
   }
 
   private def convert2Cat[O, A](source: Category)(
-    arrow2string: source.Arrow ⇒ String = _.toString): Result[Cat] = {
-    val stringToObject: Map[String, source.Obj] = source.objects map (o ⇒ o.toString → o) toMap
-    val string2Arrow = source.arrows map (a ⇒ arrow2string(a) → a) toMap
+    arrow2string: source.Arrow => String = _.toString): Result[Cat] = {
+    val stringToObject: Map[String, source.Obj] = source.objects map (o => o.toString -> o) toMap
+    val string2Arrow = source.arrows map (a => arrow2string(a) -> a) toMap
     val objects = stringToObject.keySet
     val arrows = string2Arrow.keySet
-    val d0 = (f: String) ⇒ source.d0(string2Arrow(f)).toString
-    val d1 = (f: String) ⇒ source.d1(string2Arrow(f)).toString
-    val ids = (o: String) ⇒ arrow2string(source.id(stringToObject(o)))
+    val d0 = (f: String) => source.d0(string2Arrow(f)).toString
+    val d1 = (f: String) => source.d1(string2Arrow(f)).toString
+    val ids = (o: String) => arrow2string(source.id(stringToObject(o)))
     
-    val composition = (f: String, g: String) ⇒ source.m(string2Arrow(f), string2Arrow(g)) map arrow2string
+    val composition = (f: String, g: String) => source.m(string2Arrow(f), string2Arrow(g)) map arrow2string
     
     for {
-      _ ← OKif(source.isFinite, "Need a finite category")
-      _ ← OKif(objects.size == source.objects.size, "some objects have the same string repr")
-      _ ← OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
-      g ← Graph.build(source.name, objects, arrows, d0, d1)
-      typedIds ← ids.typed[g.Node => g.Arrow]
-      typedComp ← composition.typed[(g.Arrow, g.Arrow) ⇒ Option[g.Arrow]]
+      _ <- OKif(source.isFinite, "Need a finite category")
+      _ <- OKif(objects.size == source.objects.size, "some objects have the same string repr")
+      _ <- OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
+      g <- Graph.build(source.name, objects, arrows, d0, d1)
+      typedIds <- ids.typed[g.Node => g.Arrow]
+      typedComp <- composition.typed[(g.Arrow, g.Arrow) => Option[g.Arrow]]
       data = CategoryData(g)(typedIds, typedComp)
-      category ← data.build
-      c ← category.typed[Cat]
+      category <- data.build
+      c <- category.typed[Cat]
     } yield c
   }
 
@@ -68,8 +68,8 @@ private[cat] trait CategoryFactory {
       override def id(o: Obj): Arrow = arrow((o, o))
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match {
-        case (f: (T, T), g: (T, T)) ⇒
-          Option(f._1, g._2).filter(_ ⇒ f._2 == g._1) map arrow
+        case (f: (T, T), g: (T, T)) =>
+          Option(f._1, g._2).filter(_ => f._2 == g._1) map arrow
       }
     }
   }
@@ -96,11 +96,11 @@ private[cat] trait CategoryFactory {
     domain: Map[T, T],
     codomain: Map[T, T],
     composition: Map[(T, T), T],
-    compositionFactory: ((T, T)) ⇒ Option[T] = CategoryData.nothing
+    compositionFactory: ((T, T)) => Option[T] = CategoryData.nothing
   ): Result[Category] = {
     for {
-      g ← Graph.build(name, objects, domain.keySet, domain, codomain)
-      c ← CategoryData.partial[T](g)(composition, compositionFactory).build
+      g <- Graph.build(name, objects, domain.keySet, domain, codomain)
+      c <- CategoryData.partial[T](g)(composition, compositionFactory).build
     } yield c
   }
 
@@ -117,7 +117,7 @@ private[cat] trait CategoryFactory {
   }
 
   def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] = {
-    for (f ← graph.arrows; g ← graph.arrows if graph.follows(g, f)) yield (f, g)
+    for (f <- graph.arrows; g <- graph.arrows if graph.follows(g, f)) yield (f, g)
   }
 
   /**
@@ -149,16 +149,16 @@ private[cat] trait CategoryFactory {
 
     def category: Parser[Result[Cat]] =
       (name ?) ~ "(" ~ graphData ~ (("," ~ multTable) ?) ~ ")" ^^ {
-        case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" ⇒ {
+        case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" => {
           val name = nameOpt.getOrElse("c")
           val graphOpt = gOpt.map(_.build(name))
 
           mOpt match {
-            case None ⇒
+            case None =>
               buildCategory(graphOpt, Map.empty)
-            case Some("," ~ m) ⇒
+            case Some("," ~ m) =>
               buildCategory(graphOpt, m)
-            case Some(garbage) ⇒ Result.error(s"bad data: $garbage")
+            case Some(garbage) => Result.error(s"bad data: $garbage")
           }
         }
       }
@@ -167,19 +167,19 @@ private[cat] trait CategoryFactory {
       gOpt: Result[Graph],
       multTable: Map[(String, String), String]): Result[Cat] = {
       for {
-        g: Graph ← gOpt
+        g: Graph <- gOpt
         data = CategoryData.partial[String](g)(multTable, arrowBuilder)
-        raw ← data.build
-        cat ← convert2Cat(raw)()
+        raw <- data.build
+        cat <- convert2Cat(raw)()
       } yield cat
     }
 
     def multTable: Parser[Map[(String, String), String]] = "{" ~ repsep(multiplication, ",") ~ "}" ^^ { case "{" ~ m
-      ~ "}" ⇒ Map() ++ m
+      ~ "}" => Map() ++ m
     }
 
     def multiplication: Parser[((String, String), String)] = {
-      word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { case g ~ o ~ f ~ "=" ~ h ⇒ ((f, g), h)
+      word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { case g ~ o ~ f ~ "=" ~ h => ((f, g), h)
       }
     }
 
@@ -188,7 +188,7 @@ private[cat] trait CategoryFactory {
     }
   }
 
-  val arrowBuilder = (p:(String, String)) ⇒ {
+  val arrowBuilder = (p:(String, String)) => {
     Option(s"${p._2}∘${p._1}")
   }
 
@@ -242,61 +242,61 @@ object Categories extends CategoryFactory {
   /**
     * Category with 2 objects and 2 parallel arrows from one to another
     */
-  lazy val ParallelPair = category"ParallelPair:({0, 1}, {a:0→1, b:0→1})"
+  lazy val ParallelPair = category"ParallelPair:({0, 1}, {a:0->1, b:0->1})"
 
   /**
     * Category <b>Z2</2> - a two-element monoid
     */
-  lazy val Z2 = category"Z2: ({1}, {1: 1 → 1, a: 1 → 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
+  lazy val Z2 = category"Z2: ({1}, {1: 1 -> 1, a: 1 -> 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
 
-  lazy val Z3 = category"Z3: ({0}, {0: 0 → 0, 1: 0 → 0, 2: 0 → 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 0, 2 ∘ 1 = 0, 2 ∘ 2 = 1})"
+  lazy val Z3 = category"Z3: ({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 0, 2 ∘ 1 = 0, 2 ∘ 2 = 1})"
 
-  lazy val Z4 = category"Z4: ({0}, {0: 0→0, 1: 0→0, 2: 0→0, 3:0→0}, {1 ∘ 1 = 2, 1 ∘ 2 = 3, 2 ∘ 1 = 3, 2 ∘ 2 = 0, 2 ∘ 3 = 1, 3 ∘ 2 = 1, 3 ∘ 3 = 2})"
+  lazy val Z4 = category"Z4: ({0}, {0: 0->0, 1: 0->0, 2: 0->0, 3:0->0}, {1 ∘ 1 = 2, 1 ∘ 2 = 3, 2 ∘ 1 = 3, 2 ∘ 2 = 0, 2 ∘ 3 = 1, 3 ∘ 2 = 1, 3 ∘ 3 = 2})"
 
   /**
     * "Split Monomorphism" category (see http://en.wikipedia.org/wiki/Morphism)
     * Two objects, and a split monomorphism from a to b
     */
   lazy val SplitMono =
-    category"SplitMono: ({a,b}, {ab: a → b, ba: b → a, bb: b → b}, {ab ∘ ba = bb, bb ∘ bb = bb})"
+    category"SplitMono: ({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ab ∘ ba = bb, bb ∘ bb = bb})"
 
   /**
     * Commutative square category
     */
-  lazy val Square = category"Square:({a,b,c,d}, {ab: a → b, ac: a → c, bd: b → d, cd: c → d, ad: a → d})"
+  lazy val Square = category"Square:({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d, ad: a -> d})"
 
   /**
-    * Pullback category: a → c ← b
+    * Pullback category: a -> c <- b
     */
-  lazy val Pullback = category"Pullback:({a,b,c}, {ac: a → c, bc: b → c})"
+  lazy val Pullback = category"Pullback:({a,b,c}, {ac: a -> c, bc: b -> c})"
 
   /**
-    * Pushout category: b ← a → c
+    * Pushout category: b <- a -> c
     */
-  lazy val Pushout = category"Pushout:({a,b,c}, {ab: a → b, ac: a → c})"
+  lazy val Pushout = category"Pushout:({a,b,c}, {ab: a -> b, ac: a -> c})"
 
   /**
     *                        c  
     *                        ↑
-    * Pushout4 category: b ← a → d
+    * Pushout4 category: b <- a -> d
     *                        ↓
     *                        e
     */
-  lazy val Pushout4 = category"Pushout4:({a,b,c,d,e}, {ab: a → b, ac: a → c, ad: a → d, ae: a → e})"
+  lazy val Pushout4 = category"Pushout4:({a,b,c,d,e}, {ab: a -> b, ac: a -> c, ad: a -> d, ae: a -> e})"
 
   /**
     * Sample W-shaped category: a     c      e
     *                            ↘  ↙ ↘  ↙
     *                              b     d
     */
-  lazy val W = category"W:({a,b,c,d,e}, {ab: a → b, cb: c → b, cd: c → d, ed: e → d})"
+  lazy val W = category"W:({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d})"
 
   /**
     * Sample M-shaped category:     b      d
     *                             ↙  ↘  ↙  ↘
     *                            a     c      e
     */
-  lazy val M = category"M:({a,b,c,d,e}, {ba: b → a, bc: b → c, dc: d → c, de: d → e})"
+  lazy val M = category"M:({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e})"
   
   /**
     * A segment of simplicial category.
@@ -305,31 +305,31 @@ object Categories extends CategoryFactory {
     */
   lazy val Simplicial3: Cat = asCat(apply("Simplicial3",
     Set("0", "1", "2"),
-    Map("0_1" → "0", "0_2" → "0", "2_1" → "2", "2_a" → "2", "2_b" → "2", "a" → "1", "b" → "1", "swap" →
+    Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "a" -> "1", "b" -> "1", "swap" ->
       "2"), // d0
-    Map("0_1" → "1", "0_2" → "2", "2_1" → "1", "2_a" → "2", "2_b" → "2", "a" → "2", "b" → "2", "swap" →
+    Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "a" -> "2", "b" -> "2", "swap" ->
       "2"), // d1
-    Map(("0_1", "a") → "0_2",
-      ("0_1", "b") → "0_2",
-      ("2_1", "a") → "2_a",
-      ("2_1", "b") → "2_b",
-      ("a", "swap") → "b",
-      ("a", "2_a") → "a",
-      ("b", "swap") → "a",
-      ("b", "2_a") → "a",
-      ("b", "2_b") → "b",
-      ("swap", "swap") → "2",
-      ("swap", "2_a") → "2_a",
-      ("swap", "2_b") → "2_b",
-      ("2_a", "2_a") → "2_a",
-      ("2_b", "2_b") → "2_b",
-      ("2_a", "swap") → "2_b",
-      ("2_b", "swap") → "2_a"
+    Map(("0_1", "a") -> "0_2",
+      ("0_1", "b") -> "0_2",
+      ("2_1", "a") -> "2_a",
+      ("2_1", "b") -> "2_b",
+      ("a", "swap") -> "b",
+      ("a", "2_a") -> "a",
+      ("b", "swap") -> "a",
+      ("b", "2_a") -> "a",
+      ("b", "2_b") -> "b",
+      ("swap", "swap") -> "2",
+      ("swap", "2_a") -> "2_a",
+      ("swap", "2_b") -> "2_b",
+      ("2_a", "2_a") -> "2_a",
+      ("2_b", "2_b") -> "2_b",
+      ("2_a", "swap") -> "2_b",
+      ("2_b", "swap") -> "2_a"
     ),
     arrowBuilder
   ).getOrElse(throw new InstantiationException("Bad Simplicial3")))
   
-  lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 → 2, 23: 2 → 3, 34: 3 → 4, 45: 4 → 5, 56: 5 → 6, 61: 6 → 1})"
+  lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
 
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
@@ -350,16 +350,9 @@ object Categories extends CategoryFactory {
 
   implicit class CategoryString(val sc: StringContext) extends AnyVal {
     def category(args: Any*): Cat = {
-      val strings = sc.parts.iterator
-      val expressions = args.iterator
-      var buf = new StringBuffer(strings.next)
-      while (strings.hasNext) {
-        buf append expressions.next
-        buf append strings.next
-      }
-      read(buf) match {
-        case Good(c) ⇒ c
-        case bad ⇒ throw new InstantiationException(bad.errorDetails.mkString)
+      read(bufferFromContext(sc, args: _*)) match {
+        case Good(c) => c
+        case bad => throw new InstantiationException(bad.errorDetails.mkString)
       }
     }
   }

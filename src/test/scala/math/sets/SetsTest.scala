@@ -23,7 +23,7 @@ class SetsTest extends Specification {
     "groubBy should group" >> {
       val xs = Set(2, 3, -2, 5, 6, 7)
       val ys = Set(1, 2, 3, 4, 5, 6)
-      val f = groupBy(xs, ys, (n: Int) ⇒ n * n)
+      val f = groupBy(xs, ys, (n: Int) => n * n)
       f(1) === Set.empty
       f(2) === Set.empty
       f(3) === Set.empty
@@ -51,7 +51,7 @@ class SetsTest extends Specification {
         }
       }
 
-      val actual = setOf(iterable, 4, (x: String) ⇒ source contains x)
+      val actual = setOf(iterable, 4, (x: String) => source contains x)
       iteratorCalled must beFalse
       val expected = Set("one", "two", "three", "")
       actual("two") === true
@@ -70,7 +70,7 @@ class SetsTest extends Specification {
 
     "setOf(Iterable) should calculate size if not provided" >> {
       val source = List("one", "two", "three", "")
-      val actual = setOf(source, (s: String) ⇒ source.contains(s))
+      val actual = setOf(source, (s: String) => source.contains(s))
       val expected = Set("one", "two", "three", "")
       actual === expected
     }
@@ -96,12 +96,12 @@ class SetsTest extends Specification {
         }
       }
 
-      val s = setOf(iterable, (n: Int) ⇒ true)
+      val s = setOf(iterable, (n: Int) => true)
       // the following matcher does not work, because our set is infinite, and the test tries to build a vector      
       //      s must contain(42)
       s.contains(42) must beTrue
       var n = 0
-      for (i ← s take 10) {
+      for (i <- s take 10) {
         n += 1
       }
       n === 10
@@ -132,7 +132,7 @@ class SetsTest extends Specification {
     }
 
     "union of a list of sets" >> {
-      val sets = (1 to 5) map (n ⇒ setOf[Int]((10 * n) to (10 * n) + n))
+      val sets = (1 to 5) map (n => setOf[Int]((10 * n) to (10 * n) + n))
       val expected = Set(10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41, 42, 43, 44, 50, 51, 52, 53, 54, 55)
       val actual = union(sets)
       val eq1 = actual == expected
@@ -162,8 +162,8 @@ class SetsTest extends Specification {
     }
 
     "union of an infinite with an infinite should include both" >> {
-      val set1 = N filter (x ⇒ x % 5 == 0)
-      val set2 = N filter (x ⇒ x % 5 == 2)
+      val set1 = N filter (x => x % 5 == 0)
+      val set2 = N filter (x => x % 5 == 2)
       val sut: Set[BigInt] = union(set1, set2)
       Set(BigInt(15), BigInt(22)).subsetOf(sut) must beTrue
       // can't use must contain(), since sets are infinite
@@ -211,7 +211,7 @@ class SetsTest extends Specification {
     "product should not prematurely calculate size" >> {
       var wasCalled = false
       val source = Set(1,2)
-      val s = setOf(source, {wasCalled = true; 2}, (x: Int) ⇒ source contains x)
+      val s = setOf(source, {wasCalled = true; 2}, (x: Int) => source contains x)
 
       wasCalled must beFalse
       val ss = product2(s, s)
@@ -254,7 +254,7 @@ class SetsTest extends Specification {
       val codomain = Set("x", "y", "z")
       val actual = exponent(domain, codomain)
       actual must haveSize(9)
-      actual must contain(Map("1" → "y", "2" → "x"))
+      actual must contain(Map("1" -> "y", "2" -> "x"))
     }
 
     "parse({a,b,c} with spaces should be okay" >> {
@@ -277,7 +277,7 @@ class SetsTest extends Specification {
         val x = Sets.parse("{a, b, c")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception ⇒ // as designed
+        case e: Exception => // as designed
       }
       ok
     }
@@ -287,7 +287,7 @@ class SetsTest extends Specification {
         val x = Sets.parse("a, b, c}")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception ⇒ // as designed
+        case e: Exception => // as designed
       }
       ok
     }
@@ -297,7 +297,7 @@ class SetsTest extends Specification {
         val x = Sets.parse("{a, b,, c}")
         failure("Should have thrown an exception")
       } catch {
-        case e: Exception ⇒ // as designed
+        case e: Exception => // as designed
       }
       ok
     }
@@ -309,7 +309,7 @@ class SetsTest extends Specification {
 
     "Filtering 1..5 by oddity should produce 1,3,5" >> {
       val sut = Set(1, 2, 3, 4, 5)
-      val actual : Set[Int] = sut.filter(x ⇒ x % 2 == 1)
+      val actual : Set[Int] = sut.filter(x => x % 2 == 1)
       actual === Set(1, 3, 5)
     }
 
@@ -319,13 +319,13 @@ class SetsTest extends Specification {
       val p2 = (2, 2)
       val p3 = (3, 3)
       val expected = Set(p1, p2, p3)
-      val actual = sut.filter(p ⇒ {val (x, y) = p; x  == y})
+      val actual = sut.filter(p => {val (x, y) = p; x  == y})
       actual === expected
     }
 
     "Set should be monadic" >> {
       val i: Set[Int] = Set(1, 2, 3)
-      val s: Set[String] = for (n ← i) yield n.toString
+      val s: Set[String] = for (n <- i) yield n.toString
       s === Set("1", "2", "3")
     }
 
@@ -333,7 +333,7 @@ class SetsTest extends Specification {
       N.contains(1001590) must beTrue
       val first10 = N.take(10)
 
-      0 to 9 forall (i ⇒ first10.contains(i) must beTrue)
+      0 to 9 forall (i => first10.contains(i) must beTrue)
     }
 
     "Iterator of 1 is asingleton" >> {
@@ -351,7 +351,7 @@ class SetsTest extends Specification {
     "Factorset" >> {
       val s = setOf[Int](1 to 10)
       def isOdd(x: Int) = x % 2 == 0
-      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) ⇒ isOdd(a) == isOdd(b)
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => isOdd(a) == isOdd(b)
       val factoring = new FactorSet(s, br)
 
       factoring.content must haveSize(2)
@@ -364,36 +364,36 @@ class SetsTest extends Specification {
 
     "Factorset by a diagonal" >> {
       val s = setOf[Int](1 to 10)
-      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) ⇒ a == b
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
       val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
-      val factor = setOf[Set[Int]](for (i ← s) yield Set(i))
-      actual === SetMorphism.build[Int, Set[Int]](s, factor, (i:Int) ⇒ Set(i)).iHope
+      val factor = setOf[Set[Int]](for (i <- s) yield Set(i))
+      actual === SetMorphism.build[Int, Set[Int]](s, factor, (i:Int) => Set(i)).iHope
     }
 
     "Factorset mod 2" >> {
       val s0 = setOf[Int](1 to 10)
-      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) ⇒ a % 2 == b % 2
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
       val actual = factorset(s0, br)
       val listofClasses = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val setOfClasses = Set(listofClasses(0), listofClasses(1))
       actual === SetMorphism.build[Int, Set[Int]](
-        d0 = s0, d1 = setOfClasses, function = (i:Int) ⇒ listofClasses(i % 2)
+        d0 = s0, d1 = setOfClasses, function = (i:Int) => listofClasses(i % 2)
       ).iHope
     }
 
     "Set(iterable, size, filter) should not return false positives" >> {
       val s = Set(1, 2, 3)
-      def predicate = (x:Any) ⇒ x == 2
+      def predicate = (x:Any) => x == 2
       val sut = setOf(s, 1, predicate)
       sut contains 1 must beFalse
-      val collected = (Sets.Empty /: sut.iterator) (_+_)
+      val collected = sut.iterator.foldLeft(Sets.Empty) (_+_)
       collected === Set(2)
     }
 
     "Pullback, plain case" >> {
       val xs = Set(1,2,3,4,5)
       val ys = Set(2,4,6,8,10)
-      val actual = pullback(xs, ys, (x:Int) ⇒ x/2, (y:Int) ⇒ y/5)
+      val actual = pullback(xs, ys, (x:Int) => x/2, (y:Int) => y/5)
       val expected = Set((1,2),(1,4),(2,6),(2,8),(3,6),(3,8),(4,10),(5,10))
       actual === expected
     }
@@ -414,12 +414,14 @@ class SetsTest extends Specification {
       FiniteSets.contains(Sets.Empty) must beTrue
       FiniteSets.contains(Set("infinity")) must beTrue
       FiniteSets.contains(Set(1,2,3,42)) must beTrue
+      ok
     }
   }
+  
   def spendNotMoreThan[T](time: Duration, extraTimePercent:Int = 1): Object {
-    def on(op: ⇒ Result[T]): Result[T]
+    def on(op: => Result[T]): Result[T]
   } = new {
-    def on(op: ⇒ Result[T]): Result[T] = {
+    def on(op: => Result[T]): Result[T] = {
       import java.util.concurrent.locks.LockSupport._
       var res:Result[T] = Empty
       val millis = time.toMillis
@@ -430,7 +432,7 @@ class SetsTest extends Specification {
           try {
             res = op
             done.set(true)
-          } catch {case ie: InterruptedException ⇒ }
+          } catch {case ie: InterruptedException => }
         }
       }
       worker.setPriority(1)

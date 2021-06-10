@@ -6,14 +6,14 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.{set, setOf}
 import scalakittens.Result
 
-trait ToposLogic { topos: CategoryOfDiagrams ⇒
+trait ToposLogic { topos: CategoryOfDiagrams =>
 
-  trait Predicate extends DiagramArrow { p: DiagramArrow ⇒
+  trait Predicate extends DiagramArrow { p: DiagramArrow =>
     val d1: Diagram = Ω
 
     private def wrapTag(tag: Any): String = {
       val ts = tag.toString
-      if (ts.contains("∧") || ts.contains("∨") || ts.contains("⇒")) s"($ts)" else ts
+      if (ts.contains("∧") || ts.contains("∨") || ts.contains("=>")) s"($ts)" else ts
     }
 
     private def tag2(tag1: Any, op: String, tag2: Any): String = s"${wrapTag(tag1)} $op ${wrapTag(tag1)}"
@@ -34,7 +34,7 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
     private[ToposLogic] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
       require(q.d0 == p.d0)
       
-      for (o ← domainCategory.objects) {
+      for (o <- domainCategory.objects) {
         require(p.setAt(o) == q.setAt(o), s"Different domains at $o for ${p.tag} and ${q.tag}")
       }
 
@@ -51,9 +51,9 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
           def trans(v: Any): Any = (po(v), qo(v))
           val PQtoΩxΩ: SetFunction =
             new SetFunction(
-              s"PQ→ΩxΩ($o)",
+              s"PQ->ΩxΩ($o)",
               dom, ΩxΩ(o),
-              v ⇒ (po(v), qo(v))
+              v => (po(v), qo(v))
             )
 
           val conj: SetFunction = Ω.conjunction(o).asInstanceOf[SetFunction]
@@ -69,21 +69,21 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
       * @param q another predicate
       * @return their conjunction
       */
-    def ∧(q: Predicate): Predicate = binaryOp(q, "∧", Ω.conjunction)
+    def ∧(q: topos.Predicate): topos.Predicate = binaryOp(q, "∧", Ω.conjunction)
 
     /**
       * Disjunction with another predicate
       * @param q another predicate
       * @return their disjunction
       */
-    def ∨(q: Predicate): Predicate = binaryOp(q, "∨", Ω.disjunction)
+    def ∨(q: topos.Predicate): topos.Predicate = binaryOp(q, "∨", Ω.disjunction)
 
     /**
       * implication of another predicate
       * @param q another predicate
       * @return this implies q
       */
-    def ⟹(q: Predicate): Predicate = binaryOp(q, "⟹", Ω.implication)
+    def ⟹(q: topos.Predicate): topos.Predicate = binaryOp(q, "⟹", Ω.implication)
   }
 
 
@@ -91,17 +91,17 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
     p.binaryOpNamed(FalsePredicate, Ω.implication, "¬")
 
 
-  lazy val FalsePredicate: Predicate = predicateFor(Ω.False)
+  lazy val FalsePredicate: topos.Predicate = predicateFor(Ω.False)
 
-  lazy val TruePredicate: Predicate = predicateFor(Ω.True)
+  lazy val TruePredicate: topos.Predicate = predicateFor(Ω.True)
 
   /**
     * Builds a predicate for an arrow to Ω
     * @param f arrow from an object to Ω
-    * @return an arrow X → Ω
+    * @return an arrow X -> Ω
     */
-  def predicateForArrowToΩ(f: DiagramArrow): Predicate = {
-    new Predicate {
+  def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate = {
+    new topos.Predicate {
       override val d0: Obj = f.d0
       override val tag: Any = f.tag
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
@@ -116,7 +116,7 @@ trait ToposLogic { topos: CategoryOfDiagrams ⇒
   /**
     * Builds a predicate for a point in Ω
     * @param pt the point
-    * @return an arrow pt → Ω
+    * @return an arrow pt -> Ω
     */
   def predicateFor(pt: Point): Predicate = {
 

@@ -28,11 +28,11 @@ class ToposLogicTest extends Fixtures {
 
     def checkAt(point: Any)(mappings: (String, set)*): MatchResult[Any] = {
       point match {
-        case d: Diagram ⇒
+        case d: Diagram =>
           (traverse {
-            for {(k, v) ← mappings } yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
+            for {(k, v) <- mappings } yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
           } andThen OK) === OK
-        case trash ⇒ failure(s"Expected a diagram, got $trash")
+        case trash => failure(s"Expected a diagram, got $trash")
       }
       ok
     }
@@ -41,75 +41,75 @@ class ToposLogicTest extends Fixtures {
     "exist for _1_" in {
       val topos = new CategoryOfDiagrams(_1_)
       val omega = topos.Ω
-      checkAt(omega.False("0"))("0" → Sets.Empty)
-      checkAt(omega.True("0"))("0" → Set("0.0"))
+      checkAt(omega.False("0"))("0" -> Sets.Empty)
+      checkAt(omega.True("0"))("0" -> Set("0.0"))
     }
 
     "exist for _2_" in {
       val topos = new CategoryOfDiagrams(_2_)
       val omega = topos.Ω
-      checkAt(omega.False("0"))("0" → Sets.Empty, "1" → Sets.Empty)
-      checkAt(omega.False("1"))("0" → Sets.Empty, "1" → Sets.Empty)
+      checkAt(omega.False("0"))("0" -> Sets.Empty, "1" -> Sets.Empty)
+      checkAt(omega.False("1"))("0" -> Sets.Empty, "1" -> Sets.Empty)
 
-      checkAt(omega.True("0"))("0" → Set("0.0"), "1" → Set("0.1"))
-      checkAt(omega.True("1"))("0" → Sets.Empty, "1" → Set("1.1"))
+      checkAt(omega.True("0"))("0" -> Set("0.0"), "1" -> Set("0.1"))
+      checkAt(omega.True("1"))("0" -> Sets.Empty, "1" -> Set("1.1"))
     }
 
     "exist for _3_" in {
       val topos = new CategoryOfDiagrams(_3_)
       val omega = topos.Ω
-      checkAt(omega.False("0"))("0" → Sets.Empty, "1" → Sets.Empty, "2" → Sets.Empty)
-      checkAt(omega.False("1"))("1" → Sets.Empty, "2" → Sets.Empty)
-      checkAt(omega.False("2"))("2" → Sets.Empty)
+      checkAt(omega.False("0"))("0" -> Sets.Empty, "1" -> Sets.Empty, "2" -> Sets.Empty)
+      checkAt(omega.False("1"))("1" -> Sets.Empty, "2" -> Sets.Empty)
+      checkAt(omega.False("2"))("2" -> Sets.Empty)
 
-      checkAt(omega.True("0"))("0" → Set("0.0"), "1" → Set("0.1"), "2" → Set("0.2"))
-      checkAt(omega.True("1"))("0" → Sets.Empty, "1" → Set("1.1"), "2" → Set("1.2"))
-      checkAt(omega.True("2"))("0" → Sets.Empty, "1" → Sets.Empty, "2" → Set("2.2"))
+      checkAt(omega.True("0"))("0" -> Set("0.0"), "1" -> Set("0.1"), "2" -> Set("0.2"))
+      checkAt(omega.True("1"))("0" -> Sets.Empty, "1" -> Set("1.1"), "2" -> Set("1.2"))
+      checkAt(omega.True("2"))("0" -> Sets.Empty, "1" -> Sets.Empty, "2" -> Set("2.2"))
     }
 
     "exist for ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
       val omega = topos.Ω
-      checkAt(omega.False("0"))("0" → Sets.Empty, "1" → Sets.Empty)
-      checkAt(omega.False("1"))("0" → Sets.Empty, "1" → Sets.Empty)
+      checkAt(omega.False("0"))("0" -> Sets.Empty, "1" -> Sets.Empty)
+      checkAt(omega.False("1"))("0" -> Sets.Empty, "1" -> Sets.Empty)
 
-      checkAt(omega.True("0"))("0" → Set("0"), "1" → Set("a", "b"))
-      checkAt(omega.True("1"))("1" → Set("1"))
+      checkAt(omega.True("0"))("0" -> Set("0"), "1" -> Set("a", "b"))
+      checkAt(omega.True("1"))("1" -> Set("1"))
     }
 
     "exist for Pullback" in {
       val topos = new CategoryOfDiagrams(Pullback)
       val omega = topos.Ω
       val False = omega.False
-      checkAt(False("a"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty)
-      checkAt(False("b"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty)
-      checkAt(False("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty)
+      checkAt(False("a"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Sets.Empty)
+      checkAt(False("b"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Sets.Empty)
+      checkAt(False("c"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Sets.Empty)
 
       val True = omega.True
-      checkAt(True("a"))("a" → Set("a"), "b" → Sets.Empty, "c" → Set("ac"))
-      checkAt(True("b"))("a" → Sets.Empty, "b" → Set("b"), "c" → Set("bc"))
-      checkAt(True("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Set("c"))
+      checkAt(True("a"))("a" -> Set("a"), "b" -> Sets.Empty, "c" -> Set("ac"))
+      checkAt(True("b"))("a" -> Sets.Empty, "b" -> Set("b"), "c" -> Set("bc"))
+      checkAt(True("c"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Set("c"))
     }
 
     "exist for Pushout" in {
       val topos = new CategoryOfDiagrams(Pushout)
       val omega = topos.Ω
       val False = omega.False
-      checkAt(False("a"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty)
-      checkAt(False("b"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty)
-      checkAt(False("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Sets.Empty)
+      checkAt(False("a"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Sets.Empty)
+      checkAt(False("b"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Sets.Empty)
+      checkAt(False("c"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Sets.Empty)
 
       val True = omega.True
-      checkAt(True("a"))("a" → Set("a"), "b" → Set("ab"), "c" → Set("ac"))
-      checkAt(True("b"))("a" → Sets.Empty, "b" → Set("b"), "c" → Sets.Empty)
-      checkAt(True("c"))("a" → Sets.Empty, "b" → Sets.Empty, "c" → Set("c"))
+      checkAt(True("a"))("a" -> Set("a"), "b" -> Set("ab"), "c" -> Set("ac"))
+      checkAt(True("b"))("a" -> Sets.Empty, "b" -> Set("b"), "c" -> Sets.Empty)
+      checkAt(True("c"))("a" -> Sets.Empty, "b" -> Sets.Empty, "c" -> Set("c"))
     }
 
     "exist for Z3" in {
       val topos = new CategoryOfDiagrams(Z3)
       val omega = topos.Ω
-      checkAt(omega.False("0"))("0" → Sets.Empty)
-      checkAt(omega.True("0"))("0" → Set("0", "1", "2"))
+      checkAt(omega.False("0"))("0" -> Sets.Empty)
+      checkAt(omega.True("0"))("0" -> Set("0", "1", "2"))
     }
   }
 
@@ -123,10 +123,10 @@ class ToposLogicTest extends Fixtures {
       checkThatIn(topos).mustBeMonoid[Predicate](
         "conjunction",
         True,
-        (p: Predicate, q: Predicate) ⇒ p ∧ q
+        (p: Predicate, q: Predicate) => p ∧ q
       )
 
-      for { pt ← Ω.points } {
+      for { pt <- Ω.points } {
         println(s"  checking conjunction with False for ${pt.tag}")
         val p = pt.asPredicate
         (False ∧ p) === False
@@ -139,7 +139,7 @@ class ToposLogicTest extends Fixtures {
       val desc = s"Testing True value over ${domain.name}"
 
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
-        SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) ⇒ (subrep, subrep)).iHope
+        SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
       }
 
       val conjunction = Ω.conjunction
@@ -154,7 +154,7 @@ class ToposLogicTest extends Fixtures {
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
 
       for {
-        o ← domain.objects
+        o <- domain.objects
       } {
         val p = pointOfTrueAndTrue(o)
         p aka s"$desc, @$o" must_==(Ω.True(o), Ω.True(o))
@@ -168,7 +168,7 @@ class ToposLogicTest extends Fixtures {
 
       if (!theyAreTheSame) {
         for {
-          o0 ← domain.objects
+          o0 <- domain.objects
         } {
           val o = classifierForTT.domainCategory.obj(o0)
           val con_o = classifierForTT.transformPerObject(o).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
@@ -178,7 +178,7 @@ class ToposLogicTest extends Fixtures {
           val pairs = con_o zip tru_classif_o
 
           pairs foreach {
-            case ((k1, v1), (k2, v2)) ⇒
+            case ((k1, v1), (k2, v2)) =>
               k1 === k2
               v1 aka s"At $k1 at $o" must_== v2
           }
@@ -216,10 +216,10 @@ class ToposLogicTest extends Fixtures {
         checkThatIn(topos).mustBeMonoid[Predicate](
           "disjunction",
           False,
-          (p: Predicate, q: Predicate) ⇒ p ∨ q
+          (p: Predicate, q: Predicate) => p ∨ q
         )
 
-        for { pt ← Ω.points } {
+        for { pt <- Ω.points } {
           println(s"  checking disjunction with False for ${pt.tag}")
           val p = pt.asPredicate
           (True ∨ p) === True
@@ -260,17 +260,17 @@ class ToposLogicTest extends Fixtures {
       val desc = s"Testing distributivity laws over ${cat.name}"
       println(desc)
 
-      for { pt1 ← points } {
+      for { pt1 <- points } {
         println(s"  distributivity at ${pt1.tag}")
-        val p = pt1.asPredicate
+        val p: topos.Predicate = pt1.asPredicate
 
-        for { pt2 ← points } {
+        for { pt2 <- points } {
           val q = pt2.asPredicate
-          val pAndQ = p ∧ q
-          val pOrQ = p ∨ q
+          val pAndQ: topos.Predicate = p ∧ q
+          val pOrQ: topos.Predicate = p ∨ q
 
-          for { pt3 ← points } {
-            val r: Predicate = pt3.asPredicate
+          for { pt3 <- points } {
+            val r: topos.Predicate = pt3.asPredicate
             conjunctionOverDisjunction(topos)(p, q, pAndQ, r)
             disjunctionOverConjunction(topos)(p, q, pOrQ, r)
           }
@@ -299,7 +299,7 @@ class ToposLogicTest extends Fixtures {
         val True = Ω.True.asPredicate
         val False = Ω.False.asPredicate
 
-        for { pt1 ← Ω.points } {
+        for { pt1 <- Ω.points } {
           println(s"  checking Truth ⟹ ${pt1.tag}")
           val p = pt1.asPredicate
           (True ⟹ p) === p
@@ -311,11 +311,11 @@ class ToposLogicTest extends Fixtures {
           (p ⟹ True) === True
 
           println(s"  checking adjunction for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
+          for { pt2 <- Ω.points } {
             val q = pt2.asPredicate
             val p_q = p ∧ q
 
-            for { pt3 ← Ω.points } {
+            for { pt3 <- Ω.points } {
               val r = pt3.asPredicate
               val q2r = q ⟹ r
               val left = p_q ⟹ r
@@ -325,11 +325,11 @@ class ToposLogicTest extends Fixtures {
           }
 
           println(s"  checking adjunction for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
+          for { pt2 <- Ω.points } {
             val q = pt2.asPredicate
             val p_q = p ∧ q
 
-            for { pt3 ← Ω.points } {
+            for { pt3 <- Ω.points } {
               val r = pt3.asPredicate
               val q2r = q ⟹ r
               val left = p_q ⟹ r
@@ -339,11 +339,11 @@ class ToposLogicTest extends Fixtures {
           }
 
           println(s"  checking conjunction distributivity for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
+          for { pt2 <- Ω.points } {
             val q = pt2.asPredicate
             val p_and_q = p ∧ q
 
-            for { pt3 ← Ω.points } {
+            for { pt3 <- Ω.points } {
               val r = pt3.asPredicate
               val r2p = r ⟹ p
               val r2q = r ⟹ q
@@ -354,11 +354,11 @@ class ToposLogicTest extends Fixtures {
           }
 
           println(s"  checking disjunction distributivity for ${pt1.tag}")
-          for { pt2 ← Ω.points } {
+          for { pt2 <- Ω.points } {
             val q = pt2.asPredicate
             val p_or_q = p ∨ q
 
-            for { pt3 ← Ω.points } {
+            for { pt3 <- Ω.points } {
               val r = pt3.asPredicate
               val p2r = p ⟹ r
               val q2r = q ⟹ r
@@ -395,15 +395,15 @@ class ToposLogicTest extends Fixtures {
         ¬(True) === False
         ¬(False) === True
 
-        for { pt1 ← Ω.points } {
+        for { pt1 <- Ω.points } {
           println(s"  checking triple negation for ${pt1.tag}")
-          val p = pt1.asPredicate
+          val p: topos.Predicate = pt1.asPredicate
           val not_p = ¬(p)
           ¬(¬(not_p)) === not_p
 
           println(s"  checking negation of disjunction for ${pt1.tag}")
-          for {pt2 ← Ω.points} {
-            val q = pt2.asPredicate
+          for {pt2 <- Ω.points} {
+            val q: topos.Predicate = pt2.asPredicate
             ¬(p ∨ q) === ¬(p) ∧ ¬(q)
           }
         }

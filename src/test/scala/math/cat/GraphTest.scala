@@ -12,15 +12,15 @@ class GraphTest extends Test {
   "Graph" >> {
 
     "checks its arrows" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         sut.arrow(111) === 111
         sut.arrow(112) should throwA[IllegalArgumentException]
       })(
-        Graph.build("sut1", Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10))
+        Graph.build("sut1", Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
     }
 
     "are parallel" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         import sut._
         sut.areParallel(13, 113) === true
         sut.areParallel(21, 32) === false
@@ -28,12 +28,12 @@ class GraphTest extends Test {
         Graph.build(
           "g",
           Set(1, 2, 3),
-          Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       )
     }
 
     "same domain" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         import sut._
         sut.sameDomain(11, 113) === true
         sut.sameDomain(13, 113) === true
@@ -41,12 +41,12 @@ class GraphTest extends Test {
       })(Graph.build(
         "g",
         Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       )
     }
 
     "same codomain" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         import sut._
         sut.sameCodomain(13, 113) === true
         sut.sameCodomain(21, 111) === true
@@ -55,19 +55,19 @@ class GraphTest extends Test {
         Graph.build(
           "g",
           Set(1, 2, 3),
-          Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       )
     }
 
     "contains" >> {
-      expect(sut ⇒ {
+      expect(sut => {
       (sut contains 2) === true
       (sut contains 7) === false
       })(
         Graph.build(
           "g",
           Set(1, 2, 3),
-          Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       )
     }
 
@@ -75,19 +75,19 @@ class GraphTest extends Test {
       val sut1 = Graph.build(
         "sut1",
         Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       val sut2 = Graph.build(
         "sut2",
         Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       val sut3 = Graph.build(
         "sut3",
         Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       val sut4 = Graph.build(
         "sut4",
         Set(1, 2, 3, 4),
-        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       (sut1 == sut1) === true
       (sut1 == sut2) === true
       (sut2 == sut1) === true
@@ -96,7 +96,7 @@ class GraphTest extends Test {
     }
 
     "follows" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         import sut._
       sut.follows(113, 111) === true
       sut.follows(111, 113) === false
@@ -104,26 +104,26 @@ class GraphTest extends Test {
         Graph.build(
           "sut",
           Set(1, 2, 3),
-          Set(11, 111, 21, 32, 13, 113), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+          Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       )
     }
 
     "parse" >> {
       val nodes = Set("0", "1", "2")
       val arrows = Map(
-        "0.id" → ("0", "0"),
-        "0.1" → ("0", "1"),
-        "0.2" → ("0", "2"),
-        "1.id" → ("1", "1"),
-        "a" → ("1", "2"),
-        "b" → ("1", "2"),
-        "2.1" → ("2", "1"),
-        "2.id" → ("2", "2"),
-        "2.a" → ("2", "2"),
-        "2.b" → ("2", "2"),
-        "2.swap" → ("2", "2"))
+        "0.id" -> ("0", "0"),
+        "0.1" -> ("0", "1"),
+        "0.2" -> ("0", "2"),
+        "1.id" -> ("1", "1"),
+        "a" -> ("1", "2"),
+        "b" -> ("1", "2"),
+        "2.1" -> ("2", "1"),
+        "2.id" -> ("2", "2"),
+        "2.a" -> ("2", "2"),
+        "2.b" -> ("2", "2"),
+        "2.swap" -> ("2", "2"))
       val testGraph = Graph.fromArrowMap("sut", nodes, arrows)
-      testGraph === testGraph.flatMap(g ⇒ Graph.read(g.toString))
+      testGraph === testGraph.flatMap(g => Graph.read(g.toString))
     }
 
     "Singleton" >> {
@@ -134,10 +134,10 @@ class GraphTest extends Test {
 
     "Constructor_plain_withmap" >> {
       val objects = Set(1, 2, 3)
-      val map = Map("1a" → (1, 1), "1b" → (1, 1), "2to1" → (2, 1), "3to2" → (3, 2), "1to3" → (1, 3))
+      val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
       val sutOpt = Graph.fromArrowMap("sut", objects, map)
 
-      checkOpt(sutOpt, (sut: Graph) ⇒ {
+      checkOpt(sutOpt, (sut: Graph) => {
         import sut._
         sut.nodes === Set(3, 1, 2)
         sut.d0("2to1") === 2
@@ -150,7 +150,7 @@ class GraphTest extends Test {
     }
 
     "Constructor_plain_withFunctions" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         import sut._
       sut.d0(111) === 1
       sut.d0(13) === 1
@@ -160,7 +160,7 @@ class GraphTest extends Test {
         Graph.build(
           "sut",
           Set(1, 2, 3),
-          Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+          Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       )
     }
 
@@ -168,7 +168,7 @@ class GraphTest extends Test {
       val sutOpt = Graph.build(
         "sut",
         Set(1, 3),
-        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       sutOpt.isBad === true
     }
 
@@ -176,18 +176,18 @@ class GraphTest extends Test {
         val sutOpt = Graph.build(
           "sut",
           Set(1, 2),
-          Set(11, 111, 21, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+          Set(11, 111, 21, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
 
       sutOpt.isBad === true
     }
 
     "Equals_positive" >> {
-      val map = Map(11 → (1, 1), 111 → (1, 1), 21 → (2, 1), 32 → (3, 2), 13 → (1, 3))
+      val map = Map(11 -> (1, 1), 111 -> (1, 1), 21 -> (2, 1), 32 -> (3, 2), 13 -> (1, 3))
       val sut1 = Graph.fromArrowMap("sut", Set(1, 2, 3), map)
       val sut2 = Graph.build(
         "sut",
         Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       sut1 === sut2
     }
 
@@ -195,11 +195,11 @@ class GraphTest extends Test {
       val sut1 = Graph.build(
         "sut1",
         Set(1, 2, 3),
-        Set(11, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       val sut2 = Graph.build(
         "sut2",
         Set(1, 2, 3),
-        Set(11, 111, 21, 32, 13), (x: Int) ⇒ x / 10 % 10, (x: Int) ⇒ x % 10)
+        Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
       (sut1 == sut2) must beFalse
     }
 
@@ -208,10 +208,10 @@ class GraphTest extends Test {
         "sut",
         Set(1, 2, 3),
         Set(11, 21, 32, 13),
-        (x: Int) ⇒ x / 10 % 10,
-        (x: Int) ⇒ x % 10)
+        (x: Int) => x / 10 % 10,
+        (x: Int) => x % 10)
       
-      expect(sut ⇒ {
+      expect(sut => {
         import sut._
         sut.d0(32) === 3
         val opsut = ~sut
@@ -219,8 +219,8 @@ class GraphTest extends Test {
           "sut",
           Set(1, 2, 3),
           Set(11, 21, 32, 13),
-          (x: Int) ⇒ x % 10,
-          (x: Int) ⇒ x / 10 % 10) iHope
+          (x: Int) => x % 10,
+          (x: Int) => x / 10 % 10) iHope
         
         opsut === expected
         sut === ~opsut
@@ -229,12 +229,12 @@ class GraphTest extends Test {
           "sut",
           Set(1, 2, 3),
           Set(11, 21, 32, 13),
-          (x: Int) ⇒ x / 10 % 10,
-          (x: Int) ⇒ x % 10)      )
+          (x: Int) => x / 10 % 10,
+          (x: Int) => x % 10)      )
     }
     
     "subgraph" >> {
-      expect(sut ⇒ {
+      expect(sut => {
         import sut._
         val sub1 = sut.subgraph("0", Set.empty)
         sub1.nodes.isEmpty === true
@@ -247,8 +247,8 @@ class GraphTest extends Test {
           "sut",
           Set(1, 3),
           Set(11, 13),
-          (x: Int) ⇒ x / 10 % 10,
-          (x: Int) ⇒ x % 10) iHope
+          (x: Int) => x / 10 % 10,
+          (x: Int) => x % 10) iHope
         
         sub3 === expected
       })(
@@ -256,20 +256,20 @@ class GraphTest extends Test {
           "sut",
           Set(1, 2, 3),
           Set(11, 21, 32, 13),
-          (x: Int) ⇒ x / 10 % 10,
-          (x: Int) ⇒ x % 10))
+          (x: Int) => x / 10 % 10,
+          (x: Int) => x % 10))
     }
 
     "Discrete" >> {
       val sut = Graph.discrete(Set(1, 2, 3))
-      val expected = Graph.build("sut", Set(1, 2, 3), Set[Int](), (x: Int) ⇒ x, (x: Int) ⇒ x)
+      val expected = Graph.build("sut", Set(1, 2, 3), Set[Int](), (x: Int) => x, (x: Int) => x)
       Good(sut) === expected
       sut === ~sut
     }
 
     "FromPoset" >> {
       val nodes = Set("a", "b", "c")
-      val sut = Graph.ofPoset("sut", PoSet(nodes, (a: String, b: String) ⇒ a <= b))
+      val sut = Graph.ofPoset("sut", PoSet(nodes, (a: String, b: String) => a <= b))
       val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
       val expected = Graph.fromArrowMap("sut", nodes, arrows) iHope
       
@@ -295,10 +295,10 @@ class GraphTest extends Test {
 
     "Parser" >> {
       val objects = Set("1", "2", "3")
-      val map = Map("1a" → ("1", "1"), "1b" → ("1", "1"), "2to1" → ("2", "1"), "3to2" → ("3", "2"), "1to3" →
+      val map = Map("1a" -> ("1", "1"), "1b" -> ("1", "1"), "2to1" -> ("2", "1"), "3to2" -> ("3", "2"), "1to3" ->
         ("1", "3"))
       val expected = Graph.fromArrowMap("sut", objects, map).iHope
-      val sut = graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 2 → 1, 3to2: 3 → 2, 1to3: 1 → 3})"
+      val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
 
       sut.nodes === expected.nodes
       sut.arrows === expected.arrows
@@ -306,7 +306,7 @@ class GraphTest extends Test {
     }
 
     "hom" >> {
-      val sut = graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 2 → 1, 3to2: 3 → 2, 1to3: 1 → 3})"
+      val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
       import sut._
       val hom = sut.arrowsBetween("1", "1")
       hom === Sets.parse("{1a, 1b}")
@@ -314,8 +314,8 @@ class GraphTest extends Test {
     }
 
     "~" >> {
-      val sut = graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 2 → 1, 3to2: 3 → 2, 1to3: 1 → 3})"
-      ~sut === graph"({1, 2, 3}, {1a: 1 → 1, 1b: 1 → 1, 2to1: 1 → 2, 3to2: 2 → 3, 1to3: 3 → 1})"
+      val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
+      ~sut === graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 1 -> 2, 3to2: 2 -> 3, 1to3: 3 -> 1})"
     }
     
     "be finite" >> {
@@ -325,7 +325,7 @@ class GraphTest extends Test {
         Set(1,2,3),
         Set(1,2,3),
         identity[Int],
-        (i:Int) ⇒ i%3+1
+        (i:Int) => i%3+1
       ).iHope
       
       g3.isFinite === true

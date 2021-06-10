@@ -15,7 +15,7 @@ import scala.collection.mutable
   * The data used in building an instance of Category
   */
 private[cat] abstract class CategoryData extends Graph {
-  data ⇒
+  data =>
   type Obj = Node
   type Objects = Set[Obj]
   lazy val listOfObjects: List[Obj] =
@@ -39,7 +39,7 @@ private[cat] abstract class CategoryData extends Graph {
   override def validate: Result[ValidCategoryData] = {
     val objectsHaveIds = OKif(!finiteNodes) orElse {
       Result.traverse(objects map {
-        x ⇒
+        x =>
           val ux = id(x)
           OKif(d0(ux) == x, s"Domain of id $ux should be $x in $name") andAlso
             OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
@@ -47,7 +47,7 @@ private[cat] abstract class CategoryData extends Graph {
     }
 
     val idsAreNeutral = OKif(!finiteArrows) orElse {
-      Result.traverse(arrows map { f ⇒
+      Result.traverse(arrows map { f =>
         val u_f = m(id(d0(f)), f)
         val f_u = m(f, id(d1(f)))
         OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
@@ -60,11 +60,11 @@ private[cat] abstract class CategoryData extends Graph {
     val compositionIsAssociative = compositionsAreOk andThen (OKif(!finiteArrows) orElse {
       Result.traverse {
         for {
-          f ← arrows
-          g ← arrows
-          h ← arrows
-          gf ← m(f, g)
-          hg ← m(g, h)
+          f <- arrows
+          g <- arrows
+          h <- arrows
+          gf <- m(f, g)
+          hg <- m(g, h)
         } yield {
           val h_gf = m(gf, h)
           val hg_f = m(f, hg)
@@ -101,17 +101,17 @@ private[cat] abstract class CategoryData extends Graph {
 
   private[cat] def checkCompositions = {
     val check1 = Result.traverse(missingCompositions map {
-      case (f, g) ⇒ Oops(s"composition must be defined for $f and $g in $name")
+      case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
     })
 
     val check2 = Result.traverse {
       for {
-        f ← arrows
-        g ← arrows
+        f <- arrows
+        g <- arrows
         h = m(f, g)
       } yield {
         if (follows(g, f)) {
-          Result(h) flatMap { gf ⇒
+          Result(h) flatMap { gf =>
             OKif(sameDomain(gf, f),
               s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
               OKif(sameCodomain(gf, g),
@@ -129,13 +129,13 @@ private[cat] abstract class CategoryData extends Graph {
   
   private[cat] def nonexistentCompositions: Iterable[(Arrow, Arrow)] =
     for {
-      (f, g) ← composablePairs
+      (f, g) <- composablePairs
       if hom(d0(f), d1(g)).isEmpty
     } yield (f, g)
 
   private[cat] def missingCompositions: Iterable[(Arrow, Arrow)] =
     for {
-      (f, g) ← composablePairs
+      (f, g) <- composablePairs
       if m(f, g).isEmpty
     } yield (f, g)
 
@@ -147,7 +147,7 @@ private[cat] abstract class CategoryData extends Graph {
     *         TODO: eliminate code duplication
     */
   private[cat] def build: Result[Category] = {
-    validate map { validData ⇒ validData.newCategory }
+    validate map { validData => validData.newCategory }
   }
 
   private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
@@ -166,12 +166,12 @@ private[cat] abstract class CategoryData extends Graph {
   }
 
   private def calculateHom(from: Obj, to: Obj): Arrows =
-    setOf(arrows filter ((f: Arrow) ⇒ (d0(f) == from) && (d1(f) == to)))
+    setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
 
 }
 
 class ValidCategoryData(source: CategoryData) extends CategoryData {
-  data ⇒
+  data =>
   override val graph = source.graph
 
   def newCategory: Category = {
@@ -194,15 +194,15 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
 
   def newFiniteCategory: Category = {
 
-    val d0Map: Map[Any, Obj] = arrows.map(f ⇒ f -> asObj(d0(arrow(f)))).toMap
-    val d1Map: Map[Any, Obj] = arrows.map(f ⇒ f -> asObj(d1(arrow(f)))).toMap
+    val d0Map: Map[Any, Obj] = arrows.map(f => f -> asObj(d0(arrow(f)))).toMap
+    val d1Map: Map[Any, Obj] = arrows.map(f => f -> asObj(d1(arrow(f)))).toMap
 
-    val idMap: Map[Any, Arrow] = objects.map(o ⇒ o -> id(node(o))).toMap
+    val idMap: Map[Any, Arrow] = objects.map(o => o -> id(node(o))).toMap
 
     val mMap: Map[(Any, Any), Arrow] = {
-      for {f ← arrows
-           g ← arrows
-           h ← m(arrow(f), arrow(g))
+      for {f <- arrows
+           g <- arrows
+           h <- m(arrow(f), arrow(g))
       } yield (f, g) -> h
     } toMap
 
@@ -234,7 +234,7 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
   * @return category data
   */
 private[cat] class PartialData(override val graph: Graph) extends CategoryData {
-  self ⇒
+  self =>
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
@@ -243,13 +243,13 @@ private[cat] class PartialData(override val graph: Graph) extends CategoryData {
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = {
     composition.find {
-      case ((first, second), value) ⇒ first == f && second == g
+      case ((first, second), value) => first == f && second == g
     }
-  } map { m ⇒ arrow(m._2) }
+  } map { m => arrow(m._2) }
 
   /**
     * This method helps fill in obvious choices for arrows composition.
-    * Case 1. There's an arrow f:a→b, and an arrow g:b→c; and there's just one arrow h:a→c.
+    * Case 1. There's an arrow f:a->b, and an arrow g:b->c; and there's just one arrow h:a->c.
     * What would be the composition of f and g? h is the only choice.
     * <p/>
     * Case 2. h ∘ (g ∘ f) = k; what is (h ∘ g) ∘ f? It is k. and vice versa.
@@ -272,15 +272,15 @@ private[cat] class PartialData(override val graph: Graph) extends CategoryData {
   private[cat] def deduceCompositions(compositionSource: CompositionTable): CompositionTable = {
     val triplesToScan = composableTriples(compositionSource)
 
-    val compositions: CompositionTable = (compositionSource /: triplesToScan) {
-      (m, t) ⇒ {
+    val compositions: CompositionTable = triplesToScan.foldLeft(compositionSource) {
+      (m, t) => {
         val (f, g, h) = t
         val gf = m((f, g))
         val hg = m((g, h))
         if ((m contains(gf, h)) && !(m contains(f, hg))) {
-          m + ((f, hg) → m((gf, h)))
+          m + ((f, hg) -> m((gf, h)))
         } else if ((m contains(f, hg)) && !(m contains(gf, h))) {
-          m + ((gf, h) → m((f, hg)))
+          m + ((gf, h) -> m((f, hg)))
         } else {
           m
         }
@@ -293,9 +293,9 @@ private[cat] class PartialData(override val graph: Graph) extends CategoryData {
   private[cat] def composableTriples(compositionSource: CompositionTable):
   Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = {
     val triples: Set[(graph.Arrow, graph.Arrow, graph.Arrow)] = for {
-      a ← graph.arrows
-      b ← graph.arrows if compositionSource.contains((a, b))
-      c ← graph.arrows if compositionSource.contains((b, c))
+      a <- graph.arrows
+      b <- graph.arrows if compositionSource.contains((a, b))
+      c <- graph.arrows if compositionSource.contains((b, c))
     } yield (a, b, c)
 
     triples
@@ -303,14 +303,14 @@ private[cat] class PartialData(override val graph: Graph) extends CategoryData {
 
   // adding composition with identities to a composition table
   private def defineCompositionWithIds: CompositionTable = {
-    (compositionSource /: graph.arrows) ((m, f) ⇒ {
+    graph.arrows.foldLeft(compositionSource) ((m, f) => {
       val fA = f.asInstanceOf[graph.Arrow]
       val id_d0 = graph.arrow(graph.d0(f))
       val id_d1 = graph.arrow(graph.d1(f))
       try {
-        m + ((id_d0, fA) → fA) + ((fA, id_d1) → fA)
+        m + ((id_d0, fA) -> fA) + ((fA, id_d1) -> fA)
       } catch {
-        case npe: NullPointerException ⇒
+        case npe: NullPointerException =>
           throw npe
       }
     })
@@ -323,20 +323,20 @@ private[cat] class PartialData(override val graph: Graph) extends CategoryData {
       graph.arrowsBetween(graph.d0(a), graph.d1(b)).take(2).toList
 
     def candidateMaybe(a: graph.Arrow, b: graph.Arrow) = candidates(a, b) match {
-//      case f :: g :: _ ⇒ None
-      case f :: Nil ⇒ Option(f)
-      case other ⇒ None
-//      case Nil ⇒ newComposition(a, b)
+//      case f :: g :: _ => None
+      case f :: Nil => Option(f)
+      case other => None
+//      case Nil => newComposition(a, b)
     }
 
-    val solutions: CompositionTable = (compositionSource /: composablePairs) {
-      case (m, (a, b)) ⇒ {
+    val solutions: CompositionTable = composablePairs.foldLeft(compositionSource) {
+      case (m, (a, b)) => {
         val aA = a.asInstanceOf[graph.Arrow]
         val bA = b.asInstanceOf[graph.Arrow]
         candidateMaybe(aA, bA) match {
-          case Some(cA) ⇒
-            m + ((aA, bA) → cA.asInstanceOf[graph.Arrow])
-          case _ ⇒ m
+          case Some(cA) =>
+            m + ((aA, bA) -> cA.asInstanceOf[graph.Arrow])
+          case _ => m
         }
       }
     }
@@ -353,14 +353,14 @@ private[cat] class PartialData(override val graph: Graph) extends CategoryData {
     *         TODO: eliminate code duplication
     */
   private[cat] override def build: Result[Category] = Result.forValue {
-    CategoryData.transitiveClosure(this).validate map { validData ⇒ validData.newCategory }
+    CategoryData.transitiveClosure(this).validate map { validData => validData.newCategory }
   }.flatten
 }
 
 object CategoryData {
 
   type Composition[Arr] = Map[(Arr, Arr), Arr]
-  val nothing = (t: Any) ⇒ None
+  val nothing = (t: Any) => None
 
   def Empty[Arr] = Map.empty[(Arr, Arr), Arr]
 
@@ -373,7 +373,7 @@ object CategoryData {
     * @return a newly-built category
     */
   def partial[Arr](g: Graph)(
-    comp: Composition[Arr] = Empty[Arr], compositionFactory: ((Arr, Arr)) ⇒ Option[Arr] = nothing):
+    comp: Composition[Arr] = Empty[Arr], compositionFactory: ((Arr, Arr)) => Option[Arr] = nothing):
   PartialData = {
     new PartialData(addIdentitiesToGraph(g)) {
       override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
@@ -405,8 +405,8 @@ object CategoryData {
   }
 
   def apply(gr: Graph)(
-    ids: gr.Node ⇒ gr.Arrow,
-    composition: (gr.Arrow, gr.Arrow) ⇒ Option[gr.Arrow]): CategoryData = {
+    ids: gr.Node => gr.Arrow,
+    composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): CategoryData = {
     new CategoryData {
       override val graph = gr
 
@@ -423,8 +423,8 @@ object CategoryData {
 
       val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] = data.nonexistentCompositions.toSet
       val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] = nonexistentCompositions flatMap {
-        case (f, g) ⇒ 
-          data.newComposition(f, g) map { h ⇒ (h, (data.d0(f), data.d1(g))) }
+        case (f, g) => 
+          data.newComposition(f, g) map { h => (h, (data.d0(f), data.d1(g))) }
       } toMap
 
       if (newArrows.isEmpty) {

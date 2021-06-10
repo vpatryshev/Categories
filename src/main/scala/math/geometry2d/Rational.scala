@@ -27,8 +27,8 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
   override def toString = s"$n/$d"
   
   override def equals(o: Any): Boolean = o match {
-    case r: Rational ⇒ n * r.d == r.n * d
-    case other ⇒ false
+    case r: Rational => n * r.d == r.n * d
+    case other => false
   }
 
   override def hashCode(): Int = n.hashCode() * 2017 + d.hashCode()

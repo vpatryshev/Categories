@@ -1,5 +1,7 @@
 package math.sets
 
+import math.Base._
+
 /**
  * Set of natural numbers.
  */

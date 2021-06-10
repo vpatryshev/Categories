@@ -20,7 +20,7 @@ class ZFC {
     o
   }
 
-  type Predicate = Any ⇒ Boolean
+  type Predicate = Any => Boolean
 
   private def exists(aSet: SetZ) = register(aSet)
 
@@ -30,10 +30,10 @@ class ZFC {
 
   // Axiom I (extensionality)
   private def equal(a: SetZ, b: SetZ) =
-    (a eq b) || forall(x ⇒ a.contains(x) == b.contains(x))
+    (a eq b) || forall(x => a.contains(x) == b.contains(x))
 
   def intersection(a: SetZ, b: SetZ): SetZ = exists(
-    new SetZ(s"${a.id} ∩ ${b.id}", x ⇒ a.contains(x) && b.contains(x)
+    new SetZ(s"${a.id} ∩ ${b.id}", x => a.contains(x) && b.contains(x)
   ))
 
   class SetZ(val id: String, val thePredicate: Predicate) {
@@ -45,8 +45,8 @@ class ZFC {
     def contains: Predicate = thePredicate
 
     override def equals(o: Any): Boolean = o match {
-      case sz: SetZ ⇒ equal(this, sz)
-      case otherwisse ⇒ false
+      case sz: SetZ => equal(this, sz)
+      case otherwisse => false
     }
 
     def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
@@ -59,18 +59,18 @@ class ZFC {
       if (id != null) return id
       
       def stringify(x: Any, limit: Int) = x match {
-        case sz: SetZ ⇒ sz.toString(limit)
-        case any ⇒ any.toString
+        case sz: SetZ => sz.toString(limit)
+        case any => any.toString
       }
-      
-      val (_, content) = ((0, List.empty[String]) /: domain.filter(thePredicate)) {
-        case ((n, list), x) ⇒
+
+      val (_, content) = domain.filter(thePredicate).foldLeft((0, List.empty[String])) {
+        case ((n, list), x) =>
           val s = stringify(x, patience - n)
           (n+s.length, s::list)
       }
       
       val sb = new StringBuilder("{")
-      for (s ← content.sorted takeWhile (_ ⇒ sb.length < patience)) {
+      for (s <- content.sorted takeWhile (_ => sb.length < patience)) {
         if (sb.length > 1) sb.append(",")
         sb.append(s)
       }
@@ -82,25 +82,25 @@ class ZFC {
     }
 
     // Axiom II (empty set)
-    val EMPTY: SetZ = exists(new SetZ("∅", _ ⇒ false))
+    val EMPTY: SetZ = exists(new SetZ("∅", _ => false))
 
     // Axiom III (comprehension)
     def comprehension(p: Predicate, s: SetZ): SetZ =
-      exists(new SetZ(s"{...}",(x: Any) ⇒ p(x) && s.contains(x)))
+      exists(new SetZ(s"{...}",(x: Any) => p(x) && s.contains(x)))
 
     // Axiom IV (powerset)
     def powerset(a: SetZ): SetZ =
       exists(new SetZ(s"P(${a.id})",
         {
-          case b: SetZ ⇒ b isSubsetOf a
-          case other ⇒ false
+          case b: SetZ => b isSubsetOf a
+          case other => false
         }))
 
     // Axiom V (union)
     def union(s: SetZ): SetZ = exists(new SetZ(s"∪${s.id}",
-      x ⇒ exists({
-        case y: SetZ ⇒ s.contains(y) && y.contains(x)
-        case otherwise ⇒ false
+      x => exists({
+        case y: SetZ => s.contains(y) && y.contains(x)
+        case otherwise => false
       })))
 
     // Axiom VI choice

@@ -4,8 +4,8 @@ case class GroupOfObjects[T](objects: Iterable[T]) {
 
   def arrangeInCircle(c: Pt, r: Rational) = {
     objects.size match {
-      case 1 ⇒ Set((objects.head, c))
-      case n ⇒
+      case 1 => Set((objects.head, c))
+      case n =>
         val da = 2 * Math.PI / n
 
         def p(i: Int): Pt = {
@@ -17,7 +17,7 @@ case class GroupOfObjects[T](objects: Iterable[T]) {
           abs
         }
 
-        (for {(name, i) ← objects.zipWithIndex} yield (name, p(i))).toSet
+        (for {(name, i) <- objects.zipWithIndex} yield (name, p(i))).toSet
     }
   }
 
