@@ -2,6 +2,8 @@ package math.sets
 
 import java.io.Reader
 
+import math.Base._
+
 /**
  * Implementation of partially ordered set.
  * 
@@ -10,7 +12,7 @@ import java.io.Reader
  * `le` a function that compares two elements a and b, returning true iff b >= a
  *
  */
-class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) ⇒ Boolean) extends Set[T] {
+class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extends Set[T] {
   // note: this function is a property of poset, not a property of its elements
   def le(x: T, y: T): Boolean = comparator(x, y)
   def le(p : (T, T)): Boolean = comparator(p._1, p._2)
@@ -33,8 +35,8 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) ⇒ Boolean) exten
 
   override def equals(x: Any): Boolean = {
     x match {
-      case other: PoSet[T] ⇒ equal(other)
-      case _ ⇒ false
+      case other: PoSet[T] => equal(other)
+      case _ => false
     }
   }
 
@@ -47,17 +49,17 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) ⇒ Boolean) exten
   private[sets] def equal(other: PoSet[T]): Boolean = {
     val isEqual = underlyingSet == other.underlyingSet
     val product = Sets.product2(underlyingSet, underlyingSet)
-    isEqual && product.forall(p ⇒ le(p) == other.le(p))
+    isEqual && product.forall(p => le(p) == other.le(p))
   }
 
   protected def validate(): Unit = if (Sets.isFinite(underlyingSet)) {
-    for {x ← underlyingSet} require(le(x, x), " reflexivity broken at " + x)
+    for {x <- underlyingSet} require(le(x, x), " reflexivity broken at " + x)
     
-    for {x ← underlyingSet; y ← underlyingSet} {
+    for {x <- underlyingSet; y <- underlyingSet} {
       if (le(x, y) && le(y, x)) require(x == y, " antisymmetry broken at " + x + ", " + y)
     }
     
-    for {x ← underlyingSet; y ← underlyingSet; z ← underlyingSet} {
+    for {x <- underlyingSet; y <- underlyingSet; z <- underlyingSet} {
       if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
     }
   }
@@ -67,15 +69,15 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) ⇒ Boolean) exten
    *
    * @return a new poset with the order that is opposite to the original.
    */
-  def unary_~ = new PoSet[T](underlyingSet, (x: T, y: T) ⇒ le(y, x))
+  def unary_~ = new PoSet[T](underlyingSet, (x: T, y: T) => le(y, x))
 
   override def toString: String = {
-    def orderedPairs = Sets.product2(underlyingSet, underlyingSet) filter ((p: (T, T)) ⇒ le(p))
+    def orderedPairs = Sets.product2(underlyingSet, underlyingSet) filter ((p: (T, T)) => le(p))
     "({" + (underlyingSet mkString ", ") + "}, {" +
-            ((orderedPairs map (p ⇒ "" + p._1 + " <= " + p._2)) mkString ", ") + "})"
+            ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "})"
   }
-  def -(x: T): Set[T] = Sets.itsImmutable
-  def +(x: T): Set[T] = Sets.itsImmutable
+  override def excl(x: T): Set[T] = itsImmutable
+  override def incl(x: T): Set[T] = itsImmutable
 }
 
 object PoSet {
@@ -89,27 +91,29 @@ object PoSet {
    * @return a new poset built on the data provided
    */
   def apply[T](theElements: Set[T], pairs: Set[(T, T)]) =
-      new PoSet(theElements, (a: T, b: T) ⇒ a == b || pairs.contains((a, b)))
+      new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
 
   def apply[T](theElements: Set[T], pairs: List[(T, T)]) = 
-      new PoSet(theElements, (a: T, b: T) ⇒ a == b || pairs.contains((a, b)))
+      new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
 
-  def apply[T](theElements: Set[T], comparator: (T, T) ⇒ Boolean) = new PoSet(theElements, comparator)
+  def apply[T](theElements: Set[T], comparator: (T, T) => Boolean) = new PoSet(theElements, comparator)
 
-  def apply[T](comparator: (T, T) ⇒ Boolean, theElements: T*): PoSet[T] = {
+  def apply[T](comparator: (T, T) => Boolean, theElements: T*): PoSet[T] = {
     new PoSet(Set(theElements: _*), comparator)
   }
 
   def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Set.empty[(T, T)])
 
   class Parser extends Sets.Parser {
-    def poset: Parser[PoSet[String]] = "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {case "("~s~","~"{"~m~"}"~")" ⇒ PoSet(s, m)}
-    def pair: Parser[(String, String)] = word~"<="~word ^^ {case x~"<="~y ⇒ (x, y)}
+    def poset: Parser[PoSet[String]] = "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
+      case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)
+    }
+    def pair: Parser[(String, String)] = word~"<="~word ^^ {case x~"<="~y => (x, y)}
 
     private def explain(pr: ParseResult[PoSet[String]]): PoSet[String] = {
       pr match {
-        case Success(poset: PoSet[String], _) ⇒ poset
-        case e: NoSuccess ⇒
+        case Success(poset: PoSet[String], _) => poset
+        case e: NoSuccess =>
           throw new IllegalArgumentException(s"Failed to parse graph: $e")
       }
     }
@@ -137,10 +141,10 @@ object PoSet {
    * @return a new poset
    */
   def range(from: Int, to: Int, step: Int): PoSet[Int] = {
-    new PoSet(Sets.range(from, to, step), (x: Int, y: Int) ⇒ x <= y)
+    new PoSet(Sets.range(from, to, step), (x: Int, y: Int) => x <= y)
   }
   
-  private val comparator: (BigInt, BigInt) ⇒ Boolean = _ <= _
+  private val comparator: (BigInt, BigInt) => Boolean = _ <= _
 
   lazy val ofNaturalNumbers: PoSet[BigInt] =
     new PoSet(N, comparator) {

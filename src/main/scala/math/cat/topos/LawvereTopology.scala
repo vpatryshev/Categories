@@ -1,5 +1,6 @@
 package math.cat.topos
 
+import scala.language.postfixOps
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result
 import scalakittens.Result._

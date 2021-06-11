@@ -1,8 +1,9 @@
 package math.sets
 
+import math.Base._
 import scala.reflect.ClassTag
 
-trait NonEnumerableSet[T] extends Set[T] {
+trait NonEnumerableSet[T] extends Set[T] { thisOne: BigSet[T] =>
   private def notEnumerable = 
     throw new UnsupportedOperationException("This set is not enumerable")
 
@@ -12,8 +13,8 @@ trait NonEnumerableSet[T] extends Set[T] {
 
   override def toArray[S >: T : ClassTag]: Array[S] = notEnumerable
 
-  override def +(elem: T): Set[T] = notEnumerable
+  override def incl(elem: T): BigSet[T] = itsImmutable
 
-  override def -(elem: T): Set[T] = notEnumerable
+  override def excl(elem: T): BigSet[T] = itsImmutable
 
 }

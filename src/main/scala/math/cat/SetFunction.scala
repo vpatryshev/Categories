@@ -1,5 +1,6 @@
 package math.cat
 
+import math.Base._
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
@@ -18,17 +19,17 @@ case class SetFunction private[cat](
   override val tag: String,
   override val d0: set,
   override val d1: set,
-  mapping: Any ⇒ Any)
-  extends SetMorphism[Any, Any](tag, d0, d1, mapping) { self ⇒
-
+  mapping: Any => Any)
+  extends SetMorphism[Any, Any](tag, d0, d1, mapping) { self =>
+  // override def removed(key: Any): scala.collection.immutable.Map[Any,Any] = itsImmutable
   override lazy val hashCode: Int =
-    d1.hashCode + 2 * d0.map(x ⇒ (x, mapping(x))).hashCode
+    d1.hashCode + 2 * d0.map(x => (x, mapping(x))).hashCode
 
 //  /**
 //    * Composes this morphism with the next one.
 //    *
-//    * @param g second morphism: Y → Z
-//    * @return their composition g ∘ f: X → Z
+//    * @param g second morphism: Y -> Z
+//    * @return their composition g ∘ f: X -> Z
 //    */
 //  def andThen(g: SetFunction): SetFunction = {
 //    andThen(g) getOrElse (
@@ -44,18 +45,18 @@ case class SetFunction private[cat](
   /**
     * Composes with another morphism, optionally
     *
-    * @param g next morphism: Y → Z
-    * @return their composition g ∘ f: X → Z
+    * @param g next morphism: Y -> Z
+    * @return their composition g ∘ f: X -> Z
     */
   def andThen(g: SetFunction): Option[SetFunction] = {
     if (d1 == g.d0) {
-      val transform = (x: Any) ⇒ g(self(x))
+      val transform = (x: Any) => g(self(x))
       Some(new SetFunction(tagOfComposition(g.tag, tag), d0, g.d1, transform))
     }
     else None
   }
 //  def andThen[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
-//    OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) ⇒ g(this(x))) asOption
+//    OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) => g(this(x))) asOption
 //  }
 
   /**
@@ -85,10 +86,10 @@ case class SetFunction private[cat](
   */
 object SetFunction {
 
-  def build(d0: set, d1: set, function: Any ⇒ Any): Result[SetFunction] =
+  def build(d0: set, d1: set, function: Any => Any): Result[SetFunction] =
     build("", d0, d1, function)
 
-  def build(name: String, d0: set, d1: set, function: Any ⇒ Any): Result[SetFunction] =
+  def build(name: String, d0: set, d1: set, function: Any => Any): Result[SetFunction] =
     SetMorphism.check[Any, Any, SetFunction](new SetFunction(name, d0, d1, function))
   /**
     * Factory method. Builds constant morphism from one set to another (constant function).
@@ -122,7 +123,7 @@ object SetFunction {
     * @param predicate    defines the condition for elements to be included in the subset
     * @return inclusion monomorphism
     */
-  def filterByPredicate(containerSet: set)(predicate: Any ⇒ Boolean): SetFunction =
+  def filterByPredicate(containerSet: set)(predicate: Any => Boolean): SetFunction =
     apply("filter", containerSet filter predicate, containerSet, Functions.inclusion)
 
   /**
@@ -131,7 +132,7 @@ object SetFunction {
     * @param domain the set
     * @return identity morphism on the given set
     */
-  def id(domain: set): SetFunction = new SetFunction("id", domain, domain, x ⇒ x)
+  def id(domain: set): SetFunction = new SetFunction("id", domain, domain, x => x)
 
   /**
     * Factory method. Builds a factorset epimorphism that projects a set to its factorset,
