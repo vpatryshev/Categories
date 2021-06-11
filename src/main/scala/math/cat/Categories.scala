@@ -156,11 +156,14 @@ private[cat] trait CategoryFactory {
           mOpt match {
             case None =>
               buildCategory(graphOpt, Map.empty)
-            case Some("," ~ m) =>
+            case Some("," ~ Good(m)) =>
               buildCategory(graphOpt, m)
+            case Some("," ~ multTableErrors) =>
+              multTableErrors orCommentTheError ("Failed to parse composition table") returning _0_ 
             case Some(garbage) => Result.error(s"bad data: $garbage")
           }
         }
+        case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
     private def buildCategory(
@@ -174,9 +177,11 @@ private[cat] trait CategoryFactory {
       } yield cat
     }
 
-    def multTable: Parser[Map[(String, String), String]] = "{" ~ repsep(multiplication, ",") ~ "}" ^^ { case "{" ~ m
-      ~ "}" => Map() ++ m
-    }
+    def multTable: Parser[Result[Map[(String, String), String]]] =
+      "{" ~ repsep(multiplication, ",") ~ "}" ^^ {
+        case "{" ~ m ~ "}" => Good(Map() ++ m)
+        case nonsense => Result.error(s"malformed <<$nonsense>>")
+      }
 
     def multiplication: Parser[((String, String), String)] = {
       word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { case g ~ o ~ f ~ "=" ~ h => ((f, g), h)

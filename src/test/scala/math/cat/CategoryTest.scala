@@ -5,6 +5,7 @@ import math.cat.Categories._
 import math.cat.SetCategory._
 import math.sets.Sets
 import math.sets.Sets._
+import org.specs2.control.eff.Evaluate.fail
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
 
@@ -172,6 +173,16 @@ class CategoryTest extends Test with CategoryFactory {
       Z3.arrows === Set("0", "1", "2")
     }
 
+    "parse_nonsense" >> {
+      try {
+        category"(bs)"
+        failure("should not have worked")
+      } catch {
+        case x: Exception => ok
+      }
+      ok
+    }
+    
     "parse_negative" >> {
       val actual = Category("must fail", Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "a" -> "1", "b" -> "1", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "swap" -> "2"), // d0
