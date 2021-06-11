@@ -149,7 +149,7 @@ private[cat] trait CategoryFactory {
 
     def category: Parser[Result[Cat]] =
       (name ?) ~ "(" ~ graphData ~ (("," ~ multTable) ?) ~ ")" ^^ {
-        case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" => {
+        case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" =>
           val name = nameOpt.getOrElse("c")
           val graphOpt = gOpt.map(_.build(name))
 
@@ -159,10 +159,10 @@ private[cat] trait CategoryFactory {
             case Some("," ~ Good(m)) =>
               buildCategory(graphOpt, m)
             case Some("," ~ multTableErrors) =>
-              multTableErrors orCommentTheError ("Failed to parse composition table") returning _0_ 
+              multTableErrors orCommentTheError "Failed to parse composition table" returning _0_ 
             case Some(garbage) => Result.error(s"bad data: $garbage")
           }
-        }
+
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
@@ -193,9 +193,7 @@ private[cat] trait CategoryFactory {
     }
   }
 
-  val arrowBuilder = (p:(String, String)) => {
-    Option(s"${p._2}∘${p._1}")
-  }
+  private[cat] val arrowBuilder = (p:(String, String)) => Option(s"${p._2}∘${p._1}")
 
 }
 
@@ -339,7 +337,9 @@ object Categories extends CategoryFactory {
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
   lazy val SomeKnownCategories = List(
-    _0_, _1_, _3_, ParallelPair, Pullback, Pushout, SplitMono, W, M, Z3)
+    _0_, _1_, _3_, _1plus1_,
+    ParallelPair, Pullback, Pushout, SplitMono, Square, W, M, Z3,
+    AAAAAA, Simplicial3)
 
   lazy val KnownCategories: List[Category] = List(
     _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
