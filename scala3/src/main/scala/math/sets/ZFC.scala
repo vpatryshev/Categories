@@ -38,7 +38,7 @@ class ZFC {
 
   class SetZ(val id: String, val thePredicate: Predicate) {
     
-    def denote(id: String): SetZ = new SetZ(id, thePredicate) {
+    def denote(theId: String): SetZ = new SetZ(theId, thePredicate) {
       log(id + "=" + this)
     }
 

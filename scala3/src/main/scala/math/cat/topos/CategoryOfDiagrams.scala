@@ -19,7 +19,6 @@ class CategoryOfDiagrams(val domain: Category)
   type Node = Diagram
   override type Obj = Diagram
   override type Arrow = DiagramArrow
-  type Mapping = domain.Obj => Any => Any
   
   private def constSet(name: String)(obj: BaseCategory.Obj): Diagram =
     const(name, topos)(obj.asInstanceOf[set])
@@ -55,7 +54,7 @@ class CategoryOfDiagrams(val domain: Category)
       am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram: Diagram <- Diagram.build("__" + i, topos)(om, am.toMap).asOption
+      diagram: Diagram <- Diagram.build[topos.domain.Obj, topos.domain.Arrow]("__" + i, topos)(om, am.toMap).asOption
     } yield diagram
 
     all
@@ -98,73 +97,10 @@ class CategoryOfDiagrams(val domain: Category)
     }
   } else None
 
-  /**
-    * Given a `from` and `to` diagrams, build an arrow
-    * `from(o)` -> `to(o)`, for each given `o`,
-    * using the provided mapping
-    *
-    * @param tag tag of a natural transformation
-    * @param from domain diagram
-    * @param to codomain diagram
-    * @param mapping given an object `o`, produce a function over this object
-    * @param o the object
-    * @return an arrow (it's a `SetFunction`, actually)
-    */
-  protected def buildOneArrow(
-    tag: Any,
-    from: Diagram,
-    to: Diagram,
-    mapping: Mapping
-  )(o: from.d0.Obj): from.d1.Arrow = {
-    val domO: domain.Obj = domain.obj(o)
-    val funOpt = SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(domO))
-    from.d1.arrow(funOpt.iHope)
-  }
-
-  /**
-    * Builds a `DiagramArrow`, given domain, codomain, and a mapping
-    * @param tag arrow tag
-    * @param from domain
-    * @param to codomain
-    * @param mapping maps objects to functions
-    * @return a natural transformation (crashes if not)
-    */
-  def buildArrow(tag: Any, from: Diagram, to: Diagram,
-    mapping: Mapping): DiagramArrow = {
-    NaturalTransformation.build(tag, from, to)(
-      (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
-  }
-
-  trait includer {
-    val subdiagram: Diagram
-    
-    def in(diagram: Diagram): Result[DiagramArrow] = {
-      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] = {
-        for {
-          x <- domain.objects.iterator
-          in = SetFunction.inclusion(subdiagram(x), diagram(x))
-          pair = in map (x -> subdiagram.d1.arrow(_))
-        } yield pair
-      }
-
-      val mapOpt = Result traverse results
-      
-      val result = for {
-        map <- mapOpt
-        arrow <- NaturalTransformation.build(s"${subdiagram.tag}⊂${diagram.tag}", subdiagram, diagram)(map.toMap)
-      } yield arrow
-      
-      result
-    }
-  }
-  
-  def inclusionOf(diagram: Diagram): includer =
-    new includer { val subdiagram: Diagram = diagram }
-
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     domain.objects map (x => x -> Representable(x).subobjects.toSet) toMap
 
-  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos, topos.domain) {
+  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos) {
     override val objectsMapping: d0.Obj => d1.Obj = x => d1.obj(om(domain.obj(x)))
     override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (f: XArrow) => {
       am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
@@ -222,20 +158,6 @@ class CategoryOfDiagrams(val domain: Category)
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
-  // π1
-  protected val firstProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
-    case (a, b) => a
-    case trash =>
-      throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  }
-
-  // π2
-  protected val secondProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
-    case (a, b) => b
-    case trash =>
-      throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  }
-
   /**
     * Given arrows `f` and `g`, builds an arrow (f×g): dom(f)×dom(g) -> codom(f)×codom(g)
     *
@@ -259,7 +181,7 @@ class CategoryOfDiagrams(val domain: Category)
       mapping)
   }
 
-  def inclusionOf(p: Point): includer = inclusionOf(p.asDiagram)
+  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram)
   
   def standardInclusion(p: Point, d: Diagram): Result[Arrow] = {
     inclusionOf(p) in d map { q => {
@@ -291,10 +213,14 @@ object CategoryOfDiagrams {
   type DiagramArrow = NaturalTransformation
   val BaseCategory: Category = SetCategory.Setf
 
-  def const(tag: String, topos: GrothendieckTopos)(value: set): Diagram = {
-    Diagram(tag, topos)(
-      (x: topos.domain.Obj) => value,
-      (a: topos.domain.Arrow) => SetFunction.id(value))
+  def const[O,A](tag: String, topos: GrothendieckTopos)(value: set): Diagram = {
+    /*
+      type O = topos.domain.Obj
+      type A = topos.domain.Arrow
+     */
+    Diagram[O, A](tag, topos)(
+      (x: O) => value,
+      (a: A) => SetFunction.id(value))
   }
 
   def graphOfDiagrams(domainName: String): Graph =

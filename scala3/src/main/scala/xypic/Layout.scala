@@ -130,7 +130,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
 
 case class Layout(category: Category, w: Int, h: Int) {
   
-  val gradedObjects: Set[GradedObjects] = category.connectedComponents map GradedObjects
+  val gradedObjects: Set[GradedObjects] = category.connectedComponents map GradedObjects.apply
   
   def wideDigit(c: Char): String = s"&#${c - '0' + 0x1D7D8};"
   

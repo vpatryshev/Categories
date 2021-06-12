@@ -2,7 +2,8 @@ package math.cat.topos
 
 import scala.language.postfixOps
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Category, Functor, SetFunction}
+import math.cat.{Category, CategoryData, Functor, NaturalTransformation, SetFunction}
+import math.sets.Functions
 import math.sets.Sets._
 import scalakittens.Result
 
@@ -13,7 +14,11 @@ import scala.collection.mutable
 trait GrothendieckTopos
   extends Topos[Diagram, DiagramArrow]
   with ToposLogic
-{ topos: CategoryOfDiagrams =>
+{ this: CategoryData =>
+
+  lazy val domain: Category
+
+  type Mapping = domain.Obj => Any => Any
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
 
@@ -22,7 +27,7 @@ trait GrothendieckTopos
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  object Ω extends Diagram("Ω", this, domain) { Ω =>
+  object Ω extends Diagram("Ω", this) { Ω =>
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x => Ω(x)` .
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
@@ -222,7 +227,7 @@ trait GrothendieckTopos
   /**
     * An equalizer of first projection and intersection
     */
-  lazy val Ω1: Diagram = ΩxΩ.filter("<", _ => { case (a: Any, b: Any) => a ⊂ b })
+  lazy val Ω1: Diagram = ΩxΩ.filter("<", _ => { case (a: Diagram, b: Diagram) => a ⊂ b })
 
   /**
     * Diagonal for Ω
@@ -239,8 +244,8 @@ trait GrothendieckTopos
     * @return a function A(x) -> Ω(x)
     */
   private[topos] def χAt(inclusion: Arrow)(x: domain.Obj): SetFunction = {
-    val A: Diagram = inclusion.d1
-    val B: Diagram = inclusion.d0
+    val A: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
+    val B: Diagram = inclusion.d0.asInstanceOf[Diagram] // TODO: get rid of casting
 
     val Ax = A(x)
     val Bx = B(x) // Bx is a subset of Ax
@@ -289,7 +294,7 @@ trait GrothendieckTopos
     val objToFunction: domain.Obj => SetFunction = χAt(inclusion)
 
     new Predicate {
-      val d0: Diagram = inclusion.d1
+      val d0: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
       val tag = theTag
 
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
@@ -301,4 +306,83 @@ trait GrothendieckTopos
   def χ(inclusion: Arrow): Predicate = {
     χ(inclusion, s"χ(${inclusion.tag})")
   }
+
+
+  trait Includer {
+    val subdiagram: Diagram
+
+    def in(diagram: Diagram): Result[DiagramArrow] = {
+      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] = {
+        for {
+          x <- domain.objects.iterator
+          in = SetFunction.inclusion(subdiagram(x), diagram(x))
+          pair = in map (x -> subdiagram.d1.arrow(_))
+        } yield pair
+      }
+
+      val mapOpt = Result traverse results
+
+      val result = for {
+        map <- mapOpt
+        arrow <- NaturalTransformation.build(s"${subdiagram.tag}⊂${diagram.tag}", subdiagram, diagram)(map.toMap)
+      } yield arrow
+
+      result
+    }
+  }
+
+  def inclusionOf(diagram: Diagram): Includer =
+    new Includer { val subdiagram: Diagram = diagram }
+
+  /**
+    * Builds a `DiagramArrow`, given domain, codomain, and a mapping
+    * @param tag arrow tag
+    * @param from domain
+    * @param to codomain
+    * @param mapping maps objects to functions
+    * @return a natural transformation (crashes if not)
+    */
+  def buildArrow(tag: Any, from: Diagram, to: Diagram,
+    mapping: Mapping): DiagramArrow = {
+    NaturalTransformation.build(tag, from, to)(
+      (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
+  }
+
+  // π1
+  protected val firstProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
+    case (a, b) => a
+    case trash =>
+      throw new IllegalArgumentException(s"Expected a pair, got $trash")
+  }
+
+  // π2
+  protected val secondProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
+    case (a, b) => b
+    case trash =>
+      throw new IllegalArgumentException(s"Expected a pair, got $trash")
+  }
+
+  /**
+    * Given a `from` and `to` diagrams, build an arrow
+    * `from(o)` -> `to(o)`, for each given `o`,
+    * using the provided mapping
+    *
+    * @param tag tag of a natural transformation
+    * @param from domain diagram
+    * @param to codomain diagram
+    * @param mapping given an object `o`, produce a function over this object
+    * @param o the object
+    * @return an arrow (it's a `SetFunction`, actually)
+    */
+  protected def buildOneArrow(
+    tag: Any,
+    from: Diagram,
+    to: Diagram,
+    mapping: Mapping
+  )(o: from.d0.Obj): from.d1.Arrow = {
+    val domO: domain.Obj = domain.obj(o)
+    val funOpt = SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(domO))
+    from.d1.arrow(funOpt.iHope)
+  }
+
 }

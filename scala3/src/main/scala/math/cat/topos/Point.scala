@@ -34,7 +34,7 @@ class Point(
   }
 
   def asDiagram: Diagram = {
-    new Diagram(tag, topos, domainCategory) {
+    new Diagram(tag, topos) { diagram =>
 
       override val objectsMapping: d0.Obj => d1.Obj =
         (x: d0.Obj) => d1.obj(Set(mapping(domainCategory.obj(x))))
@@ -48,7 +48,7 @@ class Point(
 
       override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (a: d0.Arrow) => {
         d1.arrow( // need a set function from a.d0 to a.d1
-          SetFunction(s"$tag(.)", objectsMapping(d0.d0(a)), objectsMapping(d0.d1(a)), arrowToFunction(a))
+          SetFunction(s"${diagram.tag}(.)", objectsMapping(d0.d0(a)), objectsMapping(d0.d1(a)), arrowToFunction(a))
         )
       }
     }
