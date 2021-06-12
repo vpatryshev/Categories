@@ -148,9 +148,9 @@ object Sets {
 
   def toString(s: Set[_]): String = "{" + s.mkString(", ") + "}"
 
-  def parse(input: Reader): Result[Set[String]] = (new Parser).read(input)
+  def parse(input: Reader): Result[Set[String]] = (new SetParser).read(input)
 
-  def parse(input: CharSequence): Result[Set[String]] = (new Parser).read(input)
+  def parse(input: CharSequence): Result[Set[String]] = (new SetParser).read(input)
 
   def singleton[T](x: T): Set[T] = Set(x)
 
@@ -345,7 +345,7 @@ object Sets {
     //    override def seq = (xs map { (x:K) => (x, f(x)) })
   }
 
-  class Parser extends RegexParsers {
+  class SetParser extends RegexParsers {
     def read(input: CharSequence): Result[Set[String]] =
       parseAll(parserOfSet, input).get
 

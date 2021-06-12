@@ -620,7 +620,7 @@ abstract class Category extends CategoryData {
     Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
   }
   
-  @tailrec private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
+  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
     arrows.find(canDeduce(arrows)) match {
       case None => arrows
       case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
