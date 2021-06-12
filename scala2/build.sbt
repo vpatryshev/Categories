@@ -8,7 +8,7 @@ scalaVersion := "2.13.6"
 
 maxErrors := 10
 
-triggeredMessage := Watched.clearWhenTriggered
+watchTriggeredMessage := Watch.clearScreenOnTrigger
 
 libraryDependencies := libraryDependencies.value ++ Seq(
    "com.novocode" % "junit-interface" % "0.11" % "test")

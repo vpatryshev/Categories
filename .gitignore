@@ -1,6 +1,6 @@
 .idea/
 bin/
-project/
+project/target/
 target/
 .cache
 .classpath
