@@ -271,10 +271,19 @@ object Graph {
 
   class Parser extends Sets.Parser {
     def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
-      case nameOpt~"("~g~")" => g.map(_.build(nameOpt.getOrElse("graph")))
+      case nameOpt~"("~gOpt~")" => {
+        val name = nameOpt getOrElse(Good("graph"))
+        (gOpt andAlso name) map {
+          case (g, n) => g build n
+        }
+      }
+      case someShit => Result.error(s"Failed to parse $someShit")
     }
 
-    def name: Parser[String] = word ~ ":" ^^ { case n ~ ":" => n }
+    def name: Parser[Result[String]] = word ~ ":" ^^ { 
+      case n ~ ":" => Good(n)
+      case someShit => Result.error(s"Failed to parse $someShit")
+    }
 
     def graphData: Parser[Result[GraphData]] = parserOfSet~","~arrows ^^ {
       case s~","~a => Graph.data(s, a)

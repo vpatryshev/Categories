@@ -150,8 +150,10 @@ private[cat] trait CategoryFactory {
     def category: Parser[Result[Cat]] =
       (name ?) ~ "(" ~ graphData ~ (("," ~ multTable) ?) ~ ")" ^^ {
         case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" =>
-          val name = nameOpt.getOrElse("c")
-          val graphOpt = gOpt.map(_.build(name))
+          val name = nameOpt getOrElse(Good("c"))
+          val graphOpt = (gOpt andAlso name) map {
+            case (g, n) => g build n
+          }
 
           mOpt match {
             case None =>
@@ -179,12 +181,14 @@ private[cat] trait CategoryFactory {
 
     def multTable: Parser[Result[Map[(String, String), String]]] =
       "{" ~ repsep(multiplication, ",") ~ "}" ^^ {
-        case "{" ~ m ~ "}" => Good(Map() ++ m)
+        case "{" ~ m ~ "}" => Result.traverse(m).map(_.toMap)
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
-    def multiplication: Parser[((String, String), String)] = {
-      word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { case g ~ o ~ f ~ "=" ~ h => ((f, g), h)
+    def multiplication: Parser[Result[((String, String), String)]] = {
+      word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { 
+        case g ~ o ~ f ~ "=" ~ h => Good(((f, g), h))
+        case someShit => Result.error(s"Failed to parse $someShit")
       }
     }
 
