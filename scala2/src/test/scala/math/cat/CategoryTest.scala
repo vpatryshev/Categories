@@ -642,7 +642,7 @@ class CategoryTest extends Test with CategoryFactory {
 
     "map" >> {
       val actual = Square map (x => x.toUpperCase)
-      actual.toSet === Set("A", "B", "C", "D")
+      actual.iterator.to(Set) === Set("A", "B", "C", "D")
     }
 
     "allRootObjects_byDefinition" >> {

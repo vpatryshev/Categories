@@ -1,16 +1,15 @@
 package math.sets
 
 import java.io.Reader
-
 import math.Base._
 import math.cat.SetMorphism
 import math.sets.Functions.Injection
 
-import scala.collection.mutable
 import scala.language.postfixOps
 import scala.reflect.ClassTag
 import scala.util.parsing.combinator.RegexParsers
 import math.sets.SetOps._
+import scalakittens.{Good, Result}
 
 /**
   * Lazy sets functionality
@@ -108,7 +107,7 @@ object Sets {
       maps flatMap (m => ys map (y => m + (x -> y)))
     )
 
-  def groupBy[X, Y](xs: Set[X], ys: Set[Y], f: X => Y): Y => Set[X] = {
+  def groupBy[X, Y](xs: Set[X], f: X => Y): Y => Set[X] = {
     y => Set.empty[X] ++ xs.filter(f(_) == y)
   }
 
@@ -149,9 +148,9 @@ object Sets {
 
   def toString(s: Set[_]): String = "{" + s.mkString(", ") + "}"
 
-  def parse(input: Reader): Set[String] = (new Parser).read(input)
+  def parse(input: Reader): Result[Set[String]] = (new Parser).read(input)
 
-  def parse(input: CharSequence): Set[String] = (new Parser).read(input)
+  def parse(input: CharSequence): Result[Set[String]] = (new Parser).read(input)
 
   def singleton[T](x: T): Set[T] = Set(x)
 
@@ -191,7 +190,7 @@ object Sets {
     val q = parse("{a, b, c}")
     println(q)
     val r = Set("c", "b", "a")
-    println(s"Is $r equal to $q? ${r == q}")
+    println(s"Is $r equal to $q? ${Good(r) == q}")
     println(s"Does $q contain $a? ${q.contains("a")}")
     val tuples = for (arg <- Set(1, 2, 3)) yield {
       ("key" + arg, "v" + arg)
@@ -347,11 +346,16 @@ object Sets {
   }
 
   class Parser extends RegexParsers {
-    def read(input: CharSequence): Set[String] = parseAll(parserOfSet, input).get
+    def read(input: CharSequence): Result[Set[String]] =
+      parseAll(parserOfSet, input).get
 
-    def read(input: Reader): Set[String] = parseAll(parserOfSet, input).get
+    def read(input: Reader): Result[Set[String]] = parseAll(parserOfSet, input).get
 
-    def parserOfSet: Parser[Set[String]] = "{" ~ repsep(word, ",") ~ "}" ^^ { case "{" ~ ms ~ "}" => Set() ++ ms }
+    def parserOfSet: Parser[Result[Set[String]]] =
+      "{" ~ repsep(word, ",") ~ "}" ^^ {
+        case "{" ~ ms ~ "}" => Good(Set() ++ ms)
+        case nonsense => Result.error(s"Failed to parse $nonsense")
+      }
 
     def word: Parser[String] = regex("""[\w\\.]+""".r)
   }

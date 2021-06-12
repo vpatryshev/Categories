@@ -35,7 +35,7 @@ class SetMorphism[X, Y] (
    * @return true iff they are equal
    */
   def equals(other: SetMorphism[X, Y]): Boolean =
-    d0.foldLeft((d0 == other.d0 && d1 == other.d1)) ((eq, x) => eq & this(x) == other(x))
+    d0.foldLeft(d0 == other.d0 && d1 == other.d1) ((eq, x) => eq & this(x) == other(x))
 
   /**
     * Composes with another morphism, optionally
@@ -54,7 +54,7 @@ class SetMorphism[X, Y] (
     build[Y, Set[X]](
       d1AsSet,
       d0ForRevert,
-      Sets.groupBy(d0AsSet, d1AsSet, this)) iHope
+      Sets.groupBy(d0AsSet, this)) iHope
   }  
   
   override def contains(x: X): Boolean = d0.contains(x)

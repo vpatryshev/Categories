@@ -5,7 +5,7 @@ import math.cat.SetMorphism
 import math.sets.Sets._
 import org.specs2.execute.Failure
 import org.specs2.mutable._
-import scalakittens.{Empty, Result}
+import scalakittens.{Empty, Good, Result}
 
 import scala.concurrent.duration.Duration
 
@@ -17,13 +17,12 @@ class SetsTest extends Specification {
   "This is a specification for the set parser" >> {
 
     "Set Parser should parse the string" >> {
-      Sets.parse("{a, bc, def, ghij}") === Set("a", "bc", "def", "ghij")
+      Sets.parse("{a, bc, def, ghij}") === Good(Set("a", "bc", "def", "ghij"))
     }
 
     "groubBy should group" >> {
       val xs = Set(2, 3, -2, 5, 6, 7)
-      val ys = Set(1, 2, 3, 4, 5, 6)
-      val f = groupBy(xs, ys, (n: Int) => n * n)
+      val f = groupBy(xs, (n: Int) => n * n)
       f(1) === Set.empty
       f(2) === Set.empty
       f(3) === Set.empty
@@ -221,10 +220,10 @@ class SetsTest extends Specification {
     }
 
     "product of an infinite set with a finite should iterate over all pairs" >> {
-      val sut = product2(N, Set('A, 'B))
+      val sut = product2(N, Set('A', 'B'))
       val segment = sut take 30
-      segment.contains((4,'B)) must beTrue
-      segment.contains((2,'A)) must beTrue
+      segment.contains((4,'B')) must beTrue
+      segment.contains((2,'A')) must beTrue
     }
 
     "product of a finite set with an infinite should iterate over all pairs" >> {
@@ -258,18 +257,18 @@ class SetsTest extends Specification {
     }
 
     "parse({a,b,c} with spaces should be okay" >> {
-      Sets.parse("  { a , b,  c} ") === Set("a", "b", "c")
+      Sets.parse("  { a , b,  c} ") === Good(Set("a", "b", "c"))
     }
 
     "parse empty should produce empty set" >> {
-      Sets.parse("{}").isEmpty must beTrue
-      Sets.parse(" {  } ").isEmpty must beTrue
+      Sets.parse("{}").map(_.isEmpty) === Good(true)
+      Sets.parse(" {  } ").map(_.isEmpty) === Good(true)
     }
 
     "Parse singleton should produce singleton" >> {
-      Sets.parse("{0}") === Set("0")
-      Sets.parse("{xyz}") === Set("xyz")
-      Sets.parse("{ xyz }") ===Set("xyz")
+      Sets.parse("{0}") === Good(Set("0"))
+      Sets.parse("{xyz}") === Good(Set("xyz"))
+      Sets.parse("{ xyz }") === Good(Set("xyz"))
     }
 
     "Parse without closing curly should throw an exception" >> {
@@ -415,38 +414,6 @@ class SetsTest extends Specification {
       FiniteSets.contains(Set("infinity")) must beTrue
       FiniteSets.contains(Set(1,2,3,42)) must beTrue
       ok
-    }
-  }
-  
-  def spendNotMoreThan[T](time: Duration, extraTimePercent:Int = 1): Object {
-    def on(op: => Result[T]): Result[T]
-  } = new {
-    def on(op: => Result[T]): Result[T] = {
-      import java.util.concurrent.locks.LockSupport._
-      var res:Result[T] = Empty
-      val millis = time.toMillis
-      val finalDeadline = System.currentTimeMillis + millis * (100 + extraTimePercent) / 100 + 1
-      val done = new AtomicBoolean(false)
-      val worker = new Thread {
-        override def run(): Unit = {
-          try {
-            res = op
-            done.set(true)
-          } catch {case ie: InterruptedException => }
-        }
-      }
-      worker.setPriority(1)
-      worker.start()
-      try {
-        worker.join(time.toMillis)
-      } finally {
-        if (worker.isAlive) {
-          worker.interrupt()
-          parkUntil(finalDeadline)
-        }
-        if (worker.isAlive) worker.stop()
-      }
-      if (done.get) res else Result.error(s"Timeout after $time")
     }
   }
 }

@@ -1,8 +1,8 @@
 package math.sets
 
 import java.io.Reader
-
 import math.Base._
+import scalakittens.{Good, Result}
 
 /**
  * Implementation of partially ordered set.
@@ -105,30 +105,38 @@ object PoSet {
   def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Set.empty[(T, T)])
 
   class Parser extends Sets.Parser {
-    def poset: Parser[PoSet[String]] = "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
-      case "("~s~","~"{"~m~"}"~")" => PoSet(s, m)
+    def poset: Parser[Result[PoSet[String]]] = 
+      "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
+      case "("~sOpt~","~"{"~mOpt~"}"~")" =>
+        (sOpt andAlso Result.traverse(mOpt)).map {
+          case (s, m) => PoSet(s, m.toList)
+        }
+      case nonsense => Result.error(s"Failed to parse $nonsense")
     }
-    def pair: Parser[(String, String)] = word~"<="~word ^^ {case x~"<="~y => (x, y)}
+    def pair: Parser[Result[(String, String)]] = word~"<="~word ^^ {
+      case x~"<="~y => Good((x, y))
+      case nonsense => Result.error(s"Failed to parse $nonsense")
+    }
 
-    private def explain(pr: ParseResult[PoSet[String]]): PoSet[String] = {
+    private def explain(pr: ParseResult[Result[PoSet[String]]]): Result[PoSet[String]] = {
       pr match {
-        case Success(poset: PoSet[String], _) => poset
+        case Success(poset, _) => poset
         case e: NoSuccess =>
-          throw new IllegalArgumentException(s"Failed to parse graph: $e")
+          Result.error(s"Failed to parse graph: $e")
       }
     }
 
-    override def read(input: CharSequence): PoSet[String] = {
-      val pr: ParseResult[PoSet[String]] = parseAll(poset, input)
+    override def read(input: CharSequence): Result[PoSet[String]] = {
+      val pr: ParseResult[Result[PoSet[String]]] = parseAll(poset, input)
       explain(pr)
     }
 
-    override def read(input: Reader): PoSet[String] = explain(parseAll(poset, input))
+    override def read(input: Reader): Result[PoSet[String]] = explain(parseAll(poset, input))
   }
 
-  def apply(input: Reader): PoSet[String] = (new Parser).read(input)
+  def apply(input: Reader): Result[PoSet[String]] = (new Parser).read(input)
 
-  def apply(input: CharSequence): PoSet[String] = (new Parser).read(input)
+  def apply(input: CharSequence): Result[PoSet[String]] = (new Parser).read(input)
 
 
 
