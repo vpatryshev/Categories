@@ -188,11 +188,6 @@ abstract class Diagram(
     new SetFunction("", dom, codom, arrowsMapping(a))
   }
 
-  private def extendToArrows2(om: topos.domain.Obj => Sets.set)(a: d0.Arrow): SetFunction = {
-    def same_om(o: d0.Obj): Sets.set = om(topos.domain.asObj(o))
-    extendToArrows1(same_om)(a)
-  }
-
   private def extendToArrows3(om: topos.domain.Obj => Sets.set)(a: topos.domain.Arrow): SetFunction = {
     def same_om(o: d0.Obj): Sets.set = om(topos.domain.asObj(o))
     extendToArrows1(same_om)(d0.arrow(a))
@@ -313,7 +308,7 @@ abstract class Diagram(
     // bundles maps each "initial" object to a set of arrows from it
     final private[cat] lazy val bundles: Map[d0.Obj, XArrows] =
       d0.buildBundles(rootObjects, participantArrows)
-    lazy val rootObjects: XObjects = d0.allRootObjects.asInstanceOf[XObjects] // same thing
+    lazy val rootObjects: XObjects = d0.allRootObjects
     private lazy val participantArrows: XArrows = d0.arrowsFromRootObjects
     // for each domain object, a collection of arrows looking outside
     private val opo: d0.op.Objects = d0.op.objects
