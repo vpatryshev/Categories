@@ -1,7 +1,7 @@
 package math.cat.topos
 
 import math.Test
-import math.cat.Categories.{Cat, SomeKnownCategories}
+import math.cat.Categories.{Cat, LessSimpleCategories, SimpleCategories, SomeKnownCategories}
 import math.cat.Category
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.{Result => TestResult}
@@ -68,11 +68,11 @@ class Fixtures extends Test with TestDiagrams {
 
   val batchSize = 8
 
-  val groupedCategoriesToTest: List[List[Cat]] = {
+  val groupedCategoriesToTest: List[List[Cat]] = SimpleCategories :: {
     (for {
       i <- 0 until batchSize
-      indices = i until SomeKnownCategories.length by batchSize
-    } yield indices map (SomeKnownCategories(_)) toList) toList
+      indices = i until LessSimpleCategories.length by batchSize
+    } yield indices map (LessSimpleCategories(_)) toList) toList
   }
 
 }

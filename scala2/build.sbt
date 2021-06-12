@@ -1,10 +1,8 @@
-name := "Categories"
+name := "Categories, scala 2"
 
-version := "1.0"
+version := "2.0"
 
 scalaVersion := "2.13.6"
-//scalaVersion := "3.0.0"
-//crossScalaVersions ++= Seq("2.12", "3.0.0")
 
 maxErrors := 10
 
@@ -18,6 +16,4 @@ libraryDependencies += "org.specs2" %% "specs2-scalacheck" % "4.12.0" % Test wit
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
-scalacOptions in Test ++= Seq("-Yrangepos")
-
-javacOptions in (Compile, compile) += "-Xlint"
+Test/scalacOptions ++= Seq("-Yrangepos")
