@@ -254,9 +254,9 @@ object Categories extends CategoryFactory {
   /**
     * Category <b>Z2</2> - a two-element monoid
     */
-  lazy val Z2 = category"Z2: ({1}, {1: 1 -> 1, a: 1 -> 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
+  lazy val Z2 = category"Z2: ({1}, {1: 1->1, a: 1->1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
 
-  lazy val Z3 = category"Z3: ({0}, {0: 0 -> 0, 1: 0 -> 0, 2: 0 -> 0}, {1 ∘ 1 = 2, 1 ∘ 2 = 0, 2 ∘ 1 = 0, 2 ∘ 2 = 1})"
+  lazy val Z3 = category"Z3: ({0}, {0: 0->0, 1: 0->0, 2: 0->0}, {1 ∘ 1 = 2, 1 ∘ 2 = 0, 2 ∘ 1 = 0, 2 ∘ 2 = 1})"
 
   lazy val Z4 = category"Z4: ({0}, {0: 0->0, 1: 0->0, 2: 0->0, 3:0->0}, {1 ∘ 1 = 2, 1 ∘ 2 = 3, 2 ∘ 1 = 3, 2 ∘ 2 = 0, 2 ∘ 3 = 1, 3 ∘ 2 = 1, 3 ∘ 3 = 2})"
 
@@ -265,45 +265,46 @@ object Categories extends CategoryFactory {
     * Two objects, and a split monomorphism from a to b
     */
   lazy val SplitMono =
-    category"SplitMono: ({a,b}, {ab: a -> b, ba: b -> a, bb: b -> b}, {ab ∘ ba = bb, bb ∘ bb = bb})"
+    category"SplitMono: ({a,b}, {ab: a->b, ba: b->a, bb: b->b}, {ab ∘ ba = bb, bb ∘ bb = bb})"
 
   /**
     * Commutative square category
     */
-  lazy val Square = category"Square:({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d, ad: a -> d})"
+  lazy val Square = category"Square:({a,b,c,d}, {ab: a->b, ac: a->c, bd: b->d, cd: c->d, ad: a->d})"
 
   /**
-    * Pullback category: a -> c <- b
+    * Pullback category: a → c ← b
     */
-  lazy val Pullback = category"Pullback:({a,b,c}, {ac: a -> c, bc: b -> c})"
+  lazy val Pullback = category"Pullback:({a,b,c}, {ac: a->c, bc: b->c})"
 
   /**
-    * Pushout category: b <- a -> c
+    * Pushout category: b ← a → c
     */
-  lazy val Pushout = category"Pushout:({a,b,c}, {ab: a -> b, ac: a -> c})"
+  lazy val Pushout = category"Pushout:({a,b,c}, {ab: a->b, ac: a->c})"
 
   /**
+    * This is the hardest category for logic calculations 
     *                        c  
     *                        ↑
-    * Pushout4 category: b <- a -> d
+    * Pushout4 category: b ← a → d
     *                        ↓
     *                        e
     */
-  lazy val Pushout4 = category"Pushout4:({a,b,c,d,e}, {ab: a -> b, ac: a -> c, ad: a -> d, ae: a -> e})"
+  lazy val Pushout4 = category"Pushout4:({a,b,c,d,e}, {ab: a->b, ac: a->c, ad: a->d, ae: a->e})"
 
   /**
     * Sample W-shaped category: a     c      e
     *                            ↘  ↙ ↘  ↙
     *                              b     d
     */
-  lazy val W = category"W:({a,b,c,d,e}, {ab: a -> b, cb: c -> b, cd: c -> d, ed: e -> d})"
+  lazy val W = category"W:({a,b,c,d,e}, {ab: a->b, cb: c->b, cd: c->d, ed: e->d})"
 
   /**
     * Sample M-shaped category:     b      d
     *                             ↙  ↘  ↙  ↘
     *                            a     c      e
     */
-  lazy val M = category"M:({a,b,c,d,e}, {ba: b -> a, bc: b -> c, dc: d -> c, de: d -> e})"
+  lazy val M = category"M:({a,b,c,d,e}, {ba: b->a, bc: b->c, dc: d->c, de: d->e})"
   
   /**
     * A segment of simplicial category.
@@ -336,23 +337,22 @@ object Categories extends CategoryFactory {
     arrowBuilder
   ).getOrElse(throw new InstantiationException("Bad Simplicial3")))
   
-  lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
+  lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1->2, 23: 2->3, 34: 3->4, 45: 4->5, 56: 5->6, 61: 6->1})"
 
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SomeKnownCategories = List(
-    _0_, _1_, _3_, _1plus1_,
-    ParallelPair, Pullback, Pushout, SplitMono, Square, W, M, Z3,
-    AAAAAA, Simplicial3)
-
-  lazy val KnownCategories: List[Category] = List(
-    _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
-    ParallelPair, Pullback, Pushout, Pushout4, SplitMono, Square,
-    M, W,
+  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_, _5_, _1plus1_)
+  
+  lazy val LessSimpleCategories = List(
+    W, // this one is the hardest for logic calculations
+    ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
     Z2, Z3, Z4,
-    AAAAAA,
-    Simplicial3,
-    NaturalNumbers).sortBy(_.arrows.size)
+    AAAAAA, Simplicial3, M)
+  
+  lazy val SomeKnownCategories = SimpleCategories ++ LessSimpleCategories
+
+  lazy val KnownCategories: List[Category] =
+    NaturalNumbers::Pushout4::SomeKnownCategories.sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)
