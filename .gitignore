@@ -2,6 +2,7 @@
 bin/
 project/target/
 target/
+.bsp
 .cache
 .classpath
 .project
