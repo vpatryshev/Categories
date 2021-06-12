@@ -6,6 +6,7 @@ import math.cat.{Category, CategoryData, Functor, NaturalTransformation, SetFunc
 import math.sets.Functions
 import math.sets.Sets._
 import scalakittens.Result
+import Result._
 
 import scala.collection.mutable
 
@@ -14,9 +15,9 @@ import scala.collection.mutable
 trait GrothendieckTopos
   extends Topos[Diagram, DiagramArrow]
   with ToposLogic
-{ this: CategoryData =>
+{
 
-  lazy val domain: Category
+  val domain: Category
 
   type Mapping = domain.Obj => Any => Any
 
@@ -89,7 +90,7 @@ trait GrothendieckTopos
       } yield f
     }
 
-    validate iHope
+    Functor.validateFunctor(this) iHope
 
     // TODO: redefine as classifying an empty
     lazy val False: Point = points.head named "⊥"
@@ -219,7 +220,7 @@ trait GrothendieckTopos
     }
   }
 
-  lazy val ΩxΩ: Obj = product2(Ω, Ω)
+  val ΩxΩ: Obj = product2(Ω, Ω)
  
   private lazy val firstProjectionOf_ΩxΩ =
     buildArrow("π1", ΩxΩ, Ω, firstProjection)

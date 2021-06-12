@@ -37,7 +37,7 @@ class Fixtures extends Test with TestDiagrams {
       val rep = report(topos.domain) _
       val points = Ω.points
       println(s"Testing <<${domain.name}>> $what monoidal properties (${points.size} points in Ω)")
-      def predicate(p: Point): P = p.asPredicate.asInstanceOf[P]
+      def predicate(p: Point): P = p.asInstanceOf[P] // TODO: get rid of casting
 
       for {pt1 <- points } {
         rep(s"monoidal at ${pt1.tag}")

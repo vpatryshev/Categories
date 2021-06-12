@@ -47,7 +47,7 @@ abstract class Category extends CategoryData {
     *
     * @return this<sup>op</sup>
     */
-  lazy val op: Category = {
+  val op: Category = {
     val src = this
     new Category {
       override val graph: Graph = ~src

@@ -54,7 +54,7 @@ class CategoryOfDiagrams(val domain: Category)
       am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-      diagram: Diagram <- Diagram.build[topos.domain.Obj, topos.domain.Arrow]("__" + i, topos)(om, am.toMap).asOption
+      diagram: Diagram <- Diagram.build("__" + i, topos)(om, am.toMap).asOption
     } yield diagram
 
     all
@@ -214,10 +214,9 @@ object CategoryOfDiagrams {
   val BaseCategory: Category = SetCategory.Setf
 
   def const[O,A](tag: String, topos: GrothendieckTopos)(value: set): Diagram = {
-    /*
-      type O = topos.domain.Obj
-      type A = topos.domain.Arrow
-     */
+    type O = topos.domain.Obj
+    type A = topos.domain.Arrow
+
     Diagram[O, A](tag, topos)(
       (x: O) => value,
       (a: A) => SetFunction.id(value))

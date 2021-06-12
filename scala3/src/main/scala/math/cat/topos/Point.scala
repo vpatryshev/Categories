@@ -59,8 +59,6 @@ class Point(
 
   private lazy val predicate: topos.Predicate = topos predicateFor this
 
-  def asPredicate[T <: GrothendieckTopos]: T#Predicate = predicate.asInstanceOf[T#Predicate]
-
   override def toString: String = {
     if (tag.toString.nonEmpty) tag.toString else {
       val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")

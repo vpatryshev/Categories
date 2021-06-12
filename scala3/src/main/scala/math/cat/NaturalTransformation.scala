@@ -22,8 +22,8 @@ import scalakittens.Result.Outcome
   */
 abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =>
   val tag: Any
-  lazy val domainCategory: Category = d0.d0
-  lazy val codomainCategory: Category = d1.d1 // == d0.d1, of course
+  val domainCategory: Category = d0.d0
+  val codomainCategory: Category = d1.d1 // == d0.d1, of course
 
   def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow
   def apply(x: Any): codomainCategory.Arrow = transformPerObject(domainCategory.obj(x))

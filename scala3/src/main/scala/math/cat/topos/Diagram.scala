@@ -25,7 +25,7 @@ abstract class Diagram(
   tag: Any,
   val topos: GrothendieckTopos)
   extends Functor(tag, topos.domain, SetCategory.Setf) { diagram =>
-  val d0: Category = d0
+//  val d0: Category = d0
   type XObject = d0.Obj
   type XObjects = Set[XObject]
   type XArrow = d0.Arrow
@@ -196,11 +196,10 @@ abstract class Diagram(
 
   // TODO: write tests
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram = {
-    def om(o: XObject): Sets.set = objectsMapping(o) filter predicate(o)
-    def same_om(o: O): Sets.set = om(o.asInstanceOf[O])
+    def objectMapping(o: XObject): Sets.set = objectsMapping(o) filter predicate(o)
 
-    val arrowToFunction = (a: A) => extendToArrows1(om)(a:A)
-    Diagram(tag, topos)(same_om, arrowToFunction)
+    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a)
+    Diagram(tag, topos)(objectMapping, arrowToFunction)
   }
 
   def subobjects: Iterable[Diagram] = {
@@ -236,7 +235,7 @@ abstract class Diagram(
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
         def same_om(o: XObject): Sets.set = om(d0.asObj(o))
-        Diagram.build[XObject, XArrow](i, topos)(
+        Diagram.build(i, topos)(
           same_om,
           extendToArrows3[XObject, XArrow](same_om) _)
     }
@@ -342,7 +341,7 @@ object Diagram {
 
   private[topos] def apply[O, A](tag: Any, t: GrothendieckTopos)(
     objectsMap: O => set,
-    arrowMap:   A => SetFunction): Diagram = {
+    arrowMap:   t.domain.Arrow => SetFunction): Diagram = {
 
     new Diagram(tag.toString, t) {
       
@@ -355,14 +354,14 @@ object Diagram {
         d1.asObj(y) // TODO: get rid of casting
       }
 
-      override protected val arrowsMappingCandidate: A => d1.Arrow =
-        (a: A) => d1.arrow(arrowMap(a))
+      override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
+        (a: d0.Arrow) => d1.arrow(arrowMap(a))
     }
   }
   
-  def build[O, A](tag: Any, topos: GrothendieckTopos)(
-    objectsMap: O => set,
-    arrowMap:   A => SetFunction): Result[Diagram] = {
+  def build(tag: Any, topos: GrothendieckTopos)(
+    objectsMap: topos.domain.Obj => set,
+    arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] = {
     val diagram: Diagram = apply(tag, topos)(objectsMap, arrowMap)
 
     Functor.validateFunctor(diagram) returning diagram
