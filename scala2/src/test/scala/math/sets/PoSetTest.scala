@@ -8,7 +8,8 @@ class PoSetTest extends Specification {
     "parse" >> {
       val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x,y) => y contains x)
       val actual: PoSet[String] =
-        PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})")
+        PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})").
+          getOrElse(throw new IllegalArgumentException("Did not parse"))
 
       actual.underlyingSet === expected.underlyingSet
       val product = Sets.product2(expected.underlyingSet, expected.underlyingSet)
@@ -82,7 +83,8 @@ class PoSetTest extends Specification {
 
     "Paarser" >> {
       val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-      val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})")
+      val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})").
+        getOrElse(throw new IllegalArgumentException("Did not parse"))
       actual.size === 3
       actual.underlyingSet === Set("a", "b", "c")
       actual.le("a", "b") must beTrue

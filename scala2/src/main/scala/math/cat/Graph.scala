@@ -46,10 +46,10 @@ trait Graph extends GraphData { graph =>
   }
 
   override def toString: String = {
-    val nodess = nodes.toList.sortBy(_.toString).mkString(", ")
-    val arrowss =
+    val nodeStrings = nodes.toList.sortBy(_.toString).mkString(", ")
+    val arrowStrings =
       arrows.toList.sortBy(_.toString) map ((a: Arrow) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
-    s"({$nodess}, {$arrowss})"
+    s"({$nodeStrings}, {$arrowStrings})"
   }
 
   /**
@@ -186,8 +186,8 @@ private[cat] trait GraphData { data =>
   
   def build(name0: String): Graph = new Graph {
     override val name: String = name0
-    def nodes: Nodes = data.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
-    def arrows: Arrows = data.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
+    def nodes: Nodes = data.nodes //.asInstanceOf[Nodes] // TODO: get rid of cast
+    def arrows: Arrows = data.arrows //.asInstanceOf[Arrows] // TODO: get rid of cast
     override type Node = data.Node
     override type Arrow = data.Arrow
     def d0(f: Arrow): Node = data.d0(f)
@@ -271,27 +271,34 @@ object Graph {
 
   class Parser extends Sets.Parser {
     def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
-      case nameOpt~"("~gOpt~")" => {
-        val name = nameOpt getOrElse(Good("graph"))
-        (gOpt andAlso name) map {
-          case (g, n) => g build n
-        }
-      }
-      case someShit => Result.error(s"Failed to parse $someShit")
+      case nameOpt~"("~gOpt~")" =>
+        val name = nameOpt getOrElse Good("graph")
+        (gOpt andAlso name) map { case (g, n) => g build n }
+      
+      case nonsense => Result.error(s"Failed to parse $nonsense")
     }
 
     def name: Parser[Result[String]] = word ~ ":" ^^ { 
       case n ~ ":" => Good(n)
-      case someShit => Result.error(s"Failed to parse $someShit")
+      case nonsense => Result.error(s"Failed to parse $nonsense")
     }
 
     def graphData: Parser[Result[GraphData]] = parserOfSet~","~arrows ^^ {
-      case s~","~a => Graph.data(s, a)
+      case s~","~arrows => (arrows andAlso s) flatMap {
+        case (arr, s0) => Graph.data(s0, arr)
+      }
+      case nonsense => Result.error(s"Failed to parse $nonsense")
     }
 
-    def arrows: Parser[Map[String, (String, String)]] = "{"~repsep(arrow, ",")~"}" ^^ { case "{"~m~"}" => Map()++m}
+    def arrows: Parser[Result[Map[String, (String, String)]]] = "{"~repsep(arrow, ",")~"}" ^^ { 
+      case "{"~m~"}" => Result.traverse(m).map(Map()++)
+      case nonsense => Result.error(s"Failed to parse $nonsense")
+    }
 
-    def arrow: Parser[(String, (String, String))] = word~":"~word~"->"~word ^^ {case f~":"~x~"->"~y => (f, (x, y))}
+    def arrow: Parser[Result[(String, (String, String))]] = word~":"~word~"->"~word ^^ {
+      case f~":"~x~"->"~y => Good((f, (x, y)))
+      case nonsense => Result.error(s"Failed to parse $nonsense")
+    }
 
     def explain[T](pr: ParseResult[Result[T]]): Result[T] = {
       pr match {

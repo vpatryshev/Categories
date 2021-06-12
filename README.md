@@ -2,8 +2,7 @@
 
 ### Intro
 
-This project is currently migrating from old repositories and build and testing tools.
-Does not even compile yet.
+This is a Scala (2, Scala 3 in the future) implementation of category theory calculations and topos logic (and topologies).
 Historically, it was first written in Basic, then in Fortran, then in Assembler, then in Java, now in Scala.
 Long story.
 
@@ -40,9 +39,7 @@ WIP:
 
 Plans: 
 - sheaves
-- pullback in topos
+- pullback in a topos
 - Scala 3
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
-
-TODO: use refinement maybe: https://github.com/fthomas/refined

@@ -40,7 +40,7 @@ class SetCategoryTest extends Specification {
     }
 
     def contains[T](x: T)(s: Any): Boolean = s match {
-      case us: Set[T] => us(x)
+      case us: Set[_] => us.asInstanceOf[Set[T]](x)
       case _ => false
     }
 
