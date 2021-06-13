@@ -17,7 +17,6 @@ import scala.collection.mutable
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
 trait GrothendieckTopos
-  extends GrothendieckToposLogic
 { topos =>
   type Obj = Diagram
   type Arrow = DiagramArrow
@@ -26,15 +25,13 @@ trait GrothendieckTopos
 
   type Mapping = domain.Obj => Any => Any
 
-  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]]
-
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
   object Ω extends Diagram("Ω", this) { Ω =>
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x => Ω(x)` .
-    private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
+    private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = null //subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
     val objectsMapping: d0.Obj => d1.Obj =
@@ -92,236 +89,5 @@ trait GrothendieckTopos
         if rx_at_x1 contains candidate
       } yield f
     }
-
-    Functor.validateFunctor(this) iHope
-
-    // TODO: redefine as classifying an empty
-    lazy val False: Point = points.head named "⊥"
-
-    // TODO: redefine as classifying an identity
-    lazy val True: Point = points.last named "⊤"
-
-    /**
-      * Intersection of two subrepresentables on object `x`
-      * @param a first subrepresentable
-      * @param b second subrepresentable
-      * @return their intersection
-      */
-    private[topos] def intersection(a: Diagram, b: Diagram): Diagram = {
-      val om = (o: domain.Obj) => a(o) & b(o)
-
-      // this is how, given an arrow `b`, the new diagram gets from one point to another
-      def am(f: domain.Arrow): SetFunction = {
-        val x = om(domain.d0(f))
-        val y = om(domain.d1(f))
-
-        a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
-      }
-
-      Diagram(s"${a.tag} ∩ ${b.tag}", topos)(
-        o => om(domain.obj(o)),
-        f => am(domain.arrow(f))
-      )
-    }
-    
-    lazy val conjunction: DiagramArrow = {
-
-      def conjunctionOfTwoSubreps(pair: Any): Diagram = pair match {
-        case (a: Diagram, b: Diagram) => 
-          intersection(a,b)
-        case bs => 
-          throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
-      }
-
-      def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction = {
-        val dom = ΩxΩ(x)
-        val codom = Ω(x)
-        new SetFunction(s"∧[$x]", dom.untyped, codom, pair => conjunctionOfTwoSubreps(pair))
-      }
-
-
-      val cache: mutable.Map[ΩxΩ.d0.Obj, SetFunction] =
-        mutable.Map[ΩxΩ.d0.Obj, SetFunction]()
-      
-      new DiagramArrow {
-        val tag = "∧"
-        override val d0: Functor = ΩxΩ
-        override val d1: Functor = Ω
-
-        def perObject(x: d0.d0.Obj): SetFunction = {
-          val x_in_ΩxΩ = x.asInstanceOf[ΩxΩ.d0.Obj]
-          cache.getOrElseUpdate(x_in_ΩxΩ, calculatePerObject(x_in_ΩxΩ))
-          
-        }
-
-        override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
-          codomainCategory.arrow(perObject(d0.d0.obj(x)))
-      }
-    }
-
-    lazy val disjunction: DiagramArrow = {
-      new DiagramArrow {
-        val tag = "v"
-        override val d0: Functor = ΩxΩ
-        override val d1: Functor = Ω
-
-        /**
-          * Union of two subrepresentables on object `x`
-          * @param a first subrepresentable
-          * @param b second subrepresentable
-          * @return their intersection
-          */
-        private def union(a: Diagram, b: Diagram): Diagram = {
-          val om = (o: domain.Obj) => a.setAt(o) | b.setAt(o)
-
-          // this is how, given an arrow `b`, the new diagram gets from one point to another
-          def am(f: domain.Arrow): SetFunction = {
-            val o = domain.d0(f)
-            val ao = a(o)
-            val bo = b(o)
-            val x = om(o)
-            val y = om(domain.d1(f))
-
-            val functiona = a.asFunction(a.arrowsMapping(a.d0.arrow(f)))
-            val functionb = b.asFunction(b.arrowsMapping(b.d0.arrow(f)))
-            def unionOfMappings(z: Any): Any =
-              if (ao(z)) functiona(z)
-              else if (bo(z)) functionb(z)
-              else throw new IllegalArgumentException(s"$z was supposed to be in $ao or in $bo")
-
-            new SetFunction("", x, y, unionOfMappings)
-//            val unionFunctionMaybe = SetFunction.build(x, y, unionOfMappings)
-//            unionFunctionMaybe.iHope
-          }
-
-          val tag = s"${a.tag} ∪ ${b.tag}"
-
-          Diagram(tag, topos)(
-            o => om(domain.obj(o)), f => am(domain.arrow(f)))
-        }
-
-        def disjunctionOfTwoSubreps(pair: Any): Diagram = pair match {
-          case (a: Diagram, b: Diagram) => union(a,b)
-        }
-
-        def perObject(x: d0.d0.Obj): SetFunction = {
-          val dom = ΩxΩ(x)
-          val codom = Ω(x)
-          new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
-//          SetFunction.build(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair)).iHope
-        }
-
-        override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
-          codomainCategory.arrow(perObject(d0.d0.obj(x)))
-      }
-    }
   }
-
-  val ΩxΩ: Obj = product2(Ω, Ω)
-
-  /**
-    * Builds a `DiagramArrow`, given domain, codomain, and a mapping
-    * @param tag arrow tag
-    * @param from domain
-    * @param to codomain
-    * @param mapping maps objects to functions
-    * @return a natural transformation (crashes if not)
-    */
-  def buildArrow(tag: Any, from: Diagram, to: Diagram,
-    mapping: Mapping): DiagramArrow = {
-    NaturalTransformation.build(tag, from, to)(
-      (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
-  }
-
-  // π1
-  protected val firstProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
-    case (a, b) => a
-    case trash =>
-      throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  }
-
-  // π2
-  protected val secondProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
-    case (a, b) => b
-    case trash =>
-      throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  }
-
-  /**
-    * Given a `from` and `to` diagrams, build an arrow
-    * `from(o)` -> `to(o)`, for each given `o`,
-    * using the provided mapping
-    *
-    * @param tag tag of a natural transformation
-    * @param from domain diagram
-    * @param to codomain diagram
-    * @param mapping given an object `o`, produce a function over this object
-    * @param o the object
-    * @return an arrow (it's a `SetFunction`, actually)
-    */
-  protected def buildOneArrow(
-    tag: Any,
-    from: Diagram,
-    to: Diagram,
-    mapping: Mapping
-  )(o: from.d0.Obj): from.d1.Arrow = {
-    val domO: domain.Obj = domain.obj(o)
-    val funOpt = SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(domO))
-    from.d1.arrow(funOpt.iHope)
-  }
-
-  /**
-    * Given arrows `f` and `g`, builds an arrow (f×g): dom(f)×dom(g) -> codom(f)×codom(g)
-    *
-    * @param f first component
-    * @param g second component
-    * @return a product of `f` and `g`
-    */
-  def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow = {
-
-    val mapping: Mapping = x => {
-      val fx = f(x).asInstanceOf[SetMorphism[Any, Any]]
-      val gx = g(x).asInstanceOf[SetMorphism[Any, Any]]
-
-      { case (a, b) => (fx(a), gx(b)) }
-    }
-
-    val fd9: Any = f.d0
-    buildArrow(
-      concat(f.tag, "×", g.tag),
-      product2(f.d0.asInstanceOf[Diagram], g.d0.asInstanceOf[Diagram]), // TODO: remove casting
-      product2(f.d1.asInstanceOf[Diagram], g.d1.asInstanceOf[Diagram]), // TODO: remove casting
-      mapping)
-  }
-
-  private[topos] case class product2builder(x: Diagram, y: Diagram) {
-
-    private def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
-    private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
-
-    def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
-      val sf: SetFunction = z.asFunction(z.arrowsMapping(z.d0.arrow(a)))
-      sf(pz)
-    }
-
-    private def mappingOfArrows(a: domain.Arrow): SetFunction = {
-      val from = productAt(domain.d0(a))
-      val to = productAt(domain.d1(a))
-      def f(p: Any): Any = p match {
-        case (px, py) => (transition(x)(a)(px), transition(y)(a)(py))
-        case other =>
-          throw new IllegalArgumentException(s"Expected a pair of values, got $other")
-      }
-      new SetFunction("", from.untyped, to.untyped, f)
-    }
-
-    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(mappingOfObjects, a => mappingOfArrows(a))
-  }
-
-  /**
-    * Cartesian product of two diagrams
-    * TODO: figure out how to ensure the same d0 in both Di
-    */
-  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
-
 }

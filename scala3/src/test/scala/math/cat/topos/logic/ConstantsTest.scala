@@ -9,14 +9,8 @@ import scalakittens.Result._
 
 import scala.language.reflectiveCalls
 
-class ConstantsTest extends Fixtures {
-  "True and False" should {
-
-    def checkAt(point: Any)(mappings: (String, set)*): MatchResult[Any] = {
-      ok
-    }
-
-    "exist for _1_" in {
+class ConstantsTest {
+  "we" should { "overcome some day" in {
       val topos = new CategoryOfDiagrams(_0_)
       val omega = topos.Ω
       ok

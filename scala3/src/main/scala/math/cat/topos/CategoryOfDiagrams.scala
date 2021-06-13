@@ -53,36 +53,6 @@ class CategoryOfDiagrams(val domain: Category)
     }
   } else None
 
-  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
-    domain.objects map (x => x -> Representable(x).subobjects.toSet) toMap
-
-  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos) {
-    override val objectsMapping: d0.Obj => d1.Obj = x => d1.obj(om(domain.obj(x)))
-    override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow = (f: XArrow) => {
-      am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
-    }
-    // have to validate right here, because a representable must exist, and all checks should be passing
-    private val probablyFunctor: Result[Functor] = Functor.validateFunctor(this)
-
-    /**
-      * Maps a domain arrow to set arrow.
-      *
-      * @param f arrow in domain
-      * @return a function from domain.hom(x, f.d0) to domain.hom(x, f.d1)
-      */
-    private def am(f: domain.Arrow): SetFunction = {
-      val d0: domain.Arrows = om(domain.d0(f))
-      val d1: domain.Arrows = om(domain.d1(f))
-      val tuples: Set[(domain.Arrow, domain.Arrow)] = d0 flatMap { g => domain.m(g, f) map (g -> _) }
-      val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
-
-      new SetFunction("", toSet(d0), toSet(d1), a => mapping(domain.arrow(a)))
-    }
-
-    private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)
-
-    probablyFunctor.iHope
-  }
 }
 
 object CategoryOfDiagrams {
