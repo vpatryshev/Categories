@@ -17,7 +17,6 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
   // note: this function is a property of poset, not a property of its elements
   def le(x: T, y: T): Boolean = comparator(x, y)
   def le(p : (T, T)): Boolean = comparator(p._1, p._2)
-
   validate()
 
   override def contains(t: T): Boolean = underlyingSet contains t
@@ -46,15 +45,12 @@ class PoSet[T] (val underlyingSet: Set[T], comparator: (T, T) => Boolean) extend
     * Two posets are equal if they have the same elements and partial order is the same.
     *
     * @param other other poset to compare
-    * @return true iff these two posets are equal
+    * @return true if these two posets are equal
     */
   private[sets] def equal(other: PoSet[_]): Boolean = {
     val isEqual = underlyingSet == other.underlyingSet
-    isEqual && {
-      val product = Sets.product2(other.underlyingSet, other.underlyingSet)
-      // TODO: find a solution to get rid of casting
-      product.forall(p => le(p.asInstanceOf[(T,T)]) == other.le(p))
-    }
+    val product = Sets.product2(other.underlyingSet, other.underlyingSet)
+    isEqual && product.forall(p => le(p.asInstanceOf[(T,T)]) == other.le(p))
   }
 
   protected def validate(): Unit = if (Sets.isFinite(underlyingSet)) {
@@ -159,4 +155,9 @@ object PoSet {
   }
   
   private val comparator: (BigInt, BigInt) => Boolean = _ <= _
+
+  lazy val ofNaturalNumbers: PoSet[BigInt] =
+    new PoSet(N, comparator) {
+    override def validate(): Unit = ()
+  }
 }

@@ -2,7 +2,7 @@ name := "Categories, scala 3"
 
 version := "3.0"
 
-scalaVersion := "3.0.0-RC3"
+scalaVersion := "3.0.0"
 crossScalaVersions ++= Seq("2.13.6", "3.0.0")
 
 maxErrors := 10
@@ -16,3 +16,5 @@ libraryDependencies += ("org.scala-lang.modules" %% "scala-parser-combinators" %
 libraryDependencies += ("org.specs2" %% "specs2-scalacheck" % "4.12.0" % Test).cross(CrossVersion.for3Use2_13) withSources()
 
 scalacOptions ++= Seq("-deprecation", "-feature")
+
+Test/scalacOptions ++= Seq("-Yrangepos")
