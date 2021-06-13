@@ -159,9 +159,4 @@ object PoSet {
   }
   
   private val comparator: (BigInt, BigInt) => Boolean = _ <= _
-
-  lazy val ofNaturalNumbers: PoSet[BigInt] =
-    new PoSet(N, comparator) {
-    override def validate(): Unit = ()
-  }
 }

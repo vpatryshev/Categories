@@ -20,19 +20,6 @@ class Point(
   
   def named(name: Any): Point = new Point(name, topos, mapping)
 
-  @deprecated("This should be redefined via composition", "03/28/2020")
-  def transform(f: DiagramArrow): Point = {
-    def apply(o: Any) = {
-      f(o) match {
-        case sf: SetFunction => sf(p(o))
-        case weirdStuff =>
-          throw new IllegalArgumentException(s"${f(o)} was supposed to be a set function")
-      }
-    }
-
-    new Point(s"${f.tag}(${p.tag})", p.topos, apply)
-  }
-
   def asDiagram: Diagram = {
     new Diagram(tag, topos) { diagram =>
 
@@ -53,44 +40,6 @@ class Point(
       }
     }
   }
-
-
-  def ∈(container: Diagram): Boolean = asDiagram ⊂ container
-
-  private lazy val predicate: topos.Predicate = topos predicateFor this
-
-  override def toString: String = {
-    if (tag.toString.nonEmpty) tag.toString else {
-      val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
-      Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
-    }
-  }
-
-  def toShortString: String = {
-    val raw = domainCategory.objects.map(x => s"$x->${apply(x)}").mkString(s"$tag(", ", ", ")")
-    val short = Diagram.cleanupString(raw)
-
-    val strings: List[String] =
-      domainCategory.listOfObjects map { x => {
-      val obRepr = apply(x) match {
-        case d: Diagram =>
-          Diagram.cleanupString(d.toShortString)
-        case other => other.toString
-      }
-      s"$x->$obRepr"
-    }}
-
-    Diagram.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
-  }
-
-  override lazy val hashCode: Int = System.identityHashCode(topos) * 79 + toString.hashCode
-
-  override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
-    case p: Point =>
-      p.tag == tag && p.domainCategory == domainCategory &&
-        domainCategory.objects.forall(o => p(o) == this(o))
-    case other => false
-  })
 }
 
 

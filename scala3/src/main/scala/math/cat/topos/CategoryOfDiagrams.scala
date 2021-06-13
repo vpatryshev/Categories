@@ -21,43 +21,7 @@ class CategoryOfDiagrams(val domain: Category)
   override type Obj = Diagram
   override type Arrow = DiagramArrow
   
-  lazy val subterminals: Set[Diagram] = {
-    def objectMapping(candidate: Set[domain.Obj]) =
-      (obj: domain.Obj) => if (candidate contains obj) _1(obj) else Set.empty.untyped
-
-    def arrowMapping(candidate: Set[domain.Obj]): domain.Arrow => SetFunction = {
-      val omc = objectMapping(candidate)
-      (a: domain.Arrow) => {
-        // this transformation, domain.arrow, is here due to an intellij bug
-        val d0 = omc(domain.d0(domain.arrow(a)))
-        val d1 = omc(domain.d1(domain.arrow(a)))
-        val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
-
-        new SetFunction("", d0, d1, mapping)
-      }
-    }
-
-    (1 :: Nil).to(LazyList)
-
-    val all: Set[Diagram] = for {
-      (candidate, i) <- Sets.powerset(domain.objects).zipWithIndex
-      // some mappings are not working for a given candidate
-      amCandidate: (domain.Arrow => SetFunction) = arrowMapping(candidate)
-      am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))
-      om = objectMapping(candidate)
-      // some of these build attemps will fail, because of compatibility checks
-      diagram: Diagram <- Diagram.build("__" + i, topos)(om, am.toMap).asOption
-    } yield diagram
-
-    all
-  }
   val base: Category = BaseCategory
-
-  def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
-
-  def objectNamed(name: String): domain.Obj = domain.obj(name)
-
-  def pow(d: Diagram): Diagram = ??? // power object; tbd
 
   override def id(o: Obj): Arrow = {
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
@@ -119,8 +83,6 @@ class CategoryOfDiagrams(val domain: Category)
 
     probablyFunctor.iHope
   }
-
-  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram)
 }
 
 object CategoryOfDiagrams {
