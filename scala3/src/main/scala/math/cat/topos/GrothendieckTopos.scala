@@ -1,22 +1,27 @@
 package math.cat.topos
 
 import scala.language.postfixOps
+import reflect.Selectable.reflectiveSelectable
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, CategoryData, Functor, NaturalTransformation, SetFunction}
 import math.sets.Functions
+import math.sets.Sets
 import math.sets.Sets._
 import scalakittens.Result
 import Result._
+import math.Base.concat
+import math.cat.SetMorphism
 
 import scala.collection.mutable
 
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
 trait GrothendieckTopos
-  extends Topos[Diagram, DiagramArrow]
-  with ToposLogic
-{
-
+  extends GrothendieckToposLogic
+{ topos =>
+  type Obj = Diagram
+  type Arrow = DiagramArrow
+   
   val domain: Category
 
   type Mapping = domain.Obj => Any => Any
@@ -384,6 +389,66 @@ trait GrothendieckTopos
     val domO: domain.Obj = domain.obj(o)
     val funOpt = SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(domO))
     from.d1.arrow(funOpt.iHope)
+  }
+
+  /**
+    * Given arrows `f` and `g`, builds an arrow (f×g): dom(f)×dom(g) -> codom(f)×codom(g)
+    *
+    * @param f first component
+    * @param g second component
+    * @return a product of `f` and `g`
+    */
+  def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow = {
+
+    val mapping: Mapping = x => {
+      val fx = f(x).asInstanceOf[SetMorphism[Any, Any]]
+      val gx = g(x).asInstanceOf[SetMorphism[Any, Any]]
+
+      { case (a, b) => (fx(a), gx(b)) }
+    }
+
+    val fd9: Any = f.d0
+    buildArrow(
+      concat(f.tag, "×", g.tag),
+      product2(f.d0.asInstanceOf[Diagram], g.d0.asInstanceOf[Diagram]), // TODO: remove casting
+      product2(f.d1.asInstanceOf[Diagram], g.d1.asInstanceOf[Diagram]), // TODO: remove casting
+      mapping)
+  }
+
+  private[topos] case class product2builder(x: Diagram, y: Diagram) {
+
+    private def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
+    private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
+
+    def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
+      val sf: SetFunction = z.asFunction(z.arrowsMapping(z.d0.arrow(a)))
+      sf(pz)
+    }
+
+    private def mappingOfArrows(a: domain.Arrow): SetFunction = {
+      val from = productAt(domain.d0(a))
+      val to = productAt(domain.d1(a))
+      def f(p: Any): Any = p match {
+        case (px, py) => (transition(x)(a)(px), transition(y)(a)(py))
+        case other =>
+          throw new IllegalArgumentException(s"Expected a pair of values, got $other")
+      }
+      new SetFunction("", from.untyped, to.untyped, f)
+    }
+
+    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(mappingOfObjects, a => mappingOfArrows(a))
+  }
+
+  /**
+    * Cartesian product of two diagrams
+    * TODO: figure out how to ensure the same d0 in both Di
+    */
+  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
+
+  def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] = {
+    inclusionOf(p) in d map { q => {
+      uniqueFromTerminalTo(p) andThen q named p.tag
+    } }
   }
 
 }

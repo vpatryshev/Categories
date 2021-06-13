@@ -1,14 +1,16 @@
 package math.cat.topos
 
 import math.cat.SetFunction
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow, const}
 import math.sets.Sets.{set, setOf}
 import scalakittens.Result
 
 import scala.collection.mutable
 import scala.language.postfixOps
+import math.cat.Morphism
 
-trait ToposLogic { topos: CategoryOfDiagrams =>
+trait GrothendieckToposLogic {
+  topos: GrothendieckTopos =>
 
 // TODO: use the right tagging, find the right predicate
 //  private[this] val cache = mutable.Map[(String, Predicate, Predicate), Predicate]()
@@ -32,21 +34,21 @@ trait ToposLogic { topos: CategoryOfDiagrams =>
     private def transformAt(o: Any): SetFunction =
       transformPerObject(domainCategory.obj(o)).asInstanceOf[SetFunction]
 
-    private def binaryOp(q: Predicate, opName: String, ΩxΩ_to_Ω: DiagramArrow): Predicate = {
+    private[topos] def binaryOp(q: Predicate, opName: String, ΩxΩ_to_Ω: DiagramArrow): Predicate = {
       binaryOpNamed(q, ΩxΩ_to_Ω, tag2(p.tag, opName, q.tag))
     }
 
-    private[ToposLogic] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: String): Predicate =
+    private[topos] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: String): Predicate =
     // TODO: when identification is fixed (finding the right point), uncomment
     // cache.getOrElseUpdate((name, p, q), 
-        evalBinaryOp(q, ΩxΩ_to_Ω, name)
+      evalBinaryOp(q, ΩxΩ_to_Ω, name)
     //)
     
-    private[ToposLogic] def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
+    private def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
       requireCompatibility(q)
 
       new Predicate {
-        val d0: Obj = p.d0
+        val d0 = p.d0
         val tag: Any = newTag
 
         override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow = {
@@ -61,7 +63,7 @@ trait ToposLogic { topos: CategoryOfDiagrams =>
               dom, ΩxΩ(o),
               v => (po(v), qo(v))
             )
-
+    
           val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
           val maybeFunction = PQtoΩxΩ andThen op
           codomainCategory.arrow(Result(maybeFunction).iHope)
@@ -100,10 +102,8 @@ trait ToposLogic { topos: CategoryOfDiagrams =>
     def ⟹(q: topos.Predicate): topos.Predicate = binaryOp(q, "⟹", Ω.implication)
   }
 
-
   def ¬(p: topos.Predicate): topos.Predicate =
     p.binaryOpNamed(FalsePredicate, Ω.implication, "¬")
-
 
   lazy val FalsePredicate: topos.Predicate = predicateFor(Ω.False)
 
@@ -116,7 +116,7 @@ trait ToposLogic { topos: CategoryOfDiagrams =>
     */
   def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate = {
     new topos.Predicate {
-      override val d0: Obj = f.d0
+      override val d0: Obj = f.d0.asInstanceOf[Obj] // TODO: get rid of casting
       override val tag: Any = f.tag
       override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
         val x_in_domain_of_f = f.domainCategory.obj(x)
@@ -134,7 +134,7 @@ trait ToposLogic { topos: CategoryOfDiagrams =>
     */
   def predicateFor(pt: Point): Predicate = {
 
-    val inclusion: DiagramArrow = standardInclusion(pt, Ω) iHope
+    val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 
     new Predicate {
       override val d0: Obj = _1
@@ -147,4 +147,34 @@ trait ToposLogic { topos: CategoryOfDiagrams =>
       }
     }
   }
+
+  /**
+    * An arrow from terminal to the point as a diagram
+    * @return
+    */
+  def uniqueFromTerminalTo(p: Point): Arrow = {
+    new DiagramArrow {
+      val tag = p.tag
+
+      override val d0: Diagram = _1
+      override val d1: Diagram = p.asDiagram
+
+      override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow =
+        codomainCategory.arrow {
+          val value = p(o)
+          new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
+        }
+    }
+  }
+
+  val initialT: Result[Obj] = BaseCategory.initial map constSet("initial")
+  lazy val _0: Obj = initialT iHope
+
+  val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal")
+  
+  val _1: Obj = terminalT iHope
+
+  private[topos] def constSet(name: String)(obj: BaseCategory.Obj): Diagram =
+    const(name, topos)(obj.asInstanceOf[set])
+
 }

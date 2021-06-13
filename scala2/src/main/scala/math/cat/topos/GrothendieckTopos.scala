@@ -12,7 +12,7 @@ import scala.collection.mutable
 
 trait GrothendieckTopos
   extends Topos[Diagram, DiagramArrow]
-  with ToposLogic
+  with GrothendieckToposLogic
 { topos: CategoryOfDiagrams =>
   val domain: Category
 

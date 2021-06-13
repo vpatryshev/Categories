@@ -8,7 +8,7 @@ import scalakittens.Result
 import scala.collection.mutable
 import scala.language.postfixOps
 
-trait ToposLogic { topos: CategoryOfDiagrams =>
+trait GrothendieckToposLogic { topos: CategoryOfDiagrams =>
 
 // TODO: use the right tagging, find the right predicate
 //  private[this] val cache = mutable.Map[(String, Predicate, Predicate), Predicate]()
@@ -36,13 +36,13 @@ trait ToposLogic { topos: CategoryOfDiagrams =>
       binaryOpNamed(q, ΩxΩ_to_Ω, tag2(p.tag, opName, q.tag))
     }
 
-    private[ToposLogic] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: String): Predicate =
+    private[GrothendieckToposLogic] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: String): Predicate =
     // TODO: when identification is fixed (finding the right point), uncomment
     // cache.getOrElseUpdate((name, p, q), 
         evalBinaryOp(q, ΩxΩ_to_Ω, name)
     //)
     
-    private[ToposLogic] def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
+    private[GrothendieckToposLogic] def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
       requireCompatibility(q)
 
       new Predicate {

@@ -136,7 +136,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "exist in Set^M" in {
       val topos = new CategoryOfDiagrams(M)
 
-      val initialOpt = topos.initial
+      val initialOpt = topos.initialT
       initialOpt match {
         case Good(initial) => checkConstSize(topos)(initial, 0)
         case none => failure(s"Could not build an initial in $topos: $none")
@@ -151,7 +151,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "exist in Set^W" in {
       val topos = new CategoryOfDiagrams(W)
 
-      val terminalOpt = topos.terminal
+      val terminalOpt = topos.terminalT
       terminalOpt match {
         case Good(terminal) =>
           terminal === topos._1
