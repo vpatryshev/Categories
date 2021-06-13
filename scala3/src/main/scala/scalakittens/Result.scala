@@ -212,7 +212,7 @@ object Result {
   type NoResult = Result[Nothing]
   type Outcome = Result[Unit]
 
-  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Result[T] = new Bad[T]() {
+  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] = new Bad[T]() {
     override def clock: TimeReader = testClock
     override def listErrors: Errors = es
   }
@@ -250,11 +250,14 @@ object Result {
   def apply[T](outcome: Outcome): UnacceptableResult = new UnacceptableResult
   implicit def apply[T](optT: Option[T]):                         Result[T] = legalize(optT)
   implicit def apply[T](optT: Option[T], onError: => String):     Result[T] = legalize(optT) orCommentTheError onError
-  implicit def apply[T](optT: Option[T], optErr: Option[String]): Result[T] = legalize(optT) match {
-    case good: Good[T] => good
-    case noGood => optErr match {
-      case Some(err) => noGood orCommentTheError err
-      case _         => noGood
+  implicit def apply[T](optT: Option[T], optErr: Option[String]): Result[T] = {
+    var legalized = legalize(optT)
+    legalized match {
+      case good: Good[_] => legalized
+      case noGood => optErr match {
+        case Some(err) => noGood orCommentTheError err
+        case _         => noGood
+      }
     }
   }
 
@@ -319,6 +322,7 @@ object Result {
       current match {
         case Good(good)    => (good::collected._1, collected._2)
         case noGood:NoGood[T] => (collected._1, noGood.listErrors.toList::collected._2)
+        case Empty => (collected._1, collected._2)
       }
     )
     
