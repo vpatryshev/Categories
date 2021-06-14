@@ -54,11 +54,12 @@ class PoSetTest extends Specification {
       (sut1 == sut2) must beFalse
     }
 
-    "Equals_differentTypes (will issue warning)" >> {
-      val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
-      val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
-      (sut1 == sut2) must beFalse
-    }
+// In Scala 3 the following code won't even compile    
+//    "Equals_differentTypes (will issue warning)" >> {
+//      val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
+//      val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
+//      (sut1 == sut2) must beFalse
+//    }
 
     "UnaryOp" >> {
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)

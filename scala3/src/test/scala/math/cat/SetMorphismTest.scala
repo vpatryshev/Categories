@@ -37,7 +37,7 @@ class SetMorphismTest extends Specification {
     id(ints).andThen(m) === Some(m)
   }
 
- "Constructor2" >> {
+  "Constructor2" >> {
     val sut = SetMorphism.build(testSetX, testSetZ, (n: Int) => "#" + n).iHope
     sut(3) === "#3"
     sut.d0 === testSetX

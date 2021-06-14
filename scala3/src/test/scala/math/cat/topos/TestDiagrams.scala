@@ -7,6 +7,8 @@ import scalakittens.Result
 import math.cat.Categories._
 
 import scala.collection.mutable
+import scala.language.implicitConversions
+import scala.language.postfixOps
 
 trait TestDiagrams extends Test {
   val toposes: mutable.Map[String, GrothendieckTopos] = mutable.Map[String, GrothendieckTopos]()
@@ -20,7 +22,7 @@ trait TestDiagrams extends Test {
     val topos = toposOver(domain)
     def om(o: topos.domain.Obj): set = objectsMap(o.toString)
     def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
-    Diagram.build[topos.domain.Obj, topos.domain.Arrow](name, topos)(om, am) iHope
+    Diagram.build(name, topos)(om, am) iHope
   }
 
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
@@ -154,10 +156,10 @@ trait TestDiagrams extends Test {
     val c: set = Set("c00", "c01", "c10", "c11")
     val d: set = Set("0", "1")
     val e: set = Set("e00", "e01", "e10", "e11")
-    val ba = SetFunction.build("ba", b, a, "a0" +).iHope
-    val bc = SetFunction.build("bc", b, c, "c0" +).iHope
-    val dc = SetFunction.build("dc", d, c, "c1" +).iHope
-    val de = SetFunction.build("de", d, e, "e1" +).iHope
+    val ba = SetFunction.build("ba", b, a, "a0" + _).iHope
+    val bc = SetFunction.build("bc", b, c, "c0" + _).iHope
+    val dc = SetFunction.build("dc", d, c, "c1" + _).iHope
+    val de = SetFunction.build("de", d, e, "e1" + _).iHope
   }
 
   val SampleMDiagram: Diagram = {

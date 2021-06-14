@@ -33,7 +33,7 @@ class DiagramTest extends Test with TestDiagrams {
       sut1.objectsMapping(sut1.d0.obj("b")) === BuildPullbackDiagram.sb
 
       val diagram: Diagram =
-        new Diagram("Test", topos, dom) {
+        new Diagram("Test", topos) {
           override val objectsMapping: d0.Obj => d1.Obj =
             (x: d0.Obj) => d1.obj(BuildPullbackDiagram.om(x.toString))
           override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
@@ -59,7 +59,7 @@ class DiagramTest extends Test with TestDiagrams {
       checkError(_ matches 
       raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"
       ,
-        Diagram.build[topos.domain.Obj, topos.domain.Arrow](
+        Diagram.build(
           "Bad Bad Bad", topos)(
           Map("0" -> a, "1" -> b),
           Map("a" -> f, "b" -> g)
@@ -203,7 +203,7 @@ class DiagramTest extends Test with TestDiagrams {
         val cb = SetFunction.build("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt))).iHope
         val cd = SetFunction.build("cd", c, d, _.toString.toInt % 3).iHope
         val ed = SetFunction.build("ed", e, d, x => (x.toString.toInt + 1) % 2).iHope
-        val sutOpt = Diagram.build[topos.domain.Obj, topos.domain.Arrow](
+        val sutOpt = Diagram.build(
           "W", topos)(
           Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
           Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
@@ -282,7 +282,7 @@ class DiagramTest extends Test with TestDiagrams {
       val c: set = Set(0, 1)
       val ab = SetFunction.build("f", a, b, _.toString.toInt + 1).iHope
       val ac = SetFunction.build("g", a, c, _.toString.toInt % 2).iHope
-      val sutOpt: Result[SUT] = Diagram.build[topos.domain.Obj, topos.domain.Arrow](
+      val sutOpt: Result[SUT] = Diagram.build(
         "pushout", topos)(
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ab" -> ab, "ac" -> ac)
@@ -322,7 +322,7 @@ class DiagramTest extends Test with TestDiagrams {
       val b: set = Set(0, 1, 2)
       val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", a, b, x => x.toString.toInt % 3).iHope
-      val sutOpt: Result[Diagram] = Diagram.build[topos.domain.Obj, topos.domain.Arrow](
+      val sutOpt: Result[Diagram] = Diagram.build(
         "coEq", topos)(
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)

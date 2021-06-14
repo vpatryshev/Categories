@@ -4,6 +4,8 @@ import math.cat.Categories._
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import scalakittens._
+import math.cat.Category
+import scala.language.postfixOps
 
 /**
   * Tests for Layout class
@@ -39,15 +41,19 @@ class LayoutTest extends Specification {
       
       val expectedLayers = expectedLayersOfClusters.view.mapValues  (_.map(ls => U(ls.toSet))).toMap
 
-      val actualLayersOfClusters: Map[String, List[List[Set[String]]]] = (for {
-        c <- KnownFiniteCategories
-        ls = Layout(c, 300, 300).gradedObjects
-        l <- ls
-        name = if (ls.size == 1) c.name else l.category.name
-        loc = l.layersOfClusters
-      } yield {
-        name -> loc.map(_.map(_.objects.map(_.toString)))
-      }) toMap
+      def gradedObjectsOf(c: Category): Set[GradedObjects] =
+        Layout(c, 300, 300).gradedObjects
+      
+      val actualLayersOfClusters: Map[String, List[List[Set[String]]]] = {
+        val lol: List[(String, List[List[Set[String]]])] = (for {
+          c: Category <- KnownFiniteCategories
+          l: GradedObjects <- gradedObjectsOf(c)
+          name: String = c.name //*if (ls.size == 1) c.name else*/ l.category.name
+        } yield {
+          name -> l.nameObjectsInLayers
+        })
+        lol.toMap
+      }
 
       for {
         name <- actualLayersOfClusters.keySet

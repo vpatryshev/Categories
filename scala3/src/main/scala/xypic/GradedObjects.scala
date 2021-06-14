@@ -43,9 +43,12 @@ case class GradedObjects(category: Category) {
       (d + 0.5).toInt
   }
   
-  case class Cluster(objects: category.Objects) {
+  case class Cluster(objects: Set[category.Obj]) {
+    def listObjects: List[category.Obj] = objects.toList
+    def nameObjects = objects map (_.toString)
+    
     def allocateAt(coords: Pt): Set[(String, Pt)] = objects.size match {
-      case 0 | 1 => objects.map(obj => obj.toString -> coords)
+      case 0 | 1 => objects.map(obj => obj.toString -> coords).toSet
       case n =>
         GroupOfObjects(objects.map(_.toString)).
           arrangeInCircle(coords, Rational(diameter, 2))
@@ -58,5 +61,11 @@ case class GradedObjects(category: Category) {
   
   lazy val layersOfClusters: List[List[Cluster]] = {
     layers map(layer => layer.map(obj => Cluster(category.clusters(obj))).toList.sortBy(_.code))
+  }
+  
+  lazy val nameObjectsInLayers: List[List[Set[String]]] = {
+    layersOfClusters map {
+      layer => layer.map(_.nameObjects)
+    }
   }
 }

@@ -5,6 +5,8 @@ import math.cat.Categories._
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
 import scalakittens.Good
+import scala.language.postfixOps
+import org.specs2.matcher.MatchResult
 
 class FunctorTest extends Test {
   type SUT = Functor
@@ -169,9 +171,9 @@ class FunctorTest extends Test {
       val sut = functorFromPullbackToDoubleSquare
       sut.limit match {
         case Good(limit) =>
-          limit.vertex == "a1"
-          limit.arrowTo(sut.d0.obj("a")) == "a1b"
-          limit.arrowTo(sut.d0.obj("b")) == "a1c"
+          limit.vertex === "a1"
+          limit.arrowTo(sut.d0.obj("a")) === "a1b"
+          limit.arrowTo(sut.d0.obj("b")) === "a1c"
         case oops => failure("no limit?")
       }
       ok
@@ -219,7 +221,7 @@ class FunctorTest extends Test {
 
       sut.colimit match {
         case Good(colimit) =>
-          colimit.vertex == "d1"
+          colimit.vertex === "d1"
           colimit.arrowFrom(obj0("a")) === "ad1"
           colimit.arrowFrom(obj0("b")) === "bd1"
           colimit.arrowFrom(obj0("c")) === "cd1"

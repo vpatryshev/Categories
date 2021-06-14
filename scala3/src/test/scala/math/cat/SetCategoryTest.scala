@@ -6,6 +6,7 @@ import math.sets.Sets._
 import math.sets.{BigSet, Sets}
 import org.specs2.mutable._
 import scalakittens.Good
+import scala.language.postfixOps
 
 /**
   * Set Category tests

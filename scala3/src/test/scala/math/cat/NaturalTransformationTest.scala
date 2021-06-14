@@ -20,9 +20,9 @@ class NaturalTransformationTest extends Test {
         { case s => op(s.toInt).toString },
         { case PairRegex(x, y) => s"${op(x.toInt)}.${op(y.toInt)}" })
 
-    lazy val f: F = buildFunctor("f", 2 *).iHope
-    lazy val g: F = buildFunctor("g", 1 +).iHope
-    lazy val h: F = buildFunctor("g", 2 +).iHope
+    lazy val f: F = buildFunctor("f", 2 * _).iHope
+    lazy val g: F = buildFunctor("g", 1 + _).iHope
+    lazy val h: F = buildFunctor("g", 2 + _).iHope
 
     lazy val fg: NT = NaturalTransformation.build("test_fg", f, g)(Map(
       f.d0.obj("0") -> f.d1.arrow("0.1"), f.d0.obj("1") -> f.d1.arrow("2.2"))).iHope

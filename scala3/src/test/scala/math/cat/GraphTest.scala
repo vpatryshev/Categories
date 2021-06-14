@@ -3,6 +3,7 @@ package math.cat
 import math.Test
 import math.sets.{PoSet, Sets}
 import scalakittens.Good
+import scala.language.postfixOps
 
 class GraphTest extends Test {
   import Graph._
@@ -98,8 +99,8 @@ class GraphTest extends Test {
     "follows" >> {
       expect(sut => {
         import sut._
-      sut.follows(113, 111) === true
-      sut.follows(111, 113) === false
+        sut.follows(113, 111) === true
+        sut.follows(111, 113) === false
       })(
         Graph.build(
           "sut",
@@ -152,10 +153,10 @@ class GraphTest extends Test {
     "Constructor_plain_withFunctions" >> {
       expect(sut => {
         import sut._
-      sut.d0(111) === 1
-      sut.d0(13) === 1
-      sut.d1(13) === 3
-      sut.d1(32) === 2
+        sut.d0(111) === 1
+        sut.d0(13) === 1
+        sut.d1(13) === 3
+        sut.d1(32) === 2
       })(
         Graph.build(
           "sut",
@@ -173,10 +174,10 @@ class GraphTest extends Test {
     }
 
     "Constructor_negativeBadD1" >> {
-        val sutOpt = Graph.build(
-          "sut",
-          Set(1, 2),
-          Set(11, 111, 21, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
+      val sutOpt = Graph.build(
+        "sut",
+        Set(1, 2),
+        Set(11, 111, 21, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
 
       sutOpt.isBad === true
     }

@@ -36,15 +36,15 @@ class LogicLawsTest extends Fixtures {
 
       for { pt1 <- points } {
         report(cat)(s"distributivity at ${pt1.tag}")
-        val p: topos.Predicate = pt1.asPredicate
+        val p: topos.Predicate = pt1.asPredicateIn(topos)
 
         for { pt2 <- points } {
-          val q = pt2.asPredicate
+          val q = pt2.asPredicateIn(topos)
           val pAndQ: topos.Predicate = p ∧ q
           val pOrQ: topos.Predicate = p ∨ q
 
           for { pt3 <- points } {
-            val r: topos.Predicate = pt3.asPredicate
+            val r: topos.Predicate = pt3.asPredicateIn(topos)
             conjunctionOverDisjunction(topos)(p, q, pAndQ, r)
             disjunctionOverConjunction(topos)(p, q, pOrQ, r)
           }

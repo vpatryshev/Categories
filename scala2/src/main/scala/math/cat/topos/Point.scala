@@ -59,6 +59,8 @@ class Point(
 
   private lazy val predicate: topos.Predicate = topos predicateFor this
 
+  def pred: topos.Predicate = predicate
+  
   def asPredicate[T <: GrothendieckTopos]: T#Predicate = predicate.asInstanceOf[T#Predicate]
 
   override def toString: String = {

@@ -11,6 +11,8 @@ import scala.util.parsing.combinator.RegexParsers
 import math.sets.SetOps._
 import scalakittens.{Good, Result}
 
+import scala.collection.immutable.AbstractSeq
+
 /**
   * Lazy sets functionality
   */

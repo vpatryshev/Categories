@@ -1,13 +1,14 @@
 package math.cat.topos.logic
 
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
+import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos, Point}
 import math.cat.{Category, SetFunction}
 import org.specs2.matcher.MatchResult
 import org.specs2.matcher.ShouldMatchers.thisValue
 import scalakittens.Result._
 
 import scala.language.reflectiveCalls
+import scala.language.postfixOps
 
 class ConjunctionTest extends Fixtures {
 
@@ -17,8 +18,8 @@ class ConjunctionTest extends Fixtures {
       import topos._
       val desc = s"Testing $what over ${domain.name}"
       val rep = report(domain)(_)
-      val True = Ω.True.asPredicate
-      val False = Ω.False.asPredicate
+      val True = Ω.True.asPredicateIn(topos)
+      val False = Ω.False.asPredicateIn(topos)
       checkThatIn(topos).mustBeMonoid[Predicate](
         "conjunction",
         True,
@@ -27,7 +28,7 @@ class ConjunctionTest extends Fixtures {
 
       for { pt <- Ω.points } {
         rep(s"conjunction with False for ${pt.tag}")
-        val p = pt.asPredicate
+        val p = pt.asPredicateIn(topos)
         (False ∧ p) === False
       }
       ok

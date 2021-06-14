@@ -7,6 +7,7 @@ import org.specs2.matcher.MatchResult
 import org.specs2.execute.{Result => TestResult}
 import scalakittens.Result
 import scalakittens.Result._
+import scala.language.postfixOps
 
 class Fixtures extends Test with TestDiagrams {
   type SUT = Diagram

@@ -5,6 +5,8 @@ import math.sets.Sets._
 import math.sets.{BinaryRelation, Sets}
 import org.specs2.mutable._
 import scalakittens.Result
+import scala.language.postfixOps
+import math.cat.SetCategory.Setf.node
 
 /**
  * Test suite for Typeless Set Morphisms object
@@ -130,7 +132,9 @@ class SetFunctionTest extends Specification {
     }
 
     "for factorset" >> {
-      val set0: Set[Int] = setOf(1 to 10)
+      val inclusive: Seq[Int] = 1 until 11
+      val ten: Iterable[Int] = inclusive
+      val set0: Set[Int] = setOf(ten)
       val set1 = set0.map(i => i:Any)
       def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
       val br: BinaryRelation[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)

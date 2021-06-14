@@ -8,6 +8,7 @@ import math.sets.Sets
 import math.sets.Sets.set
 import org.specs2.matcher.MatchResult
 import scalakittens.Result._
+import scala.language.postfixOps
 
 class GrothendieckToposTest extends Fixtures {
 

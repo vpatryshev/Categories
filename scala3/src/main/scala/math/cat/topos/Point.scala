@@ -54,10 +54,15 @@ class Point(
     }
   }
 
-
   def ∈(container: Diagram): Boolean = asDiagram ⊂ container
 
   private lazy val predicate: topos.Predicate = topos predicateFor this
+
+  // TODO: fix this awkward unnecessary casting
+  def asPredicateIn(t: GrothendieckTopos): t.Predicate = {
+    require(t == topos)
+    predicate.asInstanceOf[t.Predicate]
+  }
 
   override def toString: String = {
     if (tag.toString.nonEmpty) tag.toString else {

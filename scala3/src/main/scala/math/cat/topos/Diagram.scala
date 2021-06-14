@@ -212,15 +212,9 @@ abstract class Diagram(
     def isCompatible(om: XObject => Sets.set) = d0.arrows.forall {
       a =>
         val d00 = toSet(om(d0.d0(a)))
-        val d01 = om(d0.d1(a))
+        val d01: set = om(d0.d1(a))
         val f = arrowsMapping(a)
-        val itsok = (d00 map f, d01) match {
-          case (s0: Set[Any], s1: Set[Any]) => s0 subsetOf s1
-          case (x, y) => 
-            x == y
-        }
-
-        itsok
+        d00 map f subsetOf d01
     }
 
     val objMappings: Iterable[Map[XObject, Sets.set]] = for {
