@@ -12,7 +12,7 @@ import scala.collection.mutable
 
 trait GrothendieckTopos
   extends Topos[Diagram, DiagramArrow]
-  with ToposLogic
+  with GrothendieckToposLogic
 { topos: CategoryOfDiagrams =>
   val domain: Category
 
@@ -130,7 +130,6 @@ trait GrothendieckTopos
         val codom = Ω(x)
         new SetFunction(s"∧[$x]", dom.untyped, codom, pair => conjunctionOfTwoSubreps(pair))
       }
-
 
       val cache: mutable.Map[ΩxΩ.d0.Obj, SetFunction] =
         mutable.Map[ΩxΩ.d0.Obj, SetFunction]()
@@ -278,9 +277,9 @@ trait GrothendieckTopos
   /**
     * Builds a map that classifies a subobject
     * B ----> 1
-    * v      v
-    * |      |
-    * v      v
+    * v       v
+    * |       |
+    * v       v
     * A ----> Ω
     * 
     * @param inclusion B >--> A - a natural transformation from diagram B to diagram A
@@ -297,7 +296,6 @@ trait GrothendieckTopos
         codomainCategory.arrow(objToFunction(domain.obj(x)))
     }
   }
-
 
   def χ(inclusion: Arrow): Predicate = {
     χ(inclusion, s"χ(${inclusion.tag})")

@@ -139,7 +139,7 @@ abstract class Category extends CategoryData {
     * @return a predicate defined on arrows.
     */
   def equalizes(f: Arrow, g: Arrow): Arrow => Boolean = {
-    h: Arrow => areParallel(f, g) && follows(f, h) && (m(h, f) == m(h, g))
+    (h: Arrow) => areParallel(f, g) && follows(f, h) && (m(h, f) == m(h, g))
   }
 
   /**
@@ -166,7 +166,7 @@ abstract class Category extends CategoryData {
     * @return true iff h ∘ f == h ∘ g
     */
   def coequalizes(f: Arrow, g: Arrow): Arrow => Boolean = {
-    h: Arrow => areParallel(f, g) && follows(h, f) && (m(f, h) == m(g, h))
+    (h: Arrow) => areParallel(f, g) && follows(h, f) && (m(f, h) == m(g, h))
   }
 
   /**
@@ -249,7 +249,7 @@ abstract class Category extends CategoryData {
     */
   def isCoequalizer(f: Arrow, g: Arrow): Arrow => Boolean = {
     require(areParallel(f, g))
-    h: Arrow =>
+    (h: Arrow) =>
       coequalizes(f, g)(h) &&
         (allCoequalizingArrows(f, g) forall factorsUniquelyOnRight(h))
   }
@@ -620,7 +620,7 @@ abstract class Category extends CategoryData {
     Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
   }
   
-  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
+  @tailrec private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
     arrows.find(canDeduce(arrows)) match {
       case None => arrows
       case Some(f) => selectBaseArrows(arrows.filterNot(f ==))

@@ -340,9 +340,9 @@ object Sets {
 
     override def size: Int = xs size
 
-    override def iterator: Iterator[(K, V)] = (xs map { x: K => (x, f(x)) }) iterator
+    override def iterator: Iterator[(K, V)] = (xs map { (x:K) => (x, f(x)) }) iterator
 
-    //    override def seq = (xs map { x: K => (x, f(x)) })
+    //    override def seq = (xs map { (x:K) => (x, f(x)) })
   }
 
   class Parser extends RegexParsers {

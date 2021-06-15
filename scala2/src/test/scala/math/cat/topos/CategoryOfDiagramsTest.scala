@@ -50,7 +50,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       import topos.domain._
       val ob = (o: String) => {
         val r = representable(topos)(obj(o))
-        name: String => r(name)
+        (name: String) => r(name)
       }
 
       appliesTo | "a" | "b" | "c" | "d" | "e" |
@@ -69,7 +69,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val rep = representable(topos)
       val ob = (o: Obj) => {
         val r = rep(o)
-        name: String => r(name)
+        (name: String) => r(name)
       }
 
       appliesTo | "a" | "b" | "c" | "d" | "e" |
@@ -97,11 +97,11 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       import topos.domain._
       val ob = (o: Obj) => {
         val r = representable(topos)(o)
-        name: String => r(obj(name)).toString
+        (name: String) => r(obj(name)).toString
       }
       val ar = (o: Obj) => {
         val r = representable(topos)(o)
-        a: String => r.arrowsMapping(r.d0.arrow(a)).toString
+        (a: String) => r.arrowsMapping(r.d0.arrow(a)).toString
       }
 
       appliesTo | "0" |

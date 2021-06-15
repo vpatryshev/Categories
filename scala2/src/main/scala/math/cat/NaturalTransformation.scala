@@ -1,10 +1,9 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
 import scalakittens.Result
-import Result._
-import scalakittens.Result.Outcome
+import scalakittens.Result._
+
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Natural transformation class: morphisms for functors.
@@ -103,16 +102,13 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
               if (f1.keySet != f2.keySet) {
                 val badkeys = f1.keySet.diff(f2.keySet).union(f2.keySet.diff(f1.keySet))
                 println("wow, bad keys $badkeys")
-                badkeys
               } else {
                 val whatbad = f1.keySet.find(k => f1(k) != f2(k))
                 println(whatbad)
-                whatbad
               }
             }
             !same
-          }
-            ) // checking it every time takes time
+          }) // checking it every time takes time
 
           foundBad.isEmpty
         })
