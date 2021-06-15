@@ -280,14 +280,15 @@ object Categories extends CategoryFactory {
   lazy val Pullback = category"Pullback:({a,b,c}, {ac: a -> c, bc: b -> c})"
 
   /**
-    * Pushout category: b <- a -> c
+    * Pushout category: b ← a → c
     */
   lazy val Pushout = category"Pushout:({a,b,c}, {ab: a -> b, ac: a -> c})"
 
   /**
+    * This is the hardest category for logic calculations 
     *                        c  
     *                        ↑
-    * Pushout4 category: b <- a -> d
+    * Pushout4 category: b ← a → d
     *                        ↓
     *                        e
     */
@@ -342,19 +343,18 @@ object Categories extends CategoryFactory {
 
   lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SomeKnownCategories = List(
-    _0_, _1_, _3_, _1plus1_,
-    ParallelPair, Pullback, Pushout, SplitMono, Square, W, M, Z3,
-    AAAAAA, Simplicial3)
+  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_, _5_, _1plus1_)
 
-  lazy val KnownCategories: List[Category] = List(
-    _0_, _1_, _2_, _3_, _4_, _5_, _1plus1_,
-    ParallelPair, Pullback, Pushout, Pushout4, SplitMono, Square,
-    M, W,
+  lazy val LessSimpleCategories = List(
+    W, // this one is the hardest for logic calculations
+    ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
     Z2, Z3, Z4,
-    AAAAAA,
-    Simplicial3,
-    NaturalNumbers).sortBy(_.arrows.size)
+    AAAAAA, Simplicial3, M)
+
+  lazy val SomeKnownCategories = SimpleCategories ++ LessSimpleCategories
+
+  lazy val KnownCategories: List[Category] =
+    NaturalNumbers::Pushout4::SomeKnownCategories.sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)
@@ -367,7 +367,6 @@ object Categories extends CategoryFactory {
       }
     }
   }
-
 
   /**
     * Creates an opposite category from this one.

@@ -1,15 +1,16 @@
 package math.cat.topos
 
 import math.Test
-import math.cat.Categories.{Cat, SomeKnownCategories}
+import math.cat.Categories._
 import math.cat.Category
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.{Result => TestResult}
 import scalakittens.Result
 import scalakittens.Result._
+
 import scala.language.postfixOps
 
-class Fixtures extends Test with TestDiagrams {
+class Fixtures extends Test with math.cat.topos.TestDiagrams {
   type SUT = Diagram
 
   def report(cat: Category)(what: String): Unit =
@@ -71,11 +72,11 @@ class Fixtures extends Test with TestDiagrams {
 
   val batchSize = 8
 
-  val groupedCategoriesToTest: List[List[Cat]] = {
+  val groupedCategoriesToTest: List[List[Cat]] = SimpleCategories :: {
     (for {
-      i <- 0 until batchSize
-      indices = i until SomeKnownCategories.length by batchSize
-    } yield indices map (SomeKnownCategories(_)) toList) toList
+      i <- 0 until batchSize -1 
+      indices = i until LessSimpleCategories.length by (batchSize - 1)
+    } yield indices map (LessSimpleCategories(_)) toList) toList
   }
 
 }
