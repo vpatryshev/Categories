@@ -156,7 +156,7 @@ trait GrothendieckTopos
           
         }
 
-        override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+        override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
           codomainCategory.arrow(perObject(d0.d0.obj(x)))
       }
     }
@@ -213,7 +213,7 @@ trait GrothendieckTopos
 //          SetFunction.build(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair)).iHope
         }
 
-        override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+        override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
           codomainCategory.arrow(perObject(d0.d0.obj(x)))
       }
     }
@@ -303,7 +303,7 @@ trait GrothendieckTopos
       val d0: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
       val tag = theTag
 
-      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         codomainCategory.arrow(objToFunction(domain.obj(x)))
     }
   }

@@ -1,7 +1,10 @@
 package math.cat
 
+import math.Base.notNull
 import math.Test
 import math.cat.Categories._
+import scalakittens.Result
+import scalakittens.Result._
 
 /**
   * Natural transformations tests
@@ -14,24 +17,32 @@ class NaturalTransformationTest extends Test {
   "natural transformation" should {
     val c = _2_
     val d = _5_
-
     def buildFunctor(name: String, op: Int => Int) =
       Functor(name, c, d)(
         { case s => op(s.toInt).toString },
         { case PairRegex(x, y) => s"${op(x.toInt)}.${op(y.toInt)}" })
 
-    lazy val f: F = buildFunctor("f", 2 * _).iHope
-    lazy val g: F = buildFunctor("g", 1 + _).iHope
-    lazy val h: F = buildFunctor("g", 2 + _).iHope
+    val f: F = buildFunctor("f", 2 * _).iHope
+    val g: F = buildFunctor("g", 1 + _).iHope
+    val h: F = buildFunctor("g", 2 + _).iHope
 
-    lazy val fg: NT = NaturalTransformation.build("test_fg", f, g)(Map(
-      f.d0.obj("0") -> f.d1.arrow("0.1"), f.d0.obj("1") -> f.d1.arrow("2.2"))).iHope
+    val mappingFor_fg = Map(
+      f.d0.obj("0") -> f.d1.arrow("0.1"), f.d0.obj("1") -> f.d1.arrow("2.2"))
 
-    lazy val gh: NT = NaturalTransformation.build("test_gh", g, h)(
-      Map("0" -> g.d1.arrow("1.2"), "1" -> g.d1.arrow("2.3"))).iHope
+    val fgOpt: Result[NT] = NaturalTransformation.build("test_fg", f, g)(mappingFor_fg)
+    val ghOpt: Result[NT] = NaturalTransformation.build("test_gh", g, h)(
+      Map("0" -> g.d1.arrow("1.2"), "1" -> g.d1.arrow("2.3")))
 
+    "build properly" in {
+      val fg = fgOpt.iHope
+      val gh = ghOpt.iHope
+      
+      ok
+    }
+    
+    
     "compose" in {
-        val fgh = fg andThen gh
+        val fgh = fgOpt.iHope andThen ghOpt.iHope
         fgh.d0 === f
         fgh.d1 === h
         fgh.transformPerObject(fgh.domainCategory.obj("0")) === "0.2"
@@ -39,12 +50,12 @@ class NaturalTransformationTest extends Test {
     }
 
     "have identity" in {
-        val idThen_fg = NaturalTransformation.id(f) andThen fg
-        idThen_fg === fg
-        val idThen_gh = NaturalTransformation.id(g) andThen gh
-        idThen_gh === gh
-        val fgThenId = fg andThen NaturalTransformation.id(g)
-        fgThenId === fg
+        val idThen_fg = NaturalTransformation.id(f) andThen fgOpt.iHope
+        idThen_fg === fgOpt.iHope
+        val idThen_gh = NaturalTransformation.id(g) andThen ghOpt.iHope
+        idThen_gh === ghOpt.iHope
+        val fgThenId = fgOpt.iHope andThen NaturalTransformation.id(g)
+        fgThenId === fgOpt.iHope
     }
   }
 }

@@ -47,13 +47,16 @@ class LayoutTest extends Specification {
       val actualLayersOfClusters: Map[String, List[List[Set[String]]]] = {
         val lol: List[(String, List[List[Set[String]]])] = (for {
           c: Category <- KnownFiniteCategories
-          l: GradedObjects <- gradedObjectsOf(c)
-          name: String = c.name //*if (ls.size == 1) c.name else*/ l.category.name
+          ls = gradedObjectsOf(c)
+          l: GradedObjects <- ls
+          name: String = if (ls.size == 1) c.name else l.category.name
         } yield {
           name -> l.nameObjectsInLayers
         })
         lol.toMap
       }
+
+      expectedLayersOfClusters.keySet === actualLayersOfClusters.keySet
 
       for {
         name <- actualLayersOfClusters.keySet

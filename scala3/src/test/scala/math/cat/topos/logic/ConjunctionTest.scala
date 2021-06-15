@@ -73,7 +73,7 @@ class ConjunctionTest extends Fixtures {
           val o = classifierForTT.domainCategory.obj(o0)
           val con_o = classifierForTT.transformPerObject(o).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
           val tru_classif_o =
-            conjunction.transformPerObject(o.asInstanceOf[conjunction.domainCategory.Obj]).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
+            conjunction.transformPerObject(o.asInstanceOf[conjunction.d0.d0.Obj]).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
 
           val pairs = con_o zip tru_classif_o
 

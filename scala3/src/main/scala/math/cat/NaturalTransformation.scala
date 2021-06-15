@@ -5,6 +5,7 @@ import scala.language.postfixOps
 import scalakittens.Result
 import Result._
 import scalakittens.Result.Outcome
+import math.Base._
 
 /**
   * Natural transformation class: morphisms for functors.
@@ -22,11 +23,11 @@ import scalakittens.Result.Outcome
   */
 abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =>
   val tag: Any
-  val domainCategory: Category = d0.d0
-  val codomainCategory: Category = d1.d1 // == d0.d1, of course
+  lazy val domainCategory:   Category = notNull(notNull(d0, "Missing d0").d0, s"Missing d0.d0 in $d0")
+  lazy val codomainCategory: Category = notNull(notNull(d1, "Missing d1").d1, "Missing d1.d1")
 
-  def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow
-  def apply(x: Any): codomainCategory.Arrow = transformPerObject(domainCategory.obj(x))
+  def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow
+  def apply(x: Any): d1.d1.Arrow = transformPerObject(domainCategory.obj(x))
 
   /**
     * Produces g∘f
@@ -35,12 +36,12 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
     */
   def andThen(g: NaturalTransformation): NaturalTransformation = {
     
-    def comp(x: domainCategory.Obj): codomainCategory.Arrow = {
-      val fHere: codomainCategory.Arrow =
+    def comp(x: d0.d0.Obj): d1.d1.Arrow = {
+      val fHere: d1.d1.Arrow =
         codomainCategory.arrow(self(x))
-      val fThere: codomainCategory.Arrow =
+      val fThere: d1.d1.Arrow =
         codomainCategory.arrow(g(x))
-      val compOpt: Option[codomainCategory.Arrow] = codomainCategory.m(fHere, fThere)
+      val compOpt: Option[d1.d1.Arrow] = d1.d1.m(fHere, fThere)
       compOpt getOrElse(
         {
           throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere")
@@ -56,7 +57,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
       val tag = s"${g.tag} ∘ ${self.tag}"
       val d0: Functor = self.d0
       val d1: Functor = g.d1
-      def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = codomainCategory.arrow(composed(x))
+      def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = d1.d1.arrow(composed(x))
     }
   }
   
@@ -64,13 +65,12 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
     val tag = newTag
     val d0: Functor = self.d0
     val d1: Functor = self.d1
-    def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
-      self.transformPerObject(x.asInstanceOf[self.domainCategory.Obj]).asInstanceOf[codomainCategory.Arrow]
+    def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+      self.transformPerObject(x.asInstanceOf[self.d0.d0.Obj]).asInstanceOf[d1.d1.Arrow]
   }
 
-
-  private[cat] lazy val asMap: Map[domainCategory.Obj, codomainCategory.Arrow] =
-    if (domainCategory.isFinite) domainCategory.objects map (o => o -> transformPerObject(o)) toMap else Map.empty
+  private[cat] lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
+    if (d0.d0.isFinite) d0.d0.objects map (o => o -> transformPerObject(o)) toMap else Map.empty
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
@@ -94,8 +94,8 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
           d0 == other.d0 &&
           d1 == other.d1 && {
           val foundBad: Option[Any] = domainCategory.objects find (o => {
-            val first: codomainCategory.Arrow = transformPerObject(o)
-            val second = other.transformPerObject(o.asInstanceOf[other.domainCategory.Obj])
+            val first: d1.d1.Arrow = transformPerObject(o)
+            val second = other.transformPerObject(o.asInstanceOf[other.d0.d0.Obj])
             val same = first == second
             if (!same && printDetails) {
               val f1 = first.asInstanceOf[SetFunction].toSet.toMap
@@ -126,39 +126,52 @@ object NaturalTransformation {
   ]( // transforming `f` to `g`
     f: Functor, g: Functor, domainCategory: Category, codomainCategory: Category)(
     transformPerObject: f.d0.Obj => f.d1.Arrow
-  ): Outcome =
+  ): Outcome = {
+      
     OKif(domainCategory == g.d0, s"Functors must be defined on the same categories") andAlso
-    OKif(codomainCategory == g.d1, s"Functors must map to the same categories") andAlso
+        OKif(codomainCategory == g.d1, s"Functors must map to the same categories") andAlso
     Result.traverse {
-    for {
-      a <- f.d0.arrows
-    } yield {
-      val x0: f.d0.Obj = f.d0.d0(a)
-      val x1: f.d0.Obj = f.d0.d1(a)
-      val faOpt = forValue(f.arrowsMapping(a))
-      val gaOpt = forValue(g.arrowsMapping(g.d0.arrow(a)))
-      val rr = for {
-        fa <- faOpt
-        ga <- gaOpt
+      for {
+        a <- f.d0.arrows
       } yield {
-        val r = Result.forValue {
-          val tx0: f.d1.Arrow = transformPerObject(x0)
-          val tx1: f.d1.Arrow = transformPerObject(x1)
-          val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
-          val downright: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
-          val checked = rightdown == downright
-          require(checked, s"Nat'l transform law broken for $a")
+        val x0: f.d0.Obj = f.d0.d0(a)
+        val x1: f.d0.Obj = f.d0.d1(a)
+        val faOpt = forValue(f.arrowsMapping(a))
+        val gaOpt = forValue(g.arrowsMapping(g.d0.arrow(a)))
+        val rr = for {
+          fa <- faOpt
+          ga <- gaOpt
+        } yield {
+          val r = Result.forValue {
+            val tx0: f.d1.Arrow = transformPerObject(x0)
+            val tx1: f.d1.Arrow = transformPerObject(x1)
+            val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
+            val downright: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
+            val checked = rightdown == downright
+            require(checked, s"Nat'l transform law broken for $a")
+          }
+          r
         }
+
+        val r = rr.flatten
         r
       }
-      
-      val r = rr.flatten
-      r
-    }
+  }
   }
 
-
-
+  def build0(theTag: Any = "", from0: Functor, to0: Functor)
+    (
+      mappings: from0.d0.Obj => from0.d1.Arrow
+    ): Any = {
+    //    if (1 == 1) throw new IllegalArgumentException(s"domain ${from0} missing for NT $theTag")
+    require(from0 != null, s"domain missing for NT $theTag")
+    notNull(from0, s"domain missing for NT $theTag")
+    notNull(to0, s"codomain missing for NT $theTag")
+    val validated = validate(from0, to0, from0.d0, from0.d1)(mappings)
+    
+    validated
+  }
+  
   /**
     * Builds a natural transformation
     *
@@ -170,12 +183,17 @@ object NaturalTransformation {
   (
     mappings: from0.d0.Obj => from0.d1.Arrow
   ): Result[NaturalTransformation] = {
+//    if (1 == 1) throw new IllegalArgumentException(s"domain ${from0} missing for NT $theTag")
+    require(from0 != null, s"domain missing for NT $theTag")
+    
+    notNull(from0, s"domain missing for NT $theTag")
+    notNull(to0, s"codomain missing for NT $theTag")
     val validated = validate(from0, to0, from0.d0, from0.d1)(mappings)
     validated returning new NaturalTransformation {
       val tag: Any = theTag
       val d0: Functor = from0
       val d1: Functor = to0
-      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         codomainCategory.arrow(mappings(from0.d0.obj(x)))
     }
   }
@@ -195,8 +213,8 @@ object NaturalTransformation {
       val tag = "Id"
       val d0: Functor = functor
       val d1: Functor = functor
-      
-      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow =
+
+      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         codomainCategory.arrow(objectMap(functor.d0.obj(x)))
     }
   }

@@ -51,7 +51,7 @@ trait GrothendieckToposLogic {
         val d0 = p.d0
         val tag: Any = newTag
 
-        override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow = {
+        override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow = {
           val dom = setAt(o)
           require(q.setAt(o) == dom)
           val po = p.transformAt(o)
@@ -118,7 +118,7 @@ trait GrothendieckToposLogic {
     new topos.Predicate {
       override val d0: Obj = f.d0.asInstanceOf[Obj] // TODO: get rid of casting
       override val tag: Any = f.tag
-      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
+      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
         val x_in_domain_of_f = f.domainCategory.obj(x)
         val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
         val arrow_in_codomain_of_f = codomainCategory.arrow(arrow_in_domain_of_f)
@@ -140,7 +140,7 @@ trait GrothendieckToposLogic {
       override val d0: Obj = _1
       override val tag: Any = pt.tag
 
-      override def transformPerObject(x: domainCategory.Obj): codomainCategory.Arrow = {
+      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
         val xInInclusion = inclusion.domainCategory.obj(x)
         val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
         codomainCategory.arrow(arrowInInclusion)
@@ -159,7 +159,7 @@ trait GrothendieckToposLogic {
       override val d0: Diagram = _1
       override val d1: Diagram = p.asDiagram
 
-      override def transformPerObject(o: domainCategory.Obj): codomainCategory.Arrow =
+      override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow =
         codomainCategory.arrow {
           val value = p(o)
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
