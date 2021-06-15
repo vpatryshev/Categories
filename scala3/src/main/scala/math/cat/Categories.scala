@@ -367,4 +367,21 @@ object Categories extends CategoryFactory {
       }
     }
   }
+
+
+  /**
+    * Creates an opposite category from this one.
+    * That is, all arrows are inverted.
+    *
+    * @return this<sup>op</sup>
+    */
+  def op(c: Category): Category =
+    new Category {
+      override val graph: Graph = ~c
+      override def id(o: Obj): Arrow = arrow(c.id(c.obj(o)))
+      override def m(f: Arrow, g: Arrow): Option[Arrow] =
+        c.m(c.arrow(g), c.arrow(f)) map arrow
+        
+      override lazy val op = c      
+    }
 }

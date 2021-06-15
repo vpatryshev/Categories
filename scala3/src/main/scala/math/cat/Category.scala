@@ -41,23 +41,6 @@ abstract class Category extends CategoryData {
     * A set of all arrows that originate at initial objects (see allRootObjects)
     */
   lazy val arrowsFromRootObjects: Set[Arrow] = arrows filter (allRootObjects contains d0(_))
-  /**
-    * Creates an opposite category from this one.
-    * That is, all arrows are inverted.
-    *
-    * @return this<sup>op</sup>
-    */
-  val op: Category = {
-    val src = this
-    new Category {
-      override val graph: Graph = ~src
-
-      override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
-
-      override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        src.m(src.arrow(g), src.arrow(f)) map arrow
-    }
-  }
 
   private[cat] lazy val listOfRootObjects = allRootObjects.toList.sortBy(_.toString)
 
@@ -664,6 +647,15 @@ abstract class Category extends CategoryData {
         src.m(src.arrow(f), src.arrow(g)) map arrow
     }
   }
+
+
+  /**
+    * Creates an opposite category from this one.
+    * That is, all arrows are inverted.
+    *
+    * @return this<sup>op</sup>
+    */
+  lazy val op: Category = Categories.op(this)
 }
 
 object Category extends CategoryFactory

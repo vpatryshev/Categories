@@ -106,7 +106,7 @@ abstract class Diagram(
   }
 
   override def colimit: Result[Cocone] = {
-    val op = d0.op
+    val op = Categories.op(d0)
     val participantArrows: Set[op.Arrow] = op.arrowsFromRootObjects // filterNot domain.isIdentity
     // for each object, a set of arrows starting at it object
     val bundles: XObject => XArrows =
@@ -297,8 +297,10 @@ abstract class Diagram(
     final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map setOf
     // this is the product of these sets; will have to take a subset of this product
     final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
-    final lazy private[cat] val cobundles: Map[XObject, XArrows] = d0.op.buildBundles(opo, opa)
-      .asInstanceOf[Map[XObject, XArrows]]
+    final lazy private val d0op = Categories.op(d0)
+    final lazy private[cat] val cobundles: Map[XObject, XArrows] =
+      d0op.buildBundles(opo, opa) // TODO: get rid of casting
+      .asInstanceOf[Map[XObject, XArrows]] // TODO: get rid of casting
     // this is the limit object
     final private[cat] lazy val vertex: set = prod filter isPoint untyped
     // bundles maps each "initial" object to a set of arrows from it
@@ -307,8 +309,8 @@ abstract class Diagram(
     lazy val rootObjects: XObjects = d0.allRootObjects.asInstanceOf[XObjects] // same thing
     private lazy val participantArrows: XArrows = d0.arrowsFromRootObjects
     // for each domain object, a collection of arrows looking outside
-    private val opo: d0.op.Objects = d0.op.objects
-    private val opa: d0.op.Arrows = participantArrows.asInstanceOf[d0.op.Arrows]
+    private lazy val opo: d0op.Objects = d0op.objects
+    private lazy val opa: d0op.Arrows = participantArrows.asInstanceOf[d0op.Arrows]
 
     // this function takes an object and returns a projection set function;
     // we have to compose each such projection
