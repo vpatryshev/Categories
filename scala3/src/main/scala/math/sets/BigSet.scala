@@ -38,13 +38,15 @@ object BigSet {
     override def iterator: Iterator[T] = source.iterator
   }
 
-  def of[T]: BigSet[T] =
-    new BigSet[T] with NonEnumerableSet[T] {
+  def of[T](named: String = "This Set"): BigSet[T] =
+    new BigSet[T] with NonEnumerable[T] {
+      override def name: String = named
       override def contains(t: T) = true
     }
 
-  def comprehension[T](p: T => Boolean): BigSet[T] =
-    new BigSet[T] with NonEnumerableSet[T] {
+  def comprehension[T](p: T => Boolean, named: String = "This set with predicate"): BigSet[T] =
+    new BigSet[T] with NonEnumerable[T] {
+      override def name: String = named
       override def contains(t: T) = p(t)
     }
 

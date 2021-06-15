@@ -3,9 +3,11 @@ package math.sets
 import math.Base._
 import scala.reflect.ClassTag
 
-trait NonEnumerableSet[T] extends Set[T] { thisOne: BigSet[T] =>
+trait NonEnumerable[T] extends IterableOnce[T] { thisOne: BigSet[T] =>
+  def name: String = "This set"
+  
   private def notEnumerable = 
-    throw new UnsupportedOperationException("This set is not enumerable")
+    throw new UnsupportedOperationException(s"$name is not enumerable")
 
   override def isEmpty: Boolean = notEnumerable
 

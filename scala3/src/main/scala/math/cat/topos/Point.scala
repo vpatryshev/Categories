@@ -60,7 +60,7 @@ class Point(
 
   // TODO: fix this awkward unnecessary casting
   def asPredicateIn(t: GrothendieckTopos): t.Predicate = {
-    require(t == topos)
+    require(t eq topos)
     predicate.asInstanceOf[t.Predicate]
   }
 
@@ -92,7 +92,7 @@ class Point(
 
   override def equals(obj: Any): Boolean = hashCode == obj.hashCode && (obj match {
     case p: Point =>
-      p.tag == tag && p.domainCategory == domainCategory &&
+      p.tag == tag && (p.domainCategory eq domainCategory) &&
         domainCategory.objects.forall(o => p(o) == this(o))
     case other => false
   })

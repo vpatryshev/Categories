@@ -142,9 +142,9 @@ object CategoryOfDiagrams {
       type Node = Diagram
       type Arrow = DiagramArrow
 
-      override def nodes: Nodes = BigSet.of[Node].asInstanceOf[Nodes]
+      override def nodes: Nodes = BigSet.of[Node](name).asInstanceOf[Nodes]
 
-      override def arrows: Arrows = BigSet.of[Arrow].asInstanceOf[Arrows]
+      override def arrows: Arrows = BigSet.of[Arrow]("Collection of arrows in " + name).asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node = node(f.d0)
 

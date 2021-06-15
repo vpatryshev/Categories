@@ -42,8 +42,9 @@ class Fixtures extends Test with TestDiagrams {
 
       for {pt1 <- points } {
         rep(s"monoidal at ${pt1.tag}")
-        val p = predicate(pt1)
-        binop(unit, p) === p
+        val p: P = predicate(pt1)
+        val actual: P = binop(unit, p)
+        actual === p
         // idempotence
         binop(p, p) === p
 
