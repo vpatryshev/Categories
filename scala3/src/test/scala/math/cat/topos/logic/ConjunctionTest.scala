@@ -20,17 +20,23 @@ class ConjunctionTest extends Fixtures {
       val rep = report(domain)(_)
       val True = Ω.True.asPredicateIn(topos)
       val False = Ω.False.asPredicateIn(topos)
+
+
+      for { pt <- Ω.points } {
+        rep(s"conjunction with False for ${pt.tag}")
+        val p = pt.asPredicateIn(topos)
+        True.getClass === p.getClass
+        False.getClass === p.getClass
+// fails        False.getClass === (False ∧ p).getClass
+
+        (False ∧ p) === False
+      }
+
       checkThatIn(topos).mustBeMonoid[Predicate](
         "conjunction",
         True,
         (p: Predicate, q: Predicate) => p ∧ q
       )
-
-      for { pt <- Ω.points } {
-        rep(s"conjunction with False for ${pt.tag}")
-        val p = pt.asPredicateIn(topos)
-        (False ∧ p) === False
-      }
       ok
     }
 

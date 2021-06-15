@@ -24,6 +24,7 @@ class ImplicationTest extends Fixtures {
       for { pt1 <- Ω.points } {
         rep(s"True ⟹ ${pt1.tag}")
         val p = pt1.asPredicateIn(topos)
+// different classes in scala 3 (True ⟹ p).getClass === p.getClass
         (True ⟹ p) === p
         rep(s"False ⟹ ${pt1.tag}")
         (False ⟹ p) === True

@@ -36,14 +36,15 @@ class Fixtures extends Test with TestDiagrams {
       binop: (P, P) => P): MatchResult[Any] = {
       import topos._
       val rep = report(topos.domain) _
-      val points = Ω.points
+      val points: Seq[Point] = Ω.points
       println(s"Testing <<${domain.name}>> $what monoidal properties (${points.size} points in Ω)")
-      def predicate(p: Point): P = p.asInstanceOf[P] // TODO: get rid of casting
+      def predicate(p: Point): P = p.asPredicateIn(topos).asInstanceOf[P]
 
       for {pt1 <- points } {
         rep(s"monoidal at ${pt1.tag}")
         val p: P = predicate(pt1)
-        val actual: P = binop(unit, p)
+        val actual = binop(unit, p)
+// different classes in scala 3        actual.getClass === p.getClass
         actual === p
         // idempotence
         binop(p, p) === p
