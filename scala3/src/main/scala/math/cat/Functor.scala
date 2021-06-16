@@ -431,9 +431,9 @@ object Functor {
   private def checkObjectMapping(f: Functor): Outcome =
     Result.traverse {
       for (x <- f.domainObjects) yield {
-        val someY: Result[f.d1.Obj] =
-          Result.forValue(f.objectsMapping(x)) orCommentTheError s"Object mapping fails for $x"
-        someY.filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
+        Result.forValue(f.objectsMapping(x))
+          .orCommentTheError(s"Object mapping fails for $x")
+          .filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
       }
     } andThen OK
 }

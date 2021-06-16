@@ -34,7 +34,7 @@ sealed trait Result[+T] extends Container[T] {
   def errorDetails: Option[String]
   def fold[U](good: T => U, bad: Errors => U): U
   def orCommentTheError(message: => Any): Result[T]
-  def tap(op: T => Unit): Result[T] // see http://combinators.info/
+  def tap(op: T => Unit): Result[T]
   def optionally[U](f: T => U => U): U => U = this map f getOrElse identity[U]
   def contains[T1 >: T](x: T1): Boolean
   def iHope: T
