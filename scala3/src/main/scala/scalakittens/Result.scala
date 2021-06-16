@@ -322,7 +322,7 @@ object Result {
       current match {
         case Good(good)      => (good::collected._1, collected._2)
         case noGood:NoGood[_] => (collected._1, noGood.listErrors.toList::collected._2)
-        case allOthers => (collected._1, collected._2)
+// do we need it? I think we don't        case allOthers => (collected._1, collected._2)
       }
     )
     
