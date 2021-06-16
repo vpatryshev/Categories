@@ -1,7 +1,7 @@
 package scalakittens
 
 /**
-  * A trait that describe a goodness of data or outcome or something
+  * A trait that describes a goodness of data or outcome or something
   *
   * Created by vpatryshev on 10/18/15.
   */
