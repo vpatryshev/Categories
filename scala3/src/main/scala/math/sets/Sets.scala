@@ -130,20 +130,6 @@ object Sets {
 
   def isFinite(s: Set[_]): Boolean = s.size != InfiniteSize
 
-  /**
-    * Builds a factorset epimorphism that projects a set to its factorset,
-    * given a set and binary relation.
-    * Factoring is done on the relation's transitive closure.
-    *
-    * @tparam T set element type
-    * @param sourceSet the main set
-    * @param r         binary relation (not necessarily equivalence relation) that determines factoring
-    * @return factorset epimorphism
-    */
-  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
-    new FactorSet[T](sourceSet, r).asMorphism
-  }
-
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
 
   def buildMap[K, V](keys: Set[K], f: K => V) = new MapForFunction(keys, f)

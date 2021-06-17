@@ -4,7 +4,8 @@ package math.sets
  * Contains some functions and operations.
  */
 
-object Functions {
+object Functions:
+  
   /**
    * Injection is a function that maps two different arguments to two different values.
    * What is good about an Injection is that when it maps a set, the resulting set
@@ -12,9 +13,8 @@ object Functions {
    * @tparam X domain type
    * @tparam Y codomain type
    */
+  trait Injection[X, Y] extends Function[X, Y]:
 
-  trait Injection[X, Y] extends Function[X, Y] {
-    self =>
     /**
       * Composes this Injection with another Injection.
       * (f compose g)(x) == f(g(x))
@@ -32,7 +32,6 @@ object Functions {
       * @return a composition
       */
     def andThen[Z](g: Injection[Y, Z]): Injection[X, Z] = g compose this
-  }
   
   def injection[X, Y] (f: X => Y): Injection[X, Y] = new Injection[X, Y] { def apply(x: X) = f(x) }
 
@@ -41,9 +40,8 @@ object Functions {
    * @tparam T main type
    * @tparam T1 subtype
    */
-  class Inclusion[T1, T >: T1] extends Injection[T1, T] {
+  class Inclusion[T1, T >: T1] extends Injection[T1, T]:
     def apply(t: T1): T = t
-  }
 
   /**
    * Builds an inclusion of type T1 to type T
@@ -60,7 +58,7 @@ object Functions {
    * @tparam X domain type
    * @tparam Y codomain type
    */
-  abstract class Bijection[X, Y] extends Injection[X, Y] {
+  abstract class Bijection[X, Y] extends Injection[X, Y]:
     /**
      * Operation that is inverse to apply: apply(unapply(y)) == y and unapply(apply(x)) == x
      * @param y an argument
@@ -91,12 +89,14 @@ object Functions {
      */
     def andThen[Z](g: Bijection[Y, Z]): Bijection[X, Z] = g compose this
 
-//    override def applyTo(s: Set[X]): Set[Y] = {
-//      val target: Iterable[Y] = s.map(this)
-//      setOf(target, s.size, (y:Y) => s contains unapply(y))
-//    }
-  }
-
+  /**
+    * Tentatively builds a bijection out of two assumingly inverse functions
+    * @param f a function
+    * @param g another function, which is an inverse of `f`
+    * @tparam X argument type
+    * @tparam Y result type
+    * @return a Bijection
+    */
   def bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
     new Bijection[X, Y] {
       def apply(x: X) = f(x)
@@ -107,10 +107,9 @@ object Functions {
    * Identity isomporphism on type T.
    * @tparam T domain type
    */
-  class Id[T] extends Bijection[T, T] {
+  class Id[T] extends Bijection[T, T]:
     def unapply(t: T): T = t
     def apply(t: T): T = t
-  }
 
   /**
    * Builds an identity function
@@ -130,13 +129,12 @@ object Functions {
    * @param f function to apply
    * @return a function that builds pairs.
    */
-  def schwartzianTransform[X,Y] (f: X => Y): Bijection[X, Product2[X, Y]] = {
+  def schwartzianTransform[X,Y] (f: X => Y): Bijection[X, Product2[X, Y]] =
     def first(p:Product2[X,Y]) = p._1 // patch for scala 2.8 compiler bug
     bijection(
       (x: X) => (x, f(x)),
       first
     )
-  }
 
   /**
     * Builds a function that, returns list element by its index.
@@ -164,4 +162,3 @@ object Functions {
    * the result will throw an exception if argument is not right
    */
 //  def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): (X1 => Y1) = { case (x0: X0) => f(x0) }
-}

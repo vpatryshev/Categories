@@ -72,11 +72,13 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams {
 
   val batchSize = 8
 
-  val groupedCategoriesToTest: List[List[Cat]] = SimpleCategories :: {
+  // Moved W to a separate group; it's the hardest to deal with
+  val groupedCategoriesToTest: List[List[Cat]] = SimpleCategories :: List(W) :: {
+    val allButW = LessSimpleCategories filterNot (W ==)
     (for {
-      i <- 0 until batchSize -1 
-      indices = i until LessSimpleCategories.length by (batchSize - 1)
-    } yield indices map (LessSimpleCategories(_)) toList) toList
+      i <- 0 until batchSize -1
+      indices = i until allButW.length by (batchSize - 1)
+    } yield indices map (allButW(_)) toList) toList
   }
 
 }

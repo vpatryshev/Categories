@@ -3,9 +3,10 @@ package math.cat
 import math.cat.SetCategory._
 import math.cat.SetFunction._
 import math.sets.Sets._
-import math.sets.{BigSet, Sets}
+import math.sets.{BigSet, BinaryRelation, Sets}
 import org.specs2.mutable._
 import scalakittens.Good
+
 import scala.language.postfixOps
 
 /**
@@ -334,5 +335,39 @@ class SetCategoryTest extends Specification {
       actual.isBad must beTrue
     }
 
+    "Have factorset by a diagonal" >> {
+      val s = setOf[Int](1 to 10)
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
+      val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
+      val factor = setOf[Set[Int]](for (i <- s) yield Set(i))
+      actual === SetMorphism.build[Int, Set[Int]](s, factor, (i:Int) => Set(i)).iHope
+    }
+
+    "have factorset mod 2" >> {
+      val s0 = setOf[Int](1 to 10)
+      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
+      val actual = factorset(s0, br)
+      val listofClasses = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
+      val setOfClasses = Set(listofClasses(0), listofClasses(1))
+      actual === SetMorphism.build[Int, Set[Int]](
+        d0 = s0, d1 = setOfClasses, function = (i:Int) => listofClasses(i % 2)
+      ).iHope
+    }
+
+    "for factorset" >> {
+      val inclusive: Seq[Int] = 1 until 11
+      val ten: Iterable[Int] = inclusive
+      val set0: Set[Int] = setOf(ten)
+      val set1 = set0.map(i => i:Any)
+      def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
+      val br: BinaryRelation[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)
+      val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
+      val sut = factorset(set1, br)
+      val factor = Set(s(1), s(0))
+      set1 === sut.d0
+      factor === sut.d1
+      s(0) === sut(8)
+      s(1) === sut(5)
+    }
   }
 }

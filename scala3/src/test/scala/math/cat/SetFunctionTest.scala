@@ -131,22 +131,6 @@ class SetFunctionTest extends Specification {
       ok
     }
 
-    "for factorset" >> {
-      val inclusive: Seq[Int] = 1 until 11
-      val ten: Iterable[Int] = inclusive
-      val set0: Set[Int] = setOf(ten)
-      val set1 = set0.map(i => i:Any)
-      def isOdd(x: Any) = x.toString.charAt(0) % 2 == 0
-      val br: BinaryRelation[Any, Any] = (a: Any, b: Any) => isOdd(a) == isOdd(b)
-      val s = Array(Set(2, 4, 6, 8), Set(1, 3, 5, 7, 9, 10))
-      val sut = Sets.factorset(set1, br)
-      val factor = Set(s(1), s(0))
-      set1 === sut.d0
-      factor === sut.d1
-      s(0) === sut(8)
-      s(1) === sut(5)
-    }
-
     "exponent 2->2" >> {
       val set1: set = setOf.elements(1, 2)
 

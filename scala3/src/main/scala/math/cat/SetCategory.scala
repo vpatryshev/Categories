@@ -2,11 +2,10 @@ package math.cat
 
 import scala.language.implicitConversions
 import scala.language.postfixOps
-
 import math.cat.SetCategory._
 import math.cat.SetFunction._
 import math.sets.Sets._
-import math.sets.{BigSet, FactorSet, Sets}
+import math.sets.{BigSet, BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
@@ -180,6 +179,27 @@ object SetCategory {
   }.getOrElse(throw new InstantiationException("This graph should exist"))
 
   object Setf extends SetCategory(FiniteSets)
+
+
+  def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] = {
+    SetMorphism.build(factorSet.base, factorSet.content, factorSet.asFunction) iHope
+  }
+
+
+  /**
+    * Builds a factorset epimorphism that projects a set to its factorset,
+    * given a set and binary relation.
+    * Factoring is done on the relation's transitive closure.
+    *
+    * @tparam T set element type
+    * @param sourceSet the main set
+    * @param r         binary relation (not necessarily equivalence relation) that determines factoring
+    * @return factorset epimorphism
+    */
+  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
+    SetCategory.asMorphism(new FactorSet[T](sourceSet, r))
+  }
+
 }
 
 /*
