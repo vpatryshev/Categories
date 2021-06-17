@@ -8,6 +8,7 @@ import math.sets.Sets
 import math.sets.Sets._
 import scalakittens.Result
 import scalakittens.Result._
+import math.sets.FactorSet
 
 /**
  * Morphism class for sets, and the accompanying object.
@@ -126,6 +127,10 @@ object SetMorphism {
       Sets.product2(f.d0, g.d0),
       Sets.product2(f.d1, g.d1),
       p => (f(p._1), g(p._2)))
+  }
+
+  def fromFactorSet[X](factorSet: math.sets.FactorSet[X]): SetMorphism[X, Set[X]] = {
+    SetMorphism.build(factorSet.base, factorSet.content, factorSet.asFunction) iHope
   }
 
 }

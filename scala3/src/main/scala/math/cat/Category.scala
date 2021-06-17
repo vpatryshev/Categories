@@ -83,7 +83,7 @@ abstract class Category extends CategoryData {
   def isomorphic(a: Obj, b: Obj): Boolean = hom(a, b) exists isIsomorphism
 
   lazy val clusters: SetMorphism[Obj, Objects] =
-    Sets.factorset(objects, BinaryRelation(isomorphic _))
+    SetCategory.factorset[Obj](objects, BinaryRelation(isomorphic _))
 
   /**
     * Returnes an inverse arrow.
@@ -658,4 +658,6 @@ abstract class Category extends CategoryData {
   lazy val op: Category = Categories.op(this)
 }
 
-object Category extends CategoryFactory
+object Category extends CategoryFactory {
+  
+}

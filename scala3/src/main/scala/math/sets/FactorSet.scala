@@ -1,7 +1,6 @@
 package math.sets
 
 import scala.language.postfixOps
-import math.cat.SetMorphism
 import math.Base._
 
 /**
@@ -12,7 +11,7 @@ import math.Base._
   *
   * @tparam X element type
   */
-class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
+class FactorSet[X](val base: Set[X]) extends Set[Set[X]] {
 
   /**
     * @return the latest version of factorset built here.
@@ -80,8 +79,4 @@ class FactorSet[X](base: Set[X]) extends Set[Set[X]] {
   override def excl(elem: Set[X]): Set[Set[X]] = itsImmutable
 
   override def iterator: Iterator[Set[X]] = equivalenceClasses.values.iterator
-  
-  def asMorphism: SetMorphism[X, Set[X]] = {
-    SetMorphism.build(base, content, asFunction) iHope
-  }
 }

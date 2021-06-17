@@ -49,9 +49,9 @@ object Base:
     */
   def concat(first: Any, conn: String, second: Any): String =
     def stringOf(x: Any): String =
-      val s0 = String valueOf x trim
-      
+      val s0 = String valueOf x trim;
       if (s0 contains " ") s"($s0)" else s0
+
     val s1 = stringOf(first)
     val s2 = stringOf(second)
     val insert = if (s1.length > 1 || s2.length > 1) s" $conn " else conn

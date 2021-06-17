@@ -361,25 +361,6 @@ class SetsTest extends Specification {
       factoring.asFunction(7) === twoSets(1)
     }
 
-    "Factorset by a diagonal" >> {
-      val s = setOf[Int](1 to 10)
-      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
-      val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
-      val factor = setOf[Set[Int]](for (i <- s) yield Set(i))
-      actual === SetMorphism.build[Int, Set[Int]](s, factor, (i:Int) => Set(i)).iHope
-    }
-
-    "Factorset mod 2" >> {
-      val s0 = setOf[Int](1 to 10)
-      val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a % 2 == b % 2
-      val actual = factorset(s0, br)
-      val listofClasses = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
-      val setOfClasses = Set(listofClasses(0), listofClasses(1))
-      actual === SetMorphism.build[Int, Set[Int]](
-        d0 = s0, d1 = setOfClasses, function = (i:Int) => listofClasses(i % 2)
-      ).iHope
-    }
-
     "Set(iterable, size, filter) should not return false positives" >> {
       val s = Set(1, 2, 3)
       def predicate = (x:Any) => x == 2
