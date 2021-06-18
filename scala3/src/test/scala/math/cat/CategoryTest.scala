@@ -103,7 +103,8 @@ class CategoryTest extends Test with CategoryFactory {
 
     "id case 3" >> {
       import NaturalNumbers._
-      id(BigInt(42)) === (BigInt(42), BigInt(42))
+      
+      id(NaturalNumbers.obj(BigInt(42))) === (BigInt(42), BigInt(42))
     }
 
     "regression from 6/9/15" >> {

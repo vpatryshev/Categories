@@ -265,7 +265,7 @@ trait GrothendieckTopos
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
           def hits_By(f: domain.Arrow) = By.contains(image_via(f))
-          y -> Ω.toSet(all_arrows_to_y.filter(hits_By))
+          y -> Ω.setOf(all_arrows_to_y.filter(hits_By))
         }
       }
     }

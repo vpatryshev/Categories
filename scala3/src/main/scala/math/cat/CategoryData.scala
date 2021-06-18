@@ -177,18 +177,17 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
   def newCategory: Category = {
     if (isFinite) newFiniteCategory
     else {
-      new Category {
+      new Category:
         override val graph = data.graph
 
-        override def d0(f: Arrow): Obj = data.d0(data.arrow(f))
+        override def d0(f: Arrow): Obj = node(data.d0(data.arrow(f)))
 
-        override def d1(f: Arrow): Obj = data.d1(data.arrow(f))
+        override def d1(f: Arrow): Obj = node(data.d1(data.arrow(f)))
 
         def id(o: Obj): Arrow = data.id(data.node(o))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           data.m(data.arrow(f), data.arrow(g)) map arrow
-      }
     }
   }
 

@@ -106,17 +106,18 @@ class GrothendieckToposTest extends Fixtures {
       import topos._
       println(topos.Ω.toShortString)
       val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1 iHope
-      val chi1: DiagramArrow = topos.χ(i1)
-      val chi10 = topos.asFunction(chi1("0"))
-      chi10(1).toShortString === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
-      chi10(2).toShortString === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
-      chi10(3).toShortString === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
-      chi10(4).toShortString === "Diagram[ParallelPair](1->{a,b})"
-      chi10(5).toShortString === "Diagram[ParallelPair](1->{a,b})"
-      val chi11 = topos.asFunction(chi1("1"))
-      chi11(1).toShortString === "Diagram[ParallelPair](1->{1})"
-      chi11(2).toShortString === "Diagram[ParallelPair](1->{1})"
-      chi11(3).toShortString === "Diagram[ParallelPair]()"
+      val χ1: DiagramArrow = topos.χ(i1)
+      val χ10: SetFunction = topos.asFunction(χ1("0"))
+      def short(x: Any) = x.asInstanceOf[Diagram].toShortString
+      short(χ10(1)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
+      short(χ10(2)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
+      short(χ10(3)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
+      short(χ10(4)) === "Diagram[ParallelPair](1->{a,b})"
+      short(χ10(5)) === "Diagram[ParallelPair](1->{a,b})"
+      val χ11 = topos.asFunction(χ1("1"))
+      short(χ11(1)) === "Diagram[ParallelPair](1->{1})"
+      short(χ11(2)) === "Diagram[ParallelPair](1->{1})"
+      short(χ11(3)) === "Diagram[ParallelPair]()"
     }
   }
 }

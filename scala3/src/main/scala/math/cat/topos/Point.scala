@@ -2,6 +2,7 @@ package math.cat.topos
 
 import math.cat.{Category, SetFunction}
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import scala.language.implicitConversions
 
 /**
   * A point of a topos object (of a diagram in a Grothendieck topos)

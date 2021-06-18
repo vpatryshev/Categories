@@ -27,7 +27,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
   lazy val codomainCategory: Category = notNull(notNull(d1, "Missing d1").d1, "Missing d1.d1")
 
   def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow
-  def apply(x: Any): d1.d1.Arrow = transformPerObject(domainCategory.obj(x))
+  def apply(x: Any): d1.d1.Arrow = transformPerObject(d0.d0.node(x))
 
   /**
     * Produces g∘f
@@ -50,7 +50,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
     }
 
     def composed[T](x: T) = {
-      comp(domainCategory.obj(x))
+      comp(d0.d0.node(x))
     }
 
     new NaturalTransformation {
@@ -81,7 +81,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
   
   def details = s"NT($tag)(${
     if (domainCategory.isFinite) {
-      domainCategory.listOfObjects.map(o => s"$o->(${transformPerObject(o)})").mkString(", ")
+      domainCategory.listOfObjects.map(o => s"$o->(${transformPerObject(d0.d0.node(o))})").mkString(", ")
     } else ""
   })"
   
@@ -94,7 +94,7 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
           d0 == other.d0 &&
           d1 == other.d1 && {
           val foundBad: Option[Any] = domainCategory.objects find (o => {
-            val first: d1.d1.Arrow = transformPerObject(o)
+            val first: d1.d1.Arrow = transformPerObject(d0.d0.node(o))
             val second = other.transformPerObject(o.asInstanceOf[other.d0.d0.Obj])
             val same = first == second
             if (!same && printDetails) {

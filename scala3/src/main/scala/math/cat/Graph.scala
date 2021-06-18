@@ -12,7 +12,7 @@ import scalakittens.Result._
 trait Graph extends GraphData { graph =>
   def name: String = "a graph"
   
-  def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception => false }
+  def contains(any: Any): Boolean = nodeOpt(any).isGood
 
   def size: Int = nodes.size
   
@@ -126,25 +126,22 @@ trait Graph extends GraphData { graph =>
     }
   }
 
-  def addArrows(arrowsData: Map[Arrow, (Node, Node)]): Graph = new Graph {
-    override val name: String = graph.name
+  def addArrows(arrowsData: Map[Arrow, (Node, Node)]): Graph =
+    new Graph:
+      override val name: String = graph.name
 
-    def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
+      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
 
-    lazy val arrows: Arrows = (arrowsData.keySet ++ graph.arrows).asInstanceOf[Arrows]
+      lazy val arrows: Arrows = (arrowsData.keySet ++ graph.arrows).asInstanceOf[Arrows]
 
-    def d0(f: Arrow): Node = {
-      val fA = f.asInstanceOf[graph.Arrow]
-      val newOne: Option[Node] = arrowsData.get(fA).map(_._1)
-      newOne.getOrElse(node(graph.d0(fA)))
-    }
+      def d0(f: Arrow): Node = {
+        val fA = arrow(f)
+        node(arrowsData.get(fA).map(_._1).getOrElse(graph.d0(fA)))
+      }
 
-    def d1(f: Arrow): Node = {
-      val fA = f.asInstanceOf[graph.Arrow]
-      val newOne: Option[Node] = arrowsData.get(fA).map(_._2)
-      newOne.getOrElse(node(graph.d1(fA)))
-    }
-  }
+      def d1(f: Arrow): Node =
+        val fA = arrow(f)
+        node(arrowsData.get(fA).map(_._2).getOrElse(graph.d1(fA)))
 }
 
 private[cat] trait GraphData { data =>
@@ -157,8 +154,10 @@ private[cat] trait GraphData { data =>
   def arrows: Arrows
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
+  
+  def nodeOpt(x: Any): Result[Node] = Result.forValue(node(x))
 
-  implicit def node(x: Any): Node = x match {
+  def node(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")

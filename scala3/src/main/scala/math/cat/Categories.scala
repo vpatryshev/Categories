@@ -341,7 +341,7 @@ object Categories extends CategoryFactory {
   
   lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
 
-  lazy val NaturalNumbers: Category = fromPoset("ℕ", PoSet.ofNaturalNumbers)
+  lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
   lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_, _5_, _1plus1_)
 

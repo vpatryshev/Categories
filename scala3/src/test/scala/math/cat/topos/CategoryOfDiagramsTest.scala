@@ -54,11 +54,11 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       }
 
       appliesTo | "a" | "b" | "c" | "d" | "e" |
-        ob("a") | "a" | "ab" | "" | "" | "" |
-        ob("b") | "" | "b" | "" | "" | "" |
-        ob("c") | "" | "cb" | "c" | "cd" | "" |
-        ob("d") | "" | "" | "" | "d" | "" |
-        ob("e") | "" | "" | "" | "ed" | "e"
+        ob("a") | "a" | "ab"|  "" |  "" |  "" |
+        ob("b") |  "" | "b" |  "" |  "" |  "" |
+        ob("c") |  "" | "cb"| "c" | "cd"|  "" |
+        ob("d") |  "" |  "" |  "" | "d" |  "" |
+        ob("e") |  "" |  "" |  "" | "ed"| "e"
 
       ok
     }
@@ -66,24 +66,23 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "be good in Set^M" in {
       val topos = new CategoryOfDiagrams(M)
       import topos.domain._
-      val rep = representable(topos)
-      val ob = (o: Obj) => {
-        val r = rep(o)
+      val ob = (o: String) => {
+        val r = representable(topos)(obj(o))
         (name: String) => r(name)
       }
 
       appliesTo | "a" | "b" | "c" | "d" | "e" |
-        ob("a") | "a" | "" | "" | "" | "" |
-        ob("b") | "ba" | "b" | "bc" | "" | "" |
-        ob("c") | "" | "" | "c" | "" | "" |
-        ob("d") | "" | "" | "dc" | "d" | "de" |
-        ob("e") | "" | "" | "" | "" | "e"
+        ob("a") | "a" | ""  | ""  | ""  | ""  |
+        ob("b") | "ba"| "b" | "bc"| ""  | ""  |
+        ob("c") | ""  |  "" | "c" | ""  | ""  |
+        ob("d") | ""  |  "" | "dc"| "d" | "de"|
+        ob("e") | ""  |  "" | ""  | ""  | "e"
 
       val mults: Unit = for {
         x <- topos.domain.objects
         a <- topos.domain.arrows
       } {
-        val r = rep(x)
+        val r = representable(topos)(obj(x))
         val arrow = r.d0.arrow(a)
         val ra = r.arrowsMapping(arrow)
         ra should not be null
@@ -95,16 +94,14 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
     "be good in Set^Z3" in {
       val topos = new CategoryOfDiagrams(Z3)
       import topos.domain._
-      val ob = (o: Obj) => {
-        val r = representable(topos)(o)
-        (name: String) => r(obj(name)).toString
-      }
-      val ar = (o: Obj) => {
-        val r = representable(topos)(o)
-        (a: String) => r.arrowsMapping(r.d0.arrow(a)).toString
+      def ob(o: String) = {
+        val r = representable(topos)(obj(o))
+        ((name: String) => r(obj(name)).toString): (String => String)
       }
 
-      appliesTo | "0" |
+      val stringToString: String => String = ob("0")
+      
+      appliesTo | "0"     |
         ob("0") | "0,1,2"
 
       ok

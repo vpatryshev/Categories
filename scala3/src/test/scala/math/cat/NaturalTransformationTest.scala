@@ -45,8 +45,8 @@ class NaturalTransformationTest extends Test {
         val fgh = fgOpt.iHope andThen ghOpt.iHope
         fgh.d0 === f
         fgh.d1 === h
-        fgh.transformPerObject(fgh.domainCategory.obj("0")) === "0.2"
-        fgh.transformPerObject(fgh.domainCategory.obj("1")) === "2.3"
+        fgh.transformPerObject(fgh.d0.d0.obj("0")) === "0.2"
+        fgh.transformPerObject(fgh.d0.d0.obj("1")) === "2.3"
     }
 
     "have identity" in {

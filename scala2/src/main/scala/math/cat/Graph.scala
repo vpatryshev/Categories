@@ -157,7 +157,7 @@ private[cat] trait GraphData { data =>
   def arrows: Arrows
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
-
+  
   implicit def node(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
     case other =>

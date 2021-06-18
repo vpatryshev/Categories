@@ -26,13 +26,13 @@ trait GrothendieckToposLogic {
     private def tag2(tag1: Any, op: String, tag2: Any): String = s"${wrapTag(tag1)} $op ${wrapTag(tag2)}"
 
     private def setAt(o: Any): set = {
-      val o1 = domainCategory.obj(o)
+      val o1 = d0.d0.obj(o)
       val function = p.transformPerObject(o1).asInstanceOf[SetFunction]
       setOf(function.d0)
     }
 
     private def transformAt(o: Any): SetFunction =
-      transformPerObject(domainCategory.obj(o)).asInstanceOf[SetFunction]
+      transformPerObject(d0.d0.obj(o)).asInstanceOf[SetFunction]
 
     private[topos] def binaryOp(q: Predicate, opName: String, ΩxΩ_to_Ω: DiagramArrow): Predicate = {
       binaryOpNamed(q, ΩxΩ_to_Ω, tag2(p.tag, opName, q.tag))
@@ -119,7 +119,7 @@ trait GrothendieckToposLogic {
       override val d0: Obj = f.d0.asInstanceOf[Obj] // TODO: get rid of casting
       override val tag: Any = f.tag
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
-        val x_in_domain_of_f = f.domainCategory.obj(x)
+        val x_in_domain_of_f = f.d0.d0.obj(x)
         val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
         val arrow_in_codomain_of_f = codomainCategory.arrow(arrow_in_domain_of_f)
         arrow_in_codomain_of_f
@@ -141,7 +141,7 @@ trait GrothendieckToposLogic {
       override val tag: Any = pt.tag
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
-        val xInInclusion = inclusion.domainCategory.obj(x)
+        val xInInclusion = inclusion.d0.d0.obj(x)
         val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
         codomainCategory.arrow(arrowInInclusion)
       }

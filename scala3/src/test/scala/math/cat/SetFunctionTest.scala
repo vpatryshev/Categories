@@ -29,20 +29,20 @@ class SetFunctionTest extends Specification {
     }
     
     "compositions" >> {
-      val x = Set(1, 2, "a")
-      val y = Set("x1", "x2", "xa", 77)
-      val z = Set(2, 28, x)
-      val f = SetFunction.build("f", x, y, (x: Any) => "x" + x) iHope
-      val g = SetFunction.build("g", y, z, (y: Any) => y.toString.length) iHope
+      val x: set = Set(1, 2, "a")
+      val y: set = Set("x1", "x2", "xa", 77)
+      val z: set = Set(2, 28, x)
+      val f = SetFunction.build("f", x: set, y: set, (x: Any) => "x" + x) iHope
+      val g = SetFunction.build("g", y: set, z: set, (y: Any) => y.toString.length) iHope
       
       g.andThen(f).isDefined === false
       f.andThen(g).isDefined === true
     }
 
     "TypelessSetMorphism then another" >> {
-      val x = Set(1, 2, "a")
-      val y = Set("x1", "x2", "xa", 77)
-      val z = Set(2, 28, x)
+      val x = Set(1, 2, "a").asInstanceOf[set]
+      val y = Set("x1", "x2", "xa", 77).asInstanceOf[set]
+      val z = Set(2, 28, x).asInstanceOf[set]
       val f = SetFunction.build("f", x, y, (x: Any) => "x" + x) iHope
       val g = SetFunction.build("g", y, z, (y: Any) => y.toString.length) iHope
       val sut = Result(f andThen g) iHope
@@ -59,8 +59,8 @@ class SetFunctionTest extends Specification {
     }
 
     "building a constant" >> {
-      val s0 = Set(1, 2, "a")
-      val s1 = Set("x1", "x2", "xa", 77)
+      val s0 = Set(1, 2, "a").asInstanceOf[set]
+      val s1 = Set("x1", "x2", "xa", 77).asInstanceOf[set]
       val sut = SetFunction.constant(s0, s1, 77)
       sut.d0 === s0
       sut.d1 === s1
@@ -85,8 +85,8 @@ class SetFunctionTest extends Specification {
     }
 
     "building an inclusion" >> {
-      val s0 = Set(1, 2, "a")
-      val s1 = Set(0, 1, 2, "b", s0, "a")
+      val s0 = Set(1, 2, "a").asInstanceOf[set]
+      val s1 = Set(0, 1, 2, "b", s0, "a").asInstanceOf[set]
       val sut = inclusion(s0, s1).iHope
       sut.d0 === s0
       sut.d1 === s1
@@ -100,7 +100,7 @@ class SetFunctionTest extends Specification {
     }
 
     "building a predicate-based inclusion" >> {
-      val s = Set(1, 2, 77, 90, 42, "1xya2")
+      val s = Set(1, 2, 77, 90, 42, "1xya2").asInstanceOf[set]
       def predicate = (x: Any) => x.toString.charAt(0) == '1'
 
       val sut = filterByPredicate(s)(predicate)
@@ -117,7 +117,7 @@ class SetFunctionTest extends Specification {
     }
 
     "building ai identity" >> {
-      val s = Set(1, 2, "a")
+      val s: set = Set(1, 2, "a")
       val sut = id(s)
       sut.d0 === s
       sut.d1 === s

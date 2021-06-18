@@ -31,7 +31,7 @@ abstract class Diagram(
   type XArrow = d0.Arrow
   type XArrows = Set[XArrow]
   
-  implicit def setOf(x: d1.Obj): set = x.asInstanceOf[set]
+  given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
   private[topos] def setAt(x: Any): set = setOf(objectsMapping(d0.asObj(x)))
   
@@ -113,7 +113,7 @@ abstract class Diagram(
     d0.buildBundles(d0.objects, participantArrows.asInstanceOf[XArrows])
     val listOfObjects: List[XObject] = op.listOfRootObjects.asInstanceOf[List[XObject]]
     // Here we have a non-repeating collection of sets to use for building a union
-    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping map setOf
+    val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping
     val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
     val typelessUnion: set = union.unionSet untyped
     val directIndex: IntMap[XObject] = toMap(listOfObjects)
@@ -181,7 +181,8 @@ abstract class Diagram(
       itsok
   }
 
-  lazy val listOfComponents: List[set] = d0.listOfObjects map objectsMapping map setOf
+  lazy val listOfComponents: List[set] =
+    d0.listOfObjects map objectsMapping map (x => setOf(x))
   
   private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
@@ -203,7 +204,7 @@ abstract class Diagram(
   }
 
   def subobjects: Iterable[Diagram] = {
-    val allSets: Map[XObject, set] = domainObjects map (o => o -> toSet(objectsMapping(o))) toMap
+    val allSets: Map[XObject, set] = domainObjects map (o => o -> setOf(objectsMapping(o))) toMap
     val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.powerset
 
     val listOfObjects: List[XObject] = domainObjects.toList
@@ -211,7 +212,7 @@ abstract class Diagram(
 
     def isCompatible(om: XObject => Sets.set) = d0.arrows.forall {
       a =>
-        val d00 = toSet(om(d0.d0(a)))
+        val d00 = setOf(om(d0.d0(a)))
         val d01: set = om(d0.d1(a))
         val f = arrowsMapping(a)
         d00 map f subsetOf d01
@@ -220,7 +221,7 @@ abstract class Diagram(
     val objMappings: Iterable[Map[XObject, Sets.set]] = for {
       values <- Sets.product(listOfComponents).view
       om0: Point = point(listOfObjects zip values toMap)
-      om: Map[XObject, Sets.set] = d0.objects map (x => x -> toSet(om0(x))) toMap;
+      om: Map[XObject, Sets.set] = d0.objects map (x => x -> setOf(om0(x))) toMap;
       if isCompatible(om)
     } yield om
     
@@ -228,10 +229,10 @@ abstract class Diagram(
 
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
-        def same_om(o: XObject): Sets.set = om(d0.asObj(o))
+        def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
         Diagram.build(i, topos)(
           same_om,
-          extendToArrows3[XObject, XArrow](same_om) _)
+          extendToArrows3[topos.domain.Obj, XArrow](same_om _) _)
     }
     
     val goodOnes = allCandidates.collect { case Good(d) => d}
@@ -288,13 +289,14 @@ abstract class Diagram(
   private def arrowActionOnPoint(a: XArrow, point: Point): Any =
     arrowsMapping(a)(point(d0.d0(a)))
 
-  private[cat] def toSet(x: Any): set = setOf(d1.obj(x))
+  private[cat] def setOf(x: Any): set = x.asInstanceOf[set]
 
   private[cat] object limitBuilder {
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = rootObjects.toList.sortBy(_.toString)
     // Here we have a non-repeating collection of sets to use for building a limit
-    final private[cat] lazy val setsToUse = listOfObjects map nodesMapping map setOf
+    final private[cat] lazy val setsToUse =
+      listOfObjects map nodesMapping map (x => setOf(x))
     // this is the product of these sets; will have to take a subset of this product
     final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
     final lazy private val d0op = Categories.op(d0)
