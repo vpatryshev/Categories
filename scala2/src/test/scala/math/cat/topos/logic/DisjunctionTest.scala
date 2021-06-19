@@ -20,8 +20,8 @@ class DisjunctionTest extends Fixtures {
         val desc = s"Testing disjunction over ${cat.name}"
         val rep = report(domain)(_)
         println(desc)
-        val True = Ω.True.asPredicateIn(topos)
-        val False = Ω.False.asPredicateIn(topos)
+        val True = Ω.True.asPredicate
+        val False = Ω.False.asPredicate
         checkThatIn(topos).mustBeMonoid[Predicate](
           "disjunction",
           False,
@@ -30,7 +30,7 @@ class DisjunctionTest extends Fixtures {
 
         for { pt <- Ω.points } {
           rep(s"disjunction with False for ${pt.tag}")
-          val p = pt.asPredicateIn(topos)
+          val p = pt.asPredicate
           (True ∨ p) === True
         }
         ok

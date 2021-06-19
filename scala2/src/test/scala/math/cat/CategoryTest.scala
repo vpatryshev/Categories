@@ -12,7 +12,7 @@ import scalakittens.{Good, Result}
 /**
   * Tests for Category class
   */
-class CategoryTest extends Test with CategoryFactory {
+class Category2Test extends Test with CategoryFactory {
 
   type SUT = Category
   
@@ -20,8 +20,8 @@ class CategoryTest extends Test with CategoryFactory {
   val EmptyMap: Map[String, String] = Map()
 
   private val defineComposition = Category.arrowBuilder
-  
-  "Category" >> {
+
+    "Category" >> {
 
     "have segments" >> {
       for {
