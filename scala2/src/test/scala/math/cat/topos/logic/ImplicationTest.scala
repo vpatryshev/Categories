@@ -18,12 +18,12 @@ class ImplicationTest extends Fixtures {
       val desc = s"Testing implication over ${cat.name}"
       val rep = report(domain)(_)
       println(desc)
-      val True = Ω.True.asPredicateIn(topos)
-      val False = Ω.False.asPredicateIn(topos)
+      val True = Ω.True.asPredicate
+      val False = Ω.False.asPredicate
 
       for { pt1 <- Ω.points } {
         rep(s"True ⟹ ${pt1.tag}")
-        val p = pt1.asPredicateIn(topos)
+        val p = pt1.asPredicate
         (True ⟹ p) === p
         rep(s"False ⟹ ${pt1.tag}")
         (False ⟹ p) === True
@@ -34,11 +34,11 @@ class ImplicationTest extends Fixtures {
 
         rep(s"adjunction for ${pt1.tag}")
         for { pt2 <- Ω.points } {
-          val q = pt2.asPredicateIn(topos)
+          val q = pt2.asPredicate
           val p_and_q = p ∧ q
 
           for { pt3 <- Ω.points } {
-            val r = pt3.asPredicateIn(topos)
+            val r = pt3.asPredicate
             val q2r = q ⟹ r
             val left = p_and_q ⟹ r
             val right = p ⟹ q2r
@@ -48,11 +48,11 @@ class ImplicationTest extends Fixtures {
 
         rep(s"adjunction for ${pt1.tag}")
         for { pt2 <- Ω.points } {
-          val q = pt2.asPredicateIn(topos)
+          val q = pt2.asPredicate
           val p_and_q = p ∧ q
 
           for { pt3 <- Ω.points } {
-            val r = pt3.asPredicateIn(topos)
+            val r = pt3.asPredicate
             val q2r = q ⟹ r
             val left = p_and_q ⟹ r
             val right = p ⟹ q2r
@@ -62,11 +62,11 @@ class ImplicationTest extends Fixtures {
 
         rep(s"conjunction distributivity for ${pt1.tag}")
         for { pt2 <- Ω.points } {
-          val q = pt2.asPredicateIn(topos)
+          val q = pt2.asPredicate
           val p_and_q = p ∧ q
 
           for { pt3 <- Ω.points } {
-            val r = pt3.asPredicateIn(topos)
+            val r = pt3.asPredicate
             val r2p = r ⟹ p
             val r2q = r ⟹ q
             val left = r2p ∧ r2q
@@ -77,11 +77,11 @@ class ImplicationTest extends Fixtures {
 
         rep(s"disjunction distributivity for ${pt1.tag}")
         for { pt2 <- Ω.points } {
-          val q = pt2.asPredicateIn(topos)
+          val q = pt2.asPredicate
           val p_or_q = p ∨ q
 
           for { pt3 <- Ω.points } {
-            val r = pt3.asPredicateIn(topos)
+            val r = pt3.asPredicate
             val p2r = p ⟹ r
             val q2r = q ⟹ r
             val left = p2r ∧ q2r

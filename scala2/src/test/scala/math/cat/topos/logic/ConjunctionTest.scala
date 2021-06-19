@@ -17,8 +17,8 @@ class ConjunctionTest extends Fixtures {
       import topos._
       val desc = s"Testing $what over ${domain.name}"
       val rep = report(domain)(_)
-      val True = Ω.True.asPredicateIn(topos)
-      val False = Ω.False.asPredicateIn(topos)
+      val True = Ω.True.asPredicate
+      val False = Ω.False.asPredicate
       checkThatIn(topos).mustBeMonoid[Predicate](
         "conjunction",
         True,
@@ -27,7 +27,7 @@ class ConjunctionTest extends Fixtures {
 
       for { pt <- Ω.points } {
         rep(s"conjunction with False for ${pt.tag}")
-        val p = pt.asPredicateIn(topos)
+        val p = pt.asPredicate
         (False ∧ p) === False
       }
       ok
