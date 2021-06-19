@@ -66,7 +66,7 @@ trait GrothendieckToposLogic {
     
           val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
           val maybeFunction = PQtoΩxΩ andThen op
-          codomainCategory.arrow(Result(maybeFunction).iHope)
+          d1.d1.arrow(Result(maybeFunction).iHope)
         }
       }
     }
@@ -121,7 +121,7 @@ trait GrothendieckToposLogic {
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
         val x_in_domain_of_f = f.d0.d0.obj(x)
         val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
-        val arrow_in_codomain_of_f = codomainCategory.arrow(arrow_in_domain_of_f)
+        val arrow_in_codomain_of_f = d1.d1.arrow(arrow_in_domain_of_f)
         arrow_in_codomain_of_f
       }
     }
@@ -143,7 +143,7 @@ trait GrothendieckToposLogic {
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
         val xInInclusion = inclusion.d0.d0.obj(x)
         val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
-        codomainCategory.arrow(arrowInInclusion)
+        d1.d1.arrow(arrowInInclusion)
       }
     }
   }
@@ -160,7 +160,7 @@ trait GrothendieckToposLogic {
       override val d1: Diagram = p.asDiagram
 
       override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow =
-        codomainCategory.arrow {
+        d1.d1.arrow {
           val value = p(o)
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
         }

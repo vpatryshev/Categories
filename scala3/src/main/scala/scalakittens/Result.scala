@@ -30,6 +30,8 @@ sealed trait Result[+T] extends Container[T]:
   def filterNot(p: T => Boolean, onError: T=> String): Result[T] =  filter((t:T) => !p(t), onError)
   def filterNot(p: T => Boolean, errorMessage: => String): Result[T] = filterNot(p, x => errorMessage)
   def filterNot(flag:Boolean, errorMessage: => String): Result[T] = filterNot ((x:T) => flag, errorMessage)
+  def exists(p: T => Boolean): Boolean
+  def forall(p: T => Boolean): Boolean
   def errorDetails: Option[String]
   def fold[U](good: T => U, bad: Errors => U): U
   def orCommentTheError(message: => Any): Result[T]
@@ -64,6 +66,9 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
     Result.forValue(if (p(value)) this else {
       Result.error(onError(value))
     }).flatten
+  def exists(p: T => Boolean): Boolean = p(value)
+  def forall(p: T => Boolean): Boolean = p(value)
+    
   def errorDetails: Option[String] = None
   def orCommentTheError(message: =>Any): Good[T] = this
   def tap(op: T => Unit): Result[T] = {op(value); this}
@@ -73,6 +78,8 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
 trait NoGood[T] extends NothingInside[T] { self:Result[T] =>
   def filter(p: T => Boolean):Result[T] = self
   def filter(p: T => Boolean, onError: T => String):Result[T] = self
+  def exists(p: T => Boolean): Boolean = false
+  def forall(p: T => Boolean): Boolean = true
   protected def foreach_(f: T => Unit): Unit = ()
   def getOrElse[T1 >: T](alt: => T1): T1 = alt
   def orElse[T1 >: T] (next: => Result[T1]): Result[T1] = next

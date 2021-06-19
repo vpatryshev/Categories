@@ -68,7 +68,7 @@ class CategoryOfDiagrams(val domain: Category)
       override val d1: Functor = o
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        codomainCategory.arrow(objectMap(o.d0.obj(x)))
+        d1.d1.arrow(objectMap(o.d0.obj(x)))
     }
   }
 
@@ -83,8 +83,8 @@ class CategoryOfDiagrams(val domain: Category)
         val f_x = f.transformPerObject(f.d0.d0.node(xObjf))
         val xObjg = g.domainCategory.obj(x)
         val g_x = g.transformPerObject(g.d0.d0.node(xObjg))
-        val gf_x = m(f_x, g_x)
-        codomainCategory.arrow(gf_x)
+        val gf_x = m(f_x.asInstanceOf[Arrow], g_x.asInstanceOf[Arrow])
+        d1.d1.arrow(gf_x)
       }
     }
   } else None

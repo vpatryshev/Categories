@@ -157,7 +157,7 @@ trait GrothendieckTopos
         }
 
         override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-          codomainCategory.arrow(perObject(d0.d0.obj(x)))
+          d1.d1.arrow(perObject(d0.d0.obj(x)))
       }
     }
 
@@ -214,7 +214,7 @@ trait GrothendieckTopos
         }
 
         override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-          codomainCategory.arrow(perObject(d0.d0.obj(x)))
+          d1.d1.arrow(perObject(d0.d0.obj(x)))
       }
     }
 
@@ -304,7 +304,7 @@ trait GrothendieckTopos
       val tag = theTag
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        codomainCategory.arrow(objToFunction(domain.obj(x)))
+        d1.d1.arrow(objToFunction(domain.obj(x)))
     }
   }
 

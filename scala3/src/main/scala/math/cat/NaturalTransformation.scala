@@ -38,9 +38,9 @@ abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =
     
     def comp(x: d0.d0.Obj): d1.d1.Arrow = {
       val fHere: d1.d1.Arrow =
-        codomainCategory.arrow(self(x))
+        d1.d1.arrow(self(x))
       val fThere: d1.d1.Arrow =
-        codomainCategory.arrow(g(x))
+        d1.d1.arrow(g(x))
       val compOpt: Option[d1.d1.Arrow] = d1.d1.m(fHere, fThere)
       compOpt getOrElse(
         {
@@ -194,7 +194,7 @@ object NaturalTransformation {
       val d0: Functor = from0
       val d1: Functor = to0
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        codomainCategory.arrow(mappings(from0.d0.obj(x)))
+        d1.d1.arrow(mappings(from0.d0.obj(x)))
     }
   }
 
@@ -215,7 +215,7 @@ object NaturalTransformation {
       val d1: Functor = functor
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        codomainCategory.arrow(objectMap(functor.d0.obj(x)))
+        d1.d1.arrow(objectMap(functor.d0.obj(x)))
     }
   }
 

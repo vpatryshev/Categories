@@ -199,7 +199,7 @@ abstract class Diagram(
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram = {
     def objectMapping(o: XObject): Sets.set = objectsMapping(o) filter predicate(o)
 
-    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a)
+    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a.asInstanceOf[XArrow])
     Diagram(tag, topos)(objectMapping, arrowToFunction)
   }
 
@@ -232,7 +232,7 @@ abstract class Diagram(
         def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
         Diagram.build(i, topos)(
           same_om,
-          extendToArrows3[topos.domain.Obj, XArrow](same_om _) _)
+          extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
     }
     
     val goodOnes = allCandidates.collect { case Good(d) => d}
@@ -353,7 +353,7 @@ object Diagram {
       }
 
       override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-        (a: d0.Arrow) => d1.arrow(arrowMap(a))
+        (a: d0.Arrow) => d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
     }
   }
   

@@ -170,7 +170,7 @@ private[cat] trait CategoryFactory {
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
-    private def buildCategory(
+    private[cat] def buildCategory(
       gOpt: Result[Graph],
       multTable: Map[(String, String), String]): Result[Cat] = {
       for {
@@ -339,8 +339,9 @@ object Categories extends CategoryFactory {
     arrowBuilder
   ).getOrElse(throw new InstantiationException("Bad Simplicial3")))
   
-  lazy val AAAAAA = category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
-
+  def AAAAAA = {
+    category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
+  } 
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
   lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_, _5_, _1plus1_)
@@ -349,7 +350,8 @@ object Categories extends CategoryFactory {
     W, // this one is the hardest for logic calculations
     ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
     Z2, Z3, Z4,
-    AAAAAA, Simplicial3, M)
+    //AAAAAA,
+    Simplicial3, M)
 
   lazy val SomeKnownCategories = SimpleCategories ++ LessSimpleCategories
 
