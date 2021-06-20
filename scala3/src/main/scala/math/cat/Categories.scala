@@ -350,7 +350,7 @@ object Categories extends CategoryFactory {
     W, // this one is the hardest for logic calculations
     ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
     Z2, Z3, Z4,
-    //AAAAAA,
+    AAAAAA,
     Simplicial3, M)
 
   lazy val SomeKnownCategories = SimpleCategories ++ LessSimpleCategories
