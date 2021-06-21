@@ -73,19 +73,17 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
     }
     
   validatePoset()
-  
+
+
   protected def validatePoset(): Unit = if (Sets.isFinite(elements))
-    for {x <- elements}
-      require(le(x, x), " reflexivity broken at " + x)
+    for {x <- elements} require(le(x, x), " reflexivity broken at " + x)
 
-      for {y <- elements}
-        if le(x, y) && le(y, x) then
-          require(x == y, " antisymmetry broken at " + x + ", " + y)
+    for {x <- elements; y <- elements}
+      if (le(x, y) && le(y, x)) require(x == y, " antisymmetry broken at " + x + ", " + y)
 
-        for {
-          z <- elements if le(y, z)
-        }
-          require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
+    for {x <- elements; y <- elements; z <- elements}
+      if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
+    
   
   /**
    * Builds a new poset out of this one, with the inverted order.
@@ -112,8 +110,11 @@ object PoSet:
    * @param pairs    pairs of comparable elements
    * @return a new poset built on the data provided
    */
-  def apply[T](theElements: Set[T], pairs: Seq[(T, T)]) =
+  def apply[T](theElements: Set[T], pairs: Set[(T, T)]) =
       new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
+
+  def apply[T](theElements: Set[T], pairs: List[(T, T)]) =
+    new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
 
   def apply[T](theElements: Set[T], comparator: (T, T) => Boolean) =
     new PoSet(theElements, comparator)
