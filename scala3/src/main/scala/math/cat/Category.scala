@@ -550,9 +550,10 @@ abstract class Category extends CategoryData {
     val badArrows: Arrows = arrows.filterNot(a => setOfObjects(d0(a)))
 
     require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")} in $name")
-
+    val grouped = arrows.groupBy(d0)
     val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
-    setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
+    val res = setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
+    res
   }
 
   /**

@@ -203,7 +203,7 @@ abstract class Functor(
     */
   case class Cone(vertex: d1.Obj, arrowTo: d0.Obj => d1.Arrow) {
 
-    override def toString: String = "Cone[" + vertex + "]"
+    override def toString: String = s"Cone[$vertex]"
 
     /**
       * A cone from y1 to F is factored by this cone (with vertex y)

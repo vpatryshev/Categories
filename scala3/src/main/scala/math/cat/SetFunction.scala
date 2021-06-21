@@ -100,7 +100,7 @@ object SetFunction {
     * @return constant morphism
     */
   def constant(d0: set, d1: set, value: Any): SetFunction =
-    apply(value.toString, d0, d1, Functions.constant(value))
+    apply(value.toString, d0, d1, Function.const(value))
 
   /**
     * Factory method. Builds an inclusion monomorphism that injects one set to another.

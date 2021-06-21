@@ -40,7 +40,7 @@ class CategoryOfDiagrams(val domain: Category)
     (1 :: Nil).to(LazyList)
 
     val all: Set[Diagram] = for {
-      (candidate, i) <- Sets.powerset(domain.objects).zipWithIndex
+      (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
       // some mappings are not working for a given candidate
       amCandidate: (domain.Arrow => SetFunction) = arrowMapping(candidate)
       am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))

@@ -21,7 +21,7 @@ class SetMorphism[X, Y] (
   extends Morphism[Set[X], Set[Y]] with Map[X, Y] {
   private def plural(n: Int, w: String) = if (n == 1) s"1 $w" else s"$n ${w}s"
   override def toString: String = tag match {
-    case "" => "{" + (d0 map (x => s"$x -> ${this(x)}") mkString ", ")  + "}"
+    case "" => d0 map (x => s"$x -> ${this(x)}") mkString ("{", ", ", "}")
     case _  => s"$tag: ${plural(d0.size, "element")} -> ${plural(d1.size, "element")}"
   }
   override def removed(key: X): scala.collection.immutable.Map[X,Y] = itsImmutable
@@ -51,11 +51,11 @@ class SetMorphism[X, Y] (
   def revert: SetMorphism[Y, Set[X]] = {
     val d1AsSet: Set[Y] = d1
     val d0AsSet: Set[X] = d0
-    val d0ForRevert: Set[Set[X]] = Sets.powerset(d0AsSet)
+    val d0ForRevert: Set[Set[X]] = Sets.pow(d0AsSet)
     build[Y, Set[X]](
       d1AsSet,
       d0ForRevert,
-      Sets.groupBy(d0AsSet, this)) iHope
+      Sets.groupedBy(d0AsSet, this)) iHope
   }  
   
   override def contains(x: X): Boolean = d0.contains(x)
@@ -82,7 +82,12 @@ object SetMorphism {
   // All we need is that each d0 element is mapped to a d1 element.
   def check[X, Y, T <: SetMorphism[X, Y]](f: T): Result[T] = Result.traverse {
     for {x <- f.d0} yield {
-      val y = f.function(x)
+      val y = try {
+        f.function(x)
+      } catch {
+        case ex: Exception =>
+          throw ex
+      }
       val yInD1 = f.d1 contains y
       OKif(yInD1, s"${f.tag}: Value $y for $x should be in d1 ${f.d1}")
     }

@@ -16,7 +16,7 @@ class PoSetMorphismTest extends Specification {
     "Constructor" >> {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5")
-      PoSetMorphism.build(x, y, (n: Int) => "#" + n) match {
+      PoSetMorphism.build(x, y, (n: Int) => s"#$n") match {
         case Good(sut) =>
           sut(3) === "#3"
           sut.d0 === x
@@ -30,7 +30,7 @@ class PoSetMorphismTest extends Specification {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#5")
 
-      PoSetMorphism.build(x, y, (n: Int) => "#" + n) match {
+      PoSetMorphism.build(x, y, (n: Int) => s"#$n") match {
         case Good(sut) => failure(s"expected an error, got $sut")
         case nogood => ok
       }

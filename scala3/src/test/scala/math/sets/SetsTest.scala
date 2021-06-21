@@ -20,13 +20,22 @@ class SetsTest extends Specification {
       Sets.parse("{a, bc, def, ghij}") === Good(Set("a", "bc", "def", "ghij"))
     }
 
-    "groubBy should group" >> {
+    "groupBy should group" >> {
       val xs = Set(2, 3, -2, 5, 6, 7)
       val f = groupBy(xs, (n: Int) => n * n)
       f(1) === Set.empty
       f(2) === Set.empty
       f(3) === Set.empty
       f(4) === Set(2, -2)
+    }
+
+    "groupedBy should group" >> {
+      val xs = Set(2, 3, -2, 5, 6, 7)
+      val m = groupedBy(xs, (n: Int) => n * n)
+      m(1) === Set.empty
+      m(2) === Set.empty
+      m(3) === Set.empty
+      m(4) === Set(2, -2)
     }
 
     "Iterable should produce a set" >> {
@@ -140,6 +149,15 @@ class SetsTest extends Specification {
       eq2 must beTrue
       actual === expected // fails for some reason
     }
+    
+    "union of a finite with an infinite set" >> {
+      val src = N.untyped :: Set("a", "b").untyped :: Nil
+      val sut = union(src)
+      sut.size === InfiniteSize
+      sut(BigInt(42)) === true
+      sut(42) === false
+      sut("b") === true
+    }
 
     "take n of infinite should not hang" >> {
       val sut = N take 5
@@ -154,10 +172,11 @@ class SetsTest extends Specification {
     }
 
     "union of an infinite with a finite should cover both" >> {
-      val sut = union(N, Set("a", "b", 3.5)) take 20
-      sut must contain("a")
-      sut must contain("b")
-      sut must contain(8)
+      val sut = union(N, Set("a", "b", 3.5))
+      val sutShort = sut take 20
+      sutShort must contain("a")
+      sutShort must contain("b")
+      sutShort must contain(8)
     }
 
     "union of an infinite with an infinite should include both" >> {
@@ -243,7 +262,7 @@ class SetsTest extends Specification {
 
     "powerset of a 3-element set should give 8 elements" >> {
       val s = Set("a", "b", "c")
-      val actual = powerset(s)
+      val actual = pow(s)
       val expected = Set(Set.empty, Set("a"), Set("b"), Set("c"), Set("a", "b"), Set("a", "c"), Set("b", "c"), s)
       actual === expected
     }

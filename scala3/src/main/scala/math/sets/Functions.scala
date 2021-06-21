@@ -19,10 +19,11 @@ object Functions:
       * Composes this Injection with another Injection.
       * (f compose g)(x) == f(g(x))
       *
-      * @param g another Injection
+      * @param g another injection
       * @return a composition
       */
-    def compose[T](g: Injection[T, X]): Injection[T, Y] = injection { (t:T) => apply(g(t)) }
+    def compose[T](g: Injection[T, X]): Injection[T, Y] =
+      injection { (t:T) => apply(g(t)) }
 
     /**
       * Composes this Injection with another Injection.
@@ -32,8 +33,18 @@ object Functions:
       * @return a composition
       */
     def andThen[Z](g: Injection[Y, Z]): Injection[X, Z] = g compose this
-  
-  def injection[X, Y] (f: X => Y): Injection[X, Y] = new Injection[X, Y] { def apply(x: X) = f(x) }
+
+  /**
+    * Builds an injection.
+    * We actually don't know whether `f` is monomorphic, but we trust the user.
+    * @param f the function that is promoted to Injection
+    * @tparam X argument type
+    * @tparam Y result type
+    * @return an instance of `Injection`
+    */
+  def injection[X, Y] (f: X => Y): Injection[X, Y] =
+    new Injection[X, Y]:
+      def apply(x: X) = f(x)
 
 /**
    * Injection of values of a certain type T1 to themselves, as a super type T.
@@ -73,7 +84,8 @@ object Functions:
      * @param g another Injection
      * @return a composition
      */
-    def compose[T](g: Bijection[T, X]): Bijection[T, Y] = bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
+    def compose[T](g: Bijection[T, X]): Bijection[T, Y] =
+      bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
 
     /**
      * Inverse to this bijection
@@ -129,36 +141,18 @@ object Functions:
    * @param f function to apply
    * @return a function that builds pairs.
    */
-  def schwartzianTransform[X,Y] (f: X => Y): Bijection[X, Product2[X, Y]] =
-    def first(p:Product2[X,Y]) = p._1 // patch for scala 2.8 compiler bug
+  def schwartzianTransform[X,Y] (f: X => Y): Bijection[X, (X, Y)] =
     bijection(
       (x: X) => (x, f(x)),
-      first
+      _._1
     )
 
   /**
-    * Builds a function that, returns list element by its index.
-    *
-    * @tparam X list element type
-    * @param list the list
-    * @return the function
+    * Restricts a function to a subtype
+    * @param fun a function X -> Y
+    * @tparam X argument type
+    * @tparam X1 the subtype
+    * @tparam Y value type
+    * @return a function X1 -> Y
     */
-  def forList[X](list: List[X]): Int => X = list
-
-  /**
-   * Builds constant function
-   * @tparam X domain type
-   * @tparam Y codomain type
-   * @param value the only value it ever returns
-   * @return the constant function
-   */
-  def constant[X, Y] (value: Y): X => Y = (x: X) => value
-
   def restrict[X, X1 <: X, Y](fun: X => Y): X1 => Y = (x1: X1) => fun(x1)
-
-  // This should not even exist! What exception?! what extension? Be contravariant.
-  /**
-   * Extends a function to a wider domain and codomain
-   * the result will throw an exception if argument is not right
-   */
-//  def extend[X0, X1 >: X0, Y0, Y1 >: Y0](f: X0 => Y0): (X1 => Y1) = { case (x0: X0) => f(x0) }

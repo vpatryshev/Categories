@@ -134,7 +134,7 @@ abstract class Diagram(
       g <- aAsMorphism andThen embeddingToUnion // do we need it?
     } yield (o, g)
 
-    // Account for all canonical functions
+    // Accounts for all canonical functions
     val canonicalFunctionPerObject: Map[XObject, SetFunction] =
       functionsToUnion.toMap
 
@@ -205,7 +205,7 @@ abstract class Diagram(
 
   def subobjects: Iterable[Diagram] = {
     val allSets: Map[XObject, set] = domainObjects map (o => o -> setOf(objectsMapping(o))) toMap
-    val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.powerset
+    val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
 
     val listOfObjects: List[XObject] = domainObjects.toList
     val listOfComponents: List[Set[set]] = listOfObjects.map(allPowers)

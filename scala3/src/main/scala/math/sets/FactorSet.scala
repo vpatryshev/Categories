@@ -11,16 +11,18 @@ import math.Base._
   *
   * @tparam X element type
   */
-class FactorSet[X](val base: Set[X]) extends Set[Set[X]] {
+class FactorSet[X](val base: Set[X]) extends Set[Set[X]]:
 
   /**
     * @return the latest version of factorset built here.
     */
   lazy val content: Set[Set[X]] = equivalenceClasses.values.toSet
+  
   /**
     * Maps elements of the main set to their equivalence classes (they constitute the factorset).
     */
-  private var equivalenceClasses: Map[X, Set[X]] = base.foldLeft(Map[X, Set[X]]()) ((m, x) => m + (x -> Set(x)))
+  private var equivalenceClasses: Map[X, Set[X]] =
+    base.foldLeft(Map[X, Set[X]]()) ((m, x) => m + (x -> Set(x)))
 
   /**
     * Builds a factorset of a given set, by the transitive closure of a given relation.
@@ -28,10 +30,9 @@ class FactorSet[X](val base: Set[X]) extends Set[Set[X]] {
     * @param sourceSet base set
     * @param r   binary relation
     */
-  def this(sourceSet: Set[X], r: BinaryRelation[X, X]) = {
+  def this(sourceSet: Set[X], r: BinaryRelation[X, X]) =
     this(sourceSet)
     factorByRelation(r)
-  }
 
   /**
     * Given a <code>BinaryRelation r</code>, merges equivalent classes if they
@@ -51,7 +52,7 @@ class FactorSet[X](val base: Set[X]) extends Set[Set[X]] {
     * @param x1 first element
     * @param x2 second element
     */
-  def merge(x1: X, x2: X): Unit = {
+  def merge(x1: X, x2: X): Unit =
     for (
       class1 <- equivalenceClasses.get(x1);
       class2 <- equivalenceClasses.get(x2) if x1 != x2) {
@@ -60,7 +61,6 @@ class FactorSet[X](val base: Set[X]) extends Set[Set[X]] {
         equivalenceClasses = equivalenceClasses + (x3 -> merged)
       }
     }
-  }
 
   /**
     * @return the domain set.
@@ -79,4 +79,4 @@ class FactorSet[X](val base: Set[X]) extends Set[Set[X]] {
   override def excl(elem: Set[X]): Set[Set[X]] = itsImmutable
 
   override def iterator: Iterator[Set[X]] = equivalenceClasses.values.iterator
-}
+
