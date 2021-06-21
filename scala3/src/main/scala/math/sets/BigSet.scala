@@ -9,9 +9,9 @@ package math.sets
 abstract class BigSet[T] extends Set[T] {
   override def size: Int = Sets.InfiniteSize
 
-  def whoami: String = "A BIG SET"
+  def name: String = "A BIG SET"
 
-  override def toString: String = whoami
+  override def toString: String = name
 
   def map[U](f: Functions.Bijection[T, U]): BigSet[U] = BigSet.comprehension((u: U) => this contains (f unapply u))
 
@@ -39,13 +39,13 @@ object BigSet {
   }
 
   def of[T](named: String = "This Set"): BigSet[T] =
-    new BigSet[T] with NonEnumerable[T] {
+    new BigSet[T] with NonEnumerable[T, BigSet[T]] {
       override def name: String = named
       override def contains(t: T) = true
     }
 
   def comprehension[T](p: T => Boolean, named: String = "This set with predicate"): BigSet[T] =
-    new BigSet[T] with NonEnumerable[T] {
+    new BigSet[T] with NonEnumerable[T, BigSet[T]] {
       override def name: String = named
       override def contains(t: T) = p(t)
     }

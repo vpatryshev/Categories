@@ -9,6 +9,9 @@ trait Goodness:
   def isGood: Boolean
   def isBad:  Boolean = !isGood
 
-trait PositiveAttitude extends Goodness { def isGood = true }
-trait NegativeAttitude extends Goodness { def isGood = false}
+trait PositiveAttitude extends Goodness:
+  inline def isGood = true
+
+trait NegativeAttitude extends Goodness:
+  inline def isGood = false
 

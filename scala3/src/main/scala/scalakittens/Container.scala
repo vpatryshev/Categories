@@ -6,11 +6,11 @@ package scalakittens
   */
 trait Container[+T] extends Goodness:
   def isEmpty: Boolean
-  def isDefined: Boolean = nonEmpty
-  def nonEmpty: Boolean = !isEmpty
+  inline def isDefined: Boolean = nonEmpty
+  inline def nonEmpty: Boolean = !isEmpty
 
 trait NothingInside[+T] extends Container[T] with NegativeAttitude:
-  def isEmpty = true
+  inline def isEmpty = true
 
 trait SomethingInside[+T] extends Container[T] with PositiveAttitude:
-  def isEmpty = false
+  inline def isEmpty = false

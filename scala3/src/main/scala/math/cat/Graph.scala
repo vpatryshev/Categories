@@ -282,7 +282,7 @@ object Graph {
     }
 
   def ofPoset[N](name0: String, poset: PoSet[N]): Graph = {
-    val points = poset.underlyingSet
+    val points = poset.elements
     val posetSquare = Sets.product2(points, points)
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 

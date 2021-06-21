@@ -20,9 +20,13 @@ object BinaryRelation:
     new BinaryRelation[X, Y]:
       def apply(x: X, y: Y): Boolean = pairs.contains((x, y))
 
-//  given Conversion[X, Y] with
-//    def apply(str: String): Token = new KeyWord(str)
-  
+  /**
+    * Represents a function of two arguments as a binary relation
+    * @param f the function
+    * @tparam X first argument type
+    * @tparam Y second argument type
+    * @return a binary relation representing the given function
+    */
   implicit def apply[X, Y](f: Function2[X, Y, Boolean]): BinaryRelation[X, Y] =
     new BinaryRelation[X, Y]:
       def apply(x: X, y: Y) = f(x, y)

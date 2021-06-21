@@ -11,15 +11,15 @@ class PoSetTest extends Specification {
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})").
           getOrElse(throw new IllegalArgumentException("Did not parse"))
 
-      actual.underlyingSet === expected.underlyingSet
-      val product = Sets.product2(expected.underlyingSet, expected.underlyingSet)
+      actual.elements === expected.elements
+      val product = Sets.product2(expected.elements, expected.elements)
 
       for {p <- product} {
         // could not use `===`, something wrong with it in combination with `aka`
         (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must_== expected.le(p)
       }
-      expected.equal(actual) must beTrue // here we check equality
-      actual.equal(expected) must beTrue // here we check equality again
+      expected.equals(actual) must beTrue // here we check equality
+      actual.equals(expected) must beTrue // here we check equality again
     }
 
     "plain pairs" >> {
@@ -79,7 +79,7 @@ class PoSetTest extends Specification {
 
     "UnderlyingSet" >> {
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-      sut.underlyingSet === Set("a", "b", "c")
+      sut.elements === Set("a", "b", "c")
     }
 
     "Paarser" >> {
@@ -87,7 +87,7 @@ class PoSetTest extends Specification {
       val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})").
         getOrElse(throw new IllegalArgumentException("Did not parse"))
       actual.size === 3
-      actual.underlyingSet === Set("a", "b", "c")
+      actual.elements === Set("a", "b", "c")
       actual.le("a", "b") must beTrue
       actual.le("b", "c") must beTrue
       actual.le("a", "c") must beTrue
