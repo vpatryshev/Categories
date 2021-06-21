@@ -12,7 +12,7 @@ import scalakittens.Result._
 trait Graph extends GraphData { graph =>
   def name: String = "a graph"
   
-  def contains(any: Any): Boolean = try { nodes contains any } catch { case _:Exception => false }
+  def contains(any: Any): Boolean = nodeOpt(any).isGood
 
   def size: Int = nodes.size
   
@@ -47,8 +47,9 @@ trait Graph extends GraphData { graph =>
 
   override def toString: String = {
     val nodeStrings = nodes.toList.sortBy(_.toString).mkString(", ")
+    val arrowsSorted: Seq[Arrow] = arrows.toList.sortBy(_.toString)
     val arrowStrings =
-      arrows.toList.sortBy(_.toString) map ((a: Arrow) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
+      arrowsSorted map ((a: Arrow) => s"$a: ${d0(a)}->${d1(a)}") mkString ", "
     s"({$nodeStrings}, {$arrowStrings})"
   }
 
@@ -126,25 +127,49 @@ trait Graph extends GraphData { graph =>
     }
   }
 
-  def addArrows(arrowsData: Map[Arrow, (Node, Node)]): Graph = new Graph {
-    override val name: String = graph.name
+  def addArrows(arrowsData: Map[Arrow, (Node, Node)]): Graph = 
+    val result = new Graph:
+      override val name: String = graph.name
 
-    def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
+      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
 
-    lazy val arrows: Arrows = (arrowsData.keySet ++ graph.arrows).asInstanceOf[Arrows]
+      lazy val arrows: Arrows = (arrowsData.keySet ++ graph.arrows).asInstanceOf[Arrows]
 
-    def d0(f: Arrow): Node = {
-      val fA = f.asInstanceOf[graph.Arrow]
-      val newOne: Option[Node] = arrowsData.get(fA).map(_._1)
-      newOne.getOrElse(node(graph.d0(fA)))
-    }
+      def d0(f: Arrow): Node = {
+        val fA = f.asInstanceOf[graph.Arrow]
+        val newOne: Option[Node] = arrowsData.get(fA).map(_._1.asInstanceOf[Node])
+        newOne.getOrElse(node(graph.d0(fA)))
+      }
 
-    def d1(f: Arrow): Node = {
-      val fA = f.asInstanceOf[graph.Arrow]
-      val newOne: Option[Node] = arrowsData.get(fA).map(_._2)
-      newOne.getOrElse(node(graph.d1(fA)))
-    }
-  }
+      def d1(f: Arrow): Node = {
+        val fA = f.asInstanceOf[graph.Arrow]
+        val newOne: Option[Node] = arrowsData.get(fA).map(_._2.asInstanceOf[Node])
+        newOne.getOrElse(node(graph.d1(fA)))
+      }
+
+
+    //      def d0(f: Arrow): Node = {
+//        val fA = arrow(f)
+//        node(arrowsData.get(f).map(_._1).getOrElse(graph.d0(f)))
+//      }
+//
+//      def d1(f: Arrow): Node =
+//        val fA = arrow(f)
+//        node(arrowsData.get(fA).map(_._2).getOrElse(graph.d1(fA)))
+     
+    val rs =
+      try
+        result.toString
+      catch
+        case x: Exception => throw new IllegalStateException("could not stringify", x)
+    
+      
+    for (a <- arrowsData.keySet)
+      require(rs.contains(a.toString))
+    
+    result.validate orCommentTheError s"Failed in Graph $this" iHope
+  
+  override def validate: Result[Graph] = super.validate returning this
 }
 
 private[cat] trait GraphData { data =>
@@ -157,17 +182,20 @@ private[cat] trait GraphData { data =>
   def arrows: Arrows
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
+  
+  def nodeOpt(x: Any): Result[Node] = Result.forValue(node(x))
 
-  implicit def node(x: Any): Node = x match {
+  def node(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
   }
 
-  implicit def arrow(a: Any): Arrow = a match {
-    case _ if arrows contains a.asInstanceOf[Arrow] => a.asInstanceOf[Arrow]
-    case other =>
-      throw new IllegalArgumentException(s"<<$other>> is not an arrow")
+  def arrow(a: Any): Arrow = {
+    if arrows contains a.asInstanceOf[Arrow] then
+      a.asInstanceOf[Arrow]
+    else
+      throw new IllegalArgumentException(s"<<$a>> is not an arrow")
   }
 
   protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
@@ -254,7 +282,7 @@ object Graph {
     }
 
   def ofPoset[N](name0: String, poset: PoSet[N]): Graph = {
-    val points = poset.underlyingSet
+    val points = poset.elements
     val posetSquare = Sets.product2(points, points)
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 

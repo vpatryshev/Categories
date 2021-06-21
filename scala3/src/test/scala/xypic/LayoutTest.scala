@@ -5,6 +5,8 @@ import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import scalakittens._
 import math.cat.Category
+
+import scala.collection.MapView
 import scala.language.postfixOps
 
 /**
@@ -13,11 +15,17 @@ import scala.language.postfixOps
 class LayoutTest extends Specification {
   "Layout" >> {
 
+    "special cases of graded" >> {
+      ok
+    }
+    
     "graded" >> {
-      val expectedLayersOfClusters = Map(
+      val expectedLayersOfClusters =
+        Map(
+          "Discrete_2.1"->List(List(Set("a"))),
+          "Discrete_2.2"->List(List(Set("b")))) ++ 
+        Map(
         "_1_"->List(List(Set("0"))),
-        "Discrete_2.1"->List(List(Set("a"))),
-        "Discrete_2.2"->List(List(Set("b"))),
         "Z2"->List(List(Set("1"))),
         "_2_"->List(List(Set("0")), List(Set("1"))),
         "Z3"->List(List(Set("0"))),
@@ -35,11 +43,14 @@ class LayoutTest extends Specification {
         "Simplicial3"->List(List(Set("0")), List(Set("1")), List(Set("2"))),
         "_5_"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3")), List(Set("4"))),
         "AAAAAA" -> List(List(Set("1", "2", "3", "4", "5", "6")))
-      )
+      ).view.filterKeys(KnownFiniteCategories.map(_.name).contains).toMap
       
       def U[T](ss: Set[Set[T]]): Set[T] = ss.foldLeft(Set.empty[T])(_ union _)
-      
-      val expectedLayers = expectedLayersOfClusters.view.mapValues  (_.map(ls => U(ls.toSet))).toMap
+      def united[T](lss: List[List[Set[T]]]): List[Set[T]] = lss.map(ls => U(ls.toSet))
+
+      val premap: MapView[String, List[Set[String]]] =
+        expectedLayersOfClusters.view.mapValues(united)
+      val expectedLayers = premap.toMap
 
       def gradedObjectsOf(c: Category): Set[GradedObjects] =
         Layout(c, 300, 300).gradedObjects
@@ -56,6 +67,12 @@ class LayoutTest extends Specification {
         lol.toMap
       }
 
+      val missing = (expectedLayersOfClusters.keySet diff actualLayersOfClusters.keySet).toList
+      missing === Nil
+
+//      val extra = (actualLayersOfClusters.keySet diff expectedLayersOfClusters.keySet).toList
+//      extra === Nil
+      
       expectedLayersOfClusters.keySet === actualLayersOfClusters.keySet
 
       for {

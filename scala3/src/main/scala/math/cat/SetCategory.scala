@@ -29,7 +29,7 @@ class SetCategory(objects: BigSet[set])
   override def toString: String = "Category of all Scala Sets"
   
   // this makes our category Cartesian-closed
-  def exponent(x: set, y: set): set = Sets.exponent(x, y)
+  def exponent(x: set, y: set): set = Sets.exponent(x, y).untyped
 
   override def arrowsBetween(x: set, y: set): Set[SetFunction] =
     SetFunction.exponent(x, y)

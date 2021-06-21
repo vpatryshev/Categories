@@ -11,6 +11,12 @@ class Test extends Specification {
     def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
   }
 
+  extension[T] (n: Int)
+    def asArrow = n.asInstanceOf[T]
+
+  extension[T] (s: String)
+    def asArrow = s.asInstanceOf[T]
+
   type SUT
 
   def checkOpt[T](g: Result[T], op: T => Unit): MatchResult[Any] = {

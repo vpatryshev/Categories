@@ -68,7 +68,7 @@ class CategoryOfDiagrams(val domain: Category)
       override val d1: Functor = o
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        codomainCategory.arrow(objectMap(o.d0.obj(x)))
+        d1.d1.arrow(objectMap(o.d0.obj(x)))
     }
   }
 
@@ -80,11 +80,11 @@ class CategoryOfDiagrams(val domain: Category)
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
         val xObjf = f.domainCategory.obj(x)
-        val f_x = f.transformPerObject(xObjf)
+        val f_x = f.transformPerObject(f.d0.d0.node(xObjf))
         val xObjg = g.domainCategory.obj(x)
-        val g_x = g.transformPerObject(xObjg)
-        val gf_x = m(f_x, g_x)
-        codomainCategory.arrow(gf_x)
+        val g_x = g.transformPerObject(g.d0.d0.node(xObjg))
+        val gf_x = m(f_x.asInstanceOf[Arrow], g_x.asInstanceOf[Arrow])
+        d1.d1.arrow(gf_x)
       }
     }
   } else None
@@ -112,7 +112,7 @@ class CategoryOfDiagrams(val domain: Category)
       val tuples: Set[(domain.Arrow, domain.Arrow)] = d0 flatMap { g => domain.m(g, f) map (g -> _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
-      new SetFunction("", toSet(d0), toSet(d1), a => mapping(domain.arrow(a)))
+      new SetFunction("", setOf(d0), setOf(d1), a => mapping(domain.arrow(a)))
     }
 
     private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)

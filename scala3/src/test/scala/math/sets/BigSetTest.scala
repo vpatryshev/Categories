@@ -16,10 +16,11 @@ class BigSetTest extends Specification {
     }
 
     "get created from predicate" in {
-      val sut = BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a')
+      val sut =
+        BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a', ".a.....")
       sut.size === Sets.InfiniteSize
       sut.hashCode * 0 === 0 // meaning, no exception thrown
-      sut.toString === "A BIG SET"
+      sut.toString === ".a....."
       sut.iterator must throwA[UnsupportedOperationException]
       sut.contains("caramba") === true
       sut.contains("carramba") === false
@@ -28,9 +29,12 @@ class BigSetTest extends Specification {
     
     "filter properly" in {
       val sut =
-        BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') filter (_.head == 'b')
+        BigSet.comprehension[String](
+          (s: String) => s.length == 7 && s.charAt(1) == 'a',
+          "Set of .a....."
+        ) filter (_.head == 'b')
       sut.size === Sets.InfiniteSize
-      sut.toString === "A BIG SET"
+      sut.toString === "Set of .a....., filtered"
       sut.iterator must throwA[UnsupportedOperationException]
       sut.contains("bandana") === true
       sut.contains("caramba") === false
@@ -39,11 +43,11 @@ class BigSetTest extends Specification {
     }
 
     "map properly" in {
-      val iso = Functions.bijection[String, String]((_:String).reverse, (_:String).reverse)
+      val flip = Functions.bijection[String, String]((_:String).reverse, (_:String).reverse)
       val sut =
-        BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') map iso
+        BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') map flip
       sut.size === Sets.InfiniteSize
-      sut.toString === "A BIG SET"
+      sut.toString === "Big Set with a predicate"
       sut.iterator must throwA[UnsupportedOperationException]
       sut.contains("Esteban") === true
       sut.contains("caramba") === false

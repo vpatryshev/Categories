@@ -35,8 +35,12 @@ private[cat] abstract class CategoryData extends Graph {
   def id(o: Obj): Arrow
 
   def m(f: Arrow, g: Arrow): Option[Arrow]
+  
+  def validateGraph: Result[CategoryData] =
+    super.validate returning this
 
   override def validate: Result[ValidCategoryData] = {
+    val graphIsOk = validateGraph
     val objectsHaveIds = OKif(!finiteNodes) orElse {
       Result.traverse(objects map {
         x =>
@@ -75,7 +79,10 @@ private[cat] abstract class CategoryData extends Graph {
       }
     })
 
-    objectsHaveIds andAlso compositionIsAssociative returning new ValidCategoryData(this)
+    val validated: Result[((CategoryData, Any), Any)] =
+      graphIsOk andAlso objectsHaveIds andAlso compositionIsAssociative
+    
+    validated map (_._1) map (_._1) map (new ValidCategoryData(_))
   }
 
   def objects: Objects = nodes
@@ -177,18 +184,17 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
   def newCategory: Category = {
     if (isFinite) newFiniteCategory
     else {
-      new Category {
+      new Category:
         override val graph = data.graph
 
-        override def d0(f: Arrow): Obj = data.d0(data.arrow(f))
+        override def d0(f: Arrow): Obj = node(data.d0(data.arrow(f)))
 
-        override def d1(f: Arrow): Obj = data.d1(data.arrow(f))
+        override def d1(f: Arrow): Obj = node(data.d1(data.arrow(f)))
 
-        def id(o: Obj): Arrow = data.id(data.node(o))
+        def id(o: Obj): Arrow = data.id(data.node(o)).asInstanceOf[Arrow]
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           data.m(data.arrow(f), data.arrow(g)) map arrow
-      }
     }
   }
 
@@ -213,7 +219,7 @@ class ValidCategoryData(source: CategoryData) extends CategoryData {
 
       override def d1(f: Arrow): Obj = asObj(d1Map(f))
 
-      def id(o: Obj): Arrow = idMap(o)
+      def id(o: Obj): Arrow = idMap(o).asInstanceOf[Arrow]
 
       def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
     }
@@ -239,7 +245,7 @@ private[cat] class PartialData(override val graph: Graph) extends CategoryData {
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
 
-  override def id(o: Obj): Arrow = o
+  override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = {
     composition.find {
@@ -410,7 +416,7 @@ object CategoryData {
     new CategoryData {
       override val graph = gr
 
-      override def id(o: Obj): Arrow = ids(gr.node(o))
+      override def id(o: Obj): Arrow = ids(gr.node(o).asInstanceOf[gr.Node]).asInstanceOf[Arrow]
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         composition(gr.arrow(f), gr.arrow(g)) map arrow
@@ -418,7 +424,12 @@ object CategoryData {
   }
 
   private[cat] def transitiveClosure(data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData = {
-    val missing = data.missingCompositions
+    val missing = try {
+      data.missingCompositions
+    } catch {
+      case x: Exception => 
+        throw new IllegalArgumentException(s"Faled on $data", x)
+    }
     if (missing.isEmpty) data else {
 
       val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] = data.nonexistentCompositions.toSet
@@ -431,7 +442,9 @@ object CategoryData {
         throw new IllegalArgumentException(s"${data.name}: ${missing.size} arrows still missing: $missing")
       }
 
-      val newData = new PartialData(data.addArrows(newArrows)) {
+      val newGraph: Graph = data.addArrows(newArrows)
+      
+      val newData = new PartialData(newGraph) {
         override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
           data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]).asInstanceOf[Option[Arrow]]
 

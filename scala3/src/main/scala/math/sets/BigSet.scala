@@ -9,13 +9,13 @@ package math.sets
 abstract class BigSet[T] extends Set[T] {
   override def size: Int = Sets.InfiniteSize
 
-  def whoami: String = "A BIG SET"
+  def name: String = "A BIG SET"
 
-  override def toString: String = whoami
+  override def toString: String = name
 
   def map[U](f: Functions.Bijection[T, U]): BigSet[U] = BigSet.comprehension((u: U) => this contains (f unapply u))
 
-  override def filter(p: T => Boolean): BigSet[T] = BigSet.comprehension((t: T) => p(t) && (this contains t))
+  override def filter(p: T => Boolean): BigSet[T] = BigSet.comprehension((t: T) => p(t) && (this contains t), s"$name, filtered")
 
   override def hashCode: Int = System.identityHashCode(this)
 
@@ -30,24 +30,19 @@ abstract class BigSet[T] extends Set[T] {
   }
 }
 
-object BigSet {
-  def apply[T](source: Set[T]): BigSet[T] = new BigSet[T] with EnumerableSet[T] {
+object BigSet:
+  def apply[T](source: Set[T]): BigSet[T] = new BigSet[T] with EnumerableSet[T]:
     override def contains(t: T) = source(t)
     override def size: Int = source.size
     override def toString: String = source.toString
     override def iterator: Iterator[T] = source.iterator
-  }
 
   def of[T](named: String = "This Set"): BigSet[T] =
-    new BigSet[T] with NonEnumerable[T] {
+    new BigSet[T] with NonEnumerable[T, BigSet[T]]:
       override def name: String = named
       override def contains(t: T) = true
-    }
 
-  def comprehension[T](p: T => Boolean, named: String = "This set with predicate"): BigSet[T] =
-    new BigSet[T] with NonEnumerable[T] {
+  def comprehension[T](p: T => Boolean, named: String = "Big Set with a predicate"): BigSet[T] =
+    new BigSet[T] with NonEnumerable[T, BigSet[T]]:
       override def name: String = named
       override def contains(t: T) = p(t)
-    }
-
-}

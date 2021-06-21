@@ -2,6 +2,7 @@ package math.cat
 
 import math.Test
 import math.cat.Categories._
+import math.cat.Graph.GraphParser
 import math.cat.SetCategory._
 import math.sets.Sets
 import math.sets.Sets._
@@ -103,7 +104,8 @@ class CategoryTest extends Test with CategoryFactory {
 
     "id case 3" >> {
       import NaturalNumbers._
-      id(BigInt(42)) === (BigInt(42), BigInt(42))
+      
+      id(NaturalNumbers.obj(BigInt(42))) === (BigInt(42), BigInt(42))
     }
 
     "regression from 6/9/15" >> {
@@ -741,7 +743,7 @@ class CategoryTest extends Test with CategoryFactory {
       import op3._
       op3.arrows === _3_.arrows
       op3.objects === _3_.objects
-      op3.d0("1.2") === "2"
+      op3.d0("1.2".asInstanceOf[op3.Arrow]) === "2"
       op3.validate.iHope
       ok
     }
@@ -806,8 +808,153 @@ class CategoryTest extends Test with CategoryFactory {
     }
   }
 
- // will have to fix the build process
+  private[cat] def transitiveClosure(data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData = {
+    try {
+      val stringified = data.toString
+    } catch {
+      case iae: IllegalArgumentException =>
+        throw new IllegalArgumentException("Very bad data", iae)
+    }
+    val missing = try {
+      data.missingCompositions
+    } catch {
+      case x: Exception =>
+        throw new IllegalArgumentException(s"Faled on $data", x)
+    }
+    if (missing.isEmpty) data else {
+      val newData: PartialData = appendArrows(data, missing)
+      transitiveClosure(newData, missing.size)
+    }
+  }
+
+  private def appendArrows(data: PartialData, missing: Iterable[(data.Arrow, data.Arrow)]) = {
+    val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] = data.nonexistentCompositions.toSet
+    val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] = nonexistentCompositions.flatMap {
+      case (f, g) =>
+        data.newComposition(f, g).map { h => (h, (data.d0(f), data.d1(g))) }
+    }.toMap
+
+    if (newArrows.isEmpty) {
+      throw new IllegalArgumentException(s"${data.name}: ${missing.size} arrows still missing: $missing")
+    }
+
+    val newGraph: Graph = data.addArrows(newArrows)
+    val newData = new PartialData(newGraph) {
+      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
+        data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]).asInstanceOf[Option[Arrow]]
+
+      override val compositionSource: CompositionTable = data.composition.asInstanceOf[CompositionTable]
+    }
+    (newData.validateGraph returning newData).orCommentTheError(s"Failed on $newData").iHope
+  }
+
+  "Parser, regression test of 6/18/21" should {
+    "Parse AAA" in  {
+      val source = "AAA: ({1,2,3}, {12: 1 -> 2, 23: 2 -> 3, 31: 3 -> 1})"
+      val graph = Graph.read(source)
+      graph.isGood === true
+      val parser = new CategoryParser
+
+      val data1 = CategoryData.partial[String](graph.iHope)(Map.empty, arrowBuilder)
+      val s1 = data1.toString
+      val missing1 = data1.missingCompositions
+      val data2: PartialData = appendArrows(data1, missing1)
+
+      val nodeStrings = data2.nodes.toList.sortBy(_.toString).mkString(", ")
+      val arrowsSorted: Seq[data2.Arrow] = data2.arrows.toList.sortBy(_.toString)
+      def stringify(a: data2.Arrow) = s"$a: ${data2.d0(a)}->${data2.d1(a)}"
+      val arrowStrings =
+        arrowsSorted map ((a: data2.Arrow) => stringify(a)) mkString ", "
+      val s20 = s"({$nodeStrings}, {$arrowStrings})"
+
+      val s2 = data2.toString
+      val missing2 = data2.missingCompositions
+//      val data3: PartialData = appendArrows(data2, missing2)
+//      val s3 = data3.toString
+//      val missing3 = data3.missingCompositions
+//      val data4: PartialData = appendArrows(data3, missing3)
+
+      val closure = transitiveClosure(data1)
+
+      val raw1 = closure.validate map { validData => validData.newCategory }
+
+      raw1.isGood === true
+
+      val raw2 = data2.build
+      raw2.isGood === true
+
+      val category = parser.buildCategory(graph, Map.empty)
+      category.isGood === true
+
+      //      val parsed = (new CategoryParser).readCategory(source)
+      val parsed = parser.parseAll(parser.category, source)
+      parsed match {
+        case parser.Success(res, _) => if (res.errorDetails.nonEmpty) {
+          val p = Categories.read(source).iHope
+        }
+          res.errorDetails === None
+
+        case e: parser.NoSuccess => failure(s"Failed to parse: $e")
+      }
+      ok
+      //      if (parsed.errorDetails.nonEmpty) {
+      //        val p = Categories.read(source).iHope
+      //      }
+      //      parsed.errorDetails === None
+    }
+
+    "Parse AAAAAA" in  {
+      val source = "AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
+      val graph = Graph.read(source)
+      graph.isGood === true
+      val parser = new CategoryParser
+
+      val data = CategoryData.partial[String](graph.iHope)(Map.empty, arrowBuilder)
+
+      val missingCompositions: List[(Any, Any)] = data.missingCompositions.toList
+
+      val missing = try {
+        data.missingCompositions
+      } catch {
+        case x: Exception =>
+          throw new IllegalArgumentException(s"Faled on $data", x)
+      }
+
+      val closure = transitiveClosure(data)
+
+      val raw1 = closure.validate map { validData => validData.newCategory }
+
+      raw1.isGood === true
+
+      val raw2 = data.build
+      raw2.isGood === true
+
+      val category = parser.buildCategory(graph, Map.empty)
+      category.isGood === true
+
+      //      val parsed = (new CategoryParser).readCategory(source)
+      val parsed = parser.parseAll(parser.category, source)
+      parsed match {
+        case parser.Success(res, _) => if (res.errorDetails.nonEmpty) {
+          val p = Categories.read(source).iHope
+        }
+          res.errorDetails === None
+
+        case e: parser.NoSuccess => failure(s"Failed to parse: $e")
+      }
+      ok
+      //      if (parsed.errorDetails.nonEmpty) {
+      //        val p = Categories.read(source).iHope
+      //      }
+      //      parsed.errorDetails === None
+    }
+
+  }
+  
+  
+  // will have to fix the build process
   "AAAAAA" should {
+    
     "pass a regression test of 7/7/19" in {
       val cd = AAAAAA.arrow("23")
       AAAAAA.d0(cd) === "2"
