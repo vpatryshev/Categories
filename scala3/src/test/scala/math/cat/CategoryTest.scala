@@ -897,10 +897,6 @@ class CategoryTest extends Test with CategoryFactory {
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
       }
       ok
-      //      if (parsed.errorDetails.nonEmpty) {
-      //        val p = Categories.read(source).iHope
-      //      }
-      //      parsed.errorDetails === None
     }
 
     "Parse AAAAAA" in  {
@@ -932,7 +928,6 @@ class CategoryTest extends Test with CategoryFactory {
       val category = parser.buildCategory(graph, Map.empty)
       category.isGood === true
 
-      //      val parsed = (new CategoryParser).readCategory(source)
       val parsed = parser.parseAll(parser.category, source)
       parsed match {
         case parser.Success(res, _) => if (res.errorDetails.nonEmpty) {
@@ -943,10 +938,6 @@ class CategoryTest extends Test with CategoryFactory {
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
       }
       ok
-      //      if (parsed.errorDetails.nonEmpty) {
-      //        val p = Categories.read(source).iHope
-      //      }
-      //      parsed.errorDetails === None
     }
 
   }

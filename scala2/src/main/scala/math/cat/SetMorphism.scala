@@ -20,7 +20,7 @@ class SetMorphism[X, Y] (
   extends Morphism[Set[X], Set[Y]] with Map[X, Y] {
   private def plural(n: Int, w: String) = if (n == 1) s"1 $w" else s"$n ${w}s"
   override def toString: String = tag match {
-    case "" => "{" + (d0 map (x => s"$x -> ${this(x)}") mkString ", ")  + "}"
+    case "" => d0 map (x => s"$x -> ${this(x)}") mkString ("{", ", ", "}")
     case _  => s"$tag: ${plural(d0.size, "element")} -> ${plural(d1.size, "element")}"
   }
   override def removed(key: X): scala.collection.immutable.Map[X,Y] = itsImmutable

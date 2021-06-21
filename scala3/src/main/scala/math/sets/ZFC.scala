@@ -3,29 +3,49 @@ package math.sets
 import scala.language.postfixOps
 import scala.collection.mutable.ListBuffer
 
-class ZFC {
+class ZFC:
   val PATIENCE = 100
 
-  def log(s: String): Unit = {
-    // no logging by default
-  }
+  // no logging by default
+  def log(s: String): Unit =
+    ()
 
-  private val domain = new ListBuffer[SetZ]
+  /**
+    * A cache for storing sets that are built in the process
+    */
+  private[this] val domain = new ListBuffer[SetZ]
 
-  private def register(o: SetZ): SetZ = {
-    log("exists " + o)
-    if (!domain.contains(o)) {
-      domain.append(o)
-    }
+  /**
+    * Adds another set to cache
+    * @param o
+    * @return
+    */
+  private[this] def register(o: SetZ): SetZ =
+    log(s"exists $o")
+    if !(domain contains o) then domain.append(o)
     o
-  }
 
   type Predicate = Any => Boolean
 
+  /**
+    * Notifies the world that a set exists (and is registered)
+    * @param aSet set that exists
+    * @return the same set
+    */
   private def exists(aSet: SetZ) = register(aSet)
 
+  /**
+    * Checks whether a set exists (and is registered) that satisfies a predicate
+    * @param p the predicate
+    * @return true if such a set exists
+    */
   private def exists(p: Predicate): Boolean = domain exists p
 
+  /**
+    * Checks that all known (registered) sets satisfy a predicate
+    * @param p the predicate
+    * @return true if they do
+    */
   private def forall(p: Predicate) = domain forall p
 
   // Axiom I (extensionality)
@@ -36,18 +56,27 @@ class ZFC {
     new SetZ(s"${a.id} ∩ ${b.id}", x => a.contains(x) && b.contains(x)
   ))
 
-  class SetZ(val id: String, val thePredicate: Predicate) {
-    
-    def denote(theId: String): SetZ = new SetZ(theId, thePredicate) {
-      log(id + "=" + this)
-    }
+  /**
+    * Class of sets in ZF(C)
+    * @param id
+    * @param thePredicate
+    */
+  class SetZ(val id: String, val thePredicate: Predicate):
+
+    /**
+      * Assigns a name to this set
+      * @param theId the name
+      * @return a new set, same elements, but with a new name
+      */
+    def denote(theId: String): SetZ =
+      new SetZ(theId, thePredicate):
+        log(id + "=" + this)
 
     def contains: Predicate = thePredicate
 
-    override def equals(o: Any): Boolean = o match {
+    override def equals(o: Any): Boolean = o match
       case sz: SetZ => equal(this, sz)
       case otherwisse => false
-    }
 
     def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
 
@@ -55,31 +84,27 @@ class ZFC {
 
     override def toString: String = toString(PATIENCE)
 
-    def toString(patience: Int): String = {
-      if (id != null) return id
-      
-      def stringify(x: Any, limit: Int) = x match {
+    def toString(patience: Int): String =
+      def stringify(x: Any, limit: Int) = x match
         case sz: SetZ => sz.toString(limit)
-        case any => any.toString
-      }
+        case any      => any.toString
 
-      val (_, content) = domain.filter(thePredicate).foldLeft((0, List.empty[String])) {
-        case ((n, list), x) =>
-          val s = stringify(x, patience - n)
-          (n+s.length, s::list)
-      }
+      if id != null then id else
       
-      val sb = new StringBuilder("{")
-      for (s <- content.sorted takeWhile (_ => sb.length < patience)) {
-        if (sb.length > 1) sb.append(",")
-        sb.append(s)
-      }
-      if (sb.length > patience) {
-        sb.append("...")
-      }
-      sb.append("}")
-      sb.toString
-    }
+        val (_, content) = domain.filter(thePredicate).foldLeft((0, List.empty[String])) {
+          case ((n, list), x) =>
+            val s = stringify(x, patience - n)
+            (n + s.length, s :: list)
+          }
+      
+        val sb = new StringBuilder
+        for (s <- content.sorted takeWhile (_ => sb.length < patience)) {
+          if sb.length > 1 then sb append ","
+          sb append s
+        }
+        if sb.length > patience then sb append "..."
+
+        s"{$sb}"
 
     // Axiom II (empty set)
     val EMPTY: SetZ = exists(new SetZ("∅", _ => false))
@@ -109,6 +134,3 @@ class ZFC {
 //        override def eval(y: Any): Boolean = return s.contains(y) && (x eq y.asInstanceOf[SetZ].choose1)
 //      })
 //    })
-  }
-
-}

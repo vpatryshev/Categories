@@ -20,7 +20,7 @@ class SetsTest extends Specification {
       Sets.parse("{a, bc, def, ghij}") === Good(Set("a", "bc", "def", "ghij"))
     }
 
-    "groubBy should group" >> {
+    "groupBy should group" >> {
       val xs = Set(2, 3, -2, 5, 6, 7)
       val f = groupBy(xs, (n: Int) => n * n)
       f(1) === Set.empty

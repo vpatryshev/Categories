@@ -1,41 +1,57 @@
 package math.sets
 
-import scala.collection.mutable
+import scala.collection.{Iterator, mutable}
 
 object SetOps:
 
+  /**
+    * Having two iterables, possibly infinitey, produce an iterable that iterates over pairs 
+    * using Cantor's algorithm, slightly modified.
+    * 
+    * @param xs first iterable
+    * @param ys second iterable
+    * @tparam X type of values of first iterable
+    * @tparam Y type ov values of second iterable
+    * @return an iterable that produces pairs.
+    */
   def cantorIterable[X, Y](xs: Iterable[X], ys: Iterable[Y]): Iterable[(X, Y)] =
-    new Iterable[(X, Y)] {
+    new Iterable[(X, Y)]:
       override def iterator: Iterator[(X, Y)] = cantorIterator(xs, ys)
-    }
 
+  /**
+    * Having two iterables, possibly infinitey, iterate over pairs 
+    * using Cantor's algorithm, slightly modified.
+    *
+    * @param xs first iterable
+    * @param ys second iterable
+    * @tparam X type of values of first iterable
+    * @tparam Y type ov values of second iterable
+    * @return an iterable that produces pairs.
+    */
   def cantorIterator[X, Y](xs: Iterable[X], ys: Iterable[Y]): Iterator[(X, Y)] =
-    new Iterator[(X, Y)] {
-      private[this] var iterators: mutable.Queue[Iterator[Y]] = new mutable.Queue()
-      private[this] var xi = xs.iterator
-      private[this] var yi: Iterator[Iterator[Y]] = Iterator.empty
-      private[this] var shift = 0
-      private[this] var i = 0
+    if (xs.isEmpty || ys.isEmpty) then Iterator.empty
+    else
+      new Iterator[(X, Y)]:
+        private[this] var iterators: mutable.Queue[Iterator[Y]] = new mutable.Queue()
+        private[this] var xi = xs.iterator
+        private[this] var yi: Iterator[Iterator[Y]] = Iterator.empty
+        private[this] var shift = 0
+
+        def hasNext: Boolean = xi.hasNext || iterators.nonEmpty
+
+        def next(): (X, Y) =
+          if !yi.hasNext then
+            if xi.hasNext then iterators enqueue ys.iterator
+            yi = iterators.iterator
+            xi = xs.iterator.drop(shift)
+          val yii = yi.next()
+          val y = yii.next()
+
+          if iterators.nonEmpty && yii.isEmpty then
+            iterators.dequeue()
+            yi = iterators.iterator
+            shift += 1
+
+          (xi.next(), y)
       
-      def next(): (X, Y) =
-        if (!yi.hasNext)
-          if (xi.hasNext)
-            iterators enqueue ys.iterator
-          yi = iterators.iterator
-          xi = xs.iterator.drop(shift)
-        val yii = yi.next()
-        val y = yii.next()
-        val res = (xi.next(), y)
-
-        if (iterators.nonEmpty && yii.isEmpty)
-          iterators.dequeue()
-          yi = iterators.iterator
-          shift += 1
-        
-        i += 1
-        res
-
-      def hasNext: Boolean = xs.nonEmpty && ys.nonEmpty &&
-        (xi.hasNext || (iterators.nonEmpty && iterators.head.hasNext))
-    }
 

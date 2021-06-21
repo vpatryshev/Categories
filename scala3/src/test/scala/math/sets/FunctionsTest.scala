@@ -27,17 +27,6 @@ class FunctionsTest extends Specification {
       actual == expected
       actual === expected
     }
-
-    "constant is constant" >> {
-      constant[Int, String]("love")(42) === "love"
-    }
-    
-    "forList should work" >> {
-      val f = forList[String]("uno"::"dos"::"tres"::Nil)
-      f(0) === "uno"
-      f(1) === "dos"
-      f(2) === "tres"
-    }
   }
   
   "Bijection" >> {

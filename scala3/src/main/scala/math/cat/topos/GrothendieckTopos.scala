@@ -354,19 +354,22 @@ trait GrothendieckTopos
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
   }
 
-  // π1
-  protected val firstProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
+  private val p1: Any => Any = {
     case (a, b) => a
     case trash =>
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
   }
-
-  // π2
-  protected val secondProjection: Mapping = Functions.constant[domain.Obj, Any => Any] {
+  private val p2: Any => Any = {
     case (a, b) => b
     case trash =>
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
   }
+  
+  // π1
+  protected val firstProjection: Mapping = Function.const (p1)
+
+  // π2
+  protected val secondProjection: Mapping = Function.const(p2)
 
   /**
     * Given a `from` and `to` diagrams, build an arrow
