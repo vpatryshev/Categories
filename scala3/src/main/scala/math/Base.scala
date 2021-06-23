@@ -1,7 +1,7 @@
 package math
 
 import scalakittens.Result
-
+import Base._
 import scala.language.postfixOps
 
 /**
@@ -50,7 +50,7 @@ object Base:
   def concat(first: Any, conn: String, second: Any): String =
     def stringOf(x: Any): String =
       val s0 = String valueOf x trim;
-      if (s0 contains " ") s"($s0)" else s0
+      if (s0 contains " ") || (s0 contains conn) then s"($s0)" else s0
 
     val s1 = stringOf(first)
     val s2 = stringOf(second)
@@ -80,3 +80,4 @@ object Base:
   def notNull[T](value: => T, explanation: String): T =
     Result.forValue(value).orCommentTheError(explanation) iHope
 
+  def plural(n: Int, w: String) = if (n == 1) s"1 $w" else s"$n ${w}s"

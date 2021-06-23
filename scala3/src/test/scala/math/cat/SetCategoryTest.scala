@@ -95,7 +95,9 @@ class SetCategoryTest extends Specification {
     }
 
     "produce 1st degree of an object" in {
-      Setf.degree(Set(1, 2, 3), 1).map(_._1) === Good(Set(List(1), List(2), List(3)))
+      val actual = Setf.degree(Set(1, 2, 3), 1)
+      actual.isGood === true
+      actual.map(_._1) === Good(Set(List(1), List(2), List(3)))
       val maybeZeroOne = Setf.degree(Set.empty[Any], 1).map(_._1)
       maybeZeroOne === Good(Set.empty[Any])
     }

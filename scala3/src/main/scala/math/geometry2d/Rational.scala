@@ -1,8 +1,10 @@
 package math.geometry2d
+
 import scala.language.implicitConversions
 import scala.language.postfixOps
+import scala.language.implicitConversions
 
-case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends Ordered[Rational] {
+case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends Ordered[Rational]:
   require(d0 != 0, s"denominator can't be null ($n0/$d0)")
   private val gcd = n0 gcd d0
   private val sigd = d0.signum
@@ -26,29 +28,24 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
   
   override def toString = s"$n/$d"
   
-  override def equals(o: Any): Boolean = o match {
+  override def equals(o: Any): Boolean = o match
     case r: Rational => n * r.d == r.n * d
     case other => false
-  }
 
   override def hashCode(): Int = n.hashCode() * 2017 + d.hashCode()
 
-  override def compare(that: Rational): Int = {
-      (this - that).n compare 0
-  }
-}
+  override def compare(that: Rational): Int = (this - that).n compare 0
 
-object Rational {
-  implicit def fromBigInt(n: BigInt): Rational = Rational(n)
-  implicit def fromInt(n: Int): Rational = Rational(n)
-  implicit def fromDouble(d: Double): Rational = {
+object Rational:
+  given Conversion[BigInt, Rational] = Rational(_)
+  given Conversion[Int,    Rational] = Rational(_)
+  given Conversion[Double, Rational] = d =>
     val s = Math.signum(d).toInt
-    if (s == 0) Rational(0) else {
+    if s == 0 then
+      Rational(0)
+    else
       val ndigits = Math.min(-5, Math.log10(d * s).toInt)
       val denom = Math.pow(10.0, -ndigits).toInt
-      val res = Rational((d * denom).toInt, denom)
-      res
-    }
-  }
-  implicit def toDouble(r: Rational): Double = r.toDouble
-}
+      Rational((d * denom).toInt, denom)
+
+  given Conversion[Rational, Double] = _.toDouble

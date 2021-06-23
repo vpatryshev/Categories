@@ -1,5 +1,6 @@
 package math.cat
 
+import math.Base
 import math.Base._
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
@@ -20,27 +21,14 @@ case class SetFunction private[cat](
   override val d0: set,
   override val d1: set,
   mapping: Any => Any)
-  extends SetMorphism[Any, Any](tag, d0, d1, mapping) { self =>
-  // override def removed(key: Any): scala.collection.immutable.Map[Any,Any] = itsImmutable
+  extends SetMorphism[Any, Any](tag, d0, d1, mapping):
+  self =>
+
   override lazy val hashCode: Int =
     d1.hashCode + 2 * d0.map(x => (x, mapping(x))).hashCode
-
-//  /**
-//    * Composes this morphism with the next one.
-//    *
-//    * @param g second morphism: Y -> Z
-//    * @return their composition g ∘ f: X -> Z
-//    */
-//  def andThen(g: SetFunction): SetFunction = {
-//    andThen(g) getOrElse (
-//      throw new IllegalArgumentException(s"Composition not defined for $self and $g")
-//    )
-//  }
-
-  private def tagOfComposition(tag1: String, tag2: String): String = {
-    def maybeParens(tag: String) = if (tag contains "∘") s"($tag)" else tag
-    maybeParens(tag1) + " ∘ " + maybeParens(tag2)
-  }
+  
+  private def tagOfComposition(tag1: String, tag2: String): String =
+    Base.concat(tag1, "∘", tag2)
   
   /**
     * Composes with another morphism, optionally
@@ -48,16 +36,11 @@ case class SetFunction private[cat](
     * @param g next morphism: Y -> Z
     * @return their composition g ∘ f: X -> Z
     */
-  def andThen(g: SetFunction): Option[SetFunction] = {
-    if (d1 == g.d0) {
+  def andThen(g: SetFunction): Option[SetFunction] =
+    if (d1 == g.d0) then
       val transform = (x: Any) => g(self(x))
       Some(new SetFunction(tagOfComposition(g.tag, tag), d0, g.d1, transform))
-    }
     else None
-  }
-//  def andThen[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] = {
-//    OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) => g(this(x))) asOption
-//  }
 
   /**
     * Restricts this function to a new domain
@@ -73,18 +56,16 @@ case class SetFunction private[cat](
     * @param newCodomain new codomain
     * @return new function
     */
-  def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] = {
-    val domOk = OKif(newDomain subsetOf d0)
-    val codomOk = OKif(newCodomain subsetOf d1)
-    val success = domOk andAlso codomOk
+  def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] =
+    val domOk = OKif(newDomain subsetOf d0, "Bad domain for restriction")
+    val codomOk = OKif(newCodomain subsetOf d1, "Bad codomain for restriction")
+    val success: Outcome = domOk andAlso codomOk
     success returning new SetFunction(tag, newDomain, newCodomain, function)
-  }
-}
 
 /**
   * Set morphism for typeless sets.
   */
-object SetFunction {
+object SetFunction:
 
   def build(d0: set, d1: set, function: Any => Any): Result[SetFunction] =
     build("", d0, d1, function)
@@ -109,11 +90,10 @@ object SetFunction {
     * @param containerSet codomain of the inclusion
     * @return inclusion monomorphism
     */
-  def inclusion(subset: set, containerSet: set): Result[SetFunction] = {
+  def inclusion(subset: set, containerSet: set): Result[SetFunction] =
     OKif(subset subsetOf containerSet,
       "It is not an inclusion if it is not a subset.") returning
-      apply("incl", subset, containerSet, Functions.inclusion)
-  }
+      apply("⊂", subset, containerSet, Functions.inclusion)
 
   /**
     * Factory method. Builds an inclusion monomorphism that injects one set to another.
@@ -124,7 +104,7 @@ object SetFunction {
     * @return inclusion monomorphism
     */
   def filterByPredicate(containerSet: set)(predicate: Any => Boolean): SetFunction =
-    apply("filter", containerSet filter predicate, containerSet, Functions.inclusion)
+    apply("⊂", containerSet filter predicate, containerSet, Functions.inclusion)
 
   /**
     * Factory method. Builds identity morphism for a set.
@@ -156,4 +136,3 @@ object SetFunction {
     */
   def exponent(x: set, y: set): Set[SetFunction] =
     Sets.exponent(x, y) map { apply("exponent", x, y, _) }
-}

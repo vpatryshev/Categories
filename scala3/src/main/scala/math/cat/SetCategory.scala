@@ -12,99 +12,147 @@ import scalakittens.{Good, Result}
 /**
   * Category where objects are sets
   */
-class SetCategory(objects: BigSet[set])
-  extends Category {
+class SetCategory(objects: BigSet[set]) extends Category:
+
+  /**
+    * Inner graph of this category of sets
+    */
   override val graph = graphOfSets(objects)
   type Node = set
   type Arrow = SetFunction
 
+  /**
+    * Domain of an arrow
+    * @param f the arrow
+    * @return the domain (which is a set)
+    */
   override def d0(f: SetFunction): set = f.d0
 
+  /**
+    * Codomain of an arrow
+    * @param f the arrow
+    * @return the codomain (which is a set)
+    */
   override def d1(f: SetFunction): set = f.d1
 
+  /**
+    * Composition of arrows
+    * @param f first arrow
+    * @param g second arrow
+    * @return their composition
+    */
   override def m(f: Arrow, g: Arrow): Option[Arrow] = f andThen g
 
+  /**
+    * Identity arrow on an object
+    * @param s an object of this category (a set)
+    * @return the identity
+    */
   override def id(s: set): SetFunction = SetFunction.id(s)
 
   override def toString: String = "Category of all Scala Sets"
   
-  // this makes our category Cartesian-closed
+  /**
+    * Set `x` to the power of set `y`.
+    * This makes our category Cartesian-closed
+    * @param x a set
+    * @param y a set
+    * @return x^y
+    */
   def exponent(x: set, y: set): set = Sets.exponent(x, y).untyped
 
+  /**
+    * set of arrows from `x` to `y`
+    * @param x domain object
+    * @param y codomain object
+    *  @return the set of all arrows from x to y
+    */
   override def arrowsBetween(x: set, y: set): Set[SetFunction] =
     SetFunction.exponent(x, y)
 
+  /**
+    * Checks whether an arrow is a mono
+    * @param f an arrow to check
+    *  @return true iff f is a monomorphism
+    */
   override def isMonomorphism(f: SetFunction): Boolean =
     f.d0.forall(x => f.d0.forall(y => !(f(x) == f(y)) || x == y))
 
+  /**
+    * Checks whether an arrow is an epi
+    * @param f an arrow to check
+    *  @return true iff f is an epimorphism
+    */
   override def isEpimorphism(arrow: SetFunction): Boolean =
     arrow.d1 forall {y => arrow.d0 exists {y == arrow(_)}}
 
-  override def equalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = {
-    require((f.d0 == g.d0) && (f.d1 eq g.d1))
-    val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
-    val inclusion = filtrator(x => f(x) == g(x))
-    Good(inclusion) filter { i => objects.contains(i.d0) }
-  }
+  /**
+    * Equalizer of two arrows (does not have to exist)
+    * @param f first arrow
+    * @param g second arrow
+    *  @return an equalizer arrow, wrapped in Result
+    */
+  override def equalizer(f: SetFunction, g: SetFunction): Result[SetFunction] =
+    OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen
+      val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
+      val inclusion = filtrator(x => f(x) == g(x))
+      Good(inclusion) filter { i => objects.contains(i.d0) }
+    
 
   override def coequalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = 
   OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen {
     val theFactorset: factorset = new FactorSet[Any](f.d1)
+
     OKif(contains(theFactorset untyped)) returning {
-      for (x <- f.d0) {
-        theFactorset.merge(f(x), g(x))
-      }
+      f.d0.foreach { x => theFactorset.merge(f(x), g(x)) }
       SetFunction.forFactorset(theFactorset)
     }
   }
 
-  override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Result[SetFunction] = {
-    OKif(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer") andThen {
+  override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Result[SetFunction] =
+    OKif(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer") andThen
+    OKif (arrowsToEqualize.nonEmpty, "Can't equalize an empty collection of arrows") andThen { // need these curlies, or a test fails
       val f = arrowsToEqualize.head
       val domain = f.d0
       val codomain = f.d1
-      val dataOk = Result.traverse(for (f <- arrowsToEqualize) yield {
+      val dataOk = Result.traverse(for (f <- arrowsToEqualize) yield
         OKif(f.d0 == domain, s"Domain should be $domain") andAlso
           OKif(f.d1 == codomain, s"Codomain should be $codomain")
-      })
-      
+      )
+
       dataOk andThen {
         val theFactorset: factorset = new FactorSet(codomain)
 
-        for (g <- arrowsToEqualize) {
-          for (x <- g.d0) theFactorset.merge(f(x), g(x))
-        }
-        Option(SetFunction.forFactorset(theFactorset))
+        for {
+          g <- arrowsToEqualize
+          x <- g.d0
+        } {theFactorset.merge(f(x), g(x)) }
+
+        Result.forValue(SetFunction.forFactorset(theFactorset))
       }
     }
-  }
 
-  override def degree(x: set, n: Int): Result[(set, List[SetFunction])] = {
+  override def degree(x: set, n: Int): Result[(set, List[SetFunction])] =
     Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
+
       val actualDomain: Set[List[Any]] =
-        Sets.exponent(Sets.numbers(n), x.asInstanceOf[set]) map {
-          m => m.toList.sortBy(_._1).map(_._2)
+        Sets.exponent(Sets.numbers(n), x.untyped) map {
+          _.toList.sortBy(_._1).map(_._2)
         }
 
       val domain: set = actualDomain untyped
 
-      def takeElementAt(i: Int)(obj: Any) = obj match {
-        case m: List[Any] => m(i)
-        case other => throw new IllegalArgumentException(s"expected a map, got $other")
-      }
-
-      val projections = for {
-        i <- 0 until n
-      } yield {
-        val function = takeElementAt(i)(_)
-        SetFunction.build(s"set^$n", domain, x, function)
-      }
+      def takeElementAt(i: Int)(obj: Any): Any = obj.asInstanceOf[List[Any]](i)
       
-      Result.traverse(projections) map {ps => (domain, ps.toList)}
-    }
-  }
+      val projections = (0 until n) map {
+        i => SetFunction.build(s"set^$n", domain, x, takeElementAt(i))
+      }
 
-  // need to filter, to eliminate the value that does not belong
+      Result.traverse(projections) map { ps => (domain, ps.toList) }
+    }
+
+  // need to filter, to eliminate the value that does not belong to a subcategory
+  // that may inherit this value
   override lazy val initial: Result[set] = Good(Sets.Empty) filter contains
 
   override lazy val terminal: Result[set] = {
@@ -164,8 +212,6 @@ class SetCategory(objects: BigSet[set])
     case sc: SetCategory => objects == sc.objects
     case other => false
   }
-
-}
 
 object SetCategory {
 
