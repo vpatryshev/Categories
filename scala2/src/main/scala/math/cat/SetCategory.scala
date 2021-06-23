@@ -83,7 +83,7 @@ class SetCategory(objects: BigSet[set])
   override def degree(x: set, n: Int): Result[(set, List[SetFunction])] = {
     Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
       val actualDomain: Set[List[Any]] =
-        Sets.exponent(Sets.numbers(n), x.asInstanceOf[set]) map {
+        Sets.exponent(Sets.numbers(n), x.untyped) map {
           m => m.toList.sortBy(_._1).map(_._2)
         }
 

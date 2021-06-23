@@ -121,7 +121,8 @@ class SetMorphismTest extends Specification {
 
     def m(x: Int, y: Int, z: Int) = Map(0 -> x, 1 -> y, 2 -> z)
 
-    sut === Set(m(0, 1, 2), m(0, 1, 5),
+    sut === Set(
+      m(0, 1, 2), m(0, 1, 5),
       m(0, 4, 2), m(0, 4, 5),
       m(3, 1, 2), m(3, 1, 5),
       m(3, 4, 2), m(3, 4, 5))
