@@ -63,8 +63,11 @@ abstract class Functor(
 
         // the following override is not required, because it's just another name for object mapping
         override def nodesMapping(n: d0.Node): d1.Node = {
-          val y: g.d0.Node = g.d0.node(f.nodesMapping(f.d0.obj(n)))
-          d1.obj(g.nodesMapping(y))
+          // TODO: get rid of castings
+          val nAsNodeInDomainOf_f = n.asInstanceOf[f.d0.Obj]
+          val mappedNode = f.nodesMapping(nAsNodeInDomainOf_f)
+          val y: g.d0.Node = mappedNode.asInstanceOf[g.d0.Node]
+          g.nodesMapping(y).asInstanceOf[d1.Node]
         }
       }
     }
