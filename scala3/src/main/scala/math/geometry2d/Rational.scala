@@ -5,7 +5,7 @@ import scala.language.postfixOps
 import scala.language.implicitConversions
 
 case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends Ordered[Rational]:
-  require(d0 != 0, s"denominator can't be null ($n0/$d0)")
+  require(d0 != 0, s"denominator can't be zero ($n0/$d0)")
   private val gcd = n0 gcd d0
   private val sigd = d0.signum
   val (n, d): (BigInt, BigInt) = if (gcd == 0) (0, 1) else (sigd*n0/gcd, sigd*d0/gcd)

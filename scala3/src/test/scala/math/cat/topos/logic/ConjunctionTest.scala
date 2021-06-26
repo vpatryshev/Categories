@@ -7,7 +7,7 @@ import org.specs2.matcher.MatchResult
 import org.specs2.matcher.ShouldMatchers.thisValue
 import scalakittens.Result._
 
-import scala.language.reflectiveCalls
+import scala.reflect.Selectable.reflectiveSelectable
 import scala.language.postfixOps
 
 class ConjunctionTest extends Fixtures {

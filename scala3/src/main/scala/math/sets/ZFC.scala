@@ -84,27 +84,7 @@ class ZFC:
 
     override def toString: String = toString(PATIENCE)
 
-    def toString(patience: Int): String =
-      def stringify(x: Any, limit: Int) = x match
-        case sz: SetZ => sz.toString(limit)
-        case any      => any.toString
-
-      if id != null then id else
-      
-        val (_, content) = domain.filter(thePredicate).foldLeft((0, List.empty[String])) {
-          case ((n, list), x) =>
-            val s = stringify(x, patience - n)
-            (n + s.length, s :: list)
-          }
-      
-        val sb = new StringBuilder
-        for (s <- content.sorted takeWhile (_ => sb.length < patience)) {
-          if sb.length > 1 then sb append ","
-          sb append s
-        }
-        if sb.length > patience then sb append "..."
-
-        s"{$sb}"
+    def toString(patience: Int): String = id
 
     // Axiom II (empty set)
     val EMPTY: SetZ = exists(new SetZ("∅", _ => false))

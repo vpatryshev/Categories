@@ -23,8 +23,8 @@ import math.Base._
   */
 abstract class NaturalTransformation extends Morphism[Functor, Functor] { self =>
   val tag: Any
-  lazy val domainCategory:   Category = notNull(notNull(d0, "Missing d0").d0, s"Missing d0.d0 in $d0")
-  lazy val codomainCategory: Category = notNull(notNull(d1, "Missing d1").d1, "Missing d1.d1")
+  lazy val domainCategory:   Category = d0.d0
+  lazy val codomainCategory: Category = d1.d1
 
   def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow
   def apply(x: Any): d1.d1.Arrow = transformPerObject(d0.d0.node(x))
@@ -156,21 +156,14 @@ object NaturalTransformation {
         val r = rr.flatten
         r
       }
-  }
+    }
   }
 
   def build0(theTag: Any = "", from0: Functor, to0: Functor)
     (
       mappings: from0.d0.Obj => from0.d1.Arrow
-    ): Any = {
-    //    if (1 == 1) throw new IllegalArgumentException(s"domain ${from0} missing for NT $theTag")
-    require(from0 != null, s"domain missing for NT $theTag")
-    notNull(from0, s"domain missing for NT $theTag")
-    notNull(to0, s"codomain missing for NT $theTag")
-    val validated = validate(from0, to0, from0.d0, from0.d1)(mappings)
-    
-    validated
-  }
+    ): Any =
+    validate(from0, to0, from0.d0, from0.d1)(mappings)
   
   /**
     * Builds a natural transformation
@@ -183,11 +176,6 @@ object NaturalTransformation {
   (
     mappings: from0.d0.Obj => from0.d1.Arrow
   ): Result[NaturalTransformation] = {
-//    if (1 == 1) throw new IllegalArgumentException(s"domain ${from0} missing for NT $theTag")
-    require(from0 != null, s"domain missing for NT $theTag")
-    
-    notNull(from0, s"domain missing for NT $theTag")
-    notNull(to0, s"codomain missing for NT $theTag")
     val validated = validate(from0, to0, from0.d0, from0.d1)(mappings)
     validated returning new NaturalTransformation {
       val tag: Any = theTag

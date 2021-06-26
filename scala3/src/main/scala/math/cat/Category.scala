@@ -219,7 +219,7 @@ abstract class Category extends CategoryData {
     *
     * @param f first arrow
     * @param g second arrow
-    * @return a coequalizer arrow, if one exists, null othrewise
+    * @return Good coequalizer arrow, if one exists, None othrewise
     */
   def coequalizer(f: Arrow, g: Arrow): Result[Arrow] = Result(arrows find isCoequalizer(f, g))
 
@@ -304,24 +304,24 @@ abstract class Category extends CategoryData {
   }
 
   /**
-    * Builds a Cartesian product of two objects, if it exists. Returns null otherwise.
+    * Builds a Cartesian product of two objects, if it exists. Returns None otherwise.
     * The product is represented as a pair of projections from the product object to the
     * two which are being multiplied.
     *
     * @param x first object
     * @param y second object
-    * @return a pair of arrows from product object to x and y, or null if none exists.
+    * @return Good pair of arrows from product object to x and y, or None.
     */
   def product(x: Obj, y: Obj): Result[(Arrow, Arrow)] =
     Result(product2(arrows, arrows) find isProduct(x, y))
 
   /**
-    * Builds a union of two objects, if it exists. Returns null otherwise.
+    * Builds a union of two objects, if it exists. Returns None otherwise.
     * The union is represented as a pair of insertions of the two objects into their union
     *
     * @param x first object
     * @param y second object
-    * @return a pair of arrows from a and b to their union, or null if none exists.
+    * @return Good pair of arrows from a and b to their union, or None.
     */
   def union(x: Obj, y: Obj): Result[(Arrow, Arrow)] =
     Result(product2(arrows, arrows) find isUnion(x, y))
@@ -356,13 +356,13 @@ abstract class Category extends CategoryData {
   )
 
   /**
-    * Builds a pullback of two arrows, if it exists. Returns null otherwise.
+    * Builds a pullback of two arrows, if it exists. Returns None otherwise.
     * The pullback is represented as a pair of projections from the pullback object to the
     * domains of the two arrows.
     *
     * @param f first arrows
     * @param g second arrow
-    * @return a pair of arrows from pullback object to d0(f) and d0(g), or null if none exists.
+    * @return Good pair of arrows from pullback object to d0(f) and d0(g), or None.
     */
   def pullback(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] = {
     OKif(sameCodomain(f, g), s"Codomains of $f and $g should be the same in $name") andThen
@@ -431,13 +431,13 @@ abstract class Category extends CategoryData {
   }
 
   /**
-    * Builds a pushout of two arrows, if it exists. Returns null otherwise.
+    * Builds a pushout of two arrows, if it exists. Returns None otherwise.
     * The pushout is represented as a pair of coprojections from the codomains of the two arrows
     * to the pushout object.
     *
     * @param f first arrows
     * @param g second arrow
-    * @return a pair of arrows from d1(f) and d1(g) to the pushout object, or null if none exists.
+    * @return Good pair of arrows from d1(f) and d1(g) to the pushout object, or None.
     */
   def pushout(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] = {
     OKif(sameDomain(f, g), "Domains should be the same in $name") andThen
