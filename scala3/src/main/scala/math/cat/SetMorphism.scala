@@ -29,7 +29,8 @@ class SetMorphism[X, Y] (
    */
   def equals(other: SetMorphism[X, Y]): Boolean = {
     isFinite(d0) && isFinite(other.d0) &&
-    d0.foldLeft(d0 == other.d0 && d1 == other.d1) ((eq, x) => eq & this(x) == other(x))
+    d0 == other.d0 && d1 == other.d1 &&
+      d0.forall(x => this(x) == other(x))
   }
 
   /**

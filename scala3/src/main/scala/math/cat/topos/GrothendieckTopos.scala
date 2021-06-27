@@ -346,10 +346,9 @@ trait GrothendieckTopos
     * @return a natural transformation (crashes if not)
     */
   def buildArrow(tag: Any, from: Diagram, to: Diagram,
-    mapping: Mapping): DiagramArrow = {
+    mapping: Mapping): DiagramArrow =
     NaturalTransformation.build(tag, from, to)(
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
-  }
 
   private val p1: Any => Any = {
     case (a, b) => a

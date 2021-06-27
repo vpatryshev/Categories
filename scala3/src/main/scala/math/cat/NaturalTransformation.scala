@@ -55,6 +55,8 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
       val d1: Functor = g.d1
       def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = d1.d1.arrow(composed(x))
   
+  end andThen
+  
   def named(newTag: Any): NaturalTransformation = new NaturalTransformation(newTag):
     val d0: Functor = self.d0
     val d1: Functor = self.d1
@@ -71,9 +73,9 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
     if (s.isEmpty) details else s
   
   def details = s"NT($tag)(${
-    if (domainCategory.isFinite) {
+    if domainCategory.isFinite then
       domainCategory.listOfObjects.map(o => s"$o->(${transformPerObject(d0.d0.node(o))})").mkString(", ")
-    } else s"${d0.tag}->${d1.tag}"
+    else s"${d0.tag}->${d1.tag}"
   })"
   
   override def equals(x: Any): Boolean = equalsWithDetails(x, printDetails = false)
@@ -126,9 +128,9 @@ object NaturalTransformation:
         val ga = g.arrowsMapping(g.d0.arrow(a))
         val tx0: f.d1.Arrow = transformPerObject(x0)
         val tx1: f.d1.Arrow = transformPerObject(x1)
-        val rightdown: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
-        val downright: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
-        OKif(rightdown == downright, s"Nat'l transform law broken for $a")
+        val right_then_down: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
+        val down_then_right: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
+        OKif(right_then_down == down_then_right, s"Nat'l transform law broken for $a")
     }
   
   /**
@@ -165,8 +167,7 @@ object NaturalTransformation:
       val d0: Functor = f
       val d1: Functor = f
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
-        val actual_x = f.d0.obj(x)
+      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+        val actual_x = f.d0.obj(x) // same thing actually, f = d0
         val `identity on f(x)` = d1.d1.arrow(`id of f(x)`(actual_x))
         `identity on f(x)`
-      }

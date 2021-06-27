@@ -1,7 +1,9 @@
 package math.cat
 
 import math.Base._
+import math.cat
 import scalakittens.Result._
+
 import scala.language.postfixOps
 /**
   * Morphism for graphs.
@@ -12,27 +14,26 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
   def nodesMapping(n: d0.Node): d1.Node
 
   def arrowsMapping(a: d0.Arrow): d1.Arrow
-
+  
   /**
     * Good for testing
     * @param other another graph morphism
     * @param x a node
     * @return true or false
     */
-  private[cat] def sameNodesMapping(other: GraphMorphism)(x: d0.Node): Boolean = try {
-    other.nodesMapping(other.d0.node(x)) == nodesMapping(x)
-  } catch {case _: Exception => false}
+  private[cat] def sameNodesMapping(other: GraphMorphism)(x: d0.Node): Boolean =
+    checkThat (other.nodesMapping(other.d0.node(x)) == nodesMapping(x))
 
   /**
     * Good for testing
     * @param other another graph morphism
     * @return true or false
     */
-  private[cat] def sameNodes(other: GraphMorphism): Boolean = {
+  private[cat] def sameNodes(other: GraphMorphism): Boolean =
+    lazy val sameMapping = sameNodesMapping(other)
     d0 == other.d0 && d1 == other.d1 && {
-      d0.nodes forall sameNodesMapping(other)
+      d0.nodes forall sameMapping
     }
-  }
 
   /**
     * Good for testing
@@ -40,20 +41,16 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
     * @param a arrow to compare
     * @return true or false
     */
-  def sameArrowsMapping(other: GraphMorphism)(a: d0.Arrow): Boolean = try {
-    other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a)
-  } catch { case _: Exception => false }
+  def sameArrowsMapping(other: GraphMorphism)(a: d0.Arrow): Boolean =
+    checkThat(other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a))
 
   /**
     * Good for testing
     * @param other another graph
     * @return true or false
     */
-  private[cat] def sameArrows(other: GraphMorphism): Boolean = {
-    d1 == other.d1 && {
-      d0.arrows forall sameArrowsMapping(other)
-    }    
-  }
+  private[cat] def sameArrows(other: GraphMorphism): Boolean =
+    d1 == other.d1 && (d0.arrows forall sameArrowsMapping(other))
   
   /**
     * Two graph morphisms are equal if they have equal d0s and cod0s and both morphisms for nodes and arrows
@@ -67,16 +64,15 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
     * @param gm morphism to compare
     * @return true iff they are equal
     */
-  override def equals(gm: Any): Boolean = {
+  override def equals(gm: Any): Boolean =
     this.eq(gm.asInstanceOf[AnyRef]) || (
     gm match {
       case other: GraphMorphism =>
         hashCode == other.hashCode && sameNodes(other) && sameArrows(other)
       case otherwise => false
     })
-  }
 
-  override def hashCode: Int = d0.hashCode | d1.hashCode * 2
+  override def hashCode: Int = d0.hashCode ^ d1.hashCode * 1024
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
@@ -89,6 +85,7 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
     } asOption
 
 object GraphMorphism:
+  
   def apply(
     taggedAs: String,
     domain: Graph,
