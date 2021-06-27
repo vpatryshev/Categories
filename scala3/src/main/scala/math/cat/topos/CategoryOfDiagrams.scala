@@ -62,8 +62,7 @@ class CategoryOfDiagrams(val domain: Category)
   override def id(o: Obj): Arrow = {
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
-    new DiagramArrow {
-      val tag = "Id"
+    new DiagramArrow("Id") {
       override val d0: Functor = o
       override val d1: Functor = o
 
@@ -73,8 +72,7 @@ class CategoryOfDiagrams(val domain: Category)
   }
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
-    new DiagramArrow() {
-      val tag = s"${g.tag} ∘ ${f.tag}"
+    new DiagramArrow(s"${g.tag} ∘ ${f.tag}"):
       val d0: Functor = f.d0
       val d1: Functor = g.d1
 
@@ -86,7 +84,6 @@ class CategoryOfDiagrams(val domain: Category)
         val gf_x = m(f_x.asInstanceOf[Arrow], g_x.asInstanceOf[Arrow])
         d1.d1.arrow(gf_x)
       }
-    }
   } else None
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =

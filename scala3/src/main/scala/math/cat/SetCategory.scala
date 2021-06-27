@@ -97,8 +97,14 @@ class SetCategory(objects: BigSet[set]) extends Category:
       val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
       val inclusion = filtrator(x => f(x) == g(x))
       Good(inclusion) filter { i => objects.contains(i.d0) }
-    
 
+
+  /**
+    * Coequalizer of two set functions
+    * @param f first arrow
+    * @param g second arrow
+    *  @return a coequalizer arrow, if one exists, None othrewise
+    */
   override def coequalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = 
   OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen {
     val theFactorset: factorset = new FactorSet[Any](f.d1)
@@ -109,29 +115,39 @@ class SetCategory(objects: BigSet[set]) extends Category:
     }
   }
 
+  /**
+    * Coequalizer of a collection of set functions set functions
+    * @param arrowsToEqualize the functions to equalize
+    *  @return a coequalizer arrow, if one exists, None othrewise
+    */
   override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Result[SetFunction] =
-    OKif(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer") andThen
-    OKif (arrowsToEqualize.nonEmpty, "Can't equalize an empty collection of arrows") andThen { // need these curlies, or a test fails
-      val f = arrowsToEqualize.head
-      val domain = f.d0
-      val codomain = f.d1
-      val dataOk = Result.traverse(for (f <- arrowsToEqualize) yield
-        OKif(f.d0 == domain, s"Domain should be $domain") andAlso
-          OKif(f.d1 == codomain, s"Codomain should be $codomain")
-      )
-
-      dataOk andThen {
-        val theFactorset: factorset = new FactorSet(codomain)
-
-        for {
-          g <- arrowsToEqualize
-          x <- g.d0
-        } {theFactorset.merge(f(x), g(x)) }
-
-        Result.forValue(SetFunction.forFactorset(theFactorset))
-      }
+    OKif(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer") andThen {
+      val f0 = arrowsToEqualize.head
+      val otherArrows = arrowsToEqualize.tail
+      val dataOk = Result.traverse(
+        for (f <- otherArrows) yield OKif(areParallel(f0, f), s"$f0 and $f must be parallel")
+      ) 
+      dataOk andThen equalizeFunctions(f0, otherArrows)
     }
 
+  private def equalizeFunctions(
+    f: SetFunction,
+    arrowsToEqualize: Iterable[SetFunction]): Result[SetFunction] =
+      val theFactorset: factorset = new FactorSet(f.d1)
+
+      for
+        g <- arrowsToEqualize
+        x <- g.d0
+      do theFactorset.merge(f(x), g(x))
+
+      Result.forValue(SetFunction.forFactorset(theFactorset))
+
+  /**
+    * Degree of a set.
+    * @param x the set
+    * @param n degree to which to raise object x
+    *  @return x^n^ and its projections to x
+    */
   override def degree(x: set, n: Int): Result[(set, List[SetFunction])] =
     Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
 
@@ -151,36 +167,61 @@ class SetCategory(objects: BigSet[set]) extends Category:
       Result.traverse(projections) map { ps => (domain, ps.toList) }
     }
 
-  // need to filter, to eliminate the value that does not belong to a subcategory
-  // that may inherit this value
+  /**
+    * Initial object of this category. Does not have to exist.
+    *
+    * Need to filter, to eliminate the value that does not belong to a subcategory
+    * that may inherit this value
+    */
   override lazy val initial: Result[set] = Good(Sets.Empty) filter contains
 
-  override lazy val terminal: Result[set] = {
-    val option1: Result[set] = initial map (setOf.elements(_))
-    // need to filter, to eliminate the value that does not belong
-    option1 filter contains
-  }
+  /**
+    * Terminal object of this category. Does not have to exist.
+    * Need to filter, to eliminate the set that does not belong to a subcategory
+    */
+  override lazy val terminal: Result[set] =
+    initial map (setOf.elements(_)) filter contains
 
-  override def product(x: set, y: set): Result[(SetFunction, SetFunction)] = {
+  /**
+    * Cartesian product of two sets.
+    * Does not have to exist in a subcategory.
+    * 
+    * @param x first set
+    * @param y second set
+    * @return Good pair of arrows from product object to x and y, or None.
+    */
+  override def product(x: set, y: set): Result[(SetFunction, SetFunction)] =
+    Good(product2(x, y).untyped) filter contains flatMap {
+      ps =>
+        val p1 = SetFunction.build("p1", ps, x, { case (a, b) => a })
+        val p2 = SetFunction.build("p2", ps, y, { case (a, b) => b })
+        (p1 andAlso p2)
+    }
 
-    val productSet: set = Sets.product2(x, y) untyped
-    val p1 = SetFunction.build("p1", productSet, x, { case (a, b) => a })
-    val p2 = SetFunction.build("p2", productSet, y, { case (a, b) => b })
-    p1 andAlso p2
-  }
-
+  /**
+    * Pullback of two arrows.
+    * @param f first arrows
+    * @param g second arrow
+    * @return Good pair of arrows from pullback object to d0(f) and d0(g), or None.
+    */
   override def pullback(f: SetFunction, g: SetFunction):
-  Result[(SetFunction, SetFunction)] =
-    for {
+    Result[(SetFunction, SetFunction)] =
+    for
       prod <- product(f.d0, g.d0)
       productSet = prod._1.d0
-      pullbackInProduct =
-        filterByPredicate(productSet)(predicate = { case (a, b) => f(a) == g(b) })
+      pullbackInProduct: SetFunction =
+        filterByPredicate(productSet) { case (a, b) => f(a) == g(b) }
       left <- pullbackInProduct andThen prod._1
       right <- pullbackInProduct andThen prod._2
-    } yield (left, right)
+    yield (left, right)
 
-  override def union(x: set, y: set): Result[(SetFunction, SetFunction)] = {
+  /**
+    * Disjoint (tagged) union of two sets
+    * @param x first set
+    * @param y second set
+    *  @return a good pair of arrows from a and b to their union, or None if none exists.
+    */
+  override def union(x: set, y: set): Result[(SetFunction, SetFunction)] =
     def tagX(x: Any) = ("x", x)
     def tagY(y: Any) = ("y", y)
     val taggedX: set = x map tagX
@@ -192,10 +233,14 @@ class SetCategory(objects: BigSet[set]) extends Category:
     val iy0 = SetFunction.build("iy", y, taggedY, tagY)
     val iy1 = SetFunction.inclusion(taggedY, unionSet)
     val iy = iy0 andAlso iy1 flatMap { case (f, g) => Result(f andThen g) }
-    val union = ix andAlso iy
-    union
-  }
+    ix andAlso iy
 
+  /**
+    * Pushout of two functions
+    * @param f first function
+    * @param g second function
+    *  @return Good pair of function from d1(f) and d1(g) to the pushout set, or None.
+    */
   override def pushout(f: SetFunction, g: SetFunction): Result[(SetFunction, SetFunction)] =
     for {
       (left, right) <- union(f.d1, g.d1)
@@ -224,13 +269,14 @@ object SetCategory {
       (f: SetFunction) => f.d1)
   }.getOrElse(throw new InstantiationException("This graph should exist"))
 
+  /**
+    * Category of finite sets
+    */
   object Setf extends SetCategory(FiniteSets)
 
-
-  def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] = {
+  private def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] = {
     SetMorphism.build(factorSet.base, factorSet.content, factorSet.asFunction) iHope
   }
-
 
   /**
     * Builds a factorset epimorphism that projects a set to its factorset,
@@ -249,5 +295,5 @@ object SetCategory {
 }
 
 /*
-простой пример топоса, где не всякая монада является апликативным функтором. Это Set^{ℤ_2}
+Simple example of a topos (not well-pointed) where not every monad is applicative: Set^{ℤ_2}
  */

@@ -146,17 +146,7 @@ trait Graph extends GraphData { graph =>
         val newOne: Option[Node] = arrowsData.get(fA).map(_._2.asInstanceOf[Node])
         newOne.getOrElse(node(graph.d1(fA)))
       }
-
-
-    //      def d0(f: Arrow): Node = {
-//        val fA = arrow(f)
-//        node(arrowsData.get(f).map(_._1).getOrElse(graph.d0(f)))
-//      }
-//
-//      def d1(f: Arrow): Node =
-//        val fA = arrow(f)
-//        node(arrowsData.get(fA).map(_._2).getOrElse(graph.d1(fA)))
-     
+    
     val rs =
       try
         result.toString

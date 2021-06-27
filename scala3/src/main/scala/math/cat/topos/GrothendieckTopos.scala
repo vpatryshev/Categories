@@ -145,8 +145,7 @@ trait GrothendieckTopos
       val cache: mutable.Map[ΩxΩ.d0.Obj, SetFunction] =
         mutable.Map[ΩxΩ.d0.Obj, SetFunction]()
       
-      new DiagramArrow {
-        val tag = "∧"
+      new DiagramArrow("∧") {
         override val d0: Functor = ΩxΩ
         override val d1: Functor = Ω
 
@@ -162,8 +161,7 @@ trait GrothendieckTopos
     }
 
     lazy val disjunction: DiagramArrow = {
-      new DiagramArrow {
-        val tag = "v"
+      new DiagramArrow("v") {
         override val d0: Functor = ΩxΩ
         override val d1: Functor = Ω
 
@@ -296,12 +294,11 @@ trait GrothendieckTopos
     * @param inclusion B >--> A - a natural transformation from diagram B to diagram A
     * @return A -> Ω
     */
-  def χ(inclusion: Arrow, theTag: Any): Predicate = {
+  def χ(inclusion: Arrow, theTag: String): Predicate = {
     val objToFunction: domain.Obj => SetFunction = χAt(inclusion)
 
-    new Predicate {
+    new Predicate(theTag) {
       val d0: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
-      val tag = theTag
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         d1.d1.arrow(objToFunction(domain.obj(x)))

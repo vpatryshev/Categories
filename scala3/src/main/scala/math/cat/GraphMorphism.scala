@@ -1,15 +1,13 @@
 package math.cat
 
 import math.Base._
-
+import scalakittens.Result._
+import scala.language.postfixOps
 /**
   * Morphism for graphs.
   */
-trait GraphMorphism
-  extends Morphism[Graph, Graph] { m =>
-  val tag: Any
-  val d0: Graph
-  val d1: Graph
+trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism[Graph, Graph]:
+  m =>
   
   def nodesMapping(n: d0.Node): d1.Node
 
@@ -82,39 +80,26 @@ trait GraphMorphism
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
-  def andThen(g: GraphMorphism): GraphMorphism = {
-    require(this.d1 == g.d0, "Composition not defined")
-    val nm: d0.Node => g.d1.Node = x => g.nodesMapping(g.d0.node(nodesMapping(x)))
-    val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
-    
-    GraphMorphism(concat(m.tag, "∘", g.tag), m.d0, g.d1)(nm, am)
-  }
-}
+  def andThen(g: GraphMorphism): Option[GraphMorphism] =
+    OKif(this.d1 == g.d0, "Composition should be defined") returning {
+      val nm: d0.Node => g.d1.Node = x => g.nodesMapping(g.d0.node(nodesMapping(x)))
+      val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
 
-object GraphMorphism {
+      GraphMorphism(concat(m.tag, "∘", g.tag), m.d0, g.d1)(nm, am)
+    } asOption
+
+object GraphMorphism:
   def apply(
     taggedAs: String,
     domain: Graph,
     codomain: Graph)(
     f0: domain.Node => codomain.Node,
     f1: domain.Arrow => codomain.Arrow):
-  GraphMorphism = new GraphMorphism {
-    val tag: String = taggedAs
-    val d0: Graph = domain
-    val d1: Graph = codomain
-
+  GraphMorphism = new GraphMorphism(taggedAs, domain, codomain):
     override def nodesMapping(n: d0.Node): d1.Node = d1.node(f0(domain.node(n)))
-
     override def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(f1(domain.arrow(a)))
-  }
 
   def id(graph: Graph): GraphMorphism =
-    new GraphMorphism {
-      val tag = "id"
-      val d0: Graph = graph
-      val d1: Graph = graph
-
+    new GraphMorphism("id", graph, graph):
       def nodesMapping(n: d0.Node): d1.Node = d1.node(n)
       def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(a)
-    }
-}

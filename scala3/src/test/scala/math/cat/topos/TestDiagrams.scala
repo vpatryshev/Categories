@@ -37,9 +37,9 @@ trait TestDiagrams extends Test {
   )
   
   val SamplePullbackDiagram: Diagram = BuildPullbackDiagram.asDiagram
-  val SamplePushoutDiagram: Diagram = {
-    null
+  lazy val SamplePushoutDiagram: Diagram = {
     // TODO: implement
+    ???
   }
   val SampleParallelPairDiagram1: Diagram = {
     val a: set = Set(1, 2, 3, 4, 5)

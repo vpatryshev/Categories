@@ -1,6 +1,5 @@
 package math.cat
 
-import math.Base.notNull
 import math.Test
 import math.cat.Categories._
 import scalakittens.Result
