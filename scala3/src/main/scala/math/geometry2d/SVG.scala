@@ -3,6 +3,7 @@ package math.geometry2d
 import math.geometry2d.SVG.Frame
 
 import scala.collection.mutable.ArrayBuffer
+import scala.language.implicitConversions
 
 object SVG {
 

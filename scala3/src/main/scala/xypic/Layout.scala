@@ -8,7 +8,7 @@ import math.cat.Categories._
 import math.geometry2d._
 
 import scala.collection.{MapView, immutable, mutable}
-
+import scala.language.implicitConversions
 
 case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   val category: Category = go.category

@@ -23,9 +23,6 @@ case class SetFunction private[cat](
   mapping: Any => Any)
   extends SetMorphism[Any, Any](tag, d0, d1, mapping):
   self =>
-
-  override lazy val hashCode: Int =
-    d1.hashCode + 2 * d0.map(x => (x, mapping(x))).hashCode
   
   private def tagOfComposition(tag1: String, tag2: String): String =
     Base.concat(tag1, "∘", tag2)
@@ -61,6 +58,9 @@ case class SetFunction private[cat](
     val codomOk = OKif(newCodomain subsetOf d1, "Bad codomain for restriction")
     val success: Outcome = domOk andAlso codomOk
     success returning new SetFunction(tag, newDomain, newCodomain, function)
+
+  override lazy val hashCode: Int =
+    d1.hashCode + 2 * d0.map(x => (x, mapping(x))).hashCode
 
 /**
   * Set morphism for typeless sets.

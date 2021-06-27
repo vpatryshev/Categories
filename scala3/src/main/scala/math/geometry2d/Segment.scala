@@ -1,5 +1,7 @@
 package math.geometry2d
 
+import scala.language.implicitConversions
+
 case class Segment(p0: Pt, p1: Pt) {
   private val minx = p0.x min p1.x
   private val maxx = p0.x max p1.x
