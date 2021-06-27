@@ -209,7 +209,7 @@ class SetCategory(objects: BigSet[set]) extends Category:
     for
       prod <- product(f.d0, g.d0)
       productSet = prod._1.d0
-      pullbackInProduct =
+      pullbackInProduct: SetFunction =
         filterByPredicate(productSet) { case (a, b) => f(a) == g(b) }
       left <- pullbackInProduct andThen prod._1
       right <- pullbackInProduct andThen prod._2
@@ -235,6 +235,12 @@ class SetCategory(objects: BigSet[set]) extends Category:
     val iy = iy0 andAlso iy1 flatMap { case (f, g) => Result(f andThen g) }
     ix andAlso iy
 
+  /**
+    * Pushout of two functions
+    * @param f first function
+    * @param g second function
+    *  @return Good pair of function from d1(f) and d1(g) to the pushout set, or None.
+    */
   override def pushout(f: SetFunction, g: SetFunction): Result[(SetFunction, SetFunction)] =
     for {
       (left, right) <- union(f.d1, g.d1)
@@ -263,13 +269,14 @@ object SetCategory {
       (f: SetFunction) => f.d1)
   }.getOrElse(throw new InstantiationException("This graph should exist"))
 
+  /**
+    * Category of finite sets
+    */
   object Setf extends SetCategory(FiniteSets)
 
-
-  def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] = {
+  private def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] = {
     SetMorphism.build(factorSet.base, factorSet.content, factorSet.asFunction) iHope
   }
-
 
   /**
     * Builds a factorset epimorphism that projects a set to its factorset,
@@ -288,5 +295,5 @@ object SetCategory {
 }
 
 /*
-простой пример топоса, где не всякая монада является апликативным функтором. Это Set^{ℤ_2}
+Simple example of a topos (not well-pointed) where not every monad is applicative: Set^{ℤ_2}
  */

@@ -15,7 +15,7 @@ trait GrothendieckToposLogic {
 // TODO: use the right tagging, find the right predicate
 //  private[this] val cache = mutable.Map[(String, Predicate, Predicate), Predicate]()
 
-  trait Predicate extends DiagramArrow { p: DiagramArrow =>
+  abstract class Predicate(myTag: Any) extends DiagramArrow(myTag) { p: DiagramArrow =>
     val d1: Diagram = Ω
 
     private def wrapTag(tag: Any): String = {
@@ -47,9 +47,8 @@ trait GrothendieckToposLogic {
     private def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: String): Predicate = {
       requireCompatibility(q)
 
-      new Predicate {
+      new Predicate(newTag) {
         val d0 = p.d0
-        val tag: Any = newTag
 
         override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow = {
           val dom = setAt(o)
@@ -115,9 +114,8 @@ trait GrothendieckToposLogic {
     * @return an arrow X -> Ω
     */
   def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate = {
-    new topos.Predicate {
+    new topos.Predicate(f.tag) {
       override val d0: Obj = f.d0.asInstanceOf[Obj] // TODO: get rid of casting
-      override val tag: Any = f.tag
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
         val x_in_domain_of_f = f.d0.d0.obj(x)
         val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
@@ -136,9 +134,8 @@ trait GrothendieckToposLogic {
 
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 
-    new Predicate {
+    new Predicate(pt.tag) {
       override val d0: Obj = _1
-      override val tag: Any = pt.tag
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
         val xInInclusion = inclusion.d0.d0.obj(x)
@@ -153,8 +150,7 @@ trait GrothendieckToposLogic {
     * @return
     */
   def uniqueFromTerminalTo(p: Point): Arrow = {
-    new DiagramArrow {
-      val tag = p.tag
+    new DiagramArrow(p.tag) {
 
       override val d0: Diagram = _1
       override val d1: Diagram = p.asDiagram

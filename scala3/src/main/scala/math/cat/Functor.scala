@@ -14,9 +14,9 @@ import scalakittens.Result._
   * @param d1 codomain
   */
 abstract class Functor(
-  val tag: Any,
-  val d0: Category, val d1: Category
-) extends GraphMorphism {
+  tagged: Any,
+  override val d0: Category, override val d1: Category
+) extends GraphMorphism(tagged, d0, d1) {
 
   def domainObjects: d0.Objects = d0.objects
 
@@ -25,18 +25,11 @@ abstract class Functor(
   
   override def toString: String = s"Functor $tag"
 
-  override def arrowsMapping(a: d0.Arrow): d1.Arrow = {
+  override def arrowsMapping(a: d0.Arrow): d1.Arrow =
     val domainX: d0.Obj = d0.d0(a)
-    try {
-      if (d0.isIdentity(a)) {
-        d1.id(objectsMapping(domainX))
-      } else arrowsMappingCandidate(a)
-    } catch {
-      case x: Exception =>
-        throw new IllegalArgumentException(
-          s"$tag: arrow mapping not found for $a: $domainX -> ${d0.d1(a)}", x)
-    }
-  }
+    if d0.isIdentity(a)
+    then d1.id(objectsMapping(domainX))
+    else arrowsMappingCandidate(a)
 
   /**
     * Composes two functors
