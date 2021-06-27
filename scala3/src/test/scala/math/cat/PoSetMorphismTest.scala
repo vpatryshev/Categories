@@ -64,7 +64,7 @@ class PoSetMorphismTest extends Specification {
       fOpt andAlso gOpt match {
         case Good((f, g)) =>
           val h = f andThen g
-          h === PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10)).iHope
+          h === PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10)).asOption
         case none => failure(s"failed to compose: $none")
       }
       ok

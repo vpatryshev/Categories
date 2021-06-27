@@ -623,31 +623,30 @@ abstract class Category extends CategoryData {
 
   def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 
-  def connectedComponents: Set[Category] = {
+  def connectedComponents: Set[Category] =
     val connected: BinaryRelation[Obj, Obj] =
       BinaryRelation((x, y) => arrows.exists(a =>
         (x == d0(a) && y == d1(a)) || (x == d1(a) && y == d0(a))))
 
     val sets = new FactorSet(objects, connected)
 
-    sets.zipWithIndex map {
-      case (s, i) => completeSubcategory(s"$name.${i + 1}", s)
-    }
-  }
+    for
+      (s, i) <- sets.zipWithIndex
+      cat <- completeSubcategory(s"$name.${i + 1}", s).asOption
+    yield cat
 
-  def completeSubcategory(name: String, setOfObjects: Objects): Category = {
+  def completeSubcategory(name: String, setOfObjects: Objects): Result[Category] =
     val src = this
-    val sub = subgraph(name, setOfObjects)
+    subgraph(name, setOfObjects) map {
+      sub =>
+        new Category:
+          override val graph: Graph = sub
 
-    new Category {
-      override val graph: Graph = sub
+          override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
 
-      override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
-
-      override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        src.m(src.arrow(f), src.arrow(g)) map arrow
+          override def m(f: Arrow, g: Arrow): Option[Arrow] =
+            src.m(src.arrow(f), src.arrow(g)) map arrow
     }
-  }
 
 
   /**

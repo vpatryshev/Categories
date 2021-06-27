@@ -81,3 +81,6 @@ object Base:
     Result.forValue(value).orCommentTheError(explanation) iHope
 
   def plural(n: Int, w: String) = if (n == 1) s"1 $w" else s"$n ${w}s"
+
+  def checkThat(cond: => Boolean) =
+    try cond catch case x => false

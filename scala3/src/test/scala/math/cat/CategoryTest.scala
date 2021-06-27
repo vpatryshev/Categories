@@ -9,6 +9,7 @@ import math.sets.Sets._
 import org.specs2.control.eff.Evaluate.fail
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
+import scala.language.postfixOps
 
 /**
   * Tests for Category class
@@ -838,7 +839,8 @@ class CategoryTest extends Test with CategoryFactory {
       throw new IllegalArgumentException(s"${data.name}: ${missing.size} arrows still missing: $missing")
     }
 
-    val newGraph: Graph = data.addArrows(newArrows)
+    val newGraph: Graph = data.addArrows(newArrows) iHope
+    
     val newData = new PartialData(newGraph) {
       override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
         data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]).asInstanceOf[Option[Arrow]]
@@ -869,10 +871,6 @@ class CategoryTest extends Test with CategoryFactory {
 
       val s2 = data2.toString
       val missing2 = data2.missingCompositions
-//      val data3: PartialData = appendArrows(data2, missing2)
-//      val s3 = data3.toString
-//      val missing3 = data3.missingCompositions
-//      val data4: PartialData = appendArrows(data3, missing3)
 
       val closure = transitiveClosure(data1)
 
@@ -963,12 +961,10 @@ class CategoryTest extends Test with CategoryFactory {
 
   "complete subcategory" should {
     "be ok for Square" in {
-      Square.completeSubcategory("abd", Set("a", "b", "d")) === category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})"
-      Square.completeSubcategory("diagonal", Set("a", "c")) === category"diagonal:({a,c}, {ac: a -> c})"
+      Square.completeSubcategory("abd", Set("a", "b", "d")) === Good(category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})")
+      Square.completeSubcategory("diagonal", Set("a", "c")) === Good(category"diagonal:({a,c}, {ac: a -> c})")
 
-      {
-        Square.completeSubcategory("abx", Set("a", "b", "x")) === category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})"
-      } must throwA[IllegalArgumentException]()
+      Square.completeSubcategory("abx", Set("a", "b", "x")).errorDetails === Some("Unknown nodes: x")
     }
   }
 

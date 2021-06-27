@@ -57,14 +57,14 @@ class FunctorTest extends Test {
     }
 
     "report missing arrows mappings" in {
-      checkError(_ contains "failing test: arrow mapping not found for 0.2: 0 -> 2",
+      checkError(_ contains "Missing arrow mappings for 0.1, 1.2, 2.3, 0.3, 1.3, 0.2",
         Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
           Map.empty[String, String]))
     }
 
-    "report missing arrows mappings" in {
+    "report inconsistent arrow mappings" in {
       val objectMapping: _4_.Node => _4_.Node =
         Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
       val arrowMapping: _4_.Arrow => _4_.Arrow = Map[_4_.Arrow, _4_.Arrow](

@@ -423,6 +423,7 @@ object CategoryData {
     }
   }
 
+  // TODO: don't throw exception, return a result
   private[cat] def transitiveClosure(data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData = {
     val missing = try {
       data.missingCompositions
@@ -442,7 +443,7 @@ object CategoryData {
         throw new IllegalArgumentException(s"${data.name}: ${missing.size} arrows still missing: $missing")
       }
 
-      val newGraph: Graph = data.addArrows(newArrows)
+      val newGraph: Graph = data.addArrows(newArrows) iHope
       
       val newData = new PartialData(newGraph) {
         override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =

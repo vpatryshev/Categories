@@ -124,7 +124,7 @@ object PoSet:
 
   def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Nil)
 
-  class PosetParser extends SetParser {
+  class PosetParser extends Sets.SetParser {
     def poset: Parser[Result[PoSet[String]]] = 
       "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
         case "("~sOpt~","~"{"~mOpt~"}"~")" =>
