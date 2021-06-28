@@ -5,13 +5,7 @@ import math.Base._
 /**
  * Set of natural numbers.
  */
-object N extends BigSet[BigInt] with EnumerableSet[BigInt]:
-
-  /**
-    * Name of the set of natural numbers
-    * @return "ℕ"
-    */
-  override def name: String = "ℕ"
+object N extends BigSet[BigInt]("ℕ") with EnumerableSet[BigInt]:
 
   /**
     * Iterator over natural numbers

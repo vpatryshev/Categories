@@ -12,11 +12,11 @@ import scalakittens.Result
 import topos.CategoryOfDiagrams._
 
 class CategoryOfDiagrams(val domain: Category)
-  extends Category
+  extends Category(s"Set^${domain.name}")
   with GrothendieckTopos { topos =>
   override val graph = graphOfDiagrams(domain.name)
   override def toString: String = name
-  
+  println(name)
   type Node = Diagram
   override type Obj = Diagram
   override type Arrow = DiagramArrow
@@ -133,19 +133,18 @@ object CategoryOfDiagrams {
       (a: A) => SetFunction.id(value))
   }
 
+  def nameOfPowerCategory(domainName: String) = s"Sets^$domainName"
+  
   def graphOfDiagrams(domainName: String): Graph =
-    new Graph {
+    new Graph(nameOfPowerCategory(domainName)):
       override val name = s"Sets^$domainName"
       type Node = Diagram
       type Arrow = DiagramArrow
 
-      override def nodes: Nodes = BigSet.of[Node](name).asInstanceOf[Nodes]
-
-      override def arrows: Arrows = BigSet.of[Arrow]("Collection of arrows in " + name).asInstanceOf[Arrows]
+      override def nodes: Nodes   = BigSet.of[Node](name).asInstanceOf[Nodes]
+      override def arrows: Arrows = BigSet.of[Arrow](s"Arrows in $name").asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node = node(f.d0)
-
       def d1(f: Arrow): Node = node(f.d1)
-    }
 
 }

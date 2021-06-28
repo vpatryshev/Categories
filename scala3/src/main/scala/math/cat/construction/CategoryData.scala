@@ -13,13 +13,12 @@ import scala.language.{implicitConversions, postfixOps}
 /**
   * The data used in building an instance of Category
   */
-private[cat] abstract class CategoryData extends Graph:
+private[cat] abstract class CategoryData(override val name: String) extends Graph(name):
   data =>
   type Obj = Node
   type Objects = Set[Obj]
 
   val graph: Graph = this
-  def name: String = graph.name
   
   lazy val listOfObjects: List[Obj] =
     if (isFinite) objects.toList.sortBy(_.toString)
@@ -175,30 +174,28 @@ private[cat] abstract class CategoryData extends Graph:
 
 end CategoryData
 
-class ValidCategoryData(source: CategoryData) extends CategoryData:
+class ValidCategoryData(source: CategoryData)
+  extends CategoryData(source.name):
   data =>
   override val graph = source.graph
-  override def name: String = graph.name
   
-  def newCategory: Category = {
-    if (isFinite) newFiniteCategory
-    else {
-      new Category:
-        override def name: String = source.name
+  def newCategory: Category =
+    if isFinite then newFiniteCategory
+    else
+      new Category(source.name):
         override val graph = data.graph
 
         override def d0(f: Arrow): Obj = node(data.d0(data.arrow(f)))
-
         override def d1(f: Arrow): Obj = node(data.d1(data.arrow(f)))
 
         def id(o: Obj): Arrow = data.id(data.node(o)).asInstanceOf[Arrow]
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           data.m(data.arrow(f), data.arrow(g)) map arrow
-    }
-  }
 
-  def newFiniteCategory: Category = {
+  end newCategory
+  
+  def newFiniteCategory: Category =
 
     val d0Map: Map[Any, Obj] = arrows.map(f => f -> asObj(d0(arrow(f)))).toMap
     val d1Map: Map[Any, Obj] = arrows.map(f => f -> asObj(d1(arrow(f)))).toMap
@@ -213,19 +210,15 @@ class ValidCategoryData(source: CategoryData) extends CategoryData:
       yield (f, g) -> h
     } toMap
 
-    new Category {
+    new Category(data.name):
       override val graph = data.graph
-      override def name: String = graph.name
 
       override def d0(f: Arrow): Obj = asObj(d0Map(f))
-
       override def d1(f: Arrow): Obj = asObj(d1Map(f))
 
       def id(o: Obj): Arrow = idMap(o).asInstanceOf[Arrow]
 
       def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
-    }
-  }
 
   override def id(o: Obj): Arrow = source.id(source.node(o)).asInstanceOf[Arrow]
 
@@ -241,21 +234,17 @@ end ValidCategoryData
   * @param graph the underlying graph
   * @return category data
   */
-private[cat] class PartialData(override val graph: Graph) extends CategoryData:
+private[cat] class PartialData(override val graph: Graph)
+  extends CategoryData(graph.name):
   self =>
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
-
-  override def name: String = graph.name
   
   override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
 
-  override def m(f: Arrow, g: Arrow): Option[Arrow] = {
-    composition.find {
-      case ((first, second), value) => first == f && second == g
-    }
-  } map { m => arrow(m._2) }
+  override def m(f: Arrow, g: Arrow): Option[Arrow] =
+    composition.get((graph.arrow(f), graph.arrow(g))).map { arrow _ }
 
   /**
     * This method helps fill in obvious choices for arrows composition.
@@ -400,7 +389,7 @@ object CategoryData:
 
     def isIdentity(f: Any): Boolean = nodesOpt map (_ contains f) getOrElse (graph contains f)
 
-    new Graph {
+    new Graph(graph.name) {
       override val name = graph.name
 
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
@@ -418,9 +407,8 @@ object CategoryData:
   def apply(gr: Graph)(
     ids: gr.Node => gr.Arrow,
     composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): CategoryData = {
-    new CategoryData {
+    new CategoryData(gr.name) {
       override val graph = gr
-      override def name: String = graph.name
 
       override def id(o: Obj): Arrow = ids(gr.node(o).asInstanceOf[gr.Node]).asInstanceOf[Arrow]
 

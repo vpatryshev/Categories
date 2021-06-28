@@ -62,7 +62,7 @@ private[cat] trait CategoryFactory {
     * @return category based on he poset
     */
   def fromPoset[T](theName: String = "", poset: PoSet[T]): Category = {
-    new Category {
+    new Category(theName) {
       override val graph: Graph = Graph.ofPoset(theName, poset)
       type Node = T
       type Arrow = (T, T)
@@ -377,12 +377,12 @@ object Categories extends CategoryFactory {
     * @return this<sup>op</sup>
     */
   def op(c: Category): Category =
-    new Category {
-      override val graph: Graph = ~c
+    val opgraph = ~c
+    new Category(opgraph.name):
+      override val graph: Graph = opgraph
       override def id(o: Obj): Arrow = arrow(c.id(c.obj(o)))
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         c.m(c.arrow(g), c.arrow(f)) map arrow
         
       override lazy val op = c      
-    }
 }

@@ -9,9 +9,8 @@ import math.sets.Sets._
 import scalakittens.{Good, Result}
 import scalakittens.Result._
 
-trait Graph extends GraphData:
+trait Graph(val name: String) extends GraphData:
   graph =>
-  def name: String
   
   def contains(any: Any): Boolean = nodeOpt(any).isGood
 
@@ -98,20 +97,19 @@ trait Graph extends GraphData:
   def areParallel(f: Arrow, g: Arrow): Boolean =
     sameDomain(f, g) && sameCodomain(f, g)
 
-  def unary_~ : Graph = new Graph:
-    type Node = graph.Node
-    type Arrow = graph.Arrow
-    override val name: String = if (graph.name.startsWith("~")) graph.name.tail else "~" + graph.name
-    def nodes: Nodes = graph.nodes
-    def arrows: Arrows = graph.arrows
-    def d0(f: Arrow): Node = graph.d1(f)
-    def d1(f: Arrow): Node = graph.d0(f)
+  def unary_~ : Graph =
+    new Graph(if (graph.name.startsWith("~")) graph.name.tail else "~" + graph.name):
+      type Node = graph.Node
+      type Arrow = graph.Arrow
+      def nodes: Nodes = graph.nodes
+      def arrows: Arrows = graph.arrows
+      def d0(f: Arrow): Node = graph.d1(f)
+      def d1(f: Arrow): Node = graph.d0(f)
   
-  def subgraph(aName: String, setOfNodes: Nodes): Result[Graph] =
+  def subgraph(name: String, setOfNodes: Nodes): Result[Graph] =
     OKif(setOfNodes.subsetOf(nodes), s"Unknown nodes: ${setOfNodes.diff(nodes).mkString(",")}").
       returning {
-        new Graph:
-          override val name: String = aName
+        new Graph(name):
           type Node = graph.Node
           type Arrow = graph.Arrow
 
@@ -124,8 +122,7 @@ trait Graph extends GraphData:
   end subgraph
   
   def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] = 
-    val result = new Graph:
-      override val name: String = graph.name
+    val result = new Graph(name):
 
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
 
@@ -190,8 +187,7 @@ private[cat] trait GraphData:
       })
     } returning this
 
-  def build(nameit: String): Graph = new Graph:
-    override val name: String = nameit
+  def build(name: String): Graph = new Graph(name):
 
     def nodes: Nodes = data.nodes //.asInstanceOf[Nodes] // TODO: get rid of cast
     def arrows: Arrows = data.arrows //.asInstanceOf[Arrows] // TODO: get rid of cast
@@ -225,7 +221,7 @@ object Graph:
     } validate
   
   def build[N, A](
-    name0: String,
+    name: String,
     nodes0: Set[N],
     arrows0: Set[A],
     d00: A => N,
@@ -234,8 +230,7 @@ object Graph:
 
     parsed flatMap {
       d =>
-        new Graph {
-          override val name: String = name0
+        new Graph(name) {
 
           def nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
           def arrows: Arrows = d.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
@@ -252,8 +247,11 @@ object Graph:
     build(name, nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
 
   def discrete[N](points: Set[N], nameit: String = ""): Graph =
-    new Graph:
-      override val name: String = if (nameit == "") s"DiscreteGraph_${points.size}" else nameit
+    val name: String =
+      if (nameit == "") s"DiscreteGraph_${points.size}" else nameit
+    
+    new Graph(name):
+      override 
       type Node = N
       type Arrow = N
       def nodes: Nodes = points
@@ -262,13 +260,12 @@ object Graph:
       def d1(f: Arrow): Node = Map.empty(f)
 
   
-  def ofPoset[N](name0: String, poset: PoSet[N]): Graph =
+  def ofPoset[N](name: String, poset: PoSet[N]): Graph =
     val points = poset.elements
     val posetSquare = Sets.product2(points, points)
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
 
-    new Graph:
-      override val name: String = name0
+    new Graph(name):
       type Node = N
       type Arrow = (N, N)
       def nodes: Nodes = points

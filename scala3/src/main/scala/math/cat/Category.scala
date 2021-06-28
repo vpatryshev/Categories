@@ -15,8 +15,16 @@ import scala.collection.IterableOnce
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category extends CategoryData {
+abstract class Category(name: String) extends CategoryData(name) {
+
+  /**
+    * Terminal object of this category (if exists)
+    */
   lazy val terminal: Result[Obj] = objects.find(isTerminal)
+
+  /**
+    * Initial object of this category (if exists)
+    */
   lazy val initial: Result[Obj] = objects.find(isInitial)
   /**
     * an iterable of initial objects as defined
@@ -639,8 +647,7 @@ abstract class Category extends CategoryData {
     val src = this
     subgraph(subname, setOfObjects) map {
       sub =>
-        new Category:
-          override def name: String = subname
+        new Category(subname):
           override val graph: Graph = sub
 
           override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))

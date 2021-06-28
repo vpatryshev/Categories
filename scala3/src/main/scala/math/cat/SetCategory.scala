@@ -12,7 +12,7 @@ import scalakittens.{Good, Result}
 /**
   * Category where objects are sets
   */
-class SetCategory(objects: BigSet[set]) extends Category:
+class SetCategory(objects: BigSet[set]) extends Category("Sets"):
 
   /**
     * Inner graph of this category of sets

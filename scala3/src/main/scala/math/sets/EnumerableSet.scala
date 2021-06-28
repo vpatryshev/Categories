@@ -8,7 +8,7 @@ import scala.language.postfixOps
   */
 trait EnumerableSet[T] extends Set[T]:
   thisSet: BigSet[T] =>
-
+  
   /**
     * Add an element to this set
     * @param x the element
@@ -27,6 +27,6 @@ trait EnumerableSet[T] extends Set[T]:
     */
   override def excl(x: T): BigSet[T] =
     if !contains(x) then thisSet
-    else new BigSet[T] with EnumerableSet[T]:
+    else new BigSet[T](s"$name except $x") with EnumerableSet[T]:
            override def contains(y: T): Boolean = y != x && (thisSet contains y)
            override def iterator: Iterator[T] = thisSet.iterator filter (x !=)
