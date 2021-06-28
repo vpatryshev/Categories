@@ -3,7 +3,7 @@ package math.cat.topos
 import scala.language.postfixOps
 import reflect.Selectable.reflectiveSelectable
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Category, CategoryData, Functor, NaturalTransformation, SetFunction}
+import math.cat.{Category, Functor, NaturalTransformation, SetFunction}
 import math.sets.Functions
 import math.sets.Sets
 import math.sets.Sets._
@@ -39,8 +39,7 @@ trait GrothendieckTopos
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
-    val objectsMapping: d0.Obj => d1.Obj =
-      (d: d0.Obj) => d1.obj(subrepresentablesIndexed(domain.obj(d): domain.Obj))
+    def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(subrepresentablesIndexed(domain.obj(x): domain.Obj))
 
     // for each arrow `a: x -> y` produce a transition `Ω(x) -> Ω(y)`.
     private def am(a: domain.Arrow): SetFunction = {
@@ -73,8 +72,8 @@ trait GrothendieckTopos
       new SetFunction(s"[$a]", d0.untyped, d1.untyped, d => diaMap(d.asInstanceOf[Diagram]))
     }
 
-    protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-      (a: XArrow) => d1.arrow(am(domain.arrow(a)))
+    protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
+      d1.arrow(am(domain.arrow(a)))
 
     /**
       * Given an arrow `a`, 

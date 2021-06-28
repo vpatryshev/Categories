@@ -346,14 +346,13 @@ object Diagram {
       override private[topos] def setAt(x: Any): set =
         d1.asObj(objectsMap(x.asInstanceOf[O])) // TODO: get rid of Any and casting
       
-      override val objectsMapping: XObject => d1.Obj = (o: XObject) => {
+      override def objectsMapping(o: d0.Obj): d1.Obj =
         val x = o.asInstanceOf[O] // TODO: get rid of casting
         val y = objectsMap(x)
         d1.asObj(y) // TODO: get rid of casting
-      }
 
-      override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-        (a: d0.Arrow) => d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
+      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
+        d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
     }
   }
   

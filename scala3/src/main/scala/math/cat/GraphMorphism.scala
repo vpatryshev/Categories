@@ -10,9 +10,19 @@ import scala.language.postfixOps
   */
 trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism[Graph, Graph]:
   m =>
-  
+
+  /**
+    * How nodes are mapped in by this morphism
+    * @param n node
+    * @return another node
+    */
   def nodesMapping(n: d0.Node): d1.Node
 
+  /**
+    * How arrows are mapped in by this morphism
+    * @param a arrows
+    * @return another arrows
+    */
   def arrowsMapping(a: d0.Arrow): d1.Arrow
   
   /**

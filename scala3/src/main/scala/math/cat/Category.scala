@@ -2,8 +2,8 @@ package math.cat
 
 import scala.language.implicitConversions
 import scala.language.postfixOps
-
 import math.Base._
+import math.cat.construction.CategoryData
 import math.sets.Sets._
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
@@ -635,11 +635,12 @@ abstract class Category extends CategoryData {
       cat <- completeSubcategory(s"$name.${i + 1}", s).asOption
     yield cat
 
-  def completeSubcategory(name: String, setOfObjects: Objects): Result[Category] =
+  def completeSubcategory(subname: String, setOfObjects: Objects): Result[Category] =
     val src = this
-    subgraph(name, setOfObjects) map {
+    subgraph(subname, setOfObjects) map {
       sub =>
         new Category:
+          override def name: String = subname
           override val graph: Graph = sub
 
           override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))

@@ -11,7 +11,7 @@ import scalakittens.Result._
 
 trait Graph extends GraphData:
   graph =>
-  def name: String = "a graph"
+  def name: String
   
   def contains(any: Any): Boolean = nodeOpt(any).isGood
 

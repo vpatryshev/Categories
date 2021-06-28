@@ -34,10 +34,8 @@ class DiagramTest extends Test with TestDiagrams {
 
       val diagram: Diagram =
         new Diagram("Test", topos) {
-          override val objectsMapping: d0.Obj => d1.Obj =
-            (x: d0.Obj) => d1.obj(BuildPullbackDiagram.om(x.toString))
-          override protected val arrowsMappingCandidate: d0.Arrow => d1.Arrow =
-            (a: d0.Arrow) => d1.arrow(BuildPullbackDiagram.am(a.toString))
+          override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(BuildPullbackDiagram.om(x.toString))
+          override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = d1.arrow(BuildPullbackDiagram.am(a.toString))
         }
       val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
