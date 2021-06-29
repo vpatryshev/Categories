@@ -390,7 +390,6 @@ object CategoryData:
     def isIdentity(f: Any): Boolean = nodesOpt map (_ contains f) getOrElse (graph contains f)
 
     new Graph(graph.name) {
-      override val name = graph.name
 
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
 

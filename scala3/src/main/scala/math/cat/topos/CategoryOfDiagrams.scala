@@ -137,7 +137,6 @@ object CategoryOfDiagrams {
   
   def graphOfDiagrams(domainName: String): Graph =
     new Graph(nameOfPowerCategory(domainName)):
-      override val name = s"Sets^$domainName"
       type Node = Diagram
       type Arrow = DiagramArrow
 

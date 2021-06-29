@@ -251,7 +251,6 @@ object Graph:
       if (nameit == "") s"DiscreteGraph_${points.size}" else nameit
     
     new Graph(name):
-      override 
       type Node = N
       type Arrow = N
       def nodes: Nodes = points
