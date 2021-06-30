@@ -15,7 +15,7 @@ import scala.collection.IterableOnce
 /**
   * Category class, and the accompanying object.
   */
-abstract class Category(name: String) extends CategoryData(name) {
+abstract class Category(name: String) extends CategoryData(name):
 
   /**
     * Terminal object of this category (if exists)
@@ -35,33 +35,29 @@ abstract class Category(name: String) extends CategoryData(name) {
   /**
     * a cheap alternative for the iterable (actually, a set) of initial objects
     */
-  lazy val allRootObjects_programmersShortcut: Objects = {
-    val wrongStuff = arrows filter (f => !isEndomorphism(f)) map d1
+  lazy val allRootObjects_programmersShortcut: Objects =
+    val wrongStuff = arrows filterNot isEndomorphism map d1
     objects -- wrongStuff
-  }
+
   /**
     * An iterable of all objects that do not have any non-endomorphic arrows pointing at them.
     * Constructively, these are all such objects that if an arrow ends at such an object, it is an endomophism.
     * Since producing a lazy set is too heavy, I just build it in an old-fashion way.
     */
   lazy val allRootObjects: Objects = allRootObjects_programmersShortcut
+  
   /**
     * A set of all arrows that originate at initial objects (see allRootObjects)
     */
   lazy val arrowsFromRootObjects: Set[Arrow] = arrows filter (allRootObjects contains d0(_))
-
-  private[cat] lazy val listOfRootObjects = allRootObjects.toList.sortBy(_.toString)
+  
+  private[cat] lazy val listOfRootObjects = listSorted(allRootObjects)
 
   def foreach[U](f: Obj => U): Unit = objects foreach f
 
-  def map[B](f: Obj => B): IterableOnce[B] = objects.map(f)
+  def map[B](f: Obj => B): IterableOnce[B] = objects map f
 
-  def flatMap[B](f: Obj => IterableOnce[B]): IterableOnce[B] = objects.flatMap(f)
-
-  def compositions: Iterable[(Arrow, Arrow, Arrow)] =
-    for {f <- arrows
-         g <- arrows
-         h <- m(f, g)} yield (f, g, h)
+  def flatMap[B](f: Obj => IterableOnce[B]): IterableOnce[B] = objects flatMap f
 
   private var source: Option[String] = None
   
@@ -71,14 +67,17 @@ abstract class Category(name: String) extends CategoryData(name) {
   }
   
   override def toString: String =
-    source getOrElse
-    s"${if (name.isEmpty) "" else {name + ": " }}({" +
-    objects.toList.sortBy(_.toString).mkString(", ") + "}, {" +
-    (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
-    (composablePairs collect {
-      case (first, second) if !isIdentity(first) && !isIdentity(second) =>
-        concat(second, "∘", first) + s" = ${m(first, second).get}"
-    }).mkString(", ") + "})"
+    source getOrElse {
+      val prefix = if name.isEmpty then "" else name + ": "
+      
+      s"$prefix({" +
+        listSorted(objects).mkString(", ") + "}, {" +
+        (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
+        (composablePairs collect {
+          case (first, second) if !isIdentity(first) && !isIdentity(second) =>
+            concat(second, "∘", first) + s" = ${m(first, second).get}"
+        }).mkString(", ") + "})"
+    }
 
   /**
     * Checks whether an arrow is an isomorphism.
@@ -557,7 +556,7 @@ abstract class Category(name: String) extends CategoryData(name) {
   def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] = {
     val badArrows: Arrows = arrows.filterNot(a => setOfObjects(d0(a)))
 
-    require(badArrows.isEmpty, s"These arrows don't belong: ${badArrows.mkString(",")} in $name")
+    require(badArrows.isEmpty, s"These arrows don't belong: ${asString(badArrows)} in $name")
     val grouped = arrows.groupBy(d0)
     val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
     val res = setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
@@ -664,8 +663,9 @@ abstract class Category(name: String) extends CategoryData(name) {
     * @return this<sup>op</sup>
     */
   lazy val op: Category = Categories.op(this)
-}
 
-object Category extends CategoryFactory {
-  
-}
+
+/**
+  * Serves as a factory
+  */
+object Category extends CategoryFactory

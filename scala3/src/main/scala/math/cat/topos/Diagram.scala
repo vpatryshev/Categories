@@ -225,7 +225,7 @@ abstract class Diagram(
       if isCompatible(om)
     } yield om
     
-    val sorted: Seq[Map[XObject, set]] = objMappings.toList.sortBy(_.toString)
+    val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
 
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
@@ -246,10 +246,10 @@ abstract class Diagram(
   }
 
   override def toString: String = toString({ x => 
-      s"$x ->{${objectsMapping(x).mkString(",")}}" replace(s"Diagram[${d0.name}]", "") })
+      s"$x ->{${asString(objectsMapping(x))}}" replace(s"Diagram[${d0.name}]", "") })
   
   def toShortString: String = toString({ x => {
-      val obRepr = Diagram.cleanupString(objectsMapping(x).mkString(","))
+      val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
       if (obRepr.isEmpty) "" else s"$x->{$obRepr}"
     } replace(s"Diagram[${d0.name}]", "")
   })
@@ -293,7 +293,7 @@ abstract class Diagram(
 
   private[cat] object limitBuilder {
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
-    final private[cat] lazy val listOfObjects: List[XObject] = rootObjects.toList.sortBy(_.toString)
+    final private[cat] lazy val listOfObjects: List[XObject] = listSorted(rootObjects)
     // Here we have a non-repeating collection of sets to use for building a limit
     final private[cat] lazy val setsToUse =
       listOfObjects map nodesMapping map (x => setOf(x))

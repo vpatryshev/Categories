@@ -1,0 +1,1 @@
+inkscape "`pwd`/$1.svg" --export-pdf="`pwd`/"$1.pdf""

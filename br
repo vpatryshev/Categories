@@ -3,17 +3,17 @@
 export curdir=${PWD##*/}
 
 #set -e
-if [ -z $1 ]; then
+if [ -z "$1" ]; then
   echo "../branch new_branch_name
 or
 ../branch base_branch_name new_branch_name"
   exit 1
-elif [ -z $2 ]; then
+elif [ -z "$2" ]; then
   export fromb=master
-  export newb=$1
+  export newb="$1"
 else
-  export fromb=$1
-  export newb=$2
+  export fromb="$1"
+  export newb="$2"
 fi
 
 git checkout $fromb

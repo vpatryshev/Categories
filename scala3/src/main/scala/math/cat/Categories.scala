@@ -13,7 +13,7 @@ import scalakittens.{Bad, Good, Result}
 
 import scala.collection.{IterableOnce, mutable}
 
-private[cat] trait CategoryFactory {
+private[cat] trait CategoryFactory:
   /**
     * Builds a category out of a segment of integers between 0 and n (not included).
     *
@@ -201,12 +201,10 @@ private[cat] trait CategoryFactory {
 
   private[cat] val arrowBuilder = (p:(String, String)) => Option(s"${p._2}∘${p._1}")
 
-}
-
 /**
   * A bunch of specific categories in this object
   */
-object Categories extends CategoryFactory {
+object Categories extends CategoryFactory:
 
   type Cat = Category {
     type Node = String
@@ -385,4 +383,3 @@ object Categories extends CategoryFactory {
         c.m(c.arrow(g), c.arrow(f)) map arrow
         
       override lazy val op = c      
-}

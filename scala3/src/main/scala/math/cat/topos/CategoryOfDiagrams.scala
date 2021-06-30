@@ -23,7 +23,8 @@ class CategoryOfDiagrams(val domain: Category)
   
   lazy val subterminals: Set[Diagram] = {
     def objectMapping(candidate: Set[domain.Obj]) =
-      (obj: domain.Obj) => if (candidate contains obj) _1(obj) else Set.empty.untyped
+      (obj: domain.Obj) =>
+        if candidate contains obj then _1(obj) else Empty
 
     def arrowMapping(candidate: Set[domain.Obj]): domain.Arrow => SetFunction = {
       val omc = objectMapping(candidate)

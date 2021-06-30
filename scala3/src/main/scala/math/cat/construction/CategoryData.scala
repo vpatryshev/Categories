@@ -5,6 +5,7 @@ import math.cat.{Category, Graph}
 import math.sets.Sets._
 import scalakittens.Result
 import scalakittens.Result._
+import math.Base._
 
 import java.util.Objects
 import scala.collection.mutable
@@ -21,7 +22,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   val graph: Graph = this
   
   lazy val listOfObjects: List[Obj] =
-    if (isFinite) objects.toList.sortBy(_.toString)
+    if isFinite then listSorted(objects)
     else throw new IllegalStateException("Cannot sort infinite set")
 
   def obj(x: Any): Obj =
@@ -86,7 +87,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
 
   def objects: Objects = nodes
   
-  def objectByAlphabet: List[Obj] = objects.toList.sortBy(_.toString)
+  def objectByAlphabet: List[Obj] = listSorted(objects)
 
   def nodes: Objects = graph.nodes.asInstanceOf[Objects]
 

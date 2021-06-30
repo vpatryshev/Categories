@@ -61,7 +61,8 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   def getOrElse[T1 >: T](alt: => T1): T1 = value
   def <*>[U](other: Result[U]): Result[(T, U)] = other.flatMap(u => Good((value, u)))
   protected def foreach_(f: T => Unit): Unit = f(value)
-  def filter(p: T => Boolean): Result[T] = Result.forValue(if (p(value)) this else Empty).flatten
+  def filter(p: T => Boolean): Result[T] =
+    Result.forValue(if p(value) then this else Empty).flatten
   def filter(p: T => Boolean, onError: T => String): Result[T] =
     Result.forValue(if (p(value)) this else {
       Result.error(onError(value))

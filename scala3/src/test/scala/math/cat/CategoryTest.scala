@@ -10,6 +10,7 @@ import math.sets.Sets._
 import org.specs2.control.eff.Evaluate.fail
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
+import math.Base._
 
 import scala.language.postfixOps
 
@@ -865,15 +866,11 @@ class CategoryTest extends Test with CategoryFactory {
       val missing1 = data1.missingCompositions
       val data2: PartialData = appendArrows(data1, missing1)
 
-      val nodeStrings = data2.nodes.toList.sortBy(_.toString).mkString(", ")
-      val arrowsSorted: Seq[data2.Arrow] = data2.arrows.toList.sortBy(_.toString)
+      val nodeStrings = asString(data2.nodes)
+      val arrowsSorted: Seq[data2.Arrow] = listSorted(data2.arrows)
       def stringify(a: data2.Arrow) = s"$a: ${data2.d0(a)}->${data2.d1(a)}"
       val arrowStrings =
         arrowsSorted map ((a: data2.Arrow) => stringify(a)) mkString ", "
-      val s20 = s"({$nodeStrings}, {$arrowStrings})"
-
-      val s2 = data2.toString
-      val missing2 = data2.missingCompositions
 
       val closure = transitiveClosure(data1)
 
@@ -890,9 +887,8 @@ class CategoryTest extends Test with CategoryFactory {
       //      val parsed = (new CategoryParser).readCategory(source)
       val parsed = parser.parseAll(parser.category, source)
       parsed match {
-        case parser.Success(res, _) => if (res.errorDetails.nonEmpty) {
+        case parser.Success(res, _) => if res.errorDetails.nonEmpty then
           val p = Categories.read(source).iHope
-        }
           res.errorDetails === None
 
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
