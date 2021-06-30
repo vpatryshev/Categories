@@ -34,7 +34,7 @@ case class SetFunction private[cat](
     * @return their composition g ∘ f: X -> Z
     */
   def andThen(g: SetFunction): Option[SetFunction] =
-    if (d1 == g.d0) then
+    if d1 == g.d0 then
       val transform = (x: Any) => g(self(x))
       Some(new SetFunction(tagOfComposition(g.tag, tag), d0, g.d1, transform))
     else None

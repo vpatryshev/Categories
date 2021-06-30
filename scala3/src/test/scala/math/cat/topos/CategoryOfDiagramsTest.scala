@@ -5,6 +5,7 @@ import math.cat.Categories._
 import math.cat.SetFunction
 import math.sets.Sets.set
 import scalakittens.Good
+import math.Base._
 
 class CategoryOfDiagramsTest extends Test with TestDiagrams {
 
@@ -182,11 +183,9 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(Pullback)
       val sample = sut.d0.objects map (ob => sut.objectsMapping(ob))
 
-      def canonical(s: set) = s.map(_.toString).toList.sorted.mkString(",")
-
       def fullSet(d: Diagram): List[String] = {
         d.d0.objects.toList map ((o: d.d0.Obj) => d.objectsMapping(o))
-      } map d.setOf map canonical
+      } map d.setOf map asString
 
       val listOfSubobjects = sut.subobjects.toList
       val actual =

@@ -84,3 +84,8 @@ object Base:
 
   def checkThat(cond: => Boolean) =
     try cond catch case x => false
+
+  def listSorted[T](things: Iterable[T]) = things.toList.sortBy(_.toString)
+
+  def asString(things: Iterable[_]): String =
+    things.map(_.toString).toList.sorted.mkString(",")

@@ -107,7 +107,7 @@ trait Graph(val name: String) extends GraphData:
       def d1(f: Arrow): Node = graph.d0(f)
   
   def subgraph(name: String, setOfNodes: Nodes): Result[Graph] =
-    OKif(setOfNodes.subsetOf(nodes), s"Unknown nodes: ${setOfNodes.diff(nodes).mkString(",")}").
+    OKif(setOfNodes.subsetOf(nodes), s"Unknown nodes: ${asString(setOfNodes.diff(nodes))}").
       returning {
         new Graph(name):
           type Node = graph.Node

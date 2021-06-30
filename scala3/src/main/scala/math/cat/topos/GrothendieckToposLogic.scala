@@ -20,7 +20,8 @@ trait GrothendieckToposLogic {
 
     private def wrapTag(tag: Any): String = {
       val ts = tag.toString
-      if (ts.contains("∧") || ts.contains("∨") || ts.contains("=>")) s"($ts)" else ts
+      if (ts contains "∧") || (ts contains "∨") || (ts contains "=>")
+      then s"($ts)" else ts
     }
 
     private def tag2(tag1: Any, op: String, tag2: Any): String = s"${wrapTag(tag1)} $op ${wrapTag(tag2)}"

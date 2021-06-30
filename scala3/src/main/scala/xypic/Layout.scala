@@ -3,6 +3,7 @@ package xypic
 import java.io.FileWriter
 import java.util.Date
 import scala.language.postfixOps
+import math.Base._
 import math.cat.{Category, Graph}
 import math.cat.Categories._
 import math.geometry2d._
@@ -97,7 +98,9 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     
     val arrows: MapView[Set[base.Node], List[base.Arrow]] =
       arrowsWithDomainAndCodomain.groupBy(_._2).view.
-        mapValues(_.map(_._1).toList.sortBy(_.toString))
+        mapValues {
+          v => listSorted(v.map(_._1))
+        }
     
     def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit = {
       val p = coordinates(obj.toString)
