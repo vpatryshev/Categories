@@ -5,7 +5,7 @@ import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BigSet, BinaryRelation, Sets}
 import org.specs2.mutable._
-import scalakittens.Good
+import scalakittens.{Good, Result}
 
 import scala.language.postfixOps
 
@@ -119,10 +119,10 @@ class SetCategoryTest extends Specification {
 
     "produce 4th degree of an object" in {
       val source: set = setOf.elements(1, 2, 3)
-      val sut = Setf.degree(source, 4).map(_._1)
+      val sut: Result[set] = Setf.degree(source, 4).map(_._1)
 
       sut match {
-        case Good(s: set) =>
+        case Good(s) =>
           s.size === 81
           for {
             a <- source

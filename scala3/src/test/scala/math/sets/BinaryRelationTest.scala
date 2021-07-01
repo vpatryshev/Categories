@@ -2,8 +2,9 @@ package math.sets
 
 import math.sets.Sets._
 import org.specs2.mutable._
+import testing.TestBase
 
-class BinaryRelationTest extends Specification {
+class BinaryRelationTest extends TestBase:
 
   "BinaryRelation" should {
 
@@ -24,4 +25,3 @@ class BinaryRelationTest extends Specification {
       r(2, "three") === false
     }
   }
-}

@@ -2,20 +2,22 @@ package math.geometry2d
 
 import org.specs2.mutable._
 import Segment._
+import testing.TestBase
+import scala.language.implicitConversions
 
 /**
   * Prototype for all tests
   */
-class SegmentTest extends Specification {
+class SegmentTest extends TestBase:
   
   "intersection" should {
     "work" in {
-      for {
+      for
         x10 <- 0 to 10
         x11 <- 0 to 10
         x20 <- 0 to 10
         x21 <- 0 to 10
-      } {
+      do
         val i0 = Pt(x10, 0)
         val i1 = Pt(x11, 1)
         val seg1 = Segment(i0, i1)
@@ -29,9 +31,7 @@ class SegmentTest extends Specification {
           seg2.intersectsLine(seg1) === true
         }
         (x10, x11, x20, x21, actual) === (x10, x11, x20, x21, expected)
-      }
 
       ok
     }
   }
-}

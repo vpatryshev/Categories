@@ -1,8 +1,8 @@
 package math.sets
 
-import org.specs2.mutable._
+import testing.TestBase
 
-class PoSetTest extends Specification {
+class PoSetTest extends TestBase:
 
   "PoSet" >> {
     "parse" >> {
@@ -114,4 +114,3 @@ class PoSetTest extends Specification {
       
     }
   }
-}

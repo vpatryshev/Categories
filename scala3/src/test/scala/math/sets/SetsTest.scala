@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import math.cat.SetMorphism
 import math.sets.Sets._
 import org.specs2.execute.Failure
-import org.specs2.mutable._
+import testing.TestBase
 import scalakittens.{Empty, Good, Result}
 
 import scala.concurrent.duration.Duration
@@ -12,7 +12,7 @@ import scala.concurrent.duration.Duration
 /**
  * Test suite for Sets object
  */
-class SetsTest extends Specification {
+class SetsTest extends TestBase:
 
   "This is a specification for the set parser" >> {
 
@@ -416,6 +416,5 @@ class SetsTest extends Specification {
       ok
     }
   }
-}
 
 

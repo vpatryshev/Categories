@@ -2,11 +2,12 @@ package math.sets
 
 import math.sets.Functions._
 import org.specs2.mutable._
+import testing.TestBase
 
 /**
  * Test suite for Functions object
  */
-class FunctionsTest extends Specification {
+class FunctionsTest extends TestBase:
 
   "Functions" >> {
     "id should be an identity" >> {
@@ -68,4 +69,3 @@ class FunctionsTest extends Specification {
       ok
     }
   }
-}

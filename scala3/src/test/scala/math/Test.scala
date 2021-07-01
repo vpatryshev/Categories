@@ -3,8 +3,9 @@ package math
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import scalakittens._
+import testing.TestBase
 
-class Test extends Specification {
+class Test extends TestBase {
   val NumberRegex = "(\\d+)".r
   val PairRegex = "(\\d+)\\.(\\d+)".r
   implicit class Regex(sc: StringContext) {

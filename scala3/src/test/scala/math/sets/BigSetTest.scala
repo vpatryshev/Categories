@@ -1,8 +1,9 @@
 package math.sets
 
 import org.specs2.mutable._
+import testing.TestBase
 
-class BigSetTest extends Specification {
+class BigSetTest extends TestBase:
 
   "BigSet" should {
 
@@ -55,4 +56,3 @@ class BigSetTest extends Specification {
       sut.contains("policia") === false
     }
   }
-}

@@ -2,11 +2,12 @@ package math
 
 import java.util.Date
 
+import testing.TestBase
 import math.Base._
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable._
 
-class BaseTest extends Specification {
+class BaseTest extends TestBase:
 
   "Base" should {
 
@@ -52,4 +53,3 @@ class BaseTest extends Specification {
       concat("x y", "and", "z t  ") === "(x y) and (z t)"
     }
   }
-}

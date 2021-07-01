@@ -3,7 +3,7 @@ package math.sets
 import math.cat.SetMorphism
 import math.sets.SetOps.cantorIterator
 import org.specs2.execute.Failure
-import org.specs2.mutable._
+import testing.TestBase
 import scalakittens.{Empty, Result}
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -12,7 +12,7 @@ import scala.concurrent.duration.Duration
 /**
  * Test suite for Sets object
  */
-class SetOpsTest extends Specification {
+class SetOpsTest extends TestBase:
 
   "SetOps" >> {
     "Cantor iterator should behave - 1" >> {
@@ -79,6 +79,5 @@ class SetOpsTest extends Specification {
       if (done.get) res else Result.error(s"Timeout after $time")
     }
   }
-}
 
 
