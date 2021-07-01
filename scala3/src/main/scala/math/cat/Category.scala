@@ -6,11 +6,13 @@ import math.Base._
 import math.cat.construction.CategoryData
 import math.sets.Sets._
 import math.sets.{BinaryRelation, FactorSet, Sets}
+import math.sets.Functions._
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
 import scala.annotation.tailrec
 import scala.collection.IterableOnce
+import Sets.isSingleton
 
 /**
   * Category class, and the accompanying object.
@@ -87,8 +89,17 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def isIsomorphism(f: Arrow): Boolean = inverse(arrow(f)).isDefined
 
+  /**
+    * Checks whether two objects are isomorphic
+    * @param a first object 
+    * @param b second object
+    * @return true iff `a` and `b` are isomorphic
+    */
   def isomorphic(a: Obj, b: Obj): Boolean = hom(a, b) exists isIsomorphism
 
+  /**
+    * This method is being used for rendering the category
+    */
   lazy val clusters: SetMorphism[Obj, Objects] =
     SetCategory.factorset[Obj](objects, BinaryRelation(isomorphic _))
 
@@ -100,9 +111,20 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def inverse(f: Arrow): Result[Arrow] = arrowsBetween(d1(arrow(f)), d0(f)) find (areInverse(f, _))
 
+  /**
+    * Checks whether two arrows are inverse
+    * @param f first arrow
+    * @param g second arrow
+    * @return true iff f∘g=id and g∘f=id
+    */
   def areInverse(f: Arrow, g: Arrow): Boolean =
     (m(arrow(f), arrow(g)) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
 
+  /**
+    * Checks whether an arrow is an endomorphism
+    * @param f an arrow
+    * @return true iff d0(f) = d1(f)
+    */
   def isEndomorphism(f: Arrow): Boolean = d0(arrow(f)) == d1(f)
 
   /**
@@ -255,7 +277,7 @@ abstract class Category(name: String) extends CategoryData(name):
   def factorsUniquelyOnRight(f: Arrow): Arrow => Boolean =
     (g: Arrow) => {
       sameDomain(g, f) &&
-        isUnique(arrowsBetween(d1(g), d1(f)).filter(m(g, _) contains f))
+        isSingleton(arrowsBetween(d1(g), d1(f)).filter(m(g, _) contains f))
     }
 
   /**
@@ -401,7 +423,7 @@ abstract class Category(name: String) extends CategoryData(name):
     case (qx, qy) =>
       sameCodomain(px, qx) &&
         sameCodomain(py, qy) &&
-        isUnique(arrowsBetween(d0(qx), d0(px)).filter((h: Arrow) => (m(h, px) contains qx) && (m(h, py) contains qy)))
+        isSingleton(arrowsBetween(d0(qx), d0(px)).filter((h: Arrow) => (m(h, px) contains qx) && (m(h, py) contains qy)))
   }
 
   /**
@@ -480,7 +502,7 @@ abstract class Category(name: String) extends CategoryData(name):
   def factorUniquelyOnLeft(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean =
     (q: (Arrow, Arrow)) => {
       val (qx, qy) = q
-      isUnique(arrowsBetween(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
+      isSingleton(arrowsBetween(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
     }
 
   /**
@@ -537,13 +559,13 @@ abstract class Category(name: String) extends CategoryData(name):
     * Terminal object is the one which has just one arrow from every other object.
     */
   def isTerminal(t: Obj): Boolean =
-    objects.forall((x: Obj) => isUnique(arrowsBetween(x, t)))
+    objects.forall((x: Obj) => isSingleton(arrowsBetween(x, t)))
 
   /**
     * Checks if a given object (candidate) is an initial object (aka zero).
     * Initial object is the one which has just one arrow to every other object.
     */
-  def isInitial(i: Obj): Boolean = objects.forall((x: Obj) => isUnique(arrowsBetween(i, x)))
+  def isInitial(i: Obj): Boolean = objects.forall((x: Obj) => isSingleton(arrowsBetween(i, x)))
 
   /**
     * Given a set of objects and a set of arrows, build a map that maps each object to

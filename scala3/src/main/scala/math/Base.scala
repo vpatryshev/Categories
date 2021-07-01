@@ -41,7 +41,7 @@ object Base:
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
 
   /**
-    * Concatenates two strings with a connector
+    * Concatenates two strings using a connector
     * @param first first value (can be anything)
     * @param conn connector string
     * @param second second value (can be anything)

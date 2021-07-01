@@ -1,9 +1,9 @@
 package math.sets
 
 import java.io.Reader
-import math.Base._
 import math.cat.SetMorphism
 import math.sets.Functions.Injection
+import math.Base.itsImmutable
 
 import scala.language.postfixOps
 import scala.reflect.ClassTag
@@ -188,7 +188,7 @@ object Sets:
 
   def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
 
-  def buildMap[K, V](keys: Set[K], f: K => V) = new MapForFunction(keys, f)
+  def buildMap[K, V](keys: Iterable[K], f: K => V) = new MapForFunction(keys.toSet, f)
 
   def toString(s: Set[_]): String = "{" + s.mkString(", ") + "}"
 
@@ -197,8 +197,6 @@ object Sets:
   def parse(input: CharSequence): Result[Set[String]] = (new SetParser).read(input)
 
   def singleton[T](x: T): Set[T] = Set(x)
-
-  def isUnique[T](seq: Iterable[T]): Boolean = isSingleton(seq)
 
   def isSingleton[T](ts: Iterable[T]): Boolean =
     val i = ts.iterator
@@ -398,7 +396,7 @@ object Sets:
     def elements[X](content: X*): setOf[X] = apply(content, x => content contains x)
 
     def apply[X](content: Iterable[X], predicate: X => Boolean): setOf[X] =
-      apply(content, content.foldLeft(0)((n, x) => n + 1), predicate)
+      apply(content, content.size, predicate)
 
     def apply[X](
       source: Iterable[X],
@@ -406,7 +404,7 @@ object Sets:
       predicate: X => Boolean): setOf[X] =
       new setOf(source, sizeEvaluator, predicate)
 
-    def apply[X](content: Iterable[X]): Set[X] = setOf(content, x => content exists (_ == x))
+    def apply[X](content: Iterable[X]): Set[X] = setOf(content, x => true)
 
   
   def main(args: Array[String]): Unit =
