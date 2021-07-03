@@ -30,7 +30,7 @@ class NegationTest extends Fixtures {
           val not_p = ¬(p)
           ¬(¬(not_p)) === not_p
 
-          rep(s"that ¬(${pt1.tag} ∨ x) =  ¬${pt1.tag} ∧ ¬x")
+          rep(s"that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
           for {pt2 <- Ω.points} {
             val q: topos.Predicate = pt2.asPredicateIn(topos)
             ¬(p ∨ q) === not_p ∧ ¬(q)

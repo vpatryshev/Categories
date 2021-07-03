@@ -3,7 +3,7 @@ package math.cat
 import scala.language.implicitConversions
 import scala.language.postfixOps
 import math.Base._
-import math.cat.construction.CategoryData
+import math.cat.construction.{CategoryData, CategoryFactoryNumberTwo}
 import math.sets.Sets._
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import math.sets.Functions._
@@ -690,4 +690,4 @@ abstract class Category(name: String) extends CategoryData(name):
 /**
   * Serves as a factory
   */
-object Category extends CategoryFactory
+object Category extends CategoryFactoryNumberTwo

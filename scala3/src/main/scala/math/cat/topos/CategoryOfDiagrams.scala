@@ -16,7 +16,6 @@ class CategoryOfDiagrams(val domain: Category)
   with GrothendieckTopos { topos =>
   override val graph = graphOfDiagrams(domain.name)
   override def toString: String = name
-  println(name)
   type Node = Diagram
   override type Obj = Diagram
   override type Arrow = DiagramArrow

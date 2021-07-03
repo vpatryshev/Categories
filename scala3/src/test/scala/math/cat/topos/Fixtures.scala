@@ -10,28 +10,25 @@ import scalakittens.Result._
 
 import scala.language.postfixOps
 
-class Fixtures extends Test with math.cat.topos.TestDiagrams {
+class Fixtures extends Test with math.cat.topos.TestDiagrams:
   type SUT = Diagram
 
   def report(cat: Category)(what: String): Unit =
     println(s"  checking $what over ${cat.name}")
   
-  def expectOk(r: Result[_]): TestResult = {
+  def expectOk(r: Result[_]): TestResult =
     r.isGood aka r.toString must beTrue
-  }
   
-  def expectError(r: Result[_], messages: String*): TestResult = {
+  def expectError(r: Result[_], messages: String*): TestResult =
     r.isBad must beTrue
-    r.errorDetails match {
+    r.errorDetails match
       case Some(things) => 
         val matches = messages map { message => OKif(things contains message) }
         expectOk(Result.traverse(matches))
         
       case None => failure(s"Expected errors in $r")
-    }
-  }
 
-  case class checkThatIn(topos: GrothendieckTopos) {
+  case class checkThatIn(topos: GrothendieckTopos):
     def mustBeMonoid[P](what: String,
       unit: P,
       binop: (P, P) => P): MatchResult[Any] = {
@@ -66,7 +63,6 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams {
       }
       ok
     }
-  }
 
   val categoriesToTest: List[Cat] = SomeKnownCategories
 
@@ -80,5 +76,3 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams {
       indices = i until allButW.length by (batchSize - 1)
     } yield indices map (allButW(_)) toList) toList
   }
-
-}

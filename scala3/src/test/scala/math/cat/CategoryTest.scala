@@ -17,7 +17,7 @@ import scala.language.postfixOps
 /**
   * Tests for Category class
   */
-class CategoryTest extends Test with CategoryFactory {
+class CategoryTest extends Test with CategoryFactoryNumberTwo {
 
   type SUT = Category
   
@@ -748,7 +748,7 @@ class CategoryTest extends Test with CategoryFactory {
       op3.arrows === _3_.arrows
       op3.objects === _3_.objects
       op3.d0("1.2".asInstanceOf[op3.Arrow]) === "2"
-      op3.validate.iHope
+      op3.factory.iHope
       ok
     }
 
@@ -874,7 +874,7 @@ class CategoryTest extends Test with CategoryFactory {
 
       val closure = transitiveClosure(data1)
 
-      val raw1 = closure.validate map { validData => validData.newCategory }
+      val raw1 = closure.factory map { validData => validData.newCategory }
 
       raw1.isGood === true
 
@@ -915,7 +915,7 @@ class CategoryTest extends Test with CategoryFactory {
 
       val closure = transitiveClosure(data)
 
-      val raw1 = closure.validate map { validData => validData.newCategory }
+      val raw1 = closure.factory map { validData => validData.newCategory }
 
       raw1.isGood === true
 
