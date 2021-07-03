@@ -71,10 +71,10 @@ abstract class Category(name: String) extends CategoryData(name):
   override def toString: String =
     source getOrElse {
       val prefix = if name.isEmpty then "" else name + ": "
-      
-      s"$prefix({" +
-        listSorted(objects).mkString(", ") + "}, {" +
-        (arrows.toList.filterNot(isIdentity).sortBy(_.toString) map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
+      val objectsAsString = asString(objects)
+      val arrowsListed = listSorted(arrows.filterNot(isIdentity))
+      s"$prefix({$objectsAsString}, {" +
+        (arrowsListed map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
         (composablePairs collect {
           case (first, second) if !isIdentity(first) && !isIdentity(second) =>
             concat(second, "∘", first) + s" = ${m(first, second).get}"
@@ -109,7 +109,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param f an arrow for which we are looking an inverse
     * @return inverse arrow
     */
-  def inverse(f: Arrow): Result[Arrow] = arrowsBetween(d1(arrow(f)), d0(f)) find (areInverse(f, _))
+  def inverse(f: Arrow): Result[Arrow] =
+    arrowsBetween(d1(f), d0(f)) find (areInverse(f, _))
 
   /**
     * Checks whether two arrows are inverse
@@ -125,7 +126,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param f an arrow
     * @return true iff d0(f) = d1(f)
     */
-  def isEndomorphism(f: Arrow): Boolean = d0(arrow(f)) == d1(f)
+  def isEndomorphism(f: Arrow): Boolean = d0(f) == d1(f)
 
   /**
     * Checks whether an arrow is a monomorphism.
@@ -133,26 +134,14 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param f an arrow to check
     * @return true iff f is a monomorphism
     */
-  def isMonomorphism(f: Arrow): Boolean = {
-
-    val iterable = for {g <- arrows if follows(f, g)
-                        h <- arrows if follows(f, h) && equalizes(g, h)(f)
+  def isMonomorphism(f: Arrow): Boolean =
+    val comparisons =
+      for {g <- arrows if follows(f, g)
+           fg = m(f,g)
+           h <- arrows if fg == m(f, h)
     } yield g == h
 
-    iterable forall (x => x)
-  }
-
-  /**
-    * Builds a predicate that checks whether an arrow equalizes two other arrows,
-    * that is, whether f ∘ h = g ∘ h  for a given arrow h.
-    *
-    * @param f first arrow
-    * @param g second arrow
-    * @return a predicate defined on arrows.
-    */
-  def equalizes(f: Arrow, g: Arrow): Arrow => Boolean = {
-    (h: Arrow) => areParallel(f, g) && follows(f, h) && (m(h, f) == m(h, g))
-  }
+    comparisons forall (x => x)
 
   /**
     * Checks whether an arrow is an epimorphism.
@@ -160,15 +149,14 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param f an arrow to check
     * @return true iff f is an epimorphism
     */
-  def isEpimorphism(f: Arrow): Boolean = {
-    val iterable = for (g <- arrows if follows(g, f);
-                        h <- arrows if follows(h, f) &&
-      coequalizes(g, h)(f)) yield {
-      g == h
-    }
+  def isEpimorphism(f: Arrow): Boolean =
+    val comparisons =
+      for {g <- arrows if follows(g, f)
+           gf = m(g,f)
+           h <- arrows if gf == m(h,f)
+          } yield g == h
 
-    iterable forall (x => x)
-  }
+    comparisons forall (x => x)
 
   /**
     * Checks if arrow h coequalizes arrows f and g (that is, whether h ∘ f == h ∘ g).
@@ -190,14 +178,13 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param p factored pair of arrows
     * @return the specified predicate.
     */
-  def factorsOnLeft(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean = (h: Arrow) => {
+  def factorsOnLeft(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean = (h: Arrow) =>
     val (px, py) = p
     val (qx, qy) = q
     sameDomain(h, qx) && sameDomain(h, qy) &&
       follows(px, h) && follows(py, h) &&
       sameCodomain(px, qx) && sameCodomain(py, qy) &&
       (m(h, px) contains qx) && (m(h, py) contains qy)
-  }
 
   /**
     * Builds an equalizer arrow for a parallel pair of arrows.
@@ -206,7 +193,19 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return an equalizer arrow, wrapped in Option
     */
-  def equalizer(f: Arrow, g: Arrow): Result[Arrow] = arrows find isEqualizer(f, g)
+  def equalizer(f: Arrow, g: Arrow): Result[Arrow] =
+    arrows find isEqualizer(f, g)
+
+  /**
+    * Builds a predicate that checks whether an arrow equalizes two other arrows,
+    * that is, whether f ∘ h = g ∘ h  for a given arrow h.
+    *
+    * @param f first arrow
+    * @param g second arrow
+    * @return a predicate defined on arrows.
+    */
+  def equalizes(f: Arrow, g: Arrow): Arrow => Boolean =
+    (h: Arrow) => follows(f, h) && (m(h, f) == m(h, g))
 
   /**
     * Builds a predicate that checks
@@ -217,9 +216,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return a predicate that checks if an arrow is an equalizer of f and g
     */
   def isEqualizer(f: Arrow, g: Arrow)(h: Arrow): Boolean =
-    areParallel(f, g) &&
       equalizes(f, g)(h) &&
-      allEqualizingArrows(f, g).forall(factorsUniquelyOnLeft(h))
+        (allEqualizingArrows(f, g) forall factorsUniquelyOnLeft(h))
 
   /**
     * Builds a predicate that checks if arrow g: y -> z
@@ -241,7 +239,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return an Iterable of arrows that equalize f and g
     */
-  def allEqualizingArrows(f: Arrow, g: Arrow): Iterable[Arrow] = arrows filter equalizes(f, g)
+  def allEqualizingArrows(f: Arrow, g: Arrow): Iterable[Arrow] =
+    arrows filter equalizes(f, g)
 
   /**
     * Builds a coequalizer arrow for a parallel pair of arrows.
@@ -250,7 +249,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return Good coequalizer arrow, if one exists, None othrewise
     */
-  def coequalizer(f: Arrow, g: Arrow): Result[Arrow] = Result(arrows find isCoequalizer(f, g))
+  def coequalizer(f: Arrow, g: Arrow): Result[Arrow] =
+    Result(arrows find isCoequalizer(f, g))
 
   /**
     * Builds a predicate that checks if an arrow is a coequalizer of the other two arrows.
@@ -259,12 +259,10 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return true if it is a coequalizer
     */
-  def isCoequalizer(f: Arrow, g: Arrow): Arrow => Boolean = {
-    require(areParallel(f, g))
+  def isCoequalizer(f: Arrow, g: Arrow): Arrow => Boolean =
     (h: Arrow) =>
       coequalizes(f, g)(h) &&
         (allCoequalizingArrows(f, g) forall factorsUniquelyOnRight(h))
-  }
 
   /**
     * Builds a predicate that checks if arrow g: x -> y
@@ -275,10 +273,9 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return the specified predicate
     */
   def factorsUniquelyOnRight(f: Arrow): Arrow => Boolean =
-    (g: Arrow) => {
+    (g: Arrow) =>
       sameDomain(g, f) &&
         isSingleton(arrowsBetween(d1(g), d1(f)).filter(m(g, _) contains f))
-    }
 
   /**
     * Builds a set of all arrows that coequalize f: A -> B and g: A -> B, that is,
@@ -288,7 +285,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return an Iterable of arrows that coequalize f and g
     */
-  def allCoequalizingArrows(f: Arrow, g: Arrow): Iterable[Arrow] = arrows filter coequalizes(f, g)
+  def allCoequalizingArrows(f: Arrow, g: Arrow): Iterable[Arrow] =
+    arrows filter coequalizes(f, g)
 
   /**
     * Calculates a coequalizer of a collection of parallel arrows.
@@ -308,12 +306,11 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def pairsWithTheSameDomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
-      filter(p => {
+      filter(p =>
         val (px, py) = p
         sameDomain(px, py) &&
           d1(px) == x &&
           d1(py) == y
-      }
       )
   )
 
@@ -324,13 +321,12 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param y second object
     * @return true if this is a cartesian product
     */
-  def isProduct(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean = {
+  def isProduct(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean =
     case (px, py) =>
       d0(arrow(px)) == d0(arrow(py)) &&
         d1(px) == x &&
         d1(py) == y &&
-        pairsWithTheSameDomain(x, y).forall(factorUniquelyOnRight(px, py))
-  }
+      (pairsWithTheSameDomain(x, y) forall factorUniquelyOnRight(px, py))
 
   /**
     * Builds a Cartesian product of two objects, if it exists. Returns None otherwise.
@@ -362,11 +358,11 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param y second object
     * @return true if this is a union
     */
-  def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean = (i: (Arrow, Arrow)) => {
+  def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean =
+    (i: (Arrow, Arrow)) =>
     val (ix, iy) = i
     d0(arrow(ix)) == x && d0(arrow(iy)) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
-  }
 
   /**
     * Builds a set of all arrows that start at x and y, respectively, and end at the same object.
@@ -393,10 +389,9 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return Good pair of arrows from pullback object to d0(f) and d0(g), or None.
     */
-  def pullback(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] = {
+  def pullback(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] =
     OKif(sameCodomain(f, g), s"Codomains of $f and $g should be the same in $name") andThen
       product2(arrows, arrows).find(isPullback(f, g))
-  }
 
   /**
     * Checks if p = (pa, pb) is a pullback of arrows f and g.
@@ -405,12 +400,11 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return true if this is a pullback
     */
-  def isPullback(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean = (p: (Arrow, Arrow)) => {
+  def isPullback(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean = (p: (Arrow, Arrow)) =>
     val (px, py) = p
     follows(f, px) && follows(g, py) &&
       m(px, f) == m(py, g) &&
       pairsEqualizing(f, g).forall(factorUniquelyOnRight(px, py))
-  }
 
   /**
     * Builds a predicate that checks if a pair of arrows p = (px, py) : A -> X x Y
@@ -419,24 +413,25 @@ abstract class Category(name: String) extends CategoryData(name):
     *
     * @return true if p factors q uniquely on the right
     */
-  def factorUniquelyOnRight(px: Arrow, py: Arrow): ((Arrow, Arrow)) => Boolean = {
+  def factorUniquelyOnRight(px: Arrow, py: Arrow): ((Arrow, Arrow)) => Boolean =
     case (qx, qy) =>
       sameCodomain(px, qx) &&
         sameCodomain(py, qy) &&
-        isSingleton(arrowsBetween(d0(qx), d0(px)).filter((h: Arrow) => (m(h, px) contains qx) && (m(h, py) contains qy)))
-  }
+        isSingleton(
+        arrowsBetween(d0(qx), d0(px)).filter(
+          (h: Arrow) => (m(h, px) contains qx) && (m(h, py) contains qy)))
 
   /**
     * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
     * at d0(f) and d0(g), equalizing them: f ∘ px = g ∘ py, that is, making the square
     * <pre>
     * py
-    * U —————-> Y
-    * |        |
+    *   U —————→ Y
+    *   |        |
     * px|        | g
-    * |        |
-    * ↓        ↓
-    * X —————-> Z
+    *   |        |
+    *   ↓        ↓
+    *   X —————→ Z
     * f
     * </pre>
     * commutative.
@@ -445,19 +440,15 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return the set of all such pairs of arrows
     */
-  def pairsEqualizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = {
+  def pairsEqualizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] =
     setOf(
       product2[Arrow, Arrow](arrows, arrows).
-        filter(p => {
+        filter(p =>
           val (px, py) = p
-          sameDomain(px, py) &&
             follows(f, px) &&
-            follows(g, py) &&
             m(px, f) == m(py, g)
-        }
         )
     )
-  }
 
   /**
     * Builds a pushout of two arrows, if it exists. Returns None otherwise.
@@ -485,7 +476,6 @@ abstract class Category(name: String) extends CategoryData(name):
     val pushoutObject = d1(px)
     d1(py) == pushoutObject &&
       follows(px, f) &&
-      follows(py, g) &&
       m(f, px) == m(g, py) &&
       pairsCoequalizing(f, g).forall(factorUniquelyOnLeft(px, py))
   }
@@ -502,7 +492,7 @@ abstract class Category(name: String) extends CategoryData(name):
   def factorUniquelyOnLeft(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean =
     (q: (Arrow, Arrow)) => {
       val (qx, qy) = q
-      isSingleton(arrowsBetween(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
+      isSingleton(hom(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
     }
 
   /**
@@ -555,17 +545,17 @@ abstract class Category(name: String) extends CategoryData(name):
   )
 
   /**
-    * Checks if a given object (candidate) is a terminal object (aka unit).
+    * Checks if a given object is a terminal object (aka unit).
     * Terminal object is the one which has just one arrow from every other object.
     */
   def isTerminal(t: Obj): Boolean =
-    objects.forall((x: Obj) => isSingleton(arrowsBetween(x, t)))
+    objects.forall((x: Obj) => isSingleton(hom(x, t)))
 
   /**
-    * Checks if a given object (candidate) is an initial object (aka zero).
+    * Checks if a given object is an initial object (aka zero).
     * Initial object is the one which has just one arrow to every other object.
     */
-  def isInitial(i: Obj): Boolean = objects.forall((x: Obj) => isSingleton(arrowsBetween(i, x)))
+  def isInitial(i: Obj): Boolean = objects.forall(x => isSingleton(hom(i, x)))
 
   /**
     * Given a set of objects and a set of arrows, build a map that maps each object to
@@ -575,15 +565,14 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param arrows       arrows that participate in the bundles.
     * @return a map.
     */
-  def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] = {
+  def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] =
     val badArrows: Arrows = arrows.filterNot(a => setOfObjects(d0(a)))
 
+    // TODO: return a Result
     require(badArrows.isEmpty, s"These arrows don't belong: ${asString(badArrows)} in $name")
     val grouped = arrows.groupBy(d0)
     val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
-    val res = setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
-    res
-  }
+    setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
 
   /**
     * Builds a degree object (X*X... n times) for a given object.
@@ -620,11 +609,11 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def baseGraph: Graph = {
     // first, remove identities
-    val nontrivialArrows = arrows filterNot isIdentity toList
     // then, remove compound arrows - those that were deduced during creation
-    val listOfArrows = nontrivialArrows sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
-    // then, remove all those that are still deducible
-    val essentialArrows = selectBaseArrows(listOfArrows)
+    val nontrivialArrows = arrows filterNot (f => isIdentity(f) || f.toString.contains("∘")) toList
+    val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘"))
+    // then, remove all those that are still deductible
+    val essentialArrows = selectBaseArrows(nontrivialArrows)
 
     val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
       a => a -> (d0(a), d1(a))
