@@ -615,9 +615,7 @@ abstract class Category(name: String) extends CategoryData(name):
     // then, remove all those that are still deductible
     val essentialArrows = selectBaseArrows(nontrivialArrows)
 
-    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
-      a => a -> (d0(a), d1(a))
-    } toMap
+    val essentialArrowsMap: Map[Arrow, (Node, Node)] = buildMap(essentialArrows, a => (d0(a), d1(a)))
 
     Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
   }
