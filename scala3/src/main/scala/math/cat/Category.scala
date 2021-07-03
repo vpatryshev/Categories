@@ -2,6 +2,7 @@ package math.cat
 
 import scala.language.implicitConversions
 import scala.language.postfixOps
+import scala.collection.mutable.ListBuffer
 import math.Base._
 import math.cat.construction.{CategoryData, CategoryFactoryNumberTwo}
 import math.sets.Sets._
@@ -607,25 +608,24 @@ abstract class Category(name: String) extends CategoryData(name):
     *
     * @return a graph with the same nodes, but with less arrows
     */
-  def baseGraph: Graph = {
+  def baseGraph: Graph =
     // first, remove identities
+    val nontrivialArrows = arrows. toList filterNot isIdentity
     // then, remove compound arrows - those that were deduced during creation
-    val nontrivialArrows = arrows filterNot (f => isIdentity(f) || f.toString.contains("∘")) toList
     val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘"))
-    // then, remove all those that are still deductible
-    val essentialArrows = selectBaseArrows(nontrivialArrows)
 
-    val essentialArrowsMap: Map[Arrow, (Node, Node)] = buildMap(essentialArrows, a => (d0(a), d1(a)))
+    val essentialArrows = selectBaseArrows(listOfArrows)
+
+    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
+      a => a -> (d0(a), d1(a))
+    } toMap
 
     Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
-  }
   
-  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
-    arrows.find(canDeduce(arrows)) match {
+  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
+    arrows.find(canDeduce(arrows)) match
       case None => arrows
       case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
-    }
-  }
 
   private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean = {
     val from = d0(a)
