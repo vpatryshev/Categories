@@ -153,8 +153,8 @@ private[cat] trait GraphData:
   type Nodes = Set[Node]
   type Arrows = Set[Arrow]
 
-  def nodes: Nodes
-  def arrows: Arrows
+  def nodes: Set[Node]
+  def arrows: Set[Arrow]
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 

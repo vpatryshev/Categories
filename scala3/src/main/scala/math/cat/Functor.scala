@@ -379,12 +379,13 @@ object Functor:
     _ <- checkIdentityPreservation(f) andAlso checkCompositionPreservation(f)
   } yield f
 
-  private def checkIdentityPreservation(f: Functor): Outcome = Result.traverse {
-    f.domainObjects map { x =>
-      val y: f.d1.Obj = f.objectsMapping(x)
-      OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
+  private def checkIdentityPreservation(f: Functor): Outcome =
+    Result.check {
+      f.domainObjects map { x =>
+        val y: f.d1.Obj = f.objectsMapping(x)
+        OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
+      }
     }
-  } andThen OK
 
   private def checkCompositionPreservation(f: Functor): Outcome =
     def check(fx: f.d0.Arrow, gx: f.d0.Arrow): Outcome =
@@ -396,19 +397,17 @@ object Functor:
       OKif(gy_fy == expected,
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
 
-    val checked = Result.traverse {
+    Result.check {
       Category.composablePairs(f.d0) map {
         case (fx, fy) => check(fx, fy)
       }
     }
-    
-    checked andThen OK
 
   private def checkArrowMapping(f: Functor): Outcome = 
     val missingMappings = f.d0.arrows.filter(a => Result.forValue(f.arrowsMapping(a)).isBad)
     
     OKif(missingMappings.isEmpty, s"Missing arrow mappings for ${missingMappings.mkString(", ")}") andThen 
-    Result.traverse {
+    Result.check {
     for (a <- f.d0.arrows) yield {
       val aa = f.arrowsMapping(a)
       val domainActual = f.d1.d0(aa)
@@ -420,15 +419,15 @@ object Functor:
       OKif(codomainActual == codomainExpected,
           s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected")
       }
-    } andThen OK
+    }
 
   private def checkObjectMapping(f: Functor): Outcome =
-    Result.traverse {
+    Result check {
       f.domainObjects map { x =>
           Result.forValue(f.objectsMapping(x))
             .orCommentTheError(s"Object mapping fails for $x")
             .filter(f.d1.objects, s"Object mapping defined incorrectly for $x")
       }
-    } andThen OK
+    }
 
 end Functor

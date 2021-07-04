@@ -208,6 +208,9 @@ object Result:
   def recordEvent(message:Any):Throwable =
     new ResultException(""+message)
 
+  def check[T](results: IterableOnce[Result[T]]): Outcome =
+    traverse(results) andThen OK
+  
   implicit def asOutcome(r:Result[_]): Outcome = r andThen OK
 
   implicit def asBoolean(r: Result[_]): Boolean = r.isGood
