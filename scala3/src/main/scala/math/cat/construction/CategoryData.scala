@@ -42,7 +42,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   def validateGraph: Result[CategoryData] =
     super.validate returning this
 
-  def factory: Result[CategoryFactoryNumberOne] =
+  def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph
     val objectsHaveIds = OKif(!finiteNodes) orElse {
       Result.traverse(objects map { x =>
@@ -85,7 +85,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
     val validated: Result[((CategoryData, Any), Any)] =
       graphIsOk andAlso objectsHaveIds andAlso compositionIsAssociative
     
-    validated map (_._1._1) map (new CategoryFactoryNumberOne(_))
+    validated map (_._1._1) map (new CategoryBuilder(_))
   
   end factory
 

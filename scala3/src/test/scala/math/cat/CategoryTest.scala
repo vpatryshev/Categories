@@ -17,7 +17,7 @@ import scala.language.postfixOps
 /**
   * Tests for Category class
   */
-class CategoryTest extends Test with CategoryFactoryNumberTwo {
+class CategoryTest extends Test with CategoryFactory {
 
   type SUT = Category
   

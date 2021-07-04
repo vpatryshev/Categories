@@ -4,7 +4,7 @@ import scala.language.implicitConversions
 import scala.language.postfixOps
 import scala.collection.mutable.ListBuffer
 import math.Base._
-import math.cat.construction.{CategoryData, CategoryFactoryNumberTwo}
+import math.cat.construction.{CategoryData, CategoryFactory}
 import math.sets.Sets._
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import math.sets.Functions._
@@ -675,4 +675,4 @@ abstract class Category(name: String) extends CategoryData(name):
 /**
   * Serves as a factory
   */
-object Category extends CategoryFactoryNumberTwo
+object Category extends CategoryFactory

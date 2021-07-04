@@ -7,7 +7,7 @@ import math.Base._
 import math.cat.Categories._
 import math.sets.PoSet
 import Graph._
-import math.cat.construction.{CategoryData, CategoryFactoryNumberTwo}
+import math.cat.construction.{CategoryData, CategoryFactory}
 import scalakittens.Result._
 import scalakittens.{Bad, Good, Result}
 
@@ -18,7 +18,7 @@ import scala.collection.{IterableOnce, mutable}
 /**
   * A bunch of specific categories in this object
   */
-object Categories extends CategoryFactoryNumberTwo:
+object Categories extends CategoryFactory:
 
   type Cat = Category {
     type Node = String

@@ -12,7 +12,15 @@ import math.Base._
 
 import java.io.Reader
 
-private[cat] trait CategoryFactoryNumberTwo:
+/**
+  * This trait contains a bunch of factory methods
+  * for building all kinds of categories:
+  * from strings, from partial orders, segments of numbers,
+  * discrete categories. Used in `Categories` object,
+  * which is a container for good examples of categories.
+  * 
+  */
+private[cat] trait CategoryFactory:
   /**
     * Builds a category out of a segment of integers between 0 and n (not included).
     *

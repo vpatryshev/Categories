@@ -4,7 +4,16 @@ import scala.language.{implicitConversions, postfixOps}
 import math.cat._
 import math.sets.Sets._
 
-class CategoryFactoryNumberOne(source: CategoryData):
+/**
+  * Given `CategoryData` as a source,
+  * creates a new category, with validation.
+  * The logic depends on whether the category is finite or not.
+  * For finite categories, mappings are cached in maps,
+  * which makes the code several times faster.
+  * 
+  * @param source data for building a category
+  */
+class CategoryBuilder(source: CategoryData):
 
   val graph = source.graph
 
