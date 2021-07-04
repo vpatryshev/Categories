@@ -1,3 +1,6 @@
+*.log
+bak/
+logs/
 .idea/
 bin/
 project/target/

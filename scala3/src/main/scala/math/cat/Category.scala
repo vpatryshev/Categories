@@ -611,29 +611,61 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def baseGraph: Graph =
     // first, remove identities
-    val nontrivialArrows = arrows filterNot isIdentity
+    val nontrivialArrows = arrows filterNot isIdentity toList
     // then, remove compound arrows - those that were deduced during creation
-    val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘"))
-
+    val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘")) sortBy(_.toString) reverse
+    // then, remove all those that are still deducible
     val essentialArrows = selectBaseArrows(listOfArrows)
 
+// TODO: figure out which one is faster  
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
-  
-  private def selectBaseArrows(arrows: Set[Arrow]): Set[Arrow] =
-    val isDeductible = canDeduce(arrows)
-    val deductibles = arrows filter isDeductible
-    if deductibles.isEmpty then arrows
-    else arrows -- deductibles
+//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
+//      a => a -> (d0(a), d1(a))
+//    } toMap
+//
+//    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
 
-  private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean = {
+
+  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
+    val isDeductible = canDeduce(arrows)  
+    arrows.find(isDeductible) match
+      case None => arrows
+      case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
+  }
+
+
+  private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean =
     val from = d0(a)
     val to = d1(a)
     hom(from, to).size == 1 && arrows.exists {
-      f => d1(f) != from && d1(f) != to && arrows.exists {
+      f => 
+        val d1f = d1(f)
+        d1f != from && d1f != to && arrows.exists {
         g => m(f, g) contains a
       }
     }
-  }
+
+//  /**
+//    * Remove the arrows that are not required for drawing:
+//    * identities and uniquely-determined compositions.
+//    *
+//    * @return a graph with the same nodes, but with less arrows
+//    */
+//  def baseGraph: Graph = {
+//    // first, remove identities
+//    val nontrivialArrows = arrows filterNot isIdentity toList
+//    // then, remove compound arrows - those that were deduced during creation
+//    val listOfArrows = nontrivialArrows sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
+//    // then, remove all those that are still deducible
+//    val essentialArrows = selectBaseArrows(listOfArrows)
+//
+//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
+//      a => a -> (d0(a), d1(a))
+//    } toMap
+//
+//    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
+//  }
+
 
   def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 

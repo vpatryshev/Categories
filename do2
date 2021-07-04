@@ -1,0 +1,8 @@
+run () {
+  date
+  sbt "project scala2; test"
+  date
+}
+
+time run | tee logs/scala2_`date +"%y%m%d%H%M"`.log
+
