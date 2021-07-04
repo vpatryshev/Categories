@@ -216,6 +216,7 @@ object Graph:
       override type Arrow = A
       def nodes: Nodes = setOfNodes
       def arrows: Arrows = setOfArrows
+      
       def d0(f: Arrow): Node = source(f)
       def d1(f: Arrow): Node = target(f)
     } validate
@@ -232,11 +233,11 @@ object Graph:
       d =>
         new Graph(name) {
 
-          def nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
-          def arrows: Arrows = d.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
-
           override type Node = N
           override type Arrow = A
+          override type Nodes = Set[N]
+          def nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
+          def arrows: Arrows = d.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
 
           override def d0(f: Arrow): Node = d00(f)
           override def d1(f: Arrow): Node = d10(f)

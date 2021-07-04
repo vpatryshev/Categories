@@ -611,29 +611,30 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def baseGraph: Graph =
     // first, remove identities
-    val nontrivialArrows = arrows filterNot isIdentity
+    val nontrivialArrows = arrows filterNot isIdentity toList
     // then, remove compound arrows - those that were deduced during creation
-    val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘"))
-
+    val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘")) sortBy(_.toString) reverse
+    // then, remove all those that are still deducible
     val essentialArrows = selectBaseArrows(listOfArrows)
 
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
-  
-  private def selectBaseArrows(arrows: Set[Arrow]): Set[Arrow] =
-    val isDeductible = canDeduce(arrows)
-    val deductibles = arrows filter isDeductible
-    if deductibles.isEmpty then arrows
-    else arrows -- deductibles
 
-  private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean = {
+  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
+    val canBeDeduced = canDeduce(arrows)(_)
+    val deductibles = arrows.filter(canBeDeduced).toSet
+    if deductibles.isEmpty then arrows
+    else arrows filterNot deductibles
+
+  private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean =
     val from = d0(a)
     val to = d1(a)
     hom(from, to).size == 1 && arrows.exists {
-      f => d1(f) != from && d1(f) != to && arrows.exists {
+      f => 
+        val d1f = d1(f)
+        d1f != from && d1f != to && arrows.exists {
         g => m(f, g) contains a
       }
     }
-  }
 
   def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 
