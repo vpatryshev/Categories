@@ -1,16 +1,16 @@
 package math.cat
 
+import math.Base._
 import math.Test
 import math.cat.Categories._
 import math.cat.Graph.GraphParser
 import math.cat.SetCategory._
+import math.cat.construction._
 import math.sets.Sets
 import math.sets.Sets._
-import math.cat.construction._
 import org.specs2.control.eff.Evaluate.fail
 import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
-import math.Base._
 
 import scala.language.postfixOps
 

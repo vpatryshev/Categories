@@ -4,9 +4,10 @@ import math.Test
 import math.cat.Categories._
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
-import scalakittens.Good
-import scala.language.postfixOps
 import org.specs2.matcher.MatchResult
+import scalakittens.Good
+
+import scala.language.postfixOps
 
 class FunctorTest extends Test {
   type SUT = Functor

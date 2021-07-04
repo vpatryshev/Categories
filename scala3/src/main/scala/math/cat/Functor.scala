@@ -4,8 +4,8 @@ import math.Base._
 import math.sets.Functions._
 import math.sets.Sets
 import math.sets.Sets._
-import scalakittens.{Bad, Result}
 import scalakittens.Result._
+import scalakittens.{Bad, Result}
 
 /**
   * Functor class: functions for categories.

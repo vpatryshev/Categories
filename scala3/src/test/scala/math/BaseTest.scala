@@ -1,11 +1,11 @@
 package math
 
-import java.util.Date
-
-import testing.TestBase
 import math.Base._
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable._
+import testing.TestBase
+
+import java.util.Date
 
 class BaseTest extends TestBase:
 

@@ -1,11 +1,11 @@
 package math.cat.construction
 
+import math.Base._
 import math.cat.construction.CategoryData._
 import math.cat.{Category, Graph}
 import math.sets.Sets._
 import scalakittens.Result
 import scalakittens.Result._
-import math.Base._
 
 import java.util.Objects
 import scala.collection.mutable

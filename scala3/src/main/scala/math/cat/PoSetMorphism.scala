@@ -4,6 +4,7 @@ import math.Base._
 import math.sets.PoSet
 import scalakittens.Result
 import scalakittens.Result._
+
 import scala.language.postfixOps
 
 /**

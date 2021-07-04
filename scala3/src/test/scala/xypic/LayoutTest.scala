@@ -1,10 +1,10 @@
 package xypic
 
 import math.cat.Categories._
+import math.cat.Category
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import scalakittens._
-import math.cat.Category
 
 import scala.collection.MapView
 import scala.language.postfixOps

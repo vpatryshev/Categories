@@ -1,13 +1,12 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import scalakittens.Result
-import Result._
-import scalakittens.Result.Outcome
 import math.Base._
-import math.sets.Sets._
 import math.cat.NaturalTransformation.printMapDifference
+import math.sets.Sets._
+import scalakittens.Result
+import scalakittens.Result.{Outcome, _}
+
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Natural transformation class: morphisms for functors.

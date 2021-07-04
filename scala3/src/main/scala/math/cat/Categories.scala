@@ -1,17 +1,16 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import java.io.Reader
 import math.Base._
 import math.cat.Categories._
-import math.sets.PoSet
-import Graph._
+import math.cat.Graph._
 import math.cat.construction.{CategoryData, CategoryFactory}
+import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Bad, Good, Result}
 
+import java.io.Reader
 import scala.collection.{IterableOnce, mutable}
+import scala.language.{implicitConversions, postfixOps}
 
 
 

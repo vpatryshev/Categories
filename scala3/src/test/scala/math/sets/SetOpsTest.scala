@@ -3,8 +3,8 @@ package math.sets
 import math.cat.SetMorphism
 import math.sets.SetOps.cantorIterator
 import org.specs2.execute.Failure
-import testing.TestBase
 import scalakittens.{Empty, Result}
+import testing.TestBase
 
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.Duration

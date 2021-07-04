@@ -1,9 +1,10 @@
 package math.cat.topos
 
-import scala.language.reflectiveCalls
 import math.cat.Categories._
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.{Good, Result}
+
+import scala.language.reflectiveCalls
 
 class TopologyTest extends Fixtures {
   

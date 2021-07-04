@@ -1,17 +1,16 @@
 package math.sets
 
-import java.io.Reader
+import math.Base.itsImmutable
 import math.cat.SetMorphism
 import math.sets.Functions.Injection
-import math.Base.itsImmutable
-
-import scala.language.postfixOps
-import scala.reflect.ClassTag
-import scala.util.parsing.combinator.RegexParsers
 import math.sets.SetOps._
 import scalakittens.{Good, Result}
 
+import java.io.Reader
 import scala.collection.immutable.AbstractSeq
+import scala.language.postfixOps
+import scala.reflect.ClassTag
+import scala.util.parsing.combinator.RegexParsers
 
 /**
   * Lazy sets functionality

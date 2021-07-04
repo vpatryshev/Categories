@@ -1,7 +1,8 @@
 package math.cat.topos
 
-import math.cat.{Category, SetFunction}
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import math.cat.{Category, SetFunction}
+
 import scala.language.implicitConversions
 
 /**

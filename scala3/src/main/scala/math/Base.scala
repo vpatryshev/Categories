@@ -1,7 +1,8 @@
 package math
 
+import math.Base._
 import scalakittens.Result
-import Base._
+
 import scala.language.postfixOps
 
 /**

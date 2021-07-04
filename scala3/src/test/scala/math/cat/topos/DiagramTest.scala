@@ -1,12 +1,12 @@
 package math.cat.topos
 
 import math.Test
+import math.cat.Categories._
 import math.cat.SetCategory.Setf
 import math.cat.{Category, Functor, SetFunction}
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.{Good, Result}
-import math.cat.Categories._
 
 /**
   * Test for individual diagrams (functors with codomain=sets)

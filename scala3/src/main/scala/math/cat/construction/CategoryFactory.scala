@@ -1,16 +1,15 @@
 package math.cat.construction
 
-import scala.language.{implicitConversions, postfixOps}
-
+import math.Base._
 import math.cat.Categories.Cat
 import math.cat.Graph.GraphParser
 import math.cat.{Category, Graph}
 import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Good, Result}
-import math.Base._
 
 import java.io.Reader
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * This trait contains a bunch of factory methods

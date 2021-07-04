@@ -1,7 +1,8 @@
 package math.sets
 
-import scala.language.postfixOps
 import math.Base._
+
+import scala.language.postfixOps
 
 /**
   * Implements factorset functionality. A factorset may be built given a BinaryRelation,

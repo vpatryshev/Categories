@@ -1,20 +1,18 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import scala.collection.mutable.ListBuffer
 import math.Base._
+import math.cat.Graph.build
 import math.cat.construction.{CategoryData, CategoryFactory}
-import math.sets.Sets._
-import math.sets.{BinaryRelation, FactorSet, Sets}
 import math.sets.Functions._
+import math.sets.Sets.{isSingleton, _}
+import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
 import scala.annotation.tailrec
 import scala.collection.IterableOnce
-import Sets.isSingleton
-import math.cat.Graph.build
+import scala.collection.mutable.ListBuffer
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Category class, and the accompanying object.

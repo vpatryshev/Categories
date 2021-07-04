@@ -1,12 +1,13 @@
 package math.cat
 
+import math.cat.SetCategory.Setf.node
 import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BinaryRelation, Sets}
 import org.specs2.mutable._
 import scalakittens.Result
+
 import scala.language.postfixOps
-import math.cat.SetCategory.Setf.node
 
 /**
  * Test suite for Typeless Set Morphisms object

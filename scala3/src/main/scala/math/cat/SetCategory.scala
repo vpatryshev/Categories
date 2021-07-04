@@ -1,13 +1,13 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
 import math.cat.SetCategory._
 import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BigSet, BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
+
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Category where objects are sets

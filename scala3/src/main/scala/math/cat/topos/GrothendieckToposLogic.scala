@@ -1,13 +1,12 @@
 package math.cat.topos
 
-import math.cat.SetFunction
+import math.cat.{Morphism, SetFunction}
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow, const}
 import math.sets.Sets.{set, setOf}
 import scalakittens.Result
 
 import scala.collection.mutable
 import scala.language.postfixOps
-import math.cat.Morphism
 
 trait GrothendieckToposLogic {
   topos: GrothendieckTopos =>

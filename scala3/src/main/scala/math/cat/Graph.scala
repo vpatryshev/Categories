@@ -1,13 +1,13 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import java.io.Reader
 import math.Base._
-import math.sets._
 import math.sets.Sets._
-import scalakittens.{Good, Result}
+import math.sets._
 import scalakittens.Result._
+import scalakittens.{Good, Result}
+
+import java.io.Reader
+import scala.language.{implicitConversions, postfixOps}
 
 trait Graph(val name: String) extends GraphData:
   graph =>

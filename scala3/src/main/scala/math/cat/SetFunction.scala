@@ -5,7 +5,7 @@ import math.Base._
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
-import Result._
+import scalakittens.Result._
 
 /**
   * The idea was to create something that would cover unresolved issues with type assignment

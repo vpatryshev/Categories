@@ -1,8 +1,9 @@
 package math.cat.construction
 
-import scala.language.{implicitConversions, postfixOps}
 import math.cat._
 import math.sets.Sets._
+
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Given `CategoryData` as a source,

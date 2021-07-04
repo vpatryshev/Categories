@@ -1,7 +1,7 @@
 package math.sets
 
-import scala.language.postfixOps
 import scala.collection.mutable.ListBuffer
+import scala.language.postfixOps
 
 class ZFC:
   val PATIENCE = 100

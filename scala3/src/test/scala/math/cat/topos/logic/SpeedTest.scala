@@ -3,9 +3,9 @@ package math.cat.topos.logic
 import math.cat.Category
 import math.cat.topos.{CategoryOfDiagrams, Fixtures}
 import org.specs2.matcher.MatchResult
+import testing.TestWatch
 
 import scala.language.reflectiveCalls
-import testing.TestWatch
 
 class SpeedTest extends Fixtures:
 

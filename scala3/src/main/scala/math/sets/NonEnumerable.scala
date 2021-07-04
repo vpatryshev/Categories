@@ -1,6 +1,7 @@
 package math.sets
 
 import math.Base._
+
 import scala.reflect.ClassTag
 
 /**

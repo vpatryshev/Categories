@@ -3,7 +3,8 @@ package math.cat.construction
 import math.Base._
 import math.Test
 import math.cat.Categories._
-import math.cat.Graph.GraphParser
+import math.cat.{Categories, Category, Graph}
+import math.cat.Graph.{GraphParser, _}
 import math.cat.SetCategory._
 import math.cat.construction._
 import math.sets.Sets
@@ -13,11 +14,6 @@ import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
 
 import scala.language.postfixOps
-import math.cat.Categories
-import math.cat.Categories._
-import math.cat.Category
-import math.cat.Graph
-import math.cat.Graph._
 
 /**
   * Tests for Category class construction
