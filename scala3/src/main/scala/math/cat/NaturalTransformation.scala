@@ -6,6 +6,7 @@ import scalakittens.Result
 import Result._
 import scalakittens.Result.Outcome
 import math.Base._
+import math.sets.Sets._
 import math.cat.NaturalTransformation.printMapDifference
 
 /**
@@ -64,7 +65,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
       self.transformPerObject(x.asInstanceOf[self.d0.d0.Obj]).asInstanceOf[d1.d1.Arrow]
 
   private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
-    if (d0.d0.isFinite) d0.d0.objects map (o => o -> transformPerObject(o)) toMap else Map.empty
+    if (d0.d0.isFinite) buildMap(d0.d0.objects, o => transformPerObject(o)) else Map.empty
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   

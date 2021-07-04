@@ -14,6 +14,7 @@ import scalakittens.{Good, Result}
 import scala.annotation.tailrec
 import scala.collection.IterableOnce
 import Sets.isSingleton
+import math.cat.Graph.build
 
 /**
   * Category class, and the accompanying object.
@@ -610,22 +611,19 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def baseGraph: Graph =
     // first, remove identities
-    val nontrivialArrows = arrows. toList filterNot isIdentity
+    val nontrivialArrows = arrows filterNot isIdentity
     // then, remove compound arrows - those that were deduced during creation
     val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘"))
 
     val essentialArrows = selectBaseArrows(listOfArrows)
 
-    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
-      a => a -> (d0(a), d1(a))
-    } toMap
-
-    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
+    Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
   
-  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
-    arrows.find(canDeduce(arrows)) match
-      case None => arrows
-      case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
+  private def selectBaseArrows(arrows: Set[Arrow]): Set[Arrow] =
+    val isDeductible = canDeduce(arrows)
+    val deductibles = arrows filter isDeductible
+    if deductibles.isEmpty then arrows
+    else arrows -- deductibles
 
   private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean = {
     val from = d0(a)

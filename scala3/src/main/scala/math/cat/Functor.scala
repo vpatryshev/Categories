@@ -24,6 +24,8 @@ abstract class Functor(
     */
   def domainObjects: d0.Objects = d0.objects
 
+  lazy val listOfObjects: List[d0.Obj] = d0.listOfObjects
+
   /**
     * How the functor maps objects
     * @param x object of domain category
