@@ -136,9 +136,6 @@ object SetMorphism:
       yield
         val y = Result.forValue(f.function(x))
         val yInD1 = y filter (f.d1 contains)
-        if (yInD1.isBad) {
-          println(yInD1)
-        }
         yInD1 orCommentTheError s"${f.tag}: Value $y for $x should be in d1 ${f.d1}"
     } returning f
 

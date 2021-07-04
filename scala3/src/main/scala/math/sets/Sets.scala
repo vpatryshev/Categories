@@ -186,9 +186,9 @@ object Sets:
 
   def isFinite(s: Set[_]): Boolean = s.size != InfiniteSize
 
-  def idMap[X](xs: Set[X]): MapForFunction[X, X] = buildMap(xs, identity)
+  def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
 
-  def buildMap[K, V](keys: Iterable[K], f: K => V) = new MapForFunction(keys.toSet, f)
+  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys map {k => k -> f(k)} toMap
 
   def toString(s: Set[_]): String = "{" + s.mkString(", ") + "}"
 

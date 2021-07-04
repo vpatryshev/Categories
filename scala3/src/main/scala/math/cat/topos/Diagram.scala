@@ -24,7 +24,8 @@ import scala.language.postfixOps
 abstract class Diagram(
   tag: Any,
   val topos: GrothendieckTopos)
-  extends Functor(tag, topos.domain, SetCategory.Setf) { diagram =>
+  extends Functor(tag, topos.domain, SetCategory.Setf):
+  diagram =>
 //  val d0: Category = d0
   type XObject = d0.Obj
   type XObjects = Set[XObject]
@@ -44,10 +45,10 @@ abstract class Diagram(
   def point(mapping: XObject => Any, id: Any = ""): Point =
     new Point(id, topos, (x: Any) => mapping(diagram.d0.asObj(x)))
 
-  lazy val points: List[Point] = {
+  lazy val points: List[Point] =
     val objMappings = for {
       values <- Sets.product(listOfComponents).view
-      mapping = d0.listOfObjects zip values toMap;
+      mapping = listOfObjects zip values toMap;
       om: Point = point(mapping)
       if isCompatible(om)
     } yield om
@@ -55,7 +56,6 @@ abstract class Diagram(
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
     sorted map { p => p._1 named ("p" + p._2) }
-  }
 
   implicit def asFunction(a: d1.Arrow): SetFunction = a match {
     case sf: SetFunction => sf
@@ -176,13 +176,11 @@ abstract class Diagram(
       val d00 = om(d0.d0(a))
       val d01 = om(d0.d1(a))
       val f = arrowsMapping(a)
-      val itsok = f(d00) == d01
-
-      itsok
+      f(d00) == d01
   }
 
   lazy val listOfComponents: List[set] =
-    d0.listOfObjects map objectsMapping map (x => setOf(x))
+    listOfObjects map objectsMapping map (x => setOf(x))
   
   private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction = {
     val dom: Sets.set = om(d0.d0(a))
@@ -192,7 +190,11 @@ abstract class Diagram(
 
   private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction = {
     def same_om(o: XObject): Sets.set = om(o.asInstanceOf[O]) // TODO: get rid of casting
+//    val arr = d0.arrow(a)
+//    val dom: Sets.set = same_om(d0.d0(arr))
+//    val codom: Sets.set = same_om(d0.d1(arr))
     extendToArrows1(same_om)(d0.arrow(a))
+//    new SetFunction("", dom, codom, arrowsMapping(arr))
   }
 
   // TODO: write tests
@@ -204,13 +206,12 @@ abstract class Diagram(
   }
 
   def subobjects: Iterable[Diagram] = {
-    val allSets: Map[XObject, set] = domainObjects map (o => o -> setOf(objectsMapping(o))) toMap
+    val allSets: Map[XObject, set] = buildMap(domainObjects, o => setOf(objectsMapping(o)))
     val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
 
-    val listOfObjects: List[XObject] = domainObjects.toList
     val listOfComponents: List[Set[set]] = listOfObjects.map(allPowers)
 
-    def isCompatible(om: XObject => Sets.set) = d0.arrows.forall {
+    def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall {
       a =>
         val d00 = setOf(om(d0.d0(a)))
         val d01: set = om(d0.d1(a))
@@ -221,8 +222,8 @@ abstract class Diagram(
     val objMappings: Iterable[Map[XObject, Sets.set]] = for {
       values <- Sets.product(listOfComponents).view
       om0: Point = point(listOfObjects zip values toMap)
-      om: Map[XObject, Sets.set] = d0.objects map (x => x -> setOf(om0(x))) toMap;
-      if isCompatible(om)
+      om: Map[XObject, Sets.set] = buildMap(d0.objects, x => setOf(om0(x)));
+      if isPresheaf(om)
     } yield om
     
     val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
@@ -241,7 +242,7 @@ abstract class Diagram(
   
   private def toString(contentMapper: XObject => String): String = {
     s"Diagram[${d0.name}](${
-      d0.listOfObjects map contentMapper filter(_.nonEmpty) mkString ", "
+      listOfObjects map contentMapper filter(_.nonEmpty) mkString ", "
     })".replace("Set()", "{}")    
   }
 
@@ -333,9 +334,8 @@ abstract class Diagram(
       setsToCheck forall allArrowsAreCompatibleOnPoint(p)
     }
   }
-}
 
-object Diagram {
+object Diagram:
 
   private[topos] def apply[O, A](tag: Any, t: GrothendieckTopos)(
     objectsMap: O => set,
@@ -369,5 +369,3 @@ object Diagram {
     val s2 = s1.replace("Set()", "{}")
     s2
   }
-
-}

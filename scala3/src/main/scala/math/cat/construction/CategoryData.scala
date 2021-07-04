@@ -20,6 +20,10 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   type Objects = Set[Obj]
 
   val graph: Graph = this
+
+  /// TODO: figure out why do we need it
+  def d0(f: Arrow): Node = node(graph.d0(graph.arrow(f)))
+  def d1(f: Arrow): Node = node(graph.d1(graph.arrow(f)))
   
   lazy val listOfObjects: List[Obj] =
     if isFinite then listSorted(objects)
@@ -38,7 +42,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   def validateGraph: Result[CategoryData] =
     super.validate returning this
 
-  override def validate: Result[ValidCategoryData] =
+  def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph
     val objectsHaveIds = OKif(!finiteNodes) orElse {
       Result.traverse(objects map { x =>
@@ -81,9 +85,9 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
     val validated: Result[((CategoryData, Any), Any)] =
       graphIsOk andAlso objectsHaveIds andAlso compositionIsAssociative
     
-    validated map (_._1._1) map (new ValidCategoryData(_))
+    validated map (_._1._1) map (new CategoryBuilder(_))
   
-  end validate
+  end factory
 
   def objects: Objects = nodes
   
@@ -92,12 +96,6 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   def nodes: Objects = graph.nodes.asInstanceOf[Objects]
 
   def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
-
-  def d0(a: Arrow): Obj =
-    val gd0 = graph.d0(graph.arrow(a))
-    obj(gd0)
-
-  def d1(a: Arrow): Obj = obj(graph.d1(graph.arrow(a)))
 
   def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
 
@@ -152,7 +150,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
     *         TODO: eliminate code duplication
     */
   private[cat] def build: Result[Category] = {
-    validate map { validData => validData.newCategory }
+    factory map { validData => validData.newCategory }
   }
 
   private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
@@ -175,61 +173,10 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
 
 end CategoryData
 
-class ValidCategoryData(source: CategoryData)
-  extends CategoryData(source.name):
-  data =>
-  override val graph = source.graph
-  
-  def newCategory: Category =
-    if isFinite then newFiniteCategory
-    else
-      new Category(source.name):
-        override val graph = data.graph
 
-        override def d0(f: Arrow): Obj = node(data.d0(data.arrow(f)))
-        override def d1(f: Arrow): Obj = node(data.d1(data.arrow(f)))
-
-        def id(o: Obj): Arrow = data.id(data.node(o)).asInstanceOf[Arrow]
-
-        def m(f: Arrow, g: Arrow): Option[Arrow] =
-          data.m(data.arrow(f), data.arrow(g)) map arrow
-
-  end newCategory
-  
-  def newFiniteCategory: Category =
-
-    val d0Map: Map[Any, Obj] = arrows.map(f => f -> asObj(d0(arrow(f)))).toMap
-    val d1Map: Map[Any, Obj] = arrows.map(f => f -> asObj(d1(arrow(f)))).toMap
-
-    val idMap: Map[Any, Arrow] = objects.map(o => o -> id(node(o))).toMap
-
-    val mMap: Map[(Any, Any), Arrow] = {
-      for
-        f <- arrows
-        g <- arrows
-        h <- m(arrow(f), arrow(g))
-      yield (f, g) -> h
-    } toMap
-
-    new Category(data.name):
-      override val graph = data.graph
-
-      override def d0(f: Arrow): Obj = asObj(d0Map(f))
-      override def d1(f: Arrow): Obj = asObj(d1Map(f))
-
-      def id(o: Obj): Arrow = idMap(o).asInstanceOf[Arrow]
-
-      def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
-
-  override def id(o: Obj): Arrow = source.id(source.node(o)).asInstanceOf[Arrow]
-
-  override def m(f: Arrow, g: Arrow): Option[Arrow] =
-    source.m(source.arrow(f), source.arrow(g)) map arrow
-
-end ValidCategoryData
 
 /**
-  * partial data for a category
+  * Partial data for a category
   * Objects have the same name as their identities.
   *
   * @param graph the underlying graph
@@ -241,7 +188,8 @@ private[cat] class PartialData(override val graph: Graph)
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
-  
+
+
   override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -353,7 +301,7 @@ private[cat] class PartialData(override val graph: Graph)
     *         TODO: eliminate code duplication
     */
   private[cat] override def build: Result[Category] = Result.forValue {
-    CategoryData.transitiveClosure(this).validate map { validData => validData.newCategory }
+    CategoryData.transitiveClosure(this).factory map { validData => validData.newCategory }
   }.flatten
 
 end PartialData
