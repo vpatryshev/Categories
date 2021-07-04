@@ -151,7 +151,7 @@ object Categories extends CategoryFactory:
     arrowBuilder
   ).getOrElse(throw new InstantiationException("Bad Simplicial3")))
   
-  def AAAAAA = {
+  lazy val AAAAAA = {
     category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
   } 
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)

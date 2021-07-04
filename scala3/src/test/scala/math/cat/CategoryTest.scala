@@ -605,7 +605,7 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "good for Simplicial3" >> {
-      Simplicial3.canDeduce(Simplicial3.arrows)("0_1") === false
+//      Simplicial3.canDeduce(Simplicial3.arrows)("0_1") === false
       val baseGraph = Simplicial3.baseGraph
       baseGraph === graph"({0, 1, 2}, {0_1: 0->1, 2_b: 2->2, 2_a: 2->2, swap: 2->2, 2_1: 2->1, b: 1->2, a: 1->2})"
     }

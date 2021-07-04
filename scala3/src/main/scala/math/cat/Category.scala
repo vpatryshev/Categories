@@ -617,13 +617,22 @@ abstract class Category(name: String) extends CategoryData(name):
     // then, remove all those that are still deducible
     val essentialArrows = selectBaseArrows(listOfArrows)
 
+// TODO: figure out which one is faster  
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
+//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
+//      a => a -> (d0(a), d1(a))
+//    } toMap
+//
+//    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
 
-  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
-    val canBeDeduced = canDeduce(arrows)(_)
-    val deductibles = arrows.filter(canBeDeduced).toSet
-    if deductibles.isEmpty then arrows
-    else arrows filterNot deductibles
+
+  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
+    val isDeductible = canDeduce(arrows)  
+    arrows.find(isDeductible) match
+      case None => arrows
+      case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
+  }
+
 
   private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean =
     val from = d0(a)
@@ -635,6 +644,28 @@ abstract class Category(name: String) extends CategoryData(name):
         g => m(f, g) contains a
       }
     }
+
+//  /**
+//    * Remove the arrows that are not required for drawing:
+//    * identities and uniquely-determined compositions.
+//    *
+//    * @return a graph with the same nodes, but with less arrows
+//    */
+//  def baseGraph: Graph = {
+//    // first, remove identities
+//    val nontrivialArrows = arrows filterNot isIdentity toList
+//    // then, remove compound arrows - those that were deduced during creation
+//    val listOfArrows = nontrivialArrows sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
+//    // then, remove all those that are still deducible
+//    val essentialArrows = selectBaseArrows(listOfArrows)
+//
+//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
+//      a => a -> (d0(a), d1(a))
+//    } toMap
+//
+//    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
+//  }
+
 
   def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 
