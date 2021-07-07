@@ -156,7 +156,7 @@ object Categories extends CategoryFactory:
   /**
     * Evacuation plan category. See https://twitter.com/aik099/status/702928717266489345
     */
-  lazy val AAAAAA = {
+  def AAAAAA = {
     category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
   }
 

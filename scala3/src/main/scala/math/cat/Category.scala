@@ -606,6 +606,15 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def arrowsEndingAt(x: Obj): Arrows = arrows filter { x == d1(_) }
 
+
+  private[cat] lazy val nontrivialArrows: List[Arrow] =
+    // first, remove identities
+    val exceptIdentity: List[Arrow] = arrows filterNot isIdentity toList
+
+      // then, remove compound arrows - those that were deduced during creation
+      exceptIdentity sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
+
+
   /**
     * Removes the arrows that are not required for drawing:
     * identities and uniquely-determined compositions.
@@ -613,12 +622,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return a graph with the same nodes, but with less arrows
     */
   def baseGraph: Graph =
-    // first, remove identities
-    val nontrivialArrows = arrows filterNot isIdentity toList
-    // then, remove compound arrows - those that were deduced during creation
-    val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘")) sortBy(_.toString) reverse
-    // then, remove all those that are still deducible
-    val essentialArrows = selectBaseArrows(listOfArrows)
+    // remove all those that are still deducible
+    val essentialArrows = selectBaseArrows(nontrivialArrows)
 
 // TODO: figure out which one is faster  
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope

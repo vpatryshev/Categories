@@ -1,6 +1,7 @@
 package math.cat.construction
 
 import math.Base._
+import math.cat.construction._
 import math.cat.construction.CategoryData._
 import math.cat.{Category, Graph}
 import math.sets.Sets._
@@ -347,35 +348,36 @@ object CategoryData:
 
   
   // TODO: don't throw exception, return a result
-  private[cat] def transitiveClosure(data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData =
+  private[cat] def transitiveClosure(
+    data: PartialData): PartialData =
+  
     val missing = data.missingCompositions
-
+  
     if missing.isEmpty then data else
 
       val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] =
         data.nonexistentCompositions.toSet
-      
+
       val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] =
         nonexistentCompositions flatMap {
-          case (f, g) => 
-            data.newComposition(f, g) map { 
+          case (f, g) =>
+            data.newComposition(f, g) map {
               h => (h, (data.d0(f), data.d1(g)))
             }
         } toMap
 
-      require(newArrows.nonEmpty, 
+      require(newArrows.nonEmpty,
         s"${data.name}: ${missing.size} arrows still missing: $missing")
 
-      val newGraph: Graph = data.addArrows(newArrows) iHope
+      val newData: Result[PartialData] =
+        data.addArrows(newArrows) map { graph =>
+          new PartialData(graph):
+            override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
+              data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]).asInstanceOf[Option[Arrow]]
+
+            override val compositionSource = data.composition.asInstanceOf[CompositionTable]
+      }
       
-      val newData = new PartialData(newGraph):
-        override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
-          data.newComposition(data.arrow(f), data.arrow(g)).asInstanceOf[Option[Arrow]]
-
-        override val compositionSource = data.composition.asInstanceOf[CompositionTable]
-
-      transitiveClosure(newData, missing.size)
-    
-  end transitiveClosure
+      newData map transitiveClosure iHope
 
 end CategoryData

@@ -526,7 +526,7 @@ class CategoryTest extends Test with CategoryFactory {
       ok
     }
   }
-  
+
   "AAAAAA" should {
     
     "pass a regression test of 7/7/19" in {

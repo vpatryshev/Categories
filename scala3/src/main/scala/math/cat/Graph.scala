@@ -198,6 +198,8 @@ private[cat] trait GraphData:
     def d0(f: Arrow): Node = data.d0(f)
     def d1(f: Arrow): Node = data.d1(f)
 
+  lazy val arrowsAsString = asString(arrows)
+  
 end GraphData
 
 object Graph:
