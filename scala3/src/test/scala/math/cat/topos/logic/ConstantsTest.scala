@@ -5,6 +5,7 @@ import math.cat.topos.{CategoryOfDiagrams, Diagram, Fixtures}
 import math.sets.Sets
 import math.sets.Sets.set
 import org.specs2.matcher.MatchResult
+import scalakittens.Result
 import scalakittens.Result._
 
 import scala.language.reflectiveCalls
@@ -23,9 +24,9 @@ class ConstantsTest extends Fixtures {
     def checkAt(point: Any)(mappings: (String, set)*): MatchResult[Any] = {
       point match {
         case d: Diagram =>
-          (traverse {
+          Result.check {
             for {(k, v) <- mappings } yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
-          } andThen OK) === OK
+          } === OK
         case trash => failure(s"Expected a diagram, got $trash")
       }
       ok

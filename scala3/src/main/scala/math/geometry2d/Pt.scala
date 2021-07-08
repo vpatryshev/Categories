@@ -1,7 +1,8 @@
 package math.geometry2d
 
-import Rational._
-import SVG._
+import math.geometry2d.Rational._
+import math.geometry2d.SVG._
+
 import scala.language.implicitConversions
 
 case class Pt(x: Rational, y: Rational):

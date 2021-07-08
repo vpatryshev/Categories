@@ -1,14 +1,13 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
 import math.Base._
 import math.cat.SetMorphism._
-import math.sets.Sets
+import math.sets.{FactorSet, Sets}
 import math.sets.Sets._
 import scalakittens.Result
 import scalakittens.Result._
-import math.sets.FactorSet
+
+import scala.language.{implicitConversions, postfixOps}
 
 /**
  * Morphism class for sets, and the accompanying object.

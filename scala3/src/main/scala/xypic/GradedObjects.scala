@@ -1,10 +1,10 @@
 package xypic
 
-import scala.language.postfixOps
 import math.cat.Category
 import math.geometry2d.{GroupOfObjects, Pt, Rational}
 
 import scala.collection.MapView
+import scala.language.postfixOps
 
 case class GradedObjects(category: Category) {
   private val allArrows: category.Arrows = category.arrows

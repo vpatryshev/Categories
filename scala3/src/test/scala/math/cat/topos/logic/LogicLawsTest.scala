@@ -1,7 +1,7 @@
 package math.cat.topos.logic
 
 import math.cat.Category
-import math.cat.topos.{CategoryOfDiagrams, GrothendieckTopos, Fixtures}
+import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
 import org.specs2.matcher.MatchResult
 
 import scala.language.reflectiveCalls

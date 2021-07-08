@@ -1,30 +1,32 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import java.io.Reader
 import math.Base._
 import math.cat.Categories._
-import math.sets.PoSet
-import Graph._
+import math.cat.Graph._
 import math.cat.construction.{CategoryData, CategoryFactory}
+import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Bad, Good, Result}
 
+import java.io.Reader
 import scala.collection.{IterableOnce, mutable}
-
-
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * A bunch of specific categories in this object
   */
 object Categories extends CategoryFactory:
 
+  /**
+    * Simplified version of case categories,
+    * where nodes and arrows are string-typed.
+    * TODO: start using opaque types.
+    */
   type Cat = Category {
     type Node = String
     type Arrow = String
   }
-
+  
   /**
     * Empty category
     */
@@ -87,7 +89,7 @@ object Categories extends CategoryFactory:
   lazy val Square = category"Square:({a,b,c,d}, {ab: a -> b, ac: a -> c, bd: b -> d, cd: c -> d, ad: a -> d})"
 
   /**
-    * Pullback category: a -> c <- b
+    * Pullback category: a → c ← b
     */
   lazy val Pullback = category"Pullback:({a,b,c}, {ac: a -> c, bc: b -> c})"
 
@@ -150,16 +152,24 @@ object Categories extends CategoryFactory:
     ),
     arrowBuilder
   ).getOrElse(throw new InstantiationException("Bad Simplicial3")))
-  
-  lazy val AAAAAA = {
+
+  /**
+    * Evacuation plan category. See https://twitter.com/aik099/status/702928717266489345
+    */
+  def AAAAAA = {
     category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
-  } 
+  }
+
+  /**
+    * The partial order of natural numbers, as a category.
+    */
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_, _5_, _1plus1_)
+  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_, _1plus1_)
 
   lazy val LessSimpleCategories = List(
     W, // this one is the hardest for logic calculations
+    _5_,
     ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
     Z2, Z3, Z4,
     AAAAAA,

@@ -1,8 +1,9 @@
 package math.geometry2d
 
+import math.geometry2d.Segment._
 import org.specs2.mutable._
-import Segment._
 import testing.TestBase
+
 import scala.language.implicitConversions
 
 /**

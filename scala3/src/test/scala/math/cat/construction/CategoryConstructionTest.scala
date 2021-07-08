@@ -3,7 +3,8 @@ package math.cat.construction
 import math.Base._
 import math.Test
 import math.cat.Categories._
-import math.cat.Graph.GraphParser
+import math.cat.{Categories, Category, Graph}
+import math.cat.Graph.{GraphParser, _}
 import math.cat.SetCategory._
 import math.cat.construction._
 import math.sets.Sets
@@ -13,17 +14,12 @@ import org.specs2.matcher.MatchResult
 import scalakittens.{Good, Result}
 
 import scala.language.postfixOps
-import math.cat.Categories
-import math.cat.Categories._
-import math.cat.Category
-import math.cat.Graph
-import math.cat.Graph._
 
 /**
   * Tests for Category class construction
   */
 class CategoryConstructionTest extends Test with CategoryFactory:
-
+  
   type SUT = Category
   
   val EmptyComposition: Map[(String, String), String] = Map()
@@ -339,27 +335,25 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
   }
 
-  private def appendArrows(data: PartialData, missing: Iterable[(data.Arrow, data.Arrow)]) = {
+  private def appendArrows(data: PartialData, missing: Iterable[(data.Arrow, data.Arrow)]) =
     val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] = data.nonexistentCompositions.toSet
     val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] = nonexistentCompositions.flatMap {
       case (f, g) =>
         data.newComposition(f, g).map { h => (h, (data.d0(f), data.d1(g))) }
     }.toMap
 
-    if (newArrows.isEmpty) {
-      throw new IllegalArgumentException(s"${data.name}: ${missing.size} arrows still missing: $missing")
-    }
+
+    require(newArrows.nonEmpty, 
+      s"${data.name}: ${missing.size} arrows still missing: $missing")
 
     val newGraph: Graph = data.addArrows(newArrows) iHope
     
-    val newData = new PartialData(newGraph) {
-      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
-        data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]).asInstanceOf[Option[Arrow]]
+    val newData = new PartialData(newGraph):
+      override def newComposition(f: Any, g: Any): Option[Arrow] =
+        data.newComposition(f, g).asInstanceOf[Option[Arrow]]
 
       override val compositionSource: CompositionTable = data.composition.asInstanceOf[CompositionTable]
-    }
     (newData.validateGraph returning newData).orCommentTheError(s"Failed on $newData").iHope
-  }
 
   "Parser, regression test of 6/18/21" should {
     "Parse AAA" in  {
@@ -420,14 +414,24 @@ class CategoryConstructionTest extends Test with CategoryFactory:
           throw new IllegalArgumentException(s"Faled on $data", x)
       }
 
-      val closure = transitiveClosure(data)
+      
+      
+      val closure = CategoryData.transitiveClosure(data)
 
       val raw1 = closure.factory map { validData => validData.newCategory }
 
       raw1.isGood === true
 
-      val raw2 = data.build
+//      val raw1Factory = raw1 iHope
+//      
+      val raw2 = Result.forValue {
+  CategoryData.transitiveClosure(data).factory map { validData => validData.newCategory }
+}.flatten
+      
       raw2.isGood === true
+      
+      val raw3 = data.build
+      raw3.isGood === true
 
       val category = parser.buildCategory(graph, Map.empty)
       category.isGood === true

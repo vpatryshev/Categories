@@ -1,6 +1,5 @@
 package math.sets
-import scala.language.postfixOps
-import scala.language.implicitConversions
+import scala.language.{implicitConversions, postfixOps}
 
 /**
  * Representing binary relations

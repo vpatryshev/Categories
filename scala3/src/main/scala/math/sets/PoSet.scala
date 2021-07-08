@@ -1,9 +1,10 @@
 package math.sets
 
-import java.io.Reader
 import math.Base._
-import Sets._
+import math.sets.Sets._
 import scalakittens.{Good, Result}
+
+import java.io.Reader
 
 /**
  * Implementation of partially ordered set.

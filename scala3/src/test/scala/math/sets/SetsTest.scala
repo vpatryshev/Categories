@@ -1,12 +1,12 @@
 package math.sets
 
-import java.util.concurrent.atomic.AtomicBoolean
 import math.cat.SetMorphism
 import math.sets.Sets._
 import org.specs2.execute.Failure
-import testing.TestBase
 import scalakittens.{Empty, Good, Result}
+import testing.TestBase
 
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.Duration
 
 /**

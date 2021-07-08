@@ -1,20 +1,18 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import scala.collection.mutable.ListBuffer
 import math.Base._
+import math.cat.Graph.build
 import math.cat.construction.{CategoryData, CategoryFactory}
-import math.sets.Sets._
-import math.sets.{BinaryRelation, FactorSet, Sets}
 import math.sets.Functions._
+import math.sets.Sets.{isSingleton, _}
+import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
 
 import scala.annotation.tailrec
 import scala.collection.IterableOnce
-import Sets.isSingleton
-import math.cat.Graph.build
+import scala.collection.mutable.ListBuffer
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Category class, and the accompanying object.
@@ -601,21 +599,31 @@ abstract class Category(name: String) extends CategoryData(name):
     }
   }
 
+  /**
+    * Collection of arrows that end at x
+    * @param x an object
+    * @return the collection
+    */
   def arrowsEndingAt(x: Obj): Arrows = arrows filter { x == d1(_) }
 
+
+  private[cat] lazy val nontrivialArrows: List[Arrow] =
+    // first, remove identities
+    val exceptIdentity: List[Arrow] = arrows filterNot isIdentity toList
+
+      // then, remove compound arrows - those that were deduced during creation
+      exceptIdentity sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
+
+
   /**
-    * Remove the arrows that are not required for drawing:
+    * Removes the arrows that are not required for drawing:
     * identities and uniquely-determined compositions.
     *
     * @return a graph with the same nodes, but with less arrows
     */
   def baseGraph: Graph =
-    // first, remove identities
-    val nontrivialArrows = arrows filterNot isIdentity toList
-    // then, remove compound arrows - those that were deduced during creation
-    val listOfArrows = nontrivialArrows filterNot (_.toString.contains("∘")) sortBy(_.toString) reverse
-    // then, remove all those that are still deducible
-    val essentialArrows = selectBaseArrows(listOfArrows)
+    // remove all those that are still deducible
+    val essentialArrows = selectBaseArrows(nontrivialArrows)
 
 // TODO: figure out which one is faster  
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
@@ -626,12 +634,11 @@ abstract class Category(name: String) extends CategoryData(name):
 //    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
 
 
-  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] = {
+  private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
     val isDeductible = canDeduce(arrows)  
     arrows.find(isDeductible) match
       case None => arrows
       case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
-  }
 
 
   private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean =
@@ -645,30 +652,21 @@ abstract class Category(name: String) extends CategoryData(name):
       }
     }
 
-//  /**
-//    * Remove the arrows that are not required for drawing:
-//    * identities and uniquely-determined compositions.
-//    *
-//    * @return a graph with the same nodes, but with less arrows
-//    */
-//  def baseGraph: Graph = {
-//    // first, remove identities
-//    val nontrivialArrows = arrows filterNot isIdentity toList
-//    // then, remove compound arrows - those that were deduced during creation
-//    val listOfArrows = nontrivialArrows sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
-//    // then, remove all those that are still deducible
-//    val essentialArrows = selectBaseArrows(listOfArrows)
-//
-//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
-//      a => a -> (d0(a), d1(a))
-//    } toMap
-//
-//    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
-//  }
-
-
+  /**
+    * Checks whether an arrow is an identity
+    * @param a an arrow
+    * @return true iff it is an identity
+    */
   def isIdentity(a: Arrow): Boolean = a == id(d0(a))
 
+  /**
+    * Split a category into connected components.
+    * You may need this for drawing the category, otherwise it's probably useless.
+    * 
+    * TODO: figure out if it's better to move all such methods to a separate object
+    * 
+    * @return a set of components, each one being a category.
+    */
   def connectedComponents: Set[Category] =
     val connected: BinaryRelation[Obj, Obj] =
       BinaryRelation((x, y) => arrows.exists(a =>
@@ -681,6 +679,13 @@ abstract class Category(name: String) extends CategoryData(name):
       cat <- completeSubcategory(s"$name.${i + 1}", s).asOption
     yield cat
 
+  /**
+    * Build a complete subcategory of this category, given its set of names.
+    * 
+    * @param subname the name we give to the subcategory
+    * @param setOfObjects objects of the subcategory
+    * @return the subcategory
+    */
   def completeSubcategory(subname: String, setOfObjects: Objects): Result[Category] =
     val src = this
     subgraph(subname, setOfObjects) map {

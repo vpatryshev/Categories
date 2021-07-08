@@ -2,12 +2,13 @@ package math.cat.topos
 
 import math.Test
 import math.cat.Categories._
-import math.cat.{Category, SetFunction}
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import math.cat.{Category, SetFunction}
 import math.sets.Sets
 import math.sets.Sets.set
 import org.specs2.matcher.MatchResult
 import scalakittens.Result._
+
 import scala.language.postfixOps
 
 class GrothendieckToposTest extends Fixtures {

@@ -1,16 +1,15 @@
 package math.cat.construction
 
-import scala.language.{implicitConversions, postfixOps}
-
+import math.Base._
 import math.cat.Categories.Cat
 import math.cat.Graph.GraphParser
 import math.cat.{Category, Graph}
 import math.sets.PoSet
 import scalakittens.Result._
 import scalakittens.{Good, Result}
-import math.Base._
 
 import java.io.Reader
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * This trait contains a bunch of factory methods
@@ -27,16 +26,13 @@ private[cat] trait CategoryFactory:
     * @param n number of elements
     * @return a new category
     */
-  def segment(n: Int): Cat = {
+  def segment(n: Int): Cat =
     val numbers = fromPoset(s"_${n}_", PoSet.range(0, n, 1))
-    val maybeSegment = convert2Cat(numbers)(
-      { case (a, b) => s"$a.$b" })
-    maybeSegment.fold(identity, err => throw new InstantiationException(err.toString))
-  }
+    convert2Cat(numbers) { case (a, b) => s"$a.$b" } iHope
 
   private def convert2Cat[O, A](source: Category)(
     arrow2string: (source.Arrow => String) = (x: source.Arrow) => x.toString
-  ): Result[Cat] = {
+  ): Result[Cat] =
     val stringToObject: Map[String, source.Obj] = source.objects map (o => o.toString -> o) toMap
     val string2Arrow = source.arrows map (a => arrow2string(a) -> a) toMap
     val objects = stringToObject.keySet
@@ -47,7 +43,7 @@ private[cat] trait CategoryFactory:
 
     val composition = (f: String, g: String) => source.m(string2Arrow(f), string2Arrow(g)) map arrow2string
 
-    for {
+    for
       _ <- OKif(source.isFinite, "Need a finite category")
       _ <- OKif(objects.size == source.objects.size, "some objects have the same string repr")
       _ <- OKif(arrows.size == source.arrows.size, "some arrows have the same string repr")
@@ -57,8 +53,9 @@ private[cat] trait CategoryFactory:
       data = CategoryData(g)(typedIds, typedComp)
       category <- data.build
       c <- category.typed[Cat]
-    } yield c
-  }
+    yield c
+  
+  end convert2Cat
 
   /**
     * Builds a category out of a poset. Arrows are pairs (x,y) where x <= y.
@@ -68,24 +65,21 @@ private[cat] trait CategoryFactory:
     * @param poset   original poset
     * @return category based on he poset
     */
-  def fromPoset[T](theName: String = "", poset: PoSet[T]): Category = {
-    new Category(theName) {
+  def fromPoset[T](theName: String = "", poset: PoSet[T]): Category =
+    new Category(theName):
       override val graph: Graph = Graph.ofPoset(theName, poset)
       type Node = T
       type Arrow = (T, T)
 
       override def id(o: Obj): Arrow = arrow((o, o))
 
-      override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match {
+      override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match
         case (f: (T, T), g: (T, T)) =>
           Option(f._1, g._2).filter(_ => f._2 == g._1) map arrow
-      }
-    }
-  }
+    
+  end fromPoset
 
-  def asCat(source: Category): Cat = convert2Cat(source)(_.toString).getOrElse(
-    throw new InstantiationException("Failed to convert to Cat")
-  )
+  def asCat(source: Category): Cat = convert2Cat(source)(_.toString) iHope
 
   /**
     * Builds a category given a limited (but sufficient) amount of data.
@@ -106,12 +100,11 @@ private[cat] trait CategoryFactory:
     codomain: Map[T, T],
     composition: Map[(T, T), T],
     compositionFactory: ((T, T)) => Option[T] = CategoryData.nothing
-  ): Result[Category] = {
-    for {
+  ): Result[Category] =
+    for
       g <- Graph.build(name, objects, domain.keySet, domain, codomain)
       c <- CategoryData.partial[T](g)(composition, compositionFactory).build
-    } yield c
-  }
+    yield c
 
   /**
     * Builds a discrete category on a given set of objects.
@@ -120,14 +113,12 @@ private[cat] trait CategoryFactory:
     * @param objects set of this category's objects
     * @return the category
     */
-  def discrete[T](objects: Set[T]): Category = {
+  def discrete[T](objects: Set[T]): Category =
     CategoryData.partial[T](Graph.discrete[T](objects, s"Discrete_${objects.size}")
     )().build iHope
-  }
 
-  def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] = {
+  def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] =
     for (f <- graph.arrows; g <- graph.arrows if graph.follows(g, f)) yield (f, g)
-  }
 
   /**
     * Factory method. Parses a string and builds a category from it.
@@ -135,9 +126,8 @@ private[cat] trait CategoryFactory:
     * @param input input to parse
     * @return the category
     */
-  def read(input: Reader): Result[Cat] = {
+  def read(input: Reader): Result[Cat] =
     (new CategoryParser).readCategory(input)
-  }
 
   /**
     * Factory method. Parses a string and builds a category from it.
@@ -145,13 +135,11 @@ private[cat] trait CategoryFactory:
     * @param input the string to parse
     * @return the category
     */
-  def read(input: CharSequence): Result[Cat] = {
+  def read(input: CharSequence): Result[Cat] =
     val r = (new CategoryParser).readCategory(input)
-    val r1 = r.map { _.withSource(input.toString) }
-    r1
-  }
+    r.map { _.withSource(input.toString) }
 
-  class CategoryParser extends GraphParser {
+  class CategoryParser extends GraphParser:
 
     def readCategory(input: CharSequence): Result[Cat] =
       explain(parseAll(category, input))
@@ -164,7 +152,7 @@ private[cat] trait CategoryFactory:
             case (g, n) => g build n
           }
 
-          mOpt match {
+          mOpt match
             case None =>
               buildCategory(graphOpt, Map.empty)
             case Some("," ~ Good(m)) =>
@@ -172,21 +160,19 @@ private[cat] trait CategoryFactory:
             case Some("," ~ multTableErrors) =>
               multTableErrors orCommentTheError "Failed to parse composition table" returning segment(0)
             case Some(garbage) => Result.error(s"bad data: $garbage")
-          }
 
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
     private[cat] def buildCategory(
       gOpt: Result[Graph],
-      multTable: Map[(String, String), String]): Result[Cat] = {
-      for {
+      multTable: Map[(String, String), String]): Result[Cat] =
+      for
         g: Graph <- gOpt
         data = CategoryData.partial[String](g)(multTable, arrowBuilder)
         raw <- data.build
         cat <- convert2Cat(raw)()
-      } yield cat
-    }
+      yield cat
 
     def multTable: Parser[Result[Map[(String, String), String]]] =
       "{" ~ repsep(multiplication, ",") ~ "}" ^^ {
@@ -194,16 +180,14 @@ private[cat] trait CategoryFactory:
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
-    def multiplication: Parser[Result[((String, String), String)]] = {
+    def multiplication: Parser[Result[((String, String), String)]] =
       word ~ ("o" | "∘") ~ word ~ "=" ~ word ^^ {
         case g ~ o ~ f ~ "=" ~ h => Good(((f, g), h))
         case someShit => Result.error(s"Failed to parse $someShit")
       }
-    }
 
-    def readCategory(input: Reader): Result[Cat] = {
-      explain(parseAll(category, input))
-    }
-  }
+    def readCategory(input: Reader): Result[Cat] = explain(parseAll(category, input))
+    
+  end CategoryParser
 
   private[cat] val arrowBuilder = (p: (String, String)) => Option(s"${p._2}∘${p._1}")

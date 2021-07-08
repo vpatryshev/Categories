@@ -1,16 +1,15 @@
 package math.cat.topos
 
-import scala.language.implicitConversions
 import math.Base._
 import math.cat._
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Functions._
-import math.sets.Sets.{set, _}
+import math.sets.Sets._
 import math.sets.{FactorSet, Sets}
 import scalakittens.{Good, Result}
 
 import scala.collection.MapView
-import scala.language.postfixOps
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Diagram from a category to Categories.SETF.

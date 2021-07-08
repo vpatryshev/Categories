@@ -3,6 +3,7 @@ package math.cat
 import math.Test
 import math.sets.{PoSet, Sets}
 import scalakittens.Good
+
 import scala.language.postfixOps
 
 class GraphTest extends Test {

@@ -1,8 +1,9 @@
 package math.cat.construction
 
-import scala.language.{implicitConversions, postfixOps}
 import math.cat._
 import math.sets.Sets._
+
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Given `CategoryData` as a source,
@@ -13,36 +14,32 @@ import math.sets.Sets._
   * 
   * @param source data for building a category
   */
-class CategoryBuilder(source: CategoryData):
+class CategoryBuilder(val source: CategoryData):
 
   val graph = source.graph
 
-  def newCategory: Category =
-    if source.isFinite then newFiniteCategory
+  private def sd0[A](a: A): source.Obj = source.d0(source.arrow(a))
+  private def sd1[A](a: A): source.Obj = source.d1(source.arrow(a))
+  private def sid[O](o: O): source.Arrow = source.id(source.obj(o))
+  
+  def newCategory: Category = {
+    if source.isFinite then
+      newFiniteCategory
     else
-      new Category(source.name) :
+      new Category(source.name):
         override val graph = source.graph
 
-        override def d0(f: Arrow): Obj = node(source.d0(source.arrow(f)))
-        override def d1(f: Arrow): Obj = node(source.d1(source.arrow(f)))
-        def id(o: Obj): Arrow = source.id(source.node(o)).asInstanceOf[Arrow]
+        override def d0(f: Arrow): Obj = node(sd0(f))
+        override def d1(f: Arrow): Obj = node(sd1(f))
+        def id(o: Obj): Arrow = arrow(sid(o))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           source.m(source.arrow(f), source.arrow(g)) map arrow
+  }
 
   end newCategory
 
-  /**
-    * A special kind of map builder (somehow it's much faster than the one in `Sets`
-    * @param coll collection of keys
-    * @param f mapping of keys to values
-    * @tparam T value type
-    * @return a map
-    */
-  def buildMap[T](coll: Iterable[_], f: Any => T): Map[Any, T] = coll.map(x => x -> f(x)).toMap
-
   def newFiniteCategory: Category =
-
 
     val mMap: Map[(Any, Any), source.Arrow] = {
       for
@@ -52,11 +49,11 @@ class CategoryBuilder(source: CategoryData):
       yield (f, g) -> h
     } toMap
 
-    new Category(source.name) :
+    new Category(source.name):
       override val graph = source.graph
-      private val d0Map: Map[Any, Obj]   = buildMap(source.arrows,  f => asObj(source.d0(source.arrow(f))))
-      private val d1Map: Map[Any, Obj]   = buildMap(source.arrows,  f => asObj(source.d1(source.arrow(f))))
-      private val idMap: Map[Any, Arrow] = buildMap(source.objects, o => asArrow(source.id(source.node(o))))
+      private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(sd0(f)))
+      private val d1Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(sd1(f)))
+      private val idMap: Map[Any, Arrow] = buildMap(source.objects, o => asArrow(sid(o)))
 
       override inline def d0(f: Arrow): Obj = d0Map(f)
       override inline def d1(f: Arrow): Obj = d1Map(f)

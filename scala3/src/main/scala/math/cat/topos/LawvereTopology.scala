@@ -1,9 +1,10 @@
 package math.cat.topos
 
-import scala.language.postfixOps
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result
 import scalakittens.Result._
+
+import scala.language.postfixOps
 
 /**
   * See https://ncatlab.org/nlab/show/Lawvere-Tierney+topology

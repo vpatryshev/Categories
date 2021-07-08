@@ -3,8 +3,8 @@ package math.cat.topos
 import math.Test
 import math.cat.Categories._
 import math.cat.Category
-import org.specs2.matcher.MatchResult
 import org.specs2.execute.{Result => TestResult}
+import org.specs2.matcher.MatchResult
 import scalakittens.Result
 import scalakittens.Result._
 

@@ -1,15 +1,16 @@
 package math.cat.topos
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import reflect.Selectable.reflectiveSelectable
 import math.Base._
-import math.cat.{topos, _}
-import math.cat.topos.CategoryOfDiagrams.BaseCategory
-import math.sets.Sets._
+import math.cat._
+import math.cat.topos
+import math.cat.topos.CategoryOfDiagrams.{BaseCategory, _}
+
 import math.sets._
+import math.sets.Sets._
 import scalakittens.Result
-import topos.CategoryOfDiagrams._
+
+import scala.language.{implicitConversions, postfixOps}
+import scala.reflect.Selectable.reflectiveSelectable
 
 class CategoryOfDiagrams(val domain: Category)
   extends Category(s"Set^${domain.name}")

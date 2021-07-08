@@ -1,8 +1,6 @@
 package math.geometry2d
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import scala.language.implicitConversions
+import scala.language.{implicitConversions, postfixOps}
 
 case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends Ordered[Rational]:
   require(d0 != 0, s"denominator can't be zero ($n0/$d0)")

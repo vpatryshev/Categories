@@ -1,13 +1,13 @@
 package math.cat
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
-import java.io.Reader
 import math.Base._
-import math.sets._
 import math.sets.Sets._
-import scalakittens.{Good, Result}
+import math.sets._
 import scalakittens.Result._
+import scalakittens.{Good, Result}
+
+import java.io.Reader
+import scala.language.{implicitConversions, postfixOps}
 
 trait Graph(val name: String) extends GraphData:
   graph =>
@@ -153,8 +153,8 @@ private[cat] trait GraphData:
   type Nodes = Set[Node]
   type Arrows = Set[Arrow]
 
-  def nodes: Nodes
-  def arrows: Arrows
+  def nodes: Set[Node]
+  def arrows: Set[Arrow]
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
@@ -198,6 +198,8 @@ private[cat] trait GraphData:
     def d0(f: Arrow): Node = data.d0(f)
     def d1(f: Arrow): Node = data.d1(f)
 
+  lazy val arrowsAsString = asString(arrows)
+  
 end GraphData
 
 object Graph:

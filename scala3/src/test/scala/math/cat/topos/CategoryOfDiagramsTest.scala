@@ -1,11 +1,11 @@
 package math.cat.topos
 
+import math.Base._
 import math.Test
 import math.cat.Categories._
 import math.cat.SetFunction
 import math.sets.Sets.set
 import scalakittens.Good
-import math.Base._
 
 class CategoryOfDiagramsTest extends Test with TestDiagrams {
 

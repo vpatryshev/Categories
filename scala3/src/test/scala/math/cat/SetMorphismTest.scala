@@ -1,8 +1,8 @@
 package math.cat
 
 import math.cat.SetMorphism._
+import math.sets.Sets._
 import math.sets.{N, Sets}
-import Sets.{product2, _}
 import org.specs2.mutable._
 import scalakittens._
 

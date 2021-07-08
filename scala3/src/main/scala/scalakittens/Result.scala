@@ -1,9 +1,10 @@
 package scalakittens
 
-import scala.language.{implicitConversions, postfixOps}
+import scalakittens.Result._
+
 import scala.concurrent.Future
+import scala.language.{implicitConversions, postfixOps}
 import scala.util.{Failure, Success, Try}
-import Result._
 
 sealed trait Result[+T] extends Container[T]:
   def listErrors: Errors
@@ -207,6 +208,9 @@ object Result:
   def recordEvent(message:Any):Throwable =
     new ResultException(""+message)
 
+  def check[T](results: IterableOnce[Result[T]]): Outcome =
+    traverse(results) andThen OK
+  
   implicit def asOutcome(r:Result[_]): Outcome = r andThen OK
 
   implicit def asBoolean(r: Result[_]): Boolean = r.isGood

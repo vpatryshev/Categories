@@ -1,14 +1,13 @@
 package math.cat.topos
 
 import math.Test
+import math.cat.Categories._
 import math.cat.{Category, Functor, SetCategory, SetFunction}
 import math.sets.Sets.set
 import scalakittens.Result
-import math.cat.Categories._
 
 import scala.collection.mutable
-import scala.language.implicitConversions
-import scala.language.postfixOps
+import scala.language.{implicitConversions, postfixOps}
 
 trait TestDiagrams extends Test {
   val toposes: mutable.Map[String, GrothendieckTopos] = mutable.Map[String, GrothendieckTopos]()

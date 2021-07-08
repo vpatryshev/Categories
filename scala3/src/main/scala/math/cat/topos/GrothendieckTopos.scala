@@ -1,18 +1,16 @@
 package math.cat.topos
 
-import scala.language.postfixOps
-import reflect.Selectable.reflectiveSelectable
+import math.Base.concat
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Category, Functor, NaturalTransformation, SetFunction}
-import math.sets.Functions
-import math.sets.Sets
+import math.cat._
+import math.sets.{Functions, Sets}
 import math.sets.Sets._
 import scalakittens.Result
-import Result._
-import math.Base.concat
-import math.cat.SetMorphism
+import scalakittens.Result._
 
 import scala.collection.mutable
+import scala.language.postfixOps
+import scala.reflect.Selectable.reflectiveSelectable
 
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
