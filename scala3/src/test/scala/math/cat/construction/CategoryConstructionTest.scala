@@ -349,8 +349,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     val newGraph: Graph = data.addArrows(newArrows) iHope
     
     val newData = new PartialData(newGraph):
-      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
-        data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]).asInstanceOf[Option[Arrow]]
+      override def newComposition(f: Any, g: Any): Option[Arrow] =
+        data.newComposition(f, g).asInstanceOf[Option[Arrow]]
 
       override val compositionSource: CompositionTable = data.composition.asInstanceOf[CompositionTable]
     (newData.validateGraph returning newData).orCommentTheError(s"Failed on $newData").iHope

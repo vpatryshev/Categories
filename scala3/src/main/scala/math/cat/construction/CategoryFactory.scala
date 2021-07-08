@@ -28,10 +28,7 @@ private[cat] trait CategoryFactory:
     */
   def segment(n: Int): Cat =
     val numbers = fromPoset(s"_${n}_", PoSet.range(0, n, 1))
-    val maybeSegment: Result[Cat] = convert2Cat(numbers)(
-      { case (a, b) => s"$a.$b" })
-  
-    maybeSegment iHope
+    convert2Cat(numbers) { case (a, b) => s"$a.$b" } iHope
 
   private def convert2Cat[O, A](source: Category)(
     arrow2string: (source.Arrow => String) = (x: source.Arrow) => x.toString

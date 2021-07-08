@@ -14,23 +14,28 @@ import scala.language.{implicitConversions, postfixOps}
   * 
   * @param source data for building a category
   */
-class CategoryBuilder(source: CategoryData):
+class CategoryBuilder(val source: CategoryData):
 
   val graph = source.graph
 
-  def newCategory: Category =
+  private def sd0[A](a: A): source.Obj = source.d0(source.arrow(a))
+  private def sd1[A](a: A): source.Obj = source.d1(source.arrow(a))
+  private def sid[O](o: O): source.Arrow = source.id(source.obj(o))
+  
+  def newCategory: Category = {
     if source.isFinite then
       newFiniteCategory
     else
-      new Category(source.name) :
+      new Category(source.name):
         override val graph = source.graph
 
-        override def d0(f: Arrow): Obj = node(source.d0(source.arrow(f)))
-        override def d1(f: Arrow): Obj = node(source.d1(source.arrow(f)))
-        def id(o: Obj): Arrow = arrow(source.id(source.node(o)))
+        override def d0(f: Arrow): Obj = node(sd0(f))
+        override def d1(f: Arrow): Obj = node(sd1(f))
+        def id(o: Obj): Arrow = arrow(sid(o))
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           source.m(source.arrow(f), source.arrow(g)) map arrow
+  }
 
   end newCategory
 
@@ -46,9 +51,9 @@ class CategoryBuilder(source: CategoryData):
 
     new Category(source.name):
       override val graph = source.graph
-      private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(source.d0(source.arrow(f))))
-      private val d1Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(source.d1(source.arrow(f))))
-      private val idMap: Map[Any, Arrow] = buildMap(source.objects, o => asArrow(source.id(source.node(o))))
+      private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(sd0(f)))
+      private val d1Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(sd1(f)))
+      private val idMap: Map[Any, Arrow] = buildMap(source.objects, o => asArrow(sid(o)))
 
       override inline def d0(f: Arrow): Obj = d0Map(f)
       override inline def d1(f: Arrow): Obj = d1Map(f)

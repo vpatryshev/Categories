@@ -160,11 +160,10 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
     * @param to   second object
     * @return the set of all arrows from x to y
     */
-  def hom(from: Obj, to: Obj): Arrows = {
-    if (isFinite) {
+  def hom(from: Obj, to: Obj): Arrows =
+    if isFinite then
       homCache.getOrElseUpdate((from, to), calculateHom(from, to))
-    } else calculateHom(from, to)
-  }
+    else calculateHom(from, to)
 
   private def calculateHom(from: Obj, to: Obj): Arrows =
     setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
@@ -175,19 +174,18 @@ end CategoryData
 
 /**
   * Partial data for a category
-  * Objects have the same name as their identities.
+  * Objects have the same names as their identities.
   *
   * @param graph the underlying graph
   * @return category data
   */
-private[cat] class PartialData(override val graph: Graph)
+private[construction] class PartialData(override val graph: Graph)
   extends CategoryData(graph.name):
-  self =>
+
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
-
-
+  
   override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
@@ -275,7 +273,7 @@ private[cat] class PartialData(override val graph: Graph)
 
   end addUniqueCompositions
 
-  def newComposition(f: Arrow, g: Arrow): Option[Arrow] = None
+  def newComposition(f: Any, g: Any): Option[Arrow] = None
 
   /**
     * Builds a category given a data.
@@ -306,11 +304,12 @@ object CategoryData:
     * @return a newly-built category
     */
   def partial[Arr](g: Graph)(
-    comp: Composition[Arr] = Empty[Arr], compositionFactory: ((Arr, Arr)) => Option[Arr] = nothing):
+    comp: Composition[Arr] = Empty[Arr],
+    compositionFactory: ((Arr, Arr)) => Option[Arr] = nothing):
   PartialData =
     new PartialData(addIdentitiesToGraph(g)):
 
-      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
+      override def newComposition(f: Any, g: Any): Option[Arrow] =
         compositionFactory(f.asInstanceOf[Arr], g.asInstanceOf[Arr]).asInstanceOf[Option[Arrow]]
 
       override val compositionSource: CompositionTable = comp.asInstanceOf[CompositionTable] // same type
@@ -341,25 +340,21 @@ object CategoryData:
     new CategoryData(gr.name):
       override val graph = gr
 
-      override def id(o: Obj): Arrow = ids(gr.node(o).asInstanceOf[gr.Node]).asInstanceOf[Arrow]
+      override def id(o: Obj): Arrow = ids(gr.node(o)).asInstanceOf[Arrow]
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         composition(gr.arrow(f), gr.arrow(g)) map arrow
 
   
   // TODO: don't throw exception, return a result
-  private[cat] def transitiveClosure(
-    data: PartialData): PartialData =
+  private[cat] def transitiveClosure(data: PartialData): PartialData =
   
     val missing = data.missingCompositions
   
     if missing.isEmpty then data else
 
-      val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] =
-        data.nonexistentCompositions.toSet
-
       val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] =
-        nonexistentCompositions flatMap {
+        data.nonexistentCompositions flatMap {
           case (f, g) =>
             data.newComposition(f, g) map {
               h => (h, (data.d0(f), data.d1(g)))
@@ -372,8 +367,8 @@ object CategoryData:
       val newData: Result[PartialData] =
         data.addArrows(newArrows) map { graph =>
           new PartialData(graph):
-            override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
-              data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]).asInstanceOf[Option[Arrow]]
+            override def newComposition(f: Any, g: Any): Option[Arrow] =
+              data.newComposition(f, g).asInstanceOf[Option[Arrow]]
 
             override val compositionSource = data.composition.asInstanceOf[CompositionTable]
       }
