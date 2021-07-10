@@ -14,44 +14,42 @@ import scala.reflect.Selectable.reflectiveSelectable
 
 class CategoryOfDiagrams(val domain: Category)
   extends Category(s"Set^${domain.name}")
-  with GrothendieckTopos { topos =>
+  with GrothendieckTopos:
+  topos =>
   override val graph = graphOfDiagrams(domain.name)
   override def toString: String = name
   type Node = Diagram
   override type Obj = Diagram
   override type Arrow = DiagramArrow
   
-  lazy val subterminals: Set[Diagram] = {
+  lazy val subterminals: Set[Diagram] =
     def objectMapping(candidate: Set[domain.Obj]) =
       (obj: domain.Obj) =>
         if candidate contains obj then _1(obj) else Empty
 
-    def arrowMapping(candidate: Set[domain.Obj]): domain.Arrow => SetFunction = {
+    def arrowMapping(candidate: Set[domain.Obj]): domain.Arrow => SetFunction =
       val omc = objectMapping(candidate)
-      (a: domain.Arrow) => {
-        // this transformation, domain.arrow, is here due to an intellij bug
-        val d0 = omc(domain.d0(domain.arrow(a)))
-        val d1 = omc(domain.d1(domain.arrow(a)))
-        val mapping = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a))).mapping
+      (a: domain.Arrow) =>
+        val d0 = omc(domain.d0(a))
+        val d1 = omc(domain.d1(a))
+        val function = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a)))
+        function.restrictTo(d0, d1) iHope
 
-        new SetFunction("", d0, d1, mapping)
-      }
-    }
-
-    (1 :: Nil).to(LazyList)
-
-    val all: Set[Diagram] = for {
-      (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
-      // some mappings are not working for a given candidate
-      amCandidate: (domain.Arrow => SetFunction) = arrowMapping(candidate)
-      am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))
-      om = objectMapping(candidate)
-      // some of these build attemps will fail, because of compatibility checks
-      diagram: Diagram <- Diagram.build("__" + i, topos)(om, am.toMap).asOption
-    } yield diagram
+    val all: Set[Diagram] = 
+      for
+        (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
+        // some mappings are not working for a given candidate
+        amCandidate: (domain.Arrow => SetFunction) = arrowMapping(candidate)
+        am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))
+        om = objectMapping(candidate)
+        // some of these build attemps will fail, because of compatibility checks
+        diagram: Diagram <- Result.forValue(Diagram(topos)("__" + i, om, am.toMap)).asOption
+      yield diagram
 
     all
-  }
+  
+  end subterminals
+  
   val base: Category = BaseCategory
 
   def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
@@ -60,20 +58,18 @@ class CategoryOfDiagrams(val domain: Category)
 
   def pow(d: Diagram): Diagram = ??? // power object; tbd
 
-  override def id(o: Obj): Arrow = {
+  override def id(o: Obj): Arrow =
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
-    new DiagramArrow("Id") {
+    new DiagramArrow("Id"):
       override val d0: Functor = o
       override val d1: Functor = o
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         d1.d1.arrow(objectMap(o.d0.obj(x)))
-    }
-  }
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
-    new DiagramArrow(s"${g.tag} ∘ ${f.tag}"):
+    new DiagramArrow(concat(g.tag, " ∘ ", f.tag)):
       val d0: Functor = f.d0
       val d1: Functor = g.d1
 
@@ -90,7 +86,7 @@ class CategoryOfDiagrams(val domain: Category)
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     buildMap[domain.Obj, Set[Diagram]](domain.objects, x => Representable(x).subobjects.toSet)
 
-  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos) {
+  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos):
     override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(om(domain.obj(x)))
     override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow =
       am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
@@ -104,35 +100,34 @@ class CategoryOfDiagrams(val domain: Category)
       * @param f arrow in domain
       * @return a function from domain.hom(x, f.d0) to domain.hom(x, f.d1)
       */
-    private def am(f: domain.Arrow): SetFunction = {
+    private def am(f: domain.Arrow): SetFunction =
       val d0: domain.Arrows = om(domain.d0(f))
       val d1: domain.Arrows = om(domain.d1(f))
       val tuples: Set[(domain.Arrow, domain.Arrow)] = d0 flatMap { g => domain.m(g, f) map (g -> _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
       new SetFunction("", setOf(d0), setOf(d1), a => mapping(domain.arrow(a)))
-    }
 
     private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)
 
-    probablyFunctor.iHope
-  }
+    probablyFunctor iHope
+  
+  end Representable
 
   def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram)
-}
 
-object CategoryOfDiagrams {
+object CategoryOfDiagrams:
   type DiagramArrow = NaturalTransformation
   val BaseCategory: Category = SetCategory.Setf
 
-  def const[O,A](tag: String, topos: GrothendieckTopos)(value: set): Diagram = {
+  def const[O,A](tag: String, topos: GrothendieckTopos)(value: set): Diagram =
     type O = topos.domain.Obj
     type A = topos.domain.Arrow
 
-    Diagram[O, A](tag, topos)(
+    Diagram(topos)(
+      tag,
       (x: O) => value,
       (a: A) => SetFunction.id(value))
-  }
 
   def nameOfPowerCategory(domainName: String) = s"Sets^$domainName"
   
@@ -146,5 +141,3 @@ object CategoryOfDiagrams {
 
       def d0(f: Arrow): Node = node(f.d0)
       def d1(f: Arrow): Node = node(f.d1)
-
-}

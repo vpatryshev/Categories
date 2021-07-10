@@ -63,7 +63,7 @@ trait GrothendieckTopos
           new SetFunction("", x1, y1, g => domain.m(domain.arrow(g), same_b).get)
         }
 
-        Diagram("", topos)(om2, am1) // no validation, we know it's ok
+        Diagram(topos)("", om2, am1) // no validation, we know it's ok
       }
 
       // no validation here, the function is known to be ok
@@ -117,7 +117,8 @@ trait GrothendieckTopos
         a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
       }
 
-      Diagram(s"${a.tag} ∩ ${b.tag}", topos)(
+      Diagram(topos)(
+        concat(a.tag, "∩", b.tag),
         o => om(domain.obj(o)),
         f => am(domain.arrow(f))
       )
@@ -191,9 +192,8 @@ trait GrothendieckTopos
 //            unionFunctionMaybe.iHope
           }
 
-          val tag = s"${a.tag} ∪ ${b.tag}"
-
-          Diagram(tag, topos)(
+          Diagram(topos)(
+            concat(a.tag, "∪", b.tag),
             o => om(domain.obj(o)), f => am(domain.arrow(f)))
         }
 
@@ -432,7 +432,7 @@ trait GrothendieckTopos
       new SetFunction("", from.untyped, to.untyped, f)
     }
 
-    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(mappingOfObjects, a => mappingOfArrows(a))
+    val diagram = Diagram(topos)(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a))
   }
 
   /**
