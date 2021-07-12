@@ -73,14 +73,14 @@ class CategoryOfDiagrams(val domain: Category)
       val d0: Functor = f.d0
       val d1: Functor = g.d1
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = {
+      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         val xObjf = f.domainCategory.obj(x)
         val f_x = f.transformPerObject(f.d0.d0.node(xObjf))
         val xObjg = g.domainCategory.obj(x)
         val g_x = g.transformPerObject(g.d0.d0.node(xObjg))
         val gf_x = m(f_x.asInstanceOf[Arrow], g_x.asInstanceOf[Arrow])
         d1.d1.arrow(gf_x)
-      }
+
   } else None
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =

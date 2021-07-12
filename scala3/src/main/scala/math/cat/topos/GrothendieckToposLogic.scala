@@ -149,7 +149,7 @@ trait GrothendieckToposLogic {
     * An arrow from terminal to the point as a diagram
     * @return
     */
-  def uniqueFromTerminalTo(p: Point): Arrow = {
+  def uniqueFromTerminalTo(p: Point): Arrow =
     new DiagramArrow(p.tag) {
 
       override val d0: Diagram = _1
@@ -161,7 +161,6 @@ trait GrothendieckToposLogic {
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
         }
     }
-  }
 
   val initialT: Result[Obj] = BaseCategory.initial map constSet("initial")
   lazy val _0: Obj = initialT iHope

@@ -15,8 +15,8 @@ import scala.reflect.Selectable.reflectiveSelectable
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
 trait GrothendieckTopos
-  extends GrothendieckToposLogic
-{ topos =>
+  extends GrothendieckToposLogic:
+  topos =>
   type Obj = Diagram
   type Arrow = DiagramArrow
    
@@ -244,7 +244,7 @@ trait GrothendieckTopos
     * @param x an object of domain
     * @return a function A(x) -> Ω(x)
     */
-  private[topos] def χAt(inclusion: Arrow)(x: domain.Obj): SetFunction = {
+  private[topos] def χAt(inclusion: Arrow)(x: domain.Obj): SetFunction =
     val A: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
     val B: Diagram = inclusion.d0.asInstanceOf[Diagram] // TODO: get rid of casting
 
@@ -253,86 +253,77 @@ trait GrothendieckTopos
 
     // for each element ax of set Ax find all arrows x->y 
     // that map ax to an ay that belongs to By 
-    def myArrows(ax: Any): Set[(Any, set)] = {
+    def myArrows(ax: Any): Set[(Any, set)] =
       domain.objects map {
-        y => {
+        y =>
           val all_arrows_to_y: domain.Arrows = domain.hom(domain.obj(x), y)
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
-          def hits_By(f: domain.Arrow) = By.contains(image_via(f))
+          def hits_By(f: domain.Arrow) = By contains image_via(f)
           y -> Ω.setOf(all_arrows_to_y.filter(hits_By))
-        }
       }
-    }
     
-    def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean = {
+    def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
-    }
     
-    def myRepresentable(ax: Any): Any = {
+    def myRepresentable(ax: Any): Any =
       val arrows = myArrows(ax).toMap
       val choices = Ω(x) find {
         repr => sameMapping(repr.asInstanceOf[Diagram], arrows)
       }
-      scalakittens.Result(choices).orCommentTheError(s"No representable found for $ax -> $arrows").iHope
-    }
+      Result(choices).orCommentTheError(s"No representable found for $ax -> $arrows") iHope
     
     new SetFunction(s"[χ($x)]", Ax, Ω(x), ax => myRepresentable(ax))
-  }
+  
+  end χAt
 
   /**
     * Builds a map that classifies a subobject
     * B ----> 1
-    * v      v
-    * |      |
-    * v      v
+    * v       v
+    * |       |
+    * v       v
     * A ----> Ω
     * 
     * @param inclusion B >--> A - a natural transformation from diagram B to diagram A
     * @return A -> Ω
     */
-  def χ(inclusion: Arrow, theTag: String): Predicate = {
+  def χ(inclusion: Arrow, theTag: String): Predicate =
     val objToFunction: domain.Obj => SetFunction = χAt(inclusion)
 
-    new Predicate(theTag) {
+    new Predicate(theTag):
       val d0: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         d1.d1.arrow(objToFunction(domain.obj(x)))
-    }
-  }
 
-
-  def χ(inclusion: Arrow): Predicate = {
+  def χ(inclusion: Arrow): Predicate =
     χ(inclusion, s"χ(${inclusion.tag})")
-  }
 
-
-  trait Includer {
+  trait Includer:
     val subdiagram: Diagram
 
-    def in(diagram: Diagram): Result[DiagramArrow] = {
-      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] = {
-        for {
+    def in(diagram: Diagram): Result[DiagramArrow] =
+      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
+        for
           x <- domain.objects.iterator
-          in = SetFunction.inclusion(subdiagram(x), diagram(x))
-          pair = in map (x -> subdiagram.d1.arrow(_))
-        } yield pair
-      }
+          incl = SetFunction.inclusion(subdiagram(x), diagram(x))
+          pair = incl map (x -> subdiagram.d1.arrow(_))
+        yield pair
 
       val mapOpt = Result traverse results
 
-      val result = for {
-        map <- mapOpt
-        arrow <- NaturalTransformation.build(s"${subdiagram.tag}⊂${diagram.tag}", subdiagram, diagram)(map.toMap)
-      } yield arrow
+      for
+        map   <- mapOpt
+        arrow <- NaturalTransformation.build(concat(subdiagram.tag, "⊂", diagram.tag), subdiagram, diagram)(map.toMap)
+      yield arrow
 
-      result
-    }
-  }
+    end in
+  end Includer
 
   def inclusionOf(diagram: Diagram): Includer =
-    new Includer { val subdiagram: Diagram = diagram }
+    new Includer:
+      val subdiagram: Diagram = diagram
 
   /**
     * Builds a `DiagramArrow`, given domain, codomain, and a mapping
@@ -347,16 +338,15 @@ trait GrothendieckTopos
     NaturalTransformation.build(tag, from, to)(
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
 
-  private val p1: Any => Any = {
+  private val p1: Any => Any =
     case (a, b) => a
     case trash =>
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  }
-  private val p2: Any => Any = {
+  
+  private val p2: Any => Any =
     case (a, b) => b
     case trash =>
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  }
   
   // π1
   protected val firstProjection: Mapping = Function.const (p1)
@@ -381,11 +371,10 @@ trait GrothendieckTopos
     from: Diagram,
     to: Diagram,
     mapping: Mapping
-  )(o: from.d0.Obj): from.d1.Arrow = {
+  )(o: from.d0.Obj): from.d1.Arrow =
     val domO: domain.Obj = domain.obj(o)
     val funOpt = SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(domO))
     from.d1.arrow(funOpt.iHope)
-  }
 
   /**
     * Given arrows `f` and `g`, builds an arrow (f×g): dom(f)×dom(g) -> codom(f)×codom(g)
@@ -394,57 +383,52 @@ trait GrothendieckTopos
     * @param g second component
     * @return a product of `f` and `g`
     */
-  def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow = {
+  def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow =
 
-    val mapping: Mapping = x => {
+    val mapping: Mapping = x =>
       val fx = f(x).asInstanceOf[SetMorphism[Any, Any]]
       val gx = g(x).asInstanceOf[SetMorphism[Any, Any]]
 
       { case (a, b) => (fx(a), gx(b)) }
-    }
 
-    val fd9: Any = f.d0
     buildArrow(
       concat(f.tag, "×", g.tag),
       product2(f.d0.asInstanceOf[Diagram], g.d0.asInstanceOf[Diagram]), // TODO: remove casting
       product2(f.d1.asInstanceOf[Diagram], g.d1.asInstanceOf[Diagram]), // TODO: remove casting
       mapping)
-  }
+  end productOfArrows
 
-  private[topos] case class product2builder(x: Diagram, y: Diagram) {
+  private[topos] case class product2builder(x: Diagram, y: Diagram):
 
     private def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
     private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
 
-    def transition(z: Diagram)(a: domain.Arrow)(pz: Any) = {
+    def transition(z: Diagram)(a: domain.Arrow)(pz: Any) =
       val sf: SetFunction = z.asFunction(z.arrowsMapping(z.d0.arrow(a)))
       sf(pz)
-    }
 
-    private def mappingOfArrows(a: domain.Arrow): SetFunction = {
+    private def mappingOfArrows(a: domain.Arrow): SetFunction =
       val from = productAt(domain.d0(a))
       val to = productAt(domain.d1(a))
-      def f(p: Any): Any = p match {
+      def f(p: Any): Any = p match
         case (px, py) => (transition(x)(a)(px), transition(y)(a)(py))
         case other =>
           throw new IllegalArgumentException(s"Expected a pair of values, got $other")
-      }
+
       new SetFunction("", from.untyped, to.untyped, f)
-    }
 
     val diagram = Diagram(topos)(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a))
-  }
 
+  end product2builder
+  
   /**
     * Cartesian product of two diagrams
     * TODO: figure out how to ensure the same d0 in both Di
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
-  def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] = {
-    inclusionOf(p) in d map { q => {
-      uniqueFromTerminalTo(p) andThen q named p.tag
-    } }
-  }
-
-}
+  def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
+    val terminalToPointInclusion = uniqueFromTerminalTo(p)
+    inclusionOf(p) in d map { q =>
+      terminalToPointInclusion andThen q named p.tag
+    }

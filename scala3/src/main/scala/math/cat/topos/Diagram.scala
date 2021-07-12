@@ -152,11 +152,11 @@ abstract class Diagram(
       def inclusionToUnion(a: XArrow): Any => Any =
         arrowsMapping(a).mapping andThen objectToInjection(d0.d1(a))
 
-      arrowsFrom_o match
-        case a0 :: tail =>
-          val f = inclusionToUnion(a0)
-          for a <- tail do
-            val g = inclusionToUnion(a)
+      val inclusions = arrowsFrom_o map inclusionToUnion
+
+      inclusions match
+        case f :: tail =>
+          for g <- tail do
             for x <- F_o do theFactorset.merge(f(x), g(x))
 
         case other => // do nothing
