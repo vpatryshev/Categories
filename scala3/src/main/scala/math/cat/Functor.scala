@@ -373,11 +373,11 @@ object Functor:
     * That is, F(id(x)) == id(F(x)), and
     * F(g) ∘ F(f) = F(g ∘ f)
     */
-  private[cat] def validateFunctor(f: Functor): Result[Functor] = for {
+  private[cat] def validateFunctor[T <: Functor](f: T): Result[T] = for
     _ <- checkObjectMapping(f)
     _ <- checkArrowMapping(f)
     _ <- checkIdentityPreservation(f) andAlso checkCompositionPreservation(f)
-  } yield f
+  yield f
 
   private def checkIdentityPreservation(f: Functor): Outcome =
     Result.check {
