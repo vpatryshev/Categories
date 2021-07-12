@@ -28,7 +28,7 @@ class SpeedTest extends Fixtures:
           val not_p = ¬(p)
           ¬(¬(not_p)) === not_p
         println(TestWatch.timePassedSec)
-      categoriesToTest filter (_.isFinite) foreach check
+      categoriesToTestSpeed filter (_.isFinite) foreach check
 
       ok
     }
