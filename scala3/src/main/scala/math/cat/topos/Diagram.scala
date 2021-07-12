@@ -180,28 +180,24 @@ abstract class Diagram(
   lazy val listOfComponents: List[set] =
     listOfObjects map objectsMapping map (x => setOf(x))
   
-  private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction = {
+  private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction =
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
     new SetFunction("", dom, codom, arrowsMapping(a))
-  }
 
-  private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction = {
+  private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction =
     def same_om(o: XObject): Sets.set = om(o.asInstanceOf[O]) // TODO: get rid of casting
-//    val arr = d0.arrow(a)
-//    val dom: Sets.set = same_om(d0.d0(arr))
-//    val codom: Sets.set = same_om(d0.d1(arr))
     extendToArrows1(same_om)(d0.arrow(a))
-//    new SetFunction("", dom, codom, arrowsMapping(arr))
-  }
 
   // TODO: write tests
-  def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram = {
-    def objectMapping(o: XObject): Sets.set = objectsMapping(o) filter predicate(o)
+  def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
+    def objectMapping(o: topos.domain.Obj | XObject): Sets.set = { // TODO: union is not to be used here
+      val o1 = d0.obj(o) // TODO: don't cast, use the fact that d0 is the same as topos.domain
+      objectsMapping(o1) filter predicate(o1)
+    }
 
     val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a.asInstanceOf[XArrow])
-    Diagram(tag, topos)(objectMapping, arrowToFunction)
-  }
+    Diagram(tag, topos)(d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] = {
     val allSets: Map[XObject, set] = buildMap(domainObjects, o => setOf(objectsMapping(o)))
@@ -336,23 +332,21 @@ abstract class Diagram(
 object Diagram:
 
   private[topos] def apply[O, A](tag: Any, t: GrothendieckTopos)(
-    objectsMap: O => set,
-    arrowMap:   t.domain.Arrow => SetFunction): Diagram = {
+    objectsMap: t.domain.Obj => set,
+    arrowMap:   t.domain.Arrow => SetFunction): Diagram =
 
-    new Diagram(tag.toString, t) {
+    new Diagram(tag.toString, t):
       
       override private[topos] def setAt(x: Any): set =
-        d1.asObj(objectsMap(x.asInstanceOf[O])) // TODO: get rid of Any and casting
+        d1.asObj(objectsMap(x.asInstanceOf[t.domain.Obj])) // TODO: get rid of Any and casting
       
       override def objectsMapping(o: d0.Obj): d1.Obj =
-        val x = o.asInstanceOf[O] // TODO: get rid of casting
-        val y = objectsMap(x)
+        val x = o
+        val y = objectsMap(x.asInstanceOf[t.domain.Obj])
         d1.asObj(y) // TODO: get rid of casting
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
-    }
-  }
   
   def build(tag: Any, topos: GrothendieckTopos)(
     objectsMap: topos.domain.Obj => set,
@@ -362,8 +356,6 @@ object Diagram:
     Functor.validateFunctor(diagram) returning diagram
   }
 
-  private[topos] def cleanupString(s: String): String = {
+  private[topos] def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^\\]]+]", "->")
-    val s2 = s1.replace("Set()", "{}")
-    s2
-  }
+    s1.replace("Set()", "{}")
