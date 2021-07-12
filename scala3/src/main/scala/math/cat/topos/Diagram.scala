@@ -331,16 +331,11 @@ abstract class Diagram(
 
 object Diagram:
 
-  private[topos] def apply(tag: Any, topos: GrothendieckTopos)(
-    
-    objectsMap: topos.domain.Obj => set,
-    arrowMap:   topos.domain.Arrow => SetFunction): Diagram =
-    build(tag, topos)(objectsMap, arrowMap) iHope
-
-  def build(tag: Any, t: GrothendieckTopos)(
+  private[topos] def apply(tag: Any, t: GrothendieckTopos)(
     objectsMap: t.domain.Obj => set,
-    arrowsMap:  t.domain.Arrow => SetFunction): Result[Diagram] =
-    val diagram: Diagram = new Diagram(tag.toString, t):
+    arrowMap:   t.domain.Arrow => SetFunction): Diagram =
+
+    new Diagram(tag.toString, t):
       
       override private[topos] def setAt(x: Any): set =
         d1.asObj(objectsMap(x.asInstanceOf[t.domain.Obj])) // TODO: get rid of Any and casting
@@ -351,9 +346,15 @@ object Diagram:
         d1.asObj(y) // TODO: get rid of casting
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        d1.arrow(arrowsMap(t.domain.arrow(a)))
+        d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
   
-    validateFunctor(diagram)
+  def build(tag: Any, topos: GrothendieckTopos)(
+    objectsMap: topos.domain.Obj => set,
+    arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] = {
+    val diagram: Diagram = apply(tag, topos)(objectsMap, arrowMap)
+
+    Functor.validateFunctor(diagram) returning diagram
+  }
 
   private[topos] def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^\\]]+]", "->")

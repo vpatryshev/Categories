@@ -125,14 +125,13 @@ object CategoryOfDiagrams {
   type DiagramArrow = NaturalTransformation
   val BaseCategory: Category = SetCategory.Setf
 
-  def const[O,A](tag: String, topos: GrothendieckTopos)(value: set): Diagram = {
+  def const[O,A](tag: String, topos: GrothendieckTopos)(value: set): Diagram =
     type O = topos.domain.Obj
     type A = topos.domain.Arrow
 
-    Diagram[O, A](tag, topos)(
+    Diagram(tag, topos)(
       (x: O) => value,
       (a: A) => SetFunction.id(value))
-  }
 
   def nameOfPowerCategory(domainName: String) = s"Sets^$domainName"
   

@@ -165,13 +165,15 @@ object Categories extends CategoryFactory:
     */
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_, _1plus1_)
+  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_,
+    _1plus1_,
+    Z2, Z3, Z4
+  )
 
   lazy val LessSimpleCategories = List(
     W, // this one is the hardest for logic calculations
     _5_,
     ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
-    Z2, Z3, Z4,
     AAAAAA,
     Simplicial3, M)
 
