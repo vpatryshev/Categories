@@ -117,7 +117,7 @@ trait GrothendieckTopos
         a.asFunction(a.arrowsMapping(a.d0.arrow(f))).restrictTo(x, y).iHope
       }
 
-      Diagram(s"${a.tag} ∩ ${b.tag}", topos)(
+      Diagram(concat(a.tag, "∩", b.tag), topos)(
         o => om(domain.obj(o)),
         f => am(domain.arrow(f))
       )
@@ -432,7 +432,7 @@ trait GrothendieckTopos
       new SetFunction("", from.untyped, to.untyped, f)
     }
 
-    val diagram = Diagram(s"${x.tag}×${y.tag}", topos)(mappingOfObjects, a => mappingOfArrows(a))
+    val diagram = Diagram(concat(x.tag, "×", y.tag), topos)(mappingOfObjects, a => mappingOfArrows(a))
   }
 
   /**

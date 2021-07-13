@@ -225,7 +225,7 @@ abstract class Diagram(
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
         def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
-        Diagram.build(i, topos)(
+        Diagram.tryBuild(i, topos)(
           same_om,
           extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
     }
@@ -347,8 +347,9 @@ object Diagram:
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
+        
   
-  def build(tag: Any, topos: GrothendieckTopos)(
+  def tryBuild(tag: Any, topos: GrothendieckTopos)(
     objectsMap: topos.domain.Obj => set,
     arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] = {
     val diagram: Diagram = apply(tag, topos)(objectsMap, arrowMap)
