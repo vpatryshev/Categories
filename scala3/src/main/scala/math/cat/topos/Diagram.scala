@@ -2,6 +2,7 @@ package math.cat.topos
 
 import math.Base._
 import math.cat._
+import Functor.validateFunctor
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Functions._
 import math.sets.Sets._
@@ -25,10 +26,9 @@ abstract class Diagram(
   val topos: GrothendieckTopos)
   extends Functor(tag, topos.domain, SetCategory.Setf):
   diagram =>
-//  val d0: Category = d0
-  type XObject = d0.Obj
+  type XObject = d0.Obj // topos.domain.Obj ???
   type XObjects = Set[XObject]
-  type XArrow = d0.Arrow
+  type XArrow = d0.Arrow // topos.domain.Arrow ???
   type XArrows = Set[XArrow]
   
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
@@ -45,27 +45,30 @@ abstract class Diagram(
     new Point(id, topos, (x: Any) => mapping(diagram.d0.asObj(x)))
 
   lazy val points: List[Point] =
-    val objMappings = for {
+    val objMappings = for
       values <- Sets.product(listOfComponents).view
       mapping = listOfObjects zip values toMap;
-      om: Point = point(mapping)
-      if isCompatible(om)
-    } yield om
+      om: Point = point(mapping) if isCompatible(om)
+    yield om
 
+
+    // The following stupid hack does the following:
+    // any value in curlies goes after a shorter value in curlies,
+    // because closing curly is replaced with '!' which goes
+    // before all alphanumerics. Cheap trick, but works.
+    // Any better suggestions?
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
     sorted map { p => p._1 named ("p" + p._2) }
 
-  implicit def asFunction(a: d1.Arrow): SetFunction = a match {
+  implicit def asFunction(a: d1.Arrow): SetFunction = a match
     case sf: SetFunction => sf
     case trash =>
       throw new IllegalArgumentException(s"Expected a set function, got $trash")
-  }
 
-  def functionForArrow(a: Any): SetFunction = {
+  def functionForArrow(a: Any): SetFunction =
     val arrowInSets = arrowsMapping(d0.arrow(a))
     asFunction(arrowInSets)
-  }
 
   def apply(x: Any): set = setOf(objectsMapping(d0.obj(x)))
 
@@ -74,16 +77,17 @@ abstract class Diagram(
     *
     * @return this functor's limit
     */
-  override def limit: Result[Cone] = {
+  override def limit: Result[Cone] =
     val bundleObjects: XObjects = limitBuilder.bundles.keySet
 
     def arrowsFromBundles(obj: XObject): XArrows = limitBuilder.bundles.get(obj).toSet.flatten
 
     // For each object of domain we have an arrow from one of the objects used in building the product
     val arrowsInvolved: XArrows =
-      bundleObjects flatMap (bo => arrowsFromBundles(bo)) filterNot d0.isIdentity
+      bundleObjects flatMap arrowsFromBundles filterNot d0.isIdentity
 
     val grouped: Map[XObject, XArrows] = arrowsInvolved.groupBy(arrow => d0.d1(arrow))
+    
     val fromRootObjects: MapView[XObject, XArrow] =
       grouped.view.mapValues(_.head) // does not matter which one, in this case
 
@@ -98,13 +102,13 @@ abstract class Diagram(
       val f: SetFunction = arrowsMapping(arrowToX)
       val projections: List[Any] => Any = limitBuilder.projectionForObject(rootObject)
       SetFunction.build(s"vertex to ($tag)[$x]", vertex, f.d1,
-        { case point: List[Any] => f(projections(point)) }) iHope // what can go wrong?
+        { case point: List[Any] => f(projections(point)) }
+      ) iHope // what can go wrong?
     }
     //YObjects vertex
     Good(Cone(d1.obj(limitBuilder.vertex), coneMap))
-  }
 
-  override def colimit: Result[Cocone] = {
+  override def colimit: Result[Cocone] =
     val op = Categories.op(d0)
     val participantArrows: Set[op.Arrow] = op.arrowsFromRootObjects // filterNot domain.isIdentity
     // for each object, a set of arrows starting at it object
@@ -123,15 +127,15 @@ abstract class Diagram(
       reverseIndex.view mapValues union.injection
 
     // All possible functions in the diagram, bundled with domain objects
-    val functionsToUnion: Set[(XObject, SetFunction)] = for {
+    val functionsToUnion: Set[(XObject, SetFunction)] = for
       o <- d0.objects
       a <- bundles(o)
       from: set = nodesMapping(o)
       aAsMorphism: SetFunction = arrowsMapping(a)
       embeddingToUnion <-
       SetFunction.build("in", aAsMorphism.d1, typelessUnion, objectToInjection(d0.d1(a))).asOption
-      g <- aAsMorphism andThen embeddingToUnion // do we need it?
-    } yield (o, g)
+      g: SetFunction <- aAsMorphism andThen embeddingToUnion
+    yield (o, g)
 
     // Accounts for all canonical functions
     val canonicalFunctionPerObject: Map[XObject, SetFunction] =
@@ -141,26 +145,22 @@ abstract class Diagram(
 
     // have to factor the union by the equivalence relation caused
     // by two morphisms mapping the same element to two possibly different.
-    for (o <- d0.objects) {
+    for o <- d0.objects do
       val F_o = nodesMapping(o) // the set to which `o` maps
       val arrowsFrom_o: Seq[XArrow] = bundles(o).toList
 
-      def inclusionToUnion(a: XArrow): Any => Any = {
+      def inclusionToUnion(a: XArrow): Any => Any =
         arrowsMapping(a).mapping andThen objectToInjection(d0.d1(a))
-      }
 
-      arrowsFrom_o match {
-        case a0 :: tail =>
-          val f = inclusionToUnion(a0)
-          for (a <- tail) {
-            val g = inclusionToUnion(a)
-            for (x <- F_o) {
-              theFactorset.merge(f(x), g(x))
-            }
-          }
+      val inclusions = arrowsFrom_o map inclusionToUnion
+
+      inclusions match
+        case f :: tail =>
+          for g <- tail do
+            for x <- F_o do theFactorset.merge(f(x), g(x))
+
         case other => // do nothing
-      }
-    }
+    
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
 
     def coconeMap(x: XObject): d1.Arrow = d1.arrow {
@@ -168,7 +168,6 @@ abstract class Diagram(
     }
 
     Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
-  }
 
   private[topos] def isCompatible(om: Point) = d0.arrows.forall {
     a =>
@@ -181,28 +180,24 @@ abstract class Diagram(
   lazy val listOfComponents: List[set] =
     listOfObjects map objectsMapping map (x => setOf(x))
   
-  private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction = {
+  private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction =
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
     new SetFunction("", dom, codom, arrowsMapping(a))
-  }
 
-  private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction = {
+  private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction =
     def same_om(o: XObject): Sets.set = om(o.asInstanceOf[O]) // TODO: get rid of casting
-//    val arr = d0.arrow(a)
-//    val dom: Sets.set = same_om(d0.d0(arr))
-//    val codom: Sets.set = same_om(d0.d1(arr))
     extendToArrows1(same_om)(d0.arrow(a))
-//    new SetFunction("", dom, codom, arrowsMapping(arr))
-  }
 
   // TODO: write tests
-  def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram = {
-    def objectMapping(o: XObject): Sets.set = objectsMapping(o) filter predicate(o)
+  def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
+    def objectMapping(o: topos.domain.Obj | XObject): Sets.set = { // TODO: union is not to be used here
+      val o1 = d0.obj(o) // TODO: don't cast, use the fact that d0 is the same as topos.domain
+      objectsMapping(o1) filter predicate(o1)
+    }
 
     val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a.asInstanceOf[XArrow])
-    Diagram(tag, topos)(objectMapping, arrowToFunction)
-  }
+    Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] = {
     val allSets: Map[XObject, set] = buildMap(domainObjects, o => setOf(objectsMapping(o)))
@@ -218,19 +213,20 @@ abstract class Diagram(
         d00 map f subsetOf d01
     }
 
-    val objMappings: Iterable[Map[XObject, Sets.set]] = for {
+    val objMappings: Iterable[Map[XObject, Sets.set]] = for
       values <- Sets.product(listOfComponents).view
       om0: Point = point(listOfObjects zip values toMap)
       om: Map[XObject, Sets.set] = buildMap(d0.objects, x => setOf(om0(x)));
       if isPresheaf(om)
-    } yield om
+    yield om
     
     val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
 
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
         def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
-        Diagram.build(i, topos)(
+        Diagram.tryBuild(topos)(
+          i,
           same_om,
           extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
     }
@@ -336,35 +332,34 @@ abstract class Diagram(
 
 object Diagram:
 
-  private[topos] def apply[O, A](tag: Any, t: GrothendieckTopos)(
-    objectsMap: O => set,
-    arrowMap:   t.domain.Arrow => SetFunction): Diagram = {
+  private[topos] def apply(t: GrothendieckTopos)(
+    tag: Any,
+    objectsMap: t.domain.Obj => set,
+    arrowMap:   t.domain.Arrow => SetFunction): Diagram =
 
-    new Diagram(tag.toString, t) {
+    new Diagram(tag.toString, t):
       
       override private[topos] def setAt(x: Any): set =
-        d1.asObj(objectsMap(x.asInstanceOf[O])) // TODO: get rid of Any and casting
+        d1.asObj(objectsMap(x.asInstanceOf[t.domain.Obj])) // TODO: get rid of Any and casting
       
       override def objectsMapping(o: d0.Obj): d1.Obj =
-        val x = o.asInstanceOf[O] // TODO: get rid of casting
-        val y = objectsMap(x)
+        val x = o
+        val y = objectsMap(x.asInstanceOf[t.domain.Obj])
         d1.asObj(y) // TODO: get rid of casting
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
-    }
-  }
+        
   
-  def build(tag: Any, topos: GrothendieckTopos)(
+  def tryBuild(topos: GrothendieckTopos)(
+    tag: Any,
     objectsMap: topos.domain.Obj => set,
     arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] = {
-    val diagram: Diagram = apply(tag, topos)(objectsMap, arrowMap)
+    val diagram: Diagram = apply(topos)(tag, objectsMap, arrowMap)
 
     Functor.validateFunctor(diagram) returning diagram
   }
 
-  private[topos] def cleanupString(s: String): String = {
+  private[topos] def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^\\]]+]", "->")
-    val s2 = s1.replace("Set()", "{}")
-    s2
-  }
+    s1.replace("Set()", "{}")

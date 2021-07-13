@@ -9,7 +9,7 @@ import scalakittens.Result
 import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
 
-trait TestDiagrams extends Test {
+trait TestDiagrams extends Test:
   val toposes: mutable.Map[String, GrothendieckTopos] = mutable.Map[String, GrothendieckTopos]()
   
   private def toposOver(domain: Category): GrothendieckTopos =
@@ -17,12 +17,11 @@ trait TestDiagrams extends Test {
 
   def build(name: String, domain: Category)(
     objectsMap: String => set,
-    arrowMap: String => SetFunction): Diagram = {
+    arrowMap: String => SetFunction): Diagram =
     val topos = toposOver(domain)
     def om(o: topos.domain.Obj): set = objectsMap(o.toString)
     def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
-    Diagram.build(name, topos)(om, am) iHope
-  }
+    Diagram.tryBuild(topos)(name, om, am) iHope
 
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => f.d1.obj(om(f.toString))
@@ -36,11 +35,11 @@ trait TestDiagrams extends Test {
   )
   
   val SamplePullbackDiagram: Diagram = BuildPullbackDiagram.asDiagram
-  lazy val SamplePushoutDiagram: Diagram = {
+
     // TODO: implement
-    ???
-  }
-  val SampleParallelPairDiagram1: Diagram = {
+  lazy val SamplePushoutDiagram: Diagram = ???
+  
+  val SampleParallelPairDiagram1: Diagram =
     val a: set = Set(1, 2, 3, 4, 5)
     val b: set = Set(0, 1, 2, 3)
     val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
@@ -50,8 +49,8 @@ trait TestDiagrams extends Test {
       Map("0" -> a, "1" -> b),
       Map("a" -> f, "b" -> g)
     )
-  }
-  val SampleParallelPairSubdiagram1: Diagram = {
+  
+  val SampleParallelPairSubdiagram1: Diagram =
     val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1, 2)
     val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
@@ -61,8 +60,8 @@ trait TestDiagrams extends Test {
       Map("0" -> a, "1" -> b),
       Map("a" -> f, "b" -> g)
     )
-  }
-  val SampleParallelPairSubdiagram2: Diagram = {
+  
+  val SampleParallelPairSubdiagram2: Diagram =
     val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1, 2)
     val f = SetFunction.build("ParSub2.f", a, b, x => Math.min(2, x.toString.toInt)).iHope
@@ -72,8 +71,8 @@ trait TestDiagrams extends Test {
       Map("0" -> a, "1" -> b),
       Map("a" -> f, "b" -> g)
     )
-  }
-  val SampleParallelPairDiagram2: Diagram = {
+  
+  val SampleParallelPairDiagram2: Diagram =
     val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1)
     val f = SetFunction.build("f", a, b, x => Math.min(1, x.toString.toInt - 1)).iHope
@@ -83,9 +82,8 @@ trait TestDiagrams extends Test {
       Map("0" -> a, "1" -> b),
       Map("a" -> f, "b" -> g)
     )
-  }
   
-  val SampleZ3Diagram: Diagram = {
+  val SampleZ3Diagram: Diagram =
     val a: set = Set(0, 1, 2, 3)
 
     def f(i: Int): Int => Int = (n: Int) => if (n == 3) n else (n + i) % 3
@@ -97,7 +95,6 @@ trait TestDiagrams extends Test {
       Map("0" -> a),
       Map("1" -> f1, "2" -> f2)
     )
-  }
 
   def const(x: set): Diagram =
     build(s"Point($x)", _1_)(
@@ -105,7 +102,7 @@ trait TestDiagrams extends Test {
       Map[String, SetFunction]()
     )
 
-  object BuildPullbackDiagram {
+  object BuildPullbackDiagram:
     val sa: set = Set(1, 2, 3)
     val sb: set = Set(2, 3, 4)
     val sc: set = Set(0, 1)
@@ -126,9 +123,8 @@ trait TestDiagrams extends Test {
       om,
       am
     )
-  }
 
-  object SampleWDiagramContent {
+  object SampleWDiagramContent:
     val a: set = Set("a00", "a01", "a10", "a11")
     val b: set = Set("0", "1")
     val c: set = Set("c00", "c01", "c10", "c11")
@@ -138,18 +134,16 @@ trait TestDiagrams extends Test {
     val cb = SetFunction.build("cb", c, b, _.toString.substring(2)).iHope
     val cd = SetFunction.build("cd", c, d, _.toString.substring(1, 2)).iHope
     val ed = SetFunction.build("ed", e, d, _.toString.substring(1, 2)).iHope
-  }
   
-  val SampleWDiagram: Diagram = {
+  val SampleWDiagram: Diagram =
     import SampleWDiagramContent._
     build(
       "W Sample", W)(
       Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
       Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
     )
-  }
 
-  object SampleMDiagramContent {
+  object SampleMDiagramContent:
     val a: set = Set("a00", "a01", "a10", "a11")
     val b: set = Set("0", "1")
     val c: set = Set("c00", "c01", "c10", "c11")
@@ -159,14 +153,11 @@ trait TestDiagrams extends Test {
     val bc = SetFunction.build("bc", b, c, "c0" + _).iHope
     val dc = SetFunction.build("dc", d, c, "c1" + _).iHope
     val de = SetFunction.build("de", d, e, "e1" + _).iHope
-  }
 
-  val SampleMDiagram: Diagram = {
+  val SampleMDiagram: Diagram =
     import SampleMDiagramContent._
     build(
       "M Sample", M)(
       Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
       Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
     )
-  }
-}

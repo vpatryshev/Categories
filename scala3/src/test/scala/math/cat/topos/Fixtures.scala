@@ -66,6 +66,8 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
 
   val categoriesToTest: List[Cat] = SomeKnownCategories
 
+  val categoriesToTestSpeed: List[Cat] = LessSimpleCategories
+
   val batchSize = 8
 
   // Moved W to a separate group; it's the hardest to deal with
