@@ -197,7 +197,7 @@ abstract class Diagram(
     }
 
     val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a.asInstanceOf[XArrow])
-    Diagram(tag, topos)(d0.obj andThen objectMapping, arrowToFunction)
+    Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] = {
     val allSets: Map[XObject, set] = buildMap(domainObjects, o => setOf(objectsMapping(o)))
@@ -225,7 +225,8 @@ abstract class Diagram(
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
         def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
-        Diagram.tryBuild(i, topos)(
+        Diagram.tryBuild(topos)(
+          i,
           same_om,
           extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
     }
@@ -331,7 +332,8 @@ abstract class Diagram(
 
 object Diagram:
 
-  private[topos] def apply(tag: Any, t: GrothendieckTopos)(
+  private[topos] def apply(t: GrothendieckTopos)(
+    tag: Any,
     objectsMap: t.domain.Obj => set,
     arrowMap:   t.domain.Arrow => SetFunction): Diagram =
 
@@ -349,10 +351,11 @@ object Diagram:
         d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
         
   
-  def tryBuild(tag: Any, topos: GrothendieckTopos)(
+  def tryBuild(topos: GrothendieckTopos)(
+    tag: Any,
     objectsMap: topos.domain.Obj => set,
     arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] = {
-    val diagram: Diagram = apply(tag, topos)(objectsMap, arrowMap)
+    val diagram: Diagram = apply(topos)(tag, objectsMap, arrowMap)
 
     Functor.validateFunctor(diagram) returning diagram
   }
