@@ -216,7 +216,7 @@ trait GrothendieckTopos
     lazy val implication: DiagramArrow = {
       val inclusion: DiagramArrow = inclusionOf(Ω1) in ΩxΩ iHope
       
-      χ(inclusion, "=>")
+      χ(inclusion, "⟹")
     }
   }
 
