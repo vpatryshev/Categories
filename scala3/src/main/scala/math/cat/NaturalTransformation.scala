@@ -5,6 +5,7 @@ import math.cat.NaturalTransformation.printMapDifference
 import math.sets.Sets._
 import scalakittens.Result
 import scalakittens.Result.{Outcome, _}
+import SetFunction._
 
 import scala.language.{implicitConversions, postfixOps}
 
@@ -91,7 +92,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
             val second: other.d1.d1.Arrow = other.transformPerObject(o.asInstanceOf[other.d0.d0.Obj])
             val same = first == second
             if (!same && printDetails) then
-              printMapDifference(first.asInstanceOf[SetFunction], second.asInstanceOf[SetFunction])
+              printMapDifference(asFunction(first), asFunction(second))
 
             !same
           ) // checking it every time takes time

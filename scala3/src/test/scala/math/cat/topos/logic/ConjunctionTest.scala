@@ -6,6 +6,7 @@ import math.cat.{Category, SetFunction}
 import org.specs2.matcher.MatchResult
 import org.specs2.matcher.ShouldMatchers.thisValue
 import scalakittens.Result._
+import SetFunction._
 
 import scala.language.postfixOps
 import scala.reflect.Selectable.reflectiveSelectable
@@ -65,7 +66,7 @@ class ConjunctionTest extends Fixtures {
         val p = pointOfTrueAndTrue(o)
         p aka s"$desc, @$o" must_==(Ω.True(o), Ω.True(o))
         val monoAt_o = monomorphism(o)
-        val actual = monoAt_o.asInstanceOf[SetFunction](p)
+        val actual = asFunction(monoAt_o)(p)
         actual aka s"$desc, @$o" must_== p
       }
 
@@ -77,9 +78,9 @@ class ConjunctionTest extends Fixtures {
           o0 <- domain.objects
         } {
           val o = classifierForTT.domainCategory.obj(o0)
-          val con_o = classifierForTT.transformPerObject(classifierForTT.d0.d0.obj(o)).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
+          val con_o = asFunction(classifierForTT.transformPerObject(classifierForTT.d0.d0.obj(o))).toList.sortBy(_._1.toString)
           val tru_classif_o =
-            conjunction.transformPerObject(conjunction.d0.d0.obj(o)).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
+            asFunction(conjunction.transformPerObject(conjunction.d0.d0.obj(o))).toList.sortBy(_._1.toString)
 
           val pairs = con_o zip tru_classif_o
 

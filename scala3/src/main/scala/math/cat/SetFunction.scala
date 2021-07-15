@@ -136,3 +136,5 @@ object SetFunction:
     */
   def exponent(x: set, y: set): Set[SetFunction] =
     Sets.exponent(x, y) map { apply("exponent", x, y, _) }
+
+  def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
