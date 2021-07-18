@@ -9,7 +9,7 @@ import scalakittens.Good
 
 import scala.language.postfixOps
 
-class FunctorTest extends Test {
+class FunctorTest extends Test:
   type SUT = Functor
   
   lazy val categorySquareWithTwoTopLeftCorners: Cat =
@@ -42,7 +42,7 @@ class FunctorTest extends Test {
   "Constructor" should {
 
     "report missing object mappings" in {
-      checkError(_ contains "Object mapping fails for 1", 
+      expectError(_ contains "Object mapping fails for 1", 
       Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1"),
@@ -50,7 +50,7 @@ class FunctorTest extends Test {
     }
 
     "report incorrect object mappings" in {
-      checkError(_ contains "Object mapping fails for 1",
+      expectError(_ contains "Object mapping fails for 1",
         Functor("failing test",
           _2_, _2_)(
           Map("0" -> "1", "1" -> "3"),
@@ -58,7 +58,7 @@ class FunctorTest extends Test {
     }
 
     "report missing arrows mappings" in {
-      checkError(_ contains "Missing arrow mappings for 0.1, 1.2, 2.3, 0.3, 1.3, 0.2",
+      expectError(_ contains "Missing arrow mappings for 0.1, 1.2, 2.3, 0.3, 1.3, 0.2",
         Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
@@ -80,7 +80,7 @@ class FunctorTest extends Test {
         "2.3" -> "3.3",
         "3.3" -> "3.3"
       )
-      checkError(_ contains "Inconsistent mapping for d1(0.2)",
+      expectError(_ contains "Inconsistent mapping for d1(0.2)",
         Functor("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
     }
     
@@ -100,7 +100,7 @@ class FunctorTest extends Test {
         "3.3" -> "3.3"
       )
 
-      checkError(_ contains "Object mapping fails for 3",
+      expectError(_ contains "Object mapping fails for 3",
         Functor("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
   }
@@ -119,16 +119,15 @@ class FunctorTest extends Test {
       
       val fOpt = Functor("sample product", from, to)(mapO, mapA)
       checkOpt[Functor](fOpt,
-        (f:Functor) => {
+        (f:Functor) =>
         val limitOpt = f.limit
 
-        limitOpt match {
+        limitOpt match
           case Good(limit) =>
             limit.arrowTo(f.d0.obj(0)) == "ab"
             limit.arrowTo(f.d0.obj(1)) == "ac"
           case _ => failure(s"Could not build a limit of $f")
-        }
-      })
+      )
     }
     
     "cones from" in {
@@ -170,13 +169,13 @@ class FunctorTest extends Test {
     
     "limit with two candidates" in {
       val sut = functorFromPullbackToDoubleSquare
-      sut.limit match {
+      sut.limit match
         case Good(limit) =>
           limit.vertex === "a1"
           limit.arrowTo(sut.d0.obj("a")) === "a1b"
           limit.arrowTo(sut.d0.obj("b")) === "a1c"
         case oops => failure("no limit?")
-      }
+
       ok
     }
     
@@ -220,7 +219,7 @@ class FunctorTest extends Test {
       val obj1 = sut.d1.obj _
       val arr1 = sut.d1.arrow _
 
-      sut.colimit match {
+      sut.colimit match
         case Good(colimit) =>
           colimit.vertex === "d1"
           colimit.arrowFrom(obj0("a")) === "ad1"
@@ -228,7 +227,7 @@ class FunctorTest extends Test {
           colimit.arrowFrom(obj0("c")) === "cd1"
         case oops => failure("Could not build a colimit for " + 
                      functorFrom1to2toDoubleSquare.tag)
-      }
+
       ok
     }
 
@@ -256,5 +255,3 @@ class FunctorTest extends Test {
       )
     }
   }
-
-}

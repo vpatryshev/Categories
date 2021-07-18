@@ -13,19 +13,20 @@ import scala.language.postfixOps
  * Test suite for Typeless Set Morphisms object
  */
 
-class SetFunctionTest extends Specification {
+class SetFunctionTest extends Specification:
   "SetFunction" >> {
 
     "building TypelessSetMorphism" >> {
       val sut = SetFunction.build("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x).iHope
       sut(1) === "x1"
       sut("a") === "xa"
-      try {
+      
+      try
         sut(3)
         failure("3 is not in domain")
-      } catch {
+      catch
         case e: Exception => // praise the Lord!
-      }
+
       ok
     }
     
@@ -50,12 +51,12 @@ class SetFunctionTest extends Specification {
       
       sut(1) === 2
       sut("a") === 2
-      try {
+      try
         sut(z)
         failure("3 is not in domain")
-      } catch {
+      catch
         case e: Exception => // praise the Lord
-      }
+
       ok
     }
 
@@ -65,23 +66,24 @@ class SetFunctionTest extends Specification {
       val sut = SetFunction.constant(s0, s1, 77)
       sut.d0 === s0
       sut.d1 === s1
-      for (x <- s0) (sut(x) == 77) must beTrue
-      try {
+      for x <- s0 do sut(x) === 77
+
+      try
         sut(3)
         failure("3 is not in domain")
-      } catch {
+      catch
         case e: Exception => // praise the Lord!
-      }
+
       ok
     }
 
     "building a nonexistent constant" >> {
-      try {
+      try
         val sut = SetFunction.constant(Set(1, 2, "a"), Set("x1", "x2", "xa", 77), "xx")
         failure("xx is not in codomain")
-      } catch {
+      catch
         case e: Exception => // praise the Lord!
-      }
+
       ok
     }
 
@@ -91,12 +93,13 @@ class SetFunctionTest extends Specification {
       val sut = inclusion(s0, s1).iHope
       sut.d0 === s0
       sut.d1 === s1
-      for (x <- s0) (sut(x) == x) must beTrue
-      try {
+      for x <- s0 do sut(x) === x
+
+      try
         sut("b")
-      } catch {
+      catch
         case e: Exception => // Hallelujah!
-      }
+
       ok
     }
 
@@ -107,13 +110,13 @@ class SetFunctionTest extends Specification {
       val sut = filterByPredicate(s)(predicate)
       sut.d1 === s
       sut.d0 === (s filter predicate)
-      for (x <- List(1, "1xya2")) (sut(x) == x) must beTrue
-      try {
+      for x <- List(1, "1xya2") do sut(x) === x
+      try
         sut(2)
         failure("Must have thrown an exception")
-      } catch {
+      catch
         case e: Exception => // Hallelujah!
-      }
+
       ok
     }
 
@@ -122,13 +125,14 @@ class SetFunctionTest extends Specification {
       val sut = id(s)
       sut.d0 === s
       sut.d1 === s
-      for (x <- s) (sut(x) == x) must beTrue
-      try {
+      for x <- s do sut(x) === x
+
+      try
         sut("b")
         failure("Should have thrown an exception")
-      } catch {
+      catch
         case e: Exception => // Hallelujah!
-      }
+
       ok
     }
 
@@ -147,11 +151,10 @@ class SetFunctionTest extends Specification {
 
       val sut = SetFunction.exponent(set1, set2)
       sut.size === 125
-      for (i <- set2) {
+      for i <- set2 do
         val c = SetFunction.constant(set1, set2, 1)
         sut.contains(c) must beTrue
-      }
+
       ok
     }
   }
-}

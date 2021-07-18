@@ -47,37 +47,3 @@ class SetOpsTest extends TestBase:
       ok
     }
   }
-  
-  def spendNotMoreThan[T](time: Duration, extraTimePercent:Int = 1): Object {
-    def on(op: => Result[T]): Result[T]
-  } = new {
-    def on(op: => Result[T]): Result[T] = {
-      import java.util.concurrent.locks.LockSupport._
-      var res:Result[T] = Empty
-      val millis = time.toMillis
-      val finalDeadline = System.currentTimeMillis + millis * (100 + extraTimePercent) / 100 + 1
-      val done = new AtomicBoolean(false)
-      val worker = new Thread {
-        override def run(): Unit = {
-          try {
-            res = op
-            done.set(true)
-          } catch {case ie: InterruptedException => }
-        }
-      }
-      worker.setPriority(1)
-      worker.start()
-      try {
-        worker.join(time.toMillis)
-      } finally {
-        if (worker.isAlive) {
-          worker.interrupt()
-          parkUntil(finalDeadline)
-        }
-        if (worker.isAlive) worker.stop()
-      }
-      if (done.get) res else Result.error(s"Timeout after $time")
-    }
-  }
-
-

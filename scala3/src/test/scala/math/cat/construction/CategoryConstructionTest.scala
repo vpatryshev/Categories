@@ -168,7 +168,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         Map(("0_1", "a") -> "0_2", ("0_1", "b") -> "0_2", ("2_1", "a") -> "2_a", ("2_1", "b") -> "2_b", ("a", "swap") -> "b", ("b", "swap") -> "a", ("swap", "swap") -> "2"),
         defineComposition
       )
-      checkError(_.contains("12 arrows still missing:"), actual)
+      expectError(_.contains("12 arrows still missing:"), actual)
       actual.isGood === false
     }
 

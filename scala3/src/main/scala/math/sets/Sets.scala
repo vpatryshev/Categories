@@ -47,7 +47,7 @@ object Sets:
   /**
     * A big set of all finite sets in Scala. This set is infinite, of course.
     */
-  val FiniteSets: BigSet[Set[Any]] = BigSet.comprehension(isFinite)
+  val FiniteSets: Set[Set[Any]] = BigSet.comprehension(isFinite)
 
   /**
     * Checks whether a set is infinite.

@@ -17,7 +17,7 @@ import scala.language.postfixOps
 /**
   * Tests for Category class
   */
-class CategoryTest extends Test with CategoryFactory {
+class CategoryTest extends Test:
 
   type SUT = Category
   
@@ -29,10 +29,15 @@ class CategoryTest extends Test with CategoryFactory {
   "Category" >> {
 
     "composablePairs" >> {
-      M.composablePairs === Set(("d", "d"), ("b", "ba"), ("d", "de"), ("d", "dc"), ("a", "a"),
-        ("b", "bc"), ("bc", "c"), ("c", "c"), ("e", "e"), ("de", "e"), ("b", "b"), ("dc", "c"), ("ba", "a"))
-      Square.composablePairs === Set(("d", "d"), ("ac", "c"), ("ab", "b"), ("ac", "cd"), ("cd", "d"),
-        ("a", "ac"), ("b", "bd"), ("ab", "bd"), ("a", "ad"), ("ad", "d"), ("bd", "d"), ("a", "a"),
+      M.composablePairs === Set(
+        ("d", "d"), ("b", "ba"), ("d", "de"), ("d", "dc"), ("a", "a"),
+        ("b", "bc"), ("bc", "c"), ("c", "c"), ("e", "e"), ("de", "e"),
+        ("b", "b"), ("dc", "c"), ("ba", "a"))
+      
+      Square.composablePairs === Set(
+        ("d", "d"), ("ac", "c"), ("ab", "b"), ("ac", "cd"), ("cd", "d"),
+        ("a", "ac"), ("b", "bd"), ("ab", "bd"), ("a", "ad"), ("ad", "d"),
+        ("bd", "d"), ("a", "a"),
         ("c", "c"), ("b", "b"), ("a", "ab"), ("c", "cd"))
     }
 
@@ -59,9 +64,8 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "toString_1" >> {
-      expect(sut => {
-        sut.toString === "sample: ({1}, {}, {})"
-      })(
+      expect(_.toString === "sample: ({1}, {}, {})"
+      )(
         Category("sample", Set("1"),
           EmptyMap, // d0
           EmptyMap, // d1
@@ -113,7 +117,7 @@ class CategoryTest extends Test with CategoryFactory {
     "equals_positive_mult()" >> {
       val c1 = category"({0, 1}, {a: 0 -> 1, b: 1 -> 1, c: 1 -> 1}, {b ∘ a = a, c ∘ a = c, b ∘ b = b, c ∘ b = c, b ∘ c = b, c ∘ c = c})"
       val c2 = category"({1, 0}, {b: 1 -> 1, c: 1 -> 1, a: 0 -> 1}, {b ∘ b = b, c ∘ b = c, b ∘ a = a, c ∘ a = c, b ∘ c = b, c ∘ c = c})"
-      (c1 == c2) must beTrue
+      c1 === c2
     }
 
     "AreInverse()" >> {
@@ -297,7 +301,8 @@ class CategoryTest extends Test with CategoryFactory {
 
     "pairsWithTheSameCodomain" >> {
       val actual = Simplicial3.pairsWithTheSameCodomain("0", "2")
-      val expected = Set(("0_2", "2"), ("0_1", "2_1"), ("0_2", "swap"), ("0_2", "2_b"), ("0_2", "2_a"))
+      val expected = Set(
+        ("0_2", "2"), ("0_1", "2_1"), ("0_2", "swap"), ("0_2", "2_b"), ("0_2", "2_a"))
       actual === expected
     }
 
@@ -546,10 +551,14 @@ class CategoryTest extends Test with CategoryFactory {
 
   "complete subcategory" should {
     "be ok for Square" in {
-      Square.completeSubcategory("abd", Set("a", "b", "d")) === Good(category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})")
-      Square.completeSubcategory("diagonal", Set("a", "c")) === Good(category"diagonal:({a,c}, {ac: a -> c})")
+      Square.completeSubcategory("abd", Set("a", "b", "d")) ===
+        Good(category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})")
+      
+      Square.completeSubcategory("diagonal", Set("a", "c")) ===
+        Good(category"diagonal:({a,c}, {ac: a -> c})")
 
-      Square.completeSubcategory("abx", Set("a", "b", "x")).errorDetails === Some("Unknown nodes: x")
+      Square.completeSubcategory("abx", Set("a", "b", "x")).errorDetails ===
+        Some("Unknown nodes: x")
     }
   }
 
@@ -605,14 +614,13 @@ class CategoryTest extends Test with CategoryFactory {
     }
 
     "good for Simplicial3" >> {
-//      Simplicial3.canDeduce(Simplicial3.arrows)("0_1") === false
-      val baseGraph = Simplicial3.baseGraph
-      baseGraph === graph"({0, 1, 2}, {0_1: 0->1, 2_b: 2->2, 2_a: 2->2, swap: 2->2, 2_1: 2->1, b: 1->2, a: 1->2})"
+      Simplicial3.baseGraph ===
+        graph"({0, 1, 2}, {0_1: 0->1, 2_b: 2->2, 2_a: 2->2, swap: 2->2, 2_1: 2->1, b: 1->2, a: 1->2})"
     }
 
     "good for AAAAAA" >> {
-      val actual = AAAAAA.baseGraph
-      AAAAAA.baseGraph === graph"({1,2,3,4,5,6}, {12:1->2, 23:2->3, 34:3->4, 45:4->5, 56:5->6, 61:6->1})"
+      AAAAAA.baseGraph ===
+        graph"({1,2,3,4,5,6}, {12:1->2, 23:2->3, 34:3->4, 45:4->5, 56:5->6, 61:6->1})"
     }
   }
 
@@ -622,14 +630,13 @@ class CategoryTest extends Test with CategoryFactory {
       val second: set = setOf.elements(1, 2, 3)
       val product = Setf.product(first, second)
 
-      product match {
+      product match
         case Good((x, y)) =>
           x.d0 === setOf.elements(
             ("a", 1), ("a", 2), ("a", 3),
             ("b", 1), ("b", 2), ("b", 3))
         case otherwise => failure("product not found")
-      }
+
       ok
     }
   }
-}

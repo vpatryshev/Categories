@@ -54,7 +54,7 @@ class DiagramTest extends Test with TestDiagrams {
       val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
       val g = SetFunction.build("g", b, b, x => x.toString.toInt % 3).iHope
       val topos = new CategoryOfDiagrams(ParallelPair)
-      checkError(_ matches 
+      expectError(_ matches 
       raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"
       ,
         Diagram.tryBuild(topos)(

@@ -43,8 +43,8 @@ class PoSetTest extends TestBase:
     "Equals_positive" >> {
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
       val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
-      (sut2 == sut1) must beTrue
-      (sut1 == sut2) must beTrue
+      sut2 === sut1
+      sut1 === sut2
     }
 
     "Equals_negative" >> {
@@ -74,7 +74,7 @@ class PoSetTest extends TestBase:
       sut.le(3, 3) must beTrue
       sut.le(2, 3) must beFalse
       sut.le(3, 2) must beFalse
-      sut == ~sut must beTrue
+      sut === ~sut
     }
 
     "UnderlyingSet" >> {
@@ -82,7 +82,7 @@ class PoSetTest extends TestBase:
       sut.elements === Set("a", "b", "c")
     }
 
-    "Paarser" >> {
+    "Parser" >> {
       val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
       val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})").
         getOrElse(throw new IllegalArgumentException("Did not parse"))

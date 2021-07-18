@@ -12,14 +12,16 @@ import scala.language.postfixOps
 /**
   * Set Category tests
   */
-class SetCategoryTest extends Specification {
+class SetCategoryTest extends Specification:
   val s1: set = Set[Int](42) untyped
   val s2: set = Sets.range(0, 7, 1) untyped
   val s3: set = Set("hello", "cruel", "world") untyped
   val s4: set = Set("hello", "goodbye", "cruel", "world") untyped
-  private val allEvenSets: BigSet[Set[Any]] = BigSet.comprehension[Set[Any]](_.size % 2 == 0)
+  private val allEvenSets: BigSet[Set[Any]] =
+    BigSet.comprehension[Set[Any]](_.size % 2 == 0)
   val evenSets: SetCategory = new SetCategory(allEvenSets)
-  val oddSets: SetCategory = new SetCategory(BigSet.comprehension[Set[Any]](_.size % 2 == 1))
+  val oddSets: SetCategory =
+    new SetCategory(BigSet.comprehension[Set[Any]](_.size % 2 == 1))
 
   "SetCategory" should {
     "buildGraph" in {
@@ -124,15 +126,14 @@ class SetCategoryTest extends Specification {
       sut match {
         case Good(s) =>
           s.size === 81
-          for {
+          for
             a <- source
             b <- source
             c <- source
             d <- source
-          } {
-            val point = List(a,b,c,d)
-            s(point) === true
-          }
+          do
+            s(List(a,b,c,d)) === true
+ 
         case none => failure(s"must have built a 4th degree: $none")
       }
       ok
@@ -140,21 +141,26 @@ class SetCategoryTest extends Specification {
 
     "produce no equalizer if it's not in the category" in {
       // the category of even-sized sets
-      val f = SetFunction.build("f", s2, s4, n => if (n.toString.toInt < 3) "hello" else "goodbye")iHope
-      val g = SetFunction.build("g", s2, s4, n => if (n.toString.toInt < 1) "hello" else "goodbye")iHope
+      val f = SetFunction.build("f", s2, s4, 
+        n => if n.toString.toInt < 3 then "hello" else "goodbye")iHope
+      val g = SetFunction.build("g", s2, s4,
+        n => if n.toString.toInt < 1 then "hello" else "goodbye")iHope
       val eq = evenSets.equalizer(f, g)
       eq.isBad === true
     }
 
     "produce an empty equalizer if it exists" in {
-      val f = SetFunction.build("f", s2, s4, n => if (n.toString.toInt < 3) "hello" else "goodbye").iHope
-      val g = SetFunction.build("g", s2, s4, n => if (n.toString.toInt < 4) "cruel" else "world").iHope
-      evenSets.equalizer(f, g) match {
+      val f = SetFunction.build("f", s2, s4,
+        n => if n.toString.toInt < 3 then "hello" else "goodbye").iHope
+      val g = SetFunction.build("g", s2, s4,
+        n => if n.toString.toInt < 4 then "cruel" else "world").iHope
+      
+      evenSets.equalizer(f, g) match
         case Good(inclusion) =>
           inclusion.d0 === Sets.Empty
           inclusion.d1 === s2
         case none => failure(s"Expected some equalizer: $none")
-      }
+
       ok
     }
 
@@ -162,9 +168,9 @@ class SetCategoryTest extends Specification {
       // the category of even-sized sets
       val sut = Setf
       val f = SetFunction.build("f", s2, s4,
-        n => if (n.toString.toInt < 3) "hello" else "goodbye").iHope
+        n => if n.toString.toInt < 3 then "hello" else "goodbye").iHope
       val g = SetFunction.build("g", s2, s4,
-        n => if (n.toString.toInt < 1) "cruel" else if (n.toString.toInt < 5) "hello" else "goodbye").iHope
+        n => if n.toString.toInt < 1 then "cruel" else if n.toString.toInt < 5 then "hello" else "goodbye").iHope
       sut.equalizer(f, g) match {
         case Good(eq) =>
           eq.d0 === Set(1, 2, 5, 6)
@@ -175,9 +181,9 @@ class SetCategoryTest extends Specification {
     }
 
     "have an id" in {
-      for {
+      for
         obj <- s4
-      } Setf.id(s4)(obj) === obj
+      do Setf.id(s4)(obj) === obj
 
       ok
     }
@@ -213,48 +219,47 @@ class SetCategoryTest extends Specification {
     }
 
     "build product 3x3" in {
-      Setf.product(Set(1, 2, 3), Set(2, 3, 4)) match {
+      Setf.product(Set(1, 2, 3), Set(2, 3, 4)) match
         case Good((p1, p2)) =>
           p1.d1 === Set(1, 2, 3)
           p2.d1 === Set(2, 3, 4)
           p1.d0 === p2.d0
           val sut = p1.d0
           sut.size === 9
-          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === true
+          for i <- 1 to 3; j <- 2 to 4 do sut((i, j)) === true
         case none => failure(s"Where's my product? $none")
-      }
+
       ok
     }
 
     "have initial" in {
-      Setf.initial match {
+      Setf.initial match
         case Good(s0) => s0 must be empty
         case none => failure(s"Oops, no initial: $none")
-      }
+
       ok
     }
 
     "have terminal" in {
-      Setf.terminal match {
+      Setf.terminal match
         case Good(s1) =>
           s1.size === 1
           s1.contains(Sets.Empty) === true
         case none => failure(s"Oops, no terminal: $none")
-      }
       
       ok
     }
     
     "build product 0x3" in {
       val sut = Setf.initial flatMap (empty => Setf.product(empty, Set(2, 3, 4)))
-      sut match {
+      sut match
         case Good((p1, p2)) =>
           p1.d1 === Sets.Empty
           p2.d1 === Set(2, 3, 4)
           p1.d0 === p2.d0
           p1.d0.isEmpty === true
         case none => failure(s"Where's my product? $none")
-      }
+
       ok
     }
 
@@ -265,7 +270,7 @@ class SetCategoryTest extends Specification {
       val f = SetFunction.build("f", a, c, _.toString.toInt % 2).iHope
       val g = SetFunction.build("g", b, c, x => (x.toString.toInt + 1) % 2).iHope
 
-      Setf.pullback(f, g) match {
+      Setf.pullback(f, g) match
         case Good((p1, p2)) =>
           p1.d1 === a
           p2.d1 === b
@@ -274,7 +279,7 @@ class SetCategoryTest extends Specification {
           sut.size === 5
           for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) === ((i+j) %2 == 1)
         case none => failure(s"Where's my pullback? $none")
-      }
+
       ok
     }
 
@@ -286,7 +291,7 @@ class SetCategoryTest extends Specification {
       val g = SetFunction.build("g", c, b, x => x.toString.toInt + 2).iHope
 
       val actual = Setf.pushout(f, g)
-      actual match {
+      actual match
         case Good((p1, p2)) =>
           p1.d0 === a
           p2.d0 === b
@@ -300,7 +305,7 @@ class SetCategoryTest extends Specification {
           
           sut === expected
         case none => failure(s"Where's my pushout? $none")
-      }
+
       ok
     }
     
@@ -308,7 +313,7 @@ class SetCategoryTest extends Specification {
       val a: set = Set(1, 2, 3)
       val b: set = Set(3, 4)
       val actual = Setf.union(a, b)
-      actual match {
+      actual match
         case Good((ix, iy)) =>
           ix.d0 === a
           iy.d0 === b
@@ -320,7 +325,7 @@ class SetCategoryTest extends Specification {
           iy(3) === ("y", 3)
           iy(4) === ("y", 4)
         case none => failure(s"Oops, failed to build a union of $a and $b: $none")
-      }
+
       ok
     }
     
@@ -342,7 +347,7 @@ class SetCategoryTest extends Specification {
       val br: BinaryRelation[Int, Int] = (a: Int, b: Int) => a == b
       val actual: SetMorphism[Int, Set[Int]] = factorset(s, br)
       val factor = setOf[Set[Int]](for (i <- s) yield Set(i))
-      actual === SetMorphism.build[Int, Set[Int]](s, factor, (i:Int) => Set(i)).iHope
+      actual === SetMorphism.build(s, factor, (i:Int) => Set(i)).iHope
     }
 
     "have factorset mod 2" >> {
@@ -351,7 +356,7 @@ class SetCategoryTest extends Specification {
       val actual = factorset(s0, br)
       val listofClasses = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val setOfClasses = Set(listofClasses(0), listofClasses(1))
-      actual === SetMorphism.build[Int, Set[Int]](
+      actual === SetMorphism.build(
         d0 = s0, d1 = setOfClasses, function = (i:Int) => listofClasses(i % 2)
       ).iHope
     }
@@ -372,4 +377,3 @@ class SetCategoryTest extends Specification {
       s(1) === sut(5)
     }
   }
-}
