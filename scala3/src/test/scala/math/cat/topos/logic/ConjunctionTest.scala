@@ -11,19 +11,18 @@ import scalakittens.Result._
 import scala.language.postfixOps
 import scala.reflect.Selectable.reflectiveSelectable
 
-class ConjunctionTest extends Fixtures {
+class ConjunctionTest extends Fixtures:
 
   "Conjunction" should {
 
-    def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] = {
+    def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] =
       import topos._
       val desc = s"Testing $what over ${domain.name}"
       val rep = report(domain)(_)
       val True = Ω.True.asPredicateIn(topos)
       val False = Ω.False.asPredicateIn(topos)
 
-
-      for { pt <- Ω.points } {
+      for pt <- Ω.points do
         rep(s"conjunction with False for ${pt.tag}")
         val p = pt.asPredicateIn(topos)
         True.getClass === p.getClass
@@ -31,23 +30,23 @@ class ConjunctionTest extends Fixtures {
 // fails        False.getClass === (False ∧ p).getClass
 
         (False ∧ p) === False
-      }
 
+      
       checkThatIn(topos).mustBeMonoid[Predicate](
         "conjunction",
         True,
         (p: Predicate, q: Predicate) => p ∧ q
       )
       ok
-    }
 
-    def checkTrue(topos: GrothendieckTopos): MatchResult[Any] = {
+    end checkProperties
+
+    def checkTrue(topos: GrothendieckTopos): MatchResult[Any] =
       import topos._
       val desc = s"Testing True value over ${domain.name}"
 
-      def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
+      def diagonalMap_Ω(x: topos.domain.Obj): SetFunction =
         fun(Ω(x), ΩxΩ(x))(s"Δ[$x]", subrep => (subrep, subrep))
-      }
 
       val conjunction = Ω.conjunction
 
@@ -60,25 +59,23 @@ class ConjunctionTest extends Fixtures {
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
 
-      for {
+      for
         o <- domain.objects
-      } {
+      do
         val p = pointOfTrueAndTrue(o)
-        p aka s"$desc, @$o" must_==(Ω.True(o), Ω.True(o))
+        p aka s"$desc, @$o" must_== (Ω.True(o), Ω.True(o))
         val monoAt_o = monomorphism(o)
         val actual = monoAt_o.asInstanceOf[SetFunction](p)
         actual aka s"$desc, @$o" must_== p
-      }
 
-      val classifierForTT: DiagramArrow = χ(monomorphism)
-      val theyAreTheSame = classifierForTT == conjunction // nice to have this line, to check the comparison
+      val classifyingArrow: DiagramArrow = χ(monomorphism)
+      val theyAreTheSame = classifyingArrow == conjunction // nice to have this line, to check the comparison
 
-      if (!theyAreTheSame) {
-        for {
-          o0 <- domain.objects
-        } {
-          val o = classifierForTT.domainCategory.obj(o0)
-          val con_o = classifierForTT.transformPerObject(classifierForTT.d0.d0.obj(o)).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
+      // the following part is for finding exactly where comparison failed
+      if !theyAreTheSame then
+        for o0 <- domain.objects do
+          val o = classifyingArrow.domainCategory.obj(o0)
+          val con_o = classifyingArrow.transformPerObject(classifyingArrow.d0.d0.obj(o)).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
           val tru_classif_o =
             conjunction.transformPerObject(conjunction.d0.d0.obj(o)).asInstanceOf[SetFunction].toList.sortBy(_._1.toString)
 
@@ -91,21 +88,17 @@ class ConjunctionTest extends Fixtures {
           }
 
           tru_classif_o === con_o
-        }
-      }
 
-      classifierForTT aka desc must_== conjunction
-    }
+      classifyingArrow aka desc must_== conjunction
+    end checkTrue
 
-    def check(category: Category): MatchResult[Any] = {
+    def check(category: Category): MatchResult[Any] =
       val topos = new CategoryOfDiagrams(category)
       checkTrue(topos)
       checkProperties(topos, "conjunction")
-    }
 
     "work for all known domains" in {
       categoriesToTest filter (_.isFinite) foreach check
       ok
     }
   }
-}

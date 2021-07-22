@@ -6,13 +6,13 @@ import org.specs2.matcher.MatchResult
 
 import scala.language.reflectiveCalls
 
-class NegationTest extends Fixtures {
+class NegationTest extends Fixtures:
 
   "Negation" should {
 
     "work for all known domains" in {
 
-      def check(cat: Category): MatchResult[Any] = {
+      def check(cat: Category): MatchResult[Any] =
         val topos = new CategoryOfDiagrams(cat)
         import topos._
         val rep = report(cat) _
@@ -24,25 +24,22 @@ class NegationTest extends Fixtures {
         ¬(True) === False
         ¬(False) === True
 
-        for { pt1 <- Ω.points } {
+        for pt1 <- Ω.points do
           rep(s"that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
-          val p: topos.Predicate = pt1.asPredicateIn(topos)
+          val p = pt1.asPredicateIn(topos)
           val not_p = ¬(p)
           ¬(¬(not_p)) === not_p
 
           rep(s"that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
-          for {pt2 <- Ω.points} {
-            val q: topos.Predicate = pt2.asPredicateIn(topos)
+          for pt2 <- Ω.points do
+            val q = pt2.asPredicateIn(topos)
             ¬(p ∨ q) === not_p ∧ ¬(q)
-          }
-        }
 
         ok
-      }
+
+      end check
 
       categoriesToTest filter (_.isFinite) foreach check
-
       ok
     }
   }
-}
