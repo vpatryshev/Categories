@@ -8,6 +8,7 @@ import org.specs2.mutable._
 import scalakittens.Result
 
 import scala.language.postfixOps
+import SetFunction.fun
 
 /**
  * Test suite for Typeless Set Morphisms object
@@ -17,7 +18,7 @@ class SetFunctionTest extends Specification:
   "SetFunction" >> {
 
     "building TypelessSetMorphism" >> {
-      val sut = SetFunction.build("test", Set(1, 2, "a"), Set("x1", "x2", "xa", 77), (x: Any) => "x" + x).iHope
+      val sut = fun(Set(1, 2, "a"), Set("x1", "x2", "xa", 77))("test", "x" +)
       sut(1) === "x1"
       sut("a") === "xa"
       
@@ -34,8 +35,8 @@ class SetFunctionTest extends Specification:
       val x: set = Set(1, 2, "a")
       val y: set = Set("x1", "x2", "xa", 77)
       val z: set = Set(2, 28, x)
-      val f = SetFunction.build("f", x: set, y: set, (x: Any) => "x" + x) iHope
-      val g = SetFunction.build("g", y: set, z: set, (y: Any) => y.toString.length) iHope
+      val f = fun(x,y)("f", "x" + )
+      val g = fun(y,z)("g", _.length)
       
       g.andThen(f).isDefined === false
       f.andThen(g).isDefined === true
@@ -45,8 +46,8 @@ class SetFunctionTest extends Specification:
       val x = Set(1, 2, "a").untyped
       val y = Set("x1", "x2", "xa", 77).untyped
       val z = Set(2, 28, x).untyped
-      val f = SetFunction.build("f", x, y, (x: Any) => "x" + x) iHope
-      val g = SetFunction.build("g", y, z, (y: Any) => y.toString.length) iHope
+      val f = fun(x,y)("f", "x"+)
+      val g = fun(y,z)("g", _.length)
       val sut = Result(f andThen g) iHope
       
       sut(1) === 2

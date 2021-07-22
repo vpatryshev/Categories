@@ -30,11 +30,9 @@ class CategoryConstructionTest extends Test with CategoryFactory:
   "Category" >> {
 
     "have segments" >> {
-      for {
-        i <- 0 until 10
-      } {
+      for i <- 0 until 10 do
         Category.segment(i).arrows.size === i * (i + 1) / 2
-      }
+
       ok
     }
 
@@ -74,12 +72,12 @@ class CategoryConstructionTest extends Test with CategoryFactory:
           ("2.swap", "2.swap") -> "2") // composition map
       )
 
-      sutOpt match {
+      sutOpt match
         case Good(cat) =>
           val string = cat.toString
           Category.read(string) === sutOpt
         case oops => failure(oops.toString)
-      }
+
       ok
     }
 
@@ -112,16 +110,13 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         composition = EmptyComposition,
         defineComposition
       )
-      checkOpt(sutOpt, (sut: Category) => {
-        sut.arrows must haveSize(1)
-      })
+      checkOpt(sutOpt, _.arrows must haveSize(1)
+      )
       ok
     }
 
     "constructor_1_full" >> {
-      expect(sut => {
-        sut.arrows must haveSize(1)
-      })(
+      expect(_.arrows must haveSize(1))(
         Category("constructor_1_full", Set("1"),
           Map("1" -> "1"), // d0
           Map("1" -> "1"), // d1
@@ -151,21 +146,29 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
 
     "parse_nonsense" >> {
-      try {
+      try
         category"(bs)"
         failure("should not have worked")
-      } catch {
+      catch
         case x: Exception => ok
-      }
+
       ok
     }
     
     "parse_negative" >> {
       val actual = Category("must fail", Set("0", "1", "2"),
-        Map("0_1" -> "0", "0_2" -> "0", "a" -> "1", "b" -> "1", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "swap" -> "2"), // d0
-        Map("0_1" -> "1", "0_2" -> "2", "a" -> "1", "b" -> "1", "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "swap" -> "2"), // d1
+        Map(
+          "0_1" -> "0", "0_2" -> "0", "a" -> "1",
+          "b" -> "1", "2_1" -> "2", "2_a" -> "2",
+          "2_b" -> "2", "swap" -> "2"), // d0
+        Map("0_1" -> "1", "0_2" -> "2", "a" -> "1", "b" -> "1",
+          "2_1" -> "1", "2_a" -> "2", "2_b" -> "2", "swap" -> "2"), // d1
         // breaking laws
-        Map(("0_1", "a") -> "0_2", ("0_1", "b") -> "0_2", ("2_1", "a") -> "2_a", ("2_1", "b") -> "2_b", ("a", "swap") -> "b", ("b", "swap") -> "a", ("swap", "swap") -> "2"),
+        Map(
+          ("0_1", "a") -> "0_2", ("0_1", "b") -> "0_2",
+          ("2_1", "a") -> "2_a", ("2_1", "b") -> "2_b",
+          ("a", "swap") -> "b", ("b", "swap") -> "a",
+          ("swap", "swap") -> "2"),
         defineComposition
       )
       expectError(_.contains("12 arrows still missing:"), actual)
@@ -173,11 +176,11 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
 
     def checkParsing(catOpt: Result[Category]): MatchResult[Any] =
-      expect(sut => {
+      expect(sut =>
         val string = sut.toString
         val parsed = Category.read(string)
         parsed === catOpt
-      })(catOpt)
+      )(catOpt)
 
     "parse_positive_0" >> {
       val sutOpt = Category("sample0", Set("1"),
@@ -198,7 +201,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       val parsed = category"""(
         {1, 2},
         {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, 
-        {2_1 ∘ 2 = 2_1, 2_a ∘ 2_a = 2_a, 2 ∘ 2_a = 2_a, 2_1 ∘ 2_a = 2_1, 2_a ∘ 2 = 2_a, 2 ∘ 2 = 2, 1 ∘ 1 = 1, 1 ∘ 2_1 = 2_1}
+        {2_1 ∘ 2 = 2_1, 2_a ∘ 2_a = 2_a, 2 ∘ 2_a = 2_a, 2_1 ∘ 2_a = 2_1,
+         2_a ∘ 2 = 2_a, 2 ∘ 2 = 2, 1 ∘ 1 = 1, 1 ∘ 2_1 = 2_1}
       )"""
       parsed.objects.size === 2
     }
@@ -228,8 +232,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
         Map(("0_1", "a") -> "0_2",
-          ("2_1", "a") -> "2_a",
-          ("2_a", "2_a") -> "2_a"
+            ("2_1", "a") -> "2_a",
+            ("2_a", "2_a") -> "2_a"
         ),
         defineComposition
       )
@@ -241,8 +245,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
         Map(("0_1", "a") -> "0_2",
-          ("2_1", "a") -> "2_a",
-          ("2_a", "2_a") -> "2_a"
+            ("2_1", "a") -> "2_a",
+            ("2_a", "2_a") -> "2_a"
         ),
         defineComposition
       )
@@ -316,24 +320,24 @@ class CategoryConstructionTest extends Test with CategoryFactory:
   }
 
   private[cat] def transitiveClosure(
-    data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData = {
-    try {
+    data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData =
+    
+    try
       val stringified = data.toString
-    } catch {
+    catch
       case iae: IllegalArgumentException =>
         throw new IllegalArgumentException("Very bad data", iae)
-    }
-    val missing = try {
+
+    val missing = try
       data.missingCompositions
-    } catch {
+    catch
       case x: Exception =>
         throw new IllegalArgumentException(s"Faled on $data", x)
-    }
-    if (missing.isEmpty) data else {
+
+    if missing.isEmpty then data else
       val newData: PartialData = appendArrows(data, missing)
       transitiveClosure(newData, missing.size)
-    }
-  }
+
 
   private def appendArrows(data: PartialData, missing: Iterable[(data.Arrow, data.Arrow)]) =
     val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] = data.nonexistentCompositions.toSet
@@ -352,7 +356,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       override def newComposition(f: Any, g: Any): Option[Arrow] =
         data.newComposition(f, g).asInstanceOf[Option[Arrow]]
 
-      override val compositionSource: CompositionTable = data.composition.asInstanceOf[CompositionTable]
+      override val compositionSource = data.composition.asInstanceOf[CompositionTable]
     (newData.validateGraph returning newData).orCommentTheError(s"Failed on $newData").iHope
 
   "Parser, regression test of 6/18/21" should {
@@ -385,20 +389,20 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       val category = parser.buildCategory(graph, Map.empty)
       category.isGood === true
 
-      //      val parsed = (new CategoryParser).readCategory(source)
       val parsed = parser.parseAll(parser.category, source)
-      parsed match {
+      parsed match
         case parser.Success(res, _) => if res.errorDetails.nonEmpty then
           val p = Categories.read(source).iHope
           res.errorDetails === None
 
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
-      }
+
       ok
     }
 
     "Parse AAAAAA" in  {
-      val source = "AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
+      val source =
+        "AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
       val graph = Graph.read(source)
       graph.isGood === true
       val parser = new CategoryParser
@@ -407,14 +411,10 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
       val missingCompositions: List[(Any, Any)] = data.missingCompositions.toList
 
-      val missing = try {
+      val missing = try
         data.missingCompositions
-      } catch {
-        case x: Exception =>
-          throw new IllegalArgumentException(s"Faled on $data", x)
-      }
-
-      
+      catch case x: Exception =>
+        throw new IllegalArgumentException(s"Faled on $data", x)
       
       val closure = CategoryData.transitiveClosure(data)
 
@@ -422,11 +422,9 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
       raw1.isGood === true
 
-//      val raw1Factory = raw1 iHope
-//      
       val raw2 = Result.forValue {
-  CategoryData.transitiveClosure(data).factory map { validData => validData.newCategory }
-}.flatten
+        CategoryData.transitiveClosure(data).factory map { validData => validData.newCategory }
+      }.flatten
       
       raw2.isGood === true
       
@@ -437,14 +435,13 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       category.isGood === true
 
       val parsed = parser.parseAll(parser.category, source)
-      parsed match {
-        case parser.Success(res, _) => if (res.errorDetails.nonEmpty) {
+      parsed match
+        case parser.Success(res, _) => if res.errorDetails.nonEmpty then
           val p = Categories.read(source).iHope
-        }
           res.errorDetails === None
 
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
-      }
+
       ok
     }
   }

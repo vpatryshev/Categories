@@ -8,6 +8,7 @@ import scalakittens.Result._
 import scalakittens.{Good, Result}
 
 import scala.language.{implicitConversions, postfixOps}
+import SetFunction.fun
 
 /**
   * Category where objects are sets

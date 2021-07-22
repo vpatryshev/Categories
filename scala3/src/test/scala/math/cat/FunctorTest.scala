@@ -8,6 +8,7 @@ import org.specs2.matcher.MatchResult
 import scalakittens.Good
 
 import scala.language.postfixOps
+import SetFunction.fun
 
 class FunctorTest extends Test:
   type SUT = Functor
@@ -235,8 +236,8 @@ class FunctorTest extends Test:
       val a: set = Set(1, 2, 3)
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
-      val ac = SetFunction.build("f", a, c, _.toString.toInt % 2) iHope
-      val bc = SetFunction.build("g", b, c, x => (x.toString.toInt + 1) % 2) iHope
+      val ac = fun(a,c)("f", _.toInt % 2)
+      val bc = fun(b,c)("g", x => (x.toInt + 1) % 2)
       val sutOpt = Functor(
         "pullback", Pullback, SetCategory.Setf)(
         Map("a" -> a, "b" -> b, "c" -> c),

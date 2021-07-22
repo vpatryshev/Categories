@@ -6,23 +6,24 @@ import scalakittens.{Good, Result}
 
 import scala.language.reflectiveCalls
 
-class TopologyTest extends Fixtures {
+class TopologyTest extends Fixtures:
   
-  def topologiesTested(cat: Cat): List[Result[LawvereTopology]] = {
+  def topologiesTested(cat: Cat): List[Result[LawvereTopology]] =
     val topos = new CategoryOfDiagrams(cat)
     import topos._
     val subs: List[Diagram] = Ω.subobjects.toList
 
-    val inclusionsToΩ = subs map (inclusionOf(_)  in Ω) collect { case Good(incl) => incl }
+    val inclusionsToΩ =
+      subs map (inclusionOf(_)  in Ω) collect { case Good(incl) => incl }
 
     val builder = LawvereTopology.forPredicate(topos)
 
     val predicates = inclusionsToΩ map predicateForArrowToΩ
 
     predicates map builder
-  }
   
-  def topologies(cat: Cat): List[LawvereTopology] = topologiesTested(cat) collect { case Good(topo) => topo}
+  def topologies(cat: Cat): List[LawvereTopology] =
+    topologiesTested(cat) collect { case Good(topo) => topo}
   
   "Topologies" should {
     "exist for _0_" in {
@@ -69,4 +70,3 @@ class TopologyTest extends Fixtures {
     }
 
   }
-}

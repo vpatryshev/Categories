@@ -11,7 +11,7 @@ import scalakittens.Result._
 
 import scala.language.postfixOps
 
-class GrothendieckToposTest extends Fixtures {
+class GrothendieckToposTest extends Fixtures:
 
   "Subobject classifier" should {
     "exist for _0_" in {
@@ -55,10 +55,11 @@ class GrothendieckToposTest extends Fixtures {
       omega0.size === 4
       val omega1 = Ω("1")
       omega1.size === 3
-      points.map(_.toShortString) === "p0(0->(), 1->(), 2->())"::
-                                      "p1(0->(2->{0.2}), 1->(2->{1.2}), 2->(2->{2.2}))"::
-                                      "p2(0->(1->{0.1}, 2->{0.2}), 1->(1->{1.1}, 2->{1.2}), 2->(2->{2.2}))"::
-                                      "p3(0->(0->{0.0}, 1->{0.1}, 2->{0.2}), 1->(1->{1.1}, 2->{1.2}), 2->(2->{2.2}))"::Nil
+      points.map(_.toShortString) ===
+        "p0(0->(), 1->(), 2->())"::
+        "p1(0->(2->{0.2}), 1->(2->{1.2}), 2->(2->{2.2}))"::
+        "p2(0->(1->{0.1}, 2->{0.2}), 1->(1->{1.1}, 2->{1.2}), 2->(2->{2.2}))"::
+        "p3(0->(0->{0.0}, 1->{0.1}, 2->{0.2}), 1->(1->{1.1}, 2->{1.2}), 2->(2->{2.2}))"::Nil
     }
 
     "exist for ParallelPair" in {
@@ -121,4 +122,4 @@ class GrothendieckToposTest extends Fixtures {
       short(χ11(3)) === "Diagram[ParallelPair]()"
     }
   }
-}
+

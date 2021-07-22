@@ -4,6 +4,7 @@ import math.Test
 import math.cat.Categories._
 import math.cat.SetCategory.Setf
 import math.cat.{Category, Functor, SetFunction}
+import SetFunction.fun
 import math.sets.Sets
 import math.sets.Sets.set
 import scalakittens.{Good, Result}
@@ -11,7 +12,7 @@ import scalakittens.{Good, Result}
 /**
   * Test for individual diagrams (functors with codomain=sets)
   */
-class DiagramTest extends Test with TestDiagrams {
+class DiagramTest extends Test with TestDiagrams:
   type SUT = Diagram
 
   "Diagram" should {
@@ -19,10 +20,9 @@ class DiagramTest extends Test with TestDiagrams {
     "validate as a functor with Set as domain" in {
 
       checkOpt[Functor](BuildPullbackDiagram.asFunctor,
-        sut => {
+        sut =>
           sut.d0 === Pullback
           sut.d1 === Setf
-        }
       )
     }
 
@@ -33,10 +33,12 @@ class DiagramTest extends Test with TestDiagrams {
       sut1.objectsMapping(sut1.d0.obj("b")) === BuildPullbackDiagram.sb
 
       val diagram: Diagram =
-        new Diagram("Test", topos) {
+        new Diagram("Test", topos):
+          
           override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(BuildPullbackDiagram.om(x.toString))
+          
           override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = d1.arrow(BuildPullbackDiagram.am(a.toString))
-        }
+
       val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
     }
@@ -51,8 +53,8 @@ class DiagramTest extends Test with TestDiagrams {
       val a: set = Set(1, 2, 3, 4, 5)
       val b: set = Set(0, 1, 2)
 
-      val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
-      val g = SetFunction.build("g", b, b, x => x.toString.toInt % 3).iHope
+      val f = fun(a,b)("f", x => Math.min(2, x.toString.toInt))
+      val g = fun(b,b)("g", x => x.toString.toInt % 3)
       val topos = new CategoryOfDiagrams(ParallelPair)
       expectError(_ matches 
       raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"
@@ -197,10 +199,10 @@ class DiagramTest extends Test with TestDiagrams {
         val c: set = Set(0, 1, 2, 3, 4, 5)
         val d: set = Set(0, 1, 2)
         val e: set = Set(1, 2, 3, 4)
-        val ab = SetFunction.build("ab", a, b, _.toString.toInt + 1).iHope
-        val cb = SetFunction.build("cb", c, b, x => Math.max(2, Math.min(4, x.toString.toInt))).iHope
-        val cd = SetFunction.build("cd", c, d, _.toString.toInt % 3).iHope
-        val ed = SetFunction.build("ed", e, d, x => (x.toString.toInt + 1) % 2).iHope
+        val ab = fun(a,b)("ab", _.toInt + 1)
+        val cb = fun(c,b)("cb", x => Math.max(2, Math.min(4, x.toInt)))
+        val cd = fun(c,d)("cd", _.toInt % 3)
+        val ed = fun(e,d)("ed", x => (x.toInt + 1) % 2)
         val sutOpt = Diagram.tryBuild(topos)(
           "W",
           Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
@@ -278,8 +280,8 @@ class DiagramTest extends Test with TestDiagrams {
       val a: set = Set(1, 2, 3)
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
-      val ab = SetFunction.build("f", a, b, _.toString.toInt + 1).iHope
-      val ac = SetFunction.build("g", a, c, _.toString.toInt % 2).iHope
+      val ab = fun(a,b)("f", _.toInt + 1)
+      val ac = fun(a,c)("g", _.toInt % 2)
       val sutOpt: Result[SUT] = Diagram.tryBuild(topos)(
         "pushout",
         Map("a" -> a, "b" -> b, "c" -> c),
@@ -318,8 +320,8 @@ class DiagramTest extends Test with TestDiagrams {
       val topos = new CategoryOfDiagrams(ParallelPair)
       val a: set = Set(1, 2, 3, 4)
       val b: set = Set(0, 1, 2)
-      val f = SetFunction.build("f", a, b, x => Math.min(2, x.toString.toInt)).iHope
-      val g = SetFunction.build("g", a, b, x => x.toString.toInt % 3).iHope
+      val f = fun(a,b)("f", x => Math.min(2, x.toInt))
+      val g = fun(a,b)("g", x => x.toInt % 3)
       val sutOpt: Result[Diagram] = Diagram.tryBuild(topos)(
         "coEq",
         Map("0" -> a, "1" -> b),
@@ -385,5 +387,3 @@ class DiagramTest extends Test with TestDiagrams {
     }
 
   }
-
-}

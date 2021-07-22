@@ -8,6 +8,7 @@ import org.specs2.mutable._
 import scalakittens.{Good, Result}
 
 import scala.language.postfixOps
+import SetFunction.fun
 
 /**
   * Set Category tests
@@ -26,16 +27,15 @@ class SetCategoryTest extends Specification:
   "SetCategory" should {
     "buildGraph" in {
       val sets = BigSet(Set(s1, s2))
-      val arrow = SetFunction.build("sample", s1, s2, _.asInstanceOf[Int] / 7) iHope
+      val arrow = fun(s1,s2)("sample", _.toInt / 7)
       val theGraph = graphOfSets(sets)
       theGraph.nodes === sets
       theGraph.arrows.contains(theGraph.arrow(arrow)) === true
     }
 
     "produce no coequalizer if category is too small" in {
-      val f = SetFunction.build("f", s1, s2, _ => 3) iHope
-      
-      val g = SetFunction.build("g", s1, s2, _ => 5) iHope
+      val f = fun(s1,s2)("f", _ => 3)
+      val g = fun(s1, s2)("g", _ => 5)
       
       new SetCategory(BigSet(Set(s1, s2, s3))).coequalizer(f, g).isBad === true
       
@@ -53,8 +53,8 @@ class SetCategoryTest extends Specification:
 
 
     "produce coequalizer of two" in {
-      val f = SetFunction.build("f", s1, s2, _ => 3) iHope
-      val g = SetFunction.build("g", s1, s2, _ => 5) iHope
+      val f = fun(s1,s2)("f", _ => 3)
+      val g = fun(s1,s2)("g", _ => 5)
       val actual = Setf.coequalizer(f, g)
       val expectedSet: set = Set(Set(0), Set(1), Set(2), Set(3, 5), Set(4), Set(6))
 
@@ -69,9 +69,9 @@ class SetCategoryTest extends Specification:
     }
 
     "produce coequalizer of n" in {
-      val f = SetFunction.build("f", s1, s2, _ => 3).iHope
-      val g = SetFunction.build("g", s1, s2, _ => 5).iHope
-      val h = SetFunction.build("h", s1, s2, _ => 1).iHope
+      val f = fun(s1,s2)("f", _ => 3)
+      val g = fun(s1,s2)("g", _ => 5)
+      val h = fun(s1,s2)("h", _ => 1)
       val actual = Setf.coequalizer(f :: g :: h :: Nil)
       val expectedSet: set = Set(Set(0), Set(2), Set(1, 3, 5), Set(4), Set(6))
 
@@ -141,19 +141,19 @@ class SetCategoryTest extends Specification:
 
     "produce no equalizer if it's not in the category" in {
       // the category of even-sized sets
-      val f = SetFunction.build("f", s2, s4, 
-        n => if n.toString.toInt < 3 then "hello" else "goodbye")iHope
-      val g = SetFunction.build("g", s2, s4,
-        n => if n.toString.toInt < 1 then "hello" else "goodbye")iHope
+      val f = fun(s2, s4)("f", 
+        n => if n.toInt < 3 then "hello" else "goodbye")
+      val g = fun(s2, s4)("g",
+        n => if n.toInt < 1 then "hello" else "goodbye")
       val eq = evenSets.equalizer(f, g)
       eq.isBad === true
     }
 
     "produce an empty equalizer if it exists" in {
-      val f = SetFunction.build("f", s2, s4,
-        n => if n.toString.toInt < 3 then "hello" else "goodbye").iHope
-      val g = SetFunction.build("g", s2, s4,
-        n => if n.toString.toInt < 4 then "cruel" else "world").iHope
+      val f = fun(s2, s4)("f",
+        n => if n.toInt < 3 then "hello" else "goodbye")
+      val g = fun(s2, s4)("g",
+        n => if n.toInt < 4 then "cruel" else "world")
       
       evenSets.equalizer(f, g) match
         case Good(inclusion) =>
@@ -167,10 +167,10 @@ class SetCategoryTest extends Specification:
     "produce an equalizer" in {
       // the category of even-sized sets
       val sut = Setf
-      val f = SetFunction.build("f", s2, s4,
-        n => if n.toString.toInt < 3 then "hello" else "goodbye").iHope
-      val g = SetFunction.build("g", s2, s4,
-        n => if n.toString.toInt < 1 then "cruel" else if n.toString.toInt < 5 then "hello" else "goodbye").iHope
+      val f = fun(s2, s4)("f",
+        n => if n.toInt < 3 then "hello" else "goodbye")
+      val g = fun(s2, s4)("g",
+        n => if n.toInt < 1 then "cruel" else if n.toInt < 5 then "hello" else "goodbye")
       sut.equalizer(f, g) match {
         case Good(eq) =>
           eq.d0 === Set(1, 2, 5, 6)
@@ -195,25 +195,25 @@ class SetCategoryTest extends Specification:
     }
 
     "check for epi" in {
-      val sut1 = SetFunction.build("inclusion", s3, s4, x => x).iHope
+      val sut1 = fun(s3, s4)("inclusion", x => x)
       Setf.isEpimorphism(sut1) === false
-      val sut2 = SetFunction.build("covering", s4, s3,
+      val sut2 = fun(s4, s3)("covering",
         {
           case "goodbye" => "hello"
           case x => x
-        }).iHope
+        })
       Setf.isEpimorphism(sut2) === true
       Setf.isEpimorphism(Setf.id(s4)) === true
     }
 
     "check for mono" in {
-      val sut1 = SetFunction.build("inclusion", s3, s4, x => x).iHope
+      val sut1 = fun(s3, s4)("inclusion", x => x)
       Setf.isMonomorphism(sut1) === true
-      val sut2 = SetFunction.build("covering", s4, s3,
+      val sut2 = fun(s4, s3)("covering",
         {
           case "goodbye" => "hello"
           case x => x
-        }).iHope
+        })
       Setf.isMonomorphism(sut2) === false
       Setf.isMonomorphism(Setf.id(s4)) === true
     }
@@ -267,8 +267,8 @@ class SetCategoryTest extends Specification:
       val a: set = Set(1, 2, 3)
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
-      val f = SetFunction.build("f", a, c, _.toString.toInt % 2).iHope
-      val g = SetFunction.build("g", b, c, x => (x.toString.toInt + 1) % 2).iHope
+      val f = fun(a,c)("f", _.toInt % 2)
+      val g = fun(b,c)("g", x => (x.toInt + 1) % 2)
 
       Setf.pullback(f, g) match
         case Good((p1, p2)) =>
@@ -287,8 +287,8 @@ class SetCategoryTest extends Specification:
       val a: set = Set(1, 2, 3)
       val b: set = Set(2, 3, 4)
       val c: set = Set(0, 1)
-      val f = SetFunction.build("f", c, a, _.toString.toInt + 1).iHope
-      val g = SetFunction.build("g", c, b, x => x.toString.toInt + 2).iHope
+      val f = fun(c,a)("f", _.toInt + 1)
+      val g = fun(c,b)("g", _.toInt + 2)
 
       val actual = Setf.pushout(f, g)
       actual match
@@ -330,14 +330,14 @@ class SetCategoryTest extends Specification:
     }
     
     "have an inverse" in {
-      val f = SetFunction.build("f", s2, s2, n => (n.toString.toInt + 1) % 7).iHope
-      val g = SetFunction.build("f", s2, s2, n => (n.toString.toInt + 6) % 7).iHope
+      val f = fun(s2,s2)("f", n => (n.toInt + 1) % 7)
+      val g = fun(s2,s2)("f", n => (n.toInt + 6) % 7)
       val actual = Setf.inverse(f)
       actual === Good(g)
     }
 
     "not have an inverse" in {
-      val f = SetFunction.build("f", s2, s4, n => if (n.toString.toInt < 3) "hello" else "goodbye").iHope
+      val f = fun(s2,s4)("f", n => if (n.toInt < 3) "hello" else "goodbye")
       val actual = Setf.inverse(f)
       actual.isBad must beTrue
     }

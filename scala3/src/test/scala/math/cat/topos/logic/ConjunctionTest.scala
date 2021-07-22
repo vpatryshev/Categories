@@ -3,6 +3,7 @@ package math.cat.topos.logic
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos, Point}
 import math.cat.{Category, SetFunction}
+import SetFunction.fun
 import org.specs2.matcher.MatchResult
 import org.specs2.matcher.ShouldMatchers.thisValue
 import scalakittens.Result._
@@ -45,7 +46,7 @@ class ConjunctionTest extends Fixtures {
       val desc = s"Testing True value over ${domain.name}"
 
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction = {
-        SetFunction.build(s"Δ[$x]", Ω(x), ΩxΩ(x), (subrep: Any) => (subrep, subrep)).iHope
+        fun(Ω(x), ΩxΩ(x))(s"Δ[$x]", subrep => (subrep, subrep))
       }
 
       val conjunction = Ω.conjunction
