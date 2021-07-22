@@ -53,8 +53,6 @@ class CategoryOfDiagrams(val domain: Category)
   
   val base: Category = BaseCategory
 
-  def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
-
   def objectNamed(name: String): domain.Obj = domain.obj(name)
 
   def pow(d: Diagram): Diagram = ??? // power object; tbd

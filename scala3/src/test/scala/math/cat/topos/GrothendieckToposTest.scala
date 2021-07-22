@@ -10,6 +10,7 @@ import org.specs2.matcher.MatchResult
 import scalakittens.Result._
 
 import scala.language.postfixOps
+import SetFunction._
 
 class GrothendieckToposTest extends Fixtures:
 
@@ -109,14 +110,14 @@ class GrothendieckToposTest extends Fixtures:
       println(topos.Ω.toShortString)
       val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1 iHope
       val χ1: DiagramArrow = topos.χ(i1)
-      val χ10: SetFunction = topos.asFunction(χ1("0"))
+      val χ10: SetFunction = asFunction(χ1("0"))
       def short(x: Any) = x.asInstanceOf[Diagram].toShortString
       short(χ10(1)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
       short(χ10(2)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
       short(χ10(3)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
       short(χ10(4)) === "Diagram[ParallelPair](1->{a,b})"
       short(χ10(5)) === "Diagram[ParallelPair](1->{a,b})"
-      val χ11 = topos.asFunction(χ1("1"))
+      val χ11 = asFunction(χ1("1"))
       short(χ11(1)) === "Diagram[ParallelPair](1->{1})"
       short(χ11(2)) === "Diagram[ParallelPair](1->{1})"
       short(χ11(3)) === "Diagram[ParallelPair]()"
