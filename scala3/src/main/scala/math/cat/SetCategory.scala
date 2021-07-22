@@ -8,11 +8,12 @@ import scalakittens.Result._
 import scalakittens.{Good, Result}
 
 import scala.language.{implicitConversions, postfixOps}
+import SetFunction.fun
 
 /**
   * Category where objects are sets
   */
-class SetCategory(objects: BigSet[set]) extends Category("Sets"):
+class SetCategory(objects: Set[set]) extends Category("Sets"):
 
   /**
     * Inner graph of this category of sets
@@ -260,7 +261,7 @@ class SetCategory(objects: BigSet[set]) extends Category("Sets"):
 
 object SetCategory {
 
-  private[cat] def graphOfSets(nodes0: BigSet[set]): Graph = {
+  private[cat] def graphOfSets(nodes0: Set[set]): Graph = {
     Graph.build[set, SetFunction](
       "Sets",
       nodes0,

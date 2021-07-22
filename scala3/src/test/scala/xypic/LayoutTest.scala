@@ -12,7 +12,7 @@ import scala.language.postfixOps
 /**
   * Tests for Layout class
   */
-class LayoutTest extends Specification {
+class LayoutTest extends Specification:
   "Layout" >> {
 
     "special cases of graded" >> {
@@ -55,17 +55,16 @@ class LayoutTest extends Specification {
       def gradedObjectsOf(c: Category): Set[GradedObjects] =
         Layout(c, 300, 300).gradedObjects
       
-      val actualLayersOfClusters: Map[String, List[List[Set[String]]]] = {
-        val lol: List[(String, List[List[Set[String]]])] = (for {
+      val actualLayersOfClusters: Map[String, List[List[Set[String]]]] =
+        val lol: List[(String, List[List[Set[String]]])] = (for
           c: Category <- KnownFiniteCategories
           ls = gradedObjectsOf(c)
           l: GradedObjects <- ls
           name: String = if (ls.size == 1) c.name else l.category.name
-        } yield {
+        yield
           name -> l.nameObjectsInLayers
-        })
+        )
         lol.toMap
-      }
 
       val missing = (expectedLayersOfClusters.keySet diff actualLayersOfClusters.keySet).toList
       missing === Nil
@@ -75,28 +74,27 @@ class LayoutTest extends Specification {
       
       expectedLayersOfClusters.keySet === actualLayersOfClusters.keySet
 
-      for {
+      for
         name <- actualLayersOfClusters.keySet
-      } actualLayersOfClusters(name) === expectedLayersOfClusters(name)
+      do 
+        actualLayersOfClusters(name) === expectedLayersOfClusters(name)
 
       actualLayersOfClusters === expectedLayersOfClusters
 
-      val actualLayers: Map[String, List[Set[String]]] = (for {
+      val actualLayers: Map[String, List[Set[String]]] = (for
         c <- KnownFiniteCategories
         ls = Layout(c, 300, 300).gradedObjects
         l <- ls
-      } yield {
+      yield
         val name = if (ls.size == 1) c.name else l.category.name
         name -> l.layers.map(_.map(_.toString))
-      }) toMap
+      ) toMap
 
-      for {
+      for
         name <- expectedLayers.keySet
-      } actualLayers(name) === expectedLayers(name)
+      do actualLayers(name) === expectedLayers(name)
       
       actualLayers === expectedLayers
     }
 
   }
-
-}

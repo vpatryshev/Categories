@@ -6,7 +6,7 @@ import math.sets.{N, Sets}
 import org.specs2.mutable._
 import scalakittens._
 
-class SetMorphismTest extends Specification {
+class SetMorphismTest extends Specification:
   val ints: Set[BigInt] = Set(1, 2, 3, 5, 8, 13)
   val strings = Set("even", "odd", "totally crazy")
 
@@ -53,7 +53,7 @@ class SetMorphismTest extends Specification {
     val sut1 = SetMorphism.build(testSetX, testSetZ, (n: Int) => "#" + n).iHope
     val sut2 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
                            Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5")).iHope
-    (sut1 == sut2) must beTrue
+    sut1 === sut2
     val sut3 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
                            Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#3")).iHope
     (sut1 != sut3) must beTrue
@@ -70,17 +70,20 @@ class SetMorphismTest extends Specification {
 
   "Revert" >> {
     val sut1 = SetMorphism.build(Set("abc", "x", "def"), testSetX, (s:String) => s.length).iHope
-    val sut2 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set(Set("abc", "def"), Set("x"), Set()),
-                           Map(1 -> Set("x"), 2 -> Set(), 3 -> Set("abc", "def"), 4 -> Set(), 5 -> Set())).iHope
-    (sut2 == sut1.revert) must beTrue
+    val sut2 = SetMorphism.build(
+      Set(5, 4, 3, 2, 1),
+      Set(Set("abc", "def"), Set("x"), Set()),
+      Map(1 -> Set("x"), 2 -> Set(), 3 -> Set("abc", "def"), 4 -> Set(), 5 -> Set())).iHope
+    
+    sut2 === sut1.revert
   }
 
   "id" >> {
     val s = Set(1, "haha", 2.71828)
     val sut = SetMorphism.id(s)
-    (Set(2.71828, 1, "haha") == sut.d0) must beTrue
-    (Set(2.71828, 1, "haha") == sut.d1) must beTrue
-    ("haha" == sut("haha")) must beTrue
+    Set(2.71828, 1, "haha") === sut.d0
+    Set(2.71828, 1, "haha") === sut.d1
+    sut("haha") === "haha"
   }
 
   "Const" >> {
@@ -88,9 +91,9 @@ class SetMorphismTest extends Specification {
     val ints = Set(1, 2, 3)
     val two:Int = 2
     val sut = SetMorphism.const(strings, ints, two)
-    (strings == sut.d0) must beTrue
-    (ints == sut.d1) must beTrue
-    (2 == sut("a")) must beTrue
+    sut.d0 === strings
+    sut.d1 === ints
+    sut("a") === 2
   }
 
   "Hom" >> {
@@ -105,13 +108,13 @@ class SetMorphismTest extends Specification {
   "Variance_byX" >> {
     val x = setOf(testSetX, testSetX.size, testSetX.contains _)
     val sut = SetMorphism.build(x, testSetZ, (n: Int) => "#" + n).iHope
-    ("#3" == sut(3)) must beTrue
+    sut(3) === "#3"
   }
 
   "Variance_byY" >> {
     val y = setOf(testSetZ, testSetZ.size, testSetZ.contains _)
     val sut = SetMorphism.build(testSetX, y, (n: Int) => "#" + n).iHope
-    ("#3" == sut(3)) must beTrue
+    sut(3) === "#3"
   }
 
   "Product" >> {
@@ -135,35 +138,36 @@ class SetMorphismTest extends Specification {
     val g = SetMorphism.build("g", ys, N, (y:BigInt) => y/5).iHope
     val (left, right) = SetMorphism.pullback(f, g)
     val pullbackSet = Set[(BigInt,BigInt)]((1,2),(1,4),(2,6),(2,8),(3,6),(3,8),(4,10),(5,10))
-    for (p <- pullbackSet) {
-      (p._1 == left(p)) must beTrue
-      (p._2 == right(p)) must beTrue
-    }
+    for p <- pullbackSet do
+      left(p) === p._1
+      right(p) === p._2
+
     ok
   }
   
   "Good inclusion" >> {
     val xs = Set[BigInt](1,2,3,4,5)
     val ys = Set[BigInt](0,1,2,3,4,5,6)
-    inclusion[BigInt](xs, ys) match {
+
+    inclusion[BigInt](xs, ys) match
       case Good(sm) =>
         sm.d0 === xs
         sm.d1 === ys
-        for {
+        for
           i <- xs
-        } sm(i) === i
+        do sm(i) === i
+
       case nogood => failure(nogood.toString)
-    }
     ok
   }
 
   "Bad inclusion" >> {
     val xs = Set[BigInt](1,2,3,4,5)
     val ys = Set[BigInt](0,1,2,3,4,5,6)
-    inclusion[BigInt](ys, xs) match {
+    inclusion[BigInt](ys, xs) match
       case Good(sm) => failure("Could not detect an error in bad inclusion")
       case nogood => ok
-    }
+
     ok
   }
 
@@ -182,12 +186,11 @@ class SetMorphismTest extends Specification {
     product.tag === "f×g"
     product.d0 === expected_d0
     product.d1 === expected_d1
-    for {
+
+    for
       (x, y) <- expected_d0
-    } product((x, y)) === (x.toUpperCase, y.toLowerCase)
+    do
+      product((x, y)) === (x.toUpperCase, y.toLowerCase)
+
     ok
   }
-
-
-
-}

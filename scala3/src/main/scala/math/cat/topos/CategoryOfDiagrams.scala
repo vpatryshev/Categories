@@ -43,7 +43,8 @@ class CategoryOfDiagrams(val domain: Category)
       am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))
       om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-        diagram: Diagram <- Result.forValue(Diagram(topos)("__" + i, om, am.toMap)).asOption
+//        diagram: Diagram <- Result.forValue(Diagram(topos)("__" + i, om, am.toMap)).asOption
+      diagram: Diagram <- Diagram.tryBuild(topos)("__" + i, om, am.toMap).asOption
     yield diagram
 
     all

@@ -7,22 +7,21 @@ import math.cat.SetFunction
 import math.sets.Sets.set
 import scalakittens.Good
 
-class CategoryOfDiagramsTest extends Test with TestDiagrams {
+class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   type SUT = Diagram
 
   def representable(topos: CategoryOfDiagrams): topos.domain.Obj => topos.Representable =
     (obj: topos.domain.Obj) => topos.Representable(obj)
 
-  def checkConstSize(topos: CategoryOfDiagrams)(obj: topos.Obj, expected: Int): Unit = {
-    for {
+  def checkConstSize(topos: CategoryOfDiagrams)(obj: topos.Obj, expected: Int): Unit =
+    for
       x <- topos.domain.objects
-    } {
+    do
       val setAtx: Set[_] = obj apply x
       setAtx.size === expected
-    }
-  }
 
+  
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
       def |(x: String): diagramTable = diagramTable(x::data)
@@ -397,4 +396,3 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams {
       ok
     }
   }
-}

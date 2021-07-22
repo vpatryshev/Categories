@@ -6,7 +6,7 @@ import scalakittens.Good
 
 import scala.language.postfixOps
 
-class GraphTest extends Test {
+class GraphTest extends Test:
   import Graph._
   
   type SUT = Graph
@@ -36,12 +36,12 @@ class GraphTest extends Test {
     }
 
     "same domain" >> {
-      expect(sut => {
+      expect(sut =>
         import sut._
         sut.sameDomain(11 asArrow, 113 asArrow) === true
         sut.sameDomain(13 asArrow, 113 asArrow) === true
         sut.sameDomain(21 asArrow, 32 asArrow) === false
-      })(Graph.build(
+      )(Graph.build(
         "g",
         Set(1, 2, 3),
         Set(11, 111, 21, 32, 13, 113), (x: Int) => x / 10 % 10, (x: Int) => x % 10)
@@ -49,12 +49,12 @@ class GraphTest extends Test {
     }
 
     "same codomain" >> {
-      expect(sut => {
+      expect(sut =>
         import sut._
         sut.sameCodomain(13 asArrow, 113 asArrow) === true
         sut.sameCodomain(21 asArrow, 111 asArrow) === true
         sut.sameCodomain(21 asArrow, 32 asArrow) === false
-      })(
+      )(
         Graph.build(
           "g",
           Set(1, 2, 3),
@@ -140,7 +140,7 @@ class GraphTest extends Test {
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
       val sutOpt = Graph.fromArrowMap("sut", objects, map)
 
-      checkOpt(sutOpt, (sut: Graph) => {
+      checkOpt(sutOpt, (sut: Graph) =>
         import sut._
         sut.nodes === Set(3, 1, 2)
         sut.d0("2to1" asArrow) === 2
@@ -149,17 +149,17 @@ class GraphTest extends Test {
         sut.d1("1to3" asArrow) === 3
         sut.d0("3to2" asArrow) === 3
         sut.d1("3to2" asArrow) === 2
-      }); ok
+      ); ok
     }
 
     "Constructor_plain_withFunctions" >> {
-      expect(sut => {
+      expect(sut =>
         import sut._
         sut.d0(111 asArrow) === 1
         sut.d0(13 asArrow) === 1
         sut.d1(13 asArrow) === 3
         sut.d1(32 asArrow) === 2
-      })(
+      )(
         Graph.build(
           "sut",
           Set(1, 2, 3),
@@ -237,7 +237,7 @@ class GraphTest extends Test {
     }
     
     "subgraph" >> {
-      expect(sut => {
+      expect(sut =>
         import sut._
         val sub1 = sut.subgraph("0", Set.empty) iHope
         
@@ -255,7 +255,7 @@ class GraphTest extends Test {
           (x: Int) => x % 10)
         
         sub3 === expected
-      })(
+      )(
         Graph.build(
           "sut",
           Set(1, 2, 3),
@@ -336,4 +336,3 @@ class GraphTest extends Test {
     }
     
   }
-}

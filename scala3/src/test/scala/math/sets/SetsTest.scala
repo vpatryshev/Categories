@@ -143,11 +143,7 @@ class SetsTest extends TestBase:
       val sets = (1 to 5) map (n => setOf[Int]((10 * n) to (10 * n) + n))
       val expected = Set(10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41, 42, 43, 44, 50, 51, 52, 53, 54, 55)
       val actual = union(sets)
-      val eq1 = actual == expected
-      eq1 must beTrue
-      val eq2 = actual == expected
-      eq2 must beTrue
-      actual === expected // fails for some reason
+      actual === expected
     }
     
     "union of a finite with an infinite set" >> {
@@ -291,32 +287,32 @@ class SetsTest extends TestBase:
     }
 
     "Parse without closing curly should throw an exception" >> {
-      try {
+      try
         val x = Sets.parse("{a, b, c")
         failure("Should have thrown an exception")
-      } catch {
+      catch
         case e: Exception => // as designed
-      }
+
       ok
     }
 
     "Parse without opening curly should throw an exception" >> {
-      try {
+      try
         val x = Sets.parse("a, b, c}")
         failure("Should have thrown an exception")
-      } catch {
+      catch
         case e: Exception => // as designed
-      }
+
       ok
     }
 
     "Parse without nothing between commas should throw an exception" >> {
-      try {
+      try
         val x = Sets.parse("{a, b,, c}")
         failure("Should have thrown an exception")
-      } catch {
+      catch
         case e: Exception => // as designed
-      }
+
       ok
     }
 
@@ -404,8 +400,8 @@ class SetsTest extends TestBase:
     }
 
     "Finite Sets should not contain itself" >> {
-      // may not even compile, good (assertDoesNotCompile("..")
-      //      FiniteSets.contains(FiniteSets) must beFalse
+      // Will not even compile, which is good! good (assertDoesNotCompile("..")
+      // FiniteSets.contains(FiniteSets) must beFalse
       ok
     }
 

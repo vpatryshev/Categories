@@ -9,7 +9,7 @@ import scala.language.postfixOps
 /**
   * Tests for GraphMorphism class
   */
-class GraphMorphismTest extends Test {
+class GraphMorphismTest extends Test:
   "GraphMorphism" >> {
 
     "Constructor" >> {
@@ -21,12 +21,11 @@ class GraphMorphismTest extends Test {
       val graph2 =
         Graph.build("g2", objects, arrows2,
           (x: Int) => x / 10 % 10, (x: Int) => x % 10).iHope
-      val nm = SetMorphism.id(objects)
+      val nm = SetMorphism.id(objects).asInstanceOf[graph1.Node => graph2.Node]
       val am =
-        SetMorphism.build(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13)).iHope
-      val sut = GraphMorphism("test", graph1, graph2)(
-        nm.asInstanceOf[graph1.Node => graph2.Node],
-        am.asInstanceOf[graph1.Arrow => graph2.Arrow])
+        SetMorphism.build(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13)).iHope.asInstanceOf[graph1.Arrow => graph2.Arrow]
+
+      val sut = GraphMorphism("test", graph1, graph2)(nm, am)
       sut.nodesMapping(sut.d0.node(3)) === 3
       sut.arrowsMapping(sut.d0.arrow("1b")) === 111
       sut.d0 === graph1
@@ -109,4 +108,3 @@ class GraphMorphismTest extends Test {
 
   }
 
-}

@@ -7,7 +7,7 @@ import scalakittens.Good
 /**
  * Test suite for PoSetMorphism class
  */
-class PoSetMorphismTest extends Specification {
+class PoSetMorphismTest extends Specification:
   private val intComparator = (x:Int, y:Int) => x <= y
   private val stringComparator = (x:String, y:String) => x <= y
 
@@ -16,13 +16,14 @@ class PoSetMorphismTest extends Specification {
     "Constructor" >> {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5")
-      PoSetMorphism.build(x, y, (n: Int) => s"#$n") match {
+      
+      PoSetMorphism.build(x, y, (n: Int) => s"#$n") match
         case Good(sut) =>
           sut(3) === "#3"
           sut.d0 === x
           sut.d1 === y
         case nogood => failure(nogood.toString)
-      }
+
       ok
     }
 
@@ -30,10 +31,10 @@ class PoSetMorphismTest extends Specification {
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#5")
 
-      PoSetMorphism.build(x, y, (n: Int) => s"#$n") match {
+      PoSetMorphism.build(x, y, (n: Int) => s"#$n") match
         case Good(sut) => failure(s"expected an error, got $sut")
         case nogood => ok
-      }
+
       ok
     }
 
@@ -61,20 +62,20 @@ class PoSetMorphismTest extends Specification {
       val fOpt = PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(intComparator, 1, 2, 3, 4, 5), (n: Int) => n - 10)
       val gOpt = PoSetMorphism.build(PoSet(intComparator, 1, 2, 3, 4, 5), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + n)
       
-      fOpt andAlso gOpt match {
+      fOpt andAlso gOpt match
         case Good((f, g)) =>
           val h = f andThen g
           h === PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10)).asOption
         case none => failure(s"failed to compose: $none")
-      }
+
       ok
     }
 
     "id" >> {
       val s = PoSet(stringComparator, "1", "haha", "2.71828")
       val sut = PoSetMorphism.id(s)
-      (PoSet(stringComparator, "2.71828", "1", "haha") == sut.d0) must beTrue
-      (PoSet(stringComparator, "2.71828", "1", "haha") == sut.d1) must beTrue
+      sut.d0 === PoSet(stringComparator, "2.71828", "1", "haha")
+      sut.d1 === PoSet(stringComparator, "2.71828", "1", "haha")
       sut("haha") === "haha"
     }
 
@@ -94,4 +95,3 @@ class PoSetMorphismTest extends Specification {
       sut.le(5, 8) must beTrue
     }
   }
-}

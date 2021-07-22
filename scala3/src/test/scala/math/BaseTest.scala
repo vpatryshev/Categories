@@ -1,5 +1,6 @@
 package math
 
+import scala.language.postfixOps
 import math.Base._
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable._
@@ -16,17 +17,16 @@ class BaseTest extends TestBase:
 
       val actual = inverse(m)
 
-      def assertRightInverse[A, B](f: Map[A, B], g: Map[B, A]): MatchResult[Any] = {
-        for (a <- f.keys) {
+      def assertRightInverse[A, B](f: Map[A, B], g: Map[B, A]): MatchResult[Any] =
+        for (a <- f.keys) do
           f.get(a).flatMap(g.get) must beSome(a)
-        }
+
         ok
-      }
 
       assertRightInverse(m, actual)
       assertRightInverse(actual, m)
     }
-    
+      
     "inverse empty" in {
       val actual = inverse(Map.empty[String, Date])
       actual === Map.empty[Date, String]

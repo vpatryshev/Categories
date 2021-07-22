@@ -8,13 +8,13 @@ import scalakittens.Result._
 
 import scala.language.reflectiveCalls
 
-class DisjunctionTest extends Fixtures {
+class DisjunctionTest extends Fixtures:
 
   "Disjunction" should {
 
     "work for all known domains" in {
 
-      def check(cat: Category): MatchResult[Any] = {
+      def check(cat: Category): MatchResult[Any] =
         val topos = new CategoryOfDiagrams(cat)
         import topos._
         val desc = s"Testing disjunction over ${cat.name}"
@@ -28,17 +28,15 @@ class DisjunctionTest extends Fixtures {
           (p: Predicate, q: Predicate) => p ∨ q
         )
 
-        for { pt <- Ω.points } {
+        for pt <- Ω.points do
           rep(s"disjunction with False for ${pt.tag}")
           val p = pt.asPredicateIn(topos)
           (True ∨ p) === True
-        }
+
         ok
-      }
 
       categoriesToTest filter (_.isFinite) foreach check
 
       ok
     }
   }
-}

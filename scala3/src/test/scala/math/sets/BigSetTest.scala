@@ -12,7 +12,6 @@ class BigSetTest extends TestBase:
       sut.iterator.toList === "abc" :: "def" :: Nil
       sut.size === 2
       sut.toString === "Set(abc, def)"
-      sut.hashCode == 42
       BigSet(Set.empty[System]).isEmpty === true
     }
 
