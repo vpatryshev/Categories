@@ -55,7 +55,7 @@ object Base:
 
     val s1 = stringOf(first)
     val s2 = stringOf(second)
-    val insert = if (s1.length > 1 || s2.length > 1) s" $conn " else conn
+    val insert = if s1.length > 1 || s2.length > 1 then s" $conn " else conn
     s1 + insert + s2
 
   /**
@@ -81,7 +81,7 @@ object Base:
   def notNull[T](value: => T, explanation: String): T =
     Result.forValue(value).orCommentTheError(explanation) iHope
 
-  def plural(n: Int, w: String) = if (n == 1) s"1 $w" else s"$n ${w}s"
+  def plural(n: Int, w: String) = if n == 1 then s"1 $w" else s"$n ${w}s"
 
   def checkThat(cond: => Boolean) =
     try cond catch case x => false

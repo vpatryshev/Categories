@@ -86,7 +86,7 @@ class CategoryTest extends Test:
         val unknown = Simplicial3.d0("qq")
         failure("Should have failed")
       } catch {
-        case e: Exception => // as expected
+        case e: NoSuchElementException => // as expected
         case _: Throwable => failure("should have thrown a NoSuchElementException")
       }
       ok

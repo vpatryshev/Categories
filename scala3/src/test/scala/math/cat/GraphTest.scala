@@ -140,7 +140,7 @@ class GraphTest extends Test:
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
       val sutOpt = Graph.fromArrowMap("sut", objects, map)
 
-      checkOpt(sutOpt, (sut: Graph) =>
+      checkOption(sutOpt, (sut: Graph) =>
         import sut._
         sut.nodes === Set(3, 1, 2)
         sut.d0("2to1" asArrow) === 2

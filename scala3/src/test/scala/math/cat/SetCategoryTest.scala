@@ -337,7 +337,7 @@ class SetCategoryTest extends Specification:
     }
 
     "not have an inverse" in {
-      val f = fun(s2,s4)("f", n => if (n.toInt < 3) "hello" else "goodbye")
+      val f = fun(s2,s4)("f", n => if n.toInt < 3 then "hello" else "goodbye")
       val actual = Setf.inverse(f)
       actual.isBad must beTrue
     }

@@ -113,7 +113,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
         g <- arrows
         h = m(f, g)
       yield
-        if (follows(g, f)) then
+        if follows(g, f) then
           Result(h) flatMap { gf =>
             OKif(sameDomain(gf, f),
               s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
@@ -221,9 +221,9 @@ private[construction] class PartialData(override val graph: Graph)
         val (f, g, h) = t
         val gf = m((f, g))
         val hg = m((g, h))
-        if (m contains(gf, h)) && !(m contains(f, hg)) then
+        if m.contains(gf, h) && !m.contains(f, hg) then
           m + ((f, hg) -> m((gf, h)))
-        else if (m contains(f, hg)) && !(m contains(gf, h)) then
+        else if m.contains(f, hg) && !m.contains(gf, h) then
           m + ((gf, h) -> m((f, hg)))
         else
           m
@@ -316,7 +316,7 @@ object CategoryData:
 
   private def addIdentitiesToGraph(graph: Graph): Graph =
 
-    val nodesOpt: Option[Set[Any]] = if (graph.isFinite) Some(graph.nodes.toSet) else None
+    val nodesOpt: Option[Set[Any]] = if graph.isFinite then Some(graph.nodes.toSet) else None
 
     def isIdentity(f: Any): Boolean = nodesOpt map (_ contains f) getOrElse (graph contains f)
 

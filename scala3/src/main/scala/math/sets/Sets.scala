@@ -104,7 +104,7 @@ object Sets:
       case List() => Set(List())
       case head :: tail => product2(head, product(tail)) map cat
 
-  private def pow(a: Int, b: Int): Int = if (b == 0) 1 else a * pow(a, b - 1)
+  private def pow(a: Int, b: Int): Int = if b == 0 then 1 else a * pow(a, b - 1)
 
   /**
     * Powerset of a set (set of all subsets)
@@ -179,7 +179,7 @@ object Sets:
     val predicate = (p: (X, Y)) => xs.contains(p._1) && ys.contains(p._2)
     setOf(
       cantorIterable(xs, ys),
-      if (isFinite(xs) && isFinite(ys)) xs.size * ys.size else InfiniteSize,
+      if isFinite(xs) && isFinite(ys) then xs.size * ys.size else InfiniteSize,
       predicate
     )
 
@@ -204,7 +204,7 @@ object Sets:
   def existsUnique[T](seq: Iterable[T], p: T => Boolean): Boolean = isSingleton(seq filter p take 2)
 
   def filter[X](sourceSet: Set[X], p: X => Boolean): Set[X] =
-    if (isFinite(sourceSet)) filteredSet(sourceSet, p)
+    if isFinite(sourceSet) then filteredSet(sourceSet, p)
     else setOf(sourceSet, InfiniteSize, p)
 
   private def filteredSet[X](i: => Iterable[X], p: X => Boolean): Set[X] =
@@ -243,8 +243,8 @@ object Sets:
     Range(first, last1, step).toSet
 
   private[Sets] def sizePlus(size: => Int, delta: Int): Int =
-    if (size == InfiniteSize) size
-    else if (delta < 0) Math.max(0, size + delta)
+    if size == InfiniteSize then size
+    else if delta < 0 then Math.max(0, size + delta)
     else delta + Math.min(size, InfiniteSize - delta)
 
   class setOf[X] protected(
@@ -254,13 +254,13 @@ object Sets:
     setForIterable[X](source, sizeEvaluator, predicate):
       override def incl(elem: X): Set[X] = setOf[X](
         List(elem) ++ source,
-        if (contains(elem)) sizeEvaluator else sizePlus(sizeEvaluator, 1),
+        if contains(elem) then sizeEvaluator else sizePlus(sizeEvaluator, 1),
         (x: X) => x == elem || predicate(x)
       )
 
       override def excl(elem: X): Set[X] = setOf[X](
         source filterNot(elem==),
-        if (contains(elem)) sizePlus(sizeEvaluator, - 1) else sizeEvaluator,
+        if contains(elem) then sizePlus(sizeEvaluator, - 1) else sizeEvaluator,
         (x: X) => x != elem || predicate(x)
       )
 
@@ -308,7 +308,7 @@ object Sets:
 
     def next(): X =
       i1i2 = i1i2.swap
-      (if (i1i2._1.hasNext) i1i2._1 else i1i2._2).next()
+      (if i1i2._1.hasNext then i1i2._1 else i1i2._2).next()
 
   class ParallelIterable[X, X1 <: X, X2 <: X](iterable1: Iterable[X1], iterable2: Iterable[X2])
     extends Iterable[X]:
@@ -318,7 +318,7 @@ object Sets:
     override def keys: Set[K] = xs
 
     override def apply(x: K): V =
-      if (xs contains x) f(x) else throw new RuntimeException(s"oops, $x is not in domain")
+      if xs contains x then f(x) else throw new RuntimeException(s"oops, $x is not in domain")
 
     def updated[V1 >: V](kv: (K, V1)): Map[K, V1] = itsImmutable
 
@@ -326,7 +326,7 @@ object Sets:
 
     override def updated[V1 >: V](x: K, y: V1): Map[K, V1] = itsImmutable
 
-    override def get(x: K): Option[V] = if (xs contains x) Some(f(x)) else None
+    override def get(x: K): Option[V] = if xs contains x then Some(f(x)) else None
 
     override def size: Int = xs size
 
@@ -377,19 +377,19 @@ object Sets:
     override def filter(p: X => Boolean): Set[X] =
       filteredSet(source, (x: X) => predicate(x) && p(x))
 
-    override def hashCode: Int = if (isInfinite(this)) sample.hashCode else super.hashCode
+    override def hashCode: Int = if isInfinite(this) then sample.hashCode else super.hashCode
 
     override def equals(other: Any): Boolean = other match
-      case s: Set[_] => if (isInfinite(this)) this.eq(s) else super.equals(s)
+      case s: Set[_] => if isInfinite(this) then this.eq(s) else super.equals(s)
       case somethingelse => false
 
     override def toString: String =
-      if (isInfinite(this)) then
+      if isInfinite(this) then
         sample.mkString("infinite Set(", ",", ",...)")
       else
         super.toString
 
-    def sample: Set[X] = if (isInfinite(this)) take(3) else this
+    def sample: Set[X] = if isInfinite(this) then take(3) else this
 
   object setOf:
     def elements[X](content: X*): setOf[X] = apply(content, x => content contains x)

@@ -92,7 +92,7 @@ abstract class Diagram(
       grouped.view.mapValues(_.head) // does not matter which one, in this case
 
     def arrowFromRootObject(x: XObject) =
-      if (limitBuilder.rootObjects(x)) d0.id(x) else fromRootObjects(x)
+      if limitBuilder.rootObjects(x) then d0.id(x) else fromRootObjects(x)
 
     val vertex = limitBuilder.vertex
 
@@ -246,7 +246,7 @@ abstract class Diagram(
   
   def toShortString: String = toString({ x => {
       val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
-      if (obRepr.isEmpty) "" else s"$x->{$obRepr}"
+      if obRepr.isEmpty then "" else s"$x->{$obRepr}"
     } replace(s"Diagram[${d0.name}]", "")
   })
 

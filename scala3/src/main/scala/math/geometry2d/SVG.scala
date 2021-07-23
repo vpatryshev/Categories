@@ -137,21 +137,20 @@ object SVG {
       ord: Int,
       center: Pt
     ) extends Shape {
-      override def toString: String = {
+      override def toString: String =
         val localSegment = frame.rescale(fullSegment)
-        if (ord == 0) {
+        if ord == 0 then
           val localCenter = rescale(center)
           val shortSegment = localSegment.shorterBy(space)
           val middle = localSegment.middle
           val drawTextAbove = ((middle - localCenter) dot localSegment.orthogonalUnit) < 0
-          val unit = if (drawTextAbove) -localSegment.orthogonalUnit else localSegment.orthogonalUnit
+          val unit = if drawTextAbove then -localSegment.orthogonalUnit else localSegment.orthogonalUnit
           val dx = unit.x * name.length * 5
 
           val shift = Pt(dx, unit.y * 8)
           text(name)(localSegment.middle + shift) +
           segment(shortSegment) + arrowhead(shortSegment)
-        }
-        else {
+        else
           val p0 = localSegment.p0
           val p1 = localSegment.p1
           val dx = Math.signum(p1.x - p0.x)
@@ -166,8 +165,6 @@ object SVG {
             | stroke="black" fill="transparent"/>""".stripMargin +
             arrowhead(Segment(s1.p0, s1.p1))
           out
-        }
-      }
     }
   }
 

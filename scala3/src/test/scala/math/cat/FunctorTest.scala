@@ -119,7 +119,7 @@ class FunctorTest extends Test:
         Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
       
       val fOpt = Functor("sample product", from, to)(mapO, mapA)
-      checkOpt[Functor](fOpt,
+      checkOption[Functor](fOpt,
         (f:Functor) =>
         val limitOpt = f.limit
 
@@ -244,7 +244,7 @@ class FunctorTest extends Test:
         Map("ac" -> ac, "bc" -> bc)
       )
       
-      checkOpt[Functor](sutOpt,
+      checkOption[Functor](sutOpt,
         sut => {
           sut.d0 === Pullback
           sut.d1 === Setf

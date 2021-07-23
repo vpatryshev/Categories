@@ -98,7 +98,7 @@ trait Graph(val name: String) extends GraphData:
     sameDomain(f, g) && sameCodomain(f, g)
 
   def unary_~ : Graph =
-    new Graph(if (graph.name.startsWith("~")) graph.name.tail else "~" + graph.name):
+    new Graph(if graph.name startsWith "~" then graph.name.tail else "~" + graph.name):
       type Node = graph.Node
       type Arrow = graph.Arrow
       def nodes: Nodes = graph.nodes
@@ -251,7 +251,7 @@ object Graph:
 
   def discrete[N](points: Set[N], nameit: String = ""): Graph =
     val name: String =
-      if (nameit == "") s"DiscreteGraph_${points.size}" else nameit
+      if nameit == "" then s"DiscreteGraph_${points.size}" else nameit
     
     new Graph(name):
       type Node = N

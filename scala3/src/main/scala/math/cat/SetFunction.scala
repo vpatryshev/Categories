@@ -139,3 +139,5 @@ object SetFunction:
 
   def fun(a: set, b: set)(name: String, m: String => Any) =
     SetFunction.build(name, a, b, x => m(x.toString)).iHope
+
+  def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]

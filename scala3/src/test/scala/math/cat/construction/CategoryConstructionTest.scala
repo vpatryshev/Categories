@@ -110,7 +110,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         composition = EmptyComposition,
         defineComposition
       )
-      checkOpt(sutOpt, _.arrows must haveSize(1)
+      checkOption(sutOpt, _.arrows must haveSize(1)
       )
       ok
     }

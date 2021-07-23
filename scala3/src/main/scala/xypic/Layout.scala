@@ -30,17 +30,16 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     val layerWidth = (diameters.max + 1) / 2
     val dw = layerLength - previousLayerLength
     previousLayerLength = layerLength
-    val step = if (dir == (1, 0)) (layerWidth, 0) else {
+    val step = if dir == (1, 0) then (layerWidth, 0) else
       (dir._1 * layerWidth * (i % 2), dir._2 * layerWidth * ((i+1) % 2))
-    }
 
     val row = for { (o, j) <- layer.zipWithIndex } yield {
       val newPoint = Pt(i - j + scala.math.max(0, step._1 + (dw-1)/2), step._2 + (dw-1)/2 - j)
-      val actual = if (taken(newPoint)) newPoint.shift(0, -1) else newPoint
+      val actual = if taken(newPoint) then newPoint.shift(0, -1) else newPoint
       taken.add(actual)
       o -> actual
     }
-    if (layerLength > 2 * i * layerWidth + 1) dir = (layerWidth, layerWidth)
+    if layerLength > 2 * i * layerWidth + 1 then dir = (layerWidth, layerWidth)
     row
   }
 
@@ -48,11 +47,11 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     layers map {
       case p1::p2::tail =>
         val altPoint = p1._2 - Pt(1, 0)
-        val newOne = if (!taken(altPoint)) {
+        val newOne = if !taken(altPoint) then
           taken.remove(p1._2)
           taken.add(altPoint)
           (p1._1, altPoint)
-        } else p1
+        else p1
         
         newOne::p2::tail
       case other => other
@@ -64,11 +63,11 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
       case p1::p2::tail =>
         val altPoint = p1._2 + Pt(0, 1)
         val newOne = 
-        if (!taken(altPoint)) {
+        if !taken(altPoint) then
           taken.remove(p1._2)
           taken.add(altPoint)
           (p1._1, altPoint)
-        } else p1
+        else p1
         newOne::p2::tail
       case other => other
     } map (_.reverse)
@@ -85,7 +84,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   
   val frame: SVG.Frame = SVG.Frame(30, Pt(w, h), coordinates.values)
 
-  def svg: String = if (coordinates.isEmpty) "" else {
+  def svg: String = if coordinates.isEmpty then "" else {
     for { (obj, p) <- coordinates } {
       frame.CircleWithText(obj, p).draw()
     }
@@ -121,7 +120,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
           val from = coordinates(base.d0(a).toString)
           val to = coordinates(base.d1(a).toString)
           val shift0 = i
-          val shift = if (i % 2 == 1) -(shift0+1)/2 else (shift0 + 1)/2
+          val shift = if i % 2 == 1 then -(shift0+1)/2 else (shift0 + 1)/2
           frame.Arrow(a.toString, Segment(from, to), 25, shift, center).draw()
         }
     }

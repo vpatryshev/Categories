@@ -67,7 +67,7 @@ class CategoryOfDiagrams(val domain: Category)
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         d1.d1.arrow(objectMap(o.d0.obj(x)))
 
-  override def m(f: Arrow, g: Arrow): Option[Arrow] = if (f.d1 == g.d0) Option {
+  override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
     new DiagramArrow(concat(g.tag, " ∘ ", f.tag)):
       val d0: Functor = f.d0
       val d1: Functor = g.d1

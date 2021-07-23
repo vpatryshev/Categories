@@ -183,8 +183,8 @@ trait GrothendieckTopos
             val functiona = a.asFunction(a.arrowsMapping(a.d0.arrow(f)))
             val functionb = b.asFunction(b.arrowsMapping(b.d0.arrow(f)))
             def unionOfMappings(z: Any): Any =
-              if (ao(z)) functiona(z)
-              else if (bo(z)) functionb(z)
+              if ao(z) then functiona(z)
+              else if bo(z) then functionb(z)
               else throw new IllegalArgumentException(s"$z was supposed to be in $ao or in $bo")
 
             new SetFunction("", x, y, unionOfMappings)

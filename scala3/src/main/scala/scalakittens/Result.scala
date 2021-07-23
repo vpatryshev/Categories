@@ -65,9 +65,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   def filter(p: T => Boolean): Result[T] =
     Result.forValue(if p(value) then this else Empty).flatten
   def filter(p: T => Boolean, onError: T => String): Result[T] =
-    Result.forValue(if (p(value)) this else {
-      Result.error(onError(value))
-    }).flatten
+    Result.forValue(if p(value) then this else Result.error(onError(value))).flatten
   def exists(p: T => Boolean): Boolean = p(value)
   def forall(p: T => Boolean): Boolean = p(value)
     
@@ -304,7 +302,7 @@ object Result:
     
     (goodOnes, badOnes)
 
-  private def badOrEmpty[T](errors: Errors): Result[T] = if (errors.isEmpty) Empty else bad(errors.toSet)
+  private def badOrEmpty[T](errors: Errors): Result[T] = if errors.isEmpty then Empty else bad(errors.toSet)
 
   private def bad[T](results: Result[_]*): Result[T] = bad(results flatMap (_.listErrors))
 
@@ -317,7 +315,7 @@ object Result:
   def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
     val (goodOnes, badOnes) = partition(results)
 
-    if (badOnes.nonEmpty) badOrEmpty(badOnes.flatten)
+    if badOnes.nonEmpty then badOrEmpty(badOnes.flatten)
     else Good(goodOnes.reverse)
 
   def fold(results:Iterable[Outcome]): Outcome =

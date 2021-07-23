@@ -65,13 +65,13 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
       self.transformPerObject(x.asInstanceOf[self.d0.d0.Obj]).asInstanceOf[d1.d1.Arrow]
 
   private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
-    if (d0.d0.isFinite) buildMap(d0.d0.objects, o => transformPerObject(o)) else Map.empty
+    if d0.d0.isFinite then buildMap(d0.d0.objects, o => transformPerObject(o)) else Map.empty
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
   override def toString: String =
     val s = String valueOf tag
-    if (s.isEmpty) details else s
+    if s.isEmpty then details else s
   
   def details = s"NT($tag)(${
     if domainCategory.isFinite then
@@ -91,7 +91,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
             val first: d1.d1.Arrow = transformPerObject(d0.d0.node(o))
             val second: other.d1.d1.Arrow = other.transformPerObject(o.asInstanceOf[other.d0.d0.Obj])
             val same = first == second
-            if (!same && printDetails) then
+            if !same && printDetails then
               printMapDifference(asFunction(first), asFunction(second))
 
             !same
