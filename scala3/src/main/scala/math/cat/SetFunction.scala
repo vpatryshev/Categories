@@ -6,6 +6,7 @@ import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
 import scalakittens.Result._
+import scala.language.implicitConversions
 
 /**
   * The idea was to create something that would cover unresolved issues with type assignment

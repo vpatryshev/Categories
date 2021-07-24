@@ -66,8 +66,7 @@ trait GrothendieckToposLogic:
             )
     
           val op: SetFunction = asFunction(ΩxΩ_to_Ω(o))
-          val maybeFunction = PQtoΩxΩ andThen op
-          d1.d1.arrow(Result(maybeFunction).iHope)
+          Result(PQtoΩxΩ andThen op) iHope
 
     end evalBinaryOp
     
@@ -114,8 +113,7 @@ trait GrothendieckToposLogic:
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         val x_in_domain_of_f = f.d0.d0.obj(x)
         val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
-        val arrow_in_codomain_of_f = d1.d1.arrow(arrow_in_domain_of_f)
-        arrow_in_codomain_of_f
+        arrow_in_domain_of_f
 
   /**
     * Builds a predicate for a point in Ω
@@ -131,8 +129,7 @@ trait GrothendieckToposLogic:
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         val xInInclusion = inclusion.d0.d0.obj(x)
-        val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
-        d1.d1.arrow(arrowInInclusion)
+        inclusion.transformPerObject(xInInclusion)
 
   /**
     * An arrow from terminal to the point as a diagram

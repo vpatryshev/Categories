@@ -66,9 +66,7 @@ abstract class Diagram(
     case trash =>
       throw new IllegalArgumentException(s"Expected a set function, got $trash")
 
-  def functionForArrow(a: Any): SetFunction =
-    val arrowInSets = arrowsMapping(d0.arrow(a))
-    asFunction(arrowInSets)
+  def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
   def apply(x: Any): set = setOf(objectsMapping(d0.obj(x)))
 
@@ -187,7 +185,7 @@ abstract class Diagram(
 
   private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction =
     def same_om(o: XObject): Sets.set = om(o.asInstanceOf[O]) // TODO: get rid of casting
-    extendToArrows1(same_om)(d0.arrow(a))
+    extendToArrows1(same_om)(a)
 
   // TODO: write tests
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
@@ -347,8 +345,7 @@ object Diagram:
         val y = objectsMap(x.asInstanceOf[t.domain.Obj])
         d1.asObj(y) // TODO: get rid of casting
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        d1.arrow(arrowMap(a.asInstanceOf[t.domain.Arrow]))
+      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
         
   
   def tryBuild(topos: GrothendieckTopos)(

@@ -38,23 +38,18 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
     */
   def andThen(g: NaturalTransformation): NaturalTransformation =
     
-    def comp(x: d0.d0.Obj): d1.d1.Arrow = {
-      val fHere:  d1.d1.Arrow = d1.d1.arrow(self(x))
-      val fThere: d1.d1.Arrow = d1.d1.arrow(g(x))
-      val compOpt: Option[d1.d1.Arrow] = d1.d1.m(fHere, fThere)
-      compOpt getOrElse(
-        { // TODO: use Result.traverse
-          throw new IllegalArgumentException(s"Bad transformation for $x for $fHere and $fThere")
-        }
-      )
-    }
+    def comp(x: d0.d0.Obj): d1.d1.Arrow =
+      val fHere:  d1.d1.Arrow = self(x)
+      val gThere: d1.d1.Arrow = g(x)
+      d1.d1.m(fHere, gThere) getOrElse
+        cannotDo(s"Bad transformation for $x for $fHere and $gThere")
 
     def composed[T](x: T) = comp(d0.d0.node(x))
 
     new NaturalTransformation(s"${g.tag} ∘ ${self.tag}"):
       val d0: Functor = self.d0
       val d1: Functor = g.d1
-      def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = d1.d1.arrow(composed(x))
+      def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = composed(x)
   
   end andThen
   
@@ -126,11 +121,11 @@ object NaturalTransformation:
         val x0: f.d0.Obj = f.d0.d0(a)
         val x1: f.d0.Obj = f.d0.d1(a)
         val fa = f.arrowsMapping(a)
-        val ga = g.arrowsMapping(g.d0.arrow(a))
+        val ga = g.arrowsMapping(a)
         val tx0: f.d1.Arrow = transformPerObject(x0)
         val tx1: f.d1.Arrow = transformPerObject(x1)
         val right_then_down: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
-        val down_then_right: Option[f.d1.Arrow] = f.d1.m(tx0, f.d1.arrow(ga))
+        val down_then_right: Option[f.d1.Arrow] = f.d1.m(tx0, ga)
         OKif(right_then_down == down_then_right, s"Nat'l transform law broken for $a")
     }
   
@@ -149,7 +144,7 @@ object NaturalTransformation:
       val d0: Functor = f
       val d1: Functor = g
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        d1.d1.arrow(mappings(f.d0.obj(x)))
+        mappings(f.d0.obj(x))
 
   /**
     * Builds an identity natural transformation id[f]: f -> f
@@ -170,5 +165,4 @@ object NaturalTransformation:
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         val actual_x = f.d0.obj(x) // same thing actually, f = d0
-        val `identity on f(x)` = d1.d1.arrow(`id of f(x)`(actual_x))
-        `identity on f(x)`
+        `id of f(x)`(actual_x)

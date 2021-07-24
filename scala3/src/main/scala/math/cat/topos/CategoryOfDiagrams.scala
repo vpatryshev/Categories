@@ -32,7 +32,7 @@ class CategoryOfDiagrams(val domain: Category)
       (a: domain.Arrow) =>
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
-        val function = _1.asFunction(_1.arrowsMapping(_1.d0.arrow(a)))
+        val function = _1.arrowsMapping(a)
         function.restrictTo(d0, d1) iHope
 
     val all: Set[Diagram] = 
@@ -65,7 +65,7 @@ class CategoryOfDiagrams(val domain: Category)
       override val d1: Functor = o
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        d1.d1.arrow(objectMap(o.d0.obj(x)))
+        objectMap(o.d0.obj(x))
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
     new DiagramArrow(concat(g.tag, " ∘ ", f.tag)):
@@ -77,8 +77,8 @@ class CategoryOfDiagrams(val domain: Category)
         val f_x = f.transformPerObject(f.d0.d0.node(xObjf))
         val xObjg = g.domainCategory.obj(x)
         val g_x = g.transformPerObject(g.d0.d0.node(xObjg))
-        val gf_x = m(f_x.asInstanceOf[Arrow], g_x.asInstanceOf[Arrow])
-        d1.d1.arrow(gf_x)
+        val gf_x = m(f_x, g_x)
+        gf_x
 
   } else None
 
@@ -105,7 +105,7 @@ class CategoryOfDiagrams(val domain: Category)
       val tuples: Set[(domain.Arrow, domain.Arrow)] = d0 flatMap { g => domain.m(g, f) map (g -> _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
-      new SetFunction("", setOf(d0), setOf(d1), a => mapping(domain.arrow(a)))
+      new SetFunction("", setOf(d0), setOf(d1), a => mapping(a))
 
     private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)
 

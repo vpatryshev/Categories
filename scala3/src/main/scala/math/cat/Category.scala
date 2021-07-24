@@ -87,7 +87,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param f an arrow to check
     * @return true iff f is an isomorphism
     */
-  def isIsomorphism(f: Arrow): Boolean = inverse(arrow(f)).isDefined
+  def isIsomorphism(f: Arrow): Boolean = inverse(f).isDefined
 
   /**
     * Checks whether two objects are isomorphic
@@ -119,7 +119,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return true iff f∘g=id and g∘f=id
     */
   def areInverse(f: Arrow, g: Arrow): Boolean =
-    (m(arrow(f), arrow(g)) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
+    (m(f, g) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
 
   /**
     * Checks whether an arrow is an endomorphism
@@ -323,9 +323,9 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def isProduct(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean =
     case (px, py) =>
-      d0(arrow(px)) == d0(arrow(py)) &&
-        d1(px) == x &&
-        d1(py) == y &&
+      d0(px) == d0(py) &&
+      d1(px) == x &&
+      d1(py) == y &&
       (pairsWithTheSameDomain(x, y) forall factorUniquelyOnRight(px, py))
 
   /**
@@ -361,7 +361,7 @@ abstract class Category(name: String) extends CategoryData(name):
   def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean =
     (i: (Arrow, Arrow)) =>
     val (ix, iy) = i
-    d0(arrow(ix)) == x && d0(arrow(iy)) == y &&
+    d0(ix) == x && d0(iy) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
 
   /**
@@ -693,10 +693,10 @@ abstract class Category(name: String) extends CategoryData(name):
         new Category(subname):
           override val graph: Graph = sub
 
-          override def id(o: Obj): Arrow = arrow(src.id(src.obj(o)))
+          override def id(o: Obj): Arrow = src.id(src.obj(o))
 
           override def m(f: Arrow, g: Arrow): Option[Arrow] =
-            src.m(src.arrow(f), src.arrow(g)) map arrow
+            src.m(f, g) map arrow
     }
 
 

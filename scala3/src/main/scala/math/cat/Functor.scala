@@ -70,7 +70,7 @@ abstract class Functor(
     if d1 != g.d0 then None else Some {
       val f = this
       def `g(f(object))`(x: d0.Obj) = g.objectsMapping(g.d0.obj(objectsMapping(x)))
-      def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
+      def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(arrowsMapping(a))
 
       new Functor(concat(g.tag, "∘", this.tag), f.d0, g.d1):
 
@@ -78,7 +78,7 @@ abstract class Functor(
           d1.obj(`g(f(object))`(Functor.this.d0.obj(x)))
 
         protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-          d1.arrow(`g(f(arrow))`(Functor.this.d0.arrow(a)))
+          `g(f(arrow))`(a)
 
       }
 
@@ -320,7 +320,7 @@ object Functor:
   def id(c: Category): Functor = new Functor("id", c, c):
       override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(x)
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = d1.arrow(a)
+      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a
 
   /**
     * Builds a constant functor from a category to an object in another.
@@ -346,7 +346,7 @@ object Functor:
       override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(objectsMorphism(dom.obj(x)))
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        d1.arrow(arrowsMorphism(dom.arrow(a)))
+        arrowsMorphism(a)
 
   /**
     * Builds a functor, given the data:

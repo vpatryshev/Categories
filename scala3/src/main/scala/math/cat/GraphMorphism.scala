@@ -52,7 +52,7 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
     * @return true or false
     */
   def sameArrowsMapping(other: GraphMorphism)(a: d0.Arrow): Boolean =
-    checkThat(other.arrowsMapping(other.d0.arrow(a)) == arrowsMapping(a))
+    checkThat(other.arrowsMapping(a) == arrowsMapping(a))
 
   /**
     * Good for testing
@@ -89,7 +89,7 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
   def andThen(g: GraphMorphism): Option[GraphMorphism] =
     OKif(this.d1 == g.d0, "Composition should be defined") returning {
       val nm: d0.Node => g.d1.Node = x => g.nodesMapping(g.d0.node(nodesMapping(x)))
-      val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
+      val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(arrowsMapping(a))
 
       GraphMorphism(concat(m.tag, "∘", g.tag), m.d0, g.d1)(nm, am)
     } asOption
@@ -104,9 +104,9 @@ object GraphMorphism:
     f1: domain.Arrow => codomain.Arrow):
   GraphMorphism = new GraphMorphism(taggedAs, domain, codomain):
     override def nodesMapping(n: d0.Node): d1.Node = d1.node(f0(domain.node(n)))
-    override def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(f1(domain.arrow(a)))
+    override def arrowsMapping(a: d0.Arrow): d1.Arrow = f1(a)
 
   def id(graph: Graph): GraphMorphism =
     new GraphMorphism("id", graph, graph):
       def nodesMapping(n: d0.Node): d1.Node = d1.node(n)
-      def arrowsMapping(a: d0.Arrow): d1.Arrow = d1.arrow(a)
+      def arrowsMapping(a: d0.Arrow): d1.Arrow = a

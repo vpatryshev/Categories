@@ -38,7 +38,7 @@ trait Graph(val name: String) extends GraphData:
   private def equal(that: Graph) = checkThat {
     this.nodes == that.nodes && this.arrows == that.arrows &&
     arrows.forall(arrowHere =>
-      val arrowThere = that.arrow(arrowHere)
+      val arrowThere: that.Arrow = arrowHere
       (d0(arrowHere) == that.d0(arrowThere)) && (d1(arrowHere) == that.d1(arrowThere))
     )
   }
@@ -77,7 +77,7 @@ trait Graph(val name: String) extends GraphData:
     * @return true iff g and f have the same domain
     */
   def sameDomain(f: Arrow, g: Arrow): Boolean =
-    d0(arrow(f)) == d0(arrow(g))
+    d0(f) == d0(g)
 
   /**
     * Checks if two arrows have the same codomain
@@ -86,7 +86,7 @@ trait Graph(val name: String) extends GraphData:
     * @return true iff g and f have the same codomain
     */
   def sameCodomain(f: Arrow, g: Arrow): Boolean =
-    d1(arrow(f)) == d1(arrow(g))
+    d1(f) == d1(g)
 
   /**
     * Checks if two arrows are parallel
@@ -166,7 +166,7 @@ private[cat] trait GraphData:
       throw new IllegalArgumentException(s"<<$other>> is not a node")
   }
 
-  def arrow(a: Any): Arrow = {
+  implicit def arrow(a: Any): Arrow = {
     val arrow = a.asInstanceOf[Arrow]
     if arrows contains arrow then arrow
     else

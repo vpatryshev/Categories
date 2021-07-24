@@ -22,8 +22,8 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   val graph: Graph = this
 
   /// TODO: figure out why do we need it
-  def d0(f: Arrow): Node = node(graph.d0(graph.arrow(f)))
-  def d1(f: Arrow): Node = node(graph.d1(graph.arrow(f)))
+  def d0(f: Arrow): Node = node(graph.d0(f))
+  def d1(f: Arrow): Node = node(graph.d1(f))
   
   lazy val listOfObjects: List[Obj] =
     if isFinite then listSorted(objects)
@@ -189,7 +189,7 @@ private[construction] class PartialData(override val graph: Graph)
   override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
-    composition.get((graph.arrow(f), graph.arrow(g))).map { arrow _ }
+    composition.get((f, g)).map { arrow _ }
 
   /**
     * This method helps fill in obvious choices for arrows composition.
@@ -210,6 +210,7 @@ private[construction] class PartialData(override val graph: Graph)
       deduceCompositions(addedUniqueSolutions)
 
     addedDeducedCompositions
+  
   end fillCompositionTable
 
   // adding composition that are deduced from associativity law
@@ -245,9 +246,9 @@ private[construction] class PartialData(override val graph: Graph)
   // adding composition with identities to a composition table
   private def defineCompositionWithIds: CompositionTable =
     graph.arrows.foldLeft(compositionSource) { (m, f) =>
-      val fA = f.asInstanceOf[graph.Arrow]
-      val id_d0 = graph.arrow(graph.d0(f))
-      val id_d1 = graph.arrow(graph.d1(f))
+      val fA: graph.Arrow = f
+      val id_d0: graph.Arrow = graph.d0(f)
+      val id_d1: graph.Arrow = graph.d1(f)
       m + ((id_d0, fA) -> fA) + ((fA, id_d1) -> fA)
     }
 
@@ -327,10 +328,10 @@ object CategoryData:
       lazy val arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node =
-        if isIdentity(f) then node(f) else node(graph.d0(graph.arrow(f)))
+        if isIdentity(f) then node(f) else node(graph.d0(f))
 
       def d1(f: Arrow): Node =
-        if isIdentity(f) then node(f) else node(graph.d1(graph.arrow(f)))
+        if isIdentity(f) then node(f) else node(graph.d1(f))
 
   end addIdentitiesToGraph
 
@@ -343,7 +344,7 @@ object CategoryData:
       override def id(o: Obj): Arrow = ids(gr.node(o)).asInstanceOf[Arrow]
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        composition(gr.arrow(f), gr.arrow(g)) map arrow
+        composition(f, g) map arrow
 
   
   // TODO: don't throw exception, return a result
