@@ -30,7 +30,7 @@ class NaturalTransformationTest extends Test {
 
     val fgOpt: Result[NT] = NaturalTransformation.build("test_fg", f, g)(mappingFor_fg)
     val ghOpt: Result[NT] = NaturalTransformation.build("test_gh", g, h)(
-      Map("0" -> g.d1.arrow("1.2"), "1" -> g.d1.arrow("2.3")))
+      Map("0" -> "1.2", "1" -> "2.3"))
 
     "build properly" in {
       val fg = fgOpt.iHope

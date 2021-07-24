@@ -36,7 +36,7 @@ class DiagramTest extends Test with TestDiagrams:
             d1.obj(BuildPullbackDiagram.om(x.toString))
           
           override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-            d1.arrow(BuildPullbackDiagram.am(a.toString))
+            BuildPullbackDiagram.am(a.toString)
 
       val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
@@ -99,8 +99,8 @@ class DiagramTest extends Test with TestDiagrams:
       val limit = sut.limit.iHope
       val vertex = sut.setOf(limit.vertex)
       vertex.size === 5
-      val ara = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("a"))))
-      val arb = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("b"))))
+      val ara = limit.arrowTo(sut.d0.obj("a"))
+      val arb = limit.arrowTo(sut.d0.obj("b"))
 
       for
         i <- 1 to 3
@@ -123,8 +123,8 @@ class DiagramTest extends Test with TestDiagrams:
       vertex.size === 3
       vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
       
-      val ar0 = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("0"))))
-      val ar1 = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("1"))))
+      val ar0 = limit.arrowTo(sut.d0.obj("0"))
+      val ar1 = limit.arrowTo(sut.d0.obj("1"))
 
       for element <- vertex do
         val i = (element match
@@ -141,7 +141,7 @@ class DiagramTest extends Test with TestDiagrams:
         val sut = SampleZ3Diagram
         val limit = sut.limit.iHope
         limit.vertex === Set(List(3))
-        val ar0 = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("0"))))
+        val ar0 = limit.arrowTo(sut.d0.obj("0"))
         ar0(List(3)) === 3
       }
 
@@ -151,11 +151,11 @@ class DiagramTest extends Test with TestDiagrams:
 
         val vertex = sut.setOf(limit.vertex)
         vertex.size === 16
-        val ara = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("a"))))
-        val arb = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("b"))))
-        val arc = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("c"))))
-        val ard = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("d"))))
-        val are = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("e"))))
+        val ara = limit.arrowTo(sut.d0.obj("a"))
+        val arb = limit.arrowTo(sut.d0.obj("b"))
+        val arc = limit.arrowTo(sut.d0.obj("c"))
+        val ard = limit.arrowTo(sut.d0.obj("d"))
+        val are = limit.arrowTo(sut.d0.obj("e"))
 
         for
           i <- SampleWDiagramContent.a
@@ -196,11 +196,11 @@ class DiagramTest extends Test with TestDiagrams:
 
         val vertex = sut.setOf(limit.vertex)
         vertex.size === 8
-        val ara = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("a"))))
-        val arb = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("b"))))
-        val arc = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("c"))))
-        val ard = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("d"))))
-        val are = sut.asFunction(sut.d1.arrow(limit.arrowTo(sut.d0.obj("e"))))
+        val ara = limit.arrowTo(sut.d0.obj("a"))
+        val arb = limit.arrowTo(sut.d0.obj("b"))
+        val arc = limit.arrowTo(sut.d0.obj("c"))
+        val ard = limit.arrowTo(sut.d0.obj("d"))
+        val are = limit.arrowTo(sut.d0.obj("e"))
         val points = sut.limitBuilder
 
         for
@@ -269,8 +269,8 @@ class DiagramTest extends Test with TestDiagrams:
       val list = v0 :: v1 :: v0 :: Nil
       val obja: sut.d0.Obj = sut.d0.obj("a")
       val objb: sut.d0.Obj = sut.d0.obj("b")
-      val ara = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(obja)))
-      val arb = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(objb)))
+      val ara = colimit.arrowFrom(obja)
+      val arb = colimit.arrowFrom(objb)
 
       for i <- 1 to 3 do ara(i) == list(i - 1)
       for i <- 2 to 4 do arb(i) == list(i - 2)
@@ -295,8 +295,8 @@ class DiagramTest extends Test with TestDiagrams:
       val element = Set((0, 0), (0, 1), (0, 2))
 
       val vertex = sut.setOf(colimit.vertex)
-      val ar0 = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(sut.d0.obj("0"))))
-      val ar1 = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(sut.d0.obj("1"))))
+      val ar0 = colimit.arrowFrom(sut.d0.obj("0"))
+      val ar1 = colimit.arrowFrom(sut.d0.obj("1"))
       a.foreach(ar0(_) === element)
       b.foreach(ar1(_) === element)
       
@@ -317,11 +317,11 @@ class DiagramTest extends Test with TestDiagrams:
       val colimit = sut.colimit.iHope
       val vertex = sut.setOf(colimit.vertex)
       vertex.size === 8
-      val ara = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(sut.d0.obj("a"))))
-      val arb = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(sut.d0.obj("b"))))
-      val arc = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(sut.d0.obj("c"))))
-      val ard = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(sut.d0.obj("d"))))
-      val are = sut.asFunction(sut.d1.arrow(colimit.arrowFrom(sut.d0.obj("e"))))
+      val ara = colimit.arrowFrom(sut.d0.obj("a"))
+      val arb = colimit.arrowFrom(sut.d0.obj("b"))
+      val arc = colimit.arrowFrom(sut.d0.obj("c"))
+      val ard = colimit.arrowFrom(sut.d0.obj("d"))
+      val are = colimit.arrowFrom(sut.d0.obj("e"))
 
       for
         i <- SampleMDiagramContent.a

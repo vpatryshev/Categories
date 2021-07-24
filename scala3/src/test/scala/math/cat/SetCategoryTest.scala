@@ -30,7 +30,7 @@ class SetCategoryTest extends Specification:
       val arrow = fun(s1,s2)("sample", _.toInt / 7)
       val theGraph = graphOfSets(sets)
       theGraph.nodes === sets
-      theGraph.arrows.contains(theGraph.arrow(arrow)) === true
+      theGraph.arrows.contains(arrow) === true
     }
 
     "produce no coequalizer if category is too small" in {

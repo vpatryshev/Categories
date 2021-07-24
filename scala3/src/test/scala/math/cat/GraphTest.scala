@@ -312,9 +312,9 @@ class GraphTest extends Test:
     "hom" >> {
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
       import sut._
-      val hom = sut.arrowsBetween(sut.node("1"), sut.node("1"))
+      val hom = sut.arrowsBetween("1", "1")
       Sets.parse("{1a, 1b}") === Good(hom)
-      Sets.parse("{3to2}") === Good(sut.arrowsBetween(sut.node("3"), sut.node("2")))
+      Sets.parse("{3to2}") === Good(sut.arrowsBetween("3", "2"))
     }
 
     "~" >> {

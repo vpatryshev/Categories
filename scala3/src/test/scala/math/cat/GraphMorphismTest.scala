@@ -26,8 +26,8 @@ class GraphMorphismTest extends Test:
         SetMorphism.build(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13)).iHope.asInstanceOf[graph1.Arrow => graph2.Arrow]
 
       val sut = GraphMorphism("test", graph1, graph2)(nm, am)
-      sut.nodesMapping(sut.d0.node(3)) === 3
-      sut.arrowsMapping(sut.d0.arrow("1b")) === 111
+      sut.nodesMapping(3) === 3
+      sut.arrowsMapping("1b") === 111
       sut.d0 === graph1
       sut.d1 === graph2
     }
@@ -72,7 +72,7 @@ class GraphMorphismTest extends Test:
       
       val sut1 = GraphMorphism("linear to loop", g1, g6)(
         add1.asInstanceOf[g1.Node => g6.Node],
-        (p:g1.Arrow) => g6.arrow(p.asInstanceOf[(Int, Int)]._1 + 1))
+        (p:g1.Arrow) => p.asInstanceOf[(Int, Int)]._1 + 1)
       
       val sut2: GraphMorphism = GraphMorphism("6 to 3", g6, g3)(
         mod3.asInstanceOf[g6.Node => g3.Node],
@@ -89,7 +89,7 @@ class GraphMorphismTest extends Test:
       val nodeDiff: List[expected.d0.Node] = expected.d0.nodes.filterNot(expected.sameNodesMapping(actual)).toList
       
       val nodeDiffVals = nodeDiff map
-        ((x:expected.d0.Node) => (x, actual.nodesMapping(actual.d0.node(x)), expected.nodesMapping(expected.d0.node(x))))
+        ((x:expected.d0.Node) => (x, actual.nodesMapping(x), expected.nodesMapping(x)))
 
       nodeDiffVals === Nil
       expected.sameNodes(actual) === true

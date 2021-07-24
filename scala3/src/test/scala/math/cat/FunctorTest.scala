@@ -112,7 +112,7 @@ class FunctorTest extends Test:
       val to = Square
 
       val mapA: from.Arrow => to.Arrow =
-        Map(from.arrow(0) -> to.arrow("b"), from.arrow(1) -> to.arrow("c"))
+        Map(0 -> "b", 1 -> "c")
 
       type toO = to.Obj
       val mapO: from.Obj => to.Obj =
@@ -251,7 +251,7 @@ class FunctorTest extends Test:
           sut.objectsMapping(sut.d0.obj("a")) === a
           sut.objectsMapping(sut.d0.obj("b")) === b
           sut.objectsMapping(sut.d0.obj("c")) === c
-          sut.arrowsMapping(sut.d0.arrow("ac")) === ac
+          sut.arrowsMapping("ac") === ac
         }
       )
     }

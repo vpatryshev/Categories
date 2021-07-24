@@ -74,9 +74,9 @@ class CategoryOfDiagrams(val domain: Category)
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         val xObjf = f.domainCategory.obj(x)
-        val f_x = f.transformPerObject(f.d0.d0.node(xObjf))
+        val f_x = f.transformPerObject(xObjf)
         val xObjg = g.domainCategory.obj(x)
-        val g_x = g.transformPerObject(g.d0.d0.node(xObjg))
+        val g_x = g.transformPerObject(xObjg)
         val gf_x = m(f_x, g_x)
         gf_x
 
@@ -138,5 +138,5 @@ object CategoryOfDiagrams:
       override def nodes: Nodes   = BigSet.of[Node](name).asInstanceOf[Nodes]
       override def arrows: Arrows = BigSet.of[Arrow](s"Arrows in $name").asInstanceOf[Arrows]
 
-      def d0(f: Arrow): Node = node(f.d0)
-      def d1(f: Arrow): Node = node(f.d1)
+      def d0(f: Arrow): Node = f.d0
+      def d1(f: Arrow): Node = f.d1

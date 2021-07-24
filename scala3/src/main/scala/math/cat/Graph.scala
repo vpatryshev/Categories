@@ -16,7 +16,7 @@ trait Graph(val name: String) extends GraphData:
 
   def size: Int = nodes.size
   
-  implicit def pairOfNodes(p: (_, _)): (Node, Node) = (node(p._1), node(p._2))
+  implicit def pairOfNodes(p: (_, _)): (Node, Node) = (p._1, p._2)
 
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
@@ -131,13 +131,13 @@ trait Graph(val name: String) extends GraphData:
       def d0(f: Arrow): Node = {
         val fA = f.asInstanceOf[graph.Arrow]
         val newOne: Option[Node] = newArrows.get(fA).map(_._1.asInstanceOf[Node])
-        newOne.getOrElse(node(graph.d0(fA)))
+        newOne.getOrElse(graph.d0(fA))
       }
 
       def d1(f: Arrow): Node = {
         val fA = f.asInstanceOf[graph.Arrow]
         val newOne: Option[Node] = newArrows.get(fA).map(_._2.asInstanceOf[Node])
-        newOne.getOrElse(node(graph.d1(fA)))
+        newOne.getOrElse(graph.d1(fA))
       }
     
     result.validate orCommentTheError s"Failed in Graph $this"
@@ -158,9 +158,9 @@ private[cat] trait GraphData:
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  def nodeOpt(x: Any): Result[Node] = Result.forValue(node(x))
+  def nodeOpt(x: Any): Result[Node] = Result.forValue(x)
 
-  def node(x: Any): Node = x match {
+  implicit def node(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")

@@ -29,7 +29,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
   lazy val codomainCategory: Category = d1.d1
 
   def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow
-  def apply(x: Any): d1.d1.Arrow = transformPerObject(d0.d0.node(x))
+  def apply(x: Any): d1.d1.Arrow = transformPerObject(x)
 
   /**
     * Produces g∘f
@@ -44,7 +44,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
       d1.d1.m(fHere, gThere) getOrElse
         cannotDo(s"Bad transformation for $x for $fHere and $gThere")
 
-    def composed[T](x: T) = comp(d0.d0.node(x))
+    def composed[T](x: T) = comp(x)
 
     new NaturalTransformation(s"${g.tag} ∘ ${self.tag}"):
       val d0: Functor = self.d0
@@ -70,7 +70,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
   
   def details = s"NT($tag)(${
     if domainCategory.isFinite then
-      domainCategory.listOfObjects.map(o => s"$o->(${transformPerObject(d0.d0.node(o))})").mkString(", ")
+      domainCategory.listOfObjects.map(o => s"$o->(${transformPerObject(o)})").mkString(", ")
     else s"${d0.tag}->${d1.tag}"
   })"
   
@@ -83,8 +83,8 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
           d0 == other.d0 &&
           d1 == other.d1 && {
           val foundBad: Option[Any] = domainCategory.objects find (o =>
-            val first: d1.d1.Arrow = transformPerObject(d0.d0.node(o))
-            val second: other.d1.d1.Arrow = other.transformPerObject(o.asInstanceOf[other.d0.d0.Obj])
+            val first: d1.d1.Arrow = transformPerObject(o)
+            val second: other.d1.d1.Arrow = other.transformPerObject(o)
             val same = first == second
             if !same && printDetails then
               printMapDifference(asFunction(first), asFunction(second))

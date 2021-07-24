@@ -22,20 +22,19 @@ class CategoryBuilder(val source: CategoryData):
   private def sd1[A](a: A): source.Obj = source.d1(a)
   private def sid[O](o: O): source.Arrow = source.id(source.obj(o))
   
-  def newCategory: Category = {
+  def newCategory: Category =
     if source.isFinite then
       newFiniteCategory
     else
       new Category(source.name):
         override val graph = source.graph
 
-        override def d0(f: Arrow): Obj = node(sd0(f))
-        override def d1(f: Arrow): Obj = node(sd1(f))
+        override def d0(f: Arrow): Obj = sd0(f)
+        override def d1(f: Arrow): Obj = sd1(f)
         def id(o: Obj): Arrow = sid(o)
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
           source.m(f, g) map arrow
-  }
 
   end newCategory
 

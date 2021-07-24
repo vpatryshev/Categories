@@ -83,8 +83,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         a <- topos.domain.arrows
       } {
         val r = representable(topos)(obj(x))
-        val arrow = r.d0.arrow(a)
-        val ra = r.arrowsMapping(arrow) // no exception expected
+        val ra = r.arrowsMapping(a)
       }
 
       ok

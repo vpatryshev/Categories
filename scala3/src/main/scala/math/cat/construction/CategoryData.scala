@@ -22,8 +22,8 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   val graph: Graph = this
 
   /// TODO: figure out why do we need it
-  def d0(f: Arrow): Node = node(graph.d0(f))
-  def d1(f: Arrow): Node = node(graph.d1(f))
+  def d0(f: Arrow): Node = graph.d0(f)
+  def d1(f: Arrow): Node = graph.d1(f)
   
   lazy val listOfObjects: List[Obj] =
     if isFinite then listSorted(objects)
@@ -328,10 +328,10 @@ object CategoryData:
       lazy val arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node =
-        if isIdentity(f) then node(f) else node(graph.d0(f))
+        if isIdentity(f) then f else graph.d0(f)
 
       def d1(f: Arrow): Node =
-        if isIdentity(f) then node(f) else node(graph.d1(f))
+        if isIdentity(f) then f else graph.d1(f)
 
   end addIdentitiesToGraph
 
@@ -341,7 +341,7 @@ object CategoryData:
     new CategoryData(gr.name):
       override val graph = gr
 
-      override def id(o: Obj): Arrow = ids(gr.node(o)).asInstanceOf[Arrow]
+      override def id(o: Obj): Arrow = ids(o)
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         composition(f, g) map arrow
