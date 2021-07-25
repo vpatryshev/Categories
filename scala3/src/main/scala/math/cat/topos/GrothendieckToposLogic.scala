@@ -4,7 +4,8 @@ import math.Base.concat
 import math.cat.SetFunction._
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow, const}
 import math.cat.{Morphism, SetFunction}
-import math.sets.Sets.{set, setOf}
+import math.sets.Sets
+import Sets.{set, setOf}
 import scalakittens.Result
 
 import scala.collection.mutable
@@ -108,7 +109,7 @@ trait GrothendieckToposLogic:
     */
   def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
     new topos.Predicate(f.tag):
-      override val d0: Obj = f.d0.asInstanceOf[Obj] // TODO: get rid of casting
+      override val d0: Obj = f.d0
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         f.transformPerObject(x)
 
@@ -138,18 +139,18 @@ trait GrothendieckToposLogic:
       override val d1: Diagram = p.asDiagram
 
       override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow =
-        d1.d1.arrow {
+        d1.d1.asArrow {
           val value = p(o)
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
         }
 
-  val initialT: Result[Obj] = BaseCategory.initial map constSet("initial")
+  val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.Empty)
   
   lazy val _0: Obj = initialT iHope
 
-  val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal")
+  val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal", Sets.Unit)
   
   val _1: Obj = terminalT iHope
 
-  private[topos] def constSet(name: String)(obj: BaseCategory.Obj): Diagram =
-    const(name, topos)(obj.asInstanceOf[set])
+  private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Diagram =
+    const(name, topos)(value)

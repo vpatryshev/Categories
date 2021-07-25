@@ -206,6 +206,6 @@ object Categories extends CategoryFactory:
       override val graph: Graph = opgraph
       override def id(o: Obj): Arrow = c.id(o)
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        c.m(g, f) map arrow
+        c.m(g, f) map asArrow
         
       override lazy val op = c      

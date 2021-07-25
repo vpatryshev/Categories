@@ -160,13 +160,13 @@ private[cat] trait GraphData:
 
   def nodeOpt(x: Any): Result[Node] = Result.forValue(x)
 
-  implicit def node(x: Any): Node = x match {
+  implicit def asNode(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
   }
 
-  implicit def arrow(a: Any): Arrow = {
+  implicit def asArrow(a: Any): Arrow = {
     val arrow = a.asInstanceOf[Arrow]
     if arrows contains arrow then arrow
     else

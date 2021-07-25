@@ -94,7 +94,7 @@ abstract class Diagram(
 
     val vertex = limitBuilder.vertex
 
-    def coneMap(x: XObject): d1.Arrow = d1.arrow {
+    def coneMap(x: XObject): d1.Arrow = d1.asArrow {
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)

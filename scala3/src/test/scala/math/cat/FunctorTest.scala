@@ -135,7 +135,7 @@ class FunctorTest extends Test:
       val sut = functorFromPullbackToDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
       val actual: Set[sut.Cone] = sut.conesFrom(obj1("a0"))
       
       val expected: sut.Cone = sut.Cone(obj1("a0"), Map(
@@ -151,7 +151,7 @@ class FunctorTest extends Test:
       val sut = functorFromPullbackToDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
       val allCones = sut.allCones
       val c1 = sut.Cone(obj1("a0"), Map(
         obj0("a") -> arr1("a0b"),
@@ -184,7 +184,7 @@ class FunctorTest extends Test:
       val sut = functorFrom1to2toDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
 
       val actual = sut.coconesTo(obj1("d0"))
       val expected = sut.Cocone(obj1("d0"), Map(
@@ -199,7 +199,7 @@ class FunctorTest extends Test:
       val sut = functorFrom1to2toDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
       val allCocones = sut.allCocones
       val expected1 = sut.Cocone(obj1("d0"), Map(
         obj0("a") -> arr1("ad0"),
@@ -218,7 +218,7 @@ class FunctorTest extends Test:
       val sut = functorFrom1to2toDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
 
       sut.colimit match
         case Good(colimit) =>

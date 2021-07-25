@@ -19,10 +19,12 @@ trait GrothendieckTopos
   topos =>
   type Obj = Diagram
   type Arrow = DiagramArrow
-   
+  
   val domain: Category
 
   type Mapping = domain.Obj => Any => Any
+  
+  implicit def asDiagram(d: Functor): Diagram = d.asInstanceOf[Diagram] 
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
 
@@ -137,8 +139,7 @@ trait GrothendieckTopos
         override val d1: Functor = Ω
 
         def perObject(x: d0.d0.Obj): SetFunction =
-          val x_in_ΩxΩ = x.asInstanceOf[ΩxΩ.d0.Obj]
-          cache.getOrElseUpdate(x_in_ΩxΩ, calculatePerObject(x_in_ΩxΩ))
+          cache.getOrElseUpdate(x, calculatePerObject(x))
 
         override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
@@ -225,9 +226,9 @@ trait GrothendieckTopos
     * @return a function A(x) -> Ω(x)
     */
   private[topos] def χAt(inclusion: Arrow)(x: domain.Obj): SetFunction =
-    val A: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
-    val B: Diagram = inclusion.d0.asInstanceOf[Diagram] // TODO: get rid of casting
-
+    val A: Diagram = inclusion.d1
+    val B: Diagram = inclusion.d0
+    
     val Ax = A(x)
     val Bx = B(x) // Bx is a subset of Ax
 
@@ -249,7 +250,9 @@ trait GrothendieckTopos
     def myRepresentable(ax: Any): Any =
       val arrows = myArrows(ax).toMap
       val choices = Ω(x) find {
-        representable => sameMapping(representable.asInstanceOf[Diagram], arrows)
+        _ match
+          case d: Diagram => sameMapping(d, arrows)
+          case other => false
       }
       Result(choices).orCommentTheError(s"No representable found for $ax -> $arrows") iHope
     
@@ -272,7 +275,7 @@ trait GrothendieckTopos
     val objToFunction: domain.Obj => SetFunction = χAt(inclusion)
 
     new Predicate(theTag):
-      val d0: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
+      val d0: Diagram = inclusion.d1
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
         objToFunction(x)
@@ -288,7 +291,7 @@ trait GrothendieckTopos
         for
           x <- domain.objects
           incl = SetFunction.inclusion(subdiagram(x), diagram(x))
-          pair = incl map { x -> subdiagram.d1.arrow(_) }
+          pair = incl map { x -> subdiagram.d1.asArrow(_) }
         yield pair
 
       val mapOpt = Result traverse results
@@ -371,8 +374,8 @@ trait GrothendieckTopos
 
     buildArrow(
       concat(f.tag, "×", g.tag),
-      product2(f.d0.asInstanceOf[Diagram], g.d0.asInstanceOf[Diagram]), // TODO: remove casting
-      product2(f.d1.asInstanceOf[Diagram], g.d1.asInstanceOf[Diagram]), // TODO: remove casting
+      product2(f.d0, g.d0),
+      product2(f.d1, g.d1),
       mapping)
   end productOfArrows
 

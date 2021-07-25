@@ -100,8 +100,6 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
 
   private[cat] def asObj(x: Any): Obj = x.asInstanceOf[Obj]
 
-  private[cat] def asArrow(a: Any): Arrow = a.asInstanceOf[Arrow]
-
   private[cat] def checkCompositions: Outcome =
     val check1 = Result.check(missingCompositions map {
       case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
@@ -189,7 +187,7 @@ private[construction] class PartialData(override val graph: Graph)
   override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
-    composition.get((f, g)).map { arrow _ }
+    composition.get((f, g)).map { asArrow _ }
 
   /**
     * This method helps fill in obvious choices for arrows composition.
@@ -344,7 +342,7 @@ object CategoryData:
       override def id(o: Obj): Arrow = ids(o)
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        composition(f, g) map arrow
+        composition(f, g) map asArrow
 
   
   // TODO: don't throw exception, return a result

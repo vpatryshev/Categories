@@ -40,7 +40,7 @@ class GraphMorphismTest extends Test:
       val sut: GraphMorphism = GraphMorphism.id(graph)
       sut.d0 === graph
       sut.d1 === graph
-      sut.arrowsMapping("1a".asInstanceOf[sut.d0.Arrow]) === "1a"
+      sut.arrowsMapping("1a") === "1a"
       val sameThing = sut == GraphMorphism.id(graph)
       sameThing === true
     }
@@ -80,7 +80,7 @@ class GraphMorphismTest extends Test:
       
       val expected = GraphMorphism("linear to 3", g1, g3)(
         add1mod3.asInstanceOf[g1.Node => g3.Node],
-        (p:g1.Arrow) => g3.arrow(add1mod3(p.asInstanceOf[(Int, Int)]._1)))
+        (p:g1.Arrow) => g3.asArrow(add1mod3(p.asInstanceOf[(Int, Int)]._1)))
 
       val actual: GraphMorphism = sut1 andThen sut2 get
       
@@ -97,7 +97,7 @@ class GraphMorphismTest extends Test:
       val arrowDiff: List[expected.d0.Arrow] = expected.d0.arrows.filterNot(expected.sameArrowsMapping(actual)).toList
 
       val arrowDiffVals = arrowDiff map
-        ((x:expected.d0.Arrow) => (x, actual.arrowsMapping(actual.d0.arrow(x)), expected.arrowsMapping(expected.d0.arrow(x))))
+        ((x:expected.d0.Arrow) => (x, actual.arrowsMapping(actual.d0.asArrow(x)), expected.arrowsMapping(expected.d0.asArrow(x))))
 
       arrowDiffVals === Nil
 

@@ -1,6 +1,6 @@
 package math.cat
 
-import math.cat.SetCategory.Setf.node
+import math.cat.SetCategory.Setf.asNode
 import math.cat.SetFunction._
 import math.sets.Sets._
 import math.sets.{BinaryRelation, Sets}

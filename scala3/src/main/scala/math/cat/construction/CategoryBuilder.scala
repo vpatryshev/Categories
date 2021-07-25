@@ -34,7 +34,7 @@ class CategoryBuilder(val source: CategoryData):
         def id(o: Obj): Arrow = sid(o)
 
         def m(f: Arrow, g: Arrow): Option[Arrow] =
-          source.m(f, g) map arrow
+          source.m(f, g) map asArrow
 
   end newCategory
 

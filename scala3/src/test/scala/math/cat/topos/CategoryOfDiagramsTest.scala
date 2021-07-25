@@ -151,7 +151,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         case Good(terminal) =>
           terminal === topos._1
           checkConstSize(topos)(terminal, 1)
-          val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
+          val ab = terminal.arrowsMapping(terminal.d0.asArrow("ab"))
           terminal.asFunction(ab).d0 === Set(Set())
         case none => failure(s"Could not build a terminal in $topos: $none")
       }

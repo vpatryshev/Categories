@@ -15,8 +15,8 @@ class GraphTest extends Test:
 
     "checks its arrows" >> {
       expect(sut => {
-        sut.arrow(111) === 111
-        sut.arrow(112) should throwA[IllegalArgumentException]
+        sut.asArrow(111) === 111
+        sut.asArrow(112) should throwA[IllegalArgumentException]
       })(
         Graph.build("sut1", Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
     }
@@ -246,7 +246,7 @@ class GraphTest extends Test:
         
         val sub2 = sut.subgraph("self", sut.nodes)
         sub2 === Good(sut)
-        val sub3 = sut.subgraph("1,3", Set(sut.node(1), sut.node(3)))
+        val sub3 = sut.subgraph("1,3", Set(sut.asNode(1), sut.asNode(3)))
         val expected = Graph.build(
           "sut",
           Set(1, 3),
