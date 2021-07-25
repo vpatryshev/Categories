@@ -25,10 +25,10 @@ trait TestDiagrams extends Test:
     Diagram.tryBuild(topos)(name, om, am) iHope
 
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
-    (x: f.d0.Obj) => f.d1.obj(om(f.toString))
+    (x: f.d0.Obj) => om(f.toString)
 
   implicit def translateArrowMapping(f: Functor)(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
-    (x: f.d0.Obj) => f.d1.obj(am(f.toString))
+    (x: f.d0.Obj) => am(f.toString)
   
   lazy val EmptyDiagram: Diagram = build("empty", _0_)(
     Map.empty[String, set],
@@ -89,7 +89,7 @@ trait TestDiagrams extends Test:
   val SampleZ3Diagram: Diagram =
     val a: set = Set(0, 1, 2, 3)
 
-    def f(i: Int): Int => Int = (n: Int) => if (n == 3) n else (n + i) % 3
+    def f(i: Int)(n: Int): Int = if n == 3 then n else (n + i) % 3
 
     val f1 = fun(a,a)("f1", x => f(1)(x.toInt))
     val f2 = fun(a,a)("f2", x => f(2)(x.toInt))

@@ -25,12 +25,12 @@ class NaturalTransformationTest extends Test {
     val g: F = buildFunctor("g", 1 + _).iHope
     val h: F = buildFunctor("g", 2 + _).iHope
 
-    val mappingFor_fg = Map(
-      f.d0.obj("0") -> f.d1.arrow("0.1"), f.d0.obj("1") -> f.d1.arrow("2.2"))
+    val mappingFor_fg: (f.d0.Obj => f.d1.Arrow) =
+      Map("0" -> "0.1", "1" -> "2.2")
 
     val fgOpt: Result[NT] = NaturalTransformation.build("test_fg", f, g)(mappingFor_fg)
     val ghOpt: Result[NT] = NaturalTransformation.build("test_gh", g, h)(
-      Map("0" -> g.d1.arrow("1.2"), "1" -> g.d1.arrow("2.3")))
+      Map("0" -> "1.2", "1" -> "2.3"))
 
     "build properly" in {
       val fg = fgOpt.iHope
@@ -44,8 +44,8 @@ class NaturalTransformationTest extends Test {
         val fgh = fgOpt.iHope andThen ghOpt.iHope
         fgh.d0 === f
         fgh.d1 === h
-        fgh.transformPerObject(fgh.d0.d0.obj("0")) === "0.2"
-        fgh.transformPerObject(fgh.d0.d0.obj("1")) === "2.3"
+        fgh.transformPerObject("0") === "0.2"
+        fgh.transformPerObject("1") === "2.3"
     }
 
     "have identity" in {

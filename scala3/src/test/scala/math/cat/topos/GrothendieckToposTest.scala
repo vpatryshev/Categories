@@ -29,8 +29,8 @@ class GrothendieckToposTest extends Fixtures:
       val omega0 = Ω("0").toList
       omega0.size === 2
       val omega00 :: omega01 :: Nil = omega0
-      omega00.asInstanceOf[Diagram]("0").isEmpty must beTrue
-      omega01.asInstanceOf[Diagram]("0").isEmpty must beFalse
+      omega00("0").isEmpty must beTrue
+      omega01("0").isEmpty must beFalse
       points.size === 2
 
       points.map(_.toShortString) === List("p0(0->())", "p1(0->(0->{0.0}))")
@@ -111,7 +111,7 @@ class GrothendieckToposTest extends Fixtures:
       val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1 iHope
       val χ1: DiagramArrow = topos.χ(i1)
       val χ10: SetFunction = asFunction(χ1("0"))
-      def short(x: Any) = x.asInstanceOf[Diagram].toShortString
+      def short(x: Any) = x.toShortString
       short(χ10(1)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
       short(χ10(2)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
       short(χ10(3)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"

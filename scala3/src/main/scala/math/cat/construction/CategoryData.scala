@@ -22,14 +22,14 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   val graph: Graph = this
 
   /// TODO: figure out why do we need it
-  def d0(f: Arrow): Node = node(graph.d0(graph.arrow(f)))
-  def d1(f: Arrow): Node = node(graph.d1(graph.arrow(f)))
+  def d0(f: Arrow): Node = graph.d0(f)
+  def d1(f: Arrow): Node = graph.d1(f)
   
   lazy val listOfObjects: List[Obj] =
     if isFinite then listSorted(objects)
     else throw new IllegalStateException("Cannot sort infinite set")
 
-  def obj(x: Any): Obj =
+  implicit def obj(x: Any): Obj =
     val objectMaybe = Result.forValue(asObj(x))
     objectMaybe filter (objects contains) getOrElse {
       throw new IllegalArgumentException(s"$x is not an object in $name")
@@ -100,8 +100,6 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
 
   private[cat] def asObj(x: Any): Obj = x.asInstanceOf[Obj]
 
-  private[cat] def asArrow(a: Any): Arrow = a.asInstanceOf[Arrow]
-
   private[cat] def checkCompositions: Outcome =
     val check1 = Result.check(missingCompositions map {
       case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
@@ -113,7 +111,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
         g <- arrows
         h = m(f, g)
       yield
-        if (follows(g, f)) then
+        if follows(g, f) then
           Result(h) flatMap { gf =>
             OKif(sameDomain(gf, f),
               s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
@@ -189,7 +187,7 @@ private[construction] class PartialData(override val graph: Graph)
   override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
-    composition.get((graph.arrow(f), graph.arrow(g))).map { arrow _ }
+    composition.get((f, g)).map { asArrow _ }
 
   /**
     * This method helps fill in obvious choices for arrows composition.
@@ -210,6 +208,7 @@ private[construction] class PartialData(override val graph: Graph)
       deduceCompositions(addedUniqueSolutions)
 
     addedDeducedCompositions
+  
   end fillCompositionTable
 
   // adding composition that are deduced from associativity law
@@ -221,9 +220,9 @@ private[construction] class PartialData(override val graph: Graph)
         val (f, g, h) = t
         val gf = m((f, g))
         val hg = m((g, h))
-        if (m contains(gf, h)) && !(m contains(f, hg)) then
+        if m.contains(gf, h) && !m.contains(f, hg) then
           m + ((f, hg) -> m((gf, h)))
-        else if (m contains(f, hg)) && !(m contains(gf, h)) then
+        else if m.contains(f, hg) && !m.contains(gf, h) then
           m + ((gf, h) -> m((f, hg)))
         else
           m
@@ -245,9 +244,9 @@ private[construction] class PartialData(override val graph: Graph)
   // adding composition with identities to a composition table
   private def defineCompositionWithIds: CompositionTable =
     graph.arrows.foldLeft(compositionSource) { (m, f) =>
-      val fA = f.asInstanceOf[graph.Arrow]
-      val id_d0 = graph.arrow(graph.d0(f))
-      val id_d1 = graph.arrow(graph.d1(f))
+      val fA: graph.Arrow = f
+      val id_d0: graph.Arrow = graph.d0(f)
+      val id_d1: graph.Arrow = graph.d1(f)
       m + ((id_d0, fA) -> fA) + ((fA, id_d1) -> fA)
     }
 
@@ -316,7 +315,7 @@ object CategoryData:
 
   private def addIdentitiesToGraph(graph: Graph): Graph =
 
-    val nodesOpt: Option[Set[Any]] = if (graph.isFinite) Some(graph.nodes.toSet) else None
+    val nodesOpt: Option[Set[Any]] = if graph.isFinite then Some(graph.nodes.toSet) else None
 
     def isIdentity(f: Any): Boolean = nodesOpt map (_ contains f) getOrElse (graph contains f)
 
@@ -327,10 +326,10 @@ object CategoryData:
       lazy val arrows: Arrows = (graph.nodes ++ graph.arrows).asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node =
-        if isIdentity(f) then node(f) else node(graph.d0(graph.arrow(f)))
+        if isIdentity(f) then f else graph.d0(f)
 
       def d1(f: Arrow): Node =
-        if isIdentity(f) then node(f) else node(graph.d1(graph.arrow(f)))
+        if isIdentity(f) then f else graph.d1(f)
 
   end addIdentitiesToGraph
 
@@ -340,10 +339,10 @@ object CategoryData:
     new CategoryData(gr.name):
       override val graph = gr
 
-      override def id(o: Obj): Arrow = ids(gr.node(o)).asInstanceOf[Arrow]
+      override def id(o: Obj): Arrow = ids(o)
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        composition(gr.arrow(f), gr.arrow(g)) map arrow
+        composition(f, g) map asArrow
 
   
   // TODO: don't throw exception, return a result

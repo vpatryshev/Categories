@@ -58,11 +58,10 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
     * @param other other poset to compare
     * @return true if these two posets are equal
     */
-  override def equals(x: Any): Boolean = {
+  override def equals(x: Any): Boolean =
     x match
       case other: PoSet[_] => equal(other)
       case _ => false
-  }
 
   private[this] def equal(other: PoSet[_]): Boolean =
     (other eq this) || {
@@ -76,14 +75,14 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
   validatePoset()
 
 
-  protected def validatePoset(): Unit = if (Sets.isFinite(elements))
-    for {x <- elements} require(le(x, x), " reflexivity broken at " + x)
+  protected def validatePoset(): Unit = if Sets.isFinite(elements) then
+    for x <- elements do require(le(x, x), " reflexivity broken at " + x)
 
-    for {x <- elements; y <- elements}
-      if (le(x, y) && le(y, x)) require(x == y, " antisymmetry broken at " + x + ", " + y)
+    for x <- elements; y <- elements if le(x, y) && le(y, x) do
+      require(x == y, " antisymmetry broken at " + x + ", " + y)
 
-    for {x <- elements; y <- elements; z <- elements}
-      if (le(x, y) && le(y, z)) require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
+    for x <- elements; y <- elements; z <- elements do
+      if le(x, y) && le(y, z) then require(le(x, z), "transitivity broken at " + x + ", " + y + ", " + z)
     
   
   /**
@@ -125,7 +124,7 @@ object PoSet:
 
   def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Nil)
 
-  class PosetParser extends Sets.SetParser {
+  class PosetParser extends Sets.SetParser:
     def poset: Parser[Result[PoSet[String]]] = 
       "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
         case "("~sOpt~","~"{"~mOpt~"}"~")" =>
@@ -150,7 +149,8 @@ object PoSet:
       explain(pr)
 
     override def read(input: Reader): Result[PoSet[String]] = explain(parseAll(poset, input))
-  }
+  
+  end PosetParser
 
   def apply(input: Reader): Result[PoSet[String]] = (new PosetParser).read(input)
 

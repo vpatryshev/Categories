@@ -60,7 +60,7 @@ class LayoutTest extends Specification:
           c: Category <- KnownFiniteCategories
           ls = gradedObjectsOf(c)
           l: GradedObjects <- ls
-          name: String = if (ls.size == 1) c.name else l.category.name
+          name: String = if ls.size == 1 then c.name else l.category.name
         yield
           name -> l.nameObjectsInLayers
         )
@@ -86,7 +86,7 @@ class LayoutTest extends Specification:
         ls = Layout(c, 300, 300).gradedObjects
         l <- ls
       yield
-        val name = if (ls.size == 1) c.name else l.category.name
+        val name = if ls.size == 1 then c.name else l.category.name
         name -> l.layers.map(_.map(_.toString))
       ) toMap
 

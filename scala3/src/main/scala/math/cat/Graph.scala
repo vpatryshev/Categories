@@ -16,7 +16,7 @@ trait Graph(val name: String) extends GraphData:
 
   def size: Int = nodes.size
   
-  implicit def pairOfNodes(p: (_, _)): (Node, Node) = (node(p._1), node(p._2))
+  implicit def pairOfNodes(p: (_, _)): (Node, Node) = (p._1, p._2)
 
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
@@ -38,7 +38,7 @@ trait Graph(val name: String) extends GraphData:
   private def equal(that: Graph) = checkThat {
     this.nodes == that.nodes && this.arrows == that.arrows &&
     arrows.forall(arrowHere =>
-      val arrowThere = that.arrow(arrowHere)
+      val arrowThere: that.Arrow = arrowHere
       (d0(arrowHere) == that.d0(arrowThere)) && (d1(arrowHere) == that.d1(arrowThere))
     )
   }
@@ -77,7 +77,7 @@ trait Graph(val name: String) extends GraphData:
     * @return true iff g and f have the same domain
     */
   def sameDomain(f: Arrow, g: Arrow): Boolean =
-    d0(arrow(f)) == d0(arrow(g))
+    d0(f) == d0(g)
 
   /**
     * Checks if two arrows have the same codomain
@@ -86,7 +86,7 @@ trait Graph(val name: String) extends GraphData:
     * @return true iff g and f have the same codomain
     */
   def sameCodomain(f: Arrow, g: Arrow): Boolean =
-    d1(arrow(f)) == d1(arrow(g))
+    d1(f) == d1(g)
 
   /**
     * Checks if two arrows are parallel
@@ -98,7 +98,7 @@ trait Graph(val name: String) extends GraphData:
     sameDomain(f, g) && sameCodomain(f, g)
 
   def unary_~ : Graph =
-    new Graph(if (graph.name.startsWith("~")) graph.name.tail else "~" + graph.name):
+    new Graph(if graph.name startsWith "~" then graph.name.tail else "~" + graph.name):
       type Node = graph.Node
       type Arrow = graph.Arrow
       def nodes: Nodes = graph.nodes
@@ -131,13 +131,13 @@ trait Graph(val name: String) extends GraphData:
       def d0(f: Arrow): Node = {
         val fA = f.asInstanceOf[graph.Arrow]
         val newOne: Option[Node] = newArrows.get(fA).map(_._1.asInstanceOf[Node])
-        newOne.getOrElse(node(graph.d0(fA)))
+        newOne.getOrElse(graph.d0(fA))
       }
 
       def d1(f: Arrow): Node = {
         val fA = f.asInstanceOf[graph.Arrow]
         val newOne: Option[Node] = newArrows.get(fA).map(_._2.asInstanceOf[Node])
-        newOne.getOrElse(node(graph.d1(fA)))
+        newOne.getOrElse(graph.d1(fA))
       }
     
     result.validate orCommentTheError s"Failed in Graph $this"
@@ -158,15 +158,15 @@ private[cat] trait GraphData:
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  def nodeOpt(x: Any): Result[Node] = Result.forValue(node(x))
+  def nodeOpt(x: Any): Result[Node] = Result.forValue(x)
 
-  def node(x: Any): Node = x match {
+  implicit def asNode(x: Any): Node = x match {
     case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
   }
 
-  def arrow(a: Any): Arrow = {
+  implicit def asArrow(a: Any): Arrow = {
     val arrow = a.asInstanceOf[Arrow]
     if arrows contains arrow then arrow
     else
@@ -251,7 +251,7 @@ object Graph:
 
   def discrete[N](points: Set[N], nameit: String = ""): Graph =
     val name: String =
-      if (nameit == "") s"DiscreteGraph_${points.size}" else nameit
+      if nameit == "" then s"DiscreteGraph_${points.size}" else nameit
     
     new Graph(name):
       type Node = N

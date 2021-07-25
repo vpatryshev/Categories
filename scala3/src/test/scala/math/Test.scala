@@ -24,7 +24,7 @@ class Test extends TestBase:
 
   type SUT
 
-  def checkOpt[T](g: Result[T], op: T => Unit): MatchResult[Any] =
+  def checkOption[T](g: Result[T], op: T => Unit): MatchResult[Any] =
     g match
       case Good(sut) => op(sut)
       case bad => failure(bad.toString)
@@ -35,7 +35,7 @@ class Test extends TestBase:
     op(g)
     ok
 
-  def expect(op: SUT => Unit)(sutOpt: Result[SUT]): MatchResult[Any] = checkOpt[SUT](sutOpt, op)
+  def expect(op: SUT => Unit)(sutOpt: Result[SUT]): MatchResult[Any] = checkOption[SUT](sutOpt, op)
 
   def expectOk(r: Result[_]): TestResult =
     r.isGood aka r.toString must beTrue

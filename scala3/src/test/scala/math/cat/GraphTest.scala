@@ -15,8 +15,8 @@ class GraphTest extends Test:
 
     "checks its arrows" >> {
       expect(sut => {
-        sut.arrow(111) === 111
-        sut.arrow(112) should throwA[IllegalArgumentException]
+        sut.asArrow(111) === 111
+        sut.asArrow(112) should throwA[IllegalArgumentException]
       })(
         Graph.build("sut1", Set(1, 2, 3), Set(11, 111, 21, 32, 13), (x: Int) => x / 10 % 10, (x: Int) => x % 10))
     }
@@ -140,7 +140,7 @@ class GraphTest extends Test:
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
       val sutOpt = Graph.fromArrowMap("sut", objects, map)
 
-      checkOpt(sutOpt, (sut: Graph) =>
+      checkOption(sutOpt, (sut: Graph) =>
         import sut._
         sut.nodes === Set(3, 1, 2)
         sut.d0("2to1" asArrow) === 2
@@ -246,7 +246,7 @@ class GraphTest extends Test:
         
         val sub2 = sut.subgraph("self", sut.nodes)
         sub2 === Good(sut)
-        val sub3 = sut.subgraph("1,3", Set(sut.node(1), sut.node(3)))
+        val sub3 = sut.subgraph("1,3", Set(sut.asNode(1), sut.asNode(3)))
         val expected = Graph.build(
           "sut",
           Set(1, 3),
@@ -312,9 +312,9 @@ class GraphTest extends Test:
     "hom" >> {
       val sut = graph"({1, 2, 3}, {1a: 1 -> 1, 1b: 1 -> 1, 2to1: 2 -> 1, 3to2: 3 -> 2, 1to3: 1 -> 3})"
       import sut._
-      val hom = sut.arrowsBetween(sut.node("1"), sut.node("1"))
+      val hom = sut.arrowsBetween("1", "1")
       Sets.parse("{1a, 1b}") === Good(hom)
-      Sets.parse("{3to2}") === Good(sut.arrowsBetween(sut.node("3"), sut.node("2")))
+      Sets.parse("{3to2}") === Good(sut.arrowsBetween("3", "2"))
     }
 
     "~" >> {

@@ -18,4 +18,4 @@ case class GroupOfObjects[T](objects: Iterable[T]):
           val abs = c + relative
           abs
 
-        (for {(name, i) <- objects.zipWithIndex} yield (name, p(i))).toSet
+        (for (name, i) <- objects.zipWithIndex yield (name, p(i))).toSet

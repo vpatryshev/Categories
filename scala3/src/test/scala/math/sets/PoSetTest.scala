@@ -6,7 +6,7 @@ class PoSetTest extends TestBase:
 
   "PoSet" >> {
     "parse" >> {
-      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x,y) => y contains x)
+      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x, y) => y contains x)
       val actual: PoSet[String] =
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})").
           getOrElse(throw new IllegalArgumentException("Did not parse"))
@@ -14,10 +14,10 @@ class PoSetTest extends TestBase:
       actual.elements === expected.elements
       val product = Sets.product2(expected.elements, expected.elements)
 
-      for {p <- product} {
+      for p <- product do
         // could not use `===`, something wrong with it in combination with `aka`
         (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must_== expected.le(p)
-      }
+
       expected.equals(actual) must beTrue // here we check equality
       actual.equals(expected) must beTrue // here we check equality again
     }
@@ -37,7 +37,7 @@ class PoSetTest extends TestBase:
     }
 
     "Constructor_negativeAntireflexivity" >> {
-        PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "a"))) should throwA[IllegalArgumentException]
+      PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "a"))) should throwA[IllegalArgumentException]
     }
 
     "Equals_positive" >> {
@@ -49,17 +49,19 @@ class PoSetTest extends TestBase:
 
     "Equals_negative" >> {
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("c", "b")))
+
       def naturalOrder(p: (String, String)) = p._1 <= p._2
+
       val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
       (sut1 == sut2) must beFalse
     }
 
-// In Scala 3 the following code won't even compile    
-//    "Equals_differentTypes (will issue warning)" >> {
-//      val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
-//      val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
-//      (sut1 == sut2) must beFalse
-//    }
+    // In Scala 3 the following code won't even compile    
+    //    "Equals_differentTypes (will issue warning)" >> {
+    //      val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
+    //      val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
+    //      (sut1 == sut2) must beFalse
+    //    }
 
     "UnaryOp" >> {
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
@@ -101,7 +103,7 @@ class PoSetTest extends TestBase:
       sut.le(0, 2) must beTrue
       sut.le(0, 1) must beTrue
     }
-    
+
     "~" >> {
       val sut = ~PoSet.range(0, 3, 1)
       sut.le(1, 2) must beFalse
@@ -111,6 +113,6 @@ class PoSetTest extends TestBase:
       sut.le(2, 1) must beTrue
       sut.le(2, 0) must beTrue
       sut.le(1, 0) must beTrue
-      
+
     }
   }

@@ -9,7 +9,7 @@ object TestWatch:
   private var started: Boolean = false
   
   def start(): Unit = synchronized {
-    if (!started) then restart()
+    if !started then restart()
   }
   
   def restart(): Unit = synchronized {

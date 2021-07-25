@@ -112,21 +112,21 @@ class FunctorTest extends Test:
       val to = Square
 
       val mapA: from.Arrow => to.Arrow =
-        Map(from.arrow(0) -> to.arrow("b"), from.arrow(1) -> to.arrow("c"))
+        Map(0 -> "b", 1 -> "c")
 
       type toO = to.Obj
       val mapO: from.Obj => to.Obj =
-        Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
+        Map(0 -> "b", 1 -> "c")
       
       val fOpt = Functor("sample product", from, to)(mapO, mapA)
-      checkOpt[Functor](fOpt,
+      checkOption[Functor](fOpt,
         (f:Functor) =>
         val limitOpt = f.limit
 
         limitOpt match
           case Good(limit) =>
-            limit.arrowTo(f.d0.obj(0)) == "ab"
-            limit.arrowTo(f.d0.obj(1)) == "ac"
+            limit.arrowTo(0) == "ab"
+            limit.arrowTo(1) == "ac"
           case _ => failure(s"Could not build a limit of $f")
       )
     }
@@ -135,7 +135,7 @@ class FunctorTest extends Test:
       val sut = functorFromPullbackToDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
       val actual: Set[sut.Cone] = sut.conesFrom(obj1("a0"))
       
       val expected: sut.Cone = sut.Cone(obj1("a0"), Map(
@@ -151,7 +151,7 @@ class FunctorTest extends Test:
       val sut = functorFromPullbackToDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
       val allCones = sut.allCones
       val c1 = sut.Cone(obj1("a0"), Map(
         obj0("a") -> arr1("a0b"),
@@ -173,8 +173,8 @@ class FunctorTest extends Test:
       sut.limit match
         case Good(limit) =>
           limit.vertex === "a1"
-          limit.arrowTo(sut.d0.obj("a")) === "a1b"
-          limit.arrowTo(sut.d0.obj("b")) === "a1c"
+          limit.arrowTo("a") === "a1b"
+          limit.arrowTo("b") === "a1c"
         case oops => failure("no limit?")
 
       ok
@@ -184,7 +184,7 @@ class FunctorTest extends Test:
       val sut = functorFrom1to2toDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
 
       val actual = sut.coconesTo(obj1("d0"))
       val expected = sut.Cocone(obj1("d0"), Map(
@@ -199,7 +199,7 @@ class FunctorTest extends Test:
       val sut = functorFrom1to2toDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
       val allCocones = sut.allCocones
       val expected1 = sut.Cocone(obj1("d0"), Map(
         obj0("a") -> arr1("ad0"),
@@ -218,7 +218,7 @@ class FunctorTest extends Test:
       val sut = functorFrom1to2toDoubleSquare
       val obj0 = sut.d0.obj _
       val obj1 = sut.d1.obj _
-      val arr1 = sut.d1.arrow _
+      val arr1 = sut.d1.asArrow _
 
       sut.colimit match
         case Good(colimit) =>
@@ -244,14 +244,14 @@ class FunctorTest extends Test:
         Map("ac" -> ac, "bc" -> bc)
       )
       
-      checkOpt[Functor](sutOpt,
+      checkOption[Functor](sutOpt,
         sut => {
           sut.d0 === Pullback
           sut.d1 === Setf
-          sut.objectsMapping(sut.d0.obj("a")) === a
-          sut.objectsMapping(sut.d0.obj("b")) === b
-          sut.objectsMapping(sut.d0.obj("c")) === c
-          sut.arrowsMapping(sut.d0.arrow("ac")) === ac
+          sut.objectsMapping("a") === a
+          sut.objectsMapping("b") === b
+          sut.objectsMapping("c") === c
+          sut.arrowsMapping("ac") === ac
         }
       )
     }

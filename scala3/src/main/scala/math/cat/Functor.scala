@@ -69,16 +69,15 @@ abstract class Functor(
   def andThen(g: Functor): Option[Functor] =
     if d1 != g.d0 then None else Some {
       val f = this
-      def `g(f(object))`(x: d0.Obj) = g.objectsMapping(g.d0.obj(objectsMapping(x)))
-      def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(g.d0.arrow(arrowsMapping(a)))
+      def `g(f(object))`(x: d0.Obj) = g.objectsMapping(objectsMapping(x))
+      def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(arrowsMapping(a))
 
       new Functor(concat(g.tag, "∘", this.tag), f.d0, g.d1):
 
-        def objectsMapping(x: d0.Obj): d1.Obj =
-          d1.obj(`g(f(object))`(Functor.this.d0.obj(x)))
+        def objectsMapping(x: d0.Obj): d1.Obj = `g(f(object))`(x)
 
         protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-          d1.arrow(`g(f(arrow))`(Functor.this.d0.arrow(a)))
+          `g(f(arrow))`(a)
 
       }
 
@@ -102,7 +101,7 @@ abstract class Functor(
   def conesFrom(y: d1.Obj): Set[Cone] =
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     val arrowsFromYtoFX: Injection[d0.Obj, Set[(d0.Obj, d1.Arrow)]] = injection(
-      (x: d0.Obj) => d1.arrowsBetween(d1.obj(y), objectsMapping(x)) map { (x, _) }
+      (x: d0.Obj) => d1.arrowsBetween(y, objectsMapping(x)) map { (x, _) }
     )
 
     // group (x, f: y->F[x]) by x
@@ -178,7 +177,7 @@ abstract class Functor(
   def coconesTo(y: d1.Obj): Set[Cocone] =
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     def arrowsFromFXtoY(x: d0.Obj): Set[(d0.Obj, d1.Arrow)] =
-      d1.arrowsBetween(d1.obj(objectsMapping(x)), y) map { (x, _) }
+      d1.arrowsBetween(objectsMapping(x), y) map { (x, _) }
 
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = domainObjects.toList map arrowsFromFXtoY
@@ -318,9 +317,9 @@ object Functor:
     * @return identity functor on the given category
     */
   def id(c: Category): Functor = new Functor("id", c, c):
-      override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(x)
+      override def objectsMapping(x: d0.Obj): d1.Obj = x
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = d1.arrow(a)
+      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a
 
   /**
     * Builds a constant functor from a category to an object in another.
@@ -343,10 +342,10 @@ object Functor:
     objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor =
     new Functor(tag, dom, codom):
-      override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(objectsMorphism(dom.obj(x)))
+      override def objectsMapping(x: d0.Obj): d1.Obj = objectsMorphism(x)
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        d1.arrow(arrowsMorphism(dom.arrow(a)))
+        arrowsMorphism(a)
 
   /**
     * Builds a functor, given the data:

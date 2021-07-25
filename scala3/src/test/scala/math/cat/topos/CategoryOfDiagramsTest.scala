@@ -49,7 +49,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val topos = new CategoryOfDiagrams(W)
       import topos.domain._
       val ob = (o: String) => {
-        val r = representable(topos)(obj(o))
+        val r = representable(topos)(o)
         (name: String) => r(name)
       }
 
@@ -67,7 +67,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val topos = new CategoryOfDiagrams(M)
       import topos.domain._
       val ob = (o: String) => {
-        val r = representable(topos)(obj(o))
+        val r = representable(topos)(o)
         (name: String) => r(name)
       }
 
@@ -82,9 +82,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         x <- topos.domain.objects
         a <- topos.domain.arrows
       } {
-        val r = representable(topos)(obj(x))
-        val arrow = r.d0.arrow(a)
-        val ra = r.arrowsMapping(arrow) // no exception expected
+        val r = representable(topos)(x)
+        val ra = r.arrowsMapping(a)
       }
 
       ok
@@ -94,8 +93,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val topos = new CategoryOfDiagrams(Z3)
       import topos.domain._
       def ob(o: String) = {
-        val r = representable(topos)(obj(o))
-        ((name: String) => r(obj(name)).toString): (String => String)
+        val r = representable(topos)(o)
+        ((name: String) => r(name).toString): (String => String)
       }
 
       val stringToString: String => String = ob("0")
@@ -152,7 +151,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         case Good(terminal) =>
           terminal === topos._1
           checkConstSize(topos)(terminal, 1)
-          val ab = terminal.arrowsMapping(terminal.d0.arrow("ab"))
+          val ab = terminal.arrowsMapping(terminal.d0.asArrow("ab"))
           terminal.asFunction(ab).d0 === Set(Set())
         case none => failure(s"Could not build a terminal in $topos: $none")
       }

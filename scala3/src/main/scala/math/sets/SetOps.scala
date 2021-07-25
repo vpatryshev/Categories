@@ -29,7 +29,7 @@ object SetOps:
     * @return an iterable that produces pairs.
     */
   def cantorIterator[X, Y](xs: Iterable[X], ys: Iterable[Y]): Iterator[(X, Y)] =
-    if (xs.isEmpty || ys.isEmpty) then Iterator.empty
+    if xs.isEmpty || ys.isEmpty then Iterator.empty
     else
       new Iterator[(X, Y)]:
         private[this] var iterators: mutable.Queue[Iterator[Y]] = new mutable.Queue()

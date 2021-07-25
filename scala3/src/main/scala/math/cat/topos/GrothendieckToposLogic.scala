@@ -4,7 +4,8 @@ import math.Base.concat
 import math.cat.SetFunction._
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow, const}
 import math.cat.{Morphism, SetFunction}
-import math.sets.Sets.{set, setOf}
+import math.sets.Sets
+import Sets.{set, setOf}
 import scalakittens.Result
 
 import scala.collection.mutable
@@ -30,12 +31,11 @@ trait GrothendieckToposLogic:
       concat(wrapTag(tag1), op, wrapTag(tag2))
 
     private def setAt(o: Any): set =
-      val o1 = d0.d0.obj(o)
-      val function = asFunction(p.transformPerObject(o1))
+      val function = p.transformPerObject(o)
       setOf(function.d0)
 
     private def transformAt(o: Any): SetFunction =
-      asFunction(transformPerObject(d0.d0.obj(o)))
+      transformPerObject(o)
 
     private[topos] def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
       binaryOpNamed(q, ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)
@@ -66,8 +66,7 @@ trait GrothendieckToposLogic:
             )
     
           val op: SetFunction = asFunction(ΩxΩ_to_Ω(o))
-          val maybeFunction = PQtoΩxΩ andThen op
-          d1.d1.arrow(Result(maybeFunction).iHope)
+          Result(PQtoΩxΩ andThen op) iHope
 
     end evalBinaryOp
     
@@ -110,12 +109,9 @@ trait GrothendieckToposLogic:
     */
   def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
     new topos.Predicate(f.tag):
-      override val d0: Obj = f.d0.asInstanceOf[Obj] // TODO: get rid of casting
+      override val d0: Obj = f.d0
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        val x_in_domain_of_f = f.d0.d0.obj(x)
-        val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
-        val arrow_in_codomain_of_f = d1.d1.arrow(arrow_in_domain_of_f)
-        arrow_in_codomain_of_f
+        f.transformPerObject(x)
 
   /**
     * Builds a predicate for a point in Ω
@@ -130,9 +126,7 @@ trait GrothendieckToposLogic:
       override val d0: Obj = _1
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        val xInInclusion = inclusion.d0.d0.obj(x)
-        val arrowInInclusion = inclusion.transformPerObject(xInInclusion)
-        d1.d1.arrow(arrowInInclusion)
+        inclusion.transformPerObject(x)
 
   /**
     * An arrow from terminal to the point as a diagram
@@ -145,18 +139,18 @@ trait GrothendieckToposLogic:
       override val d1: Diagram = p.asDiagram
 
       override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow =
-        d1.d1.arrow {
+        d1.d1.asArrow {
           val value = p(o)
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
         }
 
-  val initialT: Result[Obj] = BaseCategory.initial map constSet("initial")
+  val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.Empty)
   
   lazy val _0: Obj = initialT iHope
 
-  val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal")
+  val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal", Sets.Unit)
   
   val _1: Obj = terminalT iHope
 
-  private[topos] def constSet(name: String)(obj: BaseCategory.Obj): Diagram =
-    const(name, topos)(obj.asInstanceOf[set])
+  private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Diagram =
+    const(name, topos)(value)

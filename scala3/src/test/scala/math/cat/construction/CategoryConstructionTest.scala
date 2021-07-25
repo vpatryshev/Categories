@@ -110,7 +110,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         composition = EmptyComposition,
         defineComposition
       )
-      checkOpt(sutOpt, _.arrows must haveSize(1)
+      checkOption(sutOpt, _.arrows must haveSize(1)
       )
       ok
     }
@@ -313,9 +313,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
   "Square" should {
     "pass a regression test of 3/31/19" in {
-      val cd = Square.arrow("cd")
-      Square.d0(cd) === "c"
-      Square.d1(cd) === "d"
+      Square.d0("cd") === "c"
+      Square.d1("cd") === "d"
     }
   }
 

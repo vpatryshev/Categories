@@ -60,7 +60,7 @@ class CategoryTest extends Test:
     "id case 3" >> {
       import NaturalNumbers._
 
-      id(NaturalNumbers.obj(BigInt(42))) === (BigInt(42), BigInt(42))
+      id(BigInt(42)) === (BigInt(42), BigInt(42))
     }
 
     "toString_1" >> {
@@ -86,7 +86,7 @@ class CategoryTest extends Test:
         val unknown = Simplicial3.d0("qq")
         failure("Should have failed")
       } catch {
-        case e: Exception => // as expected
+        case e: NoSuchElementException => // as expected
         case _: Throwable => failure("should have thrown a NoSuchElementException")
       }
       ok
@@ -526,7 +526,7 @@ class CategoryTest extends Test:
       import op3._
       op3.arrows === _3_.arrows
       op3.objects === _3_.objects
-      op3.d0("1.2".asInstanceOf[op3.Arrow]) === "2"
+      op3.d0("1.2") === "2"
       op3.factory.iHope
       ok
     }
@@ -535,7 +535,7 @@ class CategoryTest extends Test:
   "AAAAAA" should {
     
     "pass a regression test of 7/7/19" in {
-      val cd = AAAAAA.arrow("23")
+      val cd = AAAAAA.asArrow("23")
       AAAAAA.d0(cd) === "2"
       AAAAAA.d1(cd) === "3"
     }

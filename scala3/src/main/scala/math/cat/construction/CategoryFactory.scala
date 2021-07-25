@@ -71,11 +71,11 @@ private[cat] trait CategoryFactory:
       type Node = T
       type Arrow = (T, T)
 
-      override def id(o: Obj): Arrow = arrow((o, o))
+      override def id(o: Obj): Arrow = (o, o)
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match
         case (f: (T, T), g: (T, T)) =>
-          Option(f._1, g._2).filter(_ => f._2 == g._1) map arrow
+          Option(f._1, g._2).filter(_ => f._2 == g._1) map asArrow
     
   end fromPoset
 
