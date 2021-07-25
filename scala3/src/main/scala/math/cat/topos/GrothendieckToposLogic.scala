@@ -30,12 +30,11 @@ trait GrothendieckToposLogic:
       concat(wrapTag(tag1), op, wrapTag(tag2))
 
     private def setAt(o: Any): set =
-      val o1 = d0.d0.obj(o)
-      val function = asFunction(p.transformPerObject(o1))
+      val function = p.transformPerObject(o)
       setOf(function.d0)
 
     private def transformAt(o: Any): SetFunction =
-      asFunction(transformPerObject(d0.d0.obj(o)))
+      transformPerObject(o)
 
     private[topos] def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
       binaryOpNamed(q, ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)
@@ -111,9 +110,7 @@ trait GrothendieckToposLogic:
     new topos.Predicate(f.tag):
       override val d0: Obj = f.d0.asInstanceOf[Obj] // TODO: get rid of casting
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        val x_in_domain_of_f = f.d0.d0.obj(x)
-        val arrow_in_domain_of_f = f.transformPerObject(x_in_domain_of_f)
-        arrow_in_domain_of_f
+        f.transformPerObject(x)
 
   /**
     * Builds a predicate for a point in Ω
@@ -128,8 +125,7 @@ trait GrothendieckToposLogic:
       override val d0: Obj = _1
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        val xInInclusion = inclusion.d0.d0.obj(x)
-        inclusion.transformPerObject(xInInclusion)
+        inclusion.transformPerObject(x)
 
   /**
     * An arrow from terminal to the point as a diagram

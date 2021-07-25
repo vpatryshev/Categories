@@ -693,7 +693,7 @@ abstract class Category(name: String) extends CategoryData(name):
         new Category(subname):
           override val graph: Graph = sub
 
-          override def id(o: Obj): Arrow = src.id(src.obj(o))
+          override def id(o: Obj): Arrow = src.id(o)
 
           override def m(f: Arrow, g: Arrow): Option[Arrow] =
             src.m(f, g) map arrow

@@ -37,7 +37,7 @@ trait GrothendieckTopos
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
-    def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(subrepresentablesIndexed(domain.obj(x): domain.Obj))
+    def objectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
 
     // for each arrow `a: x -> y` produce a transition `Ω(x) -> Ω(y)`.
     private def am(a: domain.Arrow): SetFunction =
@@ -112,7 +112,7 @@ trait GrothendieckTopos
 
       Diagram(topos)(
         concat(a.tag, "∩", b.tag),
-        o => om(domain.obj(o)),
+        o => om(o),
         f => am(f)
       )
     
@@ -141,7 +141,7 @@ trait GrothendieckTopos
           cache.getOrElseUpdate(x_in_ΩxΩ, calculatePerObject(x_in_ΩxΩ))
 
         override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-          perObject(d0.d0.obj(x))
+          perObject(x)
 
     
     lazy val disjunction: DiagramArrow =
@@ -177,7 +177,7 @@ trait GrothendieckTopos
 
           Diagram(topos)(
             concat(a.tag, "∪", b.tag),
-            o => om(domain.obj(o)), f => am(f))
+            o => om(o), f => am(f))
 
         end union
 
@@ -190,7 +190,7 @@ trait GrothendieckTopos
           new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
 
         override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-          perObject(d0.d0.obj(x))
+          perObject(x)
       
     end disjunction
 
@@ -236,7 +236,7 @@ trait GrothendieckTopos
     def myArrows(ax: Any): Set[(Any, set)] =
       domain.objects map {
         y =>
-          val all_arrows_to_y: domain.Arrows = domain.hom(domain.obj(x), y)
+          val all_arrows_to_y: domain.Arrows = domain.hom(x, y)
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
           def hits_By(f: domain.Arrow) = By contains image_via(f)
@@ -275,7 +275,7 @@ trait GrothendieckTopos
       val d0: Diagram = inclusion.d1.asInstanceOf[Diagram] // TODO: get rid of casting
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        objToFunction(domain.obj(x))
+        objToFunction(x)
 
   def χ(inclusion: Arrow): Predicate =
     χ(inclusion, s"χ(${inclusion.tag})")
@@ -352,8 +352,7 @@ trait GrothendieckTopos
     to: Diagram,
     mapping: Mapping
   )(o: from.d0.Obj): from.d1.Arrow =
-    val domO: domain.Obj = domain.obj(o)
-    SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(domO)).iHope
+    SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope
 
   /**
     * Given arrows `f` and `g`, builds an arrow (f×g): dom(f)×dom(g) -> codom(f)×codom(g)

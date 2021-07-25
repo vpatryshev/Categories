@@ -38,12 +38,10 @@ class Point(
     new Diagram(tag, topos):
       diagram =>
 
-      override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(Set(mapping(domainCategory.obj(x))))
+      override def objectsMapping(x: d0.Obj): d1.Obj = Set(mapping(x))
 
       private def arrowToFunction(a: d0.Arrow): Any => Any =
-        (z: Any) =>
-          val y = domainCategory.obj(d0.d1(a))
-          mapping(y)
+        (z: Any) => mapping(d0.d1(a))
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
         // need a set function from a.d0 to a.d1

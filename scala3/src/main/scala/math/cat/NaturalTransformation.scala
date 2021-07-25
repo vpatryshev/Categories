@@ -144,7 +144,7 @@ object NaturalTransformation:
       val d0: Functor = f
       val d1: Functor = g
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        mappings(f.d0.obj(x))
+        mappings(x)
 
   /**
     * Builds an identity natural transformation id[f]: f -> f
@@ -164,5 +164,4 @@ object NaturalTransformation:
       val d1: Functor = f
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        val actual_x = f.d0.obj(x) // same thing actually, f = d0
-        `id of f(x)`(actual_x)
+        `id of f(x)`(x)

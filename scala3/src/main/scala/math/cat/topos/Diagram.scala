@@ -68,7 +68,7 @@ abstract class Diagram(
 
   def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
-  def apply(x: Any): set = setOf(objectsMapping(d0.obj(x)))
+  def apply(x: Any): set = setOf(objectsMapping(x))
 
   /**
     * Calculates this diagram's limit
@@ -104,7 +104,7 @@ abstract class Diagram(
       ) iHope // what can go wrong?
     }
     //YObjects vertex
-    Good(Cone(d1.obj(limitBuilder.vertex), coneMap))
+    Good(Cone(limitBuilder.vertex, coneMap))
 
   override def colimit: Result[Cocone] =
     val op = Categories.op(d0)
@@ -161,11 +161,10 @@ abstract class Diagram(
     
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
 
-    def coconeMap(x: XObject): d1.Arrow = d1.arrow {
+    def coconeMap(x: XObject): d1.Arrow =
       canonicalFunctionPerObject(x) andThen factorMorphism iHope
-    }
 
-    Good(Cocone(d1.obj(theFactorset.content.untyped), coconeMap))
+    Good(Cocone(theFactorset.content, coconeMap))
 
   private[topos] def isCompatible(om: Point) = d0.arrows.forall {
     a =>
@@ -189,15 +188,13 @@ abstract class Diagram(
 
   // TODO: write tests
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
-    def objectMapping(o: topos.domain.Obj | XObject): Sets.set = { // TODO: union is not to be used here
-      val o1 = d0.obj(o) // TODO: don't cast, use the fact that d0 is the same as topos.domain
-      objectsMapping(o1) filter predicate(o1)
-    }
+    def objectMapping(o: topos.domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
+      objectsMapping(o) filter predicate(o)
 
     val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a.asInstanceOf[XArrow])
     Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
-  def subobjects: Iterable[Diagram] = {
+  def subobjects: Iterable[Diagram] =
     val allSets: Map[XObject, set] = buildMap(domainObjects, o => setOf(objectsMapping(o)))
     val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
 
@@ -229,24 +226,23 @@ abstract class Diagram(
           extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
     }
     
-    val goodOnes = allCandidates.collect { case Good(d) => d}
-    goodOnes
-  }
+    allCandidates.collect { case Good(d) => d }
+
+  end subobjects
   
-  private def toString(contentMapper: XObject => String): String = {
+  private def toString(contentMapper: XObject => String): String =
     s"Diagram[${d0.name}](${
       listOfObjects map contentMapper filter(_.nonEmpty) mkString ", "
     })".replace("Set()", "{}")    
-  }
 
-  override def toString: String = toString({ x => 
-      s"$x ->{${asString(objectsMapping(x))}}" replace(s"Diagram[${d0.name}]", "") })
+  override def toString: String = toString(x => 
+      s"$x ->{${asString(objectsMapping(x))}}" replace(s"Diagram[${d0.name}]", ""))
   
-  def toShortString: String = toString({ x => {
+  def toShortString: String = toString(x => {
       val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
       if obRepr.isEmpty then "" else s"$x->{$obRepr}"
     } replace(s"Diagram[${d0.name}]", "")
-  })
+  )
 
   /**
     * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value
@@ -255,9 +251,9 @@ abstract class Diagram(
     * @return the predicate
     */
   private[cat] def allArrowsAreCompatibleOnPoint(point: Point): XArrows => Boolean =
-    arrows => arrows.forall(f => arrows.forall(g => {
+    arrows => arrows.forall(f => arrows.forall(g =>
       arrowsAreCompatibleOnPoint(point)(f, g)
-    }))
+    ))
 
   /**
     * Checks whether two arrows action on a given point produce the same element. 
@@ -267,11 +263,10 @@ abstract class Diagram(
     * @param g     second arrow
     * @return true if they are
     */
-  private[cat] def arrowsAreCompatibleOnPoint(point: Point)(f: XArrow, g: XArrow): Boolean = {
+  private[cat] def arrowsAreCompatibleOnPoint(point: Point)(f: XArrow, g: XArrow): Boolean =
     val f_x = arrowActionOnPoint(f, point)
     val g_x = arrowActionOnPoint(g, point)
     f_x == g_x
-  }
 
   /**
     * Calculates the action of a given arrow on a point of a diagram.
@@ -285,7 +280,7 @@ abstract class Diagram(
 
   private[cat] def setOf(x: Any): set = x.asInstanceOf[set]
 
-  private[cat] object limitBuilder {
+  private[cat] object limitBuilder:
     // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = listSorted(rootObjects)
     // Here we have a non-repeating collection of sets to use for building a limit
@@ -311,22 +306,20 @@ abstract class Diagram(
     // this function takes an object and returns a projection set function;
     // we have to compose each such projection
     // with the right arrow from root object to the image of our object
-    private[cat] def projectionForObject(x: XObject)(xs: List[Any]): Any = {
-      val i = index(x)
-      xs(i)
-    }
+    private[cat] def projectionForObject(x: XObject)(xs: List[Any]): Any =
+      xs(index(x))
 
     private def index(x: XObject): Int = listOfObjects.indexOf(x)
 
     // Have a product set; have to remove all the bad elements from it
     // this predicate leaves only compatible elements of product (which are lists)
-    private[cat] def isPoint(candidate: List[Any]): Boolean = {
+    private[cat] def isPoint(candidate: List[Any]): Boolean =
       val p: Point = point(listOfObjects zip candidate toMap)
       val arrowSets = cobundles.values
       val setsToCheck = arrowSets filterNot (_.forall(d0.isIdentity))
       setsToCheck forall allArrowsAreCompatibleOnPoint(p)
-    }
-  }
+
+  end limitBuilder
 
 object Diagram:
 
@@ -351,11 +344,10 @@ object Diagram:
   def tryBuild(topos: GrothendieckTopos)(
     tag: Any,
     objectsMap: topos.domain.Obj => set,
-    arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] = {
+    arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] =
     val diagram: Diagram = apply(topos)(tag, objectsMap, arrowMap)
 
     Functor.validateFunctor(diagram) returning diagram
-  }
 
   private[topos] def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^\\]]+]", "->")

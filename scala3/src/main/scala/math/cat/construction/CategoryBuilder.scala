@@ -20,7 +20,7 @@ class CategoryBuilder(val source: CategoryData):
 
   private def sd0[A](a: A): source.Obj = source.d0(a)
   private def sd1[A](a: A): source.Obj = source.d1(a)
-  private def sid[O](o: O): source.Arrow = source.id(source.obj(o))
+  private def sid[O](o: O): source.Arrow = source.id(o)
   
   def newCategory: Category =
     if source.isFinite then

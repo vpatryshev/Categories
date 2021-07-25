@@ -29,7 +29,7 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
     if isFinite then listSorted(objects)
     else throw new IllegalStateException("Cannot sort infinite set")
 
-  def obj(x: Any): Obj =
+  implicit def obj(x: Any): Obj =
     val objectMaybe = Result.forValue(asObj(x))
     objectMaybe filter (objects contains) getOrElse {
       throw new IllegalArgumentException(s"$x is not an object in $name")

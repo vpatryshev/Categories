@@ -53,7 +53,7 @@ class CategoryOfDiagrams(val domain: Category)
   
   val base: Category = BaseCategory
 
-  def objectNamed(name: String): domain.Obj = domain.obj(name)
+  def objectNamed(name: String): domain.Obj = name
 
   def pow(d: Diagram): Diagram = ??? // power object; tbd
 
@@ -65,7 +65,7 @@ class CategoryOfDiagrams(val domain: Category)
       override val d1: Functor = o
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        objectMap(o.d0.obj(x))
+        objectMap(x)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
     new DiagramArrow(concat(g.tag, " ∘ ", f.tag)):
@@ -73,12 +73,9 @@ class CategoryOfDiagrams(val domain: Category)
       val d1: Functor = g.d1
 
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        val xObjf = f.domainCategory.obj(x)
-        val f_x = f.transformPerObject(xObjf)
-        val xObjg = g.domainCategory.obj(x)
-        val g_x = g.transformPerObject(xObjg)
-        val gf_x = m(f_x, g_x)
-        gf_x
+        val f_x = f.transformPerObject(x)
+        val g_x = g.transformPerObject(x)
+        m(f_x, g_x)
 
   } else None
 
@@ -86,9 +83,8 @@ class CategoryOfDiagrams(val domain: Category)
     buildMap[domain.Obj, Set[Diagram]](domain.objects, x => Representable(x).subobjects.toSet)
 
   case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos):
-    override def objectsMapping(x: d0.Obj): d1.Obj = d1.obj(om(domain.obj(x)))
-    override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow =
-      am(f.asInstanceOf[domain.Arrow]).asInstanceOf[d1.Arrow]
+    override def objectsMapping(x: d0.Obj): d1.Obj = om(x)
+    override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow = am(f)
  
     // have to validate right here, because a representable must exist, and all checks should be passing
     private val probablyFunctor: Result[Functor] = Functor.validateFunctor(this)
@@ -107,7 +103,7 @@ class CategoryOfDiagrams(val domain: Category)
 
       new SetFunction("", setOf(d0), setOf(d1), a => mapping(a))
 
-    private def om(y: domain.Obj) = domain.hom(domain.obj(x), y)
+    private def om(y: domain.Obj) = domain.hom(x, y)
 
     probablyFunctor iHope
   

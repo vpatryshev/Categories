@@ -60,7 +60,7 @@ class CategoryTest extends Test:
     "id case 3" >> {
       import NaturalNumbers._
 
-      id(NaturalNumbers.obj(BigInt(42))) === (BigInt(42), BigInt(42))
+      id(BigInt(42)) === (BigInt(42), BigInt(42))
     }
 
     "toString_1" >> {

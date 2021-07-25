@@ -116,7 +116,7 @@ class FunctorTest extends Test:
 
       type toO = to.Obj
       val mapO: from.Obj => to.Obj =
-        Map(from.obj(0) -> to.obj("b"), from.obj(1) -> to.obj("c"))
+        Map(0 -> "b", 1 -> "c")
       
       val fOpt = Functor("sample product", from, to)(mapO, mapA)
       checkOption[Functor](fOpt,
@@ -125,8 +125,8 @@ class FunctorTest extends Test:
 
         limitOpt match
           case Good(limit) =>
-            limit.arrowTo(f.d0.obj(0)) == "ab"
-            limit.arrowTo(f.d0.obj(1)) == "ac"
+            limit.arrowTo(0) == "ab"
+            limit.arrowTo(1) == "ac"
           case _ => failure(s"Could not build a limit of $f")
       )
     }
@@ -173,8 +173,8 @@ class FunctorTest extends Test:
       sut.limit match
         case Good(limit) =>
           limit.vertex === "a1"
-          limit.arrowTo(sut.d0.obj("a")) === "a1b"
-          limit.arrowTo(sut.d0.obj("b")) === "a1c"
+          limit.arrowTo("a") === "a1b"
+          limit.arrowTo("b") === "a1c"
         case oops => failure("no limit?")
 
       ok
@@ -248,9 +248,9 @@ class FunctorTest extends Test:
         sut => {
           sut.d0 === Pullback
           sut.d1 === Setf
-          sut.objectsMapping(sut.d0.obj("a")) === a
-          sut.objectsMapping(sut.d0.obj("b")) === b
-          sut.objectsMapping(sut.d0.obj("c")) === c
+          sut.objectsMapping("a") === a
+          sut.objectsMapping("b") === b
+          sut.objectsMapping("c") === c
           sut.arrowsMapping("ac") === ac
         }
       )

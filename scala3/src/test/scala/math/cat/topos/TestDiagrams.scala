@@ -25,10 +25,10 @@ trait TestDiagrams extends Test:
     Diagram.tryBuild(topos)(name, om, am) iHope
 
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
-    (x: f.d0.Obj) => f.d1.obj(om(f.toString))
+    (x: f.d0.Obj) => om(f.toString)
 
   implicit def translateArrowMapping(f: Functor)(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
-    (x: f.d0.Obj) => f.d1.obj(am(f.toString))
+    (x: f.d0.Obj) => am(f.toString)
   
   lazy val EmptyDiagram: Diagram = build("empty", _0_)(
     Map.empty[String, set],
