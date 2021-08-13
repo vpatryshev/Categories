@@ -77,7 +77,7 @@ object Base:
 
   def cannotDo(message: String): Nothing =
     throw new UnsupportedOperationException(message)
-    
+
   def notNull[T](value: => T, explanation: String): T =
     Result.forValue(value).orCommentTheError(explanation) iHope
 
