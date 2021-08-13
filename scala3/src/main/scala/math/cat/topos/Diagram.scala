@@ -33,7 +33,7 @@ abstract class Diagram(
   
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
-  private[topos] def setAt(x: Any): set = setOf(objectsMapping(d0.asObj(x)))
+  private[topos] def setAt(x: Any): set = setOf(objectsMapping(x))
   
   def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o => this(o) subsetOf other(o) }
@@ -42,7 +42,7 @@ abstract class Diagram(
     d0.objects.forall { o => other(o)(this(o)) }
 
   def point(mapping: XObject => Any, id: Any = ""): Point =
-    new Point(id, topos, (x: Any) => mapping(diagram.d0.asObj(x)))
+    new Point(id, topos, (x: Any) => mapping(x))
 
   lazy val points: List[Point] =
     val objMappings = for
@@ -219,11 +219,11 @@ abstract class Diagram(
 
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
-        def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
+        def same_om(o: topos.domain.Obj): Sets.set = om(o)
         Diagram.tryBuild(topos)(
           i,
           same_om,
-          extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
+          extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om) _)
     }
     
     allCandidates.collect { case Good(d) => d }
@@ -330,13 +330,9 @@ object Diagram:
 
     new Diagram(tag.toString, t):
       
-      override private[topos] def setAt(x: Any): set =
-        d1.asObj(objectsMap(x.asInstanceOf[t.domain.Obj])) // TODO: get rid of Any and casting
+      override private[topos] def setAt(x: Any): set = objectsMap(x)
       
-      override def objectsMapping(o: d0.Obj): d1.Obj =
-        val x = o
-        val y = objectsMap(x.asInstanceOf[t.domain.Obj])
-        d1.asObj(y) // TODO: get rid of casting
+      override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
 
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
         

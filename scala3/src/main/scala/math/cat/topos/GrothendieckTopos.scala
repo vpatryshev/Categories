@@ -53,7 +53,7 @@ trait GrothendieckTopos
       def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
         def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
-        def om2(o: Ω.topos.domain.Obj): set = om1(domain.asObj(o))
+        def om2(o: Ω.topos.domain.Obj): set = om1(o)
 
         // this is how, given an arrow `b`, the new diagram gets from one point to another
         def am1(b: Ω.topos.domain.Arrow): SetFunction =

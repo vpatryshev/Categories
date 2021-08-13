@@ -50,9 +50,9 @@ class CategoryBuilder(val source: CategoryData):
 
     new Category(source.name):
       override val graph = source.graph
-      private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(sd0(f)))
-      private val d1Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => asObj(sd1(f)))
-      private val idMap: Map[Any, Arrow] = buildMap(source.objects, o => asArrow(sid(o)))
+      private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => sd0(f))
+      private val d1Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => sd1(f))
+      private val idMap: Map[Any, Arrow] = buildMap(source.objects, o => sid(o))
 
       override inline def d0(f: Arrow): Obj = d0Map(f)
       override inline def d1(f: Arrow): Obj = d1Map(f)
