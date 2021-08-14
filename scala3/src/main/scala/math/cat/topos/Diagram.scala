@@ -179,21 +179,17 @@ abstract class Diagram(
   lazy val listOfComponents: List[set] =
     listOfObjects map objectsMapping map (x => setOf(x))
   
-  private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction =
+  private def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
     new SetFunction("", dom, codom, arrowsMapping(a))
-
-  private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction =
-    def same_om(o: XObject): Sets.set = om(o.asInstanceOf[O]) // TODO: get rid of casting
-    extendToArrows1(same_om)(a)
 
   // TODO: write tests
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
     def objectMapping(o: topos.domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
       objectsMapping(o) filter predicate(o)
 
-    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a)
+    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows(objectMapping)(a)
     Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] =
@@ -221,11 +217,10 @@ abstract class Diagram(
 
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
-        def same_om(o: topos.domain.Obj): Sets.set = om(o)
         Diagram.tryBuild(topos)(
           i,
-          same_om,
-          extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
+          om(_),
+          extendToArrows(om) _)
     }
     
     allCandidates.collect { case Good(d) => d }

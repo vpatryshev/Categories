@@ -25,7 +25,13 @@ trait GrothendieckTopos
 
   type Mapping = domain.Obj => Any => Any
   
-  given Conversion[Functor, Diagram] = _.asInstanceOf[Diagram] 
+  given Conversion[Functor, Diagram] = _ match
+    case d: Diagram => d
+    case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
+
+//  given Conversion[Any, Diagram] = _ match
+//    case d: Diagram => d
+//    case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
 

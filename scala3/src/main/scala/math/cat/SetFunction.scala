@@ -68,9 +68,6 @@ case class SetFunction private[cat](
   */
 object SetFunction:
 
-  def build(d0: set, d1: set, function: Any => Any): Result[SetFunction] =
-    build("", d0, d1, function)
-
   def build(name: String, d0: set, d1: set, function: Any => Any): Result[SetFunction] =
     SetMorphism.check[Any, Any, SetFunction](new SetFunction(name, d0, d1, function))
   /**

@@ -154,27 +154,27 @@ private[cat] trait GraphData:
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  def contains(x: Any): Boolean = nodes(x.asInstanceOf[Node])
+  def contains(x: Any): Boolean = x match
+    case node: Node @unchecked => nodes(node)
+    case _ => false
 
   implicit def asNode(x: Any): Node =
-    if contains(x) then x.asInstanceOf[Node]
-    else throw new IllegalArgumentException(s"<<$x>> is not a node")
+    x match
+      case node: Node @unchecked if nodes(node) => node
+      case _ => throw new IllegalArgumentException(s"<<$x>> is not a node")
 
   /*
-    given Conversion[Any, Node] = _ match {
-    case node if contains(node) => node.asInstanceOf[Node]
+    TODO: figure out how come this does not work
+    given Conversion[Any, Node] = _ match
+    case node: Node @unchecked if contains(node) => nod
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
-  }
-
    */
   
-  implicit def asArrow(a: Any): Arrow = {
-    val arrow = a.asInstanceOf[Arrow]
-    if arrows contains arrow then arrow
-    else
-      throw new IllegalArgumentException(s"<<$a>> is not an arrow")
-  }
+  implicit def asArrow(a: Any): Arrow =
+    a match
+      case arrow: Arrow @unchecked if arrows contains arrow => arrow
+      case _ => throw new IllegalArgumentException(s"<<$a>> is not an arrow")
 
   protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
   protected lazy val finiteArrows: Boolean = Sets.isFinite(arrows)
