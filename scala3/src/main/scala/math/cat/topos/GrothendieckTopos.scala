@@ -1,16 +1,17 @@
 package math.cat.topos
 
 import math.Base.concat
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat._
-import math.sets.{Functions, Sets}
+import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets._
+import math.sets.{Functions, Sets}
 import scalakittens.Result
 import scalakittens.Result._
 
 import scala.collection.mutable
-import scala.language.postfixOps
+import scala.language.{implicitConversions, postfixOps}
 import scala.reflect.Selectable.reflectiveSelectable
+import SetFunction.inclusion
 
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
@@ -24,7 +25,7 @@ trait GrothendieckTopos
 
   type Mapping = domain.Obj => Any => Any
   
-  implicit def asDiagram(d: Functor): Diagram = d.asInstanceOf[Diagram] 
+  given Conversion[Functor, Diagram] = _.asInstanceOf[Diagram] 
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
 
@@ -290,15 +291,14 @@ trait GrothendieckTopos
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
         for
           x <- domain.objects
-          incl = SetFunction.inclusion(subdiagram(x), diagram(x))
-          pair = incl map { x -> subdiagram.d1.asArrow(_) }
+          incl: Result[SetFunction] = inclusion(subdiagram(x), diagram(x))
+          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl map { x -> _ }
         yield pair
 
-      val mapOpt = Result traverse results
-
+      val name = concat(subdiagram.tag, "⊂", diagram.tag)
       for
-        map <- mapOpt
-        arrow <- NaturalTransformation.build(concat(subdiagram.tag, "⊂", diagram.tag), subdiagram, diagram)(map.toMap)
+        map <- Result traverse results
+        arrow <- NaturalTransformation.build(name, subdiagram, diagram)(map.toMap)
       yield arrow
 
     end in

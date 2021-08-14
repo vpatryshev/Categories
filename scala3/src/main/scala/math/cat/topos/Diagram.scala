@@ -61,11 +61,13 @@ abstract class Diagram(
 
     sorted map { p => p._1 named ("p" + p._2) }
 
-  implicit def asFunction(a: d1.Arrow): SetFunction = a match
+  def asFunction(a: d1.Arrow): SetFunction = a match
     case sf: SetFunction => sf
     case trash =>
       throw new IllegalArgumentException(s"Expected a set function, got $trash")
 
+  given Conversion[d1.Arrow, SetFunction] = asFunction
+  
   def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
   def apply(x: Any): set = setOf(objectsMapping(x))
@@ -94,7 +96,7 @@ abstract class Diagram(
 
     val vertex = limitBuilder.vertex
 
-    def coneMap(x: XObject): d1.Arrow = d1.asArrow {
+    def coneMap(x: XObject): d1.Arrow =
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
@@ -102,7 +104,7 @@ abstract class Diagram(
       SetFunction.build(s"vertex to ($tag)[$x]", vertex, f.d1,
         { case point: List[Any] => f(projections(point)) }
       ) iHope // what can go wrong?
-    }
+
     //YObjects vertex
     Good(Cone(limitBuilder.vertex, coneMap))
 
@@ -191,7 +193,7 @@ abstract class Diagram(
     def objectMapping(o: topos.domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
       objectsMapping(o) filter predicate(o)
 
-    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a.asInstanceOf[XArrow])
+    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a)
     Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] =
@@ -223,7 +225,7 @@ abstract class Diagram(
         Diagram.tryBuild(topos)(
           i,
           same_om,
-          extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om) _)
+          extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
     }
     
     allCandidates.collect { case Good(d) => d }

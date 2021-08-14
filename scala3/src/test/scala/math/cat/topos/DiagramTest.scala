@@ -1,5 +1,7 @@
 package math.cat.topos
 
+import scala.language.implicitConversions
+
 import math.Test
 import math.cat.Categories._
 import math.cat.SetCategory.Setf

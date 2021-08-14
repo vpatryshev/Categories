@@ -9,7 +9,7 @@ import Sets.{set, setOf}
 import scalakittens.Result
 
 import scala.collection.mutable
-import scala.language.postfixOps
+import scala.language.{postfixOps, implicitConversions}
 
 trait GrothendieckToposLogic:
   topos: GrothendieckTopos =>
@@ -139,10 +139,8 @@ trait GrothendieckToposLogic:
       override val d1: Diagram = p.asDiagram
 
       override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow =
-        d1.d1.asArrow {
           val value = p(o)
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
-        }
 
   val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.Empty)
   
