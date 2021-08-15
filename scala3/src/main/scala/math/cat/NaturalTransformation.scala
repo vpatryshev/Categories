@@ -57,7 +57,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
     val d0: Functor = self.d0
     val d1: Functor = self.d1
     def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-      self.transformPerObject(x.asInstanceOf[self.d0.d0.Obj]).asInstanceOf[d1.d1.Arrow]
+      self.transformPerObject(x)
 
   private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
     if d0.d0.isFinite then buildMap(d0.d0.objects, o => transformPerObject(o)) else Map.empty

@@ -11,12 +11,8 @@ import scala.language.{implicitConversions, postfixOps}
 
 trait Graph(val name: String) extends GraphData:
   graph =>
-  
-  def contains(any: Any): Boolean = nodeOpt(any).isGood
 
   def size: Int = nodes.size
-  
-  implicit def pairOfNodes(p: (_, _)): (Node, Node) = (p._1, p._2)
 
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
@@ -124,19 +120,19 @@ trait Graph(val name: String) extends GraphData:
   def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] = 
     val result = new Graph(name):
 
-      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
+      lazy val nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
 
       lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows).asInstanceOf[Arrows]
 
       def d0(f: Arrow): Node = {
-        val fA = f.asInstanceOf[graph.Arrow]
-        val newOne: Option[Node] = newArrows.get(fA).map(_._1.asInstanceOf[Node])
+        val fA = f.asInstanceOf[graph.Arrow] // no check
+        val newOne: Option[Node] = newArrows.get(fA).map(_._1)
         newOne.getOrElse(graph.d0(fA))
       }
 
       def d1(f: Arrow): Node = {
-        val fA = f.asInstanceOf[graph.Arrow]
-        val newOne: Option[Node] = newArrows.get(fA).map(_._2.asInstanceOf[Node])
+        val fA = f.asInstanceOf[graph.Arrow] // no check
+        val newOne: Option[Node] = newArrows.get(fA).map(_._2)
         newOne.getOrElse(graph.d1(fA))
       }
     
@@ -158,20 +154,27 @@ private[cat] trait GraphData:
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  def nodeOpt(x: Any): Result[Node] = Result.forValue(x)
+  def contains(x: Any): Boolean = x match
+    case node: Node @unchecked => nodes(node)
+    case _ => false
 
-  implicit def asNode(x: Any): Node = x match {
-    case _ if nodes contains x.asInstanceOf[Node] => x.asInstanceOf[Node]
+  implicit def asNode(x: Any): Node =
+    x match
+      case node: Node @unchecked if nodes(node) => node
+      case _ => throw new IllegalArgumentException(s"<<$x>> is not a node")
+
+  /*
+    TODO: figure out how come this does not work
+    given Conversion[Any, Node] = _ match
+    case node: Node @unchecked if contains(node) => nod
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
-  }
-
-  implicit def asArrow(a: Any): Arrow = {
-    val arrow = a.asInstanceOf[Arrow]
-    if arrows contains arrow then arrow
-    else
-      throw new IllegalArgumentException(s"<<$a>> is not an arrow")
-  }
+   */
+  
+  implicit def asArrow(a: Any): Arrow =
+    a match
+      case arrow: Arrow @unchecked if arrows contains arrow => arrow
+      case _ => throw new IllegalArgumentException(s"<<$a>> is not an arrow")
 
   protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
   protected lazy val finiteArrows: Boolean = Sets.isFinite(arrows)
@@ -189,8 +192,8 @@ private[cat] trait GraphData:
 
   def build(name: String): Graph = new Graph(name):
 
-    def nodes: Nodes = data.nodes //.asInstanceOf[Nodes] // TODO: get rid of cast
-    def arrows: Arrows = data.arrows //.asInstanceOf[Arrows] // TODO: get rid of cast
+    def nodes: Nodes = data.nodes
+    def arrows: Arrows = data.arrows
 
     override type Node = data.Node
     override type Arrow = data.Arrow

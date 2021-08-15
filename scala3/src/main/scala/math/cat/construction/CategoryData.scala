@@ -30,10 +30,10 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
     else throw new IllegalStateException("Cannot sort infinite set")
 
   implicit def obj(x: Any): Obj =
-    val objectMaybe = Result.forValue(asObj(x))
-    objectMaybe filter (objects contains) getOrElse {
-      throw new IllegalArgumentException(s"$x is not an object in $name")
-    }
+    x match
+      case o: Obj @unchecked if objects contains o => o
+      case _ =>
+        throw new IllegalArgumentException(s"$x is not an object in $name")
 
   def id(o: Obj): Arrow
 
@@ -97,8 +97,6 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
   def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
 
   def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
-
-  private[cat] def asObj(x: Any): Obj = x.asInstanceOf[Obj]
 
   private[cat] def checkCompositions: Outcome =
     val check1 = Result.check(missingCompositions map {
@@ -184,7 +182,7 @@ private[construction] class PartialData(override val graph: Graph)
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
   
-  override def id(o: Obj): Arrow = o.asInstanceOf[Arrow]
+  override def id(o: Obj): Arrow = o
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
     composition.get((f, g)).map { asArrow _ }
@@ -215,7 +213,8 @@ private[construction] class PartialData(override val graph: Graph)
   private[cat] def deduceCompositions(compositionSource: CompositionTable): CompositionTable =
     val triplesToScan = composableTriples(compositionSource)
 
-    val compositions: CompositionTable = triplesToScan.foldLeft(compositionSource) {
+    val compositions: CompositionTable =
+      triplesToScan.foldLeft(compositionSource) {
       (m, t) =>
         val (f, g, h) = t
         val gf = m((f, g))
@@ -257,17 +256,13 @@ private[construction] class PartialData(override val graph: Graph)
     def candidates(a: graph.Arrow, b: graph.Arrow) =
       graph.arrowsBetween(graph.d0(a), graph.d1(b)).take(2).toList
 
-    def candidateMaybe(a: graph.Arrow, b: graph.Arrow) = candidates(a, b) match
-      case f :: Nil => Option(f)
-      case other => None
-
     composablePairs.foldLeft(compositionSource) {
       case (m, (a, b)) =>
-        val aA = a.asInstanceOf[graph.Arrow]
-        val bA = b.asInstanceOf[graph.Arrow]
-        candidateMaybe(aA, bA) match
-          case Some(cA) => m + ((aA, bA) -> cA.asInstanceOf[graph.Arrow])
-          case _        => m
+        val aA = a.asInstanceOf[graph.Arrow] // no check
+        val bA = b.asInstanceOf[graph.Arrow] // no check
+        candidates(a, b) match
+          case c::Nil => m + ((aA, bA) -> c)
+          case _       => m
     }
 
   end addUniqueCompositions
@@ -309,7 +304,7 @@ object CategoryData:
     new PartialData(addIdentitiesToGraph(g)):
 
       override def newComposition(f: Any, g: Any): Option[Arrow] =
-        compositionFactory(f.asInstanceOf[Arr], g.asInstanceOf[Arr]).asInstanceOf[Option[Arrow]]
+        compositionFactory(f.asInstanceOf[Arr], g.asInstanceOf[Arr]).map(_.asInstanceOf[Arrow])
 
       override val compositionSource: CompositionTable = comp.asInstanceOf[CompositionTable] // same type
 
@@ -367,7 +362,7 @@ object CategoryData:
         data.addArrows(newArrows) map { graph =>
           new PartialData(graph):
             override def newComposition(f: Any, g: Any): Option[Arrow] =
-              data.newComposition(f, g).asInstanceOf[Option[Arrow]]
+              data.newComposition(f, g).map(_.asInstanceOf[Arrow])
 
             override val compositionSource = data.composition.asInstanceOf[CompositionTable]
       }

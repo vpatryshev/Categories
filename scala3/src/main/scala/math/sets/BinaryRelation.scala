@@ -26,6 +26,7 @@ object BinaryRelation:
     * @tparam Y second argument type
     * @return a binary relation representing the given function
     */
+    // TODO: use `given Conversion - how?!
   implicit def apply[X, Y](f: Function2[X, Y, Boolean]): BinaryRelation[X, Y] =
     new BinaryRelation[X, Y]:
       def apply(x: X, y: Y) = f(x, y)

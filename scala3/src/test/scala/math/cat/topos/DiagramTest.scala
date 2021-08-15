@@ -1,5 +1,7 @@
 package math.cat.topos
 
+import scala.language.implicitConversions
+
 import math.Test
 import math.cat.Categories._
 import math.cat.SetCategory.Setf
@@ -267,8 +269,8 @@ class DiagramTest extends Test with TestDiagrams:
       val v1 = Set((0, 3), (1, 0))
       val ExpectedVertex: set = Set(v0, v1)
       val list = v0 :: v1 :: v0 :: Nil
-      val ara = colimit.arrowFrom(a)
-      val arb = colimit.arrowFrom(b)
+      val ara = colimit.arrowFrom("a")
+      val arb = colimit.arrowFrom("b")
 
       for i <- 1 to 3 do ara(i) == list(i - 1)
       for i <- 2 to 4 do arb(i) == list(i - 2)

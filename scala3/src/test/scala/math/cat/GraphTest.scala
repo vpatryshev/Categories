@@ -25,8 +25,8 @@ class GraphTest extends Test:
       expect(sut => {
         import sut._
         
-        sut.areParallel(13 asArrow, 113 asArrow) === true
-        sut.areParallel(21 asArrow, 32 asArrow) === false
+        sut.areParallel(13, 113) === true
+        sut.areParallel(21, 32) === false
       })(
         Graph.build(
           "g",
@@ -38,9 +38,9 @@ class GraphTest extends Test:
     "same domain" >> {
       expect(sut =>
         import sut._
-        sut.sameDomain(11 asArrow, 113 asArrow) === true
-        sut.sameDomain(13 asArrow, 113 asArrow) === true
-        sut.sameDomain(21 asArrow, 32 asArrow) === false
+        sut.sameDomain(11, 113) === true
+        sut.sameDomain(13, 113) === true
+        sut.sameDomain(21, 32) === false
       )(Graph.build(
         "g",
         Set(1, 2, 3),
@@ -51,9 +51,9 @@ class GraphTest extends Test:
     "same codomain" >> {
       expect(sut =>
         import sut._
-        sut.sameCodomain(13 asArrow, 113 asArrow) === true
-        sut.sameCodomain(21 asArrow, 111 asArrow) === true
-        sut.sameCodomain(21 asArrow, 32 asArrow) === false
+        sut.sameCodomain(13, 113) === true
+        sut.sameCodomain(21, 111) === true
+        sut.sameCodomain(21, 32) === false
       )(
         Graph.build(
           "g",
@@ -101,8 +101,8 @@ class GraphTest extends Test:
     "follows" >> {
       expect(sut => {
         import sut._
-        sut.follows(113 asArrow, 111 asArrow) === true
-        sut.follows(111 asArrow, 113 asArrow) === false
+        sut.follows(113, 111) === true
+        sut.follows(111, 113) === false
       })(
         Graph.build(
           "sut",
@@ -143,22 +143,22 @@ class GraphTest extends Test:
       checkOption(sutOpt, (sut: Graph) =>
         import sut._
         sut.nodes === Set(3, 1, 2)
-        sut.d0("2to1" asArrow) === 2
-        sut.d1("2to1" asArrow) === 1
-        sut.d0("1to3" asArrow) === 1
-        sut.d1("1to3" asArrow) === 3
-        sut.d0("3to2" asArrow) === 3
-        sut.d1("3to2" asArrow) === 2
+        sut.d0("2to1") === 2
+        sut.d1("2to1") === 1
+        sut.d0("1to3") === 1
+        sut.d1("1to3") === 3
+        sut.d0("3to2") === 3
+        sut.d1("3to2") === 2
       ); ok
     }
 
     "Constructor_plain_withFunctions" >> {
       expect(sut =>
         import sut._
-        sut.d0(111 asArrow) === 1
-        sut.d0(13 asArrow) === 1
-        sut.d1(13 asArrow) === 3
-        sut.d1(32 asArrow) === 2
+        sut.d0(111) === 1
+        sut.d0(13) === 1
+        sut.d1(13) === 3
+        sut.d1(32) === 2
       )(
         Graph.build(
           "sut",
@@ -216,7 +216,7 @@ class GraphTest extends Test:
       
       expect(sut => {
         import sut._
-        sut.d0(32 asArrow) === 3
+        sut.d0(32) === 3
         val opsut = ~sut
         val expected = Graph.build(
           "sut",

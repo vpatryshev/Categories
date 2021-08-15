@@ -33,7 +33,7 @@ abstract class Diagram(
   
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
-  private[topos] def setAt(x: Any): set = setOf(objectsMapping(d0.asObj(x)))
+  private[topos] def setAt(x: Any): set = setOf(objectsMapping(x))
   
   def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o => this(o) subsetOf other(o) }
@@ -42,7 +42,7 @@ abstract class Diagram(
     d0.objects.forall { o => other(o)(this(o)) }
 
   def point(mapping: XObject => Any, id: Any = ""): Point =
-    new Point(id, topos, (x: Any) => mapping(diagram.d0.asObj(x)))
+    new Point(id, topos, (x: Any) => mapping(x))
 
   lazy val points: List[Point] =
     val objMappings = for
@@ -61,11 +61,13 @@ abstract class Diagram(
 
     sorted map { p => p._1 named ("p" + p._2) }
 
-  implicit def asFunction(a: d1.Arrow): SetFunction = a match
+  def asFunction(a: d1.Arrow): SetFunction = a match
     case sf: SetFunction => sf
     case trash =>
       throw new IllegalArgumentException(s"Expected a set function, got $trash")
 
+  given Conversion[d1.Arrow, SetFunction] = asFunction
+  
   def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
   def apply(x: Any): set = setOf(objectsMapping(x))
@@ -94,7 +96,7 @@ abstract class Diagram(
 
     val vertex = limitBuilder.vertex
 
-    def coneMap(x: XObject): d1.Arrow = d1.asArrow {
+    def coneMap(x: XObject): d1.Arrow =
       val arrowToX: XArrow = arrowFromRootObject(x)
       val rootObject: XObject = d0.d0(arrowToX)
       val f: SetFunction = arrowsMapping(arrowToX)
@@ -102,7 +104,7 @@ abstract class Diagram(
       SetFunction.build(s"vertex to ($tag)[$x]", vertex, f.d1,
         { case point: List[Any] => f(projections(point)) }
       ) iHope // what can go wrong?
-    }
+
     //YObjects vertex
     Good(Cone(limitBuilder.vertex, coneMap))
 
@@ -177,21 +179,17 @@ abstract class Diagram(
   lazy val listOfComponents: List[set] =
     listOfObjects map objectsMapping map (x => setOf(x))
   
-  private def extendToArrows1(om: XObject => Sets.set)(a: XArrow): SetFunction =
+  private def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
     new SetFunction("", dom, codom, arrowsMapping(a))
-
-  private def extendToArrows3[O, A](om: O => Sets.set)(a: A): SetFunction =
-    def same_om(o: XObject): Sets.set = om(o.asInstanceOf[O]) // TODO: get rid of casting
-    extendToArrows1(same_om)(a)
 
   // TODO: write tests
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
     def objectMapping(o: topos.domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
       objectsMapping(o) filter predicate(o)
 
-    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows1(objectMapping)(a.asInstanceOf[XArrow])
+    val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows(objectMapping)(a)
     Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] =
@@ -219,11 +217,10 @@ abstract class Diagram(
 
     val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
-        def same_om(o: topos.domain.Obj): Sets.set = om(d0.asObj(o))
         Diagram.tryBuild(topos)(
           i,
-          same_om,
-          extendToArrows3[topos.domain.Obj, topos.domain.Arrow](same_om _) _)
+          om(_),
+          extendToArrows(om) _)
     }
     
     allCandidates.collect { case Good(d) => d }
@@ -330,13 +327,9 @@ object Diagram:
 
     new Diagram(tag.toString, t):
       
-      override private[topos] def setAt(x: Any): set =
-        d1.asObj(objectsMap(x.asInstanceOf[t.domain.Obj])) // TODO: get rid of Any and casting
+      override private[topos] def setAt(x: Any): set = objectsMap(x)
       
-      override def objectsMapping(o: d0.Obj): d1.Obj =
-        val x = o
-        val y = objectsMap(x.asInstanceOf[t.domain.Obj])
-        d1.asObj(y) // TODO: get rid of casting
+      override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
 
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
         

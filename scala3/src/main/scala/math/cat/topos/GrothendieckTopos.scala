@@ -1,16 +1,17 @@
 package math.cat.topos
 
 import math.Base.concat
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat._
-import math.sets.{Functions, Sets}
+import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets._
+import math.sets.{Functions, Sets}
 import scalakittens.Result
 import scalakittens.Result._
 
 import scala.collection.mutable
-import scala.language.postfixOps
+import scala.language.{implicitConversions, postfixOps}
 import scala.reflect.Selectable.reflectiveSelectable
+import SetFunction.inclusion
 
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
@@ -24,7 +25,13 @@ trait GrothendieckTopos
 
   type Mapping = domain.Obj => Any => Any
   
-  implicit def asDiagram(d: Functor): Diagram = d.asInstanceOf[Diagram] 
+  given Conversion[Functor, Diagram] = _ match
+    case d: Diagram => d
+    case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
+
+//  given Conversion[Any, Diagram] = _ match
+//    case d: Diagram => d
+//    case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
 
   def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
 
@@ -53,7 +60,7 @@ trait GrothendieckTopos
       def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
         def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
-        def om2(o: Ω.topos.domain.Obj): set = om1(domain.asObj(o))
+        def om2(o: Ω.topos.domain.Obj): set = om1(o)
 
         // this is how, given an arrow `b`, the new diagram gets from one point to another
         def am1(b: Ω.topos.domain.Arrow): SetFunction =
@@ -290,15 +297,14 @@ trait GrothendieckTopos
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
         for
           x <- domain.objects
-          incl = SetFunction.inclusion(subdiagram(x), diagram(x))
-          pair = incl map { x -> subdiagram.d1.asArrow(_) }
+          incl: Result[SetFunction] = inclusion(subdiagram(x), diagram(x))
+          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl map { x -> _ }
         yield pair
 
-      val mapOpt = Result traverse results
-
+      val name = concat(subdiagram.tag, "⊂", diagram.tag)
       for
-        map <- mapOpt
-        arrow <- NaturalTransformation.build(concat(subdiagram.tag, "⊂", diagram.tag), subdiagram, diagram)(map.toMap)
+        map <- Result traverse results
+        arrow <- NaturalTransformation.build(name, subdiagram, diagram)(map.toMap)
       yield arrow
 
     end in

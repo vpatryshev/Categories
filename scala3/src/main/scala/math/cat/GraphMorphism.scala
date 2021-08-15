@@ -63,7 +63,7 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
     d1 == other.d1 && (d0.arrows forall sameArrowsMapping(other))
   
   /**
-    * Two graph morphisms are equal if they have equal d0s and cod0s and both morphisms for nodes and arrows
+    * Two graph morphisms are equal if they have the same d0 and d1 and both morphisms for nodes and arrows
     * are equal respectively.
     * 
     * The problem here is that we are encroaching the "material set theory".
@@ -76,11 +76,12 @@ trait GraphMorphism(val tag: Any, val d0: Graph, val d1: Graph) extends Morphism
     */
   override def equals(gm: Any): Boolean =
     this.eq(gm.asInstanceOf[AnyRef]) || (
-    gm match {
-      case other: GraphMorphism =>
-        hashCode == other.hashCode && sameNodes(other) && sameArrows(other)
-      case otherwise => false
-    })
+    hashCode == gm.hashCode && 
+      (gm match
+        case other: GraphMorphism @unchecked =>
+          sameNodes(other) && sameArrows(other)
+        case otherwise => false
+    ))
 
   override def hashCode: Int = d0.hashCode ^ d1.hashCode * 1024
 

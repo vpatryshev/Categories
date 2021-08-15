@@ -75,7 +75,7 @@ private[cat] trait CategoryFactory:
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match
         case (f: (T, T), g: (T, T)) =>
-          Option(f._1, g._2).filter(_ => f._2 == g._1) map asArrow
+          Option(f._1, g._2).filter(_ => f._2 == g._1)
     
   end fromPoset
 
