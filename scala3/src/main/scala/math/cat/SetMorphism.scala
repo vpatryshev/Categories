@@ -26,11 +26,11 @@ class SetMorphism[X, Y] (
    * @param other set morphism to compare
    * @return true iff they are equal
    */
-  def equals(other: SetMorphism[X, Y]): Boolean = {
+  def equals(other: SetMorphism[X, Y]): Boolean =
+    this.eq(other) ||
     isFinite(d0) && isFinite(other.d0) &&
     d0 == other.d0 && d1 == other.d1 &&
       d0.forall(x => this(x) == other(x))
-  }
 
   /**
     * Composes with another morphism, optionally

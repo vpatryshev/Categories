@@ -127,7 +127,7 @@ object Categories extends CategoryFactory:
     * Represents three sets (empty, singleton and two-point) and
     * all their possible functions.
     */
-  lazy val Simplicial3: Cat = asCat(apply("Simplicial3",
+  lazy val Simplicial3: Cat = apply("Simplicial3",
     Set("0", "1", "2"),
     Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2", "2_b" -> "2", "a" -> "1", "b" -> "1", "swap" ->
       "2"), // d0
@@ -151,14 +151,13 @@ object Categories extends CategoryFactory:
       ("2_b", "swap") -> "2_a"
     ),
     arrowBuilder
-  ).getOrElse(throw new InstantiationException("Bad Simplicial3")))
+  ) map asCat orCommentTheError "Bad Simplicial3" iHope
 
   /**
     * Evacuation plan category. See https://twitter.com/aik099/status/702928717266489345
     */
-  def AAAAAA = {
+  def AAAAAA =
     category"AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
-  }
 
   /**
     * The partial order of natural numbers, as a category.
@@ -185,15 +184,9 @@ object Categories extends CategoryFactory:
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)
 
-  implicit class CategoryString(val sc: StringContext) extends AnyVal {
-    def category(args: Any*): Cat = {
-      read(bufferFromContext(sc, args: _*)) match {
-        case Good(c) => c
-        case bad => throw new InstantiationException(bad.errorDetails.mkString)
-      }
-    }
-  }
-
+  implicit class CategoryString(val sc: StringContext) extends AnyVal:
+    def category(args: Any*): Cat = read(bufferFromContext(sc, args: _*)) iHope
+      
   /**
     * Creates an opposite category from this one.
     * That is, all arrows are inverted.

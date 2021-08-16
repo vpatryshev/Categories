@@ -63,13 +63,12 @@ abstract class Category(name: String) extends CategoryData(name):
 
   private var source: Option[String] = None
   
-  def withSource(s: String): this.type = {
+  def withSource(s: String): this.type =
     source = Option(s)
     this
-  }
   
   override def toString: String =
-    source getOrElse {
+    source getOrElse
       val prefix = if name.isEmpty then "" else name + ": "
       val objectsAsString = asString(objects)
       val arrowsListed = listSorted(arrows.filterNot(isIdentity))
@@ -79,7 +78,6 @@ abstract class Category(name: String) extends CategoryData(name):
           case (first, second) if !isIdentity(first) && !isIdentity(second) =>
             concat(second, "∘", first) + s" = ${m(first, second).get}"
         }).mkString(", ") + "})"
-    }
 
   /**
     * Checks whether an arrow is an isomorphism.
@@ -136,10 +134,11 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def isMonomorphism(f: Arrow): Boolean =
     val comparisons =
-      for {g <- arrows if follows(f, g)
-           fg = m(f,g)
-           h <- arrows if fg == m(f, h)
-    } yield g == h
+      for
+        g <- arrows if follows(f, g)
+        fg = m(f,g)
+        h <- arrows if fg == m(f, h)
+      yield g == h
 
     comparisons forall (x => x)
 
@@ -151,10 +150,11 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def isEpimorphism(f: Arrow): Boolean =
     val comparisons =
-      for {g <- arrows if follows(g, f)
-           gf = m(g,f)
-           h <- arrows if gf == m(h,f)
-          } yield g == h
+      for 
+        g <- arrows if follows(g, f)
+        gf = m(g,f)
+        h <- arrows if gf == m(h,f)
+      yield g == h
 
     comparisons forall (x => x)
 
@@ -165,9 +165,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return true iff h ∘ f == h ∘ g
     */
-  def coequalizes(f: Arrow, g: Arrow): Arrow => Boolean = {
+  def coequalizes(f: Arrow, g: Arrow): Arrow => Boolean =
     (h: Arrow) => areParallel(f, g) && follows(h, f) && (m(f, h) == m(g, h))
-  }
 
   /**
     * Builds a predicate that checks whether an arrow h: B -> A is such that
@@ -459,10 +458,9 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return Good pair of arrows from d1(f) and d1(g) to the pushout object, or None.
     */
-  def pushout(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] = {
+  def pushout(f: Arrow, g: Arrow): Result[(Arrow, Arrow)] =
     OKif(sameDomain(f, g), "Domains should be the same in $name") andThen
       product2(arrows, arrows).find(isPushout(f, g))
-  }
 
   /**
     * Checks if p = (pa, pb) is a pushout of arrows f and g.
@@ -582,9 +580,9 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param n degree to which to raise object x
     * @return x^n^ and its projections to x
     */
-  def degree(x: Obj, n: Int): Result[(Obj, List[Arrow])] = {
+  def degree(x: Obj, n: Int): Result[(Obj, List[Arrow])] =
     OKif(n >= 0) andThen {
-      n match {
+      n match
         case 0 => terminal map (x => (x, List()))
         case 1 => Good((x, id(x) :: Nil))
         case _ => degree(x, n - 1) flatMap {
@@ -595,9 +593,7 @@ abstract class Category(name: String) extends CategoryData(name):
                 (d0(p1), projections.flatten)
             }
         }
-      }
     }
-  }
 
   /**
     * Collection of arrows that end at x

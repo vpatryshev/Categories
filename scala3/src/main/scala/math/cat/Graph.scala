@@ -16,12 +16,10 @@ trait Graph(val name: String) extends GraphData:
 
   override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
-  override def equals(x: Any): Boolean = {
-    x match {
-      case other: Graph => other.equal(this)
+  override def equals(x: Any): Boolean =
+    x match
+      case other: Graph => other equal this
       case _ => false
-    }
-  }
 
   /**
     *  Checks equality of this graph to that one.
@@ -124,17 +122,11 @@ trait Graph(val name: String) extends GraphData:
 
       lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows).asInstanceOf[Arrows]
 
-      def d0(f: Arrow): Node = {
-        val fA = f.asInstanceOf[graph.Arrow] // no check
-        val newOne: Option[Node] = newArrows.get(fA).map(_._1)
-        newOne.getOrElse(graph.d0(fA))
-      }
-
-      def d1(f: Arrow): Node = {
-        val fA = f.asInstanceOf[graph.Arrow] // no check
-        val newOne: Option[Node] = newArrows.get(fA).map(_._2)
-        newOne.getOrElse(graph.d1(fA))
-      }
+      private def d0d1(f: Arrow): Option[(Graph.this.Node, Graph.this.Node)] =
+        newArrows.get(f.asInstanceOf[graph.Arrow])  // shortcut: no check required
+      
+      def d0(f: Arrow): Node = d0d1(f).map(_._1).getOrElse(graph.d0(f))
+      def d1(f: Arrow): Node = d0d1(f).map(_._2).getOrElse(graph.d1(f))
     
     result.validate orCommentTheError s"Failed in Graph $this"
   
@@ -149,8 +141,8 @@ private[cat] trait GraphData:
   type Nodes = Set[Node]
   type Arrows = Set[Arrow]
 
-  def nodes: Set[Node]
-  def arrows: Set[Arrow]
+  def nodes: Nodes
+  def arrows: Arrows
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
@@ -240,9 +232,8 @@ object Graph:
 
           override type Node = N
           override type Arrow = A
-          override type Nodes = Set[N]
-          def nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
-          def arrows: Arrows = d.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
+          val nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
+          val arrows: Arrows = d.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
 
           override def d0(f: Arrow): Node = d00(f)
           override def d1(f: Arrow): Node = d10(f)

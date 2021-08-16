@@ -154,10 +154,9 @@ object NaturalTransformation:
     */
   def id(f: Functor): NaturalTransformation =
 
-    def `id of f(x)`(x: f.d0.Obj): f.d1.Arrow = {
+    def `id of f(x)`(x: f.d0.Obj): f.d1.Arrow =
       val `f(x)`: f.d1.Obj = f.objectsMapping(x)
       f.d1.id(`f(x)`)
-    }
 
     new NaturalTransformation("Id"):
       val d0: Functor = f

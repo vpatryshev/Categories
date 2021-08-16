@@ -5,7 +5,7 @@ import math.cat.Category
 /**
   * Topos functionality
   */
-trait Topos[O, A] {
+trait Topos[O, A]:
   type Obj = O
   type Arrow = A
   // finite limits should exist
@@ -14,6 +14,6 @@ trait Topos[O, A] {
   val Ω: O
 
   def ΩxΩ: O
-  
+
+// TODO: implement
 //  def pow: Obj => Obj
-}

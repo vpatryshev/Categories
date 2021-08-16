@@ -171,17 +171,16 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   /**
     * Initial object of this category. Does not have to exist.
     *
-    * Need to filter, to eliminate the value that does not belong to a subcategory
-    * that may inherit this value
+    * Need to filter, so that if an empty set does not belong to a subcategory, `initial` is empty
     */
-  override lazy val initial: Result[set] = Good(Sets.Empty) filter contains
+  override lazy val initial: Result[set] = Good(Sets.Empty) filter this.contains
 
   /**
     * Terminal object of this category. Does not have to exist.
-    * Need to filter, to eliminate the set that does not belong to a subcategory
+    * Need to filter, so that if an empty set does not belong to a subcategory, `terminial` is empty.
     */
   override lazy val terminal: Result[set] =
-    initial map (setOf.elements(_)) filter contains
+    initial map (setOf.elements(_)) filter this.contains
 
   /**
     * Cartesian product of two sets.
@@ -259,25 +258,23 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     case other => false
   }
 
-object SetCategory {
+object SetCategory:
 
-  private[cat] def graphOfSets(nodes0: Set[set]): Graph = {
+  private[cat] def graphOfSets(nodes0: Set[set]): Graph =
     Graph.build[set, SetFunction](
       "Sets",
       nodes0,
       BigSet.of[SetFunction]("set of set functions"),
       (f: SetFunction) => f.d0,
-      (f: SetFunction) => f.d1)
-  }.getOrElse(throw new InstantiationException("This graph should exist"))
+      (f: SetFunction) => f.d1) orCommentTheError "This graph should exist" iHope
 
   /**
     * Category of finite sets
     */
   object Setf extends SetCategory(FiniteSets)
 
-  private def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] = {
+  private def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] =
     SetMorphism.build(factorSet.base, factorSet.content, factorSet.asFunction) iHope
-  }
 
   /**
     * Builds a factorset epimorphism that projects a set to its factorset,
@@ -289,11 +286,8 @@ object SetCategory {
     * @param r         binary relation (not necessarily equivalence relation) that determines factoring
     * @return factorset epimorphism
     */
-  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] = {
+  def factorset[T](sourceSet: Set[T], r: BinaryRelation[T, T]): SetMorphism[T, Set[T]] =
     SetCategory.asMorphism(new FactorSet[T](sourceSet, r))
-  }
-
-}
 
 /*
 Simple example of a topos (not well-pointed) where not every monad is applicative: Set^{ℤ_2}

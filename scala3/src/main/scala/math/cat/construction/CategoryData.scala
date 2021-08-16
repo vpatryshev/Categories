@@ -141,12 +141,12 @@ private[cat] abstract class CategoryData(override val name: String) extends Grap
     *
     * @return a category built based on the data above
     *
-    *         TODO: eliminate code duplication
+    * TODO: eliminate code duplication
     */
-  private[cat] def build: Result[Category] = {
-    factory map { validData => validData.newCategory }
-  }
+  private[cat] def build: Result[Category] =
+    factory map { _.newCategory }
 
+  // TODO: try to start using
   private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
 
   /**

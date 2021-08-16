@@ -40,14 +40,6 @@ class CategoryBuilder(val source: CategoryData):
 
   def newFiniteCategory: Category =
 
-    val mMap: Map[(Any, Any), source.Arrow] = {
-      for
-        f <- source.arrows
-        g <- source.arrows
-        h <- source.m(f, g)
-      yield (f, g) -> h
-    } toMap
-
     new Category(source.name):
       override val graph = source.graph
       private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => sd0(f))
@@ -57,8 +49,16 @@ class CategoryBuilder(val source: CategoryData):
       override inline def d0(f: Arrow): Obj = d0Map(f)
       override inline def d1(f: Arrow): Obj = d1Map(f)
 
-      inline def id(o: Obj): Arrow = idMap(o) 
-
-      def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g)) map asArrow
+      inline def id(o: Obj): Arrow = idMap(o)
+  
+      private val mMap = {
+        for
+          f <- source.arrows
+          g <- source.arrows
+          h <- source.m(f, g)
+        yield (f, g) -> asArrow(h) // TODO: find a way to get rid of this `asArrow`
+      } toMap
+      
+      def m(f: Arrow, g: Arrow): Option[Arrow] = mMap.get((f, g))
 
   end newFiniteCategory
