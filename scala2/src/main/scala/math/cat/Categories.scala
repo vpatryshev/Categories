@@ -8,9 +8,7 @@ import math.Base._
 import math.cat.Categories._
 import math.sets.PoSet
 import scalakittens.Result._
-import scalakittens.{Bad, Good, Result}
-
-import scala.collection.{IterableOnce, mutable}
+import scalakittens._
 
 private[cat] trait CategoryFactory {
   /**
@@ -45,7 +43,7 @@ private[cat] trait CategoryFactory {
       g <- Graph.build(source.name, objects, arrows, d0, d1)
       typedIds <- ids.typed[g.Node => g.Arrow]
       typedComp <- composition.typed[(g.Arrow, g.Arrow) => Option[g.Arrow]]
-      data = CategoryData(g)(typedIds, typedComp)
+      data = CategoryData(g)(typedIds, typedComp) // intellij shows a false negative
       category <- data.build
       c <- category.typed[Cat]
     } yield c
@@ -150,7 +148,7 @@ private[cat] trait CategoryFactory {
     def category: Parser[Result[Cat]] =
       (name ?) ~ "(" ~ graphData ~ (("," ~ multTable) ?) ~ ")" ^^ {
         case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" =>
-          val name = nameOpt getOrElse(Good("c"))
+          val name = nameOpt getOrElse Good("c")
           val graphOpt = (gOpt andAlso name) map {
             case (g, n) => g build n
           }
@@ -187,7 +185,7 @@ private[cat] trait CategoryFactory {
 
     def multiplication: Parser[Result[((String, String), String)]] = {
       word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { 
-        case g ~ o ~ f ~ "=" ~ h => Good(((f, g), h))
+        case g ~ "o" ~ f ~ "=" ~ h => Good(((f, g), h))
         case someShit => Result.error(s"Failed to parse $someShit")
       }
     }
@@ -349,7 +347,7 @@ object Categories extends CategoryFactory {
     Z2, Z3, Z4,
     AAAAAA, Simplicial3, M)
   
-  lazy val SomeKnownCategories = SimpleCategories ++ LessSimpleCategories
+  lazy val SomeKnownCategories: List[Cat] = SimpleCategories ++ LessSimpleCategories
 
   lazy val KnownCategories: List[Category] =
     NaturalNumbers::Pushout4::SomeKnownCategories.sortBy(_.arrows.size)
