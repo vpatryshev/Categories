@@ -18,7 +18,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   private var previousLayerLength = 1
   private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
-  private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map {
+  private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map{
     case (comps, i) => i -> comps.sortBy(_.toString)
   }.toMap
 
@@ -44,7 +44,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
 
   def pullLeft(layers: List[List[(go.Cluster, Pt)]]): List[List[(go.Cluster, Pt)]] = {
-    layers map {
+    layers.map{
       case p1::p2::tail =>
         val altPoint = p1._2 - Pt(1, 0)
         val newOne = if !taken(altPoint) then
@@ -59,7 +59,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
 
   def pullUp(layers: List[List[(go.Cluster, Pt)]]): List[List[(go.Cluster, Pt)]] = {
-    layers map (_.reverse) map {
+    layers.map(_.reverse).map{
       case p1::p2::tail =>
         val altPoint = p1._2 + Pt(0, 1)
         val newOne = 
@@ -78,7 +78,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     case Nil => Nil
   }
   
-  private val coordinates: Map[String, Pt] = coordinates1.flatten.flatMap {
+  private val coordinates: Map[String, Pt] = coordinates1.flatten.flatMap{
       case (cluster, coords) => cluster.allocateAt(coords)
   }.toMap
   

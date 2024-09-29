@@ -25,7 +25,7 @@ class Point(
     def apply(o: Any) = {
       f(o) match {
         case sf: SetFunction => sf(p(o))
-        case weirdStuff =>
+        case _ =>
           throw new IllegalArgumentException(s"${f(o)} was supposed to be a set function")
       }
     }

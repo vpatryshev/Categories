@@ -242,7 +242,7 @@ trait GrothendieckTopos
     // for each element ax of set Ax find all arrows x->y 
     // that map ax to an ay that belongs to By 
     def myArrows(ax: Any): Set[(Any, set)] =
-      domain.objects map {
+      domain.objects.map{
         y =>
           val all_arrows_to_y: domain.Arrows = domain.hom(x, y)
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
@@ -298,7 +298,7 @@ trait GrothendieckTopos
         for
           x <- domain.objects
           incl: Result[SetFunction] = inclusion(subdiagram(x), diagram(x))
-          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl map { x -> _ }
+          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map{ x -> _ }
         yield pair
 
       val name = concat(subdiagram.tag, "⊂", diagram.tag)
@@ -414,6 +414,6 @@ trait GrothendieckTopos
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
-    inclusionOf(p) in d map { 
+    (inclusionOf(p) in d).map{
       q => uniqueFromTerminalTo(p) andThen q named p.tag
     }

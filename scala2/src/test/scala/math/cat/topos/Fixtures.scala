@@ -76,3 +76,7 @@ class Fixtures extends Test with TestDiagrams {
   }
 
 }
+
+object Fixtures extends Fixtures {
+  println("Fixtures ok")
+}

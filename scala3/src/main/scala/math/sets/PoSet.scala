@@ -60,10 +60,10 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
     */
   override def equals(x: Any): Boolean =
     x match
-      case other: PoSet[_] => equal(other)
+      case other: PoSet[?] => equal(other)
       case _ => false
 
-  private[this] def equal(other: PoSet[_]): Boolean =
+  private[this] def equal(other: PoSet[?]): Boolean =
     (other eq this) || {
       val setsAreEqual = elements == other.elements
       setsAreEqual && {
@@ -120,7 +120,7 @@ object PoSet:
     new PoSet(theElements, comparator)
 
   def apply[T](comparator: (T, T) => Boolean, theElements: T*): PoSet[T] =
-    new PoSet(Set(theElements: _*), comparator)
+    new PoSet(Set(theElements*), comparator)
 
   def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Nil)
 
@@ -128,7 +128,7 @@ object PoSet:
     def poset: Parser[Result[PoSet[String]]] = 
       "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
         case "("~sOpt~","~"{"~mOpt~"}"~")" =>
-          (sOpt andAlso Result.traverse(mOpt)).map {
+          (sOpt andAlso Result.traverse(mOpt)).map{
             case (s, m) => PoSet(s, m.toList)
           }
         case nonsense => Result.error(s"Failed to parse $nonsense")

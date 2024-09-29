@@ -165,7 +165,7 @@ private[cat] trait GraphData:
   
   implicit def asArrow(a: Any): Arrow =
     a match
-      case arrow: Arrow @unchecked if arrows contains arrow => arrow
+      case arrow: Arrow @unchecked if arrows.contains(arrow) => arrow
       case _ => throw new IllegalArgumentException(s"<<$a>> is not an arrow")
 
   protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
@@ -175,7 +175,7 @@ private[cat] trait GraphData:
 
   def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {
-      Result.fold(arrows map {
+      Result.fold(arrows.map{
         a =>
           OKif(nodes contains d0(a), " d0 for " + a + " should be in set of nodes") andAlso
           OKif(nodes contains d1(a), " d1 for " + a + " should be in set of nodes")
@@ -226,7 +226,7 @@ object Graph:
     d10: A => N): Result[Graph] =
     val parsed: Result[GraphData] = data[N, A](nodes0, arrows0, d00, d10)
 
-    parsed flatMap {
+    parsed.flatMap{
       d =>
         new Graph(name) {
 
@@ -275,13 +275,13 @@ object Graph:
 
   implicit class GraphString(val sc: StringContext) extends AnyVal:
     def graph(args: Any*): Graph =
-      Graph.read(bufferFromContext(sc, args:_*)) iHope
+      Graph.read(bufferFromContext(sc, args*)) iHope
   
   class GraphParser extends Sets.SetParser:
     def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
       case nameOpt~"("~gOpt~")" =>
         val name = nameOpt getOrElse Good("graph")
-        (gOpt andAlso name) map { case (g, n) => g build n }
+        (gOpt andAlso name).map{ case (g, n) => g build n }
 
       case nonsense => Result.error(s"Failed to parse $nonsense")
     }
@@ -292,7 +292,7 @@ object Graph:
     }
 
     def graphData: Parser[Result[GraphData]] = parserOfSet~","~arrows ^^ {
-      case s~","~arrows => (arrows andAlso s) flatMap {
+      case s~","~arrows => (arrows andAlso s).flatMap{
         case (arr, s0) => Graph.data(s0, arr)
       }
       case nonsense => Result.error(s"Failed to parse $nonsense")

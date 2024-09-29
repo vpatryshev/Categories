@@ -14,7 +14,7 @@ class Test extends TestBase:
   val NumberRegex = "(\\d+)".r
   val PairRegex = "(\\d+)\\.(\\d+)".r
   implicit class Regex(sc: StringContext):
-    def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
+    def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x")*)
 
   extension[T] (n: Int)
     def asArrow = n.asInstanceOf[T]
@@ -37,7 +37,7 @@ class Test extends TestBase:
 
   def expect(op: SUT => Unit)(sutOpt: Result[SUT]): MatchResult[Any] = checkOption[SUT](sutOpt, op)
 
-  def expectOk(r: Result[_]): TestResult =
+  def expectOk(r: Result[?]): TestResult =
     r.isGood aka r.toString must beTrue
   
   def expectError[T](op: String => Boolean, r: Result[T]): TestResult =
@@ -49,11 +49,11 @@ class Test extends TestBase:
 
     ok
 
-  def expectError(r: Result[_], messages: String*): TestResult =
+  def expectError(r: Result[?], messages: String*): TestResult =
     r.isBad must beTrue
     r.errorDetails match
       case Some(things) =>
-        val matches = messages map { message => OKif(things contains message) }
+        val matches = messages.map{ message => OKif(things contains message) }
         expectOk(Result.traverse(matches))
 
       case None => failure(s"Expected errors in $r")

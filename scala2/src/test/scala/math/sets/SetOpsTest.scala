@@ -49,18 +49,20 @@ class SetOpsTest extends Specification {
   }
   
   def spendNotMoreThan[T](time: Duration, extraTimePercent:Int = 1): Object {
-    def on(op: => Result[T]): Result[T]
+    def on(op: (() => Boolean) => Result[T]): Result[T]
   } = new {
-    def on(op: => Result[T]): Result[T] = {
+    private val done = new AtomicBoolean(false)
+    val signal: () => Boolean = done.get
+
+    def on(op: (() => Boolean) => Result[T]): Result[T] = {
       import java.util.concurrent.locks.LockSupport._
       var res:Result[T] = Empty
       val millis = time.toMillis
       val finalDeadline = System.currentTimeMillis + millis * (100 + extraTimePercent) / 100 + 1
-      val done = new AtomicBoolean(false)
       val worker = new Thread {
         override def run(): Unit = {
           try {
-            res = op
+            res = op(signal)
             done.set(true)
           } catch {case ie: InterruptedException => }
         }
@@ -74,9 +76,9 @@ class SetOpsTest extends Specification {
           worker.interrupt()
           parkUntil(finalDeadline)
         }
-        if (worker.isAlive) worker.stop()
+        if (worker.isAlive) done.set(true)
       }
-      if (done.get) res else Result.error(s"Timeout after $time")
+      res.filter(done.get, s"Timeout after $time")
     }
   }
 }

@@ -133,7 +133,7 @@ object SetFunction:
     * @return y < sup > x, represented as a set of all morphisms.
     */
   def exponent(x: set, y: set): Set[SetFunction] =
-    Sets.exponent(x, y) map { apply("exponent", x, y, _) }
+    Sets.exponent(x, y).map{ apply("exponent", x, y, _) }
 
   def fun(a: set, b: set)(name: String, m: String => Any) =
     SetFunction.build(name, a, b, x => m(x.toString)).iHope

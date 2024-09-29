@@ -151,7 +151,7 @@ object Categories extends CategoryFactory:
       ("2_b", "swap") -> "2_a"
     ),
     arrowBuilder
-  ) map asCat orCommentTheError "Bad Simplicial3" iHope
+  ).map(asCat) orCommentTheError "Bad Simplicial3" iHope
 
   /**
     * Evacuation plan category. See https://twitter.com/aik099/status/702928717266489345
@@ -185,7 +185,7 @@ object Categories extends CategoryFactory:
     KnownCategories filter (_.isFinite)
 
   implicit class CategoryString(val sc: StringContext) extends AnyVal:
-    def category(args: Any*): Cat = read(bufferFromContext(sc, args: _*)) iHope
+    def category(args: Any*): Cat = read(bufferFromContext(sc, args*)) iHope
       
   /**
     * Creates an opposite category from this one.
@@ -199,6 +199,6 @@ object Categories extends CategoryFactory:
       override val graph: Graph = opgraph
       override def id(o: Obj): Arrow = c.id(o)
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
-        c.m(g, f) map asArrow
+        c.m(g, f).map(asArrow)
         
       override lazy val op = c      

@@ -148,7 +148,7 @@ sealed trait Bad[T] extends Result[T] with NoGood[T]:
     bad[T](List(recordEvent(message)) ++ listErrors)
 
   override def equals(other: Any): Boolean = other match
-    case that: Bad[_] => that.listErrors == listErrors
+    case that: Bad[?] => that.listErrors == listErrors
     case basura       => false
 
   override def hashCode: Int = listErrors.hashCode + tag.hashCode*71
@@ -203,7 +203,7 @@ object Result:
   inline def check[T](results: IterableOnce[Result[T]]): Outcome =
     traverse(results)
   
-  implicit inline def asOutcome(r:Result[_]): Outcome = r andThen OK
+  implicit inline def asOutcome(r:Result[?]): Outcome = r andThen OK
   
   def attempt[T](
     eval: => Result[T],
@@ -227,7 +227,7 @@ object Result:
     case Left(bad) => error[T](bad)
     case Right(good) => Good(good)
 
-  def app[X,Y](fOpt:Result[X=>Y])(xOpt:Result[X]):Result[Y] = fOpt<*>xOpt map {case (f,x) => f(x)}
+  def app[X,Y](fOpt:Result[X=>Y])(xOpt:Result[X]):Result[Y] = (fOpt<*>xOpt).map{case (f,x) => f(x)}
 
   implicit class Applicator[X,Y](fOpt: Result[X=>Y]):
     def apply(xOpt:Result[X]): Result[Y] = app(fOpt)(xOpt)
@@ -256,7 +256,7 @@ object Result:
         (collected, current) =>
       current match {
         case Good(good)       => (good::collected._1, collected._2)
-        case noGood:NoGood[_] => (collected._1, noGood.listErrors.toList::collected._2)
+        case noGood:NoGood[?] => (collected._1, noGood.listErrors.toList::collected._2)
       }
     )
     
@@ -264,12 +264,12 @@ object Result:
 
   private def badOrEmpty[T](errors: Errors): Result[T] = if errors.isEmpty then Empty else bad(errors.toSet)
 
-  private def bad[T](results: Result[_]*): Result[T] = bad(results flatMap (_.listErrors))
+  private def bad[T](results: Result[?]*): Result[T] = bad(results flatMap (_.listErrors))
 
   implicit class StreamOfResults[T](val source: LazyList[Result[T]]) extends AnyVal:
     def map[U](f: T => U): LazyList[Result[U]] = source map (_ map f)
     def |>[U](op: T => Result[U]): LazyList[Result[U]] = source map (t => t flatMap op)
-    def filter(p: T => Result[_]): LazyList[Result[T]] = |> (x => p(x) returning x)
+    def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x) returning x)
     def toList: List[Result[T]] = source.toList
 
   def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =

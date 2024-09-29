@@ -92,7 +92,7 @@ class ImplicationTest extends Fixtures:
       ok
     
     def nameThem(i: Int): String =
-      groupedCategoriesToTest(i) map {_.name} mkString ", "
+      groupedCategoriesToTest(i).map{_.name} mkString ", "
 
     s"work for domains: ${nameThem(0)}" in checkAt(0)
     s"work for domains: ${nameThem(1)}" in checkAt(1)

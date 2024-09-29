@@ -153,7 +153,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
 
       val actualDomain: Set[List[Any]] =
-        Sets.exponent(Sets.numbers(n), x.untyped) map {
+        Sets.exponent(Sets.numbers(n), x.untyped).map{
           _.toList.sortBy(_._1).map(_._2)
         }
 
@@ -161,11 +161,11 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
 
       def takeElementAt(i: Int)(obj: Any): Any = obj.asInstanceOf[List[Any]](i)
       
-      val projections = (0 until n) map {
+      val projections = (0 until n).map{
         i => SetFunction.build(s"set^$n", domain, x, takeElementAt(i))
       }
 
-      Result.traverse(projections) map { ps => (domain, ps.toList) }
+      Result.traverse(projections).map{ ps => (domain, ps.toList) }
     }
 
   /**
@@ -191,7 +191,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     * @return Good pair of arrows from product object to x and y, or None.
     */
   override def product(x: set, y: set): Result[(SetFunction, SetFunction)] =
-    Good(product2(x, y).untyped) filter contains flatMap {
+    Good(product2(x, y).untyped).filter(contains).flatMap{
       ps =>
         val p1 = SetFunction.build("p1", ps, x, { case (a, b) => a })
         val p2 = SetFunction.build("p2", ps, y, { case (a, b) => b })
@@ -229,10 +229,10 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     val unionSet: set = Sets.union(taggedX, taggedY)
     val ix0 = SetFunction.build("ix", x, taggedX, tagX)
     val ix1 = SetFunction.inclusion(taggedX, unionSet)
-    val ix =ix0 andAlso ix1 flatMap { case (f, g) => Result(f andThen g) }
+    val ix = (ix0 andAlso ix1).flatMap{ case (f, g) => Result(f andThen g) }
     val iy0 = SetFunction.build("iy", y, taggedY, tagY)
     val iy1 = SetFunction.inclusion(taggedY, unionSet)
-    val iy = iy0 andAlso iy1 flatMap { case (f, g) => Result(f andThen g) }
+    val iy = (iy0 andAlso iy1).flatMap{ case (f, g) => Result(f andThen g) }
     ix andAlso iy
 
   /**

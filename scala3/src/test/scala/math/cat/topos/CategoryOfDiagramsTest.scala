@@ -20,7 +20,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     for
       x <- topos.domain.objects
     do
-      val setAtx: Set[_] = obj apply x
+      val setAtx: Set[?] = obj apply x
       setAtx.size === expected
 
   

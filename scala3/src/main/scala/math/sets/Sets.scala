@@ -54,7 +54,7 @@ object Sets:
     * @param s
     * @return
     */
-  def isInfinite(s: Set[_]): Boolean = s.size == InfiniteSize
+  def isInfinite(s: Set[?]): Boolean = s.size == InfiniteSize
 
   /**
     * Builds a union of two non-intersecting sets
@@ -183,13 +183,13 @@ object Sets:
       predicate
     )
 
-  def isFinite(s: Set[_]): Boolean = s.size != InfiniteSize
+  def isFinite(s: Set[?]): Boolean = s.size != InfiniteSize
 
   def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
 
-  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys map {k => k -> f(k)} toMap
+  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys.map{k => k -> f(k)} toMap
 
-  def toString(s: Set[_]): String = "{" + s.mkString(", ") + "}"
+  def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
 
   def parse(input: Reader): Result[Set[String]] = (new SetParser).read(input)
 
@@ -280,7 +280,7 @@ object Sets:
       * @return the (virtual) set that is the disjoint union of given sets
       */
     def unionSet: Set[(Int, T)] =
-      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex map {
+      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex.map{
         case (s, i) => s map (x => (i, x))
       }
 
@@ -330,7 +330,7 @@ object Sets:
 
     override def size: Int = xs size
 
-    override def iterator: Iterator[(K, V)] = (xs map { (x:K) => (x, f(x)) }) iterator
+    override def iterator: Iterator[(K, V)] = (xs.map{ (x:K) => (x, f(x)) }) iterator
 
   class SetParser extends RegexParsers:
     def read(input: CharSequence): Result[Set[String]] =
@@ -380,7 +380,7 @@ object Sets:
     override def hashCode: Int = if isInfinite(this) then sample.hashCode else super.hashCode
 
     override def equals(other: Any): Boolean = other match
-      case s: Set[_] => if isInfinite(this) then this.eq(s) else super.equals(s)
+      case s: Set[?] => if isInfinite(this) then this.eq(s) else super.equals(s)
       case somethingelse => false
 
     override def toString: String =
@@ -427,7 +427,7 @@ object Sets:
     val a2b = exponent(b, a)
     println("We have an exponent of size " + a2b.size + ", but its still under construction")
     val anElement = Map("x" -> "b", "y" -> "a")
-    println("Check membership for " + anElement + ": " + (a2b contains anElement))
+    println("Check membership for " + anElement + ": " + (a2b.contains(anElement)))
     println("We use exponent, but its elements are still not listed... but wait: ")
     println(a2b)
     val q = parse("{a, b, c}")

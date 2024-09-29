@@ -98,7 +98,7 @@ class CategoryOfDiagrams(val domain: Category)
     private def am(f: domain.Arrow): SetFunction =
       val d0: domain.Arrows = om(domain.d0(f))
       val d1: domain.Arrows = om(domain.d1(f))
-      val tuples: Set[(domain.Arrow, domain.Arrow)] = d0 flatMap { g => domain.m(g, f) map (g -> _) }
+      val tuples: Set[(domain.Arrow, domain.Arrow)] = d0.flatMap{ g => domain.m(g, f) map (g -> _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
       new SetFunction("", setOf(d0), setOf(d1), a => mapping(a))

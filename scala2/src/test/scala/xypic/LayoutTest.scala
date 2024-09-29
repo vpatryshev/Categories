@@ -34,9 +34,9 @@ class LayoutTest extends Specification {
         "_5_"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3")), List(Set("4"))),
         "AAAAAA" -> List(List(Set("1", "2", "3", "4", "5", "6")))
       )
-      
+
       def U[T](ss: Set[Set[T]]): Set[T] = ss.foldLeft(Set.empty[T])(_ union _)
-      
+
       val expectedLayers = expectedLayersOfClusters.view.mapValues  (_.map(ls => U(ls.toSet))).toMap
 
       val actualLayersOfClusters: Map[String, List[List[Set[String]]]] = (for {
@@ -67,7 +67,7 @@ class LayoutTest extends Specification {
       for {
         name <- expectedLayers.keySet
       } actualLayers(name) === expectedLayers(name)
-      
+
       actualLayers === expectedLayers
     }
 

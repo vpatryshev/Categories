@@ -21,7 +21,7 @@ object Base:
     */
   def inverse[A, B](m: Map[A, B]): Map[B, A] =
     
-    val result: Map[B, A] = m map {
+    val result: Map[B, A] = m.map{
       case (k, v) => v -> k
     }
         
@@ -36,7 +36,7 @@ object Base:
     * @return the
     */
   def toMap[X](list: List[X]): IntMap[X] =
-    list.zipWithIndex map { case (x, i) => i -> x } toMap
+    list.zipWithIndex.map{ case (x, i) => i -> x } toMap
 
   implicit class Optimist[T](opt: Option[T]):
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
@@ -50,8 +50,8 @@ object Base:
     */
   def concat(first: Any, conn: String, second: Any): String =
     def stringOf(x: Any): String =
-      val s0 = String valueOf x trim;
-      if (s0 contains " ") || (s0 contains conn) then s"($s0)" else s0
+      val s0 = String.valueOf(x).trim
+      if (s0.contains(" ")) || (s0.contains(conn)) then s"($s0)" else s0
 
     val s1 = stringOf(first)
     val s2 = stringOf(second)
@@ -69,8 +69,8 @@ object Base:
     val expressions = args.iterator
     var buf = new StringBuffer(strings.next())
     while (strings.hasNext)
-      buf append expressions.next()
-      buf append strings.next()
+      buf.append(expressions.next())
+      buf.append(strings.next())
     buf
 
   def itsImmutable: Nothing = cannotDo("Immutable class")
@@ -88,5 +88,5 @@ object Base:
 
   def listSorted[T](things: Iterable[T]) = things.toList.sortBy(_.toString)
 
-  def asString(things: Iterable[_]): String =
+  def asString(things: Iterable[?]): String =
     things.map(_.toString).toList.sorted.mkString(",")

@@ -65,7 +65,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
   
   override def toString: String =
-    val s = String valueOf tag
+    val s = String.valueOf(tag)
     if s.isEmpty then details else s
   
   def details = s"NT($tag)(${

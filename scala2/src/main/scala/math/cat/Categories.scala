@@ -159,7 +159,8 @@ private[cat] trait CategoryFactory {
             case Some("," ~ Good(m)) =>
               buildCategory(graphOpt, m)
             case Some("," ~ multTableErrors) =>
-              multTableErrors orCommentTheError "Failed to parse composition table" returning _0_ 
+              val res = multTableErrors orCommentTheError "Failed to parse composition table" returning _0_
+              res
             case Some(garbage) => Result.error(s"bad data: $garbage")
           }
 
@@ -179,14 +180,17 @@ private[cat] trait CategoryFactory {
 
     def multTable: Parser[Result[Map[(String, String), String]]] =
       "{" ~ repsep(multiplication, ",") ~ "}" ^^ {
-        case "{" ~ m ~ "}" => Result.traverse(m).map(_.toMap)
+        case "{" ~ m ~ "}" =>
+          val r1 = Result.traverse(m).map(_.toMap)
+          r1
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
     def multiplication: Parser[Result[((String, String), String)]] = {
       word ~ ("o"|"∘") ~ word ~ "=" ~ word ^^ { 
         case g ~ "o" ~ f ~ "=" ~ h => Good(((f, g), h))
-        case someShit => Result.error(s"Failed to parse $someShit")
+        case someShit =>
+          Result.error(s"Failed to parse $someShit")
       }
     }
 
@@ -357,9 +361,15 @@ object Categories extends CategoryFactory {
 
   implicit class CategoryString(val sc: StringContext) extends AnyVal {
     def category(args: Any*): Cat = {
-      read(bufferFromContext(sc, args: _*)) match {
+      val buffer = bufferFromContext(sc, args: _*)
+      read(buffer) match {
         case Good(c) => c
-        case bad => throw new InstantiationException(bad.errorDetails.mkString)
+        case bad =>
+          val name = buffer.toString.split(":", 2).head
+          val error: String =
+            bad.listErrors.headOption.flatMap(ex => Option(ex.getMessage)).
+              getOrElse(bad.errorDetails.mkString)
+          throw new InstantiationException(s"$name: $error")
       }
     }
   }
