@@ -314,23 +314,23 @@ object Sets:
     extends Iterable[X]:
     def iterator = new InterleavingIterator(iterable1.iterator, iterable2.iterator)
 
-  class MapForFunction[K, +V](xs: Set[K], f: K => V) extends Map[K, V]:
-    override def keys: Set[K] = xs
-
-    override def apply(x: K): V =
-      if xs contains x then f(x) else throw new RuntimeException(s"oops, $x is not in domain")
-
-    def updated[V1 >: V](kv: (K, V1)): Map[K, V1] = itsImmutable
-
-    def removed(key: K): Map[K, V] = itsImmutable
-
-    override def updated[V1 >: V](x: K, y: V1): Map[K, V1] = itsImmutable
-
-    override def get(x: K): Option[V] = if xs contains x then Some(f(x)) else None
-
-    override def size: Int = xs size
-
-    override def iterator: Iterator[(K, V)] = (xs.map{ (x:K) => (x, f(x)) }) iterator
+//  class MapForFunction[K, +V](xs: Set[K], f: K => V) extends Map[K, V]:
+//    override def keys: Set[K] = xs
+//
+//    override def apply(x: K): V =
+//      if xs contains x then f(x) else throw new RuntimeException(s"oops, $x is not in domain")
+//
+//    def updated[V1 >: V](kv: (K, V1)): Map[K, V1] = itsImmutable
+//
+//    def removed(key: K): Map[K, V] = itsImmutable
+//
+//    override def updated[V1 >: V](x: K, y: V1): Map[K, V1] = itsImmutable
+//
+//    override def get(x: K): Option[V] = if xs contains x then Some(f(x)) else None
+//
+//    override def size: Int = xs size
+//
+//    override def iterator: Iterator[(K, V)] = (xs.map{ (x:K) => (x, f(x)) }) iterator
 
   class SetParser extends RegexParsers:
     def read(input: CharSequence): Result[Set[String]] =

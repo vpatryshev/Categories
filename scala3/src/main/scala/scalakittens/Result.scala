@@ -113,7 +113,8 @@ trait NoGood[T] extends NothingInside[T]:
   inline def contains[T1 >: T](x: T1): Boolean = false
   def iHope: T = throw new InstantiationException(errors)
 
-sealed trait Bad[T] extends Result[T] with NoGood[T]:
+class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
+
   import Result._
 
   def onError[X >: Errors, Y](op: X => Y):Result[T] = {op(listErrors); this}
@@ -190,9 +191,8 @@ object Result:
   type NoResult = Result[Nothing]
   type Outcome = Result[Unit]
 
-  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] = new Bad[T]() {
+  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] = new Bad[T](es) {
     override def clock: TimeReader = testClock
-    override def listErrors: Errors = es
   }
 
   inline def messageOf(t: Throwable): String = Result.forValue(t.getMessage) getOrElse t.toString
@@ -241,8 +241,7 @@ object Result:
   inline def forValue[T](value: =>T):              Result[T] = attempt(apply(Option(value)))
   inline def forValue[T](value: =>T, onError: => String):   Result[T] = attempt(apply(Option(value), onError), onError)
 
-  inline def bad[T](erorList: Errors): Bad[T] = new Bad[T]:
-    def listErrors: Errors = erorList
+  inline def bad[T](errorList: Errors): Bad[T] = new Bad[T](errorList)
 
   inline def error[T](message: => Any): Bad[T] =
     bad[T](recordEvent(message)::Nil)
@@ -255,8 +254,8 @@ object Result:
       results.iterator.foldLeft((List.empty[T], List.empty[Errors]))(
         (collected, current) =>
       current match {
-        case Good(good)       => (good::collected._1, collected._2)
-        case noGood:NoGood[?] => (collected._1, noGood.listErrors.toList::collected._2)
+        case Good(good) => (good::collected._1, collected._2)
+        case noGood    => (collected._1, noGood.listErrors.toList::collected._2)
       }
     )
     
@@ -326,9 +325,9 @@ object Result:
   object OK extends Good(⊤) with Outcome:
     override def toString = "OK"
   
-  def OKif(cond: => Boolean): Outcome = OK filter(_ => cond)
-  def OKif(cond: => Boolean, onError: => String): Outcome = OK filter (_ => cond, _ => onError)
-  def OKifNot(cond: => Boolean): Outcome = OK filterNot (_ => cond)
+  def OKif(cond: => Boolean): Outcome = OK.filter(_ => cond)
+  def OKif(cond: => Boolean, onError: => String): Outcome = OK.filter(_ => cond, _ => onError)
+  def OKifNot(cond: => Boolean): Outcome = OK.filterNot(_ => cond)
   def Oops[T](complaint: Any): Bad[T] = error(complaint)
   def NotImplemented[T]: Bad[T] = Oops[T]("not implemented")
   val ⊤ : Unit = ()

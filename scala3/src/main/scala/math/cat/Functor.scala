@@ -16,7 +16,7 @@ import scalakittens.{Bad, Result}
 abstract class Functor(
   tagged: Any,
   override val d0: Category, override val d1: Category
-) extends GraphMorphism(tagged, d0, d1):
+) extends GraphMorphism(tagged):
 
   /**
     * Objects of the functor domain

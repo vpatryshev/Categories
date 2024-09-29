@@ -15,7 +15,7 @@ import scala.language.{implicitConversions, postfixOps}
 /**
   * The data used in building an instance of Category
   */
-private[cat] abstract class CategoryData(override val name: String) extends Graph(name):
+private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
   type Objects = Set[Obj]
 
