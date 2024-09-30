@@ -40,7 +40,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def m(f: Arrow, g: Arrow): Option[Arrow]
   
   def validateGraph: Result[CategoryData] =
-    super.validate.returning(this)
+    super.validate returning this
 
   def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph
@@ -235,8 +235,8 @@ private[construction] class PartialData(override val graph: Graph)
     Set[(graph.Arrow, graph.Arrow, graph.Arrow)] =
     for
       a <- graph.arrows
-      b <- graph.arrows if compositionSource.contains((a, b))
-      c <- graph.arrows if compositionSource.contains((b, c))
+      b <- graph.arrows if compositionSource contains (a, b)
+      c <- graph.arrows if compositionSource contains (b, c)
     yield (a, b, c)
 
   

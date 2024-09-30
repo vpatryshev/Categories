@@ -206,7 +206,7 @@ object SetMorphism:
   def hom[X, Y](xs: Set[X], ys: Set[Y]): Set[SetMorphism[X, Y]] =
       val maps = Sets.exponent(xs, ys)
       val morphisms = maps flatMap (build(xs, ys, _).asOption)
-      def predicate(m: SetMorphism[X, Y]) = m.d0 == xs && m.d1 == ys && maps.contains(m)
+      def predicate(m: SetMorphism[X, Y]) = m.d0 == xs && m.d1 == ys && (maps contains m)
       setOf(morphisms, maps.size, predicate)
 
   /**

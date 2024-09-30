@@ -64,7 +64,7 @@ case class GradedObjects(category: Category) {
   }
   
   lazy val nameObjectsInLayers: List[List[Set[String]]] = {
-    layersOfClusters.map{
+    layersOfClusters.map {
       layer => layer.map(_.nameObjects)
     }
   }

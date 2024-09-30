@@ -94,7 +94,7 @@ trait NoGood[T] extends NothingInside[T]:
   inline def tag: String = s"${ts2b32(timestamp)}"
   inline override def toString = s"Error: ~$tag($errors)"
 
-  private def base32map = "abdeghjklmnopqrstvxyz.".zipWithIndex.map{case (c,i) => ('a'+i).toChar -> c}.toMap.withDefault(identity)
+  private def base32map = "abdeghjklmnopqrstvxyz.".zipWithIndex.map {case (c,i) => ('a'+i).toChar -> c}.toMap.withDefault(identity)
 
   /**
     * Transforms a timestamp to a string
@@ -145,7 +145,7 @@ class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
 
   def stackTrace:String = listErrors map details mkString "\n\n"
 
-  inline def orCommentTheError(message: =>Any): Bad[T] =
+  infix def orCommentTheError(message: =>Any): Bad[T] =
     bad[T](List(recordEvent(message)) ++ listErrors)
 
   override def equals(other: Any): Boolean = other match
@@ -191,9 +191,9 @@ object Result:
   type NoResult = Result[Nothing]
   type Outcome = Result[Unit]
 
-  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] = new Bad[T](es) {
-    override def clock: TimeReader = testClock
-  }
+  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] =
+    new Bad[T](es):
+      override def clock: TimeReader = testClock
 
   inline def messageOf(t: Throwable): String = Result.forValue(t.getMessage).getOrElse(t.toString)
 
@@ -217,7 +217,7 @@ object Result:
     optT map Good.apply getOrElse Empty
       
   implicit def apply[T](optT: Option[T]):                         Result[T] = legalize(optT)
-  implicit def apply[T](optT: Option[T], onError: => String):     Result[T] = legalize(optT).orCommentTheError(onError)
+  implicit def apply[T](optT: Option[T], onError: => String):     Result[T] = legalize(optT) orCommentTheError onError
 
   def apply[T](tryT: Try[T]): Result[T] = tryT match
     case Success(t) => Good(t)
@@ -247,7 +247,7 @@ object Result:
     bad[T](recordEvent(message)::Nil)
 
   inline def exception[T](x: Throwable): Bad[T] = bad(x::Nil)
-  inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x).orCommentTheError(comment)
+  inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x) orCommentTheError comment
 
   def partition[T](results: IterableOnce[Result[T]]): (List[T], List[Errors]) =
     val (goodOnes, badOnes) = 
@@ -263,13 +263,13 @@ object Result:
 
   private def badOrEmpty[T](errors: Errors): Result[T] = if errors.isEmpty then Empty else bad(errors.toSet)
 
-  private def bad[T](results: Result[?]*): Result[T] = bad(results.flatMap (_.listErrors))
+  private def bad[T](results: Result[?]*): Result[T] = bad(results flatMap (_.listErrors))
 
   implicit class StreamOfResults[T](val source: LazyList[Result[T]]) extends AnyVal:
-    infix def map[U](f: T => U): LazyList[Result[U]] = source.map (_.map(f))
-    def |>[U](op: T => Result[U]): LazyList[Result[U]] = source.map (t => t.flatMap(op))
-    infix def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x).returning(x))
-    infix def toList: List[Result[T]] = source.toList
+    def map[U](f: T => U): LazyList[Result[U]] = source map (_ map f)
+    def |>[U](op: T => Result[U]): LazyList[Result[U]] = source map (t => t flatMap op)
+    def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x) returning x)
+    def toList: List[Result[T]] = source.toList
 
   infix def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
     val (goodOnes, badOnes) = partition(results)

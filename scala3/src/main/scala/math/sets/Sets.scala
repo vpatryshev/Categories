@@ -176,7 +176,7 @@ object Sets:
     * Cartesian product of two sets
     */
   def product2[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] =
-    val predicate = (p: (X, Y)) => xs.contains(p._1) && ys.contains(p._2)
+    val predicate = (p: (X, Y)) => (xs contains p._1) && (ys contains p._2)
     setOf(
       cantorIterable(xs, ys),
       if isFinite(xs) && isFinite(ys) then xs.size * ys.size else InfiniteSize,
@@ -187,7 +187,7 @@ object Sets:
 
   def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
 
-  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys.map{k => k -> f(k)} toMap
+  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys.map {k => k -> f(k)} toMap
 
   def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
 
@@ -280,7 +280,7 @@ object Sets:
       * @return the (virtual) set that is the disjoint union of given sets
       */
     def unionSet: Set[(Int, T)] =
-      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex.map{
+      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex.map {
         case (s, i) => s map (x => (i, x))
       }
 
@@ -330,7 +330,7 @@ object Sets:
 //
 //    override def size: Int = xs size
 //
-//    override def iterator: Iterator[(K, V)] = (xs.map{ (x:K) => (x, f(x)) }) iterator
+//    override def iterator: Iterator[(K, V)] = (xs.map { (x:K) => (x, f(x)) }) iterator
 
   class SetParser extends RegexParsers:
     def read(input: CharSequence): Result[Set[String]] =
@@ -427,14 +427,14 @@ object Sets:
     val a2b = exponent(b, a)
     println("We have an exponent of size " + a2b.size + ", but its still under construction")
     val anElement = Map("x" -> "b", "y" -> "a")
-    println("Check membership for " + anElement + ": " + (a2b.contains(anElement)))
+    println("Check membership for " + anElement + ": " + (a2b contains anElement))
     println("We use exponent, but its elements are still not listed... but wait: ")
     println(a2b)
     val q = parse("{a, b, c}")
     println(q)
     val r = Set("c", "b", "a")
     println(s"Is $r equal to $q? ${Good(r) == q}")
-    println(s"Does $q contain $a? ${q.contains("a")}")
+    println(s"Does $q contain $a? ${q contains "a"}")
     val tuples = for (arg <- Set(1, 2, 3)) yield ("key" + arg, "v" + arg)
 
     println(Map() ++ tuples)

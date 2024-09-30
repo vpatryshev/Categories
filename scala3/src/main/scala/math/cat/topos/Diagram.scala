@@ -59,7 +59,7 @@ abstract class Diagram(
     // Any better suggestions?
     val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
 
-    sorted.map{ p => p._1 named ("p" + p._2) }
+    sorted.map { p => p._1 named ("p" + p._2) }
 
   def asFunction(a: d1.Arrow): SetFunction = a match
     case sf: SetFunction => sf
@@ -215,7 +215,7 @@ abstract class Diagram(
     
     val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
 
-    val allCandidates = sorted.zipWithIndex.map{
+    val allCandidates = sorted.zipWithIndex.map {
       case (om, i) =>
         Diagram.tryBuild(topos)(
           i,

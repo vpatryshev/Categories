@@ -128,9 +128,9 @@ object PoSet:
     def poset: Parser[Result[PoSet[String]]] = 
       "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
         case "("~sOpt~","~"{"~mOpt~"}"~")" =>
-          (sOpt.andAlso(Result.traverse(mOpt)).map{
+          (sOpt andAlso Result.traverse(mOpt)) map {
             case (s, m) => PoSet(s, m.toList)
-          })
+          }
         case nonsense => Result.error(s"Failed to parse $nonsense")
       }
       

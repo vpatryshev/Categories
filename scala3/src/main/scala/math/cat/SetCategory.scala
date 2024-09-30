@@ -97,7 +97,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen
       val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
       val inclusion = filtrator(x => f(x) == g(x))
-      Good(inclusion) filter { i => objects.contains(i.d0) }
+      Good(inclusion) filter { i => objects contains i.d0 }
 
 
   /**
@@ -153,7 +153,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
 
       val actualDomain: Set[List[Any]] =
-        Sets.exponent(Sets.numbers(n), x.untyped).map{
+        Sets.exponent(Sets.numbers(n), x.untyped).map {
           _.toList.sortBy(_._1).map(_._2)
         }
 
@@ -161,11 +161,11 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
 
       def takeElementAt(i: Int)(obj: Any): Any = obj.asInstanceOf[List[Any]](i)
       
-      val projections = (0 until n).map{
+      val projections = (0 until n).map {
         i => SetFunction.build(s"set^$n", domain, x, takeElementAt(i))
       }
 
-      Result.traverse(projections).map{ ps => (domain, ps.toList) }
+      Result.traverse(projections).map { ps => (domain, ps.toList) }
     }
 
   /**

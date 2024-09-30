@@ -101,7 +101,7 @@ abstract class Functor(
   def conesFrom(y: d1.Obj): Set[Cone] =
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     val arrowsFromYtoFX: Injection[d0.Obj, Set[(d0.Obj, d1.Arrow)]] = injection(
-      (x: d0.Obj) => d1.arrowsBetween(y, objectsMapping(x)).map{ (x, _) }
+      (x: d0.Obj) => d1.arrowsBetween(y, objectsMapping(x)).map { (x, _) }
     )
 
     // group (x, f: y->F[x]) by x
@@ -177,7 +177,7 @@ abstract class Functor(
   def coconesTo(y: d1.Obj): Set[Cocone] =
     // this function builds pairs (x, f:y->F(x)) for all f:y->F(x)) for a given x
     def arrowsFromFXtoY(x: d0.Obj): Set[(d0.Obj, d1.Arrow)] =
-      d1.arrowsBetween(objectsMapping(x), y).map{ (x, _) }
+      d1.arrowsBetween(objectsMapping(x), y).map { (x, _) }
 
     // group (x, f: y->F[x]) by x
     val homsGroupedByX: List[Set[(d0.Obj, d1.Arrow)]] = domainObjects.toList.map(arrowsFromFXtoY)
@@ -278,7 +278,7 @@ abstract class Functor(
       d1.hom(factored.vertex, vertex) exists (
         h =>
           val failsOn = domainObjects.find(
-            (x: d0.Obj) => !(d1.m(factored.arrowFrom(x), h).contains(arrowFrom(x))))
+            (x: d0.Obj) => !(d1.m(factored.arrowFrom(x), h) contains(arrowFrom (x))))
           val itWorks = failsOn.isEmpty
           itWorks
       )
@@ -375,12 +375,12 @@ object Functor:
   private[cat] def validateFunctor[T <: Functor](f: T): Result[T] = for
     _ <- checkObjectMapping(f)
     _ <- checkArrowMapping(f)
-    _ <- checkIdentityPreservation(f) andAlso checkCompositionPreservation(f)
+    _ <- checkIdentityPreservation(f).andAlso(checkCompositionPreservation(f))
   yield f
 
   private def checkIdentityPreservation(f: Functor): Outcome =
     Result.check {
-      f.domainObjects.map{ x =>
+      f.domainObjects.map { x =>
         val y: f.d1.Obj = f.objectsMapping(x)
         OKif(f.arrowsMapping(f.d0.id(x)) == f.d1.id(y), s"Identity must be preserved for $x ↦ $y")
       }
@@ -397,7 +397,7 @@ object Functor:
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
 
     Result.check {
-      Category.composablePairs(f.d0).map{
+      Category.composablePairs(f.d0).map {
         case (fx, fy) => check(fx, fy)
       }
     }
@@ -414,15 +414,15 @@ object Functor:
       val domainExpected = f.objectsMapping(f.d0.d0(a))
       val codomainExpected = f.objectsMapping(f.d0.d1(a))
       OKif(domainActual == domainExpected,
-          s"Inconsistent mapping for d0($a) - $domainActual vs $domainExpected") andAlso
+          s"Inconsistent mapping for d0($a) - $domainActual vs $domainExpected").andAlso(
       OKif(codomainActual == codomainExpected,
-          s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected")
+          s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected"))
       }
     }
 
   private def checkObjectMapping(f: Functor): Outcome =
     Result check {
-      f.domainObjects.map{ x =>
+      f.domainObjects.map { x =>
           Result.forValue(f.objectsMapping(x))
             .orCommentTheError(s"Object mapping fails for $x")
             .filter(f.d1.objects, s"Object mapping defined incorrectly for $x")

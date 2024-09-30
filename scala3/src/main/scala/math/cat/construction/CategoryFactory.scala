@@ -137,7 +137,7 @@ private[cat] trait CategoryFactory:
     */
   def read(input: CharSequence): Result[Cat] =
     val r = (new CategoryParser).readCategory(input)
-    r.map{ _.withSource(input.toString) }
+    r.map { _.withSource(input.toString) }
 
   class CategoryParser extends GraphParser:
 

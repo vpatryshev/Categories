@@ -51,7 +51,7 @@ abstract class Category(name: String) extends CategoryData(name):
   /**
     * A set of all arrows that originate at initial objects (see allRootObjects)
     */
-  lazy val arrowsFromRootObjects: Set[Arrow] = arrows.filter(f => allRootObjects.contains(d0(f)))
+  lazy val arrowsFromRootObjects: Set[Arrow] = arrows.filter(f => allRootObjects contains d0(f))
   
   private[cat] lazy val listOfRootObjects = listSorted(allRootObjects)
 
@@ -117,7 +117,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return true iff f∘g=id and g∘f=id
     */
   def areInverse(f: Arrow, g: Arrow): Boolean =
-    (m(f, g).contains(id(d0(f)))) && (m(g, f).contains(id(d0(g))))
+    (m(f, g) contains id(d0(f))) && (m(g, f) contains id(d0(g)))
 
   /**
     * Checks whether an arrow is an endomorphism
@@ -183,7 +183,7 @@ abstract class Category(name: String) extends CategoryData(name):
     sameDomain(h, qx) && sameDomain(h, qy) &&
       follows(px, h) && follows(py, h) &&
       sameCodomain(px, qx) && sameCodomain(py, qy) &&
-      (m(h, px).contains(qx)) && (m(h, py).contains(qy))
+      (m(h, px) contains qx) && (m(h, py) contains qy)
 
   /**
     * Builds an equalizer arrow for a parallel pair of arrows.
@@ -228,7 +228,7 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def factorsUniquelyOnLeft(f: Arrow)(g: Arrow): Boolean =
     sameCodomain(g, f) &&
-      existsUnique(arrowsBetween(d0(f), d0(g)), (h: Arrow) => m(h, g).contains(f))
+      existsUnique(arrowsBetween(d0(f), d0(g)), (h: Arrow) => m(h, g) contains f)
 
   /**
     * Builds a set of all arrows that equalize f: A -> B and g: A -> B, that is,
@@ -274,7 +274,7 @@ abstract class Category(name: String) extends CategoryData(name):
   def factorsUniquelyOnRight(f: Arrow): Arrow => Boolean =
     (g: Arrow) =>
       sameDomain(g, f) &&
-        isSingleton(arrowsBetween(d1(g), d1(f)).filter(m(g, _).contains(f)))
+        isSingleton(arrowsBetween(d1(g), d1(f)).filter(m(g, _) contains f))
 
   /**
     * Builds a set of all arrows that coequalize f: A -> B and g: A -> B, that is,
@@ -418,7 +418,7 @@ abstract class Category(name: String) extends CategoryData(name):
         sameCodomain(py, qy) &&
         isSingleton(
         arrowsBetween(d0(qx), d0(px)).filter(
-          (h: Arrow) => (m(h, px).contains(qx)) && (m(h, py).contains(qy))))
+          (h: Arrow) => (m(h, px) contains qx) && (m(h, py) contains qy)))
 
   /**
     * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
@@ -508,7 +508,7 @@ abstract class Category(name: String) extends CategoryData(name):
     sameDomain(px, qx) && sameDomain(py, qy) &&
       follows(h, px) && follows(h, py) &&
       sameCodomain(h, qx) && sameCodomain(h, qy) &&
-      (m(px, h).contains(qx)) && (m(py, h).contains(qy))
+      (m(px, h) contains qx) && (m(py, h) contains qy)
   }
 
   /**
@@ -587,7 +587,7 @@ abstract class Category(name: String) extends CategoryData(name):
         case 1 => Good((x, id(x) :: Nil))
         case _ => degree(x, n - 1).flatMap{
           case (x_n_1, previous_projections) =>
-            product(x, x_n_1).map{
+            product(x, x_n_1).map {
               case (p1, p_n_1) =>
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
                 (d0(p1), projections.flatten)
@@ -623,7 +623,7 @@ abstract class Category(name: String) extends CategoryData(name):
 
 // TODO: figure out which one is faster  
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
-//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows.map{
+//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows.map {
 //      a => a -> (d0(a), d1(a))
 //    } toMap
 //
@@ -644,7 +644,7 @@ abstract class Category(name: String) extends CategoryData(name):
       f => 
         val d1f = d1(f)
         d1f != from && d1f != to && arrows.exists {
-        g => m(f, g).contains(a)
+        g => m(f, g) contains a
       }
     }
 
@@ -684,7 +684,7 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def completeSubcategory(subname: String, setOfObjects: Objects): Result[Category] =
     val src = this
-    subgraph(subname, setOfObjects).map{
+    subgraph(subname, setOfObjects).map {
       sub =>
         new Category(subname):
           override val graph: Graph = sub
