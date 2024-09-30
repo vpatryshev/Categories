@@ -37,7 +37,7 @@ sealed trait Result[+T] extends Container[T]:
   def fold[U](good: T => U, bad: Errors => U): U
   def orCommentTheError(message: => Any): Result[T]
   def tap(op: T => Unit): Result[T]
-  inline def optionally[U](f: T => U => U): U => U = this map f getOrElse identity[U]
+  inline def optionally[U](f: T => U => U): U => U = this.map(f).getOrElse(identity[U])
   def contains[T1 >: T](x: T1): Boolean
   def iHope: T
 
@@ -171,7 +171,7 @@ private object NoException extends Exception:
     case other => other
 
 class ResultException(message:String, source: Throwable = NoException)
-  extends Exception(message, NoException root source):
+  extends Exception(message, NoException.root(source)):
   private val check: String = message
   override def toString: String = message
   override def equals(other: Any): Boolean = other match
@@ -195,7 +195,7 @@ object Result:
     override def clock: TimeReader = testClock
   }
 
-  inline def messageOf(t: Throwable): String = Result.forValue(t.getMessage) getOrElse t.toString
+  inline def messageOf(t: Throwable): String = Result.forValue(t.getMessage).getOrElse(t.toString)
 
   def recordEvent(message:Any):Throwable =
     new ResultException(""+message)
@@ -203,7 +203,7 @@ object Result:
   inline def check[T](results: IterableOnce[Result[T]]): Outcome =
     traverse(results)
   
-  implicit inline def asOutcome(r:Result[?]): Outcome = r andThen OK
+  implicit inline def asOutcome(r:Result[?]): Outcome = r.andThen(OK)
   
   def attempt[T](
     eval: => Result[T],
@@ -217,7 +217,7 @@ object Result:
     optT map Good.apply getOrElse Empty
       
   implicit def apply[T](optT: Option[T]):                         Result[T] = legalize(optT)
-  implicit def apply[T](optT: Option[T], onError: => String):     Result[T] = legalize(optT) orCommentTheError onError
+  implicit def apply[T](optT: Option[T], onError: => String):     Result[T] = legalize(optT).orCommentTheError(onError)
 
   def apply[T](tryT: Try[T]): Result[T] = tryT match
     case Success(t) => Good(t)
@@ -247,7 +247,7 @@ object Result:
     bad[T](recordEvent(message)::Nil)
 
   inline def exception[T](x: Throwable): Bad[T] = bad(x::Nil)
-  inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x) orCommentTheError comment
+  inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x).orCommentTheError(comment)
 
   def partition[T](results: IterableOnce[Result[T]]): (List[T], List[Errors]) =
     val (goodOnes, badOnes) = 
@@ -263,12 +263,12 @@ object Result:
 
   private def badOrEmpty[T](errors: Errors): Result[T] = if errors.isEmpty then Empty else bad(errors.toSet)
 
-  private def bad[T](results: Result[?]*): Result[T] = bad(results flatMap (_.listErrors))
+  private def bad[T](results: Result[?]*): Result[T] = bad(results.flatMap (_.listErrors))
 
   implicit class StreamOfResults[T](val source: LazyList[Result[T]]) extends AnyVal:
-    def map[U](f: T => U): LazyList[Result[U]] = source map (_ map f)
-    def |>[U](op: T => Result[U]): LazyList[Result[U]] = source map (t => t flatMap op)
-    def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x) returning x)
+    def map[U](f: T => U): LazyList[Result[U]] = source.map (_.map(f))
+    def |>[U](op: T => Result[U]): LazyList[Result[U]] = source.map (t => t.flatMap(op))
+    def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x).returning(x))
     def toList: List[Result[T]] = source.toList
 
   def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
@@ -280,7 +280,7 @@ object Result:
   def fold(results:Iterable[Outcome]): Outcome =
     results.foldLeft(OK: Outcome)((x,y) => x <*> y)
 
-  def zip[X1,X2](r1: Result[X1], r2: Result[X2]): Result[(X1, X2)] = r1 andAlso r2
+  def zip[X1,X2](r1: Result[X1], r2: Result[X2]): Result[(X1, X2)] = r1 <*> r2
 
   def zip[X1,X2,X3](r1: Result[X1], r2: Result[X2], r3: Result[X3]): Result[(X1,X2,X3)] =
     (r1,r2,r3) match

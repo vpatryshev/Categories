@@ -13,14 +13,14 @@ class ZFC:
   /**
     * A cache for storing sets that are built in the process
     */
-  private[this] val domain = new ListBuffer[SetZ]
+  private val domain = new ListBuffer[SetZ]
 
   /**
     * Adds another set to cache
     * @param o
     * @return
     */
-  private[this] def register(o: SetZ): SetZ =
+  private def register(o: SetZ): SetZ =
     log(s"exists $o")
     if !(domain contains o) then domain.append(o)
     o
@@ -78,7 +78,7 @@ class ZFC:
       case sz: SetZ => equal(this, sz)
       case otherwisse => false
 
-    def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
+    inline def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
 
     def choose1: Option[Any] = domain headOption
 
@@ -97,7 +97,7 @@ class ZFC:
     def powerset(a: SetZ): SetZ =
       exists(new SetZ(s"P(${a.id})",
         {
-          case b: SetZ => b isSubsetOf a
+          case b: SetZ => b.isSubsetOf(a)
           case other => false
         }))
 

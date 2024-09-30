@@ -32,10 +32,10 @@ object SetOps:
     if xs.isEmpty || ys.isEmpty then Iterator.empty
     else
       new Iterator[(X, Y)]:
-        private[this] var iterators: mutable.Queue[Iterator[Y]] = new mutable.Queue()
-        private[this] var xi = xs.iterator
-        private[this] var yi: Iterator[Iterator[Y]] = Iterator.empty
-        private[this] var shift = 0
+        private var iterators: mutable.Queue[Iterator[Y]] = new mutable.Queue()
+        private var xi = xs.iterator
+        private var yi: Iterator[Iterator[Y]] = Iterator.empty
+        private var shift = 0
 
         def hasNext: Boolean = xi.hasNext || iterators.nonEmpty
 

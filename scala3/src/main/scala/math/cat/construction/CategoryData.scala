@@ -40,13 +40,13 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def m(f: Arrow, g: Arrow): Option[Arrow]
   
   def validateGraph: Result[CategoryData] =
-    super.validate returning this
+    super.validate.returning(this)
 
   def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph
     val objectsHaveIds = OKif(!finiteNodes) orElse
       Result.check { 
-        objects.map{ x =>
+        objects.map { x =>
           val ux = id(x)
           OKif(d0(ux) == x, s"Domain of id $ux should be $x in $name") andAlso
           OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
@@ -54,7 +54,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
       }
 
     val idsAreNeutral = OKif(!finiteArrows) orElse
-      Result.check { arrows.map{ f =>
+      Result.check { arrows.map { f =>
         val u_f = m(id(d0(f)), f)
         val f_u = m(f, id(d1(f)))
         OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
@@ -82,7 +82,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
           (compositionsAreOk andThen listAssociativityProblems)
 
     val validated: Result[((CategoryData, Any), Any)] =
-      graphIsOk andAlso objectsHaveIds andAlso compositionIsAssociative
+      graphIsOk <*> objectsHaveIds <*> compositionIsAssociative
     
     validated map (_._1._1) map (new CategoryBuilder(_))
   
@@ -99,7 +99,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
 
   private[cat] def checkCompositions: Outcome =
-    val check1 = Result.check(missingCompositions.map{
+    val check1 = Result.check(missingCompositions.map {
       case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
     })
 
@@ -144,7 +144,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
     * TODO: eliminate code duplication
     */
   private[cat] def build: Result[Category] =
-    factory.map{ _.newCategory }
+    factory.map { _.newCategory }
 
   // TODO: try to start using
   private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
@@ -185,7 +185,7 @@ private[construction] class PartialData(override val graph: Graph)
   override def id(o: Obj): Arrow = o
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
-    composition.get((f, g)).map{ asArrow _ }
+    composition.get((f, g)).map { asArrow _ }
 
   /**
     * This method helps fill in obvious choices for arrows composition.
@@ -277,7 +277,7 @@ private[construction] class PartialData(override val graph: Graph)
     *         TODO: eliminate code duplication
     */
   private[cat] override def build: Result[Category] = Result.forValue {
-    CategoryData.transitiveClosure(this).factory.map{ validData => validData.newCategory }
+    CategoryData.transitiveClosure(this).factory.map { validData => validData.newCategory }
   }.flatten
 
 end PartialData
@@ -350,7 +350,7 @@ object CategoryData:
       val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] =
         data.nonexistentCompositions.flatMap{
           case (f, g) =>
-            data.newComposition(f, g).map{
+            data.newComposition(f, g).map {
               h => (h, (data.d0(f), data.d1(g)))
             }
         } toMap
@@ -359,7 +359,7 @@ object CategoryData:
         s"${data.name}: ${missing.size} arrows still missing: $missing")
 
       val newData: Result[PartialData] =
-        data.addArrows(newArrows).map{ graph =>
+        data.addArrows(newArrows).map { graph =>
           new PartialData(graph):
             override def newComposition(f: Any, g: Any): Option[Arrow] =
               data.newComposition(f, g).map(_.asInstanceOf[Arrow])

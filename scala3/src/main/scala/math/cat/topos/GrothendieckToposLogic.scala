@@ -15,7 +15,7 @@ trait GrothendieckToposLogic:
   topos: GrothendieckTopos =>
 
 // TODO: use the right tagging, find the right predicate
-//  private[this] val cache = mutable.Map[(String, Predicate, Predicate), Predicate]()
+//  private val cache = mutable.Map[(String, Predicate, Predicate), Predicate]()
 
   abstract class Predicate(myTag: Any) extends DiagramArrow(myTag):
     p: DiagramArrow =>
