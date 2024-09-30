@@ -78,7 +78,7 @@ class ZFC:
       case sz: SetZ => equal(this, sz)
       case otherwisse => false
 
-    inline def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
+    infix def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
 
     def choose1: Option[Any] = domain headOption
 

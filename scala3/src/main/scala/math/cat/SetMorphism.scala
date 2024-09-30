@@ -38,7 +38,7 @@ class SetMorphism[X, Y] (
     * @param g next morphism: Y -> Z
     * @return their composition g ∘ f: X -> Z
     */
-  def andThen[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] =
+  infix def andThen[Z](g: SetMorphism[Y, Z]): Option[SetMorphism[X, Z]] =
     OKif (d1 == g.d0) andThen build[X, Z](d0, g.d1, (x: X) => g(this(x))) asOption
 
   /**

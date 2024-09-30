@@ -6,7 +6,7 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
   require(d0 != 0, s"denominator can't be zero ($n0/$d0)")
   private val gcd = n0 gcd d0
   private val sigd = d0.signum
-  val (n, d): (BigInt, BigInt) = if gcd == 0 then (0, 1) else (sigd*n0/gcd, sigd*d0/gcd)
+  val (n, d): (BigInt, BigInt) = if gcd == 0 then (BigInt(0), BigInt(1)) else (sigd*n0/gcd, sigd*d0/gcd)
   
   def +(other: Rational) = Rational(n * other.d + other.n * d, d * other.d)
   def -(other: Rational) = Rational(n * other.d - other.n * d, d * other.d)
@@ -21,8 +21,8 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
   def toInt: Int = ((n + n.signum*d/2) / d).toInt
   def toDouble: Double = n.toDouble / d.toDouble
   
-  def min(other: Rational): Rational = if this < other then this else other
-  def max(other: Rational): Rational = if this < other then other else this
+  infix def min(other: Rational): Rational = if this < other then this else other
+  infix def max(other: Rational): Rational = if this < other then other else this
   
   override def toString = s"$n/$d"
   

@@ -33,7 +33,7 @@ trait GrothendieckTopos
 //    case d: Diagram => d
 //    case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
 
-  def inclusionOf(p: Point): { def in(diagram: Diagram): Result[DiagramArrow] }
+  def inclusionOf(p: Point): Includer
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]]
 
@@ -293,7 +293,7 @@ trait GrothendieckTopos
   trait Includer:
     val subdiagram: Diagram
 
-    def in(diagram: Diagram): Result[DiagramArrow] =
+    infix def in(diagram: Diagram): Result[DiagramArrow] =
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
         for
           x <- domain.objects

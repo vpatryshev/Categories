@@ -36,7 +36,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
     * @param g next
     * @return
     */
-  def andThen(g: NaturalTransformation): NaturalTransformation =
+  infix def andThen(g: NaturalTransformation): NaturalTransformation =
     
     def comp(x: d0.d0.Obj): d1.d1.Arrow =
       val fHere:  d1.d1.Arrow = self(x)
@@ -52,8 +52,8 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
       def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = composed(x)
   
   end andThen
-  
-  def named(newTag: Any): NaturalTransformation = new NaturalTransformation(newTag):
+
+  infix def named(newTag: Any): NaturalTransformation = new NaturalTransformation(newTag):
     val d0: Functor = self.d0
     val d1: Functor = self.d1
     def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =

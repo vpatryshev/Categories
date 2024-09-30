@@ -20,7 +20,7 @@ class PoSetMorphism[X, Y] private(
   type Domain = PoSet[X]
   type Codomain = PoSet[Y]
 
-  def andThen[Z](g: PoSetMorphism[Y, Z]): Option[PoSetMorphism[X, Z]] =
+  infix def andThen[Z](g: PoSetMorphism[Y, Z]): Option[PoSetMorphism[X, Z]] =
     OKif(d1 == g.d0, "Composition not defined") returning (
       new PoSetMorphism[X, Z]("a", d0, g.d1, (x: X) => g(this (x)))
     ) asOption

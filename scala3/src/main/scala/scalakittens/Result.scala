@@ -9,36 +9,36 @@ import scala.util.{Failure, Success, Try}
 sealed trait Result[+T] extends Container[T]:
   def listErrors: Errors
   def onError[X >: Errors, Y](op: X => Y):Result[T]
-  def map[U](f: T => U): Result[U]
-  def flatMap[U](f: T => Result[U]): Result[U]
-  inline def returning[U](u: => U): Result[U] = map[U](_ => u)
-  def andThen[U](next: => Result[U]): Result[U] = flatMap(_ => next)
+  infix def map[U](f: T => U): Result[U]
+  infix def flatMap[U](f: T => Result[U]): Result[U]
+  infix def returning[U](u: => U): Result[U] = map[U](_ => u)
+  infix def andThen[U](next: => Result[U]): Result[U] = flatMap(_ => next)
   inline def flatten[U](implicit asResult: T => Result[U]): Result[U] = flatMap(asResult)
   def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U]
   def asOption: Option[T]
-  def orElse[T1 >: T] (next: => Result[T1]): Result[T1]
-  def getOrElse[T1 >: T](alt: => T1): T1
-  def <*>[U](other: Result[U]): Result[(T,U)]
-  inline def andAlso[U](other: Result[U]): Result[(T,U)] = <*>(other)
+  infix def orElse[T1 >: T] (next: => Result[T1]): Result[T1]
+  infix def getOrElse[T1 >: T](alt: => T1): T1
+  infix def <*>[U](other: Result[U]): Result[(T,U)]
+  infix def andAlso[U](other: Result[U]): Result[(T,U)] = <*>(other)
   protected def foreach_(f: T => Unit): Unit
-  inline def foreach(f: T => Unit): Result[T] = {foreach_(f); this}
-  def filter(p: T => Boolean): Result[T]
-  def filter(p: T => Boolean, onError: T=> String): Result[T]
-  inline def filter(p: T => Boolean, errorMessage: => String): Result[T] = filter(p, x => errorMessage)
-  inline def filter(flag:Boolean, errorMessage: => String):Result[T] = filter ((x:T) => flag, errorMessage)
-  inline def withFilter(p: T => Boolean): Result[T] = filter(p)
-  inline def filterNot(p: T => Boolean): Result[T] = filter((t:T) => !p(t))
-  inline def filterNot(p: T => Boolean, onError: T=> String): Result[T] =  filter((t:T) => !p(t), onError)
-  inline def filterNot(p: T => Boolean, errorMessage: => String): Result[T] = filterNot(p, x => errorMessage)
-  inline def filterNot(flag:Boolean, errorMessage: => String): Result[T] = filterNot ((x:T) => flag, errorMessage)
-  def exists(p: T => Boolean): Boolean
-  def forall(p: T => Boolean): Boolean
+  infix def foreach(f: T => Unit): Result[T] = {foreach_(f); this}
+  infix def filter(p: T => Boolean): Result[T]
+  infix def filter(p: T => Boolean, onError: T=> String): Result[T]
+  infix def filter(p: T => Boolean, errorMessage: => String): Result[T] = filter(p, x => errorMessage)
+  infix def filter(flag:Boolean, errorMessage: => String):Result[T] = filter ((x:T) => flag, errorMessage)
+  infix def withFilter(p: T => Boolean): Result[T] = filter(p)
+  infix def filterNot(p: T => Boolean): Result[T] = filter((t:T) => !p(t))
+  infix def filterNot(p: T => Boolean, onError: T=> String): Result[T] =  filter((t:T) => !p(t), onError)
+  infix def filterNot(p: T => Boolean, errorMessage: => String): Result[T] = filterNot(p, x => errorMessage)
+  infix def filterNot(flag:Boolean, errorMessage: => String): Result[T] = filterNot ((x:T) => flag, errorMessage)
+  infix def exists(p: T => Boolean): Boolean
+  infix def forall(p: T => Boolean): Boolean
   def errorDetails: Option[String]
   def fold[U](good: T => U, bad: Errors => U): U
-  def orCommentTheError(message: => Any): Result[T]
-  def tap(op: T => Unit): Result[T]
+  infix def orCommentTheError(message: => Any): Result[T]
+  infix def tap(op: T => Unit): Result[T]
   inline def optionally[U](f: T => U => U): U => U = this.map(f).getOrElse(identity[U])
-  def contains[T1 >: T](x: T1): Boolean
+  infix def contains[T1 >: T](x: T1): Boolean
   def iHope: T
 
 case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T]:
@@ -46,8 +46,8 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   val listErrors: Errors = Nil
   def onError[X >: Errors, Y](op: X => Y): Result[T] = this
   def asOption: Option[T] = Some(value)
-  def map[U](f: T=>U): Result[U] = Result.forValue(f(value))
-  def flatMap[U](f: T => Result[U]): Result[U] = f(value)
+  infix def map[U](f: T=>U): Result[U] = Result.forValue(f(value))
+  infix def flatMap[U](f: T => Result[U]): Result[U] = f(value)
   def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = pf.lift(value) match
     case Some(t) => Good(t)
     case None    => Result.error(onError(value))
@@ -57,21 +57,21 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
     case () => "Good."
     case x => s"Good($x)"
 
-  def orElse[T1 >: T] (next: => Result[T1]): Result[T1] = this
-  def getOrElse[T1 >: T](alt: => T1): T1 = value
-  def <*>[U](other: Result[U]): Result[(T, U)] = other.flatMap(u => Good((value, u)))
+  infix def orElse[T1 >: T] (next: => Result[T1]): Result[T1] = this
+  infix def getOrElse[T1 >: T](alt: => T1): T1 = value
+  infix def <*>[U](other: Result[U]): Result[(T, U)] = other.flatMap(u => Good((value, u)))
   protected def foreach_(f: T => Unit): Unit = f(value)
-  def filter(p: T => Boolean): Result[T] =
+  infix def filter(p: T => Boolean): Result[T] =
     Result.forValue(if p(value) then this else Empty).flatten
-  def filter(p: T => Boolean, onError: T => String): Result[T] =
+  infix def filter(p: T => Boolean, onError: T => String): Result[T] =
     Result.forValue(if p(value) then this else Result.error(onError(value))).flatten
-  def exists(p: T => Boolean): Boolean = p(value)
-  def forall(p: T => Boolean): Boolean = p(value)
+  infix def exists(p: T => Boolean): Boolean = p(value)
+  infix def forall(p: T => Boolean): Boolean = p(value)
     
   def errorDetails: Option[String] = None
-  def orCommentTheError(message: =>Any): Good[T] = this
-  def tap(op: T => Unit): Result[T] = {op(value); this}
-  def contains[T1 >: T](x: T1): Boolean = value == x
+  infix def orCommentTheError(message: =>Any): Good[T] = this
+  infix def tap(op: T => Unit): Result[T] = {op(value); this}
+  infix def contains[T1 >: T](x: T1): Boolean = value == x
   def iHope: T = value
 
 trait NoGood[T] extends NothingInside[T]:
@@ -118,10 +118,10 @@ class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
   import Result._
 
   def onError[X >: Errors, Y](op: X => Y):Result[T] = {op(listErrors); this}
-  inline def map[U](f: T=>U): Result[U] = bad[U](listErrors)
-  inline def flatMap[U](f: T => Result[U]): Result[U] = bad(listErrors)
-  inline def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = bad(listErrors)
-  inline def <*>[U](other: Result[U]): Result[(T, U)] =
+  infix def map[U](f: T=>U): Result[U] = bad[U](listErrors)
+  infix def flatMap[U](f: T => Result[U]): Result[U] = bad(listErrors)
+  infix def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = bad(listErrors)
+  infix def <*>[U](other: Result[U]): Result[(T, U)] =
     bad(listErrors ++ (other.listErrors dropWhile (lastError contains)))
   inline def lastError: Option[Throwable] = listErrors.lastOption
 
@@ -156,14 +156,14 @@ class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
 
 case object Empty extends NoResult with NoGood[Nothing]:
   val listErrors: Errors = Nil
-  inline def onError[X >: Errors, Y](op: X => Y):NoResult = this
-  inline def map[U](f: Nothing => U): Result[U] = Empty
-  inline def flatMap[U](f: Nothing => Result[U]): Result[U] = Empty
-  inline def collect[U](pf: PartialFunction[Nothing, U], onError: Nothing => String): Result[U] = Empty
+  infix def onError[X >: Errors, Y](op: X => Y):NoResult = this
+  infix def map[U](f: Nothing => U): Result[U] = Empty
+  infix def flatMap[U](f: Nothing => Result[U]): Result[U] = Empty
+  infix def collect[U](pf: PartialFunction[Nothing, U], onError: Nothing => String): Result[U] = Empty
 
-  inline def <*>[U](other: Result[U]): Result[(Nothing, U)] = Empty
+  infix def <*>[U](other: Result[U]): Result[(Nothing, U)] = Empty
   inline def errorDetails: Option[String] = None
-  inline def orCommentTheError(message: =>Any): Result[Nothing] = Result.error(message)
+  infix def orCommentTheError(message: =>Any): Result[Nothing] = Result.error(message)
 
 private object NoException extends Exception:
   def root(x: Throwable): Throwable = x match
@@ -203,7 +203,7 @@ object Result:
   inline def check[T](results: IterableOnce[Result[T]]): Outcome =
     traverse(results)
   
-  implicit inline def asOutcome(r:Result[?]): Outcome = r.andThen(OK)
+  implicit inline def asOutcome(r:Result[?]): Outcome = r andThen OK
   
   def attempt[T](
     eval: => Result[T],
@@ -227,7 +227,7 @@ object Result:
     case Left(bad) => error[T](bad)
     case Right(good) => Good(good)
 
-  def app[X,Y](fOpt:Result[X=>Y])(xOpt:Result[X]):Result[Y] = (fOpt<*>xOpt).map{case (f,x) => f(x)}
+  def app[X,Y](fOpt:Result[X=>Y])(xOpt:Result[X]):Result[Y] = (fOpt andAlso xOpt).map{case (f,x) => f(x)}
 
   implicit class Applicator[X,Y](fOpt: Result[X=>Y]):
     def apply(xOpt:Result[X]): Result[Y] = app(fOpt)(xOpt)
@@ -266,21 +266,21 @@ object Result:
   private def bad[T](results: Result[?]*): Result[T] = bad(results.flatMap (_.listErrors))
 
   implicit class StreamOfResults[T](val source: LazyList[Result[T]]) extends AnyVal:
-    def map[U](f: T => U): LazyList[Result[U]] = source.map (_.map(f))
+    infix def map[U](f: T => U): LazyList[Result[U]] = source.map (_.map(f))
     def |>[U](op: T => Result[U]): LazyList[Result[U]] = source.map (t => t.flatMap(op))
-    def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x).returning(x))
-    def toList: List[Result[T]] = source.toList
+    infix def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x).returning(x))
+    infix def toList: List[Result[T]] = source.toList
 
-  def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
+  infix def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
     val (goodOnes, badOnes) = partition(results)
 
     if badOnes.nonEmpty then badOrEmpty(badOnes.flatten)
     else Good(goodOnes.reverse)
 
   def fold(results:Iterable[Outcome]): Outcome =
-    results.foldLeft(OK: Outcome)((x,y) => x <*> y)
+    results.foldLeft(OK: Outcome)((x,y) => x andAlso y)
 
-  def zip[X1,X2](r1: Result[X1], r2: Result[X2]): Result[(X1, X2)] = r1 <*> r2
+  def zip[X1,X2](r1: Result[X1], r2: Result[X2]): Result[(X1, X2)] = r1 andAlso r2
 
   def zip[X1,X2,X3](r1: Result[X1], r2: Result[X2], r3: Result[X3]): Result[(X1,X2,X3)] =
     (r1,r2,r3) match

@@ -364,7 +364,7 @@ object Sets:
       sizePlus(sizeEvaluator, +1),
       (y:X) => y == x || predicate(y))
 
-    def map[Y](f: Injection[X, Y]): Set[Y] =
+    infix def map[Y](f: Injection[X, Y]): Set[Y] =
       val source: Iterable[X] = this
       val target: Iterable[Y] = source.map(f)
       val predicate: Y => Boolean = (y: Y) => iterator exists { f(_) == y }

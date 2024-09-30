@@ -66,7 +66,7 @@ abstract class Functor(
     *         
     * TODO: find a solution to get rid of castings
     */
-  def andThen(g: Functor): Option[Functor] =
+  infix def andThen(g: Functor): Option[Functor] =
     if d1 != g.d0 then None else Some {
       val f = this
       def `g(f(object))`(x: d0.Obj) = g.objectsMapping(objectsMapping(x))

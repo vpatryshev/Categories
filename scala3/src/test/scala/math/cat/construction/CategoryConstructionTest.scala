@@ -356,7 +356,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         data.newComposition(f, g).asInstanceOf[Option[Arrow]]
 
       override val compositionSource = data.composition.asInstanceOf[CompositionTable]
-    (newData.validateGraph returning newData) orCommentTheError(s"Failed on $newData") iHope
+    (newData.validateGraph returning newData) orCommentTheError s"Failed on $newData" iHope
 
   "Parser, regression test of 6/18/21" should {
     "Parse AAA" in  {

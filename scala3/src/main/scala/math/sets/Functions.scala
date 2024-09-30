@@ -22,7 +22,7 @@ object Functions:
       * @param g another injection
       * @return a composition
       */
-    def compose[T](g: Injection[T, X]): Injection[T, Y] =
+    infix def compose[T](g: Injection[T, X]): Injection[T, Y] =
       injection { (t:T) => apply(g(t)) }
 
     /**
@@ -32,7 +32,7 @@ object Functions:
       * @param g another Injection
       * @return a composition
       */
-    def andThen[Z](g: Injection[Y, Z]): Injection[X, Z] = g compose this
+    infix def andThen[Z](g: Injection[Y, Z]): Injection[X, Z] = g compose this
 
   /**
     * Builds an injection.
@@ -75,7 +75,7 @@ object Functions:
      * @param y an argument
      * @return an x such that apply(x) == y
      */
-    def unapply(y: Y): X
+    infix def unapply(y: Y): X
 
     /**
      * Composes this Bijection with another Bijection.
@@ -84,7 +84,7 @@ object Functions:
      * @param g another Injection
      * @return a composition
      */
-    def compose[T](g: Bijection[T, X]): Bijection[T, Y] =
+    infix def compose[T](g: Bijection[T, X]): Bijection[T, Y] =
       bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
 
     /**
@@ -99,7 +99,7 @@ object Functions:
      * @param g another Injection
      * @return a composition
      */
-    def andThen[Z](g: Bijection[Y, Z]): Bijection[X, Z] = g compose this
+    infix def andThen[Z](g: Bijection[Y, Z]): Bijection[X, Z] = g compose this
 
   /**
     * Tentatively builds a bijection out of two assumingly inverse functions
@@ -111,8 +111,8 @@ object Functions:
     */
   def bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
     new Bijection[X, Y] {
-      def apply(x: X) = f(x)
-      def unapply(y: Y) = g(y)
+      infix def apply(x: X) = f(x)
+      infix def unapply(y: Y) = g(y)
     }
 
   /**
@@ -120,8 +120,8 @@ object Functions:
    * @tparam T domain type
    */
   class Id[T] extends Bijection[T, T]:
-    def unapply(t: T): T = t
-    def apply(t: T): T = t
+    infix def unapply(t: T): T = t
+    infix def apply(t: T): T = t
 
   /**
    * Builds an identity function

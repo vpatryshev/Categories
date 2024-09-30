@@ -22,7 +22,7 @@ class Point(
 
   def apply(x: Any): Any = mapping(x)
   
-  def named(name: Any): Point = new Point(name, topos, mapping)
+  infix def named(name: Any): Point = new Point(name, topos, mapping)
 
   @deprecated("This should be redefined via composition", "03/28/2020")
   def transform(f: DiagramArrow): Point =

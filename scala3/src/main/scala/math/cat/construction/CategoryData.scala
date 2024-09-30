@@ -82,7 +82,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
           (compositionsAreOk andThen listAssociativityProblems)
 
     val validated: Result[((CategoryData, Any), Any)] =
-      graphIsOk <*> objectsHaveIds <*> compositionIsAssociative
+      graphIsOk andAlso objectsHaveIds andAlso compositionIsAssociative
     
     validated map (_._1._1) map (new CategoryBuilder(_))
   
@@ -185,7 +185,7 @@ private[construction] class PartialData(override val graph: Graph)
   override def id(o: Obj): Arrow = o
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] =
-    composition.get((f, g)).map { asArrow _ }
+    composition.get((f, g)) map asArrow
 
   /**
     * This method helps fill in obvious choices for arrows composition.

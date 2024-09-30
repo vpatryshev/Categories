@@ -29,7 +29,7 @@ trait Graph(val name: String) extends GraphData:
     * @param that another graph
     * @return true if they are equal.
     */
-  private def equal(that: Graph) = checkThat {
+  private infix def equal(that: Graph) = checkThat {
     this.nodes == that.nodes && this.arrows == that.arrows &&
     arrows.forall(arrowHere =>
       val arrowThere: that.Arrow = arrowHere
@@ -92,7 +92,7 @@ trait Graph(val name: String) extends GraphData:
     sameDomain(f, g) && sameCodomain(f, g)
 
   def unary_~ : Graph =
-    new Graph(if graph.name startsWith "~" then graph.name.tail else "~" + graph.name):
+    new Graph(if graph.name.startsWith("~") then graph.name.tail else "~" + graph.name):
       type Node = graph.Node
       type Arrow = graph.Arrow
       def nodes: Nodes = graph.nodes
@@ -146,7 +146,7 @@ private[cat] trait GraphData:
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  def contains(x: Any): Boolean = x match
+  infix def contains(x: Any): Boolean = x match
     case node: Node @unchecked => nodes(node)
     case _ => false
 
@@ -182,7 +182,7 @@ private[cat] trait GraphData:
       })
     } returning this
 
-  def build(name: String): Graph = new Graph(name):
+  infix def build(name: String): Graph = new Graph(name):
 
     def nodes: Nodes = data.nodes
     def arrows: Arrows = data.arrows

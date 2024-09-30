@@ -99,7 +99,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * This method is being used for rendering the category
     */
   lazy val clusters: SetMorphism[Obj, Objects] =
-    SetCategory.factorset[Obj](objects, BinaryRelation(isomorphic _))
+    SetCategory.factorset[Obj](objects, BinaryRelation(isomorphic))
 
   /**
     * Returnes an inverse arrow.

@@ -148,7 +148,7 @@ private[cat] trait CategoryFactory:
       (name ?) ~ "(" ~ graphData ~ (("," ~ multTable) ?) ~ ")" ^^ {
         case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" =>
           val name = nameOpt getOrElse (Good("c"))
-          val graphOpt = (gOpt andAlso name).map{
+          val graphOpt = (gOpt andAlso name) map {
             case (g, n) => g build n
           }
 

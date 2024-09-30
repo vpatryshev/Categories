@@ -107,7 +107,7 @@ trait GrothendieckToposLogic:
     * @param f arrow from an object to Ω
     * @return an arrow X -> Ω
     */
-  def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
+  infix def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
     new topos.Predicate(f.tag):
       override val d0: Obj = f.d0
       override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
@@ -118,7 +118,7 @@ trait GrothendieckToposLogic:
     * @param pt the point
     * @return an arrow pt -> Ω
     */
-  def predicateFor(pt: Point): Predicate =
+  infix def predicateFor(pt: Point): Predicate =
 
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 

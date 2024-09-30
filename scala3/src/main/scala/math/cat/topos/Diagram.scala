@@ -220,7 +220,7 @@ abstract class Diagram(
         Diagram.tryBuild(topos)(
           i,
           om(_),
-          extendToArrows(om) _)
+          extendToArrows(om))
     }
     
     allCandidates.collect { case Good(d) => d }
@@ -233,12 +233,12 @@ abstract class Diagram(
     })".replace("Set()", "{}")    
 
   override def toString: String = toString(x => 
-      s"$x ->{${asString(objectsMapping(x))}}" replace(s"Diagram[${d0.name}]", ""))
+      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagram[${d0.name}]", ""))
   
   def toShortString: String = toString(x => {
       val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
       if obRepr.isEmpty then "" else s"$x->{$obRepr}"
-    } replace(s"Diagram[${d0.name}]", "")
+    }.replace(s"Diagram[${d0.name}]", "")
   )
 
   /**

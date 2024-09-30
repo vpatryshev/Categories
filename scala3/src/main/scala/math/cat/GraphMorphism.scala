@@ -90,7 +90,7 @@ trait GraphMorphism(val tag: Any) extends Morphism[Graph, Graph]:
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 
-  def andThen(g: GraphMorphism): Option[GraphMorphism] =
+  infix def andThen(g: GraphMorphism): Option[GraphMorphism] =
     OKif(this.d1 == g.d0, "Composition should be defined") returning {
       val nm: d0.Node => g.d1.Node = x => g.nodesMapping(nodesMapping(x))
       val am: d0.Arrow => g.d1.Arrow = a => g.arrowsMapping(arrowsMapping(a))
