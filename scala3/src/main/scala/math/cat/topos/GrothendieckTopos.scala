@@ -6,7 +6,8 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
-import scalakittens.Result._
+import scalakittens.Result.*
+import scalakittens.Containers.*
 
 import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
@@ -92,7 +93,7 @@ trait GrothendieckTopos
       for
         f <- domain.hom(y, x1)
         candidate <- domain.m(a, f)
-        if rx_at_x1 contains candidate
+        if candidate ∈ rx_at_x1
       yield f
 
     Functor.validateFunctor(this) iHope
@@ -247,8 +248,8 @@ trait GrothendieckTopos
           val all_arrows_to_y: domain.Arrows = domain.hom(x, y)
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
-          def hits_By(f: domain.Arrow) = By contains image_via(f)
-          y -> Ω.setOf(all_arrows_to_y.filter(hits_By))
+          def hits_By(f: domain.Arrow) = image_via(f) ∈ By  
+          y -> Ω.setOf(all_arrows_to_y filter hits_By)
         }
     
     def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =

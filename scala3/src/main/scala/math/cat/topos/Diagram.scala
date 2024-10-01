@@ -9,6 +9,7 @@ import math.sets.Sets._
 import math.sets.{FactorSet, Sets}
 import scalakittens.{Good, Result}
 
+import scala.annotation.targetName
 import scala.collection.MapView
 import scala.language.{implicitConversions, postfixOps}
 
@@ -34,11 +35,13 @@ abstract class Diagram(
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
   private[topos] def setAt(x: Any): set = setOf(objectsMapping(x))
-  
-  def ⊂(other: Diagram): Boolean =
+
+  @targetName("subsetOf")
+  infix inline def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o => this(o) subsetOf other(o) }
 
-  def ∈(other: Diagram): Boolean =
+  @targetName("in")
+  infix inline def ∈(other: Diagram): Boolean =
     d0.objects.forall { o => other(o)(this(o)) }
 
   def point(mapping: XObject => Any, id: Any = ""): Point =

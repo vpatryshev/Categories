@@ -6,6 +6,7 @@ import math.sets.Sets
 import math.sets.Sets._
 import scalakittens.Result._
 import scalakittens.{Bad, Result}
+import scalakittens.Containers.*
 
 /**
   * Functor class: functions for categories.
@@ -226,8 +227,9 @@ abstract class Functor(
     def factorsOnRight(factored: Cone): Boolean =
       d1.hom(factored.vertex, vertex) exists {
         h =>
-        domainObjects.forall(
-          x => d1.m(h, arrowTo(x)) contains factored.arrowTo(x))
+        domainObjects.forall {
+          x => factored.arrowTo(x) ∈ d1.m(h, arrowTo(x))
+        }
       }
 
     /**
@@ -235,10 +237,10 @@ abstract class Functor(
       */
     def isWellFormed: Boolean = d0.arrows.forall(
       (f: d0.Arrow) =>
-        var yToFx0: d1.Arrow = arrowTo(d0.d0(f))
-        var yToFx1: d1.Arrow = arrowTo(d0.d1(f))
-        var F_f: d1.Arrow = arrowsMapping(f)
-        d1.m(yToFx0, F_f) contains yToFx1
+        val yToFx0: d1.Arrow = arrowTo(d0.d0(f))
+        val yToFx1: d1.Arrow = arrowTo(d0.d1(f))
+        val F_f: d1.Arrow = arrowsMapping(f)
+        yToFx1 ∈ d1.m(yToFx0, F_f)
     )
 
     override def equals(o: Any): Boolean =
@@ -288,10 +290,10 @@ abstract class Functor(
       */
     def isWellFormed: Boolean = d0.arrows.forall {
       (f: d0.Arrow) =>
-        var Fx02y = arrowFrom(d0.d0(f))
+        val Fx02y = arrowFrom(d0.d0(f))
         var Fx12y: d1.Arrow = arrowFrom(d0.d1(f))
         var F_f: d1.Arrow = arrowsMapping(f)
-        d1.m(F_f, Fx12y) contains Fx02y
+        Fx02y ∈ d1.m(F_f, Fx12y)
     }
 
     override def equals(o: Any): Boolean = o match

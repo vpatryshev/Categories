@@ -3,8 +3,9 @@ package math.sets
 import math.Base.itsImmutable
 import math.cat.SetMorphism
 import math.sets.Functions.Injection
-import math.sets.SetOps._
+import math.sets.MathSetOps._
 import scalakittens.{Good, Result}
+import scalakittens.Containers.*
 
 import java.io.Reader
 import scala.collection.immutable.AbstractSeq
@@ -176,7 +177,7 @@ object Sets:
     * Cartesian product of two sets
     */
   def product2[X, Y](xs: Set[X], ys: Set[Y]): Set[(X, Y)] =
-    val predicate = (p: (X, Y)) => (xs contains p._1) && (ys contains p._2)
+    val predicate = (p: (X, Y)) => (p._1 ∈ xs) && (p._2 ∈ ys)
     setOf(
       cantorIterable(xs, ys),
       if isFinite(xs) && isFinite(ys) then xs.size * ys.size else InfiniteSize,
@@ -392,7 +393,7 @@ object Sets:
     def sample: Set[X] = if isInfinite(this) then take(3) else this
 
   object setOf:
-    def elements[X](content: X*): setOf[X] = apply(content, x => content contains x)
+    def elements[X](content: X*): setOf[X] = apply(content, x => x ∈ content)
 
     def apply[X](content: Iterable[X], predicate: X => Boolean): setOf[X] =
       apply(content, content.size, predicate)
@@ -419,7 +420,7 @@ object Sets:
     println(s"Is $a equal to $b? ${a == b}")
     println(s"Is $u equal to $b? ${u == b}")
     println("Making a lazy copy")
-    val newb = setOf(b, 2, (x: String) => b contains x)
+    val newb = setOf(b, 2, (x: String) => x ∈ b)
     println("same size? " + (newb.size == b.size))
     println("Equal to source? " + (b == newb))
 

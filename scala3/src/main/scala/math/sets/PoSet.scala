@@ -5,9 +5,10 @@ import math.sets.Sets._
 import scalakittens.{Good, Result}
 
 import java.io.Reader
+import scalakittens.Containers.*
 
 /**
- * Implementation of partially ordered set.
+ * Implementation of a partially ordered set.
  * 
  * @tparam T poset element type
  * @param elements the set of elements
@@ -38,7 +39,7 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
     * @param t an element to check
     * @return true if this poset contains `t`
     */
-  override def contains(t: T): Boolean = elements contains t
+  override def contains(t: T): Boolean = t ∈ elements
   
   /**
    * Iterates over elements of this poset
@@ -111,10 +112,10 @@ object PoSet:
    * @return a new poset built on the data provided
    */
   def apply[T](theElements: Set[T], pairs: Set[(T, T)]) =
-      new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
+      new PoSet(theElements, (a: T, b: T) => a == b || (a,b) ∈ pairs)
 
   def apply[T](theElements: Set[T], pairs: List[(T, T)]) =
-    new PoSet(theElements, (a: T, b: T) => a == b || pairs.contains((a, b)))
+    new PoSet(theElements, (a: T, b: T) => a == b || ((a, b) ∈ pairs))
 
   def apply[T](theElements: Set[T], comparator: (T, T) => Boolean) =
     new PoSet(theElements, comparator)

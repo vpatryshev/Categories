@@ -8,6 +8,7 @@ import scalakittens.{Good, Result}
 
 import java.io.Reader
 import scala.language.{implicitConversions, postfixOps}
+import scalakittens.Containers.*
 
 trait Graph(val name: String) extends GraphData:
   graph =>
@@ -68,7 +69,7 @@ trait Graph(val name: String) extends GraphData:
     * Checks if two arrows have the same domain
     * @param f an arrow
     * @param g an arrow
-    * @return true iff g and f have the same domain
+    * @return true iff arrows have the same domain
     */
   def sameDomain(f: Arrow, g: Arrow): Boolean =
     d0(f) == d0(g)
@@ -146,12 +147,15 @@ private[cat] trait GraphData:
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  infix def contains(node: Node): Boolean = nodes(node)
+  infix def contains(x: Any): Boolean = x match
+    case node: Node @unchecked => nodes(node)
+    case _ => false
 
   implicit def asNode(x: Any): Node =
     x match
       case node: Node @unchecked if nodes(node) => node
-      case other => throw new IllegalArgumentException(s"<<$other>> is not a node")
+      case badNode: Node => throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
+      case notaNode => throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
   /*
     TODO: figure out how come this does not work
@@ -163,7 +167,7 @@ private[cat] trait GraphData:
   
   implicit def asArrow(a: Any): Arrow =
     a match
-      case arrow: Arrow @unchecked if arrows contains arrow => arrow
+      case arrow: Arrow @unchecked if arrow ∈ arrows => arrow
       case _ => throw new IllegalArgumentException(s"<<$a>> is not an arrow")
 
   protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
@@ -173,11 +177,12 @@ private[cat] trait GraphData:
 
   def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {
-      Result.fold(arrows.map {
-        a =>
-          OKif(nodes contains d0(a), " d0 for " + a + " should be in set of nodes").andAlso(
-          OKif(nodes contains d1(a), " d1 for " + a + " should be in set of nodes"))
-      })
+      def arrowOk(a: Arrow) = {
+        OKif(d0(a) ∈ nodes, " d0 for " + a + " should be in set of nodes") andAlso
+        OKif(d1(a) ∈ nodes, " d1 for " + a + " should be in set of nodes")
+      }
+
+      Result.fold(arrows map arrowOk)
     } returning this
 
   infix def build(name: String): Graph = new Graph(name):
@@ -191,7 +196,7 @@ private[cat] trait GraphData:
     def d0(f: Arrow): Node = data.d0(f)
     def d1(f: Arrow): Node = data.d1(f)
 
-  lazy val arrowsAsString = asString(arrows)
+  lazy val arrowsAsString: String = asString(arrows)
   
 end GraphData
 
@@ -279,7 +284,7 @@ object Graph:
     def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
       case nameOpt~"("~gOpt~")" =>
         val name = nameOpt getOrElse Good("graph")
-        (gOpt.andAlso(name)).map { case (g, n) => g build n }
+        gOpt.andAlso(name) map { case (g, n) => g build n }
 
       case nonsense => Result.error(s"Failed to parse $nonsense")
     }
@@ -290,7 +295,7 @@ object Graph:
     }
 
     def graphData: Parser[Result[GraphData]] = parserOfSet~","~arrows ^^ {
-      case s~","~arrows => (arrows <*> (s)).flatMap{
+      case s~","~arrows => (arrows <*> s).flatMap{
         case (arr, s0) => Graph.data(s0, arr)
       }
       case nonsense => Result.error(s"Failed to parse $nonsense")

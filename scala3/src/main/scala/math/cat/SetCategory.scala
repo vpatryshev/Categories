@@ -1,20 +1,23 @@
 package math.cat
 
-import math.cat.SetCategory._
-import math.cat.SetFunction._
-import math.sets.Sets._
+import math.cat.SetCategory.*
+import math.cat.SetFunction.*
+import math.sets.Sets.*
 import math.sets.{BigSet, BinaryRelation, FactorSet, Sets}
-import scalakittens.Result._
+import scalakittens.Result.*
 import scalakittens.{Good, Result}
 
 import scala.language.{implicitConversions, postfixOps}
 import SetFunction.fun
+import math.sets.ZFC.SetZ
+import scalakittens.Containers.*
+import Setf.*
 
 /**
   * Category where objects are sets
   */
 class SetCategory(objects: Set[set]) extends Category("Sets"):
-
+  thisCategory =>
   /**
     * Inner graph of this category of sets
     */
@@ -97,7 +100,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen
       val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
       val inclusion = filtrator(x => f(x) == g(x))
-      Good(inclusion) filter { i => objects contains i.d0 }
+      Good(inclusion) filter { _.d0 ∈ objects }
 
 
   /**
@@ -109,15 +112,14 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   override def coequalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = 
   OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen {
     val theFactorset: factorset = new FactorSet[Any](f.d1)
-
-    OKif(contains(theFactorset untyped)) returning {
+    OKif((theFactorset untyped) ∈ thisCategory.objects) returning {
       f.d0.foreach { x => theFactorset.merge(f(x), g(x)) }
       SetFunction.forFactorset(theFactorset)
     }
   }
 
   /**
-    * Coequalizer of a collection of set functions set functions
+    * Coequalizer of a collection of set functions
     * @param arrowsToEqualize the functions to equalize
     *  @return a coequalizer arrow, if one exists, None othrewise
     */
@@ -173,14 +175,19 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     *
     * Need to filter, so that if an empty set does not belong to a subcategory, `initial` is empty
     */
-  override lazy val initial: Result[set] = Good(Sets.Empty) filter this.contains
+  override lazy val initial: Result[set] = Good(Sets.Empty) filter {
+    emptySet => {
+      thisCategory.contains(emptySet)
+//      emptySet.∈(thisCategory)
+    }
+  }
 
   /**
     * Terminal object of this category. Does not have to exist.
     * Need to filter, so that if an empty set does not belong to a subcategory, `terminial` is empty.
     */
   override lazy val terminal: Result[set] =
-    initial map (setOf.elements(_)) filter this.contains
+    initial map (setOf.elements(_)) filter (_ ∈ thisCategory.objects)
 
   /**
     * Cartesian product of two sets.

@@ -11,6 +11,7 @@ import scalakittens.Result._
 import java.util.Objects
 import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
+import scalakittens.Containers.*
 
 /**
   * The data used in building an instance of Category
@@ -31,7 +32,10 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
 
   implicit def obj(x: Any): Obj =
     x match
-      case o: Obj @unchecked if objects(o) => o
+      case o: Obj @unchecked =>
+        if (objects.contains(o)) then o else {
+          throw new IllegalArgumentException(s"$x is not an object in $name")
+        }
       case _ =>
         throw new IllegalArgumentException(s"$x is not an object in $name")
 
@@ -57,8 +61,8 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
       Result.check { arrows.map { f =>
         val u_f = m(id(d0(f)), f)
         val f_u = m(f, id(d1(f)))
-        OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
-        OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
+        OKif(f ∈ u_f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
+        OKif(f ∈ f_u, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
       }}
 
     val compositionsAreOk =
@@ -235,7 +239,7 @@ private[construction] class PartialData(override val graph: Graph)
     Set[(graph.Arrow, graph.Arrow, graph.Arrow)] =
     for
       a <- graph.arrows
-      b <- graph.arrows if compositionSource contains (a, b)
+      b <- graph.arrows if compositionSource contains (b, a)
       c <- graph.arrows if compositionSource contains (b, c)
     yield (a, b, c)
 

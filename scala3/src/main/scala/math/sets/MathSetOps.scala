@@ -2,7 +2,7 @@ package math.sets
 
 import scala.collection.{Iterator, mutable}
 
-object SetOps:
+object MathSetOps:
 
   /**
     * Having two iterables, possibly infinitey, produce an iterable that iterates over pairs 

@@ -1,4 +1,5 @@
 package math.sets
+import scalakittens.Containers.*
 import scala.language.{implicitConversions, postfixOps}
 
 /**
@@ -17,7 +18,7 @@ object BinaryRelation:
    */
   def apply[X, Y](pairs: Set[(X, Y)]): BinaryRelation[X, Y] =
     new BinaryRelation[X, Y]:
-      def apply(x: X, y: Y): Boolean = pairs contains (x, y)
+      def apply(x: X, y: Y): Boolean = (x,y) ∈ pairs
 
   /**
     * Represents a function of two arguments as a binary relation

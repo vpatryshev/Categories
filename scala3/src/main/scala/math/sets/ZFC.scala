@@ -1,9 +1,13 @@
 package math.sets
 
+import scalakittens.Container
+import scalakittens.Containers.*
+
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
+import scala.annotation.targetName
 
-class ZFC:
+object ZFC:
   val PATIENCE = 100
 
   // no logging by default
@@ -50,7 +54,7 @@ class ZFC:
 
   // Axiom I (extensionality)
   private def equal(a: SetZ, b: SetZ) =
-    (a eq b) || forall(x => a.contains(x) == b.contains(x))
+    (a eq b) || forall(x => (x ∈ a) == (x ∈ b))
 
   def intersection(a: SetZ, b: SetZ): SetZ = exists(
     new SetZ(s"${a.id} ∩ ${b.id}", x => a.contains(x) && b.contains(x)
@@ -107,6 +111,12 @@ class ZFC:
         case y: SetZ => s.contains(y) && y.contains(x)
         case otherwise => false
       })))
+
+  extension [T](x: T)
+    @targetName("in")
+    infix inline def ∈(X: SetZ): Boolean = X contains x
+    @targetName("notIn")
+    infix inline def ∉(X: SetZ): Boolean = !(X contains x)
 
     // Axiom VI choice
 //    def choice(s: SetZ): SetZ = exists(new SetZ(s"choice of ${s.id}",
