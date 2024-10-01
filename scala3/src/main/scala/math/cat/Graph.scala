@@ -146,19 +146,17 @@ private[cat] trait GraphData:
   def d0(f: Arrow): Node
   def d1(f: Arrow): Node
 
-  infix def contains(x: Any): Boolean = x match
-    case node: Node @unchecked => nodes(node)
-    case _ => false
+  infix def contains(node: Node): Boolean = nodes(node)
 
   implicit def asNode(x: Any): Node =
     x match
       case node: Node @unchecked if nodes(node) => node
-      case _ => throw new IllegalArgumentException(s"<<$x>> is not a node")
+      case other => throw new IllegalArgumentException(s"<<$other>> is not a node")
 
   /*
     TODO: figure out how come this does not work
     given Conversion[Any, Node] = _ match
-    case node: Node @unchecked if contains(node) => nod
+    case node: Node @unchecked if contains(node) => node
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
    */

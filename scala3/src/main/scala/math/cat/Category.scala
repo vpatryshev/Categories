@@ -130,7 +130,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * Checks whether an arrow is a monomorphism.
     *
     * @param f an arrow to check
-    * @return true iff f is a monomorphism
+    * @return true iff arrow f is a monomorphism
     */
   def isMonomorphism(f: Arrow): Boolean =
     val comparisons =
@@ -159,7 +159,7 @@ abstract class Category(name: String) extends CategoryData(name):
     comparisons forall (x => x)
 
   /**
-    * Checks if arrow h coequalizes arrows f and g (that is, whether h ∘ f == h ∘ g).
+    * Checks if arrow h coequalizes arrows f and g (that is, whether h∘f == h∘g).
     *
     * @param f first arrow
     * @param g second arrow
@@ -359,8 +359,8 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean =
     (i: (Arrow, Arrow)) =>
-    val (ix, iy) = i
-    d0(ix) == x && d0(iy) == y &&
+      val (ix, iy) = i
+      d0(ix) == x && d0(iy) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
 
   /**
@@ -630,6 +630,7 @@ abstract class Category(name: String) extends CategoryData(name):
 //    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
 
 
+  @tailrec
   private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
     val isDeductible = canDeduce(arrows)  
     arrows.find(isDeductible) match
