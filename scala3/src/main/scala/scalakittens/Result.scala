@@ -6,7 +6,9 @@ import scala.concurrent.Future
 import scala.language.{implicitConversions, postfixOps}
 import scala.util.{Failure, Success, Try}
 
-sealed trait Result[+T] extends Container[T]:
+sealed trait Result[+T] extends Container[T] with Goodness:
+
+  def clock: TimeReader = DateAndTime
   def listErrors: Errors
   def onError[X >: Errors, Y](op: X => Y):Result[T]
   infix def map[U](f: T => U): Result[U]
@@ -41,8 +43,7 @@ sealed trait Result[+T] extends Container[T]:
   infix def contains[T1 >: T](x: T1): Boolean
   def iHope: T
 
-case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T]:
-
+case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T] with PositiveAttitude:
   val listErrors: Errors = Nil
   def onError[X >: Errors, Y](op: X => Y): Result[T] = this
   def asOption: Option[T] = Some(value)
@@ -62,7 +63,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   infix def <*>[U](other: Result[U]): Result[(T, U)] = other.flatMap(u => Good((value, u)))
   protected def foreach_(f: T => Unit): Unit = f(value)
   infix def filter(p: T => Boolean): Result[T] =
-    Result.forValue(if p(value) then this else Empty).flatten
+    Result.forValue(if p(value) then this else empty[T]).flatten
   infix def filter(p: T => Boolean, onError: T => String): Result[T] =
     Result.forValue(if p(value) then this else Result.error(onError(value))).flatten
   infix def exists(p: T => Boolean): Boolean = p(value)
@@ -74,7 +75,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   infix def contains[T1 >: T](x: T1): Boolean = value == x
   def iHope: T = value
 
-trait NoGood[T] extends NothingInside[T]:
+trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   self: Result[T] =>
   def filter(p: T => Boolean):Result[T] = self
   def filter(p: T => Boolean, onError: T => String):Result[T] = self
@@ -87,8 +88,6 @@ trait NoGood[T] extends NothingInside[T]:
   def fold[U](good: T => U, bad: Errors => U): U = bad(listErrors)
   def errors: String = listErrors mkString "; "
   def tap(op: T => Unit): Result[T] = this
-
-  def clock: TimeReader = DateAndTime
 
   val timestamp: Long = clock.currentTime
   inline def tag: String = s"${ts2b32(timestamp)}"
@@ -110,7 +109,7 @@ trait NoGood[T] extends NothingInside[T]:
     val s1 = s0 map base32map
     "0"*(5-s1.length) + s1
 
-  inline def contains[T1 >: T](x: T1): Boolean = false
+  infix def contains[T1 >: T](x: T1): Boolean = false
   def iHope: T = throw new InstantiationException(errors)
 
 class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
@@ -145,7 +144,7 @@ class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
 
   def stackTrace:String = listErrors map details mkString "\n\n"
 
-  inline def orCommentTheError(message: =>Any): Bad[T] =
+  infix def orCommentTheError(message: =>Any): Bad[T] =
     bad[T](List(recordEvent(message)) ++ listErrors)
 
   override def equals(other: Any): Boolean = other match
@@ -154,14 +153,16 @@ class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
 
   override def hashCode: Int = listErrors.hashCode + tag.hashCode*71
 
+def empty[T]: Result[T] = Empty.asInstanceOf[Result[T]] // see the same in Scala Set
+
 case object Empty extends NoResult with NoGood[Nothing]:
   val listErrors: Errors = Nil
   infix def onError[X >: Errors, Y](op: X => Y):NoResult = this
-  infix def map[U](f: Nothing => U): Result[U] = Empty
-  infix def flatMap[U](f: Nothing => Result[U]): Result[U] = Empty
-  infix def collect[U](pf: PartialFunction[Nothing, U], onError: Nothing => String): Result[U] = Empty
+  infix def map[U](f: Nothing => U): Result[U] = empty[U]
+  infix def flatMap[U](f: Nothing => Result[U]): Result[U] = empty[U]
+  infix def collect[U](pf: PartialFunction[Nothing, U], onError: Nothing => String): Result[U] = empty[U]
 
-  infix def <*>[U](other: Result[U]): Result[(Nothing, U)] = Empty
+  infix def <*>[U](other: Result[U]): Result[(Nothing, U)] = empty[(Nothing, U)]
   inline def errorDetails: Option[String] = None
   infix def orCommentTheError(message: =>Any): Result[Nothing] = Result.error(message)
 
@@ -191,9 +192,9 @@ object Result:
   type NoResult = Result[Nothing]
   type Outcome = Result[Unit]
 
-  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] = new Bad[T](es) {
-    override def clock: TimeReader = testClock
-  }
+  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] = 
+    new Bad[T](es):
+      override def clock: TimeReader = testClock
 
   inline def messageOf(t: Throwable): String = Result.forValue(t.getMessage).getOrElse(t.toString)
 
@@ -214,10 +215,10 @@ object Result:
     attempt(eval, exception(_, errMsg) )
 
   private def legalize[T](optT: => Option[T]): Result[T] =
-    optT map Good.apply getOrElse Empty
+    optT map Good.apply getOrElse empty[T]
       
   implicit def apply[T](optT: Option[T]):                         Result[T] = legalize(optT)
-  implicit def apply[T](optT: Option[T], onError: => String):     Result[T] = legalize(optT).orCommentTheError(onError)
+  implicit def apply[T](optT: Option[T], onError: => String):     Result[T] = legalize(optT) orCommentTheError onError
 
   def apply[T](tryT: Try[T]): Result[T] = tryT match
     case Success(t) => Good(t)
@@ -247,7 +248,7 @@ object Result:
     bad[T](recordEvent(message)::Nil)
 
   inline def exception[T](x: Throwable): Bad[T] = bad(x::Nil)
-  inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x).orCommentTheError(comment)
+  inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x) orCommentTheError comment
 
   def partition[T](results: IterableOnce[Result[T]]): (List[T], List[Errors]) =
     val (goodOnes, badOnes) = 
@@ -261,15 +262,15 @@ object Result:
     
     (goodOnes, badOnes)
 
-  private def badOrEmpty[T](errors: Errors): Result[T] = if errors.isEmpty then Empty else bad(errors.toSet)
+  private def badOrEmpty[T](errors: Errors): Result[T] = if errors.isEmpty then empty[T] else bad(errors.toSet)
 
-  private def bad[T](results: Result[?]*): Result[T] = bad(results.flatMap (_.listErrors))
+  private def bad[T](results: Result[?]*): Result[T] = bad(results flatMap (_.listErrors))
 
   implicit class StreamOfResults[T](val source: LazyList[Result[T]]) extends AnyVal:
-    infix def map[U](f: T => U): LazyList[Result[U]] = source.map (_.map(f))
-    def |>[U](op: T => Result[U]): LazyList[Result[U]] = source.map (t => t.flatMap(op))
-    infix def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x).returning(x))
-    infix def toList: List[Result[T]] = source.toList
+    def map[U](f: T => U): LazyList[Result[U]] = source map (_ map f)
+    def |>[U](op: T => Result[U]): LazyList[Result[U]] = source map (t => t flatMap op)
+    def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x) returning x)
+    def toList: List[Result[T]] = source.toList
 
   infix def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
     val (goodOnes, badOnes) = partition(results)
