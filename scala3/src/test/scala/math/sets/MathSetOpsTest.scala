@@ -1,7 +1,7 @@
 package math.sets
 
 import math.cat.SetMorphism
-import math.sets.SetOps.cantorIterator
+import math.sets.MathSetOps.cantorIterator
 import org.specs2.execute.Failure
 import scalakittens.{Empty, Result}
 import testing.TestBase
@@ -12,7 +12,7 @@ import scala.concurrent.duration.Duration
 /**
  * Test suite for Sets object
  */
-class SetOpsTest extends TestBase:
+class MathSetOpsTest extends TestBase:
 
   "SetOps" >> {
     "Cantor iterator should behave - 1" >> {
