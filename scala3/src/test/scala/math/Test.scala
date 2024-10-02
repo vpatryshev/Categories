@@ -53,7 +53,7 @@ class Test extends TestBase:
     r.isBad must beTrue
     r.errorDetails match
       case Some(things) =>
-        val matches = messages.map { message => OKif(things contains message) }
+        val matches = messages.map{ message => OKif(things.contains(message)) }
         expectOk(Result.traverse(matches))
 
       case None => failure(s"Expected errors in $r")

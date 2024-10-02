@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.Duration
 
 /**
- * Test suite for the Math Sets object
+ * Test suite for Sets object
  */
 class MathSetOpsTest extends TestBase:
 

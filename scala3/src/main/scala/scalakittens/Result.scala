@@ -7,6 +7,8 @@ import scala.language.{implicitConversions, postfixOps}
 import scala.util.{Failure, Success, Try}
 
 sealed trait Result[+T] extends Container[T] with Goodness:
+
+  def clock: TimeReader = DateAndTime
   def listErrors: Errors
   def onError[X >: Errors, Y](op: X => Y):Result[T]
   infix def map[U](f: T => U): Result[U]
@@ -86,8 +88,6 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   def fold[U](good: T => U, bad: Errors => U): U = bad(listErrors)
   def errors: String = listErrors mkString "; "
   def tap(op: T => Unit): Result[T] = this
-
-  def clock: TimeReader = DateAndTime
 
   val timestamp: Long = clock.currentTime
   inline def tag: String = s"${ts2b32(timestamp)}"
@@ -192,7 +192,7 @@ object Result:
   type NoResult = Result[Nothing]
   type Outcome = Result[Unit]
 
-  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] =
+  protected[scalakittens] def forTesting[T](es: Errors, testClock: TimeReader): Bad[T] = 
     new Bad[T](es):
       override def clock: TimeReader = testClock
 
