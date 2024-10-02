@@ -11,6 +11,7 @@ import scalakittens.Result._
 import java.util.Objects
 import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
+import scalakittens.Containers.*
 
 /**
   * The data used in building an instance of Category
@@ -31,7 +32,10 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
 
   implicit def obj(x: Any): Obj =
     x match
-      case o: Obj @unchecked if objects(o) => o
+      case o: Obj @unchecked =>
+        if (objects.contains(o)) then o else {
+          throw new IllegalArgumentException(s"$x is not an object in $name")
+        }
       case _ =>
         throw new IllegalArgumentException(s"$x is not an object in $name")
 
@@ -40,7 +44,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def m(f: Arrow, g: Arrow): Option[Arrow]
   
   def validateGraph: Result[CategoryData] =
-    super.validate.returning(this)
+    super.validate returning this
 
   def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph

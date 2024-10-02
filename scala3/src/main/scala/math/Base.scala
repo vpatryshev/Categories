@@ -21,7 +21,7 @@ object Base:
     */
   def inverse[A, B](m: Map[A, B]): Map[B, A] =
     
-    val result: Map[B, A] = m.map{
+    val result: Map[B, A] = m map {
       case (k, v) => v -> k
     }
         
@@ -36,7 +36,7 @@ object Base:
     * @return the
     */
   def toMap[X](list: List[X]): IntMap[X] =
-    list.zipWithIndex.map{ case (x, i) => i -> x } toMap
+    list.zipWithIndex map { case (x, i) => i -> x } toMap
 
   implicit class Optimist[T](opt: Option[T]):
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
