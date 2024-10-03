@@ -36,15 +36,15 @@ abstract class Category(name: String) extends CategoryData(name):
     arrowsEndingAt(_) forall isEndomorphism
   }
   /**
-    * a cheap alternative for the iterable (actually, a set) of initial objects
+    * A fast alternative for the iterable (actually, a set) of initial objects
     */
   lazy val allRootObjects_programmersShortcut: Objects =
-    val wrongStuff = arrows.filterNot(isEndomorphism) map d1
+    val wrongStuff = arrows filterNot isEndomorphism map d1
     objects -- wrongStuff
 
   /**
     * An iterable of all objects that do not have any non-endomorphic arrows pointing at them.
-    * Constructively, these are all such objects that if an arrow ends at such an object, it is an endomophism.
+    * Constructively, these are all such objects that if an arrow ends at such an object, it is an endomorphism.
     * Since producing a lazy set is too heavy, I just build it in an old-fashion way.
     */
   lazy val allRootObjects: Objects = allRootObjects_programmersShortcut
@@ -72,9 +72,8 @@ abstract class Category(name: String) extends CategoryData(name):
     source getOrElse
       val prefix = if name.isEmpty then "" else name + ": "
       val objectsAsString = asString(objects)
-      val arrowsListed = listSorted(arrows.filterNot(isIdentity))
       s"$prefix({$objectsAsString}, {" +
-        (arrowsListed map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
+        (nonIdentities map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
         (composablePairs collect {
           case (first, second) if !isIdentity(first) && !isIdentity(second) =>
             concat(second, "∘", first) + s" = ${m(first, second).get}"
@@ -103,7 +102,7 @@ abstract class Category(name: String) extends CategoryData(name):
     SetCategory.factorset[Obj](objects, BinaryRelation(isomorphic))
 
   /**
-    * Returnes an inverse arrow.
+    * Returns an inverse arrow.
     *
     * @param f an arrow for which we are looking an inverse
     * @return inverse arrow
@@ -174,8 +173,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * px ∘ h = qx and py ∘ h = qy
     * where qx: B -> X, qy: B -> Y, px: A -> X, py: A -> Y.
     *
-    * @param q factoring pair of arrows
-    * @param p factored pair of arrows
+    * @param q a factoring pair of arrows
+    * @param p a factored pair of arrows
     * @return the specified predicate.
     */
   def factorsOnLeft(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean = (h: Arrow) =>
@@ -247,7 +246,7 @@ abstract class Category(name: String) extends CategoryData(name):
     *
     * @param f first arrow
     * @param g second arrow
-    * @return Good coequalizer arrow, if one exists, None othrewise
+    * @return Good coequalizer arrow, if one exists, None otherwise
     */
   def coequalizer(f: Arrow, g: Arrow): Result[Arrow] =
     Result(arrows find isCoequalizer(f, g))
@@ -289,10 +288,10 @@ abstract class Category(name: String) extends CategoryData(name):
     arrows filter coequalizes(f, g)
 
   /**
-    * Calculates a coequalizer of a collection of parallel arrows.
-    * Since the collection may be empty, should provide the codomain.
+    * Given a collection of parallel arrows, calculate their coequalizer.
+    * Since the collection may be empty, we should provide the codomain.
     *
-    * @param arrows the arrows, all of which shold be coequalized
+    * @param arrows the arrows, all of which should be coequalized
     * @return a coequalizer arrow
     */
   def coequalizer(arrows: Iterable[Arrow]): Result[Arrow] = NotImplemented
@@ -329,7 +328,8 @@ abstract class Category(name: String) extends CategoryData(name):
       (pairsWithTheSameDomain(x, y) forall factorUniquelyOnRight(px, py))
 
   /**
-    * Builds a Cartesian product of two objects, if it exists. Returns None otherwise.
+    * Builds a Cartesian product of two objects if it exists.
+    * Returns None otherwise.
     * The product is represented as a pair of projections from the product object to the
     * two which are being multiplied.
     *
@@ -341,8 +341,9 @@ abstract class Category(name: String) extends CategoryData(name):
     Result(product2(arrows, arrows) find isProduct(x, y))
 
   /**
-    * Builds a union of two objects, if it exists. Returns None otherwise.
-    * The union is represented as a pair of insertions of the two objects into their union
+    * Builds a union of two objects if it exists.
+    * Returns None otherwise.
+    * Given two objects, the union is represented as a pair of their insertions into the union.
     *
     * @param x first object
     * @param y second object
@@ -381,7 +382,8 @@ abstract class Category(name: String) extends CategoryData(name):
   )
 
   /**
-    * Builds a pullback of two arrows, if it exists. Returns None otherwise.
+    * Builds a pullback of two arrows if it exists.
+    * Returns None otherwise.
     * The pullback is represented as a pair of projections from the pullback object to the
     * domains of the two arrows.
     *
@@ -451,7 +453,8 @@ abstract class Category(name: String) extends CategoryData(name):
     )
 
   /**
-    * Builds a pushout of two arrows, if it exists. Returns None otherwise.
+    * Builds a pushout of two arrows if it exists.
+    * Returns None otherwise.
     * The pushout is represented as a pair of coprojections from the codomains of the two arrows
     * to the pushout object.
     *
@@ -499,8 +502,8 @@ abstract class Category(name: String) extends CategoryData(name):
     * h ∘ px = qx and h ∘ py = qy for q = (qx, qy), and p = (px, py)
     * where qx: X -> B, qy: Y -> B, px: X -> A, py: Y -> A.
     *
-    * @param q factoring pair of arrows
-    * @param p factored pair of arrows
+    * @param q a factoring pair of arrows
+    * @param p a factored pair of arrows
     * @return the predicate described above.
     */
   def factorsOnRight(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean = (h: Arrow) => {
@@ -529,7 +532,7 @@ abstract class Category(name: String) extends CategoryData(name):
     *
     * @param f first arrow
     * @param g second arrow
-    * @return an iterable of all such pairs of arrows
+    * @return All such coequalizing pairs of arrows
     */
   def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = setOf(
     product2(arrows, arrows).
@@ -545,14 +548,14 @@ abstract class Category(name: String) extends CategoryData(name):
 
   /**
     * Checks if a given object is a terminal object (aka unit).
-    * Terminal object is the one which has just one arrow from every other object.
+    * Terminal object is the one that has just one arrow from every other object.
     */
   def isTerminal(t: Obj): Boolean =
     objects.forall((x: Obj) => isSingleton(hom(x, t)))
 
   /**
     * Checks if a given object is an initial object (aka zero).
-    * Initial object is the one which has just one arrow to every other object.
+    * An initial object is the one that has just one arrow to every other object.
     */
   def isInitial(i: Obj): Boolean = objects.forall(x => isSingleton(hom(i, x)))
 
@@ -565,7 +568,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return a map.
     */
   def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] =
-    val badArrows: Arrows = arrows.filterNot(a => setOfObjects(d0(a)))
+    val badArrows: Arrows = arrows filterNot (d0(_) ∈ setOfObjects)
 
     // TODO: return a Result
     require(badArrows.isEmpty, s"These arrows don't belong: ${asString(badArrows)} in $name")
@@ -601,22 +604,20 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param x an object
     * @return the collection
     */
-  def arrowsEndingAt(x: Obj): Arrows = arrows filter { x == d1(_) }
+  private def arrowsEndingAt(x: Obj): Arrows = arrows filter { x == d1(_) }
 
+  private lazy val nonIdentities: List[Arrow] = listSorted(arrows filterNot isIdentity)
 
   private[cat] lazy val nontrivialArrows: List[Arrow] =
-    // first, remove identities
-    val exceptIdentity: List[Arrow] = arrows filterNot isIdentity toList
-
-      // then, remove compound arrows - those that were deduced during creation
-      exceptIdentity sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
+      // Remove compound arrows - those that were deduced during creation
+      nonIdentities sortBy(_.toString) filterNot (_.toString.contains("∘")) reverse
 
 
   /**
     * Removes the arrows that are not required for drawing:
-    * identities and uniquely-determined compositions.
+    * identities and uniquely determined compositions.
     *
-    * @return a graph with the same nodes, but with less arrows
+    * @return a graph with the same nodes, but with fewer arrows
     */
   def baseGraph: Graph =
     // remove all those that are still deducible
@@ -636,7 +637,7 @@ abstract class Category(name: String) extends CategoryData(name):
     val isDeductible = canDeduce(arrows)  
     arrows.find(isDeductible) match
       case None => arrows
-      case Some(f) => selectBaseArrows(arrows.filterNot(f ==))
+      case Some(f) => selectBaseArrows(arrows filterNot (f ==))
 
 
   private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean =
@@ -647,7 +648,7 @@ abstract class Category(name: String) extends CategoryData(name):
         val d1f = d1(f)
         d1f != from &&
         d1f != to &&
-        arrows.exists { g => a ∈ m(f, g)}
+        arrows.exists { g => a ∈ m(f, g) }
     }
 
   /**
