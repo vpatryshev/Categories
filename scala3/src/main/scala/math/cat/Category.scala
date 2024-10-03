@@ -4,7 +4,7 @@ import math.Base._
 import math.cat.Graph.build
 import math.cat.construction.{CategoryData, CategoryFactory}
 import math.sets.Functions._
-import math.sets.Sets.{isSingleton, _}
+import math.sets.Sets.*
 import math.sets.{BinaryRelation, FactorSet, Sets}
 import scalakittens.Result._
 import scalakittens.{Good, Result}
@@ -13,6 +13,7 @@ import scala.annotation.tailrec
 import scala.collection.IterableOnce
 import scala.collection.mutable.ListBuffer
 import scala.language.{implicitConversions, postfixOps}
+import scalakittens.Containers.*
 
 /**
   * Category class, and the accompanying object.
@@ -51,7 +52,7 @@ abstract class Category(name: String) extends CategoryData(name):
   /**
     * A set of all arrows that originate at initial objects (see allRootObjects)
     */
-  lazy val arrowsFromRootObjects: Set[Arrow] = arrows.filter(f => allRootObjects.contains(d0(f)))
+  lazy val arrowsFromRootObjects: Set[Arrow] = arrows.filter(f => d0(f) ∈ allRootObjects)
   
   private[cat] lazy val listOfRootObjects = listSorted(allRootObjects)
 
@@ -117,7 +118,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return true iff f∘g=id and g∘f=id
     */
   def areInverse(f: Arrow, g: Arrow): Boolean =
-    (m(f, g).contains(id(d0(f)))) && (m(g, f).contains(id(d0(g))))
+    (id(d0(f)) ∈ m(f,g)) && (id(d0(g)) ∈ m(g,f))
 
   /**
     * Checks whether an arrow is an endomorphism
@@ -130,7 +131,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * Checks whether an arrow is a monomorphism.
     *
     * @param f an arrow to check
-    * @return true iff f is a monomorphism
+    * @return true iff arrow f is a monomorphism
     */
   def isMonomorphism(f: Arrow): Boolean =
     val comparisons =
@@ -183,7 +184,7 @@ abstract class Category(name: String) extends CategoryData(name):
     sameDomain(h, qx) && sameDomain(h, qy) &&
       follows(px, h) && follows(py, h) &&
       sameCodomain(px, qx) && sameCodomain(py, qy) &&
-      (m(h, px).contains(qx)) && (m(h, py).contains(qy))
+      qx ∈ m(h, px) && qy ∈ m(h, py)
 
   /**
     * Builds an equalizer arrow for a parallel pair of arrows.
@@ -228,7 +229,7 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def factorsUniquelyOnLeft(f: Arrow)(g: Arrow): Boolean =
     sameCodomain(g, f) &&
-      existsUnique(arrowsBetween(d0(f), d0(g)), (h: Arrow) => m(h, g).contains(f))
+      existsUnique(arrowsBetween(d0(f), d0(g)), (h: Arrow) => f ∈ m(h, g))
 
   /**
     * Builds a set of all arrows that equalize f: A -> B and g: A -> B, that is,
@@ -274,7 +275,7 @@ abstract class Category(name: String) extends CategoryData(name):
   def factorsUniquelyOnRight(f: Arrow): Arrow => Boolean =
     (g: Arrow) =>
       sameDomain(g, f) &&
-        isSingleton(arrowsBetween(d1(g), d1(f)).filter(m(g, _).contains(f)))
+        isSingleton(arrowsBetween(d1(g), d1(f)) filter (f ∈ m(g, _)))
 
   /**
     * Builds a set of all arrows that coequalize f: A -> B and g: A -> B, that is,
@@ -417,8 +418,8 @@ abstract class Category(name: String) extends CategoryData(name):
       sameCodomain(px, qx) &&
         sameCodomain(py, qy) &&
         isSingleton(
-        arrowsBetween(d0(qx), d0(px)).filter(
-          (h: Arrow) => (m(h, px).contains(qx)) && (m(h, py).contains(qy))))
+        arrowsBetween(d0(qx), d0(px))filter(
+          (h: Arrow) => qx ∈ m(h, px) && qy ∈ m(h, py)))
 
   /**
     * Builds a set of all pairs (px, py) of arrows that start at the same domain and end
@@ -508,21 +509,21 @@ abstract class Category(name: String) extends CategoryData(name):
     sameDomain(px, qx) && sameDomain(py, qy) &&
       follows(h, px) && follows(h, py) &&
       sameCodomain(h, qx) && sameCodomain(h, qy) &&
-      (m(px, h).contains(qx)) && (m(py, h).contains(qy))
+      qx ∈ m(px, h) && qy ∈ m(py, h)
   }
 
   /**
     * Builds a set of all pairs (qx, qy) of arrows that end at the same codomain and start
     * at d1(f) and d1(g), coequalizing them: m(f, qx) = m(g, qy), making the square
     * <pre>
-    * g
-    * Z —————-> Y
-    * |        |
+    *       g
+    *   Z —————-> Y
+    *   |        |
     * f |        | qy
-    * |        |
-    * ↓        ↓
-    * X —————-> U
-    * qx
+    *   |        |
+    *   ↓        ↓
+    *   X —————-> U
+    *    qx
     * </pre>
     * commutative.
     *
@@ -630,6 +631,7 @@ abstract class Category(name: String) extends CategoryData(name):
 //    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
 
 
+  @tailrec
   private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
     val isDeductible = canDeduce(arrows)  
     arrows.find(isDeductible) match
@@ -643,9 +645,9 @@ abstract class Category(name: String) extends CategoryData(name):
     hom(from, to).size == 1 && arrows.exists {
       f => 
         val d1f = d1(f)
-        d1f != from && d1f != to && arrows.exists {
-        g => m(f, g).contains(a)
-      }
+        d1f != from &&
+        d1f != to &&
+        arrows.exists { g => a ∈ m(f, g)}
     }
 
   /**
