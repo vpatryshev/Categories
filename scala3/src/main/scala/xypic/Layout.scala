@@ -18,14 +18,14 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   private var previousLayerLength = 1
   private val taken: mutable.Set[Pt] = new mutable.HashSet[Pt]()
 
-  private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex.map{
+  private val indexedClusters: Map[Int, List[go.Cluster]] = go.layersOfClusters.zipWithIndex map {
     case (comps, i) => i -> comps.sortBy(_.toString)
-  }.toMap
+  } toMap
 
   private val coordinates0: immutable.Iterable[List[(go.Cluster, Pt)]] = for {
     (i, layer) <- indexedClusters
   } yield {
-    val diameters = layer.map(_.diameter)
+    val diameters = layer map (_.diameter)
     val layerLength = layer.length // diameters.sum
     val layerWidth = (diameters.max + 1) / 2
     val dw = layerLength - previousLayerLength
@@ -44,7 +44,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
 
   def pullLeft(layers: List[List[(go.Cluster, Pt)]]): List[List[(go.Cluster, Pt)]] = {
-    layers.map{
+     layers map {
       case p1::p2::tail =>
         val altPoint = p1._2 - Pt(1, 0)
         val newOne = if !taken(altPoint) then
@@ -59,7 +59,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
   }
 
   def pullUp(layers: List[List[(go.Cluster, Pt)]]): List[List[(go.Cluster, Pt)]] = {
-    layers.map(_.reverse).map{
+    layers map (_.reverse) map {
       case p1::p2::tail =>
         val altPoint = p1._2 + Pt(0, 1)
         val newOne = 
@@ -92,12 +92,12 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int) {
     val center = coordinates.values.reduce(_+_) / coordinates.size
     
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
-      base.arrows.map(a => (a, Set(base.d0(a), base.d1(a))))
+      base.arrows map (a => (a, Set(base.d0(a), base.d1(a))))
     
     val arrows: MapView[Set[base.Node], List[base.Arrow]] =
       arrowsWithDomainAndCodomain.groupBy(_._2).view.
         mapValues {
-          v => listSorted(v.map(_._1))
+          v => listSorted(v map (_._1))
         }
     
     def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit = {
