@@ -304,7 +304,8 @@ class SetCategoryTest extends Specification:
             Set(("y", 4)))
           
           sut === expected
-        case none => failure(s"Where's my pushout? $none")
+        case failed =>
+          failed.orCommentTheError("Where's my pushout?")
 
       ok
     }

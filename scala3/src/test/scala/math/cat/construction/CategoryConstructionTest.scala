@@ -342,7 +342,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     val nonexistentCompositions: Set[(data.Arrow, data.Arrow)] = data.nonexistentCompositions.toSet
     val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] = nonexistentCompositions.flatMap{
       case (f, g) =>
-        data.newComposition(f, g).map{ h => (h, (data.d0(f), data.d1(g))) }
+        data.newComposition(f, g).map { h => (h, (data.d0(f), data.d1(g))) }
     }.toMap
 
 
@@ -378,7 +378,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
       val closure = transitiveClosure(data1)
 
-      val raw1 = closure.factory.map{ validData => validData.newCategory }
+      val raw1 = closure.factory.map { validData => validData.newCategory }
 
       raw1.isGood === true
 
@@ -417,12 +417,12 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       
       val closure = CategoryData.transitiveClosure(data)
 
-      val raw1 = closure.factory.map{ validData => validData.newCategory }
+      val raw1 = closure.factory.map { validData => validData.newCategory }
 
       raw1.isGood === true
 
       val raw2 = Result.forValue {
-        CategoryData.transitiveClosure(data).factory.map{ validData => validData.newCategory }
+        CategoryData.transitiveClosure(data).factory.map { validData => validData.newCategory }
       }.flatten
       
       raw2.isGood === true
