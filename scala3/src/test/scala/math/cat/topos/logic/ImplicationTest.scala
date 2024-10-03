@@ -88,22 +88,22 @@ class ImplicationTest extends Fixtures:
 //          val q = pt2.asPredicateIn(topos)
 //          println(s"Peirce Theorem for ${pt1.tag} and ${pt2.tag}")
 //          val p_q = p ⟹ q
-//          println(s"Peirce Theorem: ${pt1.tag} => ${pt2.tag} gives $p_q")
 //          val p_q_p: Predicate = p_q ⟹ p
-//          println(s"Peirce Theorem: ${pt1.tag} => ${pt2.tag} gives ${p_q}")
+//          println(s"Peirce Theorem: ${p_q} => ${p} gives ${p_q_p}")
 //          val p_q_p_p: Predicate = p_q_p ⟹ p
+//          println(s"Peirce Theorem: ${p_q_p} => ${p} gives ${p_q_p_p}")
 //          p_q_p_p === True
 
       ok
 
     end check
-      
+
     def checkAt(i: Int): MatchResult[Any] =
       groupedCategoriesToTest(i) foreach check
       ok
-    
+
     def nameThem(i: Int): String =
-      groupedCategoriesToTest(i).map {_.name} mkString ", "
+      groupedCategoriesToTest(i).map{_.name} mkString ", "
 
     s"work for domains: ${nameThem(0)}" in checkAt(0)
     s"work for domains: ${nameThem(1)}" in checkAt(1)
