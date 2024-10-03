@@ -9,6 +9,7 @@ import math.sets.Sets._
 import math.sets.{FactorSet, Sets}
 import scalakittens.{Good, Result}
 
+import scala.annotation.targetName
 import scala.collection.MapView
 import scala.language.{implicitConversions, postfixOps}
 
@@ -26,19 +27,21 @@ abstract class Diagram(
   val topos: GrothendieckTopos)
   extends Functor(tag, topos.domain, SetCategory.Setf):
   diagram =>
-  type XObject = d0.Obj // topos.domain.Obj ???
-  type XObjects = Set[XObject]
-  type XArrow = d0.Arrow // topos.domain.Arrow ???
-  type XArrows = Set[XArrow]
+  private type XObject = d0.Obj // topos.domain.Obj ???
+  private type XObjects = Set[XObject]
+  private type XArrow = d0.Arrow // topos.domain.Arrow ???
+  private type XArrows = Set[XArrow]
   
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
   private[topos] def setAt(x: Any): set = setOf(objectsMapping(x))
-  
-  def ⊂(other: Diagram): Boolean =
+
+  @targetName("subsetOf")
+  infix inline def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o => this(o) subsetOf other(o) }
 
-  def ∈(other: Diagram): Boolean =
+  @targetName("in")
+  infix inline def ∈(other: Diagram): Boolean =
     d0.objects.forall { o => other(o)(this(o)) }
 
   def point(mapping: XObject => Any, id: Any = ""): Point =
@@ -52,14 +55,14 @@ abstract class Diagram(
     yield om
 
 
-    // The following stupid hack does the following:
+    // The following foolish hack does the following:
     // any value in curlies goes after a shorter value in curlies,
     // because closing curly is replaced with '!' which goes
     // before all alphanumerics. Cheap trick, but works.
     // Any better suggestions?
-    val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")).zipWithIndex
+    val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")) zipWithIndex
 
-    sorted.map{ p => p._1 named ("p" + p._2) }
+    sorted map { p => p._1 named ("p" + p._2) }
 
   def asFunction(a: d1.Arrow): SetFunction = a match
     case sf: SetFunction => sf
@@ -176,7 +179,7 @@ abstract class Diagram(
       f(d00) == d01
   }
 
-  lazy val listOfComponents: List[set] =
+  private lazy val listOfComponents: List[set] =
     listOfObjects map objectsMapping map (x => setOf(x))
   
   private def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
@@ -196,7 +199,7 @@ abstract class Diagram(
     val allSets: Map[XObject, set] = buildMap(domainObjects, o => setOf(objectsMapping(o)))
     val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
 
-    val listOfComponents: List[Set[set]] = listOfObjects.map(allPowers)
+    val listOfComponents: List[Set[set]] = listOfObjects map allPowers
 
     def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall {
       a =>
@@ -209,13 +212,13 @@ abstract class Diagram(
     val objMappings: Iterable[Map[XObject, Sets.set]] = for
       values <- Sets.product(listOfComponents).view
       om0: Point = point(listOfObjects zip values toMap)
-      om: Map[XObject, Sets.set] = buildMap(d0.objects, x => setOf(om0(x)));
+      om: Map[XObject, Sets.set] = buildMap(d0.objects, x => setOf(om0(x)))
       if isPresheaf(om)
     yield om
     
     val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
 
-    val allCandidates = sorted.zipWithIndex.map{
+    val allCandidates = sorted.zipWithIndex map {
       case (om, i) =>
         Diagram.tryBuild(topos)(
           i,
@@ -294,7 +297,7 @@ abstract class Diagram(
     // bundles maps each "initial" object to a set of arrows from it
     final private[cat] lazy val bundles: Map[XObject, XArrows] =
       d0.buildBundles(rootObjects, participantArrows)
-    lazy val rootObjects: XObjects = d0.allRootObjects.asInstanceOf[XObjects] // same thing
+    lazy val rootObjects: XObjects = d0.allRootObjects
     private lazy val participantArrows: XArrows = d0.arrowsFromRootObjects
     // for each domain object, a collection of arrows looking outside
     private lazy val opo: d0op.Objects = d0op.objects
@@ -326,14 +329,10 @@ object Diagram:
     arrowMap:   t.domain.Arrow => SetFunction): Diagram =
 
     new Diagram(tag.toString, t):
-      
       override private[topos] def setAt(x: Any): set = objectsMap(x)
-      
       override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
-
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
         
-  
   def tryBuild(topos: GrothendieckTopos)(
     tag: Any,
     objectsMap: topos.domain.Obj => set,
@@ -343,5 +342,5 @@ object Diagram:
     Functor.validateFunctor(diagram) returning diagram
 
   private[topos] def cleanupString(s: String): String =
-    val s1 = s.replaceAll(s"->Diagram\\[[^\\]]+]", "->")
+    val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
     s1.replace("Set()", "{}")

@@ -16,7 +16,7 @@ class CategoryOfDiagrams(val domain: Category)
   extends Category(s"Set^${domain.name}")
   with GrothendieckTopos:
   topos =>
-  override val graph = graphOfDiagrams(domain.name)
+  override val graph: Graph = graphOfDiagrams(domain.name)
   override def toString: String = name
   type Node = Diagram
   override type Obj = Diagram
@@ -37,15 +37,14 @@ class CategoryOfDiagrams(val domain: Category)
 
     val all: Set[Diagram] = 
       for
-      (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
-      // some mappings are not working for a given candidate
-      amCandidate: (domain.Arrow => SetFunction) = arrowMapping(candidate)
-      am: Set[(domain.Arrow, SetFunction)] = domain.arrows map (a => a -> amCandidate(a))
-      om = objectMapping(candidate)
+        (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
+        // some mappings are not working for a given candidate
+        am: Map[domain.Arrow, SetFunction] = domain.arrows map (a => a -> arrowMapping(candidate)(a)) toMap
+
+        om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-//        diagram: Diagram <- Result.forValue(Diagram(topos)("__" + i, om, am.toMap)).asOption
-      diagram: Diagram <- Diagram.tryBuild(topos)("__" + i, om, am.toMap).asOption
-    yield diagram
+        diagram: Diagram <- Diagram.tryBuild(topos)("__" + i, om, am) asOption
+      yield diagram
 
     all
   
@@ -55,7 +54,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   def objectNamed(name: String): domain.Obj = name
 
-  def pow(d: Diagram): Diagram = ??? // power object; tbd
+  def pow(d: Diagram): Diagram = NotImplementedError("TBD") // power object; tbd
 
   override def id(o: Obj): Arrow =
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
@@ -124,9 +123,9 @@ object CategoryOfDiagrams:
       (x: O) => value,
       (a: A) => SetFunction.id(value))
 
-  def nameOfPowerCategory(domainName: String) = s"Sets^$domainName"
+  private def nameOfPowerCategory(domainName: String) = s"Sets^$domainName"
   
-  def graphOfDiagrams(domainName: String): Graph =
+  private def graphOfDiagrams(domainName: String): Graph =
     new Graph(nameOfPowerCategory(domainName)):
       type Node = Diagram
       type Arrow = DiagramArrow
