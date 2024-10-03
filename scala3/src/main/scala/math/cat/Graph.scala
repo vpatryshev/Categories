@@ -295,7 +295,7 @@ object Graph:
     }
 
     def graphData: Parser[Result[GraphData]] = parserOfSet~","~arrows ^^ {
-      case s~","~arrows => (arrows <*> s).flatMap{
+      case s~","~arrows => (arrows andAlso s).flatMap{
         case (arr, s0) => Graph.data(s0, arr)
       }
       case nonsense => Result.error(s"Failed to parse $nonsense")
