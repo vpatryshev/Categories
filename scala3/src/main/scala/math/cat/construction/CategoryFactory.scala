@@ -137,7 +137,7 @@ private[cat] trait CategoryFactory:
     */
   def read(input: CharSequence): Result[Cat] =
     val r = (new CategoryParser).readCategory(input)
-    r.map { _.withSource(input.toString) }
+    r map { _.withSource(input.toString) }
 
   class CategoryParser extends GraphParser:
 
@@ -176,7 +176,7 @@ private[cat] trait CategoryFactory:
 
     def multTable: Parser[Result[Map[(String, String), String]]] =
       "{" ~ repsep(multiplication, ",") ~ "}" ^^ {
-        case "{" ~ m ~ "}" => Result.traverse(m).map(_.toMap)
+        case "{" ~ m ~ "}" => Result traverse m map (_.toMap)
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 

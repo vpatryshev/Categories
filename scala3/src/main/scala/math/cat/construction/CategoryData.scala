@@ -239,8 +239,14 @@ private[construction] class PartialData(override val graph: Graph)
     Set[(graph.Arrow, graph.Arrow, graph.Arrow)] =
     for
       a <- graph.arrows
-      b <- graph.arrows if compositionSource contains (b, a)
-      c <- graph.arrows if compositionSource contains (b, c)
+      b <- graph.arrows if compositionSource.contains((a, b))
+      c <- graph.arrows if compositionSource.contains((b, c))
+      /* The following two lines don't work yet.
+         They also break other tests, totally unrelated.
+            b <- graph.arrows if compositionSource contains ((b, a))
+            c <- graph.arrows if compositionSource contains ((b, c))
+       */
+      
     yield (a, b, c)
 
   
