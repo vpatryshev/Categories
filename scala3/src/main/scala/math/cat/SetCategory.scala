@@ -21,7 +21,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   /**
     * Inner graph of this category of sets
     */
-  override val graph = graphOfSets(objects)
+  override val graph: Graph = graphOfSets(objects)
   type Node = set
   type Arrow = SetFunction
 
@@ -87,8 +87,8 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     * @param f an arrow to check
     *  @return true iff f is an epimorphism
     */
-  override def isEpimorphism(arrow: SetFunction): Boolean =
-    arrow.d1 forall {y => arrow.d0 exists {y == arrow(_)}}
+  override def isEpimorphism(f: SetFunction): Boolean =
+    f.d1 forall {y => f.d0 exists {y == f(_)}}
 
   /**
     * Equalizer of two arrows (does not have to exist)
