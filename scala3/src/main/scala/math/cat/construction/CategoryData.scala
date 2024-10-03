@@ -61,8 +61,8 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
       Result.check { arrows.map { f =>
         val u_f = m(id(d0(f)), f)
         val f_u = m(f, id(d1(f)))
-        OKif(f ∈ u_f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
-        OKif(f ∈ f_u, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
+        OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
+        OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
       }}
 
     val compositionsAreOk =
