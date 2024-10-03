@@ -39,7 +39,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * a cheap alternative for the iterable (actually, a set) of initial objects
     */
   lazy val allRootObjects_programmersShortcut: Objects =
-    val wrongStuff = arrows.filterNot(isEndomorphism).map(d1)
+    val wrongStuff = arrows.filterNot(isEndomorphism) map d1
     objects -- wrongStuff
 
   /**
@@ -160,7 +160,7 @@ abstract class Category(name: String) extends CategoryData(name):
     comparisons forall (x => x)
 
   /**
-    * Checks if arrow h coequalizes arrows f and g (that is, whether h ∘ f == h ∘ g).
+    * Checks if arrow h coequalizes arrows f and g (that is, whether h∘f == h∘g).
     *
     * @param f first arrow
     * @param g second arrow
@@ -360,8 +360,8 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def isUnion(x: Obj, y: Obj): ((Arrow, Arrow)) => Boolean =
     (i: (Arrow, Arrow)) =>
-    val (ix, iy) = i
-    d0(ix) == x && d0(iy) == y &&
+      val (ix, iy) = i
+      d0(ix) == x && d0(iy) == y &&
       pairsWithTheSameCodomain(x, y).forall(factorUniquelyOnLeft(ix, iy))
 
   /**
@@ -375,8 +375,8 @@ abstract class Category(name: String) extends CategoryData(name):
     product2(arrows, arrows) filter {
       case (px, py) =>
         sameCodomain(px, py) &&
-          d0(px) == x &&
-          d0(py) == y
+        d0(px) == x &&
+        d0(py) == y
     }
   )
 
@@ -416,9 +416,9 @@ abstract class Category(name: String) extends CategoryData(name):
   def factorUniquelyOnRight(px: Arrow, py: Arrow): ((Arrow, Arrow)) => Boolean =
     case (qx, qy) =>
       sameCodomain(px, qx) &&
-        sameCodomain(py, qy) &&
-        isSingleton(
-        arrowsBetween(d0(qx), d0(px))filter(
+      sameCodomain(py, qy) &&
+      isSingleton(
+        arrowsBetween(d0(qx), d0(px)) filter(
           (h: Arrow) => qx ∈ m(h, px) && qy ∈ m(h, py)))
 
   /**
@@ -523,7 +523,7 @@ abstract class Category(name: String) extends CategoryData(name):
     *   |        |
     *   ↓        ↓
     *   X —————-> U
-    *    qx
+    *      qx
     * </pre>
     * commutative.
     *
@@ -536,11 +536,11 @@ abstract class Category(name: String) extends CategoryData(name):
       filter(q => {
         val (qx, qy) = q
         sameCodomain(qx, qy) &&
-          follows(qx, f) &&
-          follows(qy, g) &&
-          m(f, qx) == m(g, qy)
+        follows(qx, f) &&
+        follows(qy, g) &&
+        m(f, qx) == m(g, qy)
       }
-      )
+    )
   )
 
   /**
@@ -571,7 +571,7 @@ abstract class Category(name: String) extends CategoryData(name):
     require(badArrows.isEmpty, s"These arrows don't belong: ${asString(badArrows)} in $name")
     val grouped = arrows.groupBy(d0)
     val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
-    setOfObjects.map(o => o -> mor(o)).toMap.withDefaultValue(Set.empty[Arrow])
+    setOfObjects.map(o => o -> mor(o)).toMap withDefaultValue Set.empty[Arrow]
 
   /**
     * Builds a degree object (X*X... n times) for a given object.
@@ -588,7 +588,7 @@ abstract class Category(name: String) extends CategoryData(name):
         case 1 => Good((x, id(x) :: Nil))
         case _ => degree(x, n - 1).flatMap{
           case (x_n_1, previous_projections) =>
-            product(x, x_n_1).map{
+            product(x, x_n_1) map {
               case (p1, p_n_1) =>
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
                 (d0(p1), projections.flatten)
@@ -624,7 +624,7 @@ abstract class Category(name: String) extends CategoryData(name):
 
 // TODO: figure out which one is faster  
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
-//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows.map{
+//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
 //      a => a -> (d0(a), d1(a))
 //    } toMap
 //
@@ -680,15 +680,15 @@ abstract class Category(name: String) extends CategoryData(name):
   /**
     * Build a complete subcategory of this category, given its set of names.
     * 
-    * @param subname the name we give to the subcategory
+    * @param newName the name we give to the subcategory
     * @param setOfObjects objects of the subcategory
     * @return the subcategory
     */
-  def completeSubcategory(subname: String, setOfObjects: Objects): Result[Category] =
+  def completeSubcategory(newName: String, setOfObjects: Objects): Result[Category] =
     val src = this
-    subgraph(subname, setOfObjects).map{
+    subgraph(newName, setOfObjects) map {
       sub =>
-        new Category(subname):
+        new Category(newName):
           override val graph: Graph = sub
 
           override def id(o: Obj): Arrow = src.id(o)
