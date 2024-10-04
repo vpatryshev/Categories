@@ -1,5 +1,6 @@
 package math.sets
 
+import scalakittens.Containers.*
 import math.sets.BigSet.comprehension
 
 import scala.annotation.targetName
@@ -23,7 +24,7 @@ abstract class BigSet[T](val name: String = "A BIG SET") extends Set[T]:
     * @return another big set, with values of type `U`, consisting of values of `f` on this bigset
     */
   infix def map[U](f: Functions.Bijection[T, U]): BigSet[U] =
-    comprehension((u: U) => this contains (f unapply u))
+    comprehension((u: U) => (f unapply u) ∈ this)
 
   /**
     * Filters this bigset by a given predicate
@@ -31,7 +32,7 @@ abstract class BigSet[T](val name: String = "A BIG SET") extends Set[T]:
     * @return a new bigset consisting only of values satisfying `p`
     */
   override def filter(p: T => Boolean): BigSet[T] =
-    comprehension((t: T) => p(t) && (this contains t), s"$name, filtered")
+    comprehension((t: T) => p(t) && (t ∈ this), s"$name, filtered")
 
   override def hashCode: Int = System.identityHashCode(this)
 
@@ -69,5 +70,5 @@ object BigSet:
     @targetName("in")
     infix inline def ∈(X: BigSet[T]): Boolean = X contains x
     @targetName("notIn")
-    infix def ∉(X: BigSet[T]): Boolean = !(X contains x)
+    infix inline def ∉(X: BigSet[T]): Boolean = !(X contains x)
 

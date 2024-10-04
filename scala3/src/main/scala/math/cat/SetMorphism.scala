@@ -109,7 +109,7 @@ class SetMorphism[X, Y] (
     * @param newDomain new domain
     * @return a morphism restricted to `newDomain`
     */
-  def restrictTo(newDomain: Set[X]): Result[SetMorphism[X, Y]] =
+  infix def restrictTo(newDomain: Set[X]): Result[SetMorphism[X, Y]] =
     OKif(newDomain subsetOf d0) returning new SetMorphism[X, Y](tag, newDomain, d1, function)
 
   override def toString: String = tag match

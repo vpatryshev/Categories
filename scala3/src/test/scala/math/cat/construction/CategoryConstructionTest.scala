@@ -171,8 +171,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
           ("swap", "swap") -> "2"),
         defineComposition
       )
-      expectError(_.contains("12 arrows still missing:"), actual)
-      actual.isGood === false
+      expectError("12 arrows still missing:", actual)
+      actual.isBad
     }
 
     def checkParsing(catOpt: Result[Category]): MatchResult[Any] =

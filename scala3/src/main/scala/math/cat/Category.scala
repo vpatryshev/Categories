@@ -56,15 +56,15 @@ abstract class Category(name: String) extends CategoryData(name):
   
   private[cat] lazy val listOfRootObjects = listSorted(allRootObjects)
 
-  def foreach[U](f: Obj => U): Unit = objects foreach f
+  infix def foreach[U](f: Obj => U): Unit = objects foreach f
 
-  def map[B](f: Obj => B): IterableOnce[B] = objects map f
+  infix def map[B](f: Obj => B): IterableOnce[B] = objects map f
 
-  def flatMap[B](f: Obj => IterableOnce[B]): IterableOnce[B] = objects flatMap f
+  infix def flatMap[B](f: Obj => IterableOnce[B]): IterableOnce[B] = objects flatMap f
 
   private var source: Option[String] = None
-  
-  def withSource(s: String): this.type =
+
+  infix def withSource(s: String): this.type =
     source = Option(s)
     this
   

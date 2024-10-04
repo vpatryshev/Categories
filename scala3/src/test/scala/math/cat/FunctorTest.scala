@@ -43,7 +43,7 @@ class FunctorTest extends Test:
   "Constructor" should {
 
     "report missing object mappings" in {
-      expectError(_ contains "Object mapping fails for 1", 
+      expectError("Object mapping fails for 1", 
       Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1"),
@@ -51,7 +51,7 @@ class FunctorTest extends Test:
     }
 
     "report incorrect object mappings" in {
-      expectError(_ contains "Object mapping fails for 1",
+      expectError("Object mapping fails for 1",
         Functor("failing test",
           _2_, _2_)(
           Map("0" -> "1", "1" -> "3"),
@@ -59,7 +59,7 @@ class FunctorTest extends Test:
     }
 
     "report missing arrows mappings" in {
-      expectError(_ contains "Missing arrow mappings for 0.1, 1.2, 2.3, 0.3, 1.3, 0.2",
+      expectError("Missing arrow mappings for 0.1, 1.2, 2.3, 0.3, 1.3, 0.2",
         Functor("failing test",
         _4_, _4_)(
         Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
@@ -81,7 +81,7 @@ class FunctorTest extends Test:
         "2.3" -> "3.3",
         "3.3" -> "3.3"
       )
-      expectError(_ contains "Inconsistent mapping for d1(0.2)",
+      expectError("Inconsistent mapping for d1(0.2)",
         Functor("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
     }
     
@@ -101,7 +101,7 @@ class FunctorTest extends Test:
         "3.3" -> "3.3"
       )
 
-      expectError(_ contains "Object mapping fails for 3",
+      expectError("Object mapping fails for 3",
         Functor("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
     }
   }
