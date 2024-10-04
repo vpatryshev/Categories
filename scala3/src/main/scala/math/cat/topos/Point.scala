@@ -1,6 +1,6 @@
 package math.cat.topos
 
-import math.Base._
+ import math.Base.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, SetFunction}
 
@@ -72,7 +72,7 @@ class Point(
     val short = Diagram.cleanupString(raw)
 
     val strings: List[String] =
-      domainCategory.listOfObjects.map { x =>
+      domainCategory.listOfObjects map { x =>
       val obRepr = apply(x) match
         case d: Diagram => Diagram.cleanupString(d.toShortString)
         case other => other.toString

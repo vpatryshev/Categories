@@ -93,7 +93,7 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   inline def tag: String = s"${ts2b32(timestamp)}"
   inline override def toString = s"Error: ~$tag($errors)"
 
-  private def base32map = "abdeghjklmnopqrstvxyz.".zipWithIndex.map {case (c,i) => ('a'+i).toChar -> c}.toMap.withDefault(identity)
+  private def base32map = "abdeghjklmnopqrstvxyz.".zipWithIndex.map{case (c,i) => ('a'+i).toChar -> c}.toMap withDefault identity
 
   /**
     * Transforms a timestamp to a string

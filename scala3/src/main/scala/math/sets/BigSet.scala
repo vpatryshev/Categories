@@ -23,7 +23,7 @@ abstract class BigSet[T](val name: String = "A BIG SET") extends Set[T]:
     * @return another big set, with values of type `U`, consisting of values of `f` on this bigset
     */
   infix def map[U](f: Functions.Bijection[T, U]): BigSet[U] =
-    comprehension((u: U) => this contains (f unapply u)) 
+    comprehension((u: U) => this contains (f unapply u))
 
   /**
     * Filters this bigset by a given predicate

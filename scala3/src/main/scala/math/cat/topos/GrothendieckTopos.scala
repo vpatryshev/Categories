@@ -415,6 +415,6 @@ trait GrothendieckTopos
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
-    (inclusionOf(p) in d).map {
+    (inclusionOf(p) in d) map {
       q => uniqueFromTerminalTo(p) andThen q named p.tag
     }

@@ -188,7 +188,7 @@ object Sets:
 
   def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
 
-  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys.map {k => k -> f(k)} toMap
+  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys map {k => k -> f(k)} toMap
 
   def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
 
@@ -281,7 +281,7 @@ object Sets:
       * @return the (virtual) set that is the disjoint union of given sets
       */
     def unionSet: Set[(Int, T)] =
-      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex.map {
+      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex map {
         case (s, i) => s map (x => (i, x))
       }
 
