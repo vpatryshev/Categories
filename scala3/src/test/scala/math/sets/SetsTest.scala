@@ -256,6 +256,49 @@ class SetsTest extends TestBase:
       segment.contains((3,3)) must beTrue
     }
 
+    "product of an empty set should be empty" >> {
+      val source = List()
+      val expected = Set(List())
+      val actual = product(source)
+      actual === expected
+    }
+
+    "product of a singleton list (of set) should a set of singleton lists" >> {
+      val source = List(Set(2220, 2221, 2222, 2223))
+      val expected = source map (_ map (x =>List(x)))
+      val actual = product(source)
+      actual === expected
+    }
+
+    "product of two sets should be a cartesian product" >> {
+      val source = List(Set("a", "b", "c"), Set("1", "2"))
+      val expected = Set(
+        List("a", "1"), List("a", "2"),
+        List("b", "1"), List("b", "2"),
+        List("c", "1"), List("c", "2")
+      )
+      val actual = product(source)
+      actual === expected
+    }
+
+    "product of several sets should be a cartesian product" >> {
+      val source = List(Set("a", "b", "c"), Set("1", "2"), Set("Ebony", "Ivory"))
+      val expected = Set(
+        List("a", "1", "Ebony"), List("a", "1", "Ivory"), List("a", "2", "Ebony"), List("a", "2", "Ivory"),
+        List("b", "1", "Ebony"), List("b", "1", "Ivory"), List("b", "2", "Ebony"), List("b", "2", "Ivory"),
+        List("c", "1", "Ebony"), List("c", "1", "Ivory"), List("c", "2", "Ebony"), List("c", "2", "Ivory")
+      )
+      val actual = product(source)
+      actual === expected
+    }
+
+    "product of several sets should be empty if one of them is empty" >> {
+      val source = List(Set("a", "b", "c"), Set.empty, Set("Ebony", "Ivory"))
+      val expected = Set.empty
+      val actual = product(source)
+      actual === expected
+    }
+
     "powerset of a 3-element set should give 8 elements" >> {
       val s = Set("a", "b", "c")
       val actual = pow(s)
@@ -350,7 +393,7 @@ class SetsTest extends TestBase:
       0 to 9 forall (i => first10.contains(i) must beTrue)
     }
 
-    "Iterator of 1 is asingleton" >> {
+    "Iterator of 1 is a singleton" >> {
       Sets.isSingleton(List("abc")) must beTrue
     }
 

@@ -8,6 +8,7 @@ import math.sets.Sets.set
 import scalakittens.Good
 
 import scala.language.implicitConversions
+import scala.annotation.targetName
 
 class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
@@ -20,13 +21,15 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     for
       x <- topos.domain.objects
     do
-      val setAtx: Set[?] = obj apply x
+      val setAtx: Set[?] = obj(x)
       setAtx.size === expected
 
   
   "representables" should {
     case class diagramTable(data: List[String] = Nil) {
+      @targetName("add_column")
       def |(x: String): diagramTable = diagramTable(x::data)
+      @targetName("add_column")
       def |(f: String => Any): check = check(f)(data.reverse, data.reverse)
     }
 
@@ -354,45 +357,51 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   "Diagram points" should {
 
-    def checkPoint(sut: Diagram)(point: Point, values: List[Int]) = {
+    def checkPoint(sut: Diagram)(point: Point, expected: List[Int]) = {
       val objects = sut.d0.objects.toList
       val actual = objects map point.apply
-      val expected = values // map Sets.singleton
       actual must_== expected
     }
 
     "exist in paralel pair" in {
       val sut = SampleParallelPairDiagram1
       val topos = new CategoryOfDiagrams(ParallelPair)
-      val actual = sut.points
-      actual.size === 3
-      val check = checkPoint(sut) _
-      val p1 :: p2 :: p3 :: Nil = actual
-      check(p1, 1 :: 1 :: Nil)
-      check(p2, 2 :: 2 :: Nil)
-      check(p3, 5 :: 2 :: Nil)
+      val check = checkPoint(sut)
+      sut.points match
+        case p1 :: p2 :: p3 :: Nil =>
+          check(p1, 1 :: 1 :: Nil)
+          check(p2, 2 :: 2 :: Nil)
+          check(p3, 5 :: 2 :: Nil)
+        case bad => failure("Expected 3 points, got: $bad")
+        
+      ok
     }
 
     "exist in pullback" in {
       val sut = SamplePullbackDiagram
       val topos = new CategoryOfDiagrams(Pullback)
       val actual = sut.points
-      actual.size === 5
-      val p1 :: p2 :: p3 :: p4 :: p5 :: Nil = actual
-      val check = checkPoint(sut) _
-      check(p1, 1 :: 2 :: 1 :: Nil)
-      check(p2, 1 :: 4 :: 1 :: Nil)
-      check(p3, 2 :: 3 :: 0 :: Nil)
-      check(p4, 3 :: 2 :: 1 :: Nil)
-      check(p5, 3 :: 4 :: 1 :: Nil)
+      actual match
+        case p1 :: p2 :: p3 :: p4 :: p5 :: Nil =>
+          val check = checkPoint(sut)
+          check(p1, 1 :: 2 :: 1 :: Nil)
+          check(p2, 1 :: 4 :: 1 :: Nil)
+          check(p3, 2 :: 3 :: 0 :: Nil)
+          check(p4, 3 :: 2 :: 1 :: Nil)
+          check(p5, 3 :: 4 :: 1 :: Nil)
+        case _ => failure("Expected 5 points from $actual")  
+        
+      ok
     }
 
     "exist in Z3 diagram" in {
       val sut = SampleZ3Diagram
       val actual = sut.points
-      actual.size === 1
-      val p1 :: Nil = actual
-      val check = checkPoint(sut) _
+      actual match
+        case p1 :: Nil =>
+          val check = checkPoint(sut)
+          check(p1, 2223 :: Nil)
+        case oops => failure("Expected 1 point in $actual: $oops")
 
       ok
     }

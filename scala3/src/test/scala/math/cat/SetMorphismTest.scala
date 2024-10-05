@@ -106,13 +106,13 @@ class SetMorphismTest extends Specification:
   }
 
   "Variance_byX" >> {
-    val x = setOf(testSetX, testSetX.size, testSetX.contains _)
+    val x = setOf(testSetX, testSetX.size, testSetX.contains)
     val sut = SetMorphism.build(x, testSetZ, (n: Int) => "#" + n).iHope
     sut(3) === "#3"
   }
 
   "Variance_byY" >> {
-    val y = setOf(testSetZ, testSetZ.size, testSetZ.contains _)
+    val y = setOf(testSetZ, testSetZ.size, testSetZ.contains)
     val sut = SetMorphism.build(testSetX, y, (n: Int) => "#" + n).iHope
     sut(3) === "#3"
   }

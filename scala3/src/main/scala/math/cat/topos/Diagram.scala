@@ -14,7 +14,7 @@ import scala.collection.MapView
 import scala.language.{implicitConversions, postfixOps}
 
 /**
-  * Diagram from a category to Categories.SETF.
+  * Diagram from a category to Categories.Setf.
   *
   * The term "point" below means a point in categorical meaning:
   * an arrow from a terminal object into a given object.
@@ -49,10 +49,13 @@ abstract class Diagram(
 
   lazy val points: List[Point] =
     val objMappings = for
-      values <- Sets.product(listOfComponents).view
-      mapping = listOfObjects zip values toMap;
+      valuesPerObject <- Sets.product(listOfComponents).view
+      tuples = listOfObjects zip valuesPerObject
+      mapping = tuples toMap;
       om: Point = point(mapping) if isCompatible(om)
-    yield om
+    yield {
+      om
+    }
 
 
     // The following foolish hack does the following:
@@ -73,7 +76,7 @@ abstract class Diagram(
   
   def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
-  def apply(x: Any): set = setOf(objectsMapping(x))
+  infix def apply(x: Any): set = setOf(objectsMapping(x))
 
   /**
     * Calculates this diagram's limit
@@ -125,7 +128,7 @@ abstract class Diagram(
     val directIndex: IntMap[XObject] = toMap(listOfObjects)
     val reverseIndex: Map[XObject, Int] = inverse(directIndex)
 
-    // for every object it gives the inclusion of the image of this object into the union
+    // for every object it gives the inclusion of this object's image into the union
     val objectToInjection: MapView[XObject, Injection[Any, (Int, Any)]] =
       reverseIndex.view mapValues union.injection
 
@@ -180,7 +183,8 @@ abstract class Diagram(
   }
 
   private lazy val listOfComponents: List[set] =
-    listOfObjects map objectsMapping map (x => setOf(x))
+    val objs = listOfObjects map objectsMapping
+    objs map setOf
   
   private def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
     val dom: Sets.set = om(d0.d0(a))
@@ -256,7 +260,7 @@ abstract class Diagram(
     ))
 
   /**
-    * Checks whether two arrows action on a given point produce the same element. 
+    * Checks whether the actions of two arrows on a given point produce the same element.
     *
     * @param point a point in the diagram
     * @param f     first arrow
@@ -281,7 +285,7 @@ abstract class Diagram(
   private[cat] def setOf(x: Any): set = x.asInstanceOf[set]
 
   private[cat] object limitBuilder:
-    // have to use list so far, no tool to annotate cartesian product components with their appropriate objects
+    // have to use List so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = listSorted(rootObjects)
     // Here we have a non-repeating collection of sets to use for building a limit
     final private[cat] lazy val setsToUse =

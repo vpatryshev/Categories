@@ -22,7 +22,7 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
       unit: P,
       binop: (P, P) => P): MatchResult[Any] =
       import topos._
-      val rep = report(topos.domain) _
+      val rep = report(topos.domain)
       val points: Seq[Point] = Ω.points
       println(s"Testing <<${domain.name}>> $what monoidal properties (${points.size} points in Ω)")
       def predicate(p: Point): P = p.asPredicateIn(topos).asInstanceOf[P]
