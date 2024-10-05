@@ -264,8 +264,9 @@ class SetsTest extends TestBase:
     }
 
     "product of a singleton list (of set) should a set of singleton lists" >> {
-      val source = List(Set(2220, 2221, 2222, 2223))
-      val expected = source map (_ map (x =>List(x)))
+      val mySet = Set(2220, 2221, 2222, 2223)
+      val source = List(mySet)
+      val expected = mySet map (x =>List(x))
       val actual = product(source)
       actual === expected
     }

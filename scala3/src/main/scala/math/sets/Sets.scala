@@ -272,7 +272,7 @@ object Sets:
     * Disjoint means that even if the 
     * sets contain common elements, the union will make them distinct by tagging all elements.
     * The result consists of pairs, the first being list index, the second an element of a set.
-    * E.g., disjointUnion(LIst(singleton("a"), singleton("b")) returns
+    * For example, disjointUnion(LIst(singleton("a"), singleton("b")) returns
     * Set(Pair(0, "a"), Pair(1, "b")).
     *
     * @tparam T the type of elements in the sets being joined. The same for all sets (it's Java...)
@@ -354,7 +354,7 @@ object Sets:
     source: => Iterable[X],
     sizeEvaluator: => Int,
     predicate: X => Boolean) extends Set[X]:
-    override def contains(x: X): Boolean = predicate(x)
+    override infix def contains(x: X): Boolean = predicate(x)
 
     override def isEmpty: Boolean = !iterator.hasNext
 
@@ -378,7 +378,7 @@ object Sets:
 
     override def iterator: Iterator[X] = source.iterator filter predicate
 
-    override def filter(p: X => Boolean): Set[X] =
+    override infix def filter(p: X => Boolean): Set[X] =
       filteredSet(source, (x: X) => predicate(x) && p(x))
 
     override def hashCode: Int = if isInfinite(this) then sample.hashCode else super.hashCode
