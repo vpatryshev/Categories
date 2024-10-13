@@ -1,0 +1,7 @@
+git fetch
+git stash
+git checkout master
+git pull --rebase
+git checkout -b "$1"
+git stash pop
+

@@ -179,7 +179,7 @@ object Categories extends CategoryFactory:
   lazy val SomeKnownCategories = SimpleCategories ++ LessSimpleCategories
 
   lazy val KnownCategories: List[Category] =
-    NaturalNumbers::Pushout4::SomeKnownCategories.sortBy(_.arrows.size)
+    (NaturalNumbers::Pushout4::SomeKnownCategories).sortBy(_.arrows.size)
 
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)

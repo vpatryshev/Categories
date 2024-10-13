@@ -74,39 +74,39 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
     else s"${d0.tag}->${d1.tag}"
   })"
   
-  override def equals(x: Any): Boolean = equalsWithDetails(x, printDetails = false)
-
-  private[cat] def equalsWithDetails(x: Any, printDetails: Boolean): Boolean = x match
-    case other: NaturalTransformation =>
-      (this eq other) || (
-        hashCode == other.hashCode &&
-          d0 == other.d0 &&
-          d1 == other.d1 && {
-          val foundBad: Option[Any] = domainCategory.objects find (o =>
-            val first: d1.d1.Arrow = transformPerObject(o)
-            val second: other.d1.d1.Arrow = other.transformPerObject(o)
-            val same = first == second
-            if !same && printDetails then
-              printMapDifference(asFunction(first), asFunction(second))
-
-            !same
-          ) // checking it every time takes time
-
-          foundBad.isEmpty
-        })
+  override def equals(x: Any): Boolean = x match
+    case nt: NaturalTransformation => equalsWithDetails(nt, printDetails = false)
     case otherwise => false
+
+  private[cat] def equalsWithDetails(other: NaturalTransformation, printDetails: Boolean): Boolean =
+    (this eq other) || (
+      hashCode == other.hashCode &&
+      d0 == other.d0 &&
+      d1 == other.d1 && {
+        val foundBad: Option[Any] = domainCategory.objects find (o =>
+          val first: d1.d1.Arrow = transformPerObject(o)
+          val second: other.d1.d1.Arrow = other.transformPerObject(o)
+          val same = first == second
+          if !same && printDetails then
+            printMapDifference(asFunction(first), asFunction(second))
+            println(s"same?: $same")
+          !same
+        )
+
+        foundBad.isEmpty
+    })
 
 object NaturalTransformation:
 
   def printMapDifference(sf1: SetFunction, sf2: SetFunction): Unit =
-    val f1 = sf1.toSet.toMap
-    val f2 = sf2.toSet.toMap
-    if f1.keySet != f2.keySet then
-      val badkeys = f1.keySet.diff(f2.keySet).union(f2.keySet.diff(f1.keySet))
+    val diff = SetFunction.Diff(sf1, sf2)
+    if diff.badKeys.nonEmpty then
       println("wow, bad keys $badkeys")
-    else
-      println(s"Different values at these keys: ${f1.keySet.filter(k => f1(k) != f2(k))}")
-  
+
+    if diff.distinctValuesAt.nonEmpty then
+      println(s"Different values at these keys: ${diff.distinctValuesAt}")
+
+
   def validate[
   X <: Category,
   Y <: Category

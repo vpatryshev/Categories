@@ -24,7 +24,6 @@ class ImplicationTest extends Fixtures:
       for pt1 <- Ω.points do
         rep(s"True ⟹ ${pt1.tag}")
         val p = pt1.asPredicateIn(topos)
-// different classes in scala 3 (True ⟹ p).getClass === p.getClass
         (True ⟹ p) === p
         rep(s"False ⟹ ${pt1.tag}")
         (False ⟹ p) === True
@@ -82,17 +81,6 @@ class ImplicationTest extends Fixtures:
             val left = p2r ∧ q2r
             val right = p_or_q ⟹ r
             left === right
-
-//        rep(s"Peirce Theorem for ${pt1.tag}")
-//        for pt2 <- Ω.points do
-//          val q = pt2.asPredicateIn(topos)
-//          println(s"Peirce Theorem for ${pt1.tag} and ${pt2.tag}")
-//          val p_q = p ⟹ q
-//          val p_q_p: Predicate = p_q ⟹ p
-//          println(s"Peirce Theorem: ${p_q} => ${p} gives ${p_q_p}")
-//          val p_q_p_p: Predicate = p_q_p ⟹ p
-//          println(s"Peirce Theorem: ${p_q_p} => ${p} gives ${p_q_p_p}")
-//          p_q_p_p === True
 
       ok
 
