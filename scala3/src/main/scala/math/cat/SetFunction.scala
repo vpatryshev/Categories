@@ -45,7 +45,7 @@ case class SetFunction private[cat](
     * @param newDomain new domain
     * @return new function
     */
-  override def restrictTo(newDomain: set): Result[SetFunction] = 
+  override infix def restrictTo(newDomain: set): Result[SetFunction] =
     restrictTo(newDomain, d1)
 
   /**
@@ -54,7 +54,7 @@ case class SetFunction private[cat](
     * @param newCodomain new codomain
     * @return new function
     */
-  def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] =
+  infix def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] =
     val domOk = OKif(newDomain subsetOf d0, "Bad domain for restriction")
     val codomOk = OKif(newCodomain subsetOf d1, "Bad codomain for restriction")
     val success: Outcome = domOk andAlso codomOk
@@ -135,7 +135,16 @@ object SetFunction:
   def exponent(x: set, y: set): Set[SetFunction] =
     Sets.exponent(x, y).map { apply("exponent", x, y, _) }
 
-  def fun(a: set, b: set)(name: String, m: String => Any) =
-    SetFunction.build(name, a, b, x => m(x.toString)).iHope
+  def fun(from: set, to: set)(name: String, mapping: String => Any) =
+    SetFunction.build(name, from, to, x => mapping(x.toString)).iHope
 
   def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
+
+  class Diff(function1: SetFunction, function2: SetFunction):
+    private val f1 = function1.toSet.toMap
+    private val f2 = function2.toSet.toMap
+    lazy val extraKeys = f1.keySet.diff(f2.keySet)
+    lazy val missingKeys = f2.keySet.diff(f1.keySet)
+    lazy val badKeys = extraKeys.union(missingKeys)
+    lazy val commonKeys = f1.keySet.intersect(f2.keySet)
+    lazy val distinctValuesAt = commonKeys.filter(k => f1(k) != f2(k))

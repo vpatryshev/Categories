@@ -49,6 +49,15 @@ class Test extends TestBase:
 
     ok
 
+  def expectError[T](msg: String, r: Result[T]): TestResult =
+    r match
+      case Good(bad) => failure(s"Expected failure, got a $bad")
+      case nogood =>
+        val details = nogood.errorDetails
+        (details exists (_.contains(msg))) aka details.getOrElse("???") must beTrue
+
+    ok
+
   def expectError(r: Result[?], messages: String*): TestResult =
     r.isBad must beTrue
     r.errorDetails match

@@ -6,7 +6,8 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
 import scalakittens.Result
-import scalakittens.Result._
+import scalakittens.Result.*
+import scalakittens.Containers.*
 
 import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
@@ -92,7 +93,7 @@ trait GrothendieckTopos
       for
         f <- domain.hom(y, x1)
         candidate <- domain.m(a, f)
-        if rx_at_x1 contains candidate
+        if candidate ∈ rx_at_x1
       yield f
 
     Functor.validateFunctor(this) iHope
@@ -242,13 +243,13 @@ trait GrothendieckTopos
     // for each element ax of set Ax find all arrows x->y 
     // that map ax to an ay that belongs to By 
     def myArrows(ax: Any): Set[(Any, set)] =
-      domain.objects.map{
+      domain.objects.map {
         y =>
           val all_arrows_to_y: domain.Arrows = domain.hom(x, y)
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
-          def hits_By(f: domain.Arrow) = By contains image_via(f)
-          y -> Ω.setOf(all_arrows_to_y.filter(hits_By))
+          def hits_By(f: domain.Arrow) = image_via(f) ∈ By  
+          y -> Ω.setOf(all_arrows_to_y filter hits_By)
         }
     
     def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
@@ -261,7 +262,7 @@ trait GrothendieckTopos
           case d: Diagram => sameMapping(d, arrows)
           case other => false
       }
-      Result(choices).orCommentTheError(s"No representable found for $ax -> $arrows") iHope
+      Result(choices) orCommentTheError s"No representable found for $ax -> $arrows" iHope
     
     new SetFunction(s"[χ($x)]", Ax, Ω(x), ax => myRepresentable(ax))
   
@@ -298,7 +299,7 @@ trait GrothendieckTopos
         for
           x <- domain.objects
           incl: Result[SetFunction] = inclusion(subdiagram(x), diagram(x))
-          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map{ x -> _ }
+          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map { x -> _ }
         yield pair
 
       val name = concat(subdiagram.tag, "⊂", diagram.tag)
@@ -414,6 +415,6 @@ trait GrothendieckTopos
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
-    (inclusionOf(p) in d).map{
+    (inclusionOf(p) in d) map {
       q => uniqueFromTerminalTo(p) andThen q named p.tag
     }

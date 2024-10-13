@@ -33,7 +33,7 @@ class CategoryOfDiagrams(val domain: Category)
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
         val function = _1.arrowsMapping(a)
-        function.restrictTo(d0, d1) iHope
+        function restrictTo(d0, d1) iHope
 
     val all: Set[Diagram] = 
       for

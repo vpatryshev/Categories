@@ -1,10 +1,11 @@
 package math.cat.topos
 
+ import math.Base.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, SetFunction}
 
+import scala.annotation.targetName
 import scala.language.implicitConversions
-import math.Base._
 
 /**
   * A point of a topos object (of a diagram in a Grothendieck topos)
@@ -51,7 +52,8 @@ class Point(
             objectsMapping(d0.d1(a)),
             arrowToFunction(a))
 
-  def ∈(container: Diagram): Boolean = asDiagram ⊂ container
+  @targetName("in")
+  infix inline def ∈(container: Diagram): Boolean = asDiagram ⊂ container
 
   private lazy val predicate: topos.Predicate = topos predicateFor this
 
@@ -70,7 +72,7 @@ class Point(
     val short = Diagram.cleanupString(raw)
 
     val strings: List[String] =
-      domainCategory.listOfObjects.map{ x =>
+      domainCategory.listOfObjects map { x =>
       val obRepr = apply(x) match
         case d: Diagram => Diagram.cleanupString(d.toShortString)
         case other => other.toString

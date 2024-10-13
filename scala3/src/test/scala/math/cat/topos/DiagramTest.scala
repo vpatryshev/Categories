@@ -142,9 +142,9 @@ class DiagramTest extends Test with TestDiagrams:
       "exist for a monoid Z3" in {
         val sut = SampleZ3Diagram
         val limit = sut.limit.iHope
-        limit.vertex === Set(List(3))
+        limit.vertex === Set(List(2223))
         val ar0 = limit.arrowTo("0")
-        ar0(List(3)) === 3
+        ar0(List(2223)) === 2223
       }
 
       "exist for a W, regular data" in {
@@ -307,7 +307,7 @@ class DiagramTest extends Test with TestDiagrams:
       val sut = SampleZ3Diagram
       sut.colimit match
         case Good(sut.Cocone(vertex, arrowFrom)) =>
-          vertex === Set(Set((0, 0), (0, 1), (0, 2)), Set((0, 3)))
+          vertex === Set(Set((0, 2220), (0, 2221), (0, 2222)), Set((0, 2223)))
         case x => failure(s"We expected a colimit, got $x")
       ok
     }

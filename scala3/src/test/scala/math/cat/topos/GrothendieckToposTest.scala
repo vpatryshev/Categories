@@ -26,12 +26,13 @@ class GrothendieckToposTest extends Fixtures:
       val topos = new CategoryOfDiagrams(_1_)
       import topos._
       val points = Ω.points
-      val omega0 = Ω("0").toList
-      omega0.size === 2
-      val omega00 :: omega01 :: Nil = omega0
-      omega00("0").isEmpty must beTrue
-      omega01("0").isEmpty must beFalse
       points.size === 2
+      val omega0 = Ω("0").toList
+      omega0 match
+        case omega00 :: omega01 :: Nil =>
+          omega00("0").isEmpty must beTrue
+          omega01("0").isEmpty must beFalse
+        case bad => failure(s"Expected 2 points in $bad")
 
       points.map(_.toShortString) === List("p0(0->())", "p1(0->(0->{0.0}))")
     }

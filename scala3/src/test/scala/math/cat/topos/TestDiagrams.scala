@@ -87,16 +87,25 @@ trait TestDiagrams extends Test:
     )
   
   val SampleZ3Diagram: Diagram =
-    val a: set = Set(0, 1, 2, 3)
+    val dom: set = Set(2220, 2221, 2222, 2223)
 
-    def f(i: Int)(n: Int): Int = if n == 3 then n else (n + i) % 3
+    def f(i: Int)(n: Int): Int = if n == 2223 then n else (2220 + (n + i) % 3)
 
-    val f1 = fun(a,a)("f1", x => f(1)(x.toInt))
-    val f2 = fun(a,a)("f2", x => f(2)(x.toInt))
+    require(f(1)(2220) == 2221, s"f(1)(2220) should be 2221 but is ${f(1)(2220)}")
+    require(f(1)(2221) == 2222, s"f(1)(2221) should be 2222 but is ${f(1)(2221)}")
+    require(f(1)(2222) == 2220, s"f(1)(2222) should be 2220 but is ${f(1)(2222)}")
+    require(f(1)(2223) == 2223, s"f(1)(2223) should be 2223 but is ${f(1)(2223)}")
+    require(f(2)(2220) == 2222, s"f(2)(2220) should be 2222 but is ${f(2)(2220)}")
+    require(f(2)(2221) == 2220, s"f(2)(2221) should be 2220 but is ${f(2)(2221)}")
+    require(f(2)(2222) == 2221, s"f(2)(2222) should be 2221 but is ${f(2)(2222)}")
+    require(f(2)(2223) == 2223, s"f(2)(2223) should be 2223 but is ${f(2)(2223)}")
+
+    val f1 = fun(from = dom, to = dom)("f1", x => f(1)(x.toInt))
+    val f2 = fun(from = dom, to = dom)("f2", x => f(2)(x.toInt))
     build(
-      "Z3 Sample", Z3)(
-      Map("0" -> a),
-      Map("1" -> f1, "2" -> f2)
+      name = "Z3 Sample", domain = Z3)(
+      objectsMap = Map("0" -> dom),
+      arrowMap = Map("1" -> f1, "2" -> f2)
     )
 
   def const(x: set): Diagram =

@@ -1,5 +1,7 @@
 package math.sets
 
+import scalakittens.Containers.*
+
 import scala.language.postfixOps
 
 /**
@@ -17,7 +19,7 @@ trait EnumerableSet[T] extends Set[T]:
   override def incl(x: T): BigSet[T] =
     if contains(x) then thisSet
     else new BigSet[T] with EnumerableSet[T]:
-           infix def contains(y: T): Boolean = y == x || (thisSet.contains(y))
+           infix def contains(y: T): Boolean = y == x || (y ∈ thisSet)
            override def iterator: Iterator[T] = List(x).iterator ++ thisSet.iterator
 
   /**
@@ -28,5 +30,5 @@ trait EnumerableSet[T] extends Set[T]:
   override def excl(x: T): BigSet[T] =
     if !contains(x) then thisSet
     else new BigSet[T](s"$name except $x") with EnumerableSet[T]:
-           override def contains(y: T): Boolean = y != x && (thisSet.contains(y))
+           override def contains(y: T): Boolean = y != x && (y ∈ thisSet)
            override def iterator: Iterator[T] = thisSet.iterator filter (x !=)

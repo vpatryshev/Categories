@@ -1,4 +1,5 @@
-package math.sets
+package math
+package sets
 
 import math.Base.itsImmutable
 import math.cat.SetMorphism
@@ -25,7 +26,7 @@ object Sets:
   type factorset = FactorSet[Any]
 
   /**
-    * Untyper for sets
+    * Makes a set untyped
     */
   extension[T](s: Set[T])
     def untyped: set = s.asInstanceOf[set]
@@ -46,14 +47,14 @@ object Sets:
   val Unit: set = Set(Empty)
 
   /**
-    * A big set of all finite sets in Scala. This set is infinite, of course.
+    * A big set of all finite sets in Scala. This set is infinite.
     */
   val FiniteSets: Set[Set[Any]] = BigSet.comprehension(isFinite)
 
   /**
     * Checks whether a set is infinite.
-    * @param s
-    * @return
+    * @param s a set
+    * @return true iff `s` is infinite
     */
   def isInfinite(s: Set[?]): Boolean = s.size == InfiniteSize
 
@@ -95,7 +96,7 @@ object Sets:
   private def cat[T](p: (T, List[T])): List[T] = p._1 :: p._2
 
   /**
-    * Builds a Cartesian product of a list of sets
+    * Builds a Cartesian product of sets given in a list
     * @param xss list of sets
     * @tparam X type of sets elements
     * @return a Cartesian product of the sets: a set of lists
@@ -144,8 +145,8 @@ object Sets:
 
   /**
     * Groups a set by a function, returning a function
-    * given a set `xs` and a function `f: X -> Y``
-    * returns a function `g: Y -> Set[X]` such that `g(y) = {x | f(x) = y}``
+    * given a set `xs` and a function `f: X -> Y`
+    * returns a function `g: Y -> Set[X]` such that `g(y) = {x | f(x) = y}`
     * 
     * @param xs domain set for `f`
     * @param f a function `X -> Y`
@@ -158,8 +159,8 @@ object Sets:
 
   /**
     * Groups a set by a function, returning a map
-    * given a set `xs` and a function `f: X -> Y``
-    * returns a function `g: Y -> Set[X]` such that `g(y) = {x | f(x) = y}``
+    * given a set `xs` and a function `f: X -> Y`
+    * returns a function `g: Y -> Set[X]` such that `g(y) = {x | f(x) = y}`
     *
     * @param xs domain set for `f`
     * @param f a function `X -> Y`
@@ -167,7 +168,7 @@ object Sets:
     * @tparam Y range type for `f`
     * @return a map
     */
-  def groupedBy[X, Y](xs: Set[X], f: X => Y) = // groupBy[X,Y](xs, f)
+  def groupedBy[X, Y](xs: Set[X], f: X => Y): Map[Y, Set[X]] = // groupBy[X,Y](xs, f)
     xs groupBy f withDefaultValue Set.empty[X]
 
   def pullback[X, Y, Z](xs: Set[X], ys: Set[Y], fx: X => Z, fy: Y => Z): Set[(X, Y)] =
@@ -188,7 +189,8 @@ object Sets:
 
   def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
 
-  def buildMap[K, V](keys: Iterable[K], f: K => V) = keys.map{k => k -> f(k)} toMap
+  def buildMap[K, V](keys: Iterable[K], f: K => V): Map[K, V] =
+    keys map { k => k -> f(k)} toMap
 
   def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
 
@@ -222,7 +224,7 @@ object Sets:
   def numbers(n: Int): Set[Int] = numbers(0, n)
 
   /**
-    * set of numbers from `from` to `to`
+    * set of numbers between `from` and `to`
     *
     * @param from first element of numbers range
     * @param to   upper limit of the numbers in the range (exclusive)
@@ -231,7 +233,7 @@ object Sets:
   def numbers(from: Int, to: Int): Set[Int] = numbers(from, to, 1)
 
   /**
-    * set of numbers from `from` to `to`, step `step`
+    * set of numbers between `from` and `to`, by `step`
     *
     * @param from first element of numbers range
     * @param to   upper limit of the numbers in the range (exclusive)
@@ -266,10 +268,11 @@ object Sets:
       )
 
   /**
-    * Encapsulates disjoint union of a list of sets. Disjoint means that even if the 
+    * Encapsulates disjoint union sets given in a list. 
+    * Disjoint means that even if the 
     * sets contain common elements, the union will make them distinct by tagging all elements.
     * The result consists of pairs, the first being list index, the second an element of a set.
-    * E.g. disjointUnion(LIst(singleton("a"), singleton("b")) returns
+    * For example, disjointUnion(LIst(singleton("a"), singleton("b")) returns
     * Set(Pair(0, "a"), Pair(1, "b")).
     *
     * @tparam T the type of elements in the sets being joined. The same for all sets (it's Java...)
@@ -281,14 +284,14 @@ object Sets:
       * @return the (virtual) set that is the disjoint union of given sets
       */
     def unionSet: Set[(Int, T)] =
-      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex.map{
+      val tagged: Iterable[Set[(Int, T)]] = sets.zipWithIndex map {
         case (s, i) => s map (x => (i, x))
       }
 
       union(tagged)
 
     /**
-      * @return the list of injections of original sets to their union
+      * @return the list of injections from original sets to their union
       */
     def injections: List[Injection[T, (Int, T)]] = sets.indices map injection toList
 
@@ -296,7 +299,7 @@ object Sets:
       * Maps an i-th set into the union
       *
       * @param i index of the set to inject in the list of sets
-      * @return the injection (which is an Injection which is a Function))
+      * @return the injection (which is an Injection Function)
       */
     def injection(i: Int): Injection[T, (Int, T)] = Functions.injection(t => (i, t))
 
@@ -331,7 +334,7 @@ object Sets:
 //
 //    override def size: Int = xs size
 //
-//    override def iterator: Iterator[(K, V)] = (xs.map{ (x:K) => (x, f(x)) }) iterator
+//    override def iterator: Iterator[(K, V)] = (xs.map { (x:K) => (x, f(x)) }) iterator
 
   class SetParser extends RegexParsers:
     def read(input: CharSequence): Result[Set[String]] =
@@ -351,7 +354,7 @@ object Sets:
     source: => Iterable[X],
     sizeEvaluator: => Int,
     predicate: X => Boolean) extends Set[X]:
-    override def contains(x: X): Boolean = predicate(x)
+    override infix def contains(x: X): Boolean = predicate(x)
 
     override def isEmpty: Boolean = !iterator.hasNext
 
@@ -375,14 +378,14 @@ object Sets:
 
     override def iterator: Iterator[X] = source.iterator filter predicate
 
-    override def filter(p: X => Boolean): Set[X] =
+    override infix def filter(p: X => Boolean): Set[X] =
       filteredSet(source, (x: X) => predicate(x) && p(x))
 
     override def hashCode: Int = if isInfinite(this) then sample.hashCode else super.hashCode
 
     override def equals(other: Any): Boolean = other match
       case s: Set[?] => if isInfinite(this) then this.eq(s) else super.equals(s)
-      case somethingelse => false
+      case somethingElse => false
 
     override def toString: String =
       if isInfinite(this) then
@@ -420,9 +423,9 @@ object Sets:
     println(s"Is $a equal to $b? ${a == b}")
     println(s"Is $u equal to $b? ${u == b}")
     println("Making a lazy copy")
-    val newb = setOf(b, 2, (x: String) => x ∈ b)
-    println("same size? " + (newb.size == b.size))
-    println("Equal to source? " + (b == newb))
+    val newB = setOf(b, 2, (x: String) => x ∈ b)
+    println("same size? " + (newB.size == b.size))
+    println("Equal to source? " + (b == newB))
 
     println("Let's build an exponent")
     val a2b = exponent(b, a)
