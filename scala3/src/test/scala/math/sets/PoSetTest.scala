@@ -6,7 +6,7 @@ class PoSetTest extends TestBase:
 
   "PoSet" >> {
     "parse" >> {
-      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x, y) => y contains x)
+      val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x, y) => y.contains(x))
       val actual: PoSet[String] =
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})").
           getOrElse(throw new IllegalArgumentException("Did not parse"))

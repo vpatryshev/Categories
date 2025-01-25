@@ -30,7 +30,7 @@ case class Segment(p0: Pt, p1: Pt):
     val otherP1 = seg.p1 - p0
     (otherP0 dot orthogonal) * (otherP1 dot orthogonal) <= 0
   
-  def interesectsWith(other: Segment): Boolean =
+  infix def intersectsWith(other: Segment): Boolean =
     intersectsLine(other) && other.intersectsLine(this)
 
   def shorterBy(delta: Rational): Segment =

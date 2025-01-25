@@ -26,7 +26,7 @@ class SegmentTest extends TestBase:
         val j1 = Pt(x21, 1)
         val seg2 = Segment(j0, j1)
         val expected = (x20 - x10) * (x21 - x11) <= 0
-        val actual = seg1 interesectsWith seg2
+        val actual = seg1 intersectsWith seg2
         if expected then
           seg1.intersectsLine(seg2) === true
           seg2.intersectsLine(seg1) === true

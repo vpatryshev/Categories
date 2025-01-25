@@ -39,7 +39,7 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
     * @param t an element to check
     * @return true if this poset contains `t`
     */
-  override def contains(t: T): Boolean = t ∈ elements
+  infix override def contains(t: T): Boolean = t ∈ elements
   
   /**
    * Iterates over elements of this poset

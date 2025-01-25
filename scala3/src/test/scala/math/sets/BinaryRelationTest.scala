@@ -18,7 +18,7 @@ class BinaryRelationTest extends TestBase:
     
     "buildFromFunction" in {
       def f(i: Int, s: String): Boolean = s.length == i
-      val r = BinaryRelation(f _)
+      val r = BinaryRelation(f)
       
       r(3, "ban") === true
       r(4, "oops") === true

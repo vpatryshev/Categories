@@ -57,9 +57,8 @@ class DiagramTest extends Test with TestDiagrams:
       val f = fun(a,b)("f", x => Math.min(2, x.toString.toInt))
       val g = fun(b,b)("g", x => x.toString.toInt % 3)
       val topos = new CategoryOfDiagrams(ParallelPair)
-      expectError(_ matches 
-      raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"
-      ,
+      expectError(_.
+        matches(raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"),
         Diagram.tryBuild(topos)(
           "Bad Bad Bad",
           Map("0" -> a, "1" -> b),

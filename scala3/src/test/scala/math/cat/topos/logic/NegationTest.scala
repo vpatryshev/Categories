@@ -15,13 +15,13 @@ class NegationTest extends Fixtures:
       def check(cat: Category): MatchResult[Any] =
         val topos = new CategoryOfDiagrams(cat)
         import topos._
-        val rep = report(cat) _
+        val rep = report(cat)
         val desc = s"Testing negation over ${cat.name}"
         println(desc)
-        val True = Ω.True.asPredicateIn(topos)
+        val True  = Ω.True.asPredicateIn(topos)
         val False = Ω.False.asPredicateIn(topos)
 
-        ¬(True) === False
+        ¬(True)  === False
         ¬(False) === True
 
         for pt1 <- Ω.points do

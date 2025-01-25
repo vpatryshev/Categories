@@ -98,7 +98,7 @@ class Test extends TestBase:
             worker.interrupt()
             parkUntil(finalDeadline)
 
-          if worker.isAlive then worker.stop()
+          if worker.isAlive then worker.interrupt()
 
         if done.get then res else Result.error(s"Timeout after $time")
 
