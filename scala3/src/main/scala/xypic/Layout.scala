@@ -1,11 +1,11 @@
 package xypic
 
-import math.Base._
-import math.cat.Categories._
+import math.Base.*
+import math.cat.Categories.*
 import math.cat.{Category, Graph}
-import math.geometry2d._
+import math.geometry2d.*
 
-import java.io.FileWriter
+import java.io.{File, FileWriter}
 import java.util.Date
 import scala.collection.{MapView, immutable, mutable}
 import scala.language.{implicitConversions, postfixOps}
@@ -136,9 +136,9 @@ case class Layout(category: Category, w: Int, h: Int):
     case other => other
 
   private val layouts = gradedObjects map (ComponentLayout(_, w, h))
-  private val htmls = layouts map (_.svg)
-  val html: String = htmls.mkString(
-    s"<table><tr><th colspan=${htmls.size}><font size=+1>$name</font></th></tr>" +
+  private val svgs = layouts map (_.svg)
+  val html: String = svgs.mkString(
+    s"<table><tr><th colspan=${svgs.size}><font size=+1>$name</font></th></tr>" +
     s"<tr><td><font size=-1>$category</font></td></tr>" +
     "<tr><td>",
     "</td><td>",
@@ -171,9 +171,11 @@ object TestIt:
 
     "<br/>" + frame
 
-  val out = new FileWriter("samples.html")
+  private val outputFile = new File("samples.html")
+  val out = new FileWriter(outputFile)
 
-  def main(args: Array[String]): Unit =
+  @main def run(): Unit =
+    println(s"Generating svg in ${outputFile.getName}")
     writeHtml(Layout(Simplicial3, 300, 300).html)
 
     showAll()

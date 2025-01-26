@@ -410,7 +410,7 @@ object Sets:
     def apply[X](content: Iterable[X]): Set[X] = setOf(content, x => true)
 
   
-  def main(args: Array[String]): Unit =
+  @main def samples(): Unit =
     val a = Set("a", "b", "c")
     val b = Set("x", "y")
     println("Some examples of set operations")
