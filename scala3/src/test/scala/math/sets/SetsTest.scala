@@ -1,9 +1,8 @@
 package math.sets
 
-import math.cat.SetMorphism
 import math.sets.Sets._
 import org.specs2.execute.Failure
-import scalakittens.{Empty, Good, Result}
+import scalakittens. Good
 import testing.TestBase
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -93,7 +92,7 @@ class SetsTest extends TestBase:
         def iterator: Iterator[Int] = new Iterator[Int] {
           private var i = -1
 
-          def next: Int = {
+          def next(): Int = {
             i += 1
             i
           }
@@ -104,8 +103,12 @@ class SetsTest extends TestBase:
         }
       }
 
-      val s = setOf(iterable, (n: Int) => true)
-      // the following matcher does not work, because our set is infinite, and the test tries to build a vector      
+      val s = setOf(iterable, Int.MaxValue)
+      val isInfinite = s.isInfinite
+      isInfinite must beTrue
+      val s1 = s.take(5)
+      s1.isInfinite must beFalse
+      // the following matcher does not work, because our set is infinite, and the test tries to build a vector
       //      s must contain(42)
       s.contains(42) must beTrue
       var n = 0
@@ -189,10 +192,10 @@ class SetsTest extends TestBase:
       union(Set(1, 2), Set(1, 2, 3)).size === 5
     }
 
-    "union of an infinite with any other should have the size Integer.MAX_VALUE" >> {
-      union(N, N) must haveSize(Integer.MAX_VALUE)
-      union(Set(1, 2), N) must haveSize(Integer.MAX_VALUE)
-      union(N, Set(1, 2)) must haveSize(Integer.MAX_VALUE)
+    "union of an infinite with any other should have the size Int.MaxValue" >> {
+      union(N, N) must haveSize(Int.MaxValue)
+      union(Set(1, 2), N) must haveSize(Int.MaxValue)
+      union(N, Set(1, 2)) must haveSize(Int.MaxValue)
     }
 
     "product with empty should produce empty" >> {

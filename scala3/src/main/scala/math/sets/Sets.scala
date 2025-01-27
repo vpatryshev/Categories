@@ -1,15 +1,12 @@
 package math
 package sets
 
-import math.Base.itsImmutable
-import math.cat.SetMorphism
 import math.sets.Functions.Injection
-import math.sets.MathSetOps._
+import math.sets.MathSetOps.*
 import scalakittens.{Good, Result}
 import scalakittens.Containers.*
 
 import java.io.Reader
-import scala.collection.immutable.AbstractSeq
 import scala.language.postfixOps
 import scala.reflect.ClassTag
 import scala.util.parsing.combinator.RegexParsers
@@ -30,6 +27,20 @@ object Sets:
     */
   extension[T](s: Set[T])
     def untyped: set = s.asInstanceOf[set]
+
+    /**
+     * Checks whether a set is infinite.
+     *
+     * @return true iff this is infinite
+     */
+    def isInfinite: Boolean = s.size == InfiniteSize
+
+    /**
+     * Checks whether a set is infinite.
+     *
+     * @return true iff this set is finite
+     */
+    def isFinite: Boolean = s.size != InfiniteSize
 
   /**
     * Traditional representation of the fact that a set has an unknown or an infinite size
@@ -52,18 +63,11 @@ object Sets:
   val FiniteSets: Set[Set[Any]] = BigSet.comprehension(isFinite)
 
   /**
-    * Checks whether a set is infinite.
-    * @param s a set
-    * @return true iff `s` is infinite
-    */
-  def isInfinite(s: Set[?]): Boolean = s.size == InfiniteSize
-
-  /**
     * Builds a union of two non-intersecting sets
     */
   def union[X: ClassTag, X1 <: X : ClassTag, X2 <: X : ClassTag](set1: Set[X1], set2: Set[X2]): Set[X] =
     lazy val parIterable: Iterable[X] = new ParallelIterable(set1, set2)
-    lazy val size = if isFinite(set1) && isFinite(set2) then set1.size + set2.size else InfiniteSize
+    lazy val size = if set1.isFinite && set2.isFinite then set1.size + set2.size else InfiniteSize
 
     def inX1(x: X) = x match
       case x1: X1 => try { set1(x1) } catch { case x: Exception => false }
@@ -181,11 +185,14 @@ object Sets:
     val predicate = (p: (X, Y)) => (p._1 ∈ xs) && (p._2 ∈ ys)
     setOf(
       cantorIterable(xs, ys),
-      if isFinite(xs) && isFinite(ys) then xs.size * ys.size else InfiniteSize,
+      if (xs.isEmpty || ys.isEmpty) 0 else
+      if xs.isInfinite || xs.isInfinite then InfiniteSize else {
+        val s1 = xs.size.toLong
+        val s2 = ys.size.toLong
+        if s1 * s2 > Int.MaxValue then InfiniteSize else (s1 * s2).toInt
+      },
       predicate
     )
-
-  def isFinite(s: Set[?]): Boolean = s.size != InfiniteSize
 
   def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
 
@@ -356,7 +363,9 @@ object Sets:
     predicate: X => Boolean) extends Set[X]:
     override infix def contains(x: X): Boolean = predicate(x)
 
-    override def isEmpty: Boolean = !iterator.hasNext
+    override def isEmpty: Boolean = {
+      !iterator.hasNext
+    }
 
     override def excl(x: X): Set[X] = new setForIterable(
       source filterNot(x ==),
@@ -404,7 +413,7 @@ object Sets:
     def apply[X](
       source: Iterable[X],
       sizeEvaluator: => Int,
-      predicate: X => Boolean): setOf[X] =
+      predicate: X => Boolean = (_:X) => true): setOf[X] =
       new setOf(source, sizeEvaluator, predicate)
 
     def apply[X](content: Iterable[X]): Set[X] = setOf(content, x => true)
