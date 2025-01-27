@@ -76,7 +76,7 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
   validatePoset()
 
 
-  protected def validatePoset(): Unit = if Sets.isFinite(elements) then
+  protected def validatePoset(): Unit = if elements.isFinite then
     for x <- elements do require(le(x, x), " reflexivity broken at " + x)
 
     for x <- elements; y <- elements if le(x, y) && le(y, x) do

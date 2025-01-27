@@ -8,9 +8,9 @@ import scala.language.postfixOps
 /**
   * Morphism for graphs.
   */
-trait GraphMorphism(val tag: Any) extends Morphism[Graph, Graph]:
+trait GraphMorphism extends Morphism[Graph, Graph]:
   m =>
-
+  val tag: Any
   val d0: Graph
   val d1: Graph
 
@@ -106,14 +106,16 @@ object GraphMorphism:
     codomain: Graph)(
     f0: domain.Node => codomain.Node,
     f1: domain.Arrow => codomain.Arrow):
-  GraphMorphism = new GraphMorphism(taggedAs):
+  GraphMorphism = new GraphMorphism:
+    val tag = taggedAs
     val d0: Graph = domain
     val d1: Graph = codomain
     override def nodesMapping(n: d0.Node): d1.Node = f0(n)
     override def arrowsMapping(a: d0.Arrow): d1.Arrow = f1(a)
 
   def id(graph: Graph): GraphMorphism =
-    new GraphMorphism("id"):
+    new GraphMorphism:
+      val tag = "id"
       val d0: Graph = graph
       val d1: Graph = graph
       def nodesMapping(n: d0.Node): d1.Node = n

@@ -48,7 +48,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
 
   def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph
-    val objectsHaveIds = OKif(!finiteNodes) orElse
+    val objectsHaveIds = OKif(!finiteObjects) orElse
       Result.check { 
         objects.map { x =>
           val ux = id(x)
@@ -93,6 +93,8 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   end factory
 
   def objects: Objects = nodes
+  
+  def finiteObjects: Boolean = objects.isFinite
   
   def objectByAlphabet: List[Obj] = listSorted(objects)
 

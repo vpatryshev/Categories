@@ -8,6 +8,12 @@ import scalakittens.Result._
 import scalakittens.{Bad, Result}
 import scalakittens.Containers.*
 
+//private trait MaybeFunctor(
+//  val tagged: Any,
+//  override val d0: Category,
+//  override val d1: Category
+//) extends GraphMorphism(tagged)
+
 /**
   * Functor class: functions for categories.
   *
@@ -15,10 +21,10 @@ import scalakittens.Containers.*
   * @param d1 codomain
   */
 abstract class Functor(
-  tagged: Any,
+  taggedAs: Any,
   override val d0: Category, override val d1: Category
-) extends GraphMorphism(tagged):
-
+) extends GraphMorphism:
+  val tag = taggedAs
   /**
     * Objects of the functor domain
     * @return the objects

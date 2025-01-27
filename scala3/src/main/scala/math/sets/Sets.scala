@@ -1,12 +1,15 @@
 package math
 package sets
 
+import math.Base.itsImmutable
+import math.cat.SetMorphism
 import math.sets.Functions.Injection
-import math.sets.MathSetOps.*
+import math.sets.MathSetOps._
 import scalakittens.{Good, Result}
 import scalakittens.Containers.*
 
 import java.io.Reader
+import scala.collection.immutable.AbstractSeq
 import scala.language.postfixOps
 import scala.reflect.ClassTag
 import scala.util.parsing.combinator.RegexParsers
@@ -214,7 +217,7 @@ object Sets:
   def existsUnique[T](seq: Iterable[T], p: T => Boolean): Boolean = isSingleton(seq filter p take 2)
 
   def filter[X](sourceSet: Set[X], p: X => Boolean): Set[X] =
-    if isFinite(sourceSet) then filteredSet(sourceSet, p)
+    if sourceSet.isFinite then filteredSet(sourceSet, p)
     else setOf(sourceSet, InfiniteSize, p)
 
   private def filteredSet[X](i: => Iterable[X], p: X => Boolean): Set[X] =
@@ -325,7 +328,8 @@ object Sets:
     extends Iterable[X]:
     def iterator = new InterleavingIterator(iterable1.iterator, iterable2.iterator)
 
-//  class MapForFunction[K, +V](xs: Set[K], f: K => V) extends Map[K, V]:
+// Do we need this? How about xs.map(x => f(x)).toMap?
+//  class MapForFunction[K, +V](xs: Set[K], f: K => V) extends MapView[K, V]:
 //    override def keys: Set[K] = xs
 //
 //    override def apply(x: K): V =
@@ -361,11 +365,10 @@ object Sets:
     source: => Iterable[X],
     sizeEvaluator: => Int,
     predicate: X => Boolean) extends Set[X]:
+
     override infix def contains(x: X): Boolean = predicate(x)
 
-    override def isEmpty: Boolean = {
-      !iterator.hasNext
-    }
+    override def isEmpty: Boolean = !iterator.hasNext
 
     override def excl(x: X): Set[X] = new setForIterable(
       source filterNot(x ==),
@@ -390,19 +393,19 @@ object Sets:
     override infix def filter(p: X => Boolean): Set[X] =
       filteredSet(source, (x: X) => predicate(x) && p(x))
 
-    override def hashCode: Int = if isInfinite(this) then sample.hashCode else super.hashCode
+    override def hashCode: Int = if this.isInfinite then sample.hashCode else super.hashCode
 
     override def equals(other: Any): Boolean = other match
-      case s: Set[?] => if isInfinite(this) then this.eq(s) else super.equals(s)
+      case s: Set[?] => if this.isInfinite then this.eq(s) else super.equals(s)
       case somethingElse => false
 
     override def toString: String =
-      if isInfinite(this) then
+      if this.isInfinite then
         sample.mkString("infinite Set(", ",", ",...)")
       else
         super.toString
 
-    def sample: Set[X] = if isInfinite(this) then take(3) else this
+    def sample: Set[X] = if this.isInfinite then take(3) else this
 
   object setOf:
     def elements[X](content: X*): setOf[X] = apply(content, x => x ∈ content)

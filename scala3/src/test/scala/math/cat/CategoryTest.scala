@@ -455,7 +455,7 @@ class CategoryTest extends Test:
     }
 
     "allRootObjects_forKnownCategories" >> {
-      KnownCategories.filter(c => Sets.isFinite(c.objects)).forall { c =>
+      KnownCategories.filter(c => c.finiteObjects).forall { c =>
         c.allRootObjects_programmersShortcut === c.allRootObjects_byDefinition
       }
     }
