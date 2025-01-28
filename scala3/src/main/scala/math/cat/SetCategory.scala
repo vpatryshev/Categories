@@ -281,7 +281,7 @@ object SetCategory:
   object Setf extends SetCategory(FiniteSets)
 
   private def asMorphism[X](factorSet: FactorSet[X]): SetMorphism[X, Set[X]] =
-    SetMorphism.build(factorSet.base, factorSet.content, factorSet.asFunction) iHope
+    SetMorphism.build(factorSet.domain, factorSet.content, factorSet.asFunction) iHope
 
   /**
     * Builds a factorset epimorphism that projects a set to its factorset,

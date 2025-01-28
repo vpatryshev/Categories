@@ -70,14 +70,17 @@ object Sets:
     */
   def union[X: ClassTag, X1 <: X : ClassTag, X2 <: X : ClassTag](set1: Set[X1], set2: Set[X2]): Set[X] =
     lazy val parIterable: Iterable[X] = new ParallelIterable(set1, set2)
-    lazy val size = if set1.isFinite && set2.isFinite then set1.size + set2.size else InfiniteSize
+    lazy val size = {
+      val longSize = set1.size.toLong + set2.size.toLong
+      if (longSize > Int.MaxValue) InfiniteSize else longSize.toInt
+    }
 
     def inX1(x: X) = x match
-      case x1: X1 => try { set1(x1) } catch { case x: Exception => false }
+      case x1: X1 => try set1(x1) catch case _ => false
       case _ => false
 
     def inX2(x: X) = x match
-      case x2: X2 => try { set2(x2) } catch { case x: Exception => false }
+      case x2: X2 => try set2(x2) catch case _ => false
       case _ => false
 
     setOf[X](parIterable,

@@ -5,7 +5,7 @@ import scala.language.{implicitConversions, postfixOps}
 /**
  * Representing binary relations
  */
-abstract class BinaryRelation[X, Y] extends Function2[X, Y, Boolean]
+trait BinaryRelation[X, Y] extends Function2[X, Y, Boolean]
 
 object BinaryRelation:
   /**

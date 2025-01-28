@@ -3,7 +3,6 @@ name := "Categories, scala 3"
 version := "3.0"
 
 scalaVersion := "3.6.1"
-//crossScalaVersions ++= Seq("2.13.6", "3.0.0")
 
 maxErrors := 10
 

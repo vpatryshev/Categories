@@ -12,7 +12,7 @@ import scala.language.postfixOps
   *
   * @tparam X element type
   */
-class FactorSet[X](val base: Set[X]) extends Set[Set[X]]:
+class FactorSet[X](val domain: Set[X]) extends Set[Set[X]]:
 
   /**
     * @return the latest version of factorset built here.
@@ -23,7 +23,7 @@ class FactorSet[X](val base: Set[X]) extends Set[Set[X]]:
     * Maps elements of the main set to their equivalence classes (they constitute the factorset).
     */
   private var equivalenceClasses: Map[X, Set[X]] =
-    base.foldLeft(Map[X, Set[X]]()) ((m, x) => m + (x -> Set(x)))
+    domain.foldLeft(Map[X, Set[X]]()) ((m, x) => m + (x -> Set(x)))
 
   /**
     * Builds a factorset of a given set, by the transitive closure of a given relation.
@@ -43,8 +43,8 @@ class FactorSet[X](val base: Set[X]) extends Set[Set[X]]:
     */
   private def factorByRelation(r: BinaryRelation[X, X]): Unit =
     for {
-      x1 <- base
-      x2 <- base
+      x1 <- domain
+      x2 <- domain
       if r(x1, x2) || r(x2, x1)} merge(x1, x2)
 
   /**
@@ -62,11 +62,6 @@ class FactorSet[X](val base: Set[X]) extends Set[Set[X]]:
         equivalenceClasses = equivalenceClasses + (x3 -> merged)
       }
     }
-
-  /**
-    * @return the domain set.
-    */
-  def domain: Set[X] = base
 
   /**
     * @return the function from the domain set to the factorset.

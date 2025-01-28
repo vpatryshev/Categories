@@ -21,9 +21,8 @@ object Base:
     */
   def inverse[A, B](m: Map[A, B]): Map[B, A] =
     
-    val result: Map[B, A] = m map {
+    val result: Map[B, A] = m map:
       case (k, v) => v -> k
-    }
         
     require(result.size == m.size, "map not invertible")
     result
