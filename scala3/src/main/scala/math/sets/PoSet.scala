@@ -1,11 +1,13 @@
 package math.sets
 
-import math.Base._
-import math.sets.Sets._
+import math.Base.*
+import math.sets.Sets.*
 import scalakittens.{Good, Result}
 
 import java.io.Reader
 import scalakittens.Containers.*
+
+import scala.annotation.targetName
 
 /**
  * Implementation of a partially ordered set.
@@ -15,7 +17,7 @@ import scalakittens.Containers.*
  * `le` a function that compares two elements a and b, returning true iff b >= a
  *
  */
-class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[T]:
+case class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[T]:
 
   /**
     * Checks whether one element is less or equal to another
@@ -56,7 +58,7 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
   /**
     * Two posets are equal if they have the same elements and partial order is the same.
     *
-    * @param other other poset to compare
+    * @param x other poset to compare
     * @return true if these two posets are equal
     */
   override def equals(x: Any): Boolean =
@@ -91,7 +93,7 @@ class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[
    *
    * @return a new poset with the order that is opposite to the original.
    */
-  def unary_~ = new PoSet[T](elements, (x: T, y: T) => le(y, x))
+  @targetName("build") def unary_~ = new PoSet[T](elements, (x: T, y: T) => le(y, x))
 
   override def toString: String =
     def orderedPairs = Sets.product2(elements, elements) filter ((p: (T, T)) => le(p))
@@ -125,8 +127,8 @@ object PoSet:
 
   def apply[T](setOfElements: Set[T]): PoSet[T] = apply(setOfElements, Nil)
 
-  class PosetParser extends Sets.SetParser:
-    def poset: Parser[Result[PoSet[String]]] = 
+  private class PosetParser extends Sets.SetParser:
+    private def poset: Parser[Result[PoSet[String]]] = 
       "("~parserOfSet~","~"{"~repsep(pair, ",")~"}"~")"  ^^ {
         case "("~sOpt~","~"{"~mOpt~"}"~")" =>
           (sOpt andAlso Result.traverse(mOpt)) map {
@@ -135,7 +137,7 @@ object PoSet:
         case nonsense => Result.error(s"Failed to parse $nonsense")
       }
       
-    def pair: Parser[Result[(String, String)]] = word~"<="~word ^^ {
+    private def pair: Parser[Result[(String, String)]] = word~"<="~word ^^ {
       case x~"<="~y => Good((x, y))
       case nonsense => Result.error(s"Failed to parse $nonsense")
     }
@@ -161,7 +163,7 @@ object PoSet:
    * Builds a linear poset consisting of a range of integers, with their natural order.
    *
    * @param from the first integer in the range
-   * @param to   the last intger in the range (included)
+   * @param to   the last integer in the range (included)
    * @param step distance between two consecutive elements
    * @return a new poset
    */

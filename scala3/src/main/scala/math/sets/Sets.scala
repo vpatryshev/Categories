@@ -327,28 +327,9 @@ object Sets:
       i1i2 = i1i2.swap
       (if i1i2._1.hasNext then i1i2._1 else i1i2._2).next()
 
-  class ParallelIterable[X, X1 <: X, X2 <: X](iterable1: Iterable[X1], iterable2: Iterable[X2])
+  private class ParallelIterable[X, X1 <: X, X2 <: X](iterable1: Iterable[X1], iterable2: Iterable[X2])
     extends Iterable[X]:
     def iterator = new InterleavingIterator(iterable1.iterator, iterable2.iterator)
-
-// Do we need this? How about xs.map(x => f(x)).toMap?
-//  class MapForFunction[K, +V](xs: Set[K], f: K => V) extends MapView[K, V]:
-//    override def keys: Set[K] = xs
-//
-//    override def apply(x: K): V =
-//      if xs contains x then f(x) else throw new RuntimeException(s"oops, $x is not in domain")
-//
-//    def updated[V1 >: V](kv: (K, V1)): Map[K, V1] = itsImmutable
-//
-//    def removed(key: K): Map[K, V] = itsImmutable
-//
-//    override def updated[V1 >: V](x: K, y: V1): Map[K, V1] = itsImmutable
-//
-//    override def get(x: K): Option[V] = if xs contains x then Some(f(x)) else None
-//
-//    override def size: Int = xs size
-//
-//    override def iterator: Iterator[(K, V)] = (xs.map { (x:K) => (x, f(x)) }) iterator
 
   class SetParser extends RegexParsers:
     def read(input: CharSequence): Result[Set[String]] =

@@ -5,9 +5,6 @@ import org.specs2.execute.Failure
 import scalakittens. Good
 import testing.TestBase
 
-import java.util.concurrent.atomic.AtomicBoolean
-import scala.concurrent.duration.Duration
-
 /**
  * Test suite for Sets object
  */
@@ -16,7 +13,7 @@ class SetsTest extends TestBase:
   "This is a specification for the set parser" >> {
 
     "Set Parser should parse the string" >> {
-      Sets.parse("{a, bc, def, ghij}") === Good(Set("a", "bc", "def", "ghij"))
+      Sets.parse("{a, bc, def, more}") === Good(Set("a", "bc", "def", "more"))
     }
 
     "groupBy should group" >> {

@@ -12,7 +12,7 @@ import scala.language.postfixOps
   *
   * @tparam X element type
   */
-class FactorSet[X](val domain: Set[X]) extends Set[Set[X]]:
+case class FactorSet[X](domain: Set[X]) extends Set[Set[X]]:
 
   /**
     * @return the latest version of factorset built here.

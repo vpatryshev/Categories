@@ -37,6 +37,9 @@ object Base:
   def toMap[X](list: List[X]): IntMap[X] =
     list.zipWithIndex map { case (x, i) => i -> x } toMap
 
+//  extension [T, U >: T] (opt: Option[T])
+//    def iHope: U = opt.getOrElse(throw new InstantiationException("Oops, no value"))
+
   implicit class Optimist[T](opt: Option[T]):
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
 
@@ -82,10 +85,10 @@ object Base:
 
   def plural(n: Int, w: String) = if n == 1 then s"1 $w" else s"$n ${w}s"
 
-  def checkThat(cond: => Boolean) =
+  def checkThat(cond: => Boolean): Boolean =
     try cond catch case x => false
 
-  def listSorted[T](things: Iterable[T]) = things.toList.sortBy(_.toString)
+  def listSorted[T](things: Iterable[T]): List[T] = things.toList.sortBy(_.toString)
 
   def asString(things: Iterable[?]): String =
     things.map(_.toString).toList.sorted.mkString(",")

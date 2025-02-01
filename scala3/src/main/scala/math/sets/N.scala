@@ -22,7 +22,7 @@ object N extends BigSet[BigInt]("ℕ") with EnumerableSet[BigInt]:
       override def next(): BigInt =
         n += 1
 //      if n > tooMany // this is good for testing
-//        throw new IllegalStateException("fuck...")
+//        throw new IllegalStateException("ok, I'm tired...")
 //
         n
 

@@ -170,8 +170,8 @@ private[cat] trait GraphData:
       case arrow: Arrow @unchecked if arrow ∈ arrows => arrow
       case _ => throw new IllegalArgumentException(s"<<$a>> is not an arrow")
 
-  protected lazy val finiteNodes: Boolean = nodes.isFinite
-  protected lazy val finiteArrows: Boolean = arrows.isFinite
+  protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
+  protected lazy val finiteArrows: Boolean = Sets.isFinite(arrows)
 
   def isFinite: Boolean = finiteNodes && finiteArrows
 
