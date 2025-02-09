@@ -230,7 +230,7 @@ object Result:
 
   def app[X,Y](fOpt:Result[X=>Y])(xOpt:Result[X]):Result[Y] = (fOpt andAlso xOpt).map{case (f,x) => f(x)}
 
-  implicit class Applicator[X,Y](fOpt: Result[X=>Y]):
+  extension[X,Y](fOpt: Result[X=>Y])
     def apply(xOpt:Result[X]): Result[Y] = app(fOpt)(xOpt)
     def apply(x:X): Result[Y] = app(fOpt)(Good(x))
 
@@ -266,11 +266,10 @@ object Result:
 
   private def bad[T](results: Result[?]*): Result[T] = bad(results flatMap (_.listErrors))
 
-  implicit class StreamOfResults[T](val source: LazyList[Result[T]]) extends AnyVal:
+  extension [T] (source: LazyList[Result[T]])
     def map[U](f: T => U): LazyList[Result[U]] = source map (_ map f)
     def |>[U](op: T => Result[U]): LazyList[Result[U]] = source map (t => t flatMap op)
     def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x) returning x)
-    def toList: List[Result[T]] = source.toList
 
   infix def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
     val (goodOnes, badOnes) = partition(results)

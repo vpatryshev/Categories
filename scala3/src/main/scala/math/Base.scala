@@ -37,11 +37,8 @@ object Base:
   def toMap[X](list: List[X]): IntMap[X] =
     list.zipWithIndex map { case (x, i) => i -> x } toMap
 
-  extension [T, U >: T] (opt: Option[T])
-    def iHope: U = opt.getOrElse(throw new InstantiationException("Oops, no value"))
-
-//  implicit class Optimist[T](opt: Option[T]):
-//    def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
+  extension [T] (opt: Option[T])
+    def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
 
   /**
     * Concatenates two strings using a connector

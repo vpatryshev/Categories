@@ -276,7 +276,7 @@ object Graph:
 
   def read(input: CharSequence): Result[Graph] = (new GraphParser).readGraph(input)
 
-  implicit class GraphString(val sc: StringContext) extends AnyVal:
+  extension (sc: StringContext)
     def graph(args: Any*): Graph =
       Graph.read(bufferFromContext(sc, args*)) iHope
   

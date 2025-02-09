@@ -13,7 +13,8 @@ import scala.concurrent.duration.Duration
 class Test extends TestBase:
   val NumberRegex = "(\\d+)".r
   val PairRegex = "(\\d+)\\.(\\d+)".r
-  implicit class Regex(sc: StringContext):
+  
+  extension (sc: StringContext)
     def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x")*)
 
   extension[T] (n: Int)

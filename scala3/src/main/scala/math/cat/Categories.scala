@@ -184,7 +184,7 @@ object Categories extends CategoryFactory:
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)
 
-  implicit class CategoryString(val sc: StringContext) extends AnyVal:
+  extension(sc: StringContext)
     def category(args: Any*): Cat = read(bufferFromContext(sc, args*)) iHope
       
   /**
