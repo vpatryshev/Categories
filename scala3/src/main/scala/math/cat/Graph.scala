@@ -157,6 +157,11 @@ private[cat] trait GraphData:
       case badNode: Node => throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
       case notaNode => throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
+  implicit def asArrow(a: Any): Arrow = a match
+    case arrow: Arrow @unchecked if arrows(arrow) => arrow
+    case badArrow: Arrow => throw new IllegalArgumentException(s"<<$badArrow>> is not listed as an arrow")
+    case notanArrow => throw new IllegalArgumentException(s"<<$notanArrow>> is not an arrow")
+
   /*
     TODO: figure out how come this does not work
     given Conversion[Any, Node] = _ match
@@ -164,11 +169,6 @@ private[cat] trait GraphData:
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
    */
-  
-  implicit def asArrow(a: Any): Arrow =
-    a match
-      case arrow: Arrow @unchecked if arrow ∈ arrows => arrow
-      case _ => throw new IllegalArgumentException(s"<<$a>> is not an arrow")
 
   protected lazy val finiteNodes: Boolean = Sets.isFinite(nodes)
   protected lazy val finiteArrows: Boolean = Sets.isFinite(arrows)

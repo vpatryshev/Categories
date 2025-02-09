@@ -30,14 +30,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
     if isFinite then listSorted(objects)
     else throw new IllegalStateException("Cannot sort infinite set")
 
-  implicit def obj(x: Any): Obj =
-    x match
-      case o: Obj @unchecked =>
-        if (objects.contains(o)) then o else {
-          throw new IllegalArgumentException(s"$x is not an object in $name")
-        }
-      case _ =>
-        throw new IllegalArgumentException(s"$x is not an object in $name")
+  implicit def obj(x: Any): Obj = asNode(x)
 
   def id(o: Obj): Arrow
 
