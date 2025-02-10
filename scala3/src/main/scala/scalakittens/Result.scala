@@ -40,7 +40,6 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   infix def orCommentTheError(message: => Any): Result[T]
   infix def tap(op: T => Unit): Result[T]
   inline def optionally[U](f: T => U => U): U => U = this.map(f).getOrElse(identity[U])
-  infix def contains[T1 >: T](x: T1): Boolean
   def iHope: T
 
 case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T] with PositiveAttitude:
@@ -109,7 +108,6 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
     val s1 = s0 map base32map
     "0"*(5-s1.length) + s1
 
-  infix def contains[T1 >: T](x: T1): Boolean = false
   def iHope: T = throw new InstantiationException(errors)
 
 class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:

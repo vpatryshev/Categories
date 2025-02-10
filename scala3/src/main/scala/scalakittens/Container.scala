@@ -15,6 +15,7 @@ trait Container[+T]:
 
 trait NothingInside[T] extends Container[T]:
   inline def isEmpty = true
+  infix def contains[T1 >: T](x: T1): Boolean = false
 
 trait SomethingInside[T] extends Container[T]:
   inline def isEmpty = false
