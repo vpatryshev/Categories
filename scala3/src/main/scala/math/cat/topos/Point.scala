@@ -25,7 +25,7 @@ class Point(
   
   infix def named(name: Any): Point = new Point(name, topos, mapping)
 
-  @deprecated("This should be redefined via composition", "03/28/2020")
+  // @deprecated("This should be redefined via composition", "03/28/2020")
   def transform(f: DiagramArrow): Point =
     def apply(o: Any) =
       f(o) match

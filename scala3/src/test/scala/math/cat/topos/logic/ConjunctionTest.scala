@@ -16,10 +16,10 @@ class ConjunctionTest extends Fixtures:
 
   "Conjunction" should {
 
-    def checkProperties(topos: GrothendieckTopos, what: String): MatchResult[Any] =
+    def checkProperties(topos: GrothendieckTopos, number: Int, total: Int, what: String): MatchResult[Any] =
       import topos._
-      val desc = s"Testing $what over ${domain.name}"
-      val rep = report(domain)(_)
+      val desc = s"Testing $what over ${domain.name} ($number/$total)"
+      val rep = report(_)
       val True = Ω.True.asPredicateIn(topos)
       val False = Ω.False.asPredicateIn(topos)
 
@@ -29,11 +29,9 @@ class ConjunctionTest extends Fixtures:
         True.getClass === p.getClass
         False.getClass === p.getClass
 // fails        False.getClass === (False ∧ p).getClass
-
         (False ∧ p) === False
-
       
-      checkThatIn(topos).mustBeMonoid[Predicate](
+      checkThatIn(topos, number, total).mustBeMonoid[Predicate](
         "conjunction",
         True,
         (p: Predicate, q: Predicate) => p ∧ q
@@ -42,9 +40,9 @@ class ConjunctionTest extends Fixtures:
 
     end checkProperties
 
-    def checkTrue(topos: GrothendieckTopos): MatchResult[Any] =
+    def checkTrue(topos: GrothendieckTopos, number: Int, total: Int): MatchResult[Any] =
       import topos._
-      val desc = s"Testing True value over ${domain.name}"
+      val desc = s"Testing True value over ${domain.name} ($number/$total)"
 
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction =
         fun(Ω(x), ΩxΩ(x))(s"Δ[$x]", subrep => (subrep, subrep))
@@ -92,13 +90,13 @@ class ConjunctionTest extends Fixtures:
       classifyingArrow aka desc must_== conjunction
     end checkTrue
 
-    def check(category: Category): MatchResult[Any] =
-      val topos = new CategoryOfDiagrams(category)
-      checkTrue(topos)
-      checkProperties(topos, "conjunction")
+    val testCase = new TestCase:
+      def check(category: Category, number: Int, total: Int): MatchResult[Any] =
+        val topos = new CategoryOfDiagrams(category)
+        checkTrue(topos, number, total)
+        checkProperties(topos, number, total, "conjunction")
 
-    "work for all known domains" in {
-      categoriesToTest filter (_.isFinite) foreach check
-      ok
-    }
+    
+    "work for all known domains" in:
+      test(testCase)
   }

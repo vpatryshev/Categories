@@ -12,11 +12,11 @@ class ImplicationTest extends Fixtures:
 
   "Implication" should {
 
-    def check(cat: Category): MatchResult[Any] =
+    def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
       val topos = new CategoryOfDiagrams(cat)
       import topos._
-      val desc = s"Testing implication over ${cat.name}"
-      val rep = report(domain)(_)
+      val desc = s"Testing implication over ${cat.name} ($number/$total)"
+      val rep = report(_)
       println(desc)
       val True = Ω.True.asPredicateIn(topos)
       val False = Ω.False.asPredicateIn(topos)
@@ -87,18 +87,14 @@ class ImplicationTest extends Fixtures:
     end check
 
     def checkAt(i: Int): MatchResult[Any] =
-      groupedCategoriesToTest(i) foreach check
+      groupedCategoriesToTest(i) foreach:
+        case (cat, index) => check(cat, index, totalOfGrouped)
       ok
 
     def nameThem(i: Int): String =
-      groupedCategoriesToTest(i).map{_.name} mkString ", "
+      groupedCategoriesToTest(i).map{_._1.name} mkString ", "
 
     s"work for domains: ${nameThem(0)}" in checkAt(0)
     s"work for domains: ${nameThem(1)}" in checkAt(1)
     s"work for domains: ${nameThem(2)}" in checkAt(2)
-    s"work for domains: ${nameThem(3)}" in checkAt(3)
-    s"work for domains: ${nameThem(4)}" in checkAt(4)
-    s"work for domains: ${nameThem(5)}" in checkAt(5)
-    s"work for domains: ${nameThem(6)}" in checkAt(6)
-    s"work for domains: ${nameThem(7)}" in checkAt(7)
   }

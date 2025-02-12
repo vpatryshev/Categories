@@ -14,29 +14,28 @@ class DisjunctionTest extends Fixtures:
 
     "work for all known domains" in {
 
-      def check(cat: Category): MatchResult[Any] =
-        val topos = new CategoryOfDiagrams(cat)
-        import topos._
-        val desc = s"Testing disjunction over ${cat.name}"
-        val rep = report(domain)(_)
-        println(desc)
-        val True = Ω.True.asPredicateIn(topos)
-        val False = Ω.False.asPredicateIn(topos)
-        checkThatIn(topos).mustBeMonoid[Predicate](
-          "disjunction",
-          False,
-          (p: Predicate, q: Predicate) => p ∨ q
-        )
+      val testCase = new TestCase:
+        def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
+          val topos = new CategoryOfDiagrams(cat)
+          import topos._
+          val desc = s"Testing disjunction over ${cat.name} ($number/$total)"
+          val rep = report(_)
+          println(desc)
+          val True = Ω.True.asPredicateIn(topos)
+          val False = Ω.False.asPredicateIn(topos)
+          checkThatIn(topos, number, total).mustBeMonoid[Predicate](
+            "disjunction",
+            False,
+            (p: Predicate, q: Predicate) => p ∨ q
+          )
 
-        for pt <- Ω.points do
-          rep(s"disjunction with False for ${pt.tag}")
-          val p = pt.asPredicateIn(topos)
-          (True ∨ p) === True
+          for pt <- Ω.points do
+            rep(s"disjunction with False for ${pt.tag}")
+            val p = pt.asPredicateIn(topos)
+            (True ∨ p) === True
 
-        ok
+          ok
 
-      categoriesToTest filter (_.isFinite) foreach check
-
-      ok
+      test(testCase)
     }
   }
