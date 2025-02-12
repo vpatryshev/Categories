@@ -1,5 +1,6 @@
 package math.sets
 
+import scalakittens.Container
 import scalakittens.Containers.*
 import math.sets.BigSet.comprehension
 

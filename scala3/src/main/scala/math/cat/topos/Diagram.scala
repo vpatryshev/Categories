@@ -36,7 +36,7 @@ abstract class Diagram(
 
   private[topos] def setAt(x: Any): set = setOf(objectsMapping(x))
 
-  @targetName("subsetOf")
+  @targetName("subdiagramOf")
   infix inline def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o => this(o) subsetOf other(o) }
 

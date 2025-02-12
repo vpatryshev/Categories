@@ -61,7 +61,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     * This makes our category Cartesian-closed
     * @param x a set
     * @param y a set
-    * @return x^y
+    * @return x↑y
     */
   def exponent(x: set, y: set): set = Sets.exponent(x, y).untyped
 
@@ -98,8 +98,8 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     */
   override def equalizer(f: SetFunction, g: SetFunction): Result[SetFunction] =
     OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen
-      val filtrator: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
-      val inclusion = filtrator(x => f(x) == g(x))
+      val filterFun: (Any => Boolean) => SetFunction = SetFunction.filterByPredicate(f.d0)
+      val inclusion = filterFun(x => f(x) == g(x))
       Good(inclusion) filter { _.d0 ∈ objects }
 
 
@@ -107,7 +107,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     * Coequalizer of two set functions
     * @param f first arrow
     * @param g second arrow
-    *  @return a coequalizer arrow, if one exists, None othrewise
+    *  @return a coequalizer arrow, if one exists, None otherwise
     */
   override def coequalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = 
   OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen {
@@ -121,7 +121,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   /**
     * Coequalizer of a collection of set functions
     * @param arrowsToEqualize the functions to equalize
-    *  @return a coequalizer arrow, if one exists, None othrewise
+    *  @return a coequalizer arrow, if one exists, None otherwise
     */
   override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Result[SetFunction] =
     OKif(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer") andThen {
@@ -136,7 +136,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   private def equalizeFunctions(
     f: SetFunction,
     arrowsToEqualize: Iterable[SetFunction]): Result[SetFunction] =
-      val theFactorset: factorset = new FactorSet(f.d1)
+      val theFactorset: factorset = FactorSet(f.d1)
 
       for
         g <- arrowsToEqualize
@@ -184,7 +184,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
 
   /**
     * Terminal object of this category. Does not have to exist.
-    * Need to filter, so that if an empty set does not belong to a subcategory, `terminial` is empty.
+    * Need to filter, so that if an empty set does not belong to a subcategory, `terminal` is empty.
     */
   override lazy val terminal: Result[set] =
     initial map (setOf.elements(_)) filter (_ ∈ thisCategory.objects)

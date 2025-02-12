@@ -16,23 +16,22 @@ class ImplicationTest extends Fixtures:
       val topos = new CategoryOfDiagrams(cat)
       import topos._
       val desc = s"Testing implication over ${cat.name} ($number/$total)"
-      val rep = report(_)
       println(desc)
       val True = Ω.True.asPredicateIn(topos)
       val False = Ω.False.asPredicateIn(topos)
 
       for pt1 <- Ω.points do
-        rep(s"True ⟹ ${pt1.tag}")
+        report(s"True ⟹ ${pt1.tag} = ${pt1.tag}")
         val p = pt1.asPredicateIn(topos)
         (True ⟹ p) === p
-        rep(s"False ⟹ ${pt1.tag}")
+        report(s"False ⟹ ${pt1.tag} = True")
         (False ⟹ p) === True
-        rep(s"${pt1.tag} ⟹ ${pt1.tag}")
+        report(s"${pt1.tag} ⟹ ${pt1.tag}")
         (p ⟹ p) === True
-        rep(s"${pt1.tag} ⟹ True")
+        report(s"${pt1.tag} ⟹ True = True")
         (p ⟹ True) === True
 
-        rep(s"adjunction for ${pt1.tag}")
+        report(s"adjunction for ${pt1.tag}")
         for pt2 <- Ω.points do
           val q = pt2.asPredicateIn(topos)
           val p_and_q = p ∧ q
@@ -44,7 +43,7 @@ class ImplicationTest extends Fixtures:
             val right = p ⟹ q2r
             left === right
 
-        rep(s"adjunction for ${pt1.tag}")
+        report(s"adjunction for ${pt1.tag}")
         for pt2 <- Ω.points do
           val q = pt2.asPredicateIn(topos)
           val p_and_q = p ∧ q
@@ -56,7 +55,7 @@ class ImplicationTest extends Fixtures:
             val right = p ⟹ q2r
             left === right
 
-        rep(s"conjunction distributivity for ${pt1.tag}")
+        report(s"conjunction distributivity for ${pt1.tag}")
         for pt2 <- Ω.points do
           val q = pt2.asPredicateIn(topos)
           val p_and_q = p ∧ q
@@ -69,7 +68,7 @@ class ImplicationTest extends Fixtures:
             val right = r ⟹ p_and_q
             left === right
 
-        rep(s"disjunction distributivity for ${pt1.tag}")
+        report(s"disjunction distributivity for ${pt1.tag}")
         for pt2 <- Ω.points do
           val q = pt2.asPredicateIn(topos)
           val p_or_q = p ∨ q
