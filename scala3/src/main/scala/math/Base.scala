@@ -47,10 +47,10 @@ object Base:
     * @param second second value (can be anything)
     * @return
     */
-  def concat(first: Any, conn: String, second: Any): String =
-    def stringOf(x: Any): String =
+  inline def concat(first: Any, conn: String, second: Any): String =
+    def stringOf(x:  Any): String =
       val s0 = String.valueOf(x).trim
-      if (s0.contains(" ")) || (s0.contains(conn)) then s"($s0)" else s0
+      if s0.contains(" ") || s0.contains(conn) then "("+s0+")" else s0
 
     val s1 = stringOf(first)
     val s2 = stringOf(second)

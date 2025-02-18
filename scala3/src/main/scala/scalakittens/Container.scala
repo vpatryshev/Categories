@@ -47,7 +47,3 @@ object  Containers:
     infix inline def ∈(c: Option[T]): Boolean = c contains x
     @targetName("notIn")
     infix inline def ∉(c: Option[T]): Boolean = !(c contains x)
-  
-//  implicit def asContainer[T](c: Set[T]): Container[T] = new Container[T]:
-//    override def isEmpty: Boolean = c.isEmpty
-//    override def contains[X >: T](x: X): Boolean = c contains x

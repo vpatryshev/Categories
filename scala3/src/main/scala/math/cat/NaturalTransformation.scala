@@ -62,7 +62,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
   private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
     if d0.d0.isFinite then buildMap(d0.d0.objects, o => transformPerObject(o)) else Map.empty
   
-  override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*31
+  override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*127
   
   override def toString: String =
     val s = String.valueOf(tag)
