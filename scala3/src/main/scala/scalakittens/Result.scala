@@ -5,6 +5,7 @@ import scalakittens.Result._
 import scala.concurrent.Future
 import scala.language.{implicitConversions, postfixOps}
 import scala.util.{Failure, Success, Try}
+import scala.annotation.targetName
 
 sealed trait Result[+T] extends Container[T] with Goodness:
 
@@ -20,8 +21,9 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   def asOption: Option[T]
   infix def orElse[T1 >: T] (next: => Result[T1]): Result[T1]
   infix def getOrElse[T1 >: T](alt: => T1): T1
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(T,U)]
-  infix def andAlso[U](other: Result[U]): Result[(T,U)] = <*>(other)
+  inline infix def andAlso[U](other: Result[U]): Result[(T,U)] = <*>(other)
   protected def foreach_(f: T => Unit): Unit
   infix def foreach(f: T => Unit): Result[T] = {foreach_(f); this}
   infix def filter(p: T => Boolean): Result[T]
@@ -59,6 +61,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
 
   infix def orElse[T1 >: T] (next: => Result[T1]): Result[T1] = this
   infix def getOrElse[T1 >: T](alt: => T1): T1 = value
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(T, U)] = other.flatMap(u => Good((value, u)))
   protected def foreach_(f: T => Unit): Unit = f(value)
   infix def filter(p: T => Boolean): Result[T] =
@@ -88,7 +91,7 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   def errors: String = listErrors mkString "; "
   def tap(op: T => Unit): Result[T] = this
 
-  val timestamp: Long = clock.currentTime
+  private val timestamp: Long = clock.currentTime
   inline def tag: String = s"${ts2b32(timestamp)}"
   inline override def toString = s"Error: ~$tag($errors)"
 
@@ -118,6 +121,7 @@ class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
   infix def map[U](f: T=>U): Result[U] = bad[U](listErrors)
   infix def flatMap[U](f: T => Result[U]): Result[U] = bad(listErrors)
   infix def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = bad(listErrors)
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(T, U)] =
     bad(listErrors ++ (other.listErrors dropWhile (lastError contains)))
   inline def lastError: Option[Throwable] = listErrors.lastOption
@@ -159,7 +163,7 @@ case object Empty extends NoResult with NoGood[Nothing]:
   infix def map[U](f: Nothing => U): Result[U] = empty[U]
   infix def flatMap[U](f: Nothing => Result[U]): Result[U] = empty[U]
   infix def collect[U](pf: PartialFunction[Nothing, U], onError: Nothing => String): Result[U] = empty[U]
-
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(Nothing, U)] = empty[(Nothing, U)]
   inline def errorDetails: Option[String] = None
   infix def orCommentTheError(message: =>Any): Result[Nothing] = Result.error(message)

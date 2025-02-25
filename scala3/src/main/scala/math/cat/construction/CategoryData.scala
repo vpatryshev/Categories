@@ -290,7 +290,7 @@ end PartialData
 object CategoryData:
 
   type Composition[Arr] = Map[(Arr, Arr), Arr]
-  val nothing = (t: Any) => None
+  val nothing: Any => None.type = (t: Any) => None
 
   def Empty[Arr] = Map.empty[(Arr, Arr), Arr]
 
@@ -299,7 +299,7 @@ object CategoryData:
     * Objects have the same name as their identities.
     *
     * @param g    the underlying graph
-    * @param comp source table of arrows composition (may be incomplete)
+    * @param comp source table of arrows composition (can be incomplete)
     * @return a newly-built category
     */
   def partial[Arr](g: Graph)(
@@ -337,7 +337,7 @@ object CategoryData:
     ids: gr.Node => gr.Arrow,
     composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): CategoryData =
     new CategoryData(gr.name):
-      override val graph = gr
+      override val graph: gr.type = gr
 
       override def id(o: Obj): Arrow = ids(o)
 
@@ -369,7 +369,8 @@ object CategoryData:
             override def newComposition(f: Any, g: Any): Option[Arrow] =
               data.newComposition(f, g).map(_.asInstanceOf[Arrow])
 
-            override val compositionSource = data.composition.asInstanceOf[CompositionTable]
+            override val compositionSource: CompositionTable =
+              data.composition.asInstanceOf[CompositionTable]
       }
       
       newData map transitiveClosure iHope

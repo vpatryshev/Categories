@@ -36,14 +36,14 @@ object Sets:
      *
      * @return true iff this is infinite
      */
-    def isInfinite: Boolean = s.size == InfiniteSize
+    inline def isInfinite: Boolean = s.size == InfiniteSize
 
     /**
      * Checks whether a set is infinite.
      *
      * @return true iff this set is finite
      */
-    def isFinite: Boolean = s.size != InfiniteSize
+    inline def isFinite: Boolean = s.size != InfiniteSize
 
   /**
     * Traditional representation of the fact that a set has an unknown or an infinite size
@@ -316,7 +316,7 @@ object Sets:
       */
     def injection(i: Int): Injection[T, (Int, T)] = Functions.injection(t => (i, t))
 
-  class InterleavingIterator[X, X1 <: X, X2 <: X](
+  private class InterleavingIterator[X, X1 <: X, X2 <: X](
     iterator1: Iterator[X1],
     iterator2: Iterator[X2]) extends Iterator[X]:
     private var i1i2: (Iterator[X], Iterator[X]) = (iterator1, iterator2)
@@ -377,7 +377,7 @@ object Sets:
     override infix def filter(p: X => Boolean): Set[X] =
       filteredSet(source, (x: X) => predicate(x) && p(x))
 
-    override def hashCode: Int = if this.isInfinite then sample.hashCode else super.hashCode
+    override lazy val hashCode: Int = if this.isInfinite then sample.hashCode else super.hashCode
 
     override def equals(other: Any): Boolean = other match
       case s: Set[?] => if this.isInfinite then this.eq(s) else super.equals(s)
@@ -389,7 +389,7 @@ object Sets:
       else
         super.toString
 
-    def sample: Set[X] = if this.isInfinite then take(3) else this
+    private def sample: Set[X] = if this.isInfinite then take(3) else this
 
   object setOf:
     def elements[X](content: X*): setOf[X] = apply(content, x => x ∈ content)

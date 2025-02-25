@@ -18,10 +18,10 @@ class SetCategoryTest extends Specification:
   val s2: set = Sets.range(0, 7, 1) untyped
   val s3: set = Set("hello", "cruel", "world") untyped
   val s4: set = Set("hello", "goodbye", "cruel", "world") untyped
-  private val allEvenSets: BigSet[Set[Any]] =
+  private lazy val allEvenSets: BigSet[Set[Any]] =
     BigSet.comprehension[Set[Any]](_.size % 2 == 0)
-  val evenSets: SetCategory = new SetCategory(allEvenSets)
-  val oddSets: SetCategory =
+  lazy val evenSets: SetCategory = new SetCategory(allEvenSets)
+  lazy val oddSets: SetCategory =
     new SetCategory(BigSet.comprehension[Set[Any]](_.size % 2 == 1))
 
   "SetCategory" should {
