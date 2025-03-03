@@ -140,8 +140,8 @@ end Graph
 
 private[cat] trait GraphData:
   data =>
-  type Node
-  type Arrow
+  type Node <: Matchable
+  type Arrow <: Matchable
   type Nodes = Set[Node]
   type Arrows = Set[Arrow]
 
@@ -203,11 +203,11 @@ end GraphData
 
 object Graph:
   
-  private[cat] def data[N, A](
+  private[cat] def data[N <: Matchable, A <: Matchable](
     nodes: Set[N], arrows: Map[A, (N, N)]): Result[GraphData] =
     data(nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
   
-  private[cat] def data[N, A](
+  private[cat] def data[N <: Matchable, A <: Matchable](
     setOfNodes: Set[N],
     setOfArrows: Set[A],
     source: A => N,
@@ -222,7 +222,7 @@ object Graph:
       def d1(f: Arrow): Node = target(f)
     } validate
   
-  def build[N, A](
+  def build[N <: Matchable, A <: Matchable](
     name: String,
     nodes0: Set[N],
     arrows0: Set[A],
@@ -244,10 +244,10 @@ object Graph:
         } validate
     }
 
-  def fromArrowMap[N, A] (name: String, nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] =
+  def fromArrowMap[N <: Matchable, A <: Matchable] (name: String, nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] =
     build(name, nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
 
-  def discrete[N](points: Set[N], nameIt: String = ""): Graph =
+  def discrete[N <: Matchable](points: Set[N], nameIt: String = ""): Graph =
     val name: String =
       if nameIt == "" then s"DiscreteGraph_${points.size}" else nameIt
     
@@ -260,7 +260,7 @@ object Graph:
       def d1(f: Arrow): Node = Map.empty(f)
 
   
-  def ofPoset[N](name: String, poset: PoSet[N]): Graph =
+  def ofPoset[N <: Matchable](name: String, poset: PoSet[N]): Graph =
     val points = poset.elements
     val posetSquare = Sets.product2(points, points)
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)

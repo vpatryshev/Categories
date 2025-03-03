@@ -43,10 +43,9 @@ class SetCategoryTest extends Specification:
       v2.isBad === true
     }
 
-    def contains[T](x: T)(s: Any): Boolean = s match {
-      case us: Set[?] => us.asInstanceOf[Set[T]](x)
+    def contains[T](x: T)(s: Any): Boolean = s match
+      case us: Set[T] => us(x)
       case _ => false
-    }
 
     def whereIn(s: set)(point: Any): Any =
       s find contains(point) getOrElse Sets.Empty
@@ -123,7 +122,7 @@ class SetCategoryTest extends Specification:
       val source: set = setOf.elements(1, 2, 3)
       val sut: Result[set] = Setf.degree(source, 4).map(_._1)
 
-      sut match {
+      sut match
         case Good(s) =>
           s.size === 81
           for
@@ -135,7 +134,6 @@ class SetCategoryTest extends Specification:
             s(List(a,b,c,d)) === true
  
         case none => failure(s"must have built a 4th degree: $none")
-      }
       ok
     }
 
@@ -171,12 +169,12 @@ class SetCategoryTest extends Specification:
         n => if n.toInt < 3 then "hello" else "goodbye")
       val g = fun(s2, s4)("g",
         n => if n.toInt < 1 then "cruel" else if n.toInt < 5 then "hello" else "goodbye")
-      sut.equalizer(f, g) match {
+      sut.equalizer(f, g) match
         case Good(eq) =>
           eq.d0 === Set(1, 2, 5, 6)
           eq.d1 === s2
         case none => failure(s"Expected an equalizer: $none")
-      }
+
       ok
     }
 

@@ -137,10 +137,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val topos = new CategoryOfDiagrams(M)
 
       val initialOpt = topos.initialT
-      initialOpt match {
+      initialOpt match
         case Good(initial) => checkConstSize(topos)(initial, 0)
         case none => failure(s"Could not build an initial in $topos: $none")
-      }
+
       checkConstSize(topos)(topos._0, 0)
       ok
     }
@@ -152,14 +152,14 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val topos = new CategoryOfDiagrams(W)
 
       val terminalOpt = topos.terminalT
-      terminalOpt match {
+      terminalOpt match
         case Good(terminal) =>
           terminal === topos._1
           checkConstSize(topos)(terminal, 1)
           val ab = terminal.arrowsMapping("ab")
           terminal.asFunction(ab).d0 === Set(Set())
         case none => failure(s"Could not build a terminal in $topos: $none")
-      }
+
       ok
     }
 

@@ -33,7 +33,7 @@ case class GradedObjects(category: Category) {
     } takeWhile(_._2.nonEmpty)
   } map (_._2) toList
   
-  def clusterDiameter(size: Int): Int = size match {
+  def clusterDiameter(size: Int): Int = size match
     case 1 => 1
     case 2 => 1
     case n =>
@@ -41,18 +41,16 @@ case class GradedObjects(category: Category) {
       val step = 3
       val d = step / Math.sin(da/2)
       (d + 0.5).toInt
-  }
   
   case class Cluster(objects: Set[category.Obj]) {
     def listObjects: List[category.Obj] = objects.toList
     def nameObjects = objects map (_.toString)
     
-    def allocateAt(coords: Pt): Set[(String, Pt)] = objects.size match {
+    def allocateAt(coords: Pt): Set[(String, Pt)] = objects.size match
       case 0 | 1 => objects.map(obj => obj.toString -> coords).toSet
       case n =>
         GroupOfObjects(objects.map(_.toString)).
           arrangeInCircle(coords, Rational(diameter, 2))
-    }
 
     val size: Int = objects.size
     lazy val code: String = s"$size.$objects"

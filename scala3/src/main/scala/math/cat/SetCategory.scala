@@ -260,10 +260,9 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
 
   override def hashCode: Int = getClass.hashCode * 7 + objects.hashCode
 
-  override def equals(x: Any): Boolean = x match {
+  override def equals(x: Any): Boolean = x match
     case sc: SetCategory => objects == sc.objects
-    case other => false
-  }
+    case other        => false
 
 object SetCategory:
 

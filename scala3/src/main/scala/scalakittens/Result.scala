@@ -256,10 +256,9 @@ object Result:
     val (goodOnes, badOnes) = 
       results.iterator.foldLeft((List.empty[T], List.empty[Errors]))(
         (collected, current) =>
-      current match {
+      current match
         case Good(good) => (good::collected._1, collected._2)
-        case noGood    => (collected._1, noGood.listErrors.toList::collected._2)
-      }
+        case noGood     => (collected._1, noGood.listErrors.toList::collected._2)
     )
     
     (goodOnes, badOnes)

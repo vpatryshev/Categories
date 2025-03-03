@@ -91,7 +91,9 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   
   def objectByAlphabet: List[Obj] = listSorted(objects)
 
-  def nodes: Objects = graph.nodes.asInstanceOf[Objects]
+  def nodes: Objects = graph.nodes match
+    case nodes: Objects => nodes
+    case _ => throw new IllegalStateException(s"nodes of $name are not Objects")
 
   def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
 
