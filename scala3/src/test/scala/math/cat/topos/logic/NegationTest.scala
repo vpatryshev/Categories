@@ -19,21 +19,21 @@ class NegationTest extends Fixtures:
           val rep = report(_)
           val desc = s"Testing negation over ${cat.name} ($number/$total)"
           println(desc)
-          val True = Ω.True.asPredicateIn(topos)
-          val False = Ω.False.asPredicateIn(topos)
+          val True = Ω.True asPredicateIn topos
+          val False = Ω.False asPredicateIn topos
 
           ¬(True) === False
           ¬(False) === True
 
           for pt1 <- Ω.points do
             rep(s"that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
-            val p = pt1.asPredicateIn(topos)
+            val p = pt1 asPredicateIn topos
             val not_p = ¬(p)
             ¬(¬(not_p)) === not_p
 
             rep(s"that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
             for pt2 <- Ω.points do
-              val q = pt2.asPredicateIn(topos)
+              val q = pt2 asPredicateIn topos
               ¬(p ∨ q) === not_p ∧ ¬(q)
 
           ok

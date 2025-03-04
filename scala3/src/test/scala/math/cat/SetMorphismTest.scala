@@ -1,12 +1,13 @@
 package math.cat
 
+import math.Test
 import math.cat.SetMorphism._
 import math.sets.Sets._
 import math.sets.{N, Sets}
 import org.specs2.mutable._
 import scalakittens._
 
-class SetMorphismTest extends Specification:
+class SetMorphismTest extends Test:
   val ints: Set[BigInt] = Set(1, 2, 3, 5, 8, 13)
   val strings = Set("even", "odd", "totally crazy")
 

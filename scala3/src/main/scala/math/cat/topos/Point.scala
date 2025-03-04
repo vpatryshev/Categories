@@ -58,7 +58,7 @@ class Point(
   private lazy val predicate: topos.Predicate = topos predicateFor this
 
   // TODO: fix this awkward unnecessary casting
-  def asPredicateIn(t: GrothendieckTopos): t.Predicate =
+  inline infix def asPredicateIn(t: GrothendieckTopos): t.Predicate =
     require(t eq topos)
     predicate.asInstanceOf[t.Predicate]
 

@@ -25,7 +25,7 @@ class ConjunctionTest extends Fixtures:
 
       for pt <- Ω.points do
         rep(s"conjunction with False for ${pt.tag}")
-        val p = pt.asPredicateIn(topos)
+        val p: Predicate = pt.asPredicateIn(topos)
         True.getClass === p.getClass
         False.getClass === p.getClass
 // fails        False.getClass === (False ∧ p).getClass
