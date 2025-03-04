@@ -17,6 +17,7 @@ class CategoryOfDiagrams(val domain: Category)
   with GrothendieckTopos:
   topos =>
   override val graph: Graph = graphOfDiagrams(domain.name)
+  override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
   override def toString: String = name
   type Node = Diagram
   override type Obj = Diagram

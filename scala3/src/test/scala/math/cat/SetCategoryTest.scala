@@ -43,9 +43,9 @@ class SetCategoryTest extends Specification:
       v2.isBad === true
     }
 
-    def contains[T](x: T)(s: Any): Boolean = s match
-      case us: Set[T] => us(x)
-      case _ => false
+    def contains(x: Any)(s: Any): Boolean = s match
+      case us: set => us.contains(x)
+      case _       => false
 
     def whereIn(s: set)(point: Any): Any =
       s find contains(point) getOrElse Sets.Empty

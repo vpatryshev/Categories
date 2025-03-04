@@ -18,7 +18,7 @@ import scalakittens.Containers.*
   */
 private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
-  type Objects = Set[Obj]
+  type Objects = Nodes
 
   val graph: Graph = this
 
@@ -91,11 +91,11 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   
   def objectByAlphabet: List[Obj] = listSorted(objects)
 
-  def nodes: Objects = graph.nodes match
-    case nodes: Objects => nodes
-    case _ => throw new IllegalStateException(s"nodes of $name are not Objects")
+//  def nodes: Objects = graph.nodes
 
-  def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
+  def arrows: Arrows = graph.arrows match
+    case arrows: Arrows => arrows
+    case _ => throw new IllegalStateException(s"arrows of $name coming from graph are not Arrows")
 
   def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
 
@@ -179,6 +179,8 @@ end CategoryData
 private[construction] class PartialData(override val graph: Graph)
   extends CategoryData(graph.name):
 
+  def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
+  
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
@@ -340,6 +342,8 @@ object CategoryData:
     composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): CategoryData =
     new CategoryData(gr.name):
       override val graph: gr.type = gr
+
+      def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
 
       override def id(o: Obj): Arrow = ids(o)
 

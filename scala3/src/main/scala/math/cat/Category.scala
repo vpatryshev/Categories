@@ -691,6 +691,7 @@ abstract class Category(name: String) extends CategoryData(name):
       sub =>
         new Category(newName):
           override val graph: Graph = sub
+          override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
 
           override def id(o: Obj): Arrow = src.id(o)
 

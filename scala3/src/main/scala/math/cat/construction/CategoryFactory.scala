@@ -71,6 +71,7 @@ private[cat] trait CategoryFactory:
       type Node = T
       type Arrow = (T, T)
 
+      override def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
       override def id(o: Obj): Arrow = (o, o)
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match

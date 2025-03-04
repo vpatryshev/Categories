@@ -112,16 +112,16 @@ class FunctorTest extends Test:
       type toO = to.Obj
       val mapO: from.Obj => to.Obj =
         Map(0 -> "b", 1 -> "c")
-      
+
       val fOpt = Functor("sample product", from, to)(mapO, mapA)
       checkOption[Functor](fOpt,
-        (f:Functor) =>
-        val limitOpt = f.limit
+        (f: Functor) =>
+          val limitOpt = f.limit
 
-        limitOpt match
-          case Good(limit) =>
-            limit.arrowTo(0) == "ab" && limit.arrowTo(1) == "ac"
-          case bad => failure(s"Could not build a limit of $f: $bad")
+          limitOpt match
+            case Good(limit) =>
+              limit.arrowTo(0) == "ab" && limit.arrowTo(1) == "ac"
+            case bad => failure(s"Could not build a limit of $f: $bad")
       )
     }
     

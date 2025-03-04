@@ -25,6 +25,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   type Node = set
   type Arrow = SetFunction
 
+  override def nodes: Nodes = objects
   /**
     * Domain of an arrow
     * @param f the arrow
