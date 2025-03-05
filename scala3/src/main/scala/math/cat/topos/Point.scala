@@ -90,5 +90,3 @@ class Point(
         domainCategory.objects.forall(o => p(o) == this(o))
     case other => false
   )
-
-
