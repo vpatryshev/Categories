@@ -145,7 +145,7 @@ trait GrothendieckTopos
         def perObject(x: d0.d0.Obj): SetFunction =
           cache.getOrElseUpdate(x, calculatePerObject(x))
 
-        override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+        override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
 
     
@@ -194,7 +194,7 @@ trait GrothendieckTopos
           val codom = Ω(x)
           new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
 
-        override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+        override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
       
     end disjunction
@@ -281,7 +281,7 @@ trait GrothendieckTopos
     new Predicate(theTag):
       val d0: Diagram = inclusion.d1
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         objToFunction(x)
 
   def χ(inclusion: Arrow): Predicate =
@@ -412,5 +412,5 @@ trait GrothendieckTopos
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
     (inclusionOf(p) in d) map {
-      q => uniqueFromTerminalTo(p) andThen q named p.tag
+      q => (q ∘ uniqueFromTerminalTo(p)) named p.tag
     }

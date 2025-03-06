@@ -1,13 +1,15 @@
 package math.cat
 
-import math.Base._
+import math.Base.*
 import math.cat.NaturalTransformation.printMapDifference
-import math.sets.Sets._
+import math.sets.Sets.*
 import scalakittens.Result
-import scalakittens.Result.{Outcome, _}
-import SetFunction._
+import scalakittens.Result.{Outcome, *}
+import SetFunction.*
 
+import scala.annotation.targetName
 import scala.language.{implicitConversions, postfixOps}
+import scala.annotation.targetName
 
 /**
   * Natural transformation class: morphisms for functors.
@@ -28,39 +30,38 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
   lazy val domainCategory:   Category = d0.d0
   lazy val codomainCategory: Category = d1.d1
 
-  def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow
-  def apply(x: Any): d1.d1.Arrow = transformPerObject(x)
+  def mappingAt(x: d0.d0.Obj): d1.d1.Arrow
+  def apply(x: Any): d1.d1.Arrow = mappingAt(x)
 
   /**
-    * Produces g∘f
-    * @param g next
+    * Produces f∘g
+    * @param g previous
     * @return
     */
-  infix def andThen(g: NaturalTransformation): NaturalTransformation =
+  @targetName("compose")
+  infix def ∘(g: NaturalTransformation): NaturalTransformation =
     
-    def comp(x: d0.d0.Obj): d1.d1.Arrow =
+    def compositionAt(x: d0.d0.Obj): d1.d1.Arrow =
       val fHere:  d1.d1.Arrow = self(x)
       val gThere: d1.d1.Arrow = g(x)
-      d1.d1.m(fHere, gThere) getOrElse
+      d1.d1.m(gThere, fHere) getOrElse
         cannotDo(s"Bad transformation for $x for $fHere and $gThere")
 
-    def composed[T](x: T) = comp(x)
-
-    new NaturalTransformation(s"${g.tag} ∘ ${self.tag}"):
-      val d0: Functor = self.d0
-      val d1: Functor = g.d1
-      def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow = composed(x)
+    new NaturalTransformation(s"${self.tag} ∘ ${g.tag}"):
+      val d0: Functor = g.d0
+      val d1: Functor = self.d1
+      def mappingAt(x: d0.d0.Obj): d1.d1.Arrow = compositionAt(x)
   
-  end andThen
+  end ∘
 
   infix def named(newTag: Any): NaturalTransformation = new NaturalTransformation(newTag):
     val d0: Functor = self.d0
     val d1: Functor = self.d1
-    def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-      self.transformPerObject(x)
+    def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+      self.mappingAt(x)
 
   private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
-    if d0.d0.isFinite then buildMap(d0.d0.objects, o => transformPerObject(o)) else Map.empty
+    if d0.d0.isFinite then buildMap(d0.d0.objects, o => mappingAt(o)) else Map.empty
   
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*127
   
@@ -70,7 +71,7 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
   
   def details = s"NT($tag)(${
     if domainCategory.isFinite then
-      domainCategory.listOfObjects.map(o => s"$o->(${transformPerObject(o)})").mkString(", ")
+      domainCategory.listOfObjects.map(o => s"$o->(${mappingAt(o)})").mkString(", ")
     else s"${d0.tag}->${d1.tag}"
   })"
   
@@ -84,8 +85,8 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
       d0 == other.d0 &&
       d1 == other.d1 && {
         val foundBad: Option[Any] = domainCategory.objects find (o =>
-          val first: d1.d1.Arrow = transformPerObject(o)
-          val second: other.d1.d1.Arrow = other.transformPerObject(o)
+          val first: d1.d1.Arrow = mappingAt(o)
+          val second: other.d1.d1.Arrow = other.mappingAt(o)
           val same = first == second
           if !same && printDetails then
             printMapDifference(asFunction(first), asFunction(second))
@@ -112,7 +113,7 @@ object NaturalTransformation:
   Y <: Category
   ]( // transforming `f` to `g`
     f: Functor, g: Functor)(
-    transformPerObject: f.d0.Obj => f.d1.Arrow
+    mappingAt: f.d0.Obj => f.d1.Arrow
   ): Outcome =
     Result.traverse {
       for
@@ -122,8 +123,8 @@ object NaturalTransformation:
         val x1: f.d0.Obj = f.d0.d1(a)
         val fa = f.arrowsMapping(a)
         val ga = g.arrowsMapping(a)
-        val tx0: f.d1.Arrow = transformPerObject(x0)
-        val tx1: f.d1.Arrow = transformPerObject(x1)
+        val tx0: f.d1.Arrow = mappingAt(x0)
+        val tx1: f.d1.Arrow = mappingAt(x1)
         val right_then_down: Option[f.d1.Arrow] = f.d1.m(fa, tx1) // a: x0->x1, fa: F[x0]->F[x1]; tx1: F[x1]->G[x1]
         val down_then_right: Option[f.d1.Arrow] = f.d1.m(tx0, ga)
         OKif(right_then_down == down_then_right, s"Nat'l transform law broken for $a")
@@ -143,7 +144,7 @@ object NaturalTransformation:
     validate(f, g)(mappings) returning new NaturalTransformation(tag):
       val d0: Functor = f
       val d1: Functor = g
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         mappings(x)
 
   /**
@@ -162,5 +163,5 @@ object NaturalTransformation:
       val d0: Functor = f
       val d1: Functor = f
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         `id of f(x)`(x)

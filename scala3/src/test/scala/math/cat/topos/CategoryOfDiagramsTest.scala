@@ -116,10 +116,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     "exist in Set^W" in {
       val topos = new CategoryOfDiagrams(W)
       val d = SampleWDiagram
-      val idtrans = topos.id(d)
-      idtrans.d0 === d
-      idtrans.d1 === d
-      idtrans.andThen(idtrans) === idtrans
+      val identity_transformation = topos.id(d)
+      identity_transformation.d0 === d
+      identity_transformation.d1 === d
+      identity_transformation ∘ identity_transformation === identity_transformation
     }
 
     "exist in Set^M" in {

@@ -16,6 +16,7 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   infix def flatMap[U](f: T => Result[U]): Result[U]
   infix def returning[U](u: => U): Result[U] = map[U](_ => u)
   infix def andThen[U](next: => Result[U]): Result[U] = flatMap(_ => next)
+  infix def >>=[U](next: => Result[U]): Result[U] = andThen[U](next)
   inline def flatten[U](implicit asResult: T => Result[U]): Result[U] = flatMap(asResult)
   def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U]
   def asOption: Option[T]

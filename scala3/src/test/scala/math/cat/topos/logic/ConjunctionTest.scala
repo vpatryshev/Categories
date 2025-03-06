@@ -73,9 +73,9 @@ class ConjunctionTest extends Fixtures:
       // the following part is for finding exactly where comparison failed
       if !theyAreTheSame then
         for o <- domain.objects do
-          val con_o = asFunction(classifyingArrow.transformPerObject(o)).toList.sortBy(_._1.toString)
+          val con_o = asFunction(classifyingArrow.mappingAt(o)).toList.sortBy(_._1.toString)
           val tru_classif_o =
-            asFunction(conjunction.transformPerObject(o)).toList.sortBy(_._1.toString)
+            asFunction(conjunction.mappingAt(o)).toList.sortBy(_._1.toString)
 
           val pairs = con_o zip tru_classif_o
 

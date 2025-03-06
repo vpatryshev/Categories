@@ -40,10 +40,10 @@ object LawvereTopology:
     OKif(topos.Ω.True ∈ predicate.d0.typed[Diagram].iHope, s"Should contain truth: ${predicate.tag}")
 
   def mustBeClosed[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
-    val jj = j andThen j
+    val jj = j ∘ j
     OKif(jj == j, s"Should be closed: ${j.tag}")
 
   def mustBeClosedUnderConjunction[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
     val jxj = topos.productOfArrows(j, j)
     val ∧ = topos.Ω.conjunction
-    OKif((jxj andThen ∧) == (∧ andThen j),s"Should be closed under conjunction: ${j.tag}")
+    OKif((∧ ∘ jxj) == (j ∘ ∧), s"Should be closed under conjunction: ${j.tag}")
