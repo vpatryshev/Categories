@@ -1,7 +1,6 @@
 package math
 
 import testing.TestBase
-import org.specs2.mutable._
 
 /**
   * Prototype for all tests

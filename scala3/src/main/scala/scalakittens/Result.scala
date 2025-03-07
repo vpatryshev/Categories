@@ -16,6 +16,7 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   infix def flatMap[U](f: T => Result[U]): Result[U]
   infix def returning[U](u: => U): Result[U] = map[U](_ => u)
   infix def andThen[U](next: => Result[U]): Result[U] = flatMap(_ => next)
+  @targetName("and_then")
   infix def >>=[U](next: => Result[U]): Result[U] = andThen[U](next)
   inline def flatten[U](implicit asResult: T => Result[U]): Result[U] = flatMap(asResult)
   def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U]
@@ -51,7 +52,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   def asOption: Option[T] = Some(value)
   infix def map[U](f: T=>U): Result[U] = Result.forValue(f(value))
   infix def flatMap[U](f: T => Result[U]): Result[U] = f(value)
-  def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = pf.lift(value) match
+  infix def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = pf.lift(value) match
     case Some(t) => Good(t)
     case None    => Result.error(onError(value))
   def fold[U](good: T => U, bad: Errors => U): U = good(value)
@@ -101,7 +102,7 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   /**
     * Transforms a timestamp to a string
     * First, takes timestamp mod year length, in seconds
-    * Then transforms it to base32, skipping probably offending letters (bad words all contain c,f,u letters
+    * Then transforms it to base32, skipping probably offending letters (bad words all contain c,f,u letters)
     * e.g. 08/28/2015 @ 12:35am (UTC) -> 1440722109 -> "molly"
     *
     * @param n time (millis)
