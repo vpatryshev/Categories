@@ -1,13 +1,11 @@
 package math
 
-import org.specs2.mutable._
+import testing.TestBase
 
 /**
   * Prototype for all tests
   */
-class _Test extends Specification:
-  "You" should {
-    "be ok" in {
+class _Test extends TestBase:
+  "You" should:
+    "be ok" in:
       ok
-    }
-  }

@@ -1,14 +1,16 @@
 package math.cat
 
-import math.Base._
-import math.sets.Sets._
-import math.sets._
-import scalakittens.Result._
+import math.Base.*
+import math.sets.Sets.*
+import math.sets.*
+import scalakittens.Result.*
 import scalakittens.{Good, Result}
 
 import java.io.Reader
 import scala.language.{implicitConversions, postfixOps}
 import scalakittens.Containers.*
+
+import scala.annotation.targetName
 
 trait Graph(val name: String) extends GraphData:
   graph =>
@@ -92,6 +94,7 @@ trait Graph(val name: String) extends GraphData:
   def areParallel(f: Arrow, g: Arrow): Boolean =
     sameDomain(f, g) && sameCodomain(f, g)
 
+  @targetName("opposite")
   def unary_~ : Graph =
     new Graph(if graph.name.startsWith("~") then graph.name.tail else "~" + graph.name):
       type Node = graph.Node
@@ -137,8 +140,8 @@ end Graph
 
 private[cat] trait GraphData:
   data =>
-  type Node
-  type Arrow
+  type Node <: Matchable
+  type Arrow <: Matchable
   type Nodes = Set[Node]
   type Arrows = Set[Arrow]
 
@@ -151,11 +154,15 @@ private[cat] trait GraphData:
     case node: Node @unchecked => nodes(node)
     case _ => false
 
-  implicit def asNode(x: Any): Node =
-    x match
-      case node: Node @unchecked if nodes(node) => node
-      case badNode: Node => throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
-      case notaNode => throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
+  implicit def asNode(x: Any): Node = x match
+    case node: Node @unchecked if nodes(node) => node
+    case badNode: Node => throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
+    case notaNode => throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
+
+  implicit def asArrow(a: Any): Arrow = a match
+    case arrow: Arrow @unchecked if arrows(arrow) => arrow
+    case badArrow: Arrow => throw new IllegalArgumentException(s"<<$badArrow>> is not listed as an arrow")
+    case notAnArrow => throw new IllegalArgumentException(s"<<$notAnArrow>> is not an arrow")
 
   /*
     TODO: figure out how come this does not work
@@ -164,16 +171,11 @@ private[cat] trait GraphData:
     case other =>
       throw new IllegalArgumentException(s"<<$other>> is not a node")
    */
-  
-  implicit def asArrow(a: Any): Arrow =
-    a match
-      case arrow: Arrow @unchecked if arrow ∈ arrows => arrow
-      case _ => throw new IllegalArgumentException(s"<<$a>> is not an arrow")
 
   protected lazy val finiteNodes: Boolean = nodes.isFinite
   protected lazy val finiteArrows: Boolean = arrows.isFinite
 
-  def isFinite: Boolean = finiteNodes && finiteArrows
+  lazy val isFinite: Boolean = finiteNodes && finiteArrows
 
   def validate: Result[GraphData] =
     OKif(!finiteArrows) orElse {
@@ -181,7 +183,6 @@ private[cat] trait GraphData:
         OKif(d0(a) ∈ nodes, " d0 for " + a + " should be in set of nodes") andAlso
         OKif(d1(a) ∈ nodes, " d1 for " + a + " should be in set of nodes")
       }
-
       Result.fold(arrows map arrowOk)
     } returning this
 
@@ -202,11 +203,11 @@ end GraphData
 
 object Graph:
   
-  private[cat] def data[N, A](
+  private[cat] def data[N <: Matchable, A <: Matchable](
     nodes: Set[N], arrows: Map[A, (N, N)]): Result[GraphData] =
     data(nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
   
-  private[cat] def data[N, A](
+  private[cat] def data[N <: Matchable, A <: Matchable](
     setOfNodes: Set[N],
     setOfArrows: Set[A],
     source: A => N,
@@ -221,7 +222,7 @@ object Graph:
       def d1(f: Arrow): Node = target(f)
     } validate
   
-  def build[N, A](
+  def build[N <: Matchable, A <: Matchable](
     name: String,
     nodes0: Set[N],
     arrows0: Set[A],
@@ -243,12 +244,12 @@ object Graph:
         } validate
     }
 
-  def fromArrowMap[N, A] (name: String, nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] =
+  def fromArrowMap[N <: Matchable, A <: Matchable] (name: String, nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] =
     build(name, nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
 
-  def discrete[N](points: Set[N], nameit: String = ""): Graph =
+  def discrete[N <: Matchable](points: Set[N], nameIt: String = ""): Graph =
     val name: String =
-      if nameit == "" then s"DiscreteGraph_${points.size}" else nameit
+      if nameIt == "" then s"DiscreteGraph_${points.size}" else nameIt
     
     new Graph(name):
       type Node = N
@@ -259,7 +260,7 @@ object Graph:
       def d1(f: Arrow): Node = Map.empty(f)
 
   
-  def ofPoset[N](name: String, poset: PoSet[N]): Graph =
+  def ofPoset[N <: Matchable](name: String, poset: PoSet[N]): Graph =
     val points = poset.elements
     val posetSquare = Sets.product2(points, points)
     val goodPairs: Set[(N,N)] = Sets.filter(posetSquare, poset.le)
@@ -276,7 +277,7 @@ object Graph:
 
   def read(input: CharSequence): Result[Graph] = (new GraphParser).readGraph(input)
 
-  implicit class GraphString(val sc: StringContext) extends AnyVal:
+  extension (sc: StringContext)
     def graph(args: Any*): Graph =
       Graph.read(bufferFromContext(sc, args*)) iHope
   

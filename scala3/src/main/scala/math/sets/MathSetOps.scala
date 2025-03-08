@@ -5,7 +5,7 @@ import scala.collection.{Iterator, mutable}
 object MathSetOps:
 
   /**
-    * Having two iterables, possibly infinitey, produce an iterable that iterates over pairs 
+    * Having two iterables, possibly infinite, produce an iterable that iterates over pairs 
     * using Cantor's algorithm, slightly modified.
     * 
     * @param xs first iterable
@@ -32,7 +32,7 @@ object MathSetOps:
     if xs.isEmpty || ys.isEmpty then Iterator.empty
     else
       new Iterator[(X, Y)]:
-        private var iterators: mutable.Queue[Iterator[Y]] = new mutable.Queue()
+        private val iterators: mutable.Queue[Iterator[Y]] = new mutable.Queue()
         private var xi = xs.iterator
         private var yi: Iterator[Iterator[Y]] = Iterator.empty
         private var shift = 0

@@ -1,11 +1,13 @@
 package scalakittens
 
-import scala.annotation.targetName
+import scala.annotation.{nowarn, targetName}
 import scala.collection.immutable.Set
 
 /**
   * A primitive idea of a container; can be empty.
   * Created by vpatryshev on 10/18/15.
+  * There's a reason not to inherit it from Iterable, which requires too much boilerplate, and renamings.
+  * E.g. we'll need to rename `empty` in Result. 
   */
 trait Container[+T]:
   def isEmpty: Boolean
@@ -15,6 +17,7 @@ trait Container[+T]:
 
 trait NothingInside[T] extends Container[T]:
   inline def isEmpty = true
+  infix def contains[T1 >: T](x: T1): Boolean = false
 
 trait SomethingInside[T] extends Container[T]:
   inline def isEmpty = false
@@ -36,3 +39,13 @@ object  Containers:
     infix inline def ∈(c: Seq[T]): Boolean = c contains x
     @targetName("notIn")
     infix inline def ∉(c: Seq[T]): Boolean = !(c contains x)
+
+    @targetName("in")
+    infix inline def ∈(c: Container[T]): Boolean = c contains x
+    @targetName("notIn")
+    infix inline def ∉(c: Container[T]): Boolean = !(c contains x)
+
+    @targetName("in")
+    infix inline def ∈(c: Option[T]): Boolean = c contains x
+    @targetName("notIn")
+    infix inline def ∉(c: Option[T]): Boolean = !(c contains x)

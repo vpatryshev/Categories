@@ -11,7 +11,7 @@ class SpeedTest extends Fixtures:
 
   "Speed" should {
 
-    "work for all known domains" in {
+    "work for all known domains" in:
 
       def check(cat: Category): Unit =
         val topos = new CategoryOfDiagrams(cat)
@@ -32,5 +32,4 @@ class SpeedTest extends Fixtures:
       categoriesToTestSpeed filter (_.isFinite) foreach check
 
       ok
-    }
   }

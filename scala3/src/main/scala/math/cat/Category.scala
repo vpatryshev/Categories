@@ -577,7 +577,7 @@ abstract class Category(name: String) extends CategoryData(name):
     setOfObjects.map(o => o -> mor(o)).toMap withDefaultValue Set.empty[Arrow]
 
   /**
-    * Builds a degree object (X*X... n times) for a given object.
+    * Builds a degree object (X×X... n times) for a given object.
     * The trick is, find an object that "is" the x we provided
     *
     * @param x the source object
@@ -585,7 +585,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return x^n^ and its projections to x
     */
   def degree(x: Obj, n: Int): Result[(Obj, List[Arrow])] =
-    OKif(n >= 0) andThen {
+    OKif(n >= 0) >>= {
       n match
         case 0 => terminal map (x => (x, List()))
         case 1 => Good((x, id(x) :: Nil))
@@ -691,6 +691,7 @@ abstract class Category(name: String) extends CategoryData(name):
       sub =>
         new Category(newName):
           override val graph: Graph = sub
+          override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
 
           override def id(o: Obj): Arrow = src.id(o)
 

@@ -135,7 +135,7 @@ object SetFunction:
   def exponent(x: set, y: set): Set[SetFunction] =
     Sets.exponent(x, y).map { apply("exponent", x, y, _) }
 
-  def fun(from: set, to: set)(name: String, mapping: String => Any) =
+  def fun(from: set, to: set)(name: String, mapping: String => Any): SetFunction =
     SetFunction.build(name, from, to, x => mapping(x.toString)).iHope
 
   def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
@@ -143,8 +143,8 @@ object SetFunction:
   class Diff(function1: SetFunction, function2: SetFunction):
     private val f1 = function1.toSet.toMap
     private val f2 = function2.toSet.toMap
-    lazy val extraKeys = f1.keySet.diff(f2.keySet)
-    lazy val missingKeys = f2.keySet.diff(f1.keySet)
-    lazy val badKeys = extraKeys.union(missingKeys)
-    lazy val commonKeys = f1.keySet.intersect(f2.keySet)
-    lazy val distinctValuesAt = commonKeys.filter(k => f1(k) != f2(k))
+    private lazy val extraKeys = f1.keySet.diff(f2.keySet)
+    private lazy val missingKeys = f2.keySet.diff(f1.keySet)
+    private lazy val commonKeys = f1.keySet.intersect(f2.keySet)
+    lazy val badKeys: Set[Any] = extraKeys.union(missingKeys)
+    lazy val distinctValuesAt: Set[Any] = commonKeys.filter(k => f1(k) != f2(k))

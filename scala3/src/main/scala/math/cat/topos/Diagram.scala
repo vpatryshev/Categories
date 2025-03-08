@@ -36,7 +36,7 @@ abstract class Diagram(
 
   private[topos] def setAt(x: Any): set = setOf(objectsMapping(x))
 
-  @targetName("subsetOf")
+  @targetName("subdiagramOf")
   infix inline def ⊂(other: Diagram): Boolean =
     d0.objects.forall { o => this(o) subsetOf other(o) }
 
@@ -53,9 +53,7 @@ abstract class Diagram(
       tuples = listOfObjects zip valuesPerObject
       mapping = tuples toMap;
       om: Point = point(mapping) if isCompatible(om)
-    yield {
-      om
-    }
+    yield om
 
 
     // The following foolish hack does the following:
@@ -162,25 +160,27 @@ abstract class Diagram(
 
       inclusions match
         case f :: tail =>
-          for g <- tail do
-            for x <- F_o do theFactorset.merge(f(x), g(x))
+          for g <- tail
+              x <- F_o do
+            theFactorset.merge(f(x), g(x))
 
         case other => // do nothing
     
     val factorMorphism: SetFunction = SetFunction.forFactorset(theFactorset)
 
     def coconeMap(x: XObject): d1.Arrow =
-      canonicalFunctionPerObject(x) andThen factorMorphism iHope
+      val function = (canonicalFunctionPerObject(x) andThen factorMorphism) iHope
+
+      function //.asInstanceOf[d1.Arrow]
 
     Good(Cocone(theFactorset.content, coconeMap))
 
-  private[topos] def isCompatible(om: Point) = d0.arrows.forall {
+  private[topos] def isCompatible(om: Point) = d0.arrows.forall:
     a =>
       val d00 = om(d0.d0(a))
       val d01 = om(d0.d1(a))
       val f = arrowsMapping(a)
       f(d00) == d01
-  }
 
   private lazy val listOfComponents: List[set] =
     val objs = listOfObjects map objectsMapping
@@ -205,13 +205,12 @@ abstract class Diagram(
 
     val listOfComponents: List[Set[set]] = listOfObjects map allPowers
 
-    def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall {
+    def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall:
       a =>
         val d00 = setOf(om(d0.d0(a)))
         val d01: set = om(d0.d1(a))
         val f = arrowsMapping(a)
         d00 map f subsetOf d01
-    }
 
     val objMappings: Iterable[Map[XObject, Sets.set]] = for
       values <- Sets.product(listOfComponents).view
@@ -222,14 +221,13 @@ abstract class Diagram(
     
     val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
 
-    val allCandidates = sorted.zipWithIndex map {
+    val allCandidates = sorted.zipWithIndex map:
       case (om, i) =>
         Diagram.tryBuild(topos)(
           i,
           om(_),
           extendToArrows(om))
-    }
-    
+
     allCandidates.collect { case Good(d) => d }
 
   end subobjects

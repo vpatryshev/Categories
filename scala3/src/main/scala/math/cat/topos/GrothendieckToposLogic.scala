@@ -31,11 +31,11 @@ trait GrothendieckToposLogic:
       concat(wrapTag(tag1), op, wrapTag(tag2))
 
     private def setAt(o: Any): set =
-      val function = p.transformPerObject(o)
+      val function = p.mappingAt(o)
       setOf(function.d0)
 
     private def transformAt(o: Any): SetFunction =
-      transformPerObject(o)
+      mappingAt(o)
 
     private[topos] def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
       binaryOpNamed(q, ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)
@@ -52,7 +52,7 @@ trait GrothendieckToposLogic:
       new Predicate(newTag):
         val d0 = p.d0
 
-        override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow =
+        override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
           val dom = setAt(o)
           require(q.setAt(o) == dom)
           val po = p.transformAt(o)
@@ -110,8 +110,8 @@ trait GrothendieckToposLogic:
   infix def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
     new topos.Predicate(f.tag):
       override val d0: Obj = f.d0
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        f.transformPerObject(x)
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        f.mappingAt(x)
 
   /**
     * Builds a predicate for a point in Ω
@@ -125,8 +125,8 @@ trait GrothendieckToposLogic:
     new Predicate(pt.tag):
       override val d0: Obj = _1
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        inclusion.transformPerObject(x)
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        inclusion.mappingAt(x)
 
   /**
     * An arrow from terminal to the point as a diagram
@@ -138,7 +138,7 @@ trait GrothendieckToposLogic:
       override val d0: Diagram = _1
       override val d1: Diagram = p.asDiagram
 
-      override def transformPerObject(o: d0.d0.Obj): d1.d1.Arrow =
+      override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
           val value = p(o)
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
 

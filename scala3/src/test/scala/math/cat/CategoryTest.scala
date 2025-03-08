@@ -173,7 +173,7 @@ class CategoryTest extends Test:
         case a@PairRegex(x, y) => (x == y) === _3_.isEndomorphism(a)
         case s => failure(s"$s does not look like an arrow in a poset"); false
       }
-
+      
       Simplicial3.arrows.filter(Simplicial3.isEndomorphism) ===
         Set("0", "1", "2", "2_a", "2_b", "swap")
     }

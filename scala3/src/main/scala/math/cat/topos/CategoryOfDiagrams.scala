@@ -17,6 +17,7 @@ class CategoryOfDiagrams(val domain: Category)
   with GrothendieckTopos:
   topos =>
   override val graph: Graph = graphOfDiagrams(domain.name)
+  override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
   override def toString: String = name
   type Node = Diagram
   override type Obj = Diagram
@@ -63,7 +64,7 @@ class CategoryOfDiagrams(val domain: Category)
       override val d0: Functor = o
       override val d1: Functor = o
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         objectMap(x)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
@@ -71,9 +72,9 @@ class CategoryOfDiagrams(val domain: Category)
       val d0: Functor = f.d0
       val d1: Functor = g.d1
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
-        val f_x = f.transformPerObject(x)
-        val g_x = g.transformPerObject(x)
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        val f_x = f.mappingAt(x)
+        val g_x = g.mappingAt(x)
         m(f_x, g_x)
 
   } else None

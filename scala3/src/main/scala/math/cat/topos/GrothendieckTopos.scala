@@ -17,7 +17,7 @@ import SetFunction.inclusion
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
 trait GrothendieckTopos
-  extends GrothendieckToposLogic:
+  extends Topos with GrothendieckToposLogic:
   topos =>
   type Obj = Diagram
   type Arrow = DiagramArrow
@@ -29,10 +29,6 @@ trait GrothendieckTopos
   given Conversion[Functor, Diagram] = _ match
     case d: Diagram => d
     case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
-
-//  given Conversion[Any, Diagram] = _ match
-//    case d: Diagram => d
-//    case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
 
   def inclusionOf(p: Point): Includer
 
@@ -149,7 +145,7 @@ trait GrothendieckTopos
         def perObject(x: d0.d0.Obj): SetFunction =
           cache.getOrElseUpdate(x, calculatePerObject(x))
 
-        override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+        override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
 
     
@@ -175,11 +171,11 @@ trait GrothendieckTopos
             val x = om(o)
             val y = om(domain.d1(f))
 
-            val functiona = a.arrowsMapping(f)
-            val functionb = b.arrowsMapping(f)
+            val fa = a.arrowsMapping(f)
+            val fb = b.arrowsMapping(f)
             def unionOfMappings(z: Any): Any =
-              if ao(z) then functiona(z)
-              else if bo(z) then functionb(z)
+              if ao(z) then fa(z)
+              else if bo(z) then fb(z)
               else throw new IllegalArgumentException(s"$z was supposed to be in $ao or in $bo")
 
             new SetFunction("", x, y, unionOfMappings)
@@ -198,7 +194,7 @@ trait GrothendieckTopos
           val codom = Ω(x)
           new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
 
-        override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+        override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
       
     end disjunction
@@ -285,7 +281,7 @@ trait GrothendieckTopos
     new Predicate(theTag):
       val d0: Diagram = inclusion.d1
 
-      override def transformPerObject(x: d0.d0.Obj): d1.d1.Arrow =
+      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         objToFunction(x)
 
   def χ(inclusion: Arrow): Predicate =
@@ -416,5 +412,5 @@ trait GrothendieckTopos
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
     (inclusionOf(p) in d) map {
-      q => uniqueFromTerminalTo(p) andThen q named p.tag
+      q => (q ∘ uniqueFromTerminalTo(p)) named p.tag
     }

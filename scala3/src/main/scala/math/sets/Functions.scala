@@ -23,7 +23,8 @@ object Functions:
       * @return a composition
       */
     infix def compose[T](g: Injection[T, X]): Injection[T, Y] =
-      injection { (t:T) => apply(g(t)) }
+      injection:
+        (t:T) => apply(g(t))
 
     /**
       * Composes this Injection with another Injection.
@@ -43,8 +44,7 @@ object Functions:
     * @return an instance of `Injection`
     */
   def injection[X, Y] (f: X => Y): Injection[X, Y] =
-    new Injection[X, Y]:
-      def apply(x: X) = f(x)
+    (x: X) => f(x)
 
 /**
    * Injection of values of a certain type T1 to themselves, as a super type T.
@@ -69,7 +69,7 @@ object Functions:
    * @tparam X domain type
    * @tparam Y codomain type
    */
-  abstract class Bijection[X, Y] extends Injection[X, Y]:
+  trait Bijection[X, Y] extends Injection[X, Y]:
     /**
      * Operation that is inverse to apply: apply(unapply(y)) == y and unapply(apply(x)) == x
      * @param y an argument
@@ -102,7 +102,7 @@ object Functions:
     infix def andThen[Z](g: Bijection[Y, Z]): Bijection[X, Z] = g compose this
 
   /**
-    * Tentatively builds a bijection out of two assumingly inverse functions
+    * Tentatively builds a bijection out of two functions
     * @param f a function
     * @param g another function, which is an inverse of `f`
     * @tparam X argument type
@@ -111,12 +111,12 @@ object Functions:
     */
   def bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
     new Bijection[X, Y] {
-      infix def apply(x: X) = f(x)
-      infix def unapply(y: Y) = g(y)
+      infix def apply(x: X): Y = f(x)
+      infix def unapply(y: Y): X = g(y)
     }
 
   /**
-   * Identity isomporphism on type T.
+   * Identity isomorphism on type T.
    * @tparam T domain type
    */
   class Id[T] extends Bijection[T, T]:

@@ -13,22 +13,28 @@ import scala.language.postfixOps
 class Fixtures extends Test with math.cat.topos.TestDiagrams:
   type SUT = Diagram
 
-  def report(cat: Category)(what: String): Unit =
-    println(s"  checking $what over ${cat.name}")
+  trait TestCase:
+    def check(cat: Category, number: Int, total: Int): MatchResult[Any]
 
-  case class checkThatIn(topos: GrothendieckTopos):
+  def report(what: String): Unit =
+    println(s"  checking $what")
+    
+//  def report(cat: Category, number: Int, total: Int)(what: String): Unit =
+//    println(s"  checking $what over ${cat.name} ($number/$total)")
+
+  case class checkThatIn(topos: GrothendieckTopos, number: Int, total: Int):
     
     def mustBeMonoid[P](what: String,
       unit: P,
       binop: (P, P) => P): MatchResult[Any] =
       import topos._
-      val rep = report(topos.domain)
+      val rep = report(_)
       val points: Seq[Point] = Ω.points
-      println(s"Testing <<${domain.name}>> $what monoidal properties (${points.size} points in Ω)")
+      println(s"Testing $what monoidal properties (${points.size} points in Ω) in ${domain.name} ($number/$total)")
       def predicate(p: Point): P = p.asPredicateIn(topos).asInstanceOf[P]
 
       for pt1 <- points do
-        rep(s"monoidal at ${pt1.tag}")
+        rep(s"monoidal props at ${pt1.tag}")
         val p: P = predicate(pt1)
         val actual = binop(unit, p)
 // different classes in scala 3        actual.getClass === p.getClass
@@ -53,16 +59,25 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
   end checkThatIn
   
   val categoriesToTest: List[Cat] = SomeKnownCategories
+  val allFiniteCategories = categoriesToTest.filter(_.isFinite)
+
+  def test(testCase: TestCase): MatchResult[Any] =
+    allFiniteCategories .zipWithIndex foreach:
+      case (c, i) => testCase.check(c, i, allFiniteCategories.size)
+
+    ok
 
   val categoriesToTestSpeed: List[Cat] = LessSimpleCategories
 
   val batchSize = 8
+  val allButWM = LessSimpleCategories filterNot (c => c == W || c == M)
+  val totalOfGrouped = SimpleCategories.length + 1 + allButWM.length
 
   // Moved W to a separate group; it's the hardest to deal with
-  val groupedCategoriesToTest: List[List[Cat]] = SimpleCategories :: List(W) :: {
-    val allButW = LessSimpleCategories filterNot (W ==)
-    (for
-      i <- 0 until batchSize -1
-      indices = i until allButW.length by (batchSize - 1)
-    yield indices map (allButW(_)) toList) toList
-  }
+  val groupedCategoriesToTest: List[List[(Cat, Int)]] =
+    SimpleCategories.zipWithIndex ::
+    List((W, SimpleCategories.length), (M, SimpleCategories.length + 1)) ::
+    allButWM.zipWithIndex.map(x => (x._1, x._2 + SimpleCategories.length + 2)) ::Nil
+
+//  println(groupedCategoriesToTest.map(_.map(entry => s"${entry._2}. ${entry._1.name}")).mkString("\n"))
+//  println(":)")

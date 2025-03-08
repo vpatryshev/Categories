@@ -24,35 +24,37 @@ class LogicLawsTest extends Fixtures:
       val p_and_q_pr = pOrQ ∧ (p ∨ r)
       p_qr === p_and_q_pr
 
-    def checkDistributivity(cat: Category): MatchResult[Any] =
-      val topos = new CategoryOfDiagrams(cat)
-      import topos._
-      val points = Ω.points
+    val distributivityTestCase = new TestCase:
+      def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
+        val topos = new CategoryOfDiagrams(cat)
+        import topos._
+        val points = Ω.points
 
-      val desc = s"Testing distributivity laws over ${cat.name}"
-      println(desc)
+        val desc = s"Testing distributivity laws over ${cat.name} ($number/$total)"
+        println(desc)
 
-      for pt1 <- points do
-        report(cat)(s"distributivity at ${pt1.tag}")
-        val p: topos.Predicate = pt1.asPredicateIn(topos)
+        for pt1 <- points do
+          report(s"distributivity at ${pt1.tag}")
+          val p: topos.Predicate = pt1.asPredicateIn(topos)
 
-        for pt2 <- points do
-          val q = pt2.asPredicateIn(topos)
-          val pAndQ: topos.Predicate = p ∧ q
-          val pOrQ: topos.Predicate = p ∨ q
+          for pt2 <- points do
+            val q = pt2.asPredicateIn(topos)
+            val pAndQ: topos.Predicate = p ∧ q
+            val pOrQ: topos.Predicate = p ∨ q
 
-          for pt3 <- points do
-            val r: topos.Predicate = pt3.asPredicateIn(topos)
-            conjunctionOverDisjunction(topos)(p, q, pAndQ, r)
-            disjunctionOverConjunction(topos)(p, q, pOrQ, r)
+            for pt3 <- points do
+              val r: topos.Predicate = pt3.asPredicateIn(topos)
+              conjunctionOverDisjunction(topos)(p, q, pAndQ, r)
+              disjunctionOverConjunction(topos)(p, q, pOrQ, r)
 
-      ok
+        ok
 
-    end checkDistributivity
+      end check
+    end distributivityTestCase
+
 
     "hold for all known domains" in {
-      categoriesToTest filter (_.isFinite) foreach checkDistributivity
-
+      test(distributivityTestCase)
       ok
     }
   }

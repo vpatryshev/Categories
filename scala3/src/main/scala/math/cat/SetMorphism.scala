@@ -244,4 +244,4 @@ object SetMorphism:
     * @return a set morphism from base set to the factorset
     */
   def fromFactorSet[X](factorSet: math.sets.FactorSet[X]): SetMorphism[X, Set[X]] =
-    SetMorphism.build(factorSet.base, factorSet.content, factorSet.asFunction) iHope
+    SetMorphism.build(factorSet.domain, factorSet.content, factorSet.asFunction) iHope

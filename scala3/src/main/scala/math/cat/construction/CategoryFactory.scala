@@ -65,12 +65,13 @@ private[cat] trait CategoryFactory:
     * @param poset   original poset
     * @return category based on he poset
     */
-  def fromPoset[T](theName: String = "", poset: PoSet[T]): Category =
+  def fromPoset[T <: Matchable](theName: String = "", poset: PoSet[T]): Category =
     new Category(theName):
       override val graph: Graph = Graph.ofPoset(theName, poset)
       type Node = T
       type Arrow = (T, T)
 
+      override def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
       override def id(o: Obj): Arrow = (o, o)
 
       override def m(f: Arrow, g: Arrow): Option[Arrow] = (f, g) match
@@ -93,7 +94,7 @@ private[cat] trait CategoryFactory:
     * @param compositionFactory creates a new arrow for a composition of two arrows
     * @return a newly-built category
     */
-  def apply[T](
+  def apply[T <: Matchable](
     name: String,
     objects: Set[T],
     domain: Map[T, T],
@@ -113,7 +114,7 @@ private[cat] trait CategoryFactory:
     * @param objects set of this category's objects
     * @return the category
     */
-  def discrete[T](objects: Set[T]): Category =
+  def discrete[T <: Matchable](objects: Set[T]): Category =
     CategoryData.partial[T](Graph.discrete[T](objects, s"Discrete_${objects.size}")
     )().build iHope
 

@@ -4,6 +4,7 @@ import math.Test
 import math.cat.Categories._
 import scalakittens.Result
 import scalakittens.Result._
+import NaturalTransformation.id
 
 /**
   * Natural transformations tests
@@ -32,29 +33,26 @@ class NaturalTransformationTest extends Test {
     val ghOpt: Result[NT] = NaturalTransformation.build("test_gh", g, h)(
       Map("0" -> "1.2", "1" -> "2.3"))
 
+    val `f->g` = fgOpt.iHope
+    val `g->h` = ghOpt.iHope
+
     "build properly" in {
-      val fg = fgOpt.iHope
-      val gh = ghOpt.iHope
-      
+      // if the test crashes on start, move lines 35-36 here
       ok
     }
-    
-    
+
     "compose" in {
-        val fgh = fgOpt.iHope andThen ghOpt.iHope
-        fgh.d0 === f
-        fgh.d1 === h
-        fgh.transformPerObject("0") === "0.2"
-        fgh.transformPerObject("1") === "2.3"
+        val `f->h` = `g->h` ∘ `f->g`
+        `f->h`.d0 === f
+        `f->h`.d1 === h
+        `f->h`.mappingAt("0") === "0.2"
+        `f->h`.mappingAt("1") === "2.3"
     }
 
     "have identity" in {
-        val idThen_fg = NaturalTransformation.id(f) andThen fgOpt.iHope
-        idThen_fg === fgOpt.iHope
-        val idThen_gh = NaturalTransformation.id(g) andThen ghOpt.iHope
-        idThen_gh === ghOpt.iHope
-        val fgThenId = fgOpt.iHope andThen NaturalTransformation.id(g)
-        fgThenId === fgOpt.iHope
+        `f->g` ∘ id(f) === `f->g`
+        `g->h` ∘ id(g) === `g->h`
+        id(g) ∘ `f->g` === `f->g`
     }
   }
 }

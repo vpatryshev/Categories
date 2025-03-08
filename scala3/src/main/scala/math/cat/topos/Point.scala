@@ -25,7 +25,7 @@ class Point(
   
   infix def named(name: Any): Point = new Point(name, topos, mapping)
 
-  @deprecated("This should be redefined via composition", "03/28/2020")
+  // @deprecated("This should be redefined via composition", "03/28/2020")
   def transform(f: DiagramArrow): Point =
     def apply(o: Any) =
       f(o) match
@@ -58,7 +58,7 @@ class Point(
   private lazy val predicate: topos.Predicate = topos predicateFor this
 
   // TODO: fix this awkward unnecessary casting
-  def asPredicateIn(t: GrothendieckTopos): t.Predicate =
+  inline infix def asPredicateIn(t: GrothendieckTopos): t.Predicate =
     require(t eq topos)
     predicate.asInstanceOf[t.Predicate]
 
@@ -90,5 +90,3 @@ class Point(
         domainCategory.objects.forall(o => p(o) == this(o))
     case other => false
   )
-
-

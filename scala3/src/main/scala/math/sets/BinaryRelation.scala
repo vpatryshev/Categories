@@ -5,7 +5,7 @@ import scala.language.{implicitConversions, postfixOps}
 /**
  * Representing binary relations
  */
-abstract class BinaryRelation[X, Y] extends Function2[X, Y, Boolean]
+trait BinaryRelation[X, Y] extends ((X, Y) => Boolean)
 
 object BinaryRelation:
   /**
@@ -17,8 +17,7 @@ object BinaryRelation:
    * @tparam Y second argument type
    */
   def apply[X, Y](pairs: Set[(X, Y)]): BinaryRelation[X, Y] =
-    new BinaryRelation[X, Y]:
-      def apply(x: X, y: Y): Boolean = (x,y) ∈ pairs
+    (x: X, y: Y) => pairs(x, y)
 
   /**
     * Represents a function of two arguments as a binary relation
@@ -27,7 +26,5 @@ object BinaryRelation:
     * @tparam Y second argument type
     * @return a binary relation representing the given function
     */
-    // TODO: use `given Conversion - how?!
-  implicit def apply[X, Y](f: Function2[X, Y, Boolean]): BinaryRelation[X, Y] =
-    new BinaryRelation[X, Y]:
-      def apply(x: X, y: Y) = f(x, y)
+  def apply[X, Y](f: (X, Y) => Boolean): BinaryRelation[X, Y] =
+    (x: X, y: Y) => f(x, y)

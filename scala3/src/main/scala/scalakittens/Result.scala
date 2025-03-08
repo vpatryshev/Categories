@@ -5,6 +5,7 @@ import scalakittens.Result._
 import scala.concurrent.Future
 import scala.language.{implicitConversions, postfixOps}
 import scala.util.{Failure, Success, Try}
+import scala.annotation.targetName
 
 sealed trait Result[+T] extends Container[T] with Goodness:
 
@@ -15,13 +16,16 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   infix def flatMap[U](f: T => Result[U]): Result[U]
   infix def returning[U](u: => U): Result[U] = map[U](_ => u)
   infix def andThen[U](next: => Result[U]): Result[U] = flatMap(_ => next)
+  @targetName("and_then")
+  infix def >>=[U](next: => Result[U]): Result[U] = andThen[U](next)
   inline def flatten[U](implicit asResult: T => Result[U]): Result[U] = flatMap(asResult)
-  def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U]
+  infix def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U]
   def asOption: Option[T]
   infix def orElse[T1 >: T] (next: => Result[T1]): Result[T1]
   infix def getOrElse[T1 >: T](alt: => T1): T1
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(T,U)]
-  infix def andAlso[U](other: Result[U]): Result[(T,U)] = <*>(other)
+  inline infix def andAlso[U](other: Result[U]): Result[(T,U)] = <*>(other)
   protected def foreach_(f: T => Unit): Unit
   infix def foreach(f: T => Unit): Result[T] = {foreach_(f); this}
   infix def filter(p: T => Boolean): Result[T]
@@ -40,7 +44,6 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   infix def orCommentTheError(message: => Any): Result[T]
   infix def tap(op: T => Unit): Result[T]
   inline def optionally[U](f: T => U => U): U => U = this.map(f).getOrElse(identity[U])
-  infix def contains[T1 >: T](x: T1): Boolean
   def iHope: T
 
 case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T] with PositiveAttitude:
@@ -49,7 +52,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
   def asOption: Option[T] = Some(value)
   infix def map[U](f: T=>U): Result[U] = Result.forValue(f(value))
   infix def flatMap[U](f: T => Result[U]): Result[U] = f(value)
-  def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = pf.lift(value) match
+  infix def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = pf.lift(value) match
     case Some(t) => Good(t)
     case None    => Result.error(onError(value))
   def fold[U](good: T => U, bad: Errors => U): U = good(value)
@@ -60,6 +63,7 @@ case class Good[T](protected val value: T) extends Result[T] with SomethingInsid
 
   infix def orElse[T1 >: T] (next: => Result[T1]): Result[T1] = this
   infix def getOrElse[T1 >: T](alt: => T1): T1 = value
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(T, U)] = other.flatMap(u => Good((value, u)))
   protected def foreach_(f: T => Unit): Unit = f(value)
   infix def filter(p: T => Boolean): Result[T] =
@@ -89,7 +93,7 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   def errors: String = listErrors mkString "; "
   def tap(op: T => Unit): Result[T] = this
 
-  val timestamp: Long = clock.currentTime
+  private val timestamp: Long = clock.currentTime
   inline def tag: String = s"${ts2b32(timestamp)}"
   inline override def toString = s"Error: ~$tag($errors)"
 
@@ -98,7 +102,7 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   /**
     * Transforms a timestamp to a string
     * First, takes timestamp mod year length, in seconds
-    * Then transforms it to base32, skipping probably offending letters (bad words all contain c,f,u letters
+    * Then transforms it to base32, skipping probably offending letters (bad words all contain c,f,u letters)
     * e.g. 08/28/2015 @ 12:35am (UTC) -> 1440722109 -> "molly"
     *
     * @param n time (millis)
@@ -109,7 +113,6 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
     val s1 = s0 map base32map
     "0"*(5-s1.length) + s1
 
-  infix def contains[T1 >: T](x: T1): Boolean = false
   def iHope: T = throw new InstantiationException(errors)
 
 class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
@@ -120,9 +123,10 @@ class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
   infix def map[U](f: T=>U): Result[U] = bad[U](listErrors)
   infix def flatMap[U](f: T => Result[U]): Result[U] = bad(listErrors)
   infix def collect[U](pf: PartialFunction[T, U], onError: T => String): Result[U] = bad(listErrors)
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(T, U)] =
     bad(listErrors ++ (other.listErrors dropWhile (lastError contains)))
-  inline def lastError: Option[Throwable] = listErrors.lastOption
+  private inline def lastError: Option[Throwable] = listErrors.lastOption
 
   private def listMessages(t: Throwable):String =
     Option(t.getCause).fold(Result.messageOf(t))((cause:Throwable) => t.getMessage + ", " + listMessages(cause))
@@ -161,7 +165,7 @@ case object Empty extends NoResult with NoGood[Nothing]:
   infix def map[U](f: Nothing => U): Result[U] = empty[U]
   infix def flatMap[U](f: Nothing => Result[U]): Result[U] = empty[U]
   infix def collect[U](pf: PartialFunction[Nothing, U], onError: Nothing => String): Result[U] = empty[U]
-
+  @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(Nothing, U)] = empty[(Nothing, U)]
   inline def errorDetails: Option[String] = None
   infix def orCommentTheError(message: =>Any): Result[Nothing] = Result.error(message)
@@ -206,12 +210,12 @@ object Result:
   
   implicit inline def asOutcome(r:Result[?]): Outcome = r andThen OK
   
-  def attempt[T](
+  private def attempt[T](
     eval: => Result[T],
     onException: Exception => Result[T] = (e: Exception) => exception(e)): Result[T] =
     try { eval } catch { case e: Exception => onException(e) }
 
-  def attempt[T](eval: =>Result[T], errMsg: => String): Result[T] =
+  private def attempt[T](eval: =>Result[T], errMsg: => String): Result[T] =
     attempt(eval, exception(_, errMsg) )
 
   private def legalize[T](optT: => Option[T]): Result[T] =
@@ -228,9 +232,9 @@ object Result:
     case Left(bad) => error[T](bad)
     case Right(good) => Good(good)
 
-  def app[X,Y](fOpt:Result[X=>Y])(xOpt:Result[X]):Result[Y] = (fOpt andAlso xOpt).map{case (f,x) => f(x)}
+  private def app[X,Y](fOpt:Result[X=>Y])(xOpt:Result[X]):Result[Y] = (fOpt andAlso xOpt).map{case (f,x) => f(x)}
 
-  implicit class Applicator[X,Y](fOpt: Result[X=>Y]):
+  extension[X,Y](fOpt: Result[X=>Y])
     def apply(xOpt:Result[X]): Result[Y] = app(fOpt)(xOpt)
     def apply(x:X): Result[Y] = app(fOpt)(Good(x))
 
@@ -247,17 +251,16 @@ object Result:
   inline def error[T](message: => Any): Bad[T] =
     bad[T](recordEvent(message)::Nil)
 
-  inline def exception[T](x: Throwable): Bad[T] = bad(x::Nil)
-  inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x) orCommentTheError comment
+  private inline def exception[T](x: Throwable): Bad[T] = bad(x::Nil)
+  private inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x) orCommentTheError comment
 
-  def partition[T](results: IterableOnce[Result[T]]): (List[T], List[Errors]) =
+  private def partition[T](results: IterableOnce[Result[T]]): (List[T], List[Errors]) =
     val (goodOnes, badOnes) = 
       results.iterator.foldLeft((List.empty[T], List.empty[Errors]))(
         (collected, current) =>
-      current match {
+      current match
         case Good(good) => (good::collected._1, collected._2)
-        case noGood    => (collected._1, noGood.listErrors.toList::collected._2)
-      }
+        case noGood     => (collected._1, noGood.listErrors.toList::collected._2)
     )
     
     (goodOnes, badOnes)
@@ -266,11 +269,11 @@ object Result:
 
   private def bad[T](results: Result[?]*): Result[T] = bad(results flatMap (_.listErrors))
 
-  implicit class StreamOfResults[T](val source: LazyList[Result[T]]) extends AnyVal:
+  extension [T] (source: LazyList[Result[T]])
     def map[U](f: T => U): LazyList[Result[U]] = source map (_ map f)
+    @targetName("kleisliMap")
     def |>[U](op: T => Result[U]): LazyList[Result[U]] = source map (t => t flatMap op)
     def filter(p: T => Result[?]): LazyList[Result[T]] = |> (x => p(x) returning x)
-    def toList: List[Result[T]] = source.toList
 
   infix def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
     val (goodOnes, badOnes) = partition(results)
@@ -331,8 +334,9 @@ object Result:
   def OKifNot(cond: => Boolean): Outcome = OK.filterNot(_ => cond)
   def Oops[T](complaint: Any): Bad[T] = error(complaint)
   def NotImplemented[T]: Bad[T] = Oops[T]("not implemented")
+  @targetName("Top, a terminal value")
   val ⊤ : Unit = ()
 
-  implicit class RuntimeTyped(x: Any):
+  extension (x: Any)
     def typed[T]: Result[T] = Result.forValue(x.asInstanceOf[T])
 

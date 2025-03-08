@@ -184,7 +184,7 @@ object Categories extends CategoryFactory:
   lazy val KnownFiniteCategories: List[Category] =
     KnownCategories filter (_.isFinite)
 
-  implicit class CategoryString(val sc: StringContext) extends AnyVal:
+  extension(sc: StringContext)
     def category(args: Any*): Cat = read(bufferFromContext(sc, args*)) iHope
       
   /**
@@ -197,6 +197,7 @@ object Categories extends CategoryFactory:
     val opgraph = ~c
     new Category(opgraph.name):
       override val graph: Graph = opgraph
+      override def nodes = c.nodes.asInstanceOf[Nodes]
       override def id(o: Obj): Arrow = c.id(o)
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         c.m(g, f).map(asArrow)

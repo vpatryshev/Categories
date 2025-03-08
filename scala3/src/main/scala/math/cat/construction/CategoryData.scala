@@ -18,7 +18,7 @@ import scalakittens.Containers.*
   */
 private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
-  type Objects = Set[Obj]
+  type Objects = Nodes
 
   val graph: Graph = this
 
@@ -30,14 +30,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
     if isFinite then listSorted(objects)
     else throw new IllegalStateException("Cannot sort infinite set")
 
-  implicit def obj(x: Any): Obj =
-    x match
-      case o: Obj @unchecked =>
-        if (objects.contains(o)) then o else {
-          throw new IllegalArgumentException(s"$x is not an object in $name")
-        }
-      case _ =>
-        throw new IllegalArgumentException(s"$x is not an object in $name")
+  implicit def obj(x: Any): Obj = asNode(x)
 
   def id(o: Obj): Arrow
 
@@ -98,9 +91,11 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   
   def objectByAlphabet: List[Obj] = listSorted(objects)
 
-  def nodes: Objects = graph.nodes.asInstanceOf[Objects]
+//  def nodes: Objects = graph.nodes
 
-  def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
+  def arrows: Arrows = graph.arrows match
+    case arrows: Arrows => arrows
+    case _ => throw new IllegalStateException(s"arrows of $name coming from graph are not Arrows")
 
   def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
 
@@ -184,6 +179,8 @@ end CategoryData
 private[construction] class PartialData(override val graph: Graph)
   extends CategoryData(graph.name):
 
+  def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
+  
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
@@ -297,7 +294,7 @@ end PartialData
 object CategoryData:
 
   type Composition[Arr] = Map[(Arr, Arr), Arr]
-  val nothing = (t: Any) => None
+  val nothing: Any => None.type = (t: Any) => None
 
   def Empty[Arr] = Map.empty[(Arr, Arr), Arr]
 
@@ -306,7 +303,7 @@ object CategoryData:
     * Objects have the same name as their identities.
     *
     * @param g    the underlying graph
-    * @param comp source table of arrows composition (may be incomplete)
+    * @param comp source table of arrows composition (can be incomplete)
     * @return a newly-built category
     */
   def partial[Arr](g: Graph)(
@@ -344,7 +341,9 @@ object CategoryData:
     ids: gr.Node => gr.Arrow,
     composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): CategoryData =
     new CategoryData(gr.name):
-      override val graph = gr
+      override val graph: gr.type = gr
+
+      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
 
       override def id(o: Obj): Arrow = ids(o)
 
@@ -376,7 +375,8 @@ object CategoryData:
             override def newComposition(f: Any, g: Any): Option[Arrow] =
               data.newComposition(f, g).map(_.asInstanceOf[Arrow])
 
-            override val compositionSource = data.composition.asInstanceOf[CompositionTable]
+            override val compositionSource: CompositionTable =
+              data.composition.asInstanceOf[CompositionTable]
       }
       
       newData map transitiveClosure iHope

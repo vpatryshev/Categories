@@ -12,34 +12,34 @@ class NegationTest extends Fixtures:
 
     "work for all known domains" in {
 
-      def check(cat: Category): MatchResult[Any] =
-        val topos = new CategoryOfDiagrams(cat)
-        import topos._
-        val rep = report(cat)
-        val desc = s"Testing negation over ${cat.name}"
-        println(desc)
-        val True  = Ω.True.asPredicateIn(topos)
-        val False = Ω.False.asPredicateIn(topos)
+      val testCase = new TestCase:
+        def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
+          val topos = new CategoryOfDiagrams(cat)
+          import topos._
+          val rep = report(_)
+          val desc = s"Testing negation over ${cat.name} ($number/$total)"
+          println(desc)
+          val True = Ω.True asPredicateIn topos
+          val False = Ω.False asPredicateIn topos
 
-        ¬(True)  === False
-        ¬(False) === True
+          ¬(True) === False
+          ¬(False) === True
 
-        for pt1 <- Ω.points do
-          rep(s"that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
-          val p = pt1.asPredicateIn(topos)
-          val not_p = ¬(p)
-          ¬(¬(not_p)) === not_p
+          for pt1 <- Ω.points do
+            rep(s"that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
+            val p = pt1 asPredicateIn topos
+            val not_p = ¬(p)
+            ¬(¬(not_p)) === not_p
 
-          rep(s"that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
-          for pt2 <- Ω.points do
-            val q = pt2.asPredicateIn(topos)
-            ¬(p ∨ q) === not_p ∧ ¬(q)
+            rep(s"that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
+            for pt2 <- Ω.points do
+              val q = pt2 asPredicateIn topos
+              ¬(p ∨ q) === not_p ∧ ¬(q)
 
-        ok
+          ok
 
-      end check
+        end check
 
-      categoriesToTest filter (_.isFinite) foreach check
-      ok
+      test(testCase)
     }
   }

@@ -36,14 +36,14 @@ object Sets:
      *
      * @return true iff this is infinite
      */
-    def isInfinite: Boolean = s.size == InfiniteSize
+    inline def isInfinite: Boolean = s.size == InfiniteSize
 
     /**
      * Checks whether a set is infinite.
      *
      * @return true iff this set is finite
      */
-    def isFinite: Boolean = s.size != InfiniteSize
+    inline def isFinite: Boolean = s.size != InfiniteSize
 
   /**
     * Traditional representation of the fact that a set has an unknown or an infinite size
@@ -70,14 +70,17 @@ object Sets:
     */
   def union[X: ClassTag, X1 <: X : ClassTag, X2 <: X : ClassTag](set1: Set[X1], set2: Set[X2]): Set[X] =
     lazy val parIterable: Iterable[X] = new ParallelIterable(set1, set2)
-    lazy val size = if set1.isFinite && set2.isFinite then set1.size + set2.size else InfiniteSize
+    lazy val size = {
+      val longSize = set1.size.toLong + set2.size.toLong
+      if (longSize > Int.MaxValue) InfiniteSize else longSize.toInt
+    }
 
     def inX1(x: X) = x match
-      case x1: X1 => try { set1(x1) } catch { case x: Exception => false }
+      case x1: X1 => try set1(x1) catch case _ => false
       case _ => false
 
     def inX2(x: X) = x match
-      case x2: X2 => try { set2(x2) } catch { case x: Exception => false }
+      case x2: X2 => try set2(x2) catch case _ => false
       case _ => false
 
     setOf[X](parIterable,
@@ -313,7 +316,7 @@ object Sets:
       */
     def injection(i: Int): Injection[T, (Int, T)] = Functions.injection(t => (i, t))
 
-  class InterleavingIterator[X, X1 <: X, X2 <: X](
+  private class InterleavingIterator[X, X1 <: X, X2 <: X](
     iterator1: Iterator[X1],
     iterator2: Iterator[X2]) extends Iterator[X]:
     private var i1i2: (Iterator[X], Iterator[X]) = (iterator1, iterator2)
@@ -324,28 +327,9 @@ object Sets:
       i1i2 = i1i2.swap
       (if i1i2._1.hasNext then i1i2._1 else i1i2._2).next()
 
-  class ParallelIterable[X, X1 <: X, X2 <: X](iterable1: Iterable[X1], iterable2: Iterable[X2])
+  private class ParallelIterable[X, X1 <: X, X2 <: X](iterable1: Iterable[X1], iterable2: Iterable[X2])
     extends Iterable[X]:
     def iterator = new InterleavingIterator(iterable1.iterator, iterable2.iterator)
-
-// Do we need this? How about xs.map(x => f(x)).toMap?
-//  class MapForFunction[K, +V](xs: Set[K], f: K => V) extends MapView[K, V]:
-//    override def keys: Set[K] = xs
-//
-//    override def apply(x: K): V =
-//      if xs contains x then f(x) else throw new RuntimeException(s"oops, $x is not in domain")
-//
-//    def updated[V1 >: V](kv: (K, V1)): Map[K, V1] = itsImmutable
-//
-//    def removed(key: K): Map[K, V] = itsImmutable
-//
-//    override def updated[V1 >: V](x: K, y: V1): Map[K, V1] = itsImmutable
-//
-//    override def get(x: K): Option[V] = if xs contains x then Some(f(x)) else None
-//
-//    override def size: Int = xs size
-//
-//    override def iterator: Iterator[(K, V)] = (xs.map { (x:K) => (x, f(x)) }) iterator
 
   class SetParser extends RegexParsers:
     def read(input: CharSequence): Result[Set[String]] =
@@ -393,7 +377,7 @@ object Sets:
     override infix def filter(p: X => Boolean): Set[X] =
       filteredSet(source, (x: X) => predicate(x) && p(x))
 
-    override def hashCode: Int = if this.isInfinite then sample.hashCode else super.hashCode
+    override lazy val hashCode: Int = if this.isInfinite then sample.hashCode else super.hashCode
 
     override def equals(other: Any): Boolean = other match
       case s: Set[?] => if this.isInfinite then this.eq(s) else super.equals(s)
@@ -405,7 +389,7 @@ object Sets:
       else
         super.toString
 
-    def sample: Set[X] = if this.isInfinite then take(3) else this
+    private def sample: Set[X] = if this.isInfinite then take(3) else this
 
   object setOf:
     def elements[X](content: X*): setOf[X] = apply(content, x => x ∈ content)

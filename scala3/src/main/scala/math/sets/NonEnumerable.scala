@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 trait NonEnumerable[T, S <: Set[T]] extends Set[T]:
   this: BigSet[T] =>
   
-  private def notEnumerable = 
+  private def notEnumerable: Nothing = 
     throw new UnsupportedOperationException(s"$name is not enumerable")
 
   /**
