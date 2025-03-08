@@ -5,15 +5,15 @@ import math.cat.Category
 /**
   * Topos functionality
   */
-trait Topos[O, A]:
-  type Obj = O
-  type Arrow = A
+trait Topos:
+  type Obj
+  type Arrow
   // finite limits should exist
-  def product2(x: O, y: O): O
+  def product2(x: Obj, y: Obj): Obj
   
-  val Ω: O
+  val Ω: Obj
 
-  def ΩxΩ: O
+  def ΩxΩ: Obj
 
 // TODO: implement
 //  def pow: Obj => Obj

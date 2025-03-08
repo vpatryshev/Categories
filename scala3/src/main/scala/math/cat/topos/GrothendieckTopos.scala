@@ -17,7 +17,7 @@ import SetFunction.inclusion
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
 trait GrothendieckTopos
-  extends Topos[Diagram, DiagramArrow] with GrothendieckToposLogic:
+  extends Topos with GrothendieckToposLogic:
   topos =>
   type Obj = Diagram
   type Arrow = DiagramArrow

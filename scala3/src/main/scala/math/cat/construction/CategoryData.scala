@@ -179,7 +179,7 @@ end CategoryData
 private[construction] class PartialData(override val graph: Graph)
   extends CategoryData(graph.name):
 
-  def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
+  def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
   
   type CompositionTable = Composition[graph.Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
@@ -343,7 +343,7 @@ object CategoryData:
     new CategoryData(gr.name):
       override val graph: gr.type = gr
 
-      def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
+      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
 
       override def id(o: Obj): Arrow = ids(o)
 
