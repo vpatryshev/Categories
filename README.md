@@ -2,7 +2,7 @@
 
 ### Intro
 
-This is a Scala (2, Scala 3 in the future) implementation of category theory calculations and topos logic (and topologies).
+This is a Scala implementation of category theory calculations and topos logic (and topologies).
 Historically, it was first written in Basic, then in Fortran, then in Assembler, then in Java, now in Scala.
 Long story.
 
