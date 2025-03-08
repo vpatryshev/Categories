@@ -1,7 +1,7 @@
 package math.cat.topos
 
 import math.Base.concat
-import math.cat._
+import math.cat.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
@@ -13,6 +13,9 @@ import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
 import scala.reflect.Selectable.reflectiveSelectable
 import SetFunction.inclusion
+
+import scala.annotation.targetName
+import scala.collection.MapView
 
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
@@ -245,7 +248,7 @@ trait GrothendieckTopos
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
           def hits_By(f: domain.Arrow) = image_via(f) ∈ By  
-          y -> Ω.setOf(all_arrows_to_y filter hits_By)
+          y -> Ω.itsaset(all_arrows_to_y filter hits_By)
         }
     
     def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
@@ -414,3 +417,67 @@ trait GrothendieckTopos
     (inclusionOf(p) in d) map {
       q => (q ∘ uniqueFromTerminalTo(p)) named p.tag
     }
+
+  abstract class Diagramme(tag: Any)
+    extends Functor(tag, domain, SetCategory.Setf):
+    diagram =>
+    private type XObject = d0.Obj // topos.domain.Obj ???
+    private type XObjects = Set[XObject]
+    private type XArrow = d0.Arrow // topos.domain.Arrow ???
+    private type XArrows = Set[XArrow]
+
+    given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
+
+    private[topos] def setAt(x: Any): set = itsaset(objectsMapping(x))
+
+    @targetName("isSubdiagramOf")
+    infix inline def ⊂(other: Diagram): Boolean =
+      d0.objects.forall { o => this (o) subsetOf other(o) }
+
+    @targetName("in")
+    infix inline def ∈(other: Diagram): Boolean =
+      d0.objects.forall { o => other(o)(this (o)) }
+
+    private[cat] def itsaset(x: Any): set = x.asInstanceOf[set]
+
+    def asFunction(a: d1.Arrow): SetFunction = a match
+      case sf: SetFunction => sf
+      case trash =>
+        throw new IllegalArgumentException(s"Expected a set function, got $trash")
+
+    given Conversion[d1.Arrow, SetFunction] = asFunction
+
+    private[topos] def isCompatible(om: Point) = d0.arrows.forall:
+      a =>
+        val d00 = om(d0.d0(a))
+        val d01 = om(d0.d1(a))
+        val f = arrowsMapping(a)
+        f(d00) == d01
+
+    private lazy val listOfComponents: List[set] =
+      val objs = listOfObjects map objectsMapping
+      objs map itsaset
+
+    def point(mapping: XObject => Any, id: Any = ""): Point =
+      new Point(id, topos, (x: Any) => mapping(x))
+
+    lazy val points: List[Point] =
+      val objMappings = for
+        valuesPerObject <- Sets.product(listOfComponents).view
+        tuples = listOfObjects zip valuesPerObject
+        mapping = tuples toMap;
+        om: Point = point(mapping) if isCompatible(om)
+      yield om
+
+      // The following foolish hack does this:
+      // any value in curlies goes after a shorter value in curlies,
+      // because closing curly is replaced with '!' which goes
+      // before all alphanumerics. Cheap trick, but works.
+      // Any better suggestions?
+      val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")) zipWithIndex
+
+      sorted map { p => p._1 named ("p" + p._2) }
+
+    def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
+
+    infix def apply(x: Any): set = itsaset(objectsMapping(x))

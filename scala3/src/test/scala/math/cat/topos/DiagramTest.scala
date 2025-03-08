@@ -89,7 +89,7 @@ class DiagramTest extends Test with TestDiagrams:
 
       sut.limit match
         case Good(sut.Cone(vertex, arrowTo)) =>
-          sut.setOf(vertex).size === x.size
+          sut.itsaset(vertex).size === x.size
         case none => failure(s"We expected a limit, got $none")
       
       ok
@@ -98,7 +98,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for a pullback" in {
       val sut = SamplePullbackDiagram
       val limit = sut.limit.iHope
-      val vertex = sut.setOf(limit.vertex)
+      val vertex = sut.itsaset(limit.vertex)
       vertex.size === 5
       val ara = limit.arrowTo("a")
       val arb = limit.arrowTo("b")
@@ -120,7 +120,7 @@ class DiagramTest extends Test with TestDiagrams:
       val sut = SampleParallelPairDiagram1
       val limit = sut.limit.iHope
 
-      val vertex = sut.setOf(limit.vertex)
+      val vertex = sut.itsaset(limit.vertex)
       vertex.size === 3
       vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
       
@@ -150,7 +150,7 @@ class DiagramTest extends Test with TestDiagrams:
         val sut = SampleWDiagram
         val limit = sut.limit.iHope
 
-        val vertex = sut.setOf(limit.vertex)
+        val vertex = sut.itsaset(limit.vertex)
         vertex.size === 16
         val ara = limit.arrowTo("a")
         val arb = limit.arrowTo("b")
@@ -195,7 +195,7 @@ class DiagramTest extends Test with TestDiagrams:
 
         val limit = sut.limit.iHope
 
-        val vertex = sut.setOf(limit.vertex)
+        val vertex = sut.itsaset(limit.vertex)
         vertex.size === 8
         val ara = limit.arrowTo("a")
         val arb = limit.arrowTo("b")
@@ -246,7 +246,7 @@ class DiagramTest extends Test with TestDiagrams:
       sut.d0 === _1_
       sut.d1 === Setf
       val colimit = sut.colimit.iHope
-      val vertex = sut.setOf(colimit.vertex)
+      val vertex = sut.itsaset(colimit.vertex)
       vertex.size === expected.size
     }
 
@@ -293,7 +293,7 @@ class DiagramTest extends Test with TestDiagrams:
       
       val element = Set((0, 0), (0, 1), (0, 2))
 
-      val vertex = sut.setOf(colimit.vertex)
+      val vertex = sut.itsaset(colimit.vertex)
       val ar0 = colimit.arrowFrom("0")
       val ar1 = colimit.arrowFrom("1")
       a.foreach(ar0(_) === element)
@@ -314,7 +314,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for M, regular data" in {
       val sut = SampleMDiagram
       val colimit = sut.colimit.iHope
-      val vertex = sut.setOf(colimit.vertex)
+      val vertex = sut.itsaset(colimit.vertex)
       vertex.size === 8
       val ara = colimit.arrowFrom("a")
       val arb = colimit.arrowFrom("b")

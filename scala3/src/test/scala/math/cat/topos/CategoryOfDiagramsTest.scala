@@ -188,7 +188,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       def fullSet(d: Diagram): List[String] = {
         d.d0.objects.toList map ((o: d.d0.Obj) => d.objectsMapping(o))
-      } map d.setOf map asString
+      } map d.itsaset map asString
 
       val listOfSubobjects = sut.subobjects.toList
       val actual =

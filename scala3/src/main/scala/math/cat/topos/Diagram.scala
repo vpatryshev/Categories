@@ -1,16 +1,16 @@
 package math.cat.topos
 
-import math.Base._
-import math.cat._
+import math.Base.*
+import math.cat.*
 import Functor.validateFunctor
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.sets.Functions._
-import math.sets.Sets._
+import math.sets.Functions.*
+import math.sets.Sets.*
 import math.sets.{FactorSet, Sets}
 import scalakittens.{Good, Result}
 
 import scala.annotation.targetName
-import scala.collection.MapView
+import scala.collection.{MapView, View}
 import scala.language.{implicitConversions, postfixOps}
 
 /**
@@ -34,7 +34,7 @@ abstract class Diagram(
   
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
-  private[topos] def setAt(x: Any): set = setOf(objectsMapping(x))
+  private[topos] def setAt(x: Any): set = itsaset(objectsMapping(x))
 
   @targetName("subdiagramOf")
   infix inline def ⊂(other: Diagram): Boolean =
@@ -46,15 +46,13 @@ abstract class Diagram(
 
   def point(mapping: XObject => Any, id: Any = ""): Point =
     new Point(id, topos, (x: Any) => mapping(x))
-
   lazy val points: List[Point] =
-    val objMappings = for
+    val objMappings: View[Point] = for
       valuesPerObject <- Sets.product(listOfComponents).view
       tuples = listOfObjects zip valuesPerObject
       mapping = tuples toMap;
       om: Point = point(mapping) if isCompatible(om)
     yield om
-
 
     // The following foolish hack does the following:
     // any value in curlies goes after a shorter value in curlies,
@@ -74,7 +72,7 @@ abstract class Diagram(
   
   def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
-  infix def apply(x: Any): set = setOf(objectsMapping(x))
+  infix def apply(x: Any): set = itsaset(objectsMapping(x))
 
   /**
     * Calculates this diagram's limit
@@ -179,12 +177,12 @@ abstract class Diagram(
     a =>
       val d00 = om(d0.d0(a))
       val d01 = om(d0.d1(a))
-      val f = arrowsMapping(a)
+      val f: d1.Arrow = arrowsMapping(a)
       f(d00) == d01
 
   private lazy val listOfComponents: List[set] =
     val objs = listOfObjects map objectsMapping
-    objs map setOf
+    objs map itsaset
   
   private def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
     val dom: Sets.set = om(d0.d0(a))
@@ -200,14 +198,14 @@ abstract class Diagram(
     Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] =
-    val allSets: Map[XObject, set] = buildMap(domainObjects, o => setOf(objectsMapping(o)))
+    val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))
     val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
 
     val listOfComponents: List[Set[set]] = listOfObjects map allPowers
 
     def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall:
       a =>
-        val d00 = setOf(om(d0.d0(a)))
+        val d00 = itsaset(om(d0.d0(a)))
         val d01: set = om(d0.d1(a))
         val f = arrowsMapping(a)
         d00 map f subsetOf d01
@@ -215,7 +213,7 @@ abstract class Diagram(
     val objMappings: Iterable[Map[XObject, Sets.set]] = for
       values <- Sets.product(listOfComponents).view
       om0: Point = point(listOfObjects zip values toMap)
-      om: Map[XObject, Sets.set] = buildMap(d0.objects, x => setOf(om0(x)))
+      om: Map[XObject, Sets.set] = buildMap(d0.objects, x => itsaset(om0(x)))
       if isPresheaf(om)
     yield om
     
@@ -280,14 +278,14 @@ abstract class Diagram(
   private def arrowActionOnPoint(a: XArrow, point: Point): Any =
     arrowsMapping(a)(point(d0.d0(a)))
 
-  private[cat] def setOf(x: Any): set = x.asInstanceOf[set]
+  private[cat] def itsaset(x: Any): set = x.asInstanceOf[set]
 
   private[cat] object limitBuilder:
     // have to use List so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = listSorted(rootObjects)
     // Here we have a non-repeating collection of sets to use for building a limit
     final private[cat] lazy val setsToUse =
-      listOfObjects map nodesMapping map (x => setOf(x))
+      listOfObjects map nodesMapping map (x => itsaset(x))
     // this is the product of these sets; will have to take a subset of this product
     final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
     final lazy private val d0op = Categories.op(d0)
