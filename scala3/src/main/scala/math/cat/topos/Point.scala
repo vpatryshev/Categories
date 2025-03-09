@@ -18,7 +18,7 @@ class Point(
   val topos: GrothendieckTopos,
   val mapping: Any => Any) extends (Any => Any):
   p =>
-
+  val baseTopos: GrothendieckTopos = topos
   private val domainCategory: Category = topos.domain
 
   def apply(x: Any): Any = mapping(x)
@@ -36,9 +36,9 @@ class Point(
     new Point(s"${f.tag}(${p.tag})", p.topos, apply)
 
   def asDiagram: Diagram =
-    new Diagram(tag, topos):
+    new Diagram(tag, topos, topos.domain):
       diagram =>
-
+      override val topos = baseTopos
       override def objectsMapping(x: d0.Obj): d1.Obj = Set(mapping(x))
 
       private def arrowToFunction(a: d0.Arrow): Any => Any =

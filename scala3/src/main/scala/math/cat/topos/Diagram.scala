@@ -24,9 +24,11 @@ import scala.language.{implicitConversions, postfixOps}
   */
 abstract class Diagram(
   tag: Any,
-  val topos: GrothendieckTopos)
-  extends Functor(tag, topos.domain, SetCategory.Setf):
+  val topo: GrothendieckTopos,
+  val toposDomain: Category)
+  extends Functor(tag, toposDomain, SetCategory.Setf):
   diagram =>
+  val topos: GrothendieckTopos
   private type XObject = d0.Obj // topos.domain.Obj ???
   private type XObjects = Set[XObject]
   private type XArrow = d0.Arrow // topos.domain.Arrow ???
@@ -328,7 +330,8 @@ object Diagram:
     objectsMap: t.domain.Obj => set,
     arrowMap:   t.domain.Arrow => SetFunction): Diagram =
 
-    new Diagram(tag.toString, t):
+    new Diagram(tag.toString, t, t.domain):
+      override val topos = t
       override private[topos] def setAt(x: Any): set = objectsMap(x)
       override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)

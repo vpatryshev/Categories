@@ -27,12 +27,13 @@ class DiagramTest extends Test with TestDiagrams:
 
     "test build" in {
       val dom = Pullback
-      val topos = new CategoryOfDiagrams(dom)
+      val testTopos = new CategoryOfDiagrams(dom)
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
       sut1.objectsMapping("b") === BuildPullbackDiagram.sb
 
       val diagram: Diagram =
-        new Diagram("Test", topos):
+        new Diagram("Test", testTopos, testTopos.domain):
+          override val topos = testTopos
           
           override def objectsMapping(x: d0.Obj): d1.Obj =
             BuildPullbackDiagram.om(x.toString)

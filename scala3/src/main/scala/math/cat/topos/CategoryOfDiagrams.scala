@@ -15,7 +15,7 @@ import scala.reflect.Selectable.reflectiveSelectable
 class CategoryOfDiagrams(val domain: Category)
   extends Category(s"Set^${domain.name}")
   with GrothendieckTopos:
-  topos =>
+  thisTopos =>
   override val graph: Graph = graphOfDiagrams(domain.name)
   override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
   override def toString: String = name
@@ -44,7 +44,7 @@ class CategoryOfDiagrams(val domain: Category)
 
         om = objectMapping(candidate)
       // some of these build attemps will fail, because of compatibility checks
-        diagram: Diagram <- Diagram.tryBuild(topos)("__" + i, om, am) asOption
+        diagram: Diagram <- Diagram.tryBuild(thisTopos)("__" + i, om, am) asOption
       yield diagram
 
     all
@@ -82,7 +82,8 @@ class CategoryOfDiagrams(val domain: Category)
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     buildMap[domain.Obj, Set[Diagram]](domain.objects, x => Representable(x).subobjects.toSet)
 
-  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", topos):
+  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", thisTopos, thisTopos.domain):
+    override val topos = thisTopos
     override def objectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow = am(f)
  

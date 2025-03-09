@@ -22,6 +22,7 @@ import scala.collection.MapView
 trait GrothendieckTopos
   extends Topos with GrothendieckToposLogic:
   topos =>
+  val thisTopos: GrothendieckTopos = this
   type Obj = Diagram
   type Arrow = DiagramArrow
   
@@ -40,7 +41,8 @@ trait GrothendieckTopos
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  object Ω extends Diagram("Ω", this):
+  object Ω extends Diagram("Ω", this, this.domain):
+    override val topos = thisTopos
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x => Ω(x)` .
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
