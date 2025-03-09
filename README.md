@@ -36,10 +36,10 @@ What we have now:
 - Lawvere topologies
 
 WIP:
+- Scala 3
 
 Plans: 
 - sheaves
 - pullback in a topos
-- Scala 3
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
