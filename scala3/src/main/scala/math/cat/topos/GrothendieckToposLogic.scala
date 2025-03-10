@@ -2,7 +2,7 @@ package math.cat.topos
 
 import math.Base.concat
 import math.cat.SetFunction._
-import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow, const}
+import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow}
 import math.cat.{Morphism, SetFunction}
 import math.sets.Sets
 import Sets.{set, setOf}
@@ -151,4 +151,4 @@ trait GrothendieckToposLogic:
   lazy val _1: Obj = terminalT iHope
 
   private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Diagram =
-    const(name, topos)(value)
+    topos.const(name, value)

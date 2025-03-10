@@ -6,4 +6,4 @@ sdk use java 24.ea.17-open
 #sbt evicted
 rm -rf target
 rm -rf project/target
-sbt clean test package && say "hey, build is ok" | say "oops, build failed" | tee build.log
+sbt clean test package && say "Marivanna.... ya gotova" | say "oy! bleen... oops... build failed" | tee build.log

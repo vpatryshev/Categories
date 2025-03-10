@@ -33,7 +33,9 @@ trait GrothendieckTopos
   
   given Conversion[Functor, Diagram] = _ match
     case d: Diagram => d
+    case d: Diagramme => d.asOldDiagram
     case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
+
 
   def inclusionOf(p: Point): Includer
 
@@ -42,9 +44,8 @@ trait GrothendieckTopos
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  object Ω extends Diagram("Ω", this, this.domain):
+  object Ω extends Diagram("Ω", this.domain):
     override val topos = thisTopos
-    override val d0: Category = thisTopos.domain
     override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map map `x => Ω(x)` .
@@ -424,17 +425,21 @@ trait GrothendieckTopos
     }
 
   abstract class Diagramme(tag: Any)
-    extends Functor(tag, domain, SetCategory.Setf):
+    extends Functor(tag):
     diagram =>
     private type XObject = d0.Obj // topos.domain.Obj ???
     private type XObjects = Set[XObject]
     private type XArrow = d0.Arrow // topos.domain.Arrow ???
     private type XArrows = Set[XArrow]
-    
-    def asOldDiagram: Diagram = new Diagram(tag, thisTopos, thisTopos.domain):
+
+    override val d0: Category = thisTopos.domain
+    override val d1: Category = SetCategory.Setf
+
+    def asOldDiagram: Diagram = new Diagram(tag, thisTopos.domain):
       val topos = thisTopos
-      override def objectsMapping(x: d0.Obj): d1.Obj = diagram(x)
-      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = diagram.arrowsMappingCandidate(a)
+      override val d1: Category = diagram.d1
+      override def objectsMapping(x: this.d0.Obj): this.d1.Obj = diagram(x)
+      override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow = diagram.arrowsMappingCandidate(a)
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
@@ -673,10 +678,10 @@ trait GrothendieckTopos
 
     private[topos] def apply(
       tag: Any,
-      objectsMap: thisTopos.domain.Obj => set,
-      arrowMap:   thisTopos.domain.Arrow => SetFunction): Diagramme =
+      objectsMap: domain.Obj => set,
+      arrowMap:   domain.Arrow => SetFunction): Diagramme =
 
-      new Diagramme(tag.toString, thisTopos, thisTopos.domain):
+      new Diagramme(tag.toString):
         override val d0: Category = thisTopos.domain
         override val d1: Category = SetCategory.Setf
         override private[topos] def setAt(x: Any): set = objectsMap(x)
@@ -685,8 +690,8 @@ trait GrothendieckTopos
 
     def tryBuild(
       tag: Any,
-      objectsMap: thisTopos.domain.Obj => set,
-      arrowMap:   thisTopos.domain.Arrow => SetFunction): Result[Diagramme] =
+      objectsMap: domain.Obj => set,
+      arrowMap:   domain.Arrow => SetFunction): Result[Diagramme] =
       val diagram: Diagramme = apply(tag, objectsMap, arrowMap)
 
       Functor.validateFunctor(diagram) returning diagram
@@ -694,3 +699,9 @@ trait GrothendieckTopos
     private[topos] def cleanupString(s: String): String =
       val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
       s1.replace("Set()", "{}")
+
+  def const(tag: String, value: set): Diagram =
+    Diagramme(
+      tag,
+      (x: domain.Obj) => value,
+      (a: domain.Arrow) => SetFunction.id(value)).asOldDiagram

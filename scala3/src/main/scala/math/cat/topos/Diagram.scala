@@ -24,12 +24,10 @@ import scala.language.{implicitConversions, postfixOps}
   */
 abstract class Diagram(
   tag: Any,
-  val topo: GrothendieckTopos,
-  val toposDomain: Category)
-  extends Functor(tag, toposDomain, SetCategory.Setf):
+  val d0: Category)
+  extends Functor(tag):
   diagram =>
   val topos: GrothendieckTopos // todo: start using this
-  override val d0: Category = topo.domain
   override val d1: Category = SetCategory.Setf
   private type XObject = d0.Obj // topos.domain.Obj ???
   private type XObjects = Set[XObject]
@@ -332,9 +330,8 @@ object Diagram:
     objectsMap: t.domain.Obj => set,
     arrowMap:   t.domain.Arrow => SetFunction): Diagram =
 
-    new Diagram(tag.toString, t, t.domain):
+    new Diagram(tag.toString, t.domain):
       override val topos = t // it's funny how it's important to place this here
-      override val d0: Category = t.domain
       override val d1: Category = SetCategory.Setf
       override private[topos] def setAt(x: Any): set = objectsMap(x)
       override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
@@ -344,9 +341,9 @@ object Diagram:
     tag: Any,
     objectsMap: topos.domain.Obj => set,
     arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] =
-    val diagram: Diagram = apply(topos)(tag, objectsMap, arrowMap)
-
-    Functor.validateFunctor(diagram) returning diagram
+      val diagram: Diagram = topos.Diagramme(tag, objectsMap, arrowMap).asOldDiagram
+    
+      Functor.validateFunctor(diagram) returning diagram
 
   private[topos] def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")

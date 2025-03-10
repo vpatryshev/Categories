@@ -25,12 +25,12 @@ class CategoryOfDiagrams(val domain: Category)
   
   lazy val subterminals: Set[Diagram] =
     def objectMapping(candidate: Set[domain.Obj]) =
-      (obj: domain.Obj) =>
+      (obj: thisTopos.domain.Obj) =>
         if candidate contains obj then _1(obj) else Empty
 
     def arrowMapping(candidate: Set[domain.Obj]): domain.Arrow => SetFunction =
       val omc = objectMapping(candidate)
-      (a: domain.Arrow) =>
+      (a: thisTopos.domain.Arrow) =>
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
         val function = _1.arrowsMapping(a)
@@ -82,10 +82,9 @@ class CategoryOfDiagrams(val domain: Category)
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     buildMap[domain.Obj, Set[Diagram]](domain.objects, x => Representable(x).subobjects.toSet)
 
-  case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", thisTopos, thisTopos.domain):
+  case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
     override val d0: Category = thisTopos.domain
     override val d1: Category = SetCategory.Setf
-    override val topos = thisTopos
     override def objectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow = am(f)
  
@@ -117,15 +116,6 @@ class CategoryOfDiagrams(val domain: Category)
 object CategoryOfDiagrams:
   type DiagramArrow = NaturalTransformation
   val BaseCategory: Category = SetCategory.Setf
-
-  def const[O,A](tag: String, topos: GrothendieckTopos)(value: set): Diagram =
-    type O = topos.domain.Obj
-    type A = topos.domain.Arrow
-
-    Diagram(topos)(
-      tag,
-      (x: O) => value,
-      (a: A) => SetFunction.id(value))
 
   private def nameOfPowerCategory(domainName: String) = s"Sets^$domainName"
   

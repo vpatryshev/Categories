@@ -32,8 +32,8 @@ class DiagramTest extends Test with TestDiagrams:
 
       val diagram: testTopos.Diagramme =
         testTopos.Diagramme("Test",
-          (x: testTopos.thisTopos.domain.Obj) => BuildPullbackDiagram.om(x.toString),
-          (a: testTopos.thisTopos.domain.Arrow) => BuildPullbackDiagram.am(a.toString))
+          (x: testTopos.domain.Obj) => BuildPullbackDiagram.om(x.toString),
+          (a: testTopos.domain.Arrow) => BuildPullbackDiagram.am(a.toString))
 
       val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
