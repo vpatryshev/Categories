@@ -83,6 +83,8 @@ class CategoryOfDiagrams(val domain: Category)
     buildMap[domain.Obj, Set[Diagram]](domain.objects, x => Representable(x).subobjects.toSet)
 
   case class Representable(x: domain.Obj) extends Diagram(s"hom($x, _)", thisTopos, thisTopos.domain):
+    override val d0: Category = thisTopos.domain
+    override val d1: Category = SetCategory.Setf
     override val topos = thisTopos
     override def objectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow = am(f)

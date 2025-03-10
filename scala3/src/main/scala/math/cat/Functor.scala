@@ -22,9 +22,13 @@ import scalakittens.Containers.*
   */
 abstract class Functor(
   taggedAs: Any,
-  override val d0: Category, override val d1: Category
+  d0x: Category, d1x: Category
 ) extends GraphMorphism:
   val tag = taggedAs
+
+  override val d0: Category
+  override val d1: Category
+
   /**
     * Objects of the functor domain
     * @return the objects
@@ -80,6 +84,8 @@ abstract class Functor(
       def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(arrowsMapping(a))
 
       new Functor(concat(g.tag, "∘", this.tag), f.d0, g.d1):
+        override val d0: Category = f.d0
+        override val d1: Category = f.d1
 
         def objectsMapping(x: d0.Obj): d1.Obj = `g(f(object))`(x)
 
@@ -146,8 +152,12 @@ abstract class Functor(
     * @return
     */
   def Lan(X: Functor): Result[Functor] =
+    val thisd1 = d1
     OKif(X.d0 == d0) returning
       new Functor(s"Lan_$tag(${X.tag}", d1, X.d1):
+        override val d0: Category = thisd1
+        override val d1: Category = X.d1
+
         override def objectsMapping(x: d0.Obj): d1.Obj = ???
         override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
 
@@ -159,8 +169,12 @@ abstract class Functor(
     * @return
     */
   def Ran(X: Functor): Result[Functor] =
+    val thisd1 = d1
     OKif(X.d0 == d0) returning
       new Functor(s"Ran_$tag(${X.tag}", d1, X.d1) :
+        override val d0: Category = thisd1
+        override val d1: Category = X.d1
+
         override def objectsMapping(x: d0.Obj): d1.Obj = ???
         override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
     
@@ -325,9 +339,11 @@ object Functor:
     * @return identity functor on the given category
     */
   def id(c: Category): Functor = new Functor("id", c, c):
-      override def objectsMapping(x: d0.Obj): d1.Obj = x
+    override val d0: Category = c
+    override val d1: Category = c
+    override def objectsMapping(x: d0.Obj): d1.Obj = x
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a
+    override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a
 
   /**
     * Builds a constant functor from a category to an object in another.
@@ -350,6 +366,8 @@ object Functor:
     objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor =
     new Functor(tag, dom, codom):
+      override val d0: Category = dom
+      override val d1: Category = codom
       override def objectsMapping(x: d0.Obj): d1.Obj = objectsMorphism(x)
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =

@@ -28,7 +28,9 @@ abstract class Diagram(
   val toposDomain: Category)
   extends Functor(tag, toposDomain, SetCategory.Setf):
   diagram =>
-  val topos: GrothendieckTopos
+  val topos: GrothendieckTopos // todo: start using this
+  override val d0: Category = topo.domain
+  override val d1: Category = SetCategory.Setf
   private type XObject = d0.Obj // topos.domain.Obj ???
   private type XObjects = Set[XObject]
   private type XArrow = d0.Arrow // topos.domain.Arrow ???
@@ -50,9 +52,9 @@ abstract class Diagram(
     new Point(id, topos, (x: Any) => mapping(x))
   lazy val points: List[Point] =
     val objMappings: View[Point] = for
-      valuesPerObject <- Sets.product(listOfComponents).view
-      tuples = listOfObjects zip valuesPerObject
-      mapping = tuples toMap;
+      valuesPerObject: List[Any] <- Sets.product(listOfComponents).view
+      tuples: List[(d0.Obj, Any)] = listOfObjects zip valuesPerObject
+      mapping: Map[d0.Obj, Any] = tuples toMap;
       om: Point = point(mapping) if isCompatible(om)
     yield om
 
@@ -331,7 +333,9 @@ object Diagram:
     arrowMap:   t.domain.Arrow => SetFunction): Diagram =
 
     new Diagram(tag.toString, t, t.domain):
-      override val topos = t
+      override val topos = t // it's funny how it's important to place this here
+      override val d0: Category = t.domain
+      override val d1: Category = SetCategory.Setf
       override private[topos] def setAt(x: Any): set = objectsMap(x)
       override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)

@@ -1,8 +1,9 @@
 package math.cat.topos
 
- import math.Base.*
+import math.Base.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Category, SetFunction}
+import math.cat.{Category, SetCategory, SetFunction}
+import math.sets.Sets
 
 import scala.annotation.targetName
 import scala.language.implicitConversions
@@ -35,22 +36,38 @@ class Point(
 
     new Point(s"${f.tag}(${p.tag})", p.topos, apply)
 
-  def asDiagram: Diagram =
-    new Diagram(tag, topos, topos.domain):
-      diagram =>
-      override val topos = baseTopos
-      override def objectsMapping(x: d0.Obj): d1.Obj = Set(mapping(x))
+  def asDiagram: Diagram = asDiagramme.asOldDiagram
+//    new Diagram(tag, topos, topos.domain):
+//      diagram =>
+//      override val d0: Category = topos.domain
+//      override val d1: Category = SetCategory.Setf
+//      override val topos = baseTopos
+//      override def objectsMapping(x: d0.Obj): d1.Obj = Set(mapping(x))
+//
+//      private def arrowToFunction(a: d0.Arrow): Any => Any =
+//        (z: Any) => mapping(d0.d1(a))
+//
+//      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
+//        // need a set function from a.d0 to a.d1
+//          SetFunction(
+//            s"${diagram.tag}(.)",
+//            objectsMapping(d0.d0(a)),
+//            objectsMapping(d0.d1(a)),
+//            arrowToFunction(a))
 
-      private def arrowToFunction(a: d0.Arrow): Any => Any =
-        (z: Any) => mapping(d0.d1(a))
+  def asDiagramme: topos.Diagramme =
+    def arrowToFunction(a: topos.thisTopos.domain.Arrow): Any => Any =
+      (z: Any) => mapping(topos.thisTopos.domain.d1(a))
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        // need a set function from a.d0 to a.d1
-          SetFunction(
-            s"${diagram.tag}(.)",
-            objectsMapping(d0.d0(a)),
-            objectsMapping(d0.d1(a)),
-            arrowToFunction(a))
+    def objectsMapping(x: topos.thisTopos.domain.Obj): Sets.set = Set(mapping(x))
+
+    topos.Diagramme(tag,
+      (x: topos.thisTopos.domain.Obj) => Set(mapping(x)),
+      (a: topos.thisTopos.domain.Arrow) =>
+        SetFunction(s"$tag(.)",
+          objectsMapping(topos.thisTopos.domain.d0(a)),
+          objectsMapping(topos.thisTopos.domain.d1(a)),
+          arrowToFunction(a)))
 
   @targetName("in")
   infix inline def ∈(container: Diagram): Boolean = asDiagram ⊂ container
