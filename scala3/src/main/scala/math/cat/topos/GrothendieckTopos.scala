@@ -44,11 +44,12 @@ trait GrothendieckTopos
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  object Ω extends Diagram("Ω", this.domain):
-    override val topos = thisTopos
+  val Ω: Ωlike = new Ωlike("Ω")
+
+  class Ωlike(name: String) extends Diagramme(name):
     override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
-    // These are values `Ω(x)`. We cache them in the following map map `x => Ω(x)` .
+    // These are values `Ω(x)`. We cache them in the following map `x => Ω(x)` .
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
@@ -63,23 +64,22 @@ trait GrothendieckTopos
 
       // How one diagram is transformed via `a`:
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
-      def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
+      def diaMap(rx: Diagramme): Diagram /*a subrepresentable on `x`*/ =
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
         def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
-        def om2(o: Ω.topos.domain.Obj): set = om1(o)
 
         // this is how, given an arrow `b`, the new diagram gets from one point to another
-        def am1(b: Ω.topos.domain.Arrow): SetFunction =
-          val x1 = om1(domain.d0(b)) //  {f ∈ hom(y, d0(b)) | a compose f ∈ r1(d0(b)}
-          val y1 = om1(domain.d1(b)) //  {f ∈ hom(y, d1(b)) | a compose f ∈ r1(d1(b)}
+        def am1(b: domain.Arrow): SetFunction =
+          val x1 = om1(domain.d0(b))
+          val y1 = om1(domain.d1(b))
 
           // A function fom x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g => domain.m(g, b).get)
         
-        topos.Diagramme("", om2, am1).asOldDiagram // no validation, we know it's ok
+        Diagramme("", om1, am1) // no validation, we know it's ok
 
       // no validation here, the function is known to be ok
-      new SetFunction(s"[$a]", d0.untyped, d1.untyped, d => diaMap(d.asInstanceOf[Diagram]))
+      new SetFunction(s"[$a]", d0.untyped, d1.untyped, d => diaMap(d.asInstanceOf[Diagramme]))
 
     protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = am(a)
 
@@ -92,7 +92,7 @@ trait GrothendieckTopos
       * @param x1 an object in domain (a "state")
       * @return
       */
-    private def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagram)(x1: domain.Obj): set =
+    private def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagramme)(x1: domain.Obj): set =
       val y = domain.d1(a)
       val rx_at_x1 = rx(x1)
       for
@@ -129,7 +129,7 @@ trait GrothendieckTopos
         concat(a.tag, "∩", b.tag),
         o => om(o),
         f => am(f)
-      ).asOldDiagram
+      )
     
     lazy val conjunction: DiagramArrow =
 
@@ -191,7 +191,7 @@ trait GrothendieckTopos
 
           topos.Diagramme(
             concat(a.tag, "∪", b.tag),
-            o => om(o), f => am(f)).asOldDiagram
+            o => om(o), f => am(f))
 
         end union
 
@@ -211,7 +211,7 @@ trait GrothendieckTopos
     lazy val implication: DiagramArrow =
       χ(inclusionOf(Ω1) in ΩxΩ iHope, "⟹")
 
-  end Ω
+  end Ωlike
   
   
   val ΩxΩ: Obj = product2(Ω, Ω)
@@ -409,7 +409,7 @@ trait GrothendieckTopos
 
       new SetFunction("", from.untyped, to.untyped, f)
 
-    val diagram = Diagramme(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a)).asOldDiagram
+    val diagram = Diagramme(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a))
 
   end product2builder
 
@@ -700,7 +700,7 @@ trait GrothendieckTopos
     Diagramme(
       tag,
       (x: domain.Obj) => value,
-      (a: domain.Arrow) => SetFunction.id(value)).asOldDiagram
+      (a: domain.Arrow) => SetFunction.id(value))
 
   def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
