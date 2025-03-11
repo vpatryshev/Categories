@@ -76,7 +76,7 @@ trait GrothendieckTopos
           // A function fom x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g => domain.m(g, b).get)
         
-        Diagram(topos)("", om2, am1) // no validation, we know it's ok
+        topos.Diagramme("", om2, am1).asOldDiagram // no validation, we know it's ok
 
       // no validation here, the function is known to be ok
       new SetFunction(s"[$a]", d0.untyped, d1.untyped, d => diaMap(d.asInstanceOf[Diagram]))
@@ -125,11 +125,11 @@ trait GrothendieckTopos
 
         a.arrowsMapping(f).restrictTo(x, y).iHope
 
-      Diagram(topos)(
+      topos.Diagramme(
         concat(a.tag, "∩", b.tag),
         o => om(o),
         f => am(f)
-      )
+      ).asOldDiagram
     
     lazy val conjunction: DiagramArrow =
 
@@ -189,9 +189,9 @@ trait GrothendieckTopos
 
             new SetFunction("", x, y, unionOfMappings)
 
-          Diagram(topos)(
+          topos.Diagramme(
             concat(a.tag, "∪", b.tag),
-            o => om(o), f => am(f))
+            o => om(o), f => am(f)).asOldDiagram
 
         end union
 
@@ -409,7 +409,7 @@ trait GrothendieckTopos
 
       new SetFunction("", from.untyped, to.untyped, f)
 
-    val diagram = Diagram(topos)(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a))
+    val diagram = Diagramme(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a)).asOldDiagram
 
   end product2builder
 
@@ -696,12 +696,12 @@ trait GrothendieckTopos
 
       Functor.validateFunctor(diagram) returning diagram
 
-    private[topos] def cleanupString(s: String): String =
-      val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
-      s1.replace("Set()", "{}")
-
   def const(tag: String, value: set): Diagram =
     Diagramme(
       tag,
       (x: domain.Obj) => value,
       (a: domain.Arrow) => SetFunction.id(value)).asOldDiagram
+
+  def cleanupString(s: String): String =
+    val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
+    s1.replace("Set()", "{}")

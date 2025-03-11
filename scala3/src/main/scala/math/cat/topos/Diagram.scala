@@ -197,7 +197,8 @@ abstract class Diagram(
       objectsMapping(o) filter predicate(o)
 
     val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows(objectMapping)(a)
-    Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
+    topos.Diagramme(tag, d0.obj andThen objectMapping, arrowToFunction).asOldDiagram
+//    Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] =
     val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))
@@ -223,12 +224,12 @@ abstract class Diagram(
 
     val allCandidates = sorted.zipWithIndex map:
       case (om, i) =>
-        Diagram.tryBuild(topos)(
+        topos.Diagramme.tryBuild(
           i,
           om(_),
           extendToArrows(om))
 
-    allCandidates.collect { case Good(d) => d }
+    allCandidates.collect { case Good(d) => d.asOldDiagram }
 
   end subobjects
   
@@ -241,7 +242,7 @@ abstract class Diagram(
       s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagram[${d0.name}]", ""))
   
   def toShortString: String = toString(x => {
-      val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
+      val obRepr = topos.cleanupString(asString(objectsMapping(x)))
       if obRepr.isEmpty then "" else s"$x->{$obRepr}"
     }.replace(s"Diagram[${d0.name}]", "")
   )
@@ -322,29 +323,3 @@ abstract class Diagram(
       setsToCheck forall allArrowsAreCompatibleOnPoint(p)
 
   end limitBuilder
-
-object Diagram:
-
-  private[topos] def apply(t: GrothendieckTopos)(
-    tag: Any,
-    objectsMap: t.domain.Obj => set,
-    arrowMap:   t.domain.Arrow => SetFunction): Diagram =
-
-    new Diagram(tag.toString, t.domain):
-      override val topos = t // it's funny how it's important to place this here
-      override val d1: Category = SetCategory.Setf
-      override private[topos] def setAt(x: Any): set = objectsMap(x)
-      override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
-      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
-        
-  def tryBuild(topos: GrothendieckTopos)(
-    tag: Any,
-    objectsMap: topos.domain.Obj => set,
-    arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] =
-      val diagram: Diagram = topos.Diagramme(tag, objectsMap, arrowMap).asOldDiagram
-    
-      Functor.validateFunctor(diagram) returning diagram
-
-  private[topos] def cleanupString(s: String): String =
-    val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
-    s1.replace("Set()", "{}")
