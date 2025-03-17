@@ -2,7 +2,7 @@
 
 ### Intro
 
-This is a Scala (2, Scala 3 in the future) implementation of category theory calculations and topos logic (and topologies).
+This is a Scala implementation of category theory calculations and topos logic (and topologies).
 Historically, it was first written in Basic, then in Fortran, then in Assembler, then in Java, now in Scala.
 Long story.
 
@@ -36,10 +36,10 @@ What we have now:
 - Lawvere topologies
 
 WIP:
+- Scala 3
 
 Plans: 
 - sheaves
 - pullback in a topos
-- Scala 3
 
 TODO: use this trick: https://gist.github.com/non/51b83d0abc929cc4f0b153accf2bf02f
