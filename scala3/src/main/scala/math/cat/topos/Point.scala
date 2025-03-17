@@ -65,22 +65,22 @@ class Point(
   override def toString: String =
     if tag.toString.nonEmpty then tag.toString else
       val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
-      topos.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
+      Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
 
   def toShortString: String =
     val raw = domainCategory.objects.map(x => s"$x->${apply(x)}").mkString(s"$tag(", ", ", ")")
-    val short = topos.cleanupString(raw)
+    val short = Diagram.cleanupString(raw)
 
     val strings: List[String] =
       domainCategory.listOfObjects map { x =>
       val obRepr = apply(x) match
-        case d: Diagram => topos.cleanupString(d.toShortString)
+        case d: Diagram => Diagram.cleanupString(d.toShortString)
         case other => other.toString
 
       s"$x->$obRepr"
     }
 
-    topos.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
+    Diagram.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
 
   override lazy val hashCode: Int = System.identityHashCode(topos) * 79 + toString.hashCode
 
