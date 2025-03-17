@@ -156,7 +156,8 @@ private[cat] trait GraphData:
 
   implicit def asNode(x: Any): Node = x match
     case node: Node @unchecked if nodes(node) => node
-    case badNode: Node => throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
+    case badNode: Node => 
+      throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
     case notaNode => throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
   implicit def asArrow(a: Any): Arrow = a match

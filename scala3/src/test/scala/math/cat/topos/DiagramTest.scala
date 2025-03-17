@@ -15,9 +15,8 @@ import scalakittens.{Good, Result}
   * Test for individual diagrams (functors with codomain=sets)
   */
 class DiagramTest extends Test with TestDiagrams:
-  type SUT = Diagram
 
-  "Diagram" should {
+  "diagram" should {
 
     "validate as a functor with Set as domain" in {
       val sut = BuildPullbackDiagram.asFunctor.iHope
@@ -27,18 +26,14 @@ class DiagramTest extends Test with TestDiagrams:
 
     "test build" in {
       val dom = Pullback
-      val topos = new CategoryOfDiagrams(dom)
+      val testTopos = new CategoryOfDiagrams(dom)
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
       sut1.objectsMapping("b") === BuildPullbackDiagram.sb
 
-      val diagram: Diagram =
-        new Diagram("Test", topos):
-          
-          override def objectsMapping(x: d0.Obj): d1.Obj =
-            BuildPullbackDiagram.om(x.toString)
-          
-          override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-            BuildPullbackDiagram.am(a.toString)
+      val diagram: testTopos.Diagramme =
+        testTopos.Diagramme("Test",
+          (x: testTopos.domain.Obj) => BuildPullbackDiagram.om(x.toString),
+          (a: testTopos.domain.Arrow) => BuildPullbackDiagram.am(a.toString))
 
       val res = Functor.validateFunctor(diagram)
       res.isGood must beTrue
@@ -59,7 +54,7 @@ class DiagramTest extends Test with TestDiagrams:
       val topos = new CategoryOfDiagrams(ParallelPair)
       expectError(_.
         matches(raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"),
-        Diagram.tryBuild(topos)(
+        topos.Diagramme.tryBuild(
           "Bad Bad Bad",
           Map("0" -> a, "1" -> b),
           Map("a" -> f, "b" -> g)
@@ -73,7 +68,7 @@ class DiagramTest extends Test with TestDiagrams:
     }
   }
 
-  "Diagram limit" should {
+  "diagram limit" should {
     "exist for an empty diagram" in {
       val sut = const(Set("a", "b"))
           sut.d0 === _1_
@@ -89,7 +84,7 @@ class DiagramTest extends Test with TestDiagrams:
 
       sut.limit match
         case Good(sut.Cone(vertex, arrowTo)) =>
-          sut.setOf(vertex).size === x.size
+          sut.itsaset(vertex).size === x.size
         case none => failure(s"We expected a limit, got $none")
       
       ok
@@ -98,7 +93,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for a pullback" in {
       val sut = SamplePullbackDiagram
       val limit = sut.limit.iHope
-      val vertex = sut.setOf(limit.vertex)
+      val vertex = sut.itsaset(limit.vertex)
       vertex.size === 5
       val ara = limit.arrowTo("a")
       val arb = limit.arrowTo("b")
@@ -120,7 +115,7 @@ class DiagramTest extends Test with TestDiagrams:
       val sut = SampleParallelPairDiagram1
       val limit = sut.limit.iHope
 
-      val vertex = sut.setOf(limit.vertex)
+      val vertex = sut.itsaset(limit.vertex)
       vertex.size === 3
       vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
       
@@ -150,7 +145,7 @@ class DiagramTest extends Test with TestDiagrams:
         val sut = SampleWDiagram
         val limit = sut.limit.iHope
 
-        val vertex = sut.setOf(limit.vertex)
+        val vertex = sut.itsaset(limit.vertex)
         vertex.size === 16
         val ara = limit.arrowTo("a")
         val arb = limit.arrowTo("b")
@@ -187,7 +182,7 @@ class DiagramTest extends Test with TestDiagrams:
         val cb = fun(c,b)("cb", x => Math.max(2, Math.min(4, x.toInt)))
         val cd = fun(c,d)("cd", _.toInt % 3)
         val ed = fun(e,d)("ed", x => (x.toInt + 1) % 2)
-        val sut = Diagram.tryBuild(topos)(
+        val sut = topos.Diagramme.tryBuild(
           "W",
           Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
           Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
@@ -195,14 +190,14 @@ class DiagramTest extends Test with TestDiagrams:
 
         val limit = sut.limit.iHope
 
-        val vertex = sut.setOf(limit.vertex)
+        val vertex = sut.itsaset(limit.vertex)
         vertex.size === 8
         val ara = limit.arrowTo("a")
         val arb = limit.arrowTo("b")
         val arc = limit.arrowTo("c")
         val ard = limit.arrowTo("d")
         val are = limit.arrowTo("e")
-        val points = sut.limitBuilder
+        val points = sut.LimitBuilder
 
         for
           i <- a
@@ -228,7 +223,7 @@ class DiagramTest extends Test with TestDiagrams:
       }
     }
 
-  "Diagram colimit" should {
+  "diagram colimit" should {
     "exist for a empty diagram" in {
       val sut = EmptyDiagram
       sut.d0 === _0_
@@ -246,7 +241,7 @@ class DiagramTest extends Test with TestDiagrams:
       sut.d0 === _1_
       sut.d1 === Setf
       val colimit = sut.colimit.iHope
-      val vertex = sut.setOf(colimit.vertex)
+      val vertex = sut.itsaset(colimit.vertex)
       vertex.size === expected.size
     }
 
@@ -257,7 +252,7 @@ class DiagramTest extends Test with TestDiagrams:
       val c: set = Set(0, 1)
       val ab = fun(a,b)("f", _.toInt + 1)
       val ac = fun(a,c)("g", _.toInt % 2)
-      val sut: SUT = Diagram.tryBuild(topos)(
+      val sut = topos.Diagramme.tryBuild(
         "pushout",
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ab" -> ab, "ac" -> ac)
@@ -284,7 +279,7 @@ class DiagramTest extends Test with TestDiagrams:
       val b: set = Set(0, 1, 2)
       val f = fun(a,b)("f", x => Math.min(2, x.toInt))
       val g = fun(a,b)("g", x => x.toInt % 3)
-      val sut: Diagram = Diagram.tryBuild(topos)(
+      val sut = topos.Diagramme.tryBuild(
         "coEq",
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)
@@ -293,7 +288,7 @@ class DiagramTest extends Test with TestDiagrams:
       
       val element = Set((0, 0), (0, 1), (0, 2))
 
-      val vertex = sut.setOf(colimit.vertex)
+      val vertex = sut.itsaset(colimit.vertex)
       val ar0 = colimit.arrowFrom("0")
       val ar1 = colimit.arrowFrom("1")
       a.foreach(ar0(_) === element)
@@ -314,7 +309,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for M, regular data" in {
       val sut = SampleMDiagram
       val colimit = sut.colimit.iHope
-      val vertex = sut.setOf(colimit.vertex)
+      val vertex = sut.itsaset(colimit.vertex)
       vertex.size === 8
       val ara = colimit.arrowFrom("a")
       val arb = colimit.arrowFrom("b")

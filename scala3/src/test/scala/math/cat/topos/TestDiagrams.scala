@@ -22,7 +22,7 @@ trait TestDiagrams extends Test:
     val topos = toposOver(domain)
     def om(o: topos.domain.Obj): set = objectsMap(o.toString)
     def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
-    Diagram.tryBuild(topos)(name, om, am) iHope
+    topos.Diagramme.apply(name, om, am).asOldDiagram
 
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => om(f.toString)
@@ -171,3 +171,8 @@ trait TestDiagrams extends Test:
       Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
       Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
     )
+
+object Debug extends TestDiagrams:
+
+  @main def allToposes(): Unit =
+    println(toposes)

@@ -11,7 +11,7 @@ trait Topos:
   // finite limits should exist
   def product2(x: Obj, y: Obj): Obj
   
-  val Ω: Obj
+//  val Ω: Obj TODO: restore it, when we get rid of Diagram
 
   def ΩxΩ: Obj
 

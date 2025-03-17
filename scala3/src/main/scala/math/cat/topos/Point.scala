@@ -1,8 +1,9 @@
 package math.cat.topos
 
- import math.Base.*
+import math.Base.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Category, SetFunction}
+import math.cat.{Category, SetCategory, SetFunction}
+import math.sets.Sets
 
 import scala.annotation.targetName
 import scala.language.implicitConversions
@@ -18,7 +19,7 @@ class Point(
   val topos: GrothendieckTopos,
   val mapping: Any => Any) extends (Any => Any):
   p =>
-
+  val baseTopos: GrothendieckTopos = topos
   private val domainCategory: Category = topos.domain
 
   def apply(x: Any): Any = mapping(x)
@@ -35,22 +36,21 @@ class Point(
 
     new Point(s"${f.tag}(${p.tag})", p.topos, apply)
 
-  def asDiagram: Diagram =
-    new Diagram(tag, topos):
-      diagram =>
+  def asDiagram: Diagram = asDiagramme.asOldDiagram
 
-      override def objectsMapping(x: d0.Obj): d1.Obj = Set(mapping(x))
+  def asDiagramme: topos.Diagramme =
+    def arrowToFunction(a: topos.thisTopos.domain.Arrow): Any => Any =
+      (z: Any) => mapping(topos.thisTopos.domain.d1(a))
 
-      private def arrowToFunction(a: d0.Arrow): Any => Any =
-        (z: Any) => mapping(d0.d1(a))
+    def objectsMapping(x: topos.thisTopos.domain.Obj): Sets.set = Set(mapping(x))
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        // need a set function from a.d0 to a.d1
-          SetFunction(
-            s"${diagram.tag}(.)",
-            objectsMapping(d0.d0(a)),
-            objectsMapping(d0.d1(a)),
-            arrowToFunction(a))
+    topos.Diagramme(tag,
+      (x: topos.domain.Obj) => Set(mapping(x)),
+      (a: topos.domain.Arrow) =>
+        SetFunction(s"$tag(.)",
+          objectsMapping(topos.domain.d0(a)),
+          objectsMapping(topos.domain.d1(a)),
+          arrowToFunction(a)))
 
   @targetName("in")
   infix inline def ∈(container: Diagram): Boolean = asDiagram ⊂ container
@@ -65,22 +65,22 @@ class Point(
   override def toString: String =
     if tag.toString.nonEmpty then tag.toString else
       val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
-      Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
+      topos.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
 
   def toShortString: String =
     val raw = domainCategory.objects.map(x => s"$x->${apply(x)}").mkString(s"$tag(", ", ", ")")
-    val short = Diagram.cleanupString(raw)
+    val short = topos.cleanupString(raw)
 
     val strings: List[String] =
       domainCategory.listOfObjects map { x =>
       val obRepr = apply(x) match
-        case d: Diagram => Diagram.cleanupString(d.toShortString)
+        case d: Diagram => topos.cleanupString(d.toShortString)
         case other => other.toString
 
       s"$x->$obRepr"
     }
 
-    Diagram.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
+    topos.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
 
   override lazy val hashCode: Int = System.identityHashCode(topos) * 79 + toString.hashCode
 
