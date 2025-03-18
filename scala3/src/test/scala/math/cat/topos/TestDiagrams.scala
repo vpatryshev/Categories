@@ -175,4 +175,4 @@ trait TestDiagrams extends Test:
 object Debug extends TestDiagrams:
 
   @main def allToposes(): Unit =
-    println(toposes)
+    println(toposes.values)   

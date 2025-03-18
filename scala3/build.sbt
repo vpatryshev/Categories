@@ -2,7 +2,7 @@ name := "Categories, scala 3"
 
 version := "3.0"
 
-scalaVersion := "3.6.2"
+scalaVersion := "3.6.4"
 
 maxErrors := 10
 
