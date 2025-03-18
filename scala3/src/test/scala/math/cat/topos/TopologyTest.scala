@@ -10,18 +10,19 @@ class TopologyTest extends Fixtures:
   
   def topologiesTested(cat: Cat): List[Result[LawvereTopology]] =
     val topos = new CategoryOfDiagrams(cat)
-    import topos._
+    val Ω = topos.Ω.asOldDiagram
     val subs: List[Diagram] = Ω.subobjects.toList
+    import topos._
 
     val inclusionsToΩ =
-      subs map (inclusionOf(_)  in Ω) collect { case Good(incl) => incl }
+      subs map (topos.inclusionOf(_) in Ω) collect { case Good(incl) => incl }
 
     val builder = LawvereTopology.forPredicate(topos)
 
-    val predicates = inclusionsToΩ map predicateForArrowToΩ
+    val predicates = inclusionsToΩ map topos.predicateForArrowToΩ
 
     predicates map builder
-  
+
   def topologies(cat: Cat): List[LawvereTopology] =
     topologiesTested(cat) collect { case Good(topo) => topo}
   

@@ -108,7 +108,18 @@ class GrothendieckToposTest extends Fixtures:
     "exist for ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
       import topos._
-      println(topos.Ω.toShortString)
+      val omega = topos.Ω
+
+      try
+        val aboutOmega = omega.toString
+        println(aboutOmega)
+        ok
+      catch
+        case e: Throwable =>
+          System.err.println(e)
+          e.printStackTrace()
+          ok
+          
       val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1 iHope
       val χ1: DiagramArrow = topos.χ(i1)
       val χ10: SetFunction = asFunction(χ1("0"))

@@ -44,11 +44,12 @@ trait GrothendieckTopos
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  object Ω extends Diagram("Ω", this.domain):
-    override val topos = thisTopos
+  val Ω: Ωlike = new Ωlike("Ω")
+
+  class Ωlike(name: String) extends Diagramme(name):
     override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
-    // These are values `Ω(x)`. We cache them in the following map map `x => Ω(x)` .
+    // These are values `Ω(x)`. We cache them in the following map `x => Ω(x)` .
     private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
@@ -63,23 +64,44 @@ trait GrothendieckTopos
 
       // How one diagram is transformed via `a`:
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
-      def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
+      def diaMappe(rx: Diagramme): Diagram /*a subrepresentable on `x`*/ =
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
         def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
-        def om2(o: Ω.topos.domain.Obj): set = om1(o)
 
         // this is how, given an arrow `b`, the new diagram gets from one point to another
-        def am1(b: Ω.topos.domain.Arrow): SetFunction =
-          val x1 = om1(domain.d0(b)) //  {f ∈ hom(y, d0(b)) | a compose f ∈ r1(d0(b)}
-          val y1 = om1(domain.d1(b)) //  {f ∈ hom(y, d1(b)) | a compose f ∈ r1(d1(b)}
+        def am1(b: domain.Arrow): SetFunction =
+          val x1 = om1(domain.d0(b))
+          val y1 = om1(domain.d1(b))
 
           // A function fom x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g => domain.m(g, b).get)
         
-        Diagram(topos)("", om2, am1) // no validation, we know it's ok
+        Diagramme("", om1, am1).asOldDiagram // no validation, we know it's ok
 
+      def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
+        // this is how elements of objects projections, that is, subterminals, are transformed by `a`
+        def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
+
+        // this is how, given an arrow `b`, the new diagram gets from one point to another
+        def am1(b: domain.Arrow): SetFunction =
+          val x1 = om1(domain.d0(b))
+          val y1 = om1(domain.d1(b))
+
+          // A function fom x1 to y1 - it does the transition
+          new SetFunction("", x1, y1, g => domain.m(g, b).get)
+
+        Diagramme("", om1, am1).asOldDiagram // no validation, we know it's ok
+
+      val tmpTransformer: Any => Any = x => {
+        x match
+          case xD: Diagramme => diaMappe(xD)
+          case xD: Diagram => diaMap(xD)
+          case _ =>
+            System.err.println("wtf, got $x:${x.getClass")
+            throw new IllegalArgumentException(s"Expected a diagramme, got $x of type ${x.getClass}")
+      }
       // no validation here, the function is known to be ok
-      new SetFunction(s"[$a]", d0.untyped, d1.untyped, d => diaMap(d.asInstanceOf[Diagram]))
+      new SetFunction(s"[$a]", d0.untyped, d1.untyped, tmpTransformer)
 
     protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = am(a)
 
@@ -92,6 +114,15 @@ trait GrothendieckTopos
       * @param x1 an object in domain (a "state")
       * @return
       */
+    private def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagramme)(x1: domain.Obj): set =
+      val y = domain.d1(a)
+      val rx_at_x1 = rx(x1)
+      for
+        f <- domain.hom(y, x1)
+        candidate <- domain.m(a, f)
+        if candidate ∈ rx_at_x1
+      yield f
+
     private def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagram)(x1: domain.Obj): set =
       val y = domain.d1(a)
       val rx_at_x1 = rx(x1)
@@ -101,7 +132,8 @@ trait GrothendieckTopos
         if candidate ∈ rx_at_x1
       yield f
 
-    Functor.validateFunctor(this) iHope
+    val hopefully = Functor.validateFunctor(this)
+    hopefully iHope
 
     // TODO: redefine as classifying an empty
     lazy val False: Point = points.head named "⊥"
@@ -211,7 +243,7 @@ trait GrothendieckTopos
     lazy val implication: DiagramArrow =
       χ(inclusionOf(Ω1) in ΩxΩ iHope, "⟹")
 
-  end Ω
+  end Ωlike
   
   
   val ΩxΩ: Obj = product2(Ω, Ω)
@@ -425,7 +457,7 @@ trait GrothendieckTopos
     }
 
   abstract class Diagramme(tag: Any)
-    extends Functor(tag):
+    extends Functor(s"Diagramme $tag in $topos"):
     diagram =>
     private type XObject = d0.Obj // topos.domain.Obj ???
     private type XObjects = Set[XObject]
@@ -435,11 +467,12 @@ trait GrothendieckTopos
     override val d0: Category = thisTopos.domain
     override val d1: Category = SetCategory.Setf
 
-    def asOldDiagram: Diagram = new Diagram(tag, thisTopos.domain):
+    def asOldDiagram: Diagram = new Diagram(s"Diagram $tag in $topos", thisTopos.domain):
       val topos = thisTopos
       override val d1: Category = diagram.d1
       override def objectsMapping(x: this.d0.Obj): this.d1.Obj = diagram(x)
-      override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow = diagram.arrowsMappingCandidate(a)
+      override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow =
+        diagram.arrowsMappingCandidate(a)
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
@@ -673,6 +706,22 @@ trait GrothendieckTopos
         function //.asInstanceOf[d1.Arrow]
 
       Good(Cocone(theFactorset.content, coconeMap))
+
+
+    private def toString(contentMapper: XObject => String): String =
+      s"Diagram[${d0.name}](${
+        listOfObjects map contentMapper filter (_.nonEmpty) mkString ", "
+      })".replace("Set()", "{}")
+
+    override def toString: String = toString(x =>
+      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagramme[${d0.name}]", ""))
+
+    def toShortString: String = toString(x => {
+      val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
+      if obRepr.isEmpty then "" else s"$x->{$obRepr}"
+    }.replace(s"Diagramme[${d0.name}]", "")
+    )
+
 
   object Diagramme:
 
