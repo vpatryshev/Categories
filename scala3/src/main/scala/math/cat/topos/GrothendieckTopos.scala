@@ -75,7 +75,7 @@ trait GrothendieckTopos
 
           // A function fom x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g => domain.m(g, b).get)
-        
+
         Diagramme("", om1, am1).asOldDiagram // no validation, we know it's ok
 
       def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
@@ -132,8 +132,7 @@ trait GrothendieckTopos
         if candidate ∈ rx_at_x1
       yield f
 
-    val hopefully = Functor.validateFunctor(this)
-    hopefully iHope
+    Functor.validateFunctor(this) iHope
 
     // TODO: redefine as classifying an empty
     lazy val False: Point = points.head named "⊥"
@@ -707,7 +706,6 @@ trait GrothendieckTopos
 
       Good(Cocone(theFactorset.content, coconeMap))
 
-
     private def toString(contentMapper: XObject => String): String =
       s"Diagram[${d0.name}](${
         listOfObjects map contentMapper filter (_.nonEmpty) mkString ", "
@@ -722,7 +720,42 @@ trait GrothendieckTopos
     }.replace(s"Diagramme[${d0.name}]", "")
     )
 
+    def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
+      val dom: Sets.set = om(d0.d0(a))
+      val codom: Sets.set = om(d0.d1(a))
+      new SetFunction("", dom, codom, arrowsMapping(a))
 
+    def subobjects: Iterable[Diagramme] =
+      val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))
+      val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
+
+      val listOfComponents: List[Set[set]] = listOfObjects map allPowers
+
+      def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall:
+        a =>
+          val d00 = itsaset(om(d0.d0(a)))
+          val d01: set = om(d0.d1(a))
+          val f = arrowsMapping(a)
+          d00 map f subsetOf d01
+
+      val objMappings: Iterable[Map[XObject, Sets.set]] = for
+        values <- Sets.product(listOfComponents).view
+        om0: Point = point(listOfObjects zip values toMap)
+        om: Map[XObject, Sets.set] = buildMap(d0.objects, x => itsaset(om0(x)))
+        if isPresheaf(om)
+      yield om
+
+      val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
+
+      sorted.zipWithIndex map :
+        case (om, i) =>
+          Diagramme(
+            i,
+            om(_),
+            extendToArrows(om))
+
+    end subobjects
+    
   object Diagramme:
 
     private[topos] def apply(

@@ -80,7 +80,12 @@ class CategoryOfDiagrams(val domain: Category)
   } else None
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
-    buildMap[domain.Obj, Set[Diagram]](domain.objects, x => Representable(x).subobjects.toSet)
+    buildMap[domain.Obj, Set[Diagram]](domain.objects,
+      x => {
+        val rep: Representable = Representable(x)
+        val subobjects: Iterable[Diagram] = rep.subobjects.map(_.toOldDiagram)
+        subobjects.toSet
+      })
 
   case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
     override val d0: Category = thisTopos.domain

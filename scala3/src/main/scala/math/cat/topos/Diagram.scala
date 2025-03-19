@@ -27,6 +27,7 @@ abstract class Diagram(
   val d0: Category)
   extends Functor(tag):
   diagram =>
+  def toOldDiagram: Diagram = this
   val topos: GrothendieckTopos // todo: start using this
   override val d1: Category = SetCategory.Setf
   private type XObject = d0.Obj // topos.domain.Obj ???
@@ -186,7 +187,7 @@ abstract class Diagram(
     val objs = listOfObjects map objectsMapping
     objs map itsaset
   
-  private def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
+  def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
     val dom: Sets.set = om(d0.d0(a))
     val codom: Sets.set = om(d0.d1(a))
     new SetFunction("", dom, codom, arrowsMapping(a))
