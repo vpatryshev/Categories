@@ -198,7 +198,6 @@ abstract class Diagram(
 
     val arrowToFunction = (a: topos.domain.Arrow) => extendToArrows(objectMapping)(a)
     topos.Diagramme(tag, d0.obj andThen objectMapping, arrowToFunction).asOldDiagram
-//    Diagram(topos)(tag, d0.obj andThen objectMapping, arrowToFunction)
 
   def subobjects: Iterable[Diagram] =
     val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))
@@ -222,14 +221,12 @@ abstract class Diagram(
     
     val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
 
-    val allCandidates = sorted.zipWithIndex map:
+    sorted.zipWithIndex map:
       case (om, i) =>
-        Diagram.tryBuild(topos)(
+        Diagram.build(topos)(
           i,
           om(_),
           extendToArrows(om))
-
-    allCandidates.collect { case Good(d) => d }
 
   end subobjects
   
@@ -338,13 +335,11 @@ object Diagram:
       override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
       override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
         
-  def tryBuild(topos: GrothendieckTopos)(
+  def build(topos: GrothendieckTopos)(
     tag: Any,
     objectsMap: topos.domain.Obj => set,
-    arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] =
-      val diagram: Diagram = topos.Diagramme(tag, objectsMap, arrowMap).asOldDiagram
-    
-      Functor.validateFunctor(diagram) returning diagram
+    arrowMap:   topos.domain.Arrow => SetFunction): Diagram =
+      topos.Diagramme(tag, objectsMap, arrowMap).asOldDiagram
 
   private[topos] def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
