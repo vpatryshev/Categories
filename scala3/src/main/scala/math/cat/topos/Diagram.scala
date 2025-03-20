@@ -279,8 +279,6 @@ abstract class Diagram(
   private def arrowActionOnPoint(a: XArrow, point: Point): Any =
     arrowsMapping(a)(point(d0.d0(a)))
 
-  private[cat] def itsaset(x: Any): set = x.asInstanceOf[set]
-
   private[cat] object limitBuilder:
     // have to use List so far, no tool to annotate cartesian product components with their appropriate objects
     final private[cat] lazy val listOfObjects: List[XObject] = listSorted(rootObjects)

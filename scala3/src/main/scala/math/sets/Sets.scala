@@ -23,6 +23,8 @@ object Sets:
     */
   type set = Set[Any]
 
+  def itsaset(x: Any): set = x.asInstanceOf[set]
+
   type factorset = FactorSet[Any]
 
   /**

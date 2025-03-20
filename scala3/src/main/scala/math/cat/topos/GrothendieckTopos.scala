@@ -285,7 +285,7 @@ trait GrothendieckTopos
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
           def hits_By(f: domain.Arrow) = image_via(f) ∈ By  
-          y -> Ω.itsaset(all_arrows_to_y filter hits_By)
+          y -> itsaset(all_arrows_to_y filter hits_By)
         }
     
     def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
@@ -364,6 +364,20 @@ trait GrothendieckTopos
     NaturalTransformation.build(tag, from, to)(
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
 
+  /**
+   * Builds a `DiagrammeArrow`, given domain, codomain, and a mapping
+   *
+   * @param tag     arrow tag
+   * @param from    domain
+   * @param to      codomain
+   * @param mapping maps objects to functions
+   * @return a natural transformation (crashes if not)
+   */
+  def buildArrowe(tag: Any, from: Diagramme, to: Diagramme,
+                 mapping: Mapping): DiagramArrow =
+    NaturalTransformation.build(tag, from, to)(
+      (o: from.d0.Obj) => buildOneArrowe(tag, from, to, mapping)(o)).iHope
+
   private val p1: Any => Any =
     case (a, b) => a
     case trash =>
@@ -398,6 +412,26 @@ trait GrothendieckTopos
     to: Diagram,
     mapping: Mapping
   )(o: from.d0.Obj): from.d1.Arrow =
+    SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope
+
+  /**
+   * Given a `from` and `to` diagrams, build an arrow
+   * `from(o)` -> `to(o)`, for each given `o`,
+   * using the provided mapping
+   *
+   * @param tag     tag of a natural transformation
+   * @param from    domain diagram
+   * @param to      codomain diagram
+   * @param mapping given an object `o`, produce a function over this object
+   * @param o       the object
+   * @return an arrow (it's a `SetFunction`, actually)
+   */
+  protected def buildOneArrowe(
+                               tag: Any,
+                               from: Diagramme,
+                               to: Diagramme,
+                               mapping: Mapping
+                             )(o: from.d0.Obj): from.d1.Arrow =
     SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope
 
   /**
@@ -484,8 +518,6 @@ trait GrothendieckTopos
     @targetName("in")
     infix inline def ∈(other: Diagram): Boolean =
       d0.objects.forall { o => other(o)(this (o)) }
-
-    private[cat] def itsaset(x: Any): set = x.asInstanceOf[set]
 
     def asFunction(a: d1.Arrow): SetFunction = a match
       case sf: SetFunction => sf
