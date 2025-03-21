@@ -19,6 +19,7 @@ trait TestDiagrams extends Test:
   val `Set^_0_`:          CategoryOfDiagrams = toposOver(_0_)
   val `Set^_1_`:          CategoryOfDiagrams = toposOver(_1_)
   val `Set^_2_`:          CategoryOfDiagrams = toposOver(_2_)
+  val `Set^_3_`:          CategoryOfDiagrams = toposOver(_3_)
   val `Set^M`:            CategoryOfDiagrams = toposOver(M)
   val `Set^W`:            CategoryOfDiagrams = toposOver(W)
   val `Set^Z3`:           CategoryOfDiagrams = toposOver(Z3)

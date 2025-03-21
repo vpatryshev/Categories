@@ -4,6 +4,7 @@ import math.Base.*
 import math.cat.*
 import Functor.validateFunctor
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import math.cat.topos.Format.shortTitle
 import math.sets.Functions.*
 import math.sets.Sets.*
 import math.sets.{FactorSet, Sets}
@@ -238,9 +239,10 @@ abstract class Diagram(
 
   override def toString: String = toString(x => 
       s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagram[${d0.name}]", ""))
-  
+
   def toShortString: String = toString(x => {
-      val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
+    //      val obRepr = Diagram.cleanupString(asString(objectsMapping(x))
+      val obRepr = shortTitle(asString(objectsMapping(x)))
       if obRepr.isEmpty then "" else s"$x->{$obRepr}"
     }.replace(s"Diagram[${d0.name}]", "")
   )

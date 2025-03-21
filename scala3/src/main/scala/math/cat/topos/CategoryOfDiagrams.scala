@@ -55,7 +55,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   def objectNamed(name: String): domain.Obj = name
 
-  def pow(d: Diagram): Diagram = NotImplementedError("TBD") // power object; tbd
+  def pow(d: Diagramme): Diagramme = ??? // power object; tbd
 
   override def id(o: Obj): Arrow =
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
