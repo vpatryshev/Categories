@@ -73,26 +73,48 @@ class GrothendieckToposTest extends Fixtures:
                                       "p2(0->(0->{0}, 1->{a,b}), 1->(1->{1}))"::Nil
     }
 
-    "exist for Pullback" in {
-      val topos = new CategoryOfDiagrams(Pullback)
+    "exist for Pullback" in:
+      val topos = `Set^Pullback`
       import topos._
       val points = Ω.points
-      points.map(_.toShortString) === "p0(a->(), b->(), c->())"::
-                                      "p1(a->(c->{ac}), b->(c->{bc}), c->(c->{c}))"::
-                                      "p2(a->(c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::
-                                      "p3(a->(a->{a}, c->{ac}), b->(c->{bc}), c->(c->{c}))"::
-                                      "p4(a->(a->{a}, c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::Nil
-    }
+      val expected =
+        "p0(a->(), b->(), c->())"::
+          "p1(a->(c->{ac}), b->(c->{bc}), c->(c->{c}))"::
+          "p2(a->(c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::
+          "p3(a->(a->{a}, c->{ac}), b->(c->{bc}), c->(c->{c}))"::
+          "p4(a->(a->{a}, c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::Nil
+
+      points.size === expected.size
+      val actual = points.map(_.toShortString)
+
+      (actual zip expected) foreach { case (a, e) => a must_== e }
+
+      points.map(_.toShortString) === expected
 
     "exist for Pushout" in {
-      val topos = new CategoryOfDiagrams(Pushout)
+      val topos = `Set^Pushout`
       import topos._
       val points = Ω.points
-      points.map(_.toShortString) === "p0(a->(), b->(), c->())"::
-                                      "p1(a->(c->{ac}), b->(), c->(c->{c}))"::
-                                      "p2(a->(b->{ab}), b->(b->{b}), c->())"::
-                                      "p3(a->(b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))"::
-                                      "p4(a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))"::Nil
+
+      val expected = 
+        "p0(a->(), b->(), c->())" ::
+        "p1(a->(c->{ac}), b->(), c->(c->{c}))" ::
+        "p2(a->(b->{ab}), b->(b->{b}), c->())" ::
+        "p3(a->(b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))" ::
+        "p4(a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))" :: Nil
+
+//      val expected =
+//        "p0(a->(), b->(), c->())"::
+//          "p1(a->(c->{ac}), b->(c->{bc}), c->(c->{c}))"::
+//          "p2(a->(c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::
+//          "p3(a->(a->{a}, c->{ac}), b->(c->{bc}), c->(c->{c}))"::
+//          "p4(a->(a->{a}, c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::Nil
+
+      points.size === expected.size
+      val actual = points.map(_.toShortString)
+
+      (actual zip expected) foreach { case (a, e) => a must_== e }
+      points.map(_.toShortString) === expected
     }
 
     "exist for Z3" in {
@@ -120,7 +142,7 @@ class GrothendieckToposTest extends Fixtures:
           e.printStackTrace()
           ok
           
-      val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1 iHope
+      val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1.asOldDiagram iHope
       val χ1: DiagramArrow = topos.χ(i1)
       val χ10: SetFunction = asFunction(χ1("0"))
       def short(x: Any) = x.toShortString
