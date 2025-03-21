@@ -57,12 +57,15 @@ class SetMorphism[X, Y] (
 
   /**
     * Getter: given a value, apply this morphism.
-    * Have to implement it, because we extend `Map`.
+    * Have to implement it here, as we extend `Map` class.
     * @param x
-    * @return
+    * @return an optional value of function(x). Any failure gives a None.
     */
   def get(x: X): Option[Y] =
-    Result.forValue(x).filter(d0 contains).flatMap(x => Result.forValue(function(x))).asOption
+    Result.forValue(x)
+      .filter(d0 contains)
+      .flatMap(x => Result.forValue(function(x)))
+      .asOption
 
   /**
     * Domain size of this morphism.
