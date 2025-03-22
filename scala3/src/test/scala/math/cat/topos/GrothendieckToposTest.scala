@@ -94,6 +94,14 @@ class GrothendieckToposTest extends Fixtures:
     "exist for Pushout" in {
       val topos = `Set^Pushout`
       import topos._
+
+      val actualMappings = Ω.objMappings.map(_.toShortString).sorted
+
+      val expectedMappings =
+        "List((a->(), b->(), c->()), (a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c})), (a->(b->{ab}), b->(b->{b}), c->()), (a->(b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c})), (a->(c->{ac}), b->(), c->(c->{c})))"
+          
+      actualMappings.toString === expectedMappings.toString
+
       val points = Ω.points
 
       val expected = 
@@ -102,13 +110,6 @@ class GrothendieckToposTest extends Fixtures:
         "p2(a->(b->{ab}), b->(b->{b}), c->())" ::
         "p3(a->(b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))" ::
         "p4(a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))" :: Nil
-
-//      val expected =
-//        "p0(a->(), b->(), c->())"::
-//          "p1(a->(c->{ac}), b->(c->{bc}), c->(c->{c}))"::
-//          "p2(a->(c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::
-//          "p3(a->(a->{a}, c->{ac}), b->(c->{bc}), c->(c->{c}))"::
-//          "p4(a->(a->{a}, c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::Nil
 
       points.size === expected.size
       val actual = points.map(_.toShortString)

@@ -8,8 +8,9 @@ import math.sets.{FactorSet, Functions, Sets}
 import scalakittens.{Good, Result}
 import scalakittens.Result.*
 import scalakittens.Containers.*
+import math.cat.topos.Format.shortTitle
 
-import scala.collection.mutable
+import scala.collection.{MapView, View, mutable}
 import scala.language.{implicitConversions, postfixOps}
 import scala.reflect.Selectable.reflectiveSelectable
 import SetFunction.inclusion
@@ -290,12 +291,16 @@ trait GrothendieckTopos
     
     def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
+
+    def sameMappinge(repr: topos.Diagramme, mapping: Map[Any, set]): Boolean =
+      domain.objects.forall(o => mapping(o) == repr(o))
     
     def myRepresentable(ax: Any): Any =
       val arrows = myArrows(ax).toMap
       val choices = Ω(x) find {
         _ match
           case d: Diagram => sameMapping(d, arrows)
+          case td: topos.Diagramme => sameMappinge(td, arrows)
           case other => false
       }
       Result(choices) orCommentTheError s"No representable found for $ax -> $arrows" iHope
@@ -449,10 +454,13 @@ trait GrothendieckTopos
 
       { case (a, b) => (fx(a), gx(b)) }
 
+    val productOfDomains = product2(f.d0.asInstanceOf[Diagramme], g.d0.asInstanceOf[Diagramme])
+    val productOfCodomains = product2(f.d1.asInstanceOf[Diagramme], g.d1.asInstanceOf[Diagramme])
+
     buildArrow(
       concat(f.tag, "×", g.tag),
-      product2(f.d0, g.d0),
-      product2(f.d1, g.d1),
+      productOfDomains,
+      productOfCodomains,
       mapping)
   end productOfArrows
 
@@ -483,6 +491,7 @@ trait GrothendieckTopos
     * TODO: figure out how to ensure the same d0 in both Di
     */
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
+  def product2(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
     (inclusionOf(p) in d) map {
@@ -500,7 +509,7 @@ trait GrothendieckTopos
     override val d0: Category = thisTopos.domain
     override val d1: Category = SetCategory.Setf
 
-    def asOldDiagram: Diagram = new Diagram(s"Diagram $tag in $topos", thisTopos.domain):
+    def asOldDiagram: Diagram = new Diagram(s"OldDiagram from $tag in $topos", thisTopos.domain):
       val topos = thisTopos
       override val d1: Category = diagram.d1
       override def objectsMapping(x: this.d0.Obj): this.d1.Obj = diagram(x)
@@ -540,13 +549,15 @@ trait GrothendieckTopos
     def point(mapping: XObject => Any, id: Any = ""): Point =
       new Point(id, topos, (x: Any) => mapping(x))
 
-    lazy val points: List[Point] =
-      val objMappings = for
-        valuesPerObject <- Sets.product(listOfComponents).view
+    lazy val objMappings: List[Point] =
+      (for
+        valuesPerObject <- Sets.product(listOfComponents)
         tuples = listOfObjects zip valuesPerObject
         mapping = tuples toMap;
         om: Point = point(mapping) if isCompatible(om)
-      yield om
+      yield om).toList
+
+    lazy val points: List[Point] =
 
       // The following foolish hack does this:
       // any value in curlies goes after a shorter value in curlies,
