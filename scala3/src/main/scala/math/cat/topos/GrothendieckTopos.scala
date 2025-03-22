@@ -454,8 +454,8 @@ trait GrothendieckTopos
 
       { case (a, b) => (fx(a), gx(b)) }
 
-    val productOfDomains = product2(f.d0.asInstanceOf[Diagramme], g.d0.asInstanceOf[Diagramme])
-    val productOfCodomains = product2(f.d1.asInstanceOf[Diagramme], g.d1.asInstanceOf[Diagramme])
+    val productOfDomains = product2(f.d0, g.d0)
+    val productOfCodomains = product2(f.d1, g.d1)
 
     buildArrow(
       concat(f.tag, "×", g.tag),
