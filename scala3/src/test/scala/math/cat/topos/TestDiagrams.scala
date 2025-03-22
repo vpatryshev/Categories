@@ -189,7 +189,7 @@ trait TestDiagrams extends Test:
       Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
     )
 
-object Debug extends TestDiagrams:
-
-  @main def allToposes(): Unit =
-    println(toposes.values)
+//object Debug extends TestDiagrams:
+//
+//  @main def allToposes(): Unit =
+//    println(toposes.values)
