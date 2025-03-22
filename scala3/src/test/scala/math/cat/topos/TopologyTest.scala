@@ -7,7 +7,7 @@ import scalakittens.{Good, Result}
 import scala.language.reflectiveCalls
 
 class TopologyTest extends Fixtures:
-  
+
   def topologiesTested(cat: Cat): List[Result[LawvereTopology]] =
     val topos = new CategoryOfDiagrams(cat)
     val Ω = topos.Ω.asOldDiagram
@@ -25,17 +25,17 @@ class TopologyTest extends Fixtures:
 
   def topologies(cat: Cat): List[LawvereTopology] =
     topologiesTested(cat) collect { case Good(topo) => topo}
-  
+
   "Topologies" should {
-    "exist for _0_" in {
-      val all = topologies(_0_)
+    "exist for `𝟘`" in {
+      val all = topologies(`𝟘`)
       all.length === 1
     }
 
-    "exist for _1_" in {
-      val candidates = topologiesTested(_1_)
+    "exist for `𝟙`" in {
+      val candidates = topologiesTested(`𝟙`)
       candidates.size === 4
-      
+
       expectOk(candidates(3))
       expectError(candidates(0), "Should contain truth")
       expectOk(candidates(1))

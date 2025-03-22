@@ -226,8 +226,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
 
   "Cartesian product of arrows" should:
-    "exist in Set^_1_" in:
-      val topos = `Set^_1_`
+    "exist in Set^𝟙" in:
+      val topos = `Set^𝟙`
       val d01 = build(s"d01", topos)(
         Map[String, set]("0" -> Set(11, 12)),
         Map[String, SetFunction]()
@@ -256,7 +256,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val expected = topos.buildArrow("f×g",
         topos.product2(d01, d02),
         topos.product2(d11, d12),
-        x => 
+        x =>
           case (i, j) => ("a" + i, "b" + j)
       )
 

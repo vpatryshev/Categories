@@ -10,7 +10,7 @@ rm -rf project/target
 sbt clean 
 sbt compile || { say "oy! bleen... oops... build failed" && exit 1 }
 
-sbt test package | tee build.log
+sbt test package
 res=$?
 echo "Tests returned <<$res>>"
 [ -z $res ] && say "Marivanna.... ya gotova" || say "oy! bleen... oops... tests failed"

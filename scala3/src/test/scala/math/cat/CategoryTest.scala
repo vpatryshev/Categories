@@ -564,7 +564,7 @@ class CategoryTest extends Test:
 
   "components" should {
     "build 0" in {
-      _0_.connectedComponents.isEmpty === true
+     `𝟘`.connectedComponents.isEmpty === true
     }
     "build 3" in {
       _3_.connectedComponents.map(_.name) === Set("_3_.1")

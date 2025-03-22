@@ -564,6 +564,7 @@ trait GrothendieckTopos
       // because closing curly is replaced with '!' which goes
       // before all alphanumerics. Cheap trick, but works.
       // Any better suggestions?
+      // DO NOT: sort differently without runing TopologyTest
       val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")) zipWithIndex
 
       sorted map { p => p._1 named ("p" + p._2) }

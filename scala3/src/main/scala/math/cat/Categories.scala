@@ -30,12 +30,12 @@ object Categories extends CategoryFactory:
   /**
     * Empty category
     */
-  lazy val _0_ : Cat = segment(0)
+  lazy val`𝟘` : Cat = segment(0)
 
   /**
     * Singleton category
     */
-  lazy val _1_ : Cat = segment(1)
+  lazy val`𝟙` : Cat = segment(1)
 
   /**
     * Discrete 2-object category
@@ -164,7 +164,7 @@ object Categories extends CategoryFactory:
     */
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_,
+  lazy val SimpleCategories = List(`𝟘`,`𝟙`, _2_, _3_, _4_,
     _1plus1_,
     Z2, Z3, Z4
   )

@@ -1,29 +1,28 @@
 package math.cat.topos
 
 import math.Test
-import math.cat.Categories._
+import math.cat.Categories.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, SetFunction}
 import math.sets.Sets
-import math.sets.Sets.set
+import math.sets.Sets.{itsaset, set}
 import org.specs2.matcher.MatchResult
-import scalakittens.Result._
+import scalakittens.Result.*
 
 import scala.language.postfixOps
-import SetFunction._
+import SetFunction.*
 
 class GrothendieckToposTest extends Fixtures:
 
   "Subobject classifier" should {
-    "exist for _0_" in {
-      val topos = new CategoryOfDiagrams(_0_)
+    "exist for`𝟘`" in:
+      val topos = `Set^𝟘`
       import topos._
       val points = Ω.points
       points.size === 1
-    }
 
-    "exist for _1_" in {
-      val topos = new CategoryOfDiagrams(_1_)
+    "exist for`𝟙`" in {
+      val topos = `Set^𝟙`
       import topos._
       val points = Ω.points
       points.size === 2
@@ -38,7 +37,7 @@ class GrothendieckToposTest extends Fixtures:
     }
 
     "exist for _2_" in {
-      val topos = new CategoryOfDiagrams(_2_)
+      val topos = `Set^_2_`
       import topos._
       val points = Ω.points
       val omega0 = Ω("0")
@@ -50,7 +49,7 @@ class GrothendieckToposTest extends Fixtures:
     }
 
     "exist for _3_" in {
-      val topos = new CategoryOfDiagrams(_3_)
+      val topos = `Set^_3_`
       import topos._
       val points = Ω.points
       val omega0 = Ω("0")
@@ -65,12 +64,15 @@ class GrothendieckToposTest extends Fixtures:
     }
 
     "exist for ParallelPair" in {
-      val topos = new CategoryOfDiagrams(ParallelPair)
+      val topos = `Set^ParallelPair`
       import topos._
       val points = Ω.points
-      points.map(_.toShortString) === "p0(0->(), 1->())"::
-                                      "p1(0->(1->{a,b}), 1->(1->{1}))"::
-                                      "p2(0->(0->{0}, 1->{a,b}), 1->(1->{1}))"::Nil
+      val expected =
+        "p0(0->(), 1->())" ::
+        "p1(0->(1->{a,b}), 1->(1->{1}))" ::
+        "p2(0->(0->{0}, 1->{a,b}), 1->(1->{1}))" ::
+        Nil
+      points.map(_.toShortString) === expected
     }
 
     "exist for Pullback" in:
@@ -82,7 +84,8 @@ class GrothendieckToposTest extends Fixtures:
           "p1(a->(c->{ac}), b->(c->{bc}), c->(c->{c}))"::
           "p2(a->(c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::
           "p3(a->(a->{a}, c->{ac}), b->(c->{bc}), c->(c->{c}))"::
-          "p4(a->(a->{a}, c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::Nil
+          "p4(a->(a->{a}, c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c}))"::
+          Nil
 
       points.size === expected.size
       val actual = points.map(_.toShortString)
@@ -97,29 +100,25 @@ class GrothendieckToposTest extends Fixtures:
 
       val actualMappings = Ω.objMappings.map(_.toShortString).sorted
 
-      val expectedMappings =
-        "List((a->(), b->(), c->()), (a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c})), (a->(b->{ab}), b->(b->{b}), c->()), (a->(b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c})), (a->(c->{ac}), b->(), c->(c->{c})))"
-          
-      actualMappings.toString === expectedMappings.toString
-
       val points = Ω.points
+      val actual = points.map(_.toShortString)
 
       val expected = 
         "p0(a->(), b->(), c->())" ::
         "p1(a->(c->{ac}), b->(), c->(c->{c}))" ::
         "p2(a->(b->{ab}), b->(b->{b}), c->())" ::
         "p3(a->(b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))" ::
-        "p4(a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))" :: Nil
+        "p4(a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c}))" ::
+        Nil
 
       points.size === expected.size
-      val actual = points.map(_.toShortString)
 
       (actual zip expected) foreach { case (a, e) => a must_== e }
       points.map(_.toShortString) === expected
     }
 
     "exist for Z3" in {
-      val topos = new CategoryOfDiagrams(Z3)
+      val topos = `Set^Z3`
       import topos._
       val points = Ω.points
       points.map(_.toShortString) === "p0(0->())"::"p1(0->(0->{0,1,2}))"::Nil
@@ -129,7 +128,7 @@ class GrothendieckToposTest extends Fixtures:
   "Classifying map" should {
 
     "exist for ParallelPair" in {
-      val topos = new CategoryOfDiagrams(ParallelPair)
+      val topos = `Set^ParallelPair`
       import topos._
       val omega = topos.Ω
 

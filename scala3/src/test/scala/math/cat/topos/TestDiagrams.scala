@@ -16,8 +16,8 @@ trait TestDiagrams extends Test:
   private def toposOver(domain: Category): CategoryOfDiagrams =
     toposes.getOrElseUpdate(domain.name, new CategoryOfDiagrams(domain))
 
-  val `Set^_0_`:          CategoryOfDiagrams = toposOver(_0_)
-  val `Set^_1_`:          CategoryOfDiagrams = toposOver(_1_)
+  val `Set^𝟘`:            CategoryOfDiagrams = toposOver(`𝟘`)
+  val `Set^𝟙`:            CategoryOfDiagrams = toposOver(`𝟙`)
   val `Set^_2_`:          CategoryOfDiagrams = toposOver(_2_)
   val `Set^_3_`:          CategoryOfDiagrams = toposOver(_3_)
   val `Set^M`:            CategoryOfDiagrams = toposOver(M)
@@ -26,6 +26,7 @@ trait TestDiagrams extends Test:
   val `Set^Pullback`:     CategoryOfDiagrams = toposOver(Pullback)
   val `Set^Pushout`:      CategoryOfDiagrams = toposOver(Pushout)
   val `Set^ParallelPair`: CategoryOfDiagrams = toposOver(ParallelPair)
+  val `Set^Simplicial`:   CategoryOfDiagrams = toposOver(Simplicial3)
   val `Set^Square`:       CategoryOfDiagrams = toposOver(Square)
 
   def build(name: String, topos: GrothendieckTopos)(
@@ -39,7 +40,7 @@ trait TestDiagrams extends Test:
     objectsMap: String => set,
     arrowMap: String => SetFunction): Diagram =
     val topos = toposOver(domain)
-    build(name, topos)(objectsMap, arrowMap).toOldDiagram
+    build(name, topos)(objectsMap, arrowMap)
 
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => om(f.toString)
@@ -47,7 +48,7 @@ trait TestDiagrams extends Test:
   implicit def translateArrowMapping(f: Functor)(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => am(f.toString)
   
-  lazy val EmptyDiagram: `Set^_0_`.Diagramme = build("empty", `Set^_0_`)(
+  lazy val EmptyDiagram: `Set^𝟘`.Diagramme = build("empty", `Set^𝟘`)(
     Map.empty[String, set],
     Map.empty[String, SetFunction]
   )
@@ -92,7 +93,7 @@ trait TestDiagrams extends Test:
       Map("a" -> f, "b" -> g)
     )
   
-  val SampleParallelPairDiagram2: Diagram =
+  val SampleParallelPairDiagram2: `Set^ParallelPair`.Diagramme =
     val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1)
     val f = fun(a,b)("f", x => Math.min(1, x.toInt - 1))
@@ -124,8 +125,8 @@ trait TestDiagrams extends Test:
       arrowMap = Map("1" -> f1, "2" -> f2)
     )
 
-  def const(x: set): `Set^_1_`.Diagramme =
-    build(s"Point($x)", `Set^_1_`)(
+  def const(x: set): `Set^𝟙`.Diagramme =
+    build(s"Point($x)", `Set^𝟙`)(
       Map[String, set]("0" -> x),
       Map[String, SetFunction]()
     )
