@@ -7,6 +7,7 @@ import math.sets.Sets
 
 import scala.annotation.targetName
 import scala.language.implicitConversions
+import math.cat.topos.Format.shortTitle
 
 /**
   * A point of a topos object (of a diagram in a Grothendieck topos)
@@ -65,22 +66,26 @@ class Point(
   override def toString: String =
     if tag.toString.nonEmpty then tag.toString else
       val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
-      Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
+      shortTitle(raw.mkString(s"$tag(", ", ", ")"))
 
   def toShortString: String =
-    val raw = domainCategory.objects.map(x => s"$x->${apply(x)}").mkString(s"$tag(", ", ", ")")
-    val short = Diagram.cleanupString(raw)
 
     val strings: List[String] =
-      domainCategory.listOfObjects map { x =>
-      val obRepr = apply(x) match
-        case d: Diagram => Diagram.cleanupString(d.toShortString)
-        case other => other.toString
+      domainCategory.listOfObjects map {
+        x => {
+          val obRepr = apply(x) match
+            case d: Diagram =>
+              Diagram.cleanupString(d.toShortString)
+            case d: topos.Diagramme =>
+              shortTitle(d.toShortString)
+            case other =>
+              other.toString
 
-      s"$x->$obRepr"
-    }
+          s"$x->$obRepr"
+        }
+      }
 
-    Diagram.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
+    shortTitle(strings.mkString(s"$tag(", ", ", ")"))
 
   override lazy val hashCode: Int = System.identityHashCode(topos) * 79 + toString.hashCode
 

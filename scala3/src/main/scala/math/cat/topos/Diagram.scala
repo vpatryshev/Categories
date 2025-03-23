@@ -343,5 +343,5 @@ object Diagram:
       topos.Diagramme(tag, objectsMap, arrowMap).asOldDiagram
 
   private[topos] def cleanupString(s: String): String =
-    val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
+    val s1 = s.replaceAll(s"->\\sDiagram\\[[^]]+]", "->")
     s1.replace("Set()", "{}")

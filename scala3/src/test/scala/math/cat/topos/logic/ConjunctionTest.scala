@@ -11,6 +11,7 @@ import SetFunction._
 
 import scala.language.postfixOps
 import scala.reflect.Selectable.reflectiveSelectable
+import scala.language.implicitConversions
 
 class ConjunctionTest extends Fixtures:
 
