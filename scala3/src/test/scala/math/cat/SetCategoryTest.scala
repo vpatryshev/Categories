@@ -48,7 +48,7 @@ class SetCategoryTest extends Specification:
       case _       => false
 
     def whereIn(s: set)(point: Any): Any =
-      s find contains(point) getOrElse Sets.Empty
+      s find contains(point) getOrElse Sets.`∅`
 
 
     "produce coequalizer of two" in {
@@ -92,15 +92,15 @@ class SetCategoryTest extends Specification:
 
     "produce 0th degree of an object" in {
       Setf.degree(Set(1, 2, 3), 0).map(_._1.size) === Good(1)
-      Setf.degree(Empty, 0).map(_._1.size) === Good(1)
+      Setf.degree(`∅`, 0).map(_._1.size) === Good(1)
     }
 
     "produce 1st degree of an object" in {
       val actual = Setf.degree(Set(1, 2, 3), 1)
       actual.isGood === true
       actual.map(_._1) === Good(Set(List(1), List(2), List(3)))
-      val maybeZeroOne = Setf.degree(Empty, 1).map(_._1)
-      maybeZeroOne === Good(Empty)
+      val maybeZeroOne = Setf.degree(`∅`, 1).map(_._1)
+      maybeZeroOne === Good(`∅`)
     }
 
     "produce 2nd degree of an object" in {
@@ -155,7 +155,7 @@ class SetCategoryTest extends Specification:
       
       evenSets.equalizer(f, g) match
         case Good(inclusion) =>
-          inclusion.d0 === Sets.Empty
+          inclusion.d0 === Sets.`∅`
           inclusion.d1 === s2
         case none => failure(s"Expected some equalizer: $none")
 
@@ -187,8 +187,8 @@ class SetCategoryTest extends Specification:
     }
 
     "have a 0" in {
-      Setf.initial === Good(Sets.Empty)
-      evenSets.initial === Good(Sets.Empty)
+      Setf.initial === Good(Sets.`∅`)
+      evenSets.initial === Good(Sets.`∅`)
       oddSets.initial.isBad must beTrue
     }
 
@@ -242,7 +242,7 @@ class SetCategoryTest extends Specification:
       Setf.terminal match
         case Good(s1) =>
           s1.size === 1
-          s1.contains(Sets.Empty) === true
+          s1.contains(Sets.`∅`) === true
         case none => failure(s"Oops, no terminal: $none")
       
       ok
@@ -252,7 +252,7 @@ class SetCategoryTest extends Specification:
       val sut = Setf.initial flatMap (empty => Setf.product(empty, Set(2, 3, 4)))
       sut match
         case Good((p1, p2)) =>
-          p1.d1 === Sets.Empty
+          p1.d1 === Sets.`∅`
           p2.d1 === Set(2, 3, 4)
           p1.d0 === p2.d0
           p1.d0.isEmpty === true

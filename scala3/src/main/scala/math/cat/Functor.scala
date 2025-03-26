@@ -7,12 +7,7 @@ import math.sets.Sets._
 import scalakittens.Result._
 import scalakittens.{Bad, Result}
 import scalakittens.Containers.*
-
-//private trait MaybeFunctor(
-//  val tagged: Any,
-//  override val d0: Category,
-//  override val d1: Category
-//) extends GraphMorphism(tagged)
+import math.cat.SetCategory.Setf.asArrow
 
 /**
   * Functor class: functions for categories.
@@ -61,9 +56,11 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
     */
   override def arrowsMapping(a: d0.Arrow): d1.Arrow =
     val domainX: d0.Obj = d0.d0(a)
-    if d0.isIdentity(a)
-    then d1.id(objectsMapping(domainX))
-    else arrowsMappingCandidate(a)
+    if d0.isIdentity(a) then
+      val obj = objectsMapping(domainX)
+      d1.id(obj).tagged(s"idFor($domainX)")
+    else
+      arrowsMappingCandidate(a)
 
   /**
     * Composes two functors
@@ -334,7 +331,7 @@ object Functor:
     * @param c the category
     * @return identity functor on the given category
     */
-  def id(c: Category): Functor = new Functor("id"):
+  def id(c: Category): Functor = new Functor(s"id[$c]"):
     override val d0: Category = c
     override val d1: Category = c
     override def objectsMapping(x: d0.Obj): d1.Obj = x

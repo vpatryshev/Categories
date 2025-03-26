@@ -176,7 +176,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     *
     * Need to filter, so that if an empty set does not belong to a subcategory, `initial` is empty
     */
-  override lazy val initial: Result[set] = Good(Sets.Empty) filter {
+  override lazy val initial: Result[set] = Good(Sets.`∅`) filter {
     emptySet => {
       thisCategory.contains(emptySet)
 //      emptySet.∈(thisCategory)

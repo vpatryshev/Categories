@@ -425,7 +425,7 @@ class SetsTest extends TestBase:
       def predicate = (x:Any) => x == 2
       val sut = setOf(s, 1, predicate)
       sut contains 1 must beFalse
-      val collected = sut.iterator.foldLeft(Sets.Empty) (_+_)
+      val collected = sut.iterator.foldLeft(Sets.`∅`) (_+_)
       collected === Set(2)
     }
 
@@ -450,7 +450,7 @@ class SetsTest extends TestBase:
     }
 
     "Finite Sets should contain various finite sets" >> {
-      FiniteSets.contains(Sets.Empty) must beTrue
+      FiniteSets.contains(Sets.`∅`) must beTrue
       FiniteSets.contains(Set("infinity")) must beTrue
       FiniteSets.contains(Set(1,2,3,42)) must beTrue
       ok

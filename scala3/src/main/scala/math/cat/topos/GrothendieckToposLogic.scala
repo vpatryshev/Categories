@@ -142,11 +142,11 @@ trait GrothendieckToposLogic:
           val value = p(o)
           new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
 
-  lazy val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.Empty)
+  lazy val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.`∅`)
   
   lazy val _0: Obj = initialT iHope
 
-  lazy val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal", Sets.Unit)
+  lazy val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal", Sets.`{∅}`)
   
   lazy val _1: Obj = terminalT iHope
 

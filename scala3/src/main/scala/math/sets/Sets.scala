@@ -55,12 +55,12 @@ object Sets:
   /**
     * Standard empty set
     */
-  val Empty: set = Set.empty[Any]
+  val `∅`: set = Set.empty[Any]
 
   /**
     * A singleton set. There are plenty of singletons, they are all isomorphic.
     */
-  val Unit: set = Set(Empty)
+  val `{∅}`: set = Set(`∅`)
 
   /**
     * A big set of all finite sets in Scala. This set is infinite.

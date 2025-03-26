@@ -230,7 +230,7 @@ class DiagramTest extends Test with TestDiagrams:
       sut.d0 ===`𝟘`
       sut.d1 === Setf
       sut.colimit match
-        case Good(sut.Cocone(Sets.Empty, arrowFrom)) => ok
+        case Good(sut.Cocone(Sets.`∅`, arrowFrom)) => ok
         case none => failure(s"no colimit? $none")
 
       ok
