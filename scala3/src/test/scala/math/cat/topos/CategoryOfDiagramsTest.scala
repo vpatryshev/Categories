@@ -50,7 +50,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     val appliesTo = new diagramTable
 
-    "be good in Set^W" in {
+    "be good in Set to W" in {
       val topos = new CategoryOfDiagrams(W)
       import topos.domain._
       val ob = (o: String) => {
@@ -68,7 +68,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       ok
     }
 
-    "be good in Set^M" in {
+    "be good in Set to M" in {
       val topos = new CategoryOfDiagrams(M)
       import topos.domain._
       val ob = (o: String) => {
@@ -94,7 +94,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       ok
     }
 
-    "be good in Set^Z3" in {
+    "be good in Set to Z3" in {
       val topos = new CategoryOfDiagrams(Z3)
       import topos.domain._
       def ob(o: String) = {
@@ -113,7 +113,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   }
 
   "Identity arrow" should {
-    "exist in Set^W" in {
+    "exist in Set to W" in {
       val topos = new CategoryOfDiagrams(W)
       val d = SampleWDiagram
       val identity_transformation = topos.id(d)
@@ -122,7 +122,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       identity_transformation ∘ identity_transformation === identity_transformation
     }
 
-    "exist in Set^M" in {
+    "exist in Set to M" in {
       // todo: test composition
       val topos = new CategoryOfDiagrams(M)
       val d = SampleMDiagram
@@ -133,7 +133,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   }
 
   "Initial object" should {
-    "exist in Set^M" in {
+    "exist in Set to M" in {
       val topos = new CategoryOfDiagrams(M)
 
       val initialOpt = topos.initialT
@@ -148,7 +148,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   "Terminal object" should {
 
-    "exist in Set^W" in {
+    "exist in Set to W" in {
       val topos = new CategoryOfDiagrams(W)
 
       val terminalOpt = topos.terminalT
@@ -163,7 +163,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       ok
     }
 
-    "exist in Set^Square" in {
+    "exist in Set to Square" in {
       val topos = new CategoryOfDiagrams(Square)
       val subterminals = topos.subterminals
       subterminals.size === 6
@@ -211,7 +211,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     }
 
-    "exist for representables in Set^_2_" in {
+    "exist for representables in Set to _2_" in {
       val topos = new CategoryOfDiagrams(_2_)
       val r0 = topos.Representable(topos.objectNamed("0"))
 
@@ -226,7 +226,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   }
 
   "Cartesian product" should {
-    "exist in Set^ParallelPair" in {
+    "exist in Set to ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
       val d1 = SampleParallelPairDiagram1
       val d2 = SampleParallelPairDiagram2
@@ -237,7 +237,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       actual("1") === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
     }
 
-    "exist in Set^M" in {
+    "exist in Set to M" in {
       val topos = new CategoryOfDiagrams(M)
 
       val actual = topos.product2(SampleMDiagram, SampleMDiagram)
@@ -251,7 +251,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   }
 
   "Cartesian product of arrows" should {
-    "exist in Set^_1_" in {
+    "exist in Set to _1_" in {
       val topos = new CategoryOfDiagrams(_1_)
       val d01 = build(s"d01", _1_)(
         Map[String, set]("0" -> Set(11, 12)),
@@ -287,7 +287,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       actual === expected
     }
-    "exist in Set^ParallelPair" in {
+    "exist in Set to ParallelPair" in {
       val topos = new CategoryOfDiagrams(ParallelPair)
 
       val dom1a = Set[Any](101, 102)
