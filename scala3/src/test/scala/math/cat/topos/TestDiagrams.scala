@@ -34,7 +34,7 @@ trait TestDiagrams extends Test:
     arrowMap: String => SetFunction): topos.Diagramme =
     def om(o: topos.domain.Obj): set = objectsMap(o.toString)
     def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
-    topos.Diagramme.apply(name, om, am)
+    topos.Diagramme(name, om, am)
 
   def buildDiagram(name: String, domain: Category)(
     objectsMap: String => set,

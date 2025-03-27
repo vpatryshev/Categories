@@ -24,7 +24,13 @@ case class SetFunction private[cat](
   mapping: Any => Any)
   extends SetMorphism[Any, Any](tag, d0, d1, mapping):
   self =>
-  
+
+// TODO: uncomment when the problem is solved - BEFORE MERGE TO master
+//  if (!d0.isEmpty && d1.isEmpty) then
+//    throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
+
+  def tagged(newTag: String): SetFunction = SetFunction(newTag, d0, d1, mapping)
+
   private def tagOfComposition(tag1: String, tag2: String): String =
     Base.concat(tag1, "∘", tag2)
   
