@@ -398,13 +398,8 @@ object Functor:
       val gy_fy: Option[codomain.Arrow] = codomain.m(fy, gy)
       val gx_fx: Option[domain.Arrow] = domain.m(fx, gx)
       val expected: Option[codomain.Arrow] = gx_fx map (gf => f.arrowsMapping(gf))
-      val result: Outcome = OKif(gy_fy == expected,
+      OKif(gy_fy == expected,
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
-      if (result.isBad) {
-        val arrowMapAsMap = (domain.arrows map (a => a -> s"${f.arrowsMapping(a)}")).toMap
-        System.err.println(arrowMapAsMap)
-      }
-      result
 
     val composablePairs = Result.forValue(Category.composablePairs(domain))
 
