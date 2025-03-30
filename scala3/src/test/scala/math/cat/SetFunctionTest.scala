@@ -6,6 +6,9 @@ import math.sets.Sets._
 import math.sets.{BinaryRelation, Sets}
 import org.specs2.mutable._
 import scalakittens.Result
+import scalakittens.Result._
+import scalakittens.Good
+import scalakittens.Good._
 
 import scala.language.postfixOps
 import SetFunction.fun
@@ -157,5 +160,61 @@ class SetFunctionTest extends Specification:
         sut.contains(c) must beTrue
 
       ok
+    }
+
+    "check with empty domain or codomain" >> {
+      val aset: set = setOf.elements(1, 2, 3, 4, 5)
+      val emptyToNonempty: SetFunction = fun(Sets.Empty, aset)("020", _.toString)
+      val good: SetFunction = fun(Sets.Empty, Sets.Empty)("good", _.toString)
+      good.toString === "good: 0 elements -> 0 elements"
+      emptyToNonempty.toString === "020: 0 elements -> 5 elements"
+      val bad: Result[SetFunction] = tryBuild(aset, Sets.Empty)("bad", _.toString)
+      bad.isBad must beTrue
+      bad.errorDetails must beSome
+    }
+
+    "check constraint" >> {
+      val numbers: set = setOf.elements(1, 2, 3, 4, 5)
+      val strings = numbers.map(_.toString)
+      val someNumbers = setOf.elements(2, 4)
+      val someStrings = someNumbers.map(_.toString)
+
+      val sut: SetFunction = fun(numbers, strings)("good", _.toString)
+
+      val simpleRestriction = sut.restrictTo(someNumbers, strings)
+      simpleRestriction.isGood aka s"good: $simpleRestriction" must beTrue
+
+      val anotherGood: Result[SetFunction] = sut.restrictTo(someNumbers, someStrings)
+      anotherGood.isGood must beTrue
+
+      anotherGood match
+        case Good(sf) => sf.restrictTo(Sets.Empty, Sets.Empty).isGood must beTrue
+        case _ => failure("should have been good")
+
+      val emptyToEmpty: Result[SetFunction] = sut.restrictTo(Sets.Empty, Sets.Empty)
+      emptyToEmpty.isGood must beTrue
+
+      val emptyToNonempty = sut.restrictTo(Sets.Empty, strings)
+      emptyToNonempty.isGood must beTrue
+      val bad: Result[SetFunction] = sut.restrictTo(someNumbers, Sets.Empty)
+      bad.isBad must beTrue
+      bad.errorDetails must beSome
+
+      emptyToEmpty match
+        case Good(sf) => sf.restrictTo(numbers, strings).isBad must beTrue
+        case _ => failure("should have been good")
+        
+      ok
+    }
+
+    "check constraint" >> {
+      val aset: set = setOf.elements(1, 2, 3, 4, 5)
+      val emptyToNonempty: SetFunction = fun(Sets.Empty, aset)("020", _.toString)
+      val good: SetFunction = fun(Sets.Empty, Sets.Empty)("good", _.toString)
+      good.toString === "good: 0 elements -> 0 elements"
+      emptyToNonempty.toString === "020: 0 elements -> 5 elements"
+      val bad: Result[SetFunction] = tryBuild(aset, Sets.Empty)("bad", _.toString)
+      bad.isBad must beTrue
+      bad.errorDetails must beSome
     }
   }

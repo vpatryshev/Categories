@@ -57,7 +57,8 @@ case class SetFunction private[cat](
   infix def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] =
     val domOk = OKif(newDomain subsetOf d0, "Bad domain for restriction")
     val codomOk = OKif(newCodomain subsetOf d1, "Bad codomain for restriction")
-    val success: Outcome = domOk andAlso codomOk
+    val isCompatible = OKif(newDomain.isEmpty || newCodomain.nonEmpty, "Can't restrict to empty codomain")
+    val success: Outcome = domOk andAlso codomOk andAlso isCompatible
     success returning new SetFunction(tag, newDomain, newCodomain, function)
 
   override lazy val hashCode: Int =
@@ -135,8 +136,11 @@ object SetFunction:
   def exponent(x: set, y: set): Set[SetFunction] =
     Sets.exponent(x, y).map { apply("exponent", x, y, _) }
 
+  def tryBuild(from: set, to: set)(name: String, mapping: String => Any): Result[SetFunction] =
+    SetFunction.build(name, from, to, x => mapping(x.toString))
+
   def fun(from: set, to: set)(name: String, mapping: String => Any): SetFunction =
-    SetFunction.build(name, from, to, x => mapping(x.toString)).iHope
+    tryBuild(from, to)(name, mapping).iHope
 
   def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
 

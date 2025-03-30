@@ -1,12 +1,13 @@
 package math.cat.topos
 
-import math.Base._
-import math.cat._
+import math.Base.*
+import math.cat.*
 import Functor.validateFunctor
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.sets.Functions._
-import math.sets.Sets._
+import math.sets.Functions.*
+import math.sets.Sets.*
 import math.sets.{FactorSet, Sets}
+import scalakittens.Result.*
 import scalakittens.{Good, Result}
 
 import scala.annotation.targetName
@@ -340,8 +341,30 @@ object Diagram:
     objectsMap: topos.domain.Obj => set,
     arrowMap:   topos.domain.Arrow => SetFunction): Result[Diagram] =
     val diagram: Diagram = apply(topos)(tag, objectsMap, arrowMap)
+    def validateMapping: Outcome =
+      val results: IterableOnce[Result[Unit]] = topos.domain.arrows.map(
+        (arrow: topos.domain.Arrow) =>
+          val arrowDomain = objectsMap(topos.domain.d0(arrow))
+          val arrowCodomain = objectsMap(topos.domain.d1(arrow))
 
-    Functor.validateFunctor(diagram) returning diagram
+          val fullMapping =
+            if (topos.domain.isIdentity(arrow)) then
+              SetFunction.id(arrowDomain) else
+              try arrowMap(arrow)
+              catch
+                case x: Throwable =>
+                  val retry = arrowMap(arrow)
+                  throw new IllegalArgumentException(s"Bad mapping for $arrow", x)
+
+          val fund0 = fullMapping.d0
+          val fund1 = fullMapping.d1
+          OKif(fund0.isEmpty || fund1.nonEmpty, s"Incompatible d0 and d1 for $arrow")
+      )
+      val finalResult = Result.traverse[Unit](results)
+      finalResult
+
+    val checkResult = Functor.validateFunctor(diagram) andAlso validateMapping
+    checkResult returning diagram
 
   private[topos] def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")

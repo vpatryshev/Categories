@@ -50,15 +50,34 @@ class DiagramTest extends Test with TestDiagrams:
       sut.d1 === Setf
     }
 
-    "get validated - negative" in {
+    "get validated with inconsistent mappings - negative" in {
       val a: set = Set(1, 2, 3, 4, 5)
       val b: set = Set(0, 1, 2)
 
-      val f = fun(a,b)("f", x => Math.min(2, x.toString.toInt))
-      val g = fun(b,b)("g", x => x.toString.toInt % 3)
+      val f = fun(a,b)("f", x => Math.min(2, x.toInt))
+      val g = fun(b,b)("g", x => x.toInt % 3)
       val topos = new CategoryOfDiagrams(ParallelPair)
       expectError(_.
-        matches(raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"),
+        matches(raw"Inconsistent mapping for d0\(b\) - Set\(.*\) vs .*Set\(5, 1, 2, 3, 4\).*"),
+        Diagram.tryBuild(topos)(
+          "Bad Bad Bad",
+          Map("0" -> a, "1" -> b),
+          Map("a" -> f, "b" -> g)
+        )
+      )
+    }
+
+    "get validated with inconsistent domains - negative" in {
+      val a: set = Set(1, 2, 3, 4, 5)
+      val b: set = Sets.Empty
+
+      // The following two things are actually not set functions, they are broken
+      val f = new SetFunction("f", a, b, x => Math.min(2, x.toString.toInt)) // Note: this i
+      val g = new SetFunction("g", b, b, x => x.toString.toInt % 3)
+      val topos = new CategoryOfDiagrams(ParallelPair)
+
+      expectError(_.
+        matches(raw"Inconsistent mapping for d0\(b\) - Set\(.*\) vs HashSet\(5, 1, 2, 3, 4\).*"),
         Diagram.tryBuild(topos)(
           "Bad Bad Bad",
           Map("0" -> a, "1" -> b),

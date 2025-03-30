@@ -56,7 +56,7 @@ trait GrothendieckTopos
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
       def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
-        def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
+        def om1(o: domain.Obj): set = transformForSubrepresentables(a, rx)(o)
         def om2(o: Ω.topos.domain.Obj): set = om1(o)
 
         // this is how, given an arrow `b`, the new diagram gets from one point to another
@@ -64,7 +64,7 @@ trait GrothendieckTopos
           val x1 = om1(domain.d0(b)) //  {f ∈ hom(y, d0(b)) | a compose f ∈ r1(d0(b)}
           val y1 = om1(domain.d1(b)) //  {f ∈ hom(y, d1(b)) | a compose f ∈ r1(d1(b)}
 
-          // A function fom x1 to y1 - it does the transition
+          // A function from x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g => domain.m(g, b).get)
         
         Diagram(topos)("", om2, am1) // no validation, we know it's ok
@@ -83,7 +83,7 @@ trait GrothendieckTopos
       * @param x1 an object in domain (a "state")
       * @return
       */
-    private def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagram)(x1: domain.Obj): set =
+    private def transformForSubrepresentables(a: domain.Arrow, rx: Diagram)(x1: domain.Obj): set =
       val y = domain.d1(a)
       val rx_at_x1 = rx(x1)
       for
