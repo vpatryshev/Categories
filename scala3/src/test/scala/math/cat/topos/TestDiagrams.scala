@@ -36,12 +36,6 @@ trait TestDiagrams extends Test:
     def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
     topos.Diagramme(name, om, am)
 
-  def buildDiagram(name: String, domain: Category)(
-    objectsMap: String => set,
-    arrowMap: String => SetFunction): Diagram =
-    val topos = toposOver(domain)
-    build(name, topos)(objectsMap, arrowMap)
-
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => om(f.toString)
 

@@ -295,7 +295,7 @@ class CategoryOfOldDiagramsTest extends Test with TestDiagrams:
 
       val dom1a = Set[Any](101, 102)
       val dom1b = Set[Any](111, 112, 121, 122)
-      val d01 = buildDiagram(s"d01", ParallelPair)(
+      val d01 = build(s"d01", `Set^ParallelPair`)(
         Map[String, set]("0" -> dom1a, "1" -> dom1b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", dom1a, dom1b, x => x.toString.toInt + 10),
@@ -305,7 +305,7 @@ class CategoryOfOldDiagramsTest extends Test with TestDiagrams:
       val dom2a = Set[Any](201, 202)
       val dom2b = Set[Any](211, 212, 221, 222)
 
-      val d02 = buildDiagram(s"d02", ParallelPair)(
+      val d02 = build(s"d02", `Set^ParallelPair`)(
         Map[String, set]("0" -> dom2a, "1" -> dom2b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", dom2a, dom2b, x => x.toString.toInt + 10),
@@ -314,7 +314,7 @@ class CategoryOfOldDiagramsTest extends Test with TestDiagrams:
       )
       val codom1a = Set[Any]("a101", "a102")
       val codom1b = Set[Any]("a111", "a112", "a121", "a122")
-      val d11 = buildDiagram(s"d11", ParallelPair)(
+      val d11 = build(s"d11", `Set^ParallelPair`)(
         Map[String, set]("0" -> codom1a, "1" -> codom1b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", codom1a, codom1b,
@@ -327,7 +327,7 @@ class CategoryOfOldDiagramsTest extends Test with TestDiagrams:
       val codom2a = Set[Any]("b201", "b202")
       val codom2b = Set[Any]("b211", "b212", "b221", "b222")
 
-      val d12 = buildDiagram(s"d12", ParallelPair)(
+      val d12 = build(s"d12", `Set^ParallelPair`)(
         Map[String, set]("0" -> codom2a, "1" -> codom2b),
         Map[String, SetFunction](
           "a" -> SetFunction("_a_", codom2a, codom2b,
