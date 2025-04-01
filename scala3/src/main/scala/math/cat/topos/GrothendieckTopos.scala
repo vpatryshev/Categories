@@ -27,11 +27,11 @@ trait GrothendieckTopos
   val thisTopos: GrothendieckTopos = this
   type Obj = Diagram
   type Arrow = DiagramArrow
-  
+
   val domain: Category
 
   type Mapping = domain.Obj => Any => Any
-  
+
   given Conversion[Functor, Diagram] = _ match
     case d: Diagram => d
     case d: Diagramme => d.asOldDiagram
@@ -107,7 +107,7 @@ trait GrothendieckTopos
     protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = am(a)
 
     /**
-      * Given an arrow `a`, 
+      * Given an arrow `a`,
       * {f ∈ hom(y, x1) | a compose f ∈ r1(x1)}
       *
       * @param a  an arrow
@@ -162,13 +162,13 @@ trait GrothendieckTopos
         o => om(o),
         f => am(f)
       ).asOldDiagram
-    
+
     lazy val conjunction: DiagramArrow =
 
       def conjunctionOfTwoSubreps(pair: Any): Diagram = pair match
-        case (a: Diagram, b: Diagram) => 
+        case (a: Diagram, b: Diagram) =>
           intersection(a,b)
-        case bs => 
+        case bs =>
           throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
 
       def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction =
@@ -178,7 +178,7 @@ trait GrothendieckTopos
 
       val cache: mutable.Map[ΩxΩ.d0.Obj, SetFunction] =
         mutable.Map[ΩxΩ.d0.Obj, SetFunction]()
-      
+
       new DiagramArrow("∧"):
         override val d0: Functor = ΩxΩ
         override val d1: Functor = Ω
@@ -189,7 +189,7 @@ trait GrothendieckTopos
         override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
 
-    
+
     lazy val disjunction: DiagramArrow =
       new DiagramArrow("v"):
         override val d0: Functor = ΩxΩ
@@ -237,17 +237,17 @@ trait GrothendieckTopos
 
         override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
-      
+
     end disjunction
 
     lazy val implication: DiagramArrow =
       χ(inclusionOf(Ω1) in ΩxΩ iHope, "⟹")
 
   end Ωlike
-  
-  
+
+
   val ΩxΩ: Obj = product2(Ω, Ω)
- 
+
   private lazy val firstProjectionOf_ΩxΩ =
     buildArrow("π1", ΩxΩ, Ω, firstProjection)
 
@@ -273,7 +273,7 @@ trait GrothendieckTopos
   private[topos] def χAt(inclusion: Arrow)(x: domain.Obj): SetFunction =
     val A: Diagram = inclusion.d1
     val B: Diagram = inclusion.d0
-    
+
     val Ax = A(x)
     val Bx = B(x) // Bx is a subset of Ax
 
@@ -285,16 +285,16 @@ trait GrothendieckTopos
           val all_arrows_to_y: domain.Arrows = domain.hom(x, y)
           def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
           val By = B(y)
-          def hits_By(f: domain.Arrow) = image_via(f) ∈ By  
+          def hits_By(f: domain.Arrow) = image_via(f) ∈ By
           y -> itsaset(all_arrows_to_y filter hits_By)
         }
-    
+
     def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
 
     def sameMappinge(repr: topos.Diagramme, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
-    
+
     def myRepresentable(ax: Any): Any =
       val arrows = myArrows(ax).toMap
       val choices = Ω(x) find {
@@ -304,9 +304,9 @@ trait GrothendieckTopos
           case other => false
       }
       Result(choices) orCommentTheError s"No representable found for $ax -> $arrows" iHope
-    
+
     new SetFunction(s"[χ($x)]", Ax, Ω(x), ax => myRepresentable(ax))
-  
+
   end χAt
 
   /**
@@ -316,7 +316,7 @@ trait GrothendieckTopos
     * |      |
     * v      v
     * A ----> Ω
-    * 
+    *
     * @param inclusion B >--> A - a natural transformation from diagram B to diagram A
     * @return A -> Ω
     */
@@ -387,12 +387,12 @@ trait GrothendieckTopos
     case (a, b) => a
     case trash =>
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  
+
   private val p2: Any => Any =
     case (a, b) => b
     case trash =>
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
-  
+
   // π1
   protected val firstProjection: Mapping = Function.const (p1)
 
@@ -511,6 +511,7 @@ trait GrothendieckTopos
 
     def asOldDiagram: Diagram =
       new Diagram(s"OldDiagram from $tag in $topos", thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):
+        override val d0: Category = diagramme.d0
         override val d1: Category = diagramme.d1
         override def objectsMapping(x: this.d0.Obj): this.d1.Obj = diagramme(x)
         override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow =
@@ -799,7 +800,7 @@ trait GrothendieckTopos
             extendToArrows(om))
 
     end subobjects
-    
+
   object Diagramme:
 
     private[topos] def apply(
