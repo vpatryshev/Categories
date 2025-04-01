@@ -1,16 +1,16 @@
 package math.cat
 
 import math.Base._
-import math.sets.Functions._
+import math.sets.Functions.*
 import math.sets.Sets
-import math.sets.Sets._
-import scalakittens.Result._
+import math.sets.Sets.*
+import scalakittens.Result.*
 import scalakittens.{Bad, Result}
 import scalakittens.Containers.*
 import math.cat.SetCategory.Setf.asArrow
 
 /**
-  * Functor class: functions for categories.
+  * Functor class.
   *
   * @param d0 domain
   * @param d1 codomain
@@ -31,7 +31,7 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
   /**
     * How the functor maps objects
     * @param x object of domain category
-    * @returns an object on codomain category        
+    * @returns an object on codomain category
     */
   def objectsMapping(x: d0.Obj): d1.Obj
 
@@ -46,7 +46,7 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
     * @return another arrow
     */
   protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow
-  
+
   override def toString: String = s"Functor $tag"
 
   /**
@@ -55,19 +55,16 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
     * @returns another arrow
     */
   override def arrowsMapping(a: d0.Arrow): d1.Arrow =
-    val domainX: d0.Obj = d0.d0(a)
-    if d0.isIdentity(a) then
-      val obj = objectsMapping(domainX)
-      d1.id(obj).tagged(s"idFor($domainX)")
-    else
-      arrowsMappingCandidate(a)
+    if   d0.isIdentity(a)
+    then d1.id(objectsMapping(d0.d0(a)))
+    else arrowsMappingCandidate(a)
 
   /**
     * Composes two functors
     *
     * @param g : Y -> Z - second functor
     * @return g ∘ this : X -> Z - composition of this functor with functor g
-    *         
+    *
     * TODO: find a solution to get rid of castings
     */
   infix def andThen(g: Functor): Option[Functor] =
@@ -170,7 +167,7 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
 
         override def objectsMapping(x: d0.Obj): d1.Obj = ???
         override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
-    
+
   /**
     * Builds a cocone from this functor to a given vertex
     * @param vertex the vertex object
@@ -202,7 +199,7 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
   /**
     * @return all possible cones to this functor.
     */
-  def allCocones: Set[Cocone] = 
+  def allCocones: Set[Cocone] =
     val coconesGrouped: Set[Set[Cocone]] = d1.objects.map(coconesTo)
 
     Sets.union(coconesGrouped)
@@ -269,7 +266,7 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
       domainObjects.foldLeft(vertex.hashCode) ((hash, x) => hash * 13 + arrowTo(x).hashCode)
 
   end Cone
-  
+
   /**
     * Cocone class for this Functor. A cocone is an object y (called vertex) and a bundle of arrows cx: F(x) -> y
     * for all objects x of domain category, such that F(f) ∘ cx1 = cx2 for f:x1 -> x2.
@@ -406,7 +403,10 @@ object Functor:
     }
 
   private def checkCompositionPreservation(f: Functor): Outcome =
-    def check(fx: f.d0.Arrow, gx: f.d0.Arrow): Outcome =
+    val domain = f.d0
+    val codomain = f.d1
+
+    def check(fx: domain.Arrow, gx: domain.Arrow): Outcome =
       val fy = f.arrowsMapping(fx)
       val gy = f.arrowsMapping(gx)
       val gy_fy = f.d1.m(fy, gy)
@@ -415,16 +415,22 @@ object Functor:
       OKif(gy_fy == expected,
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
 
-    Result.check {
-      Category.composablePairs(f.d0).map{
-        case (fx, fy) => check(fx, fy)
-      }
-    }
+    val composablePairs = Result.forValue(Category.composablePairs(domain))
 
-  private def checkArrowMapping(f: Functor): Outcome = 
-    val missingMappings = f.d0.arrows.filter(a => Result.forValue(f.arrowsMapping(a)).isBad)
-    
-    OKif(missingMappings.isEmpty, s"Missing arrow mappings for ${missingMappings.mkString(", ")}") andThen 
+    Result.check:
+      Category.composablePairs(domain) map :
+        case (fx, fy) => check(fx, fy)
+
+  private def checkArrowMapping(f: Functor): Outcome =
+    val missingMappings = f.d0.arrows.filter:
+      a =>
+        val isBad = Result.forValue(f.arrowsMapping(a)).isBad
+        if isBad then
+          val another = Result.forValue(f.arrowsMapping(a))
+          println(s"Arrow mapping for $a is $another")
+        isBad
+
+    OKif(missingMappings.isEmpty, s"Missing arrow mappings for ${missingMappings.mkString(", ")}") andThen
     Result.check {
     for (a <- f.d0.arrows) yield {
       val aa = f.arrowsMapping(a)
