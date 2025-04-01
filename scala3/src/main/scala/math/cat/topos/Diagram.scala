@@ -24,18 +24,16 @@ import scala.language.{implicitConversions, postfixOps}
   * that are elements of the sets: given a diagram D, p(x) \in D(x).
   */
 abstract class Diagram(
-  tag: Any,
-  val d0: Category)
+  tag: Any,   val topos: GrothendieckTopos)(diagramme: topos.Diagramme)
   extends Functor(tag):
   diagram =>
-  def toOldDiagram: Diagram = this
-  val topos: GrothendieckTopos // todo: start using this
+  val d0 = topos.domain
   override val d1: Category = SetCategory.Setf
   private type XObject = d0.Obj // topos.domain.Obj ???
   private type XObjects = Set[XObject]
   private type XArrow = d0.Arrow // topos.domain.Arrow ???
   private type XArrows = Set[XArrow]
-  
+
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
   private[topos] def setAt(x: Any): set = itsaset(objectsMapping(x))
@@ -225,10 +223,7 @@ abstract class Diagram(
 
     sorted.zipWithIndex map:
       case (om, i) =>
-        Diagram.build(topos)(
-          i,
-          om(_),
-          extendToArrows(om))
+        topos.Diagramme(i, om(_), extendToArrows(om)).asOldDiagram
 
   end subobjects
   
@@ -321,27 +316,3 @@ abstract class Diagram(
       setsToCheck forall allArrowsAreCompatibleOnPoint(p)
 
   end limitBuilder
-
-object Diagram:
-
-  private[topos] def apply(t: GrothendieckTopos)(
-    tag: Any,
-    objectsMap: t.domain.Obj => set,
-    arrowMap:   t.domain.Arrow => SetFunction): Diagram =
-
-    new Diagram(tag.toString, t.domain):
-      override val topos = t // it's funny how it's important to place this here
-      override val d1: Category = SetCategory.Setf
-      override private[topos] def setAt(x: Any): set = objectsMap(x)
-      override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
-      override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
-        
-  def build(topos: GrothendieckTopos)(
-    tag: Any,
-    objectsMap: topos.domain.Obj => set,
-    arrowMap:   topos.domain.Arrow => SetFunction): Diagram =
-      topos.Diagramme(tag, objectsMap, arrowMap).asOldDiagram
-
-  private[topos] def cleanupString(s: String): String =
-    val s1 = s.replaceAll(s"->\\sDiagram\\[[^]]+]", "->")
-    s1.replace("Set()", "{}")

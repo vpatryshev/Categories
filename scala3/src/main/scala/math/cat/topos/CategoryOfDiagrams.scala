@@ -83,7 +83,7 @@ class CategoryOfDiagrams(val domain: Category)
     buildMap[domain.Obj, Set[Diagram]](domain.objects,
       x => {
         val rep: Representable = Representable(x)
-        val subobjects: Iterable[Diagram] = rep.subobjects.map(_.toOldDiagram)
+        val subobjects = rep.subobjects map (_.asOldDiagram)
         subobjects.toSet
       })
 

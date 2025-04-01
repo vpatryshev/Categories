@@ -500,7 +500,7 @@ trait GrothendieckTopos
 
   abstract class Diagramme(tag: Any)
     extends Functor(s"Diagramme $tag in $topos"):
-    diagram =>
+    diagramme =>
     private type XObject = d0.Obj // topos.domain.Obj ???
     private type XObjects = Set[XObject]
     private type XArrow = d0.Arrow // topos.domain.Arrow ???
@@ -509,12 +509,12 @@ trait GrothendieckTopos
     override val d0: Category = thisTopos.domain
     override val d1: Category = SetCategory.Setf
 
-    def asOldDiagram: Diagram = new Diagram(s"OldDiagram from $tag in $topos", thisTopos.domain):
-      val topos = thisTopos
-      override val d1: Category = diagram.d1
-      override def objectsMapping(x: this.d0.Obj): this.d1.Obj = diagram(x)
-      override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow =
-        diagram.arrowsMappingCandidate(a)
+    def asOldDiagram: Diagram =
+      new Diagram(s"OldDiagram from $tag in $topos", thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):
+        override val d1: Category = diagramme.d1
+        override def objectsMapping(x: this.d0.Obj): this.d1.Obj = diagramme(x)
+        override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow =
+          diagramme.arrowsMappingCandidate(a)
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
@@ -759,7 +759,7 @@ trait GrothendieckTopos
       s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagramme[${d0.name}]", ""))
 
     def toShortString: String = toString(x => {
-      val obRepr = Diagram.cleanupString(asString(objectsMapping(x)))
+      val obRepr = shortTitle(asString(objectsMapping(x)))
       if obRepr.isEmpty then "" else s"$x->{$obRepr}"
     }.replace(s"Diagramme[${d0.name}]", "")
     )

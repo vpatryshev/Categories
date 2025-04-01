@@ -75,7 +75,7 @@ class Point(
         x => {
           val obRepr = apply(x) match
             case d: Diagram =>
-              Diagram.cleanupString(d.toShortString)
+              shortTitle(d.toShortString)
             case d: topos.Diagramme =>
               shortTitle(d.toShortString)
             case other =>
