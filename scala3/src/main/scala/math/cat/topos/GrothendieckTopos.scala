@@ -238,8 +238,7 @@ trait GrothendieckTopos
 
     end disjunction
 
-    lazy val implication: DiagramArrow =
-      χ(inclusionOf(Ω1) in ΩxΩ iHope, "⟹")
+    lazy val implication: DiagramArrow = χ(inclusionOf(Ω1) in ΩxΩ iHope, "⟹")
 
   end Ωlike
 
@@ -754,13 +753,13 @@ trait GrothendieckTopos
 
       Good(Cocone(theFactorset.content, coconeMap))
 
-    private def toString(contentMapper: XObject => String): String =
+    def toString(contentMapper: XObject => String): String =
       s"Diagram[${d0.name}](${
         listOfObjects map contentMapper filter (_.nonEmpty) mkString ", "
       })".replace("Set()", "{}")
 
     override def toString: String = toString(x =>
-      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagramme[${d0.name}]", ""))
+      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagramme[${d0.name}]", "").replace(s"Diagram[${d0.name}]", ""))
 
     def toShortString: String = toString(x => {
       val obRepr = shortTitle(asString(objectsMapping(x)))

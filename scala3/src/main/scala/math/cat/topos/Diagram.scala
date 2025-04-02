@@ -55,48 +55,22 @@ abstract class Diagram(
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
     source.filter(tag, predicate).asOldDiagram
 
-  def subobjects: Iterable[Diagram] =
-    val allSets: Map[XObject, set] = buildMap(source.domainObjects, o => itsaset(objectsMapping(o)))
-    val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
+  def subobjects: Iterable[Diagram] = source.subobjects.map(_.asOldDiagram)
 
-    val listOfComponents: List[Set[set]] = source.listOfObjects map allPowers
-
-    def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall:
-      a =>
-        val d00 = itsaset(om(d0.d0(a)))
-        val d01: set = om(d0.d1(a))
-        val f = arrowsMapping(a)
-        d00 map f subsetOf d01
-
-    val objMappings: Iterable[Map[XObject, Sets.set]] = for
-      values <- Sets.product(listOfComponents).view
-      om0: Point = source.point(source.listOfObjects zip values toMap, id = "")
-      om: Map[XObject, Sets.set] = buildMap(source.d0.objects, x => itsaset(om0(x)))
-      if isPresheaf(om)
-    yield om
-    
-    val sorted: Seq[Map[XObject, set]] = listSorted(objMappings)
-
-    sorted.zipWithIndex map:
-      case (om, i) =>
-        t.Diagramme(i, om(_), extendToArrows(om)).asOldDiagram
-
-  end subobjects
-  
   private def toString(contentMapper: XObject => String): String =
-    s"Diagram[${source.d0.name}](${
-      source.listOfObjects map contentMapper filter(_.nonEmpty) mkString ", "
-    })".replace("Set()", "{}")    
+    source.toString(contentMapper)
 
-  override def toString: String = toString(x => 
-      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagram[${d0.name}]", ""))
+  override def toString: String = source.toString
+//  toString(x =>
+//      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagram[${d0.name}]", ""))
 
-  def toShortString: String = toString(x => {
-    //      val obRepr = Diagram.cleanupString(asString(objectsMapping(x))
-      val obRepr = shortTitle(asString(objectsMapping(x)))
-      if obRepr.isEmpty then "" else s"$x->{$obRepr}"
-    }.replace(s"Diagram[${d0.name}]", "")
-  )
+  def toShortString: String = source.toShortString
+//  toString(x => {
+//    //      val obRepr = Diagram.cleanupString(asString(objectsMapping(x))
+//      val obRepr = shortTitle(asString(objectsMapping(x)))
+//      if obRepr.isEmpty then "" else s"$x->{$obRepr}"
+//    }.replace(s"Diagram[${d0.name}]", "")
+//  )
 
   /**
     * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value
