@@ -6,13 +6,11 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.*
 import math.sets.{FactorSet, Functions, Sets}
 import scalakittens.{Good, Result}
-import scalakittens.Result.*
 import scalakittens.Containers.*
 import math.cat.topos.Format.shortTitle
 
 import scala.collection.{MapView, View, mutable}
 import scala.language.{implicitConversions, postfixOps}
-import scala.reflect.Selectable.reflectiveSelectable
 import SetFunction.inclusion
 import math.sets.Functions.Injection
 
@@ -254,7 +252,10 @@ trait GrothendieckTopos
   /**
     * An equalizer of first projection and intersection
     */
-  lazy val Ω1: Diagram = ΩxΩ.filter("<", _ => { case (a: Diagram, b: Diagram) => a ⊂ b })
+  lazy val Ω1: Diagram = ΩxΩ.source.filter("<", _ => {
+    case (a: Diagram, b: Diagram) => a ⊂ b
+    case (a: Diagramme, b: Diagramme) => a ⊂ b
+  }) asOldDiagram
 
   /**
     * Diagonal for Ω
@@ -508,6 +509,8 @@ trait GrothendieckTopos
 
     override val d0: Category = thisTopos.domain
     override val d1: Category = SetCategory.Setf
+
+
 
     def asOldDiagram: Diagram =
       new Diagram(s"OldDiagram from $tag in $topos", thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):
@@ -769,6 +772,14 @@ trait GrothendieckTopos
       val dom: Sets.set = om(d0.d0(a))
       val codom: Sets.set = om(d0.d1(a))
       new SetFunction("", dom, codom, arrowsMapping(a))
+
+    // TODO: write tests
+    def filter[O, A](tag: String, predicate: XObject => Any => Boolean): Diagramme =
+      def objectMapping(o: domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
+        objectsMapping(o) filter predicate(o)
+
+      val arrowToFunction = (a: domain.Arrow) => extendToArrows(objectMapping)(a)
+      Diagramme(tag, d0.obj andThen objectMapping, arrowToFunction)
 
     def subobjects: Iterable[Diagramme] =
       val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))

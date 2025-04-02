@@ -36,14 +36,14 @@ abstract class Diagram(
 
   given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
+  def asFunction(a: d1.Arrow): SetFunction = source.asFunction(a)
+
+  given Conversion[d1.Arrow, SetFunction] = asFunction
+
   private[topos] def setAt(x: Any): set = itsaset(objectsMapping(x))
 
   @targetName("subdiagramOf")
   infix inline def ⊂(other: Diagram): Boolean = source ⊂ other.source
-
-  def asFunction(a: d1.Arrow): SetFunction = source.asFunction(a)
-
-  given Conversion[d1.Arrow, SetFunction] = asFunction
 
   def functionForArrow(a: Any): SetFunction = source.functionForArrow(a)
 
@@ -52,13 +52,8 @@ abstract class Diagram(
   def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
     source.extendToArrows(om)(a)
 
-  // TODO: write tests
   def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
-    def objectMapping(o: t.domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
-      objectsMapping(o) filter predicate(o)
-
-    val arrowToFunction = (a: t.domain.Arrow) => extendToArrows(objectMapping)(a)
-    t.Diagramme(tag, source.d0.obj andThen objectMapping, arrowToFunction).asOldDiagram
+    source.filter(tag, predicate).asOldDiagram
 
   def subobjects: Iterable[Diagram] =
     val allSets: Map[XObject, set] = buildMap(source.domainObjects, o => itsaset(objectsMapping(o)))
