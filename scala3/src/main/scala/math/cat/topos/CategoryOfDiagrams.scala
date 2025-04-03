@@ -1,14 +1,14 @@
 package math.cat.topos
 
-import math.Base._
-import math.cat._
+import math.Base.*
+import math.cat.*
 import math.cat.topos
-import math.cat.topos.CategoryOfDiagrams.{BaseCategory, _}
-
-import math.sets._
-import math.sets.Sets._
+import math.cat.topos.CategoryOfDiagrams.{BaseCategory, *}
+import math.sets.*
+import math.sets.Sets.*
 import scalakittens.Result
 
+import scala.collection.MapView
 import scala.language.{implicitConversions, postfixOps}
 import scala.reflect.Selectable.reflectiveSelectable
 
@@ -79,14 +79,13 @@ class CategoryOfDiagrams(val domain: Category)
 
   } else None
 
-  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagramme]] = ???
-  
-  private[topos] def subdiagramsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
-    buildMap[domain.Obj, Set[Diagram]](domain.objects,
-      x => {
-        val rep: Representable = Representable(x)
-        rep.subobjects.toSet map (_.asOldDiagram)
-      })
+  private[topos] def subobjectsOfRepresentables: MapView[domain.Obj, Set[Diagramme]] =
+    buildMap[domain.Obj, Set[Diagramme]](domain.objects,
+      x => Representable(x).subobjects.toSet
+    ).view
+
+  private[topos] def subdiagramsOfRepresentables: MapView[domain.Obj, Set[Diagram]] =
+    subobjectsOfRepresentables.mapValues(_.map(_.asOldDiagram))
 
   case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
     override val d0: Category = thisTopos.domain

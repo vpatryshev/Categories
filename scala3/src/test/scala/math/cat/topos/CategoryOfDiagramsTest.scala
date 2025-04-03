@@ -197,7 +197,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       val r0 = topos.Representable(obj0)
 
-      val sor = topos.subdiagramsOfRepresentables
+      val sor = topos.subobjectsOfRepresentables
       sor.size === 2
       sor(obj0).size === 3
       sor(obj1).size === 2

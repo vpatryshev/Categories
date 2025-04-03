@@ -38,9 +38,9 @@ trait GrothendieckTopos
 
   def inclusionOf(p: Point): Includer
 
-  private[topos] def subdiagramsOfRepresentables: Map[domain.Obj, Set[Diagram]]
+  private[topos] def subdiagramsOfRepresentables: MapView[domain.Obj, Set[Diagram]]
 
-  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagramme]]
+  private[topos] def subobjectsOfRepresentables: MapView[domain.Obj, Set[Diagramme]]
 
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
@@ -51,7 +51,7 @@ trait GrothendieckTopos
     override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map `x => Ω(x)` .
-    private[topos] val subrepresentablesIndexed: Map[domain.Obj, Set[Diagram]] = subdiagramsOfRepresentables
+    private[topos] val subrepresentablesIndexed: MapView[domain.Obj, Set[Diagram]] = subdiagramsOfRepresentables
 
     // this one is consumed by Functor constructor
     def objectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
