@@ -79,7 +79,9 @@ class CategoryOfDiagrams(val domain: Category)
 
   } else None
 
-  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
+  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagramme]] = ???
+  
+  private[topos] def subdiagramsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     buildMap[domain.Obj, Set[Diagram]](domain.objects,
       x => {
         val rep: Representable = Representable(x)

@@ -8,7 +8,12 @@ import scalakittens.Result._
 
 import scala.language.reflectiveCalls
 
-class ImplicationTest extends Fixtures:
+/**
+ * You may wonder where does this name come from.
+ * This is done to make sure this suite starts running as early as possible, because it's very long.
+ * We run on all available cores, so other suites will run in parallel.
+ */
+class AnImplicationTest extends Fixtures:
 
   "Implication" should {
 

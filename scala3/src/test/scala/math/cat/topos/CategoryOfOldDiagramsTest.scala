@@ -221,7 +221,7 @@ class CategoryOfOldDiagramsTest extends Test with TestDiagrams:
       val obj0 = topos.objectNamed("0")
       val obj1 = topos.objectNamed("1")
 
-      val sor = topos.subobjectsOfRepresentables
+      val sor = topos.subdiagramsOfRepresentables
       sor.size === 2
       sor(obj0).size === 3
       sor(obj1).size === 2
