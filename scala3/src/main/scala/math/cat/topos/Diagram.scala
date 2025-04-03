@@ -2,16 +2,10 @@ package math.cat.topos
 
 import math.Base.*
 import math.cat.*
-import Functor.validateFunctor
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.topos.Format.shortTitle
-import math.sets.Functions.*
 import math.sets.Sets.*
-import math.sets.{FactorSet, Sets}
-import scalakittens.{Good, Result}
+import math.sets.Sets
 
 import scala.annotation.targetName
-import scala.collection.{MapView, View}
 import scala.language.{implicitConversions, postfixOps}
 
 /**
@@ -52,25 +46,10 @@ abstract class Diagram(
   def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
     source.extendToArrows(om)(a)
 
-  def filter[O,A](tag: String, predicate: XObject => Any => Boolean): Diagram =
-    source.filter(tag, predicate).asOldDiagram
-
-  def subobjects: Iterable[Diagram] = source.subobjects.map(_.asOldDiagram)
-
   private def toString(contentMapper: XObject => String): String =
     source.toString(contentMapper)
 
   override def toString: String = source.toString
-//  toString(x =>
-//      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagram[${d0.name}]", ""))
-
-  def toShortString: String = source.toShortString
-//  toString(x => {
-//    //      val obRepr = Diagram.cleanupString(asString(objectsMapping(x))
-//      val obRepr = shortTitle(asString(objectsMapping(x)))
-//      if obRepr.isEmpty then "" else s"$x->{$obRepr}"
-//    }.replace(s"Diagram[${d0.name}]", "")
-//  )
 
   /**
     * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value
