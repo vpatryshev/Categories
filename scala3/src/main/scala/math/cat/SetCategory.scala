@@ -55,7 +55,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     */
   override def id(s: set): SetFunction = SetFunction.id(s)
 
-  override def toString: String = "Category of all Scala Sets"
+  override def toString: String = "Category of all Sets"
   
   /**
     * Set `x` to the power of set `y`.

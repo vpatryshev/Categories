@@ -69,10 +69,18 @@ class GrothendieckToposTest extends Fixtures:
       val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1.asOldDiagram iHope
       val χ1: DiagramArrow = topos.χ(i1)
       val χ10: SetFunction = asFunction(χ1("0"))
-      def short(x: Any) = x.source.toShortString
-      short(χ10(1)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
-      short(χ10(2)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
-      short(χ10(3)) === "Diagram[ParallelPair](0->{0}, 1->{a,b})"
+      val sample1: χ1.d1.d1.Arrow = χ1("0")
+      val sample2 = χ10(1)
+      def short(x: Any) = x match {
+        case tD: topos.Diagramme => tD.toShortString
+        case d: Diagram => d.source.toShortString
+        case other => 
+          other.toString
+      } replaceAll ("\\s+", "")
+
+      short(χ10(1)) === "Diagram[ParallelPair](0->{0},1->{a,b})"
+      short(χ10(2)) === "Diagram[ParallelPair](0->{0},1->{a,b})"
+      short(χ10(3)) === "Diagram[ParallelPair](0->{0},1->{a,b})"
       short(χ10(4)) === "Diagram[ParallelPair](1->{a,b})"
       short(χ10(5)) === "Diagram[ParallelPair](1->{a,b})"
       val χ11 = asFunction(χ1("1"))

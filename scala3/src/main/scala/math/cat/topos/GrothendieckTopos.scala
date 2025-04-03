@@ -51,7 +51,7 @@ trait GrothendieckTopos
     override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map `x => Ω(x)` .
-    private[topos] val subrepresentablesIndexed: MapView[domain.Obj, Set[Diagram]] = subdiagramsOfRepresentables
+    private[topos] val subrepresentablesIndexed = subdiagramsOfRepresentables
 
     // this one is consumed by Functor constructor
     def objectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
@@ -812,48 +812,6 @@ trait GrothendieckTopos
             extendToArrows(om))
 
     end subobjects
-
-//    private[cat] object limitBuilder:
-//      // have to use List so far, no tool to annotate cartesian product components with their appropriate objects
-//      final private[cat] lazy val listOfObjects: List[XObject] = listSorted(rootObjects)
-//      // Here we have a non-repeating collection of sets to use for building a limit
-//      final private[cat] lazy val setsToUse =
-//        listOfObjects map nodesMapping map (x => itsaset(x))
-//      // this is the product of these sets; will have to take a subset of this product
-//      final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
-//      final lazy private val d0op = Categories.op(d0)
-//      final lazy private[cat] val cobundles: Map[XObject, XArrows] =
-//        d0op.buildBundles(opo, opa) // TODO: get rid of casting
-//          .asInstanceOf[Map[XObject, XArrows]] // TODO: get rid of casting
-//      // this is the limit object
-//      final private[cat] lazy val vertex: set = prod filter isPoint untyped
-//      // bundles maps each "initial" object to a set of arrows from it
-//      final private[cat] lazy val bundles: Map[XObject, XArrows] =
-//        d0.buildBundles(rootObjects, participantArrows)
-//      lazy val rootObjects: XObjects = d0.allRootObjects
-//      private lazy val participantArrows: XArrows = d0.arrowsFromRootObjects
-//      // for each domain object, a collection of arrows looking outside
-//      private lazy val opo: d0op.Objects = d0op.objects
-//      private lazy val opa: d0op.Arrows = participantArrows.asInstanceOf[d0op.Arrows]
-//
-//      // this function takes an object and returns a projection set function;
-//      // we have to compose each such projection
-//      // with the right arrow from root object to the image of our object
-//      //    private[cat] def projectionForObject(x: XObject)(xs: List[Any]): Any =
-//      //      xs(index(x))
-//
-//      private def index(x: XObject): Int = listOfObjects.indexOf(x)
-//
-//      // Have a product set; have to remove all the bad elements from it
-//      // this predicate leaves only compatible elements of product (which are lists)
-//      private[cat] def isPoint(candidate: List[Any]): Boolean =
-//        val p: Point = point(listOfObjects zip candidate toMap)
-//        val arrowSets = cobundles.values
-//        val setsToCheck = arrowSets filterNot (_.forall(d0.isIdentity))
-//        setsToCheck forall allArrowsAreCompatibleOnPoint(p)
-//
-//    end limitBuilder
-
 
   end Diagramme
 
