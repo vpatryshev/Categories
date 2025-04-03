@@ -6,7 +6,6 @@ import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import scalakittens._
 
-import scala.collection.MapView
 import scala.language.postfixOps
 
 /**
@@ -48,9 +47,12 @@ class LayoutTest extends Specification:
       def U[T](ss: Set[Set[T]]): Set[T] = ss.foldLeft(Set.empty[T])(_ union _)
       def united[T](lss: List[List[Set[T]]]): List[Set[T]] = lss.map(ls => U(ls.toSet))
 
-      val premap: MapView[String, List[Set[String]]] =
-        expectedLayersOfClusters.view.mapValues(united)
-      val expectedLayers = premap.toMap
+      val premap: Map[String, List[Set[String]]] =
+        expectedLayersOfClusters.map {
+          case (k, v) => k -> united(v)
+        } toMap
+        
+      val expectedLayers = premap
 
       def gradedObjectsOf(c: Category): Set[GradedObjects] =
         Layout(c, 300, 300).gradedObjects

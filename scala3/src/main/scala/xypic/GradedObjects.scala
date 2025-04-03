@@ -3,15 +3,16 @@ package xypic
 import math.cat.Category
 import math.geometry2d.{GroupOfObjects, Pt, Rational}
 
-import scala.collection.MapView
 import scala.language.postfixOps
 
 case class GradedObjects(category: Category) {
   private val allArrows: category.Arrows = category.arrows
   
-  private def groupByNumberOfIncoming(arrows: category.Arrows): MapView[Int, category.Objects] = {
-    val objWithSizes: MapView[category.Obj, Int] = arrows.groupBy(category.d1).view.mapValues(_.size)
-    objWithSizes.groupBy(_._2).view.mapValues(_.map(_._1).toSet)
+  private def groupByNumberOfIncoming(arrows: category.Arrows): Map[Int, category.Objects] = {
+    val objWithSizes: Map[category.Obj, Int] = arrows.groupBy(category.d1).view.mapValues(_.size).toMap
+    objWithSizes.groupBy(_._2).map {
+      case (k, v) => k -> v.map(_._1).toSet
+    } toMap
   }
   
   private def objectsWithSmallersNumberOfIncoming(arrows: category.Arrows): category.Objects =

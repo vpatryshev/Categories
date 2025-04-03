@@ -7,7 +7,7 @@ import math.geometry2d.*
 
 import java.io.{File, FileWriter}
 import java.util.Date
-import scala.collection.{MapView, immutable, mutable}
+import scala.collection.{immutable, mutable}
 import scala.language.{implicitConversions, postfixOps}
 
 case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
@@ -92,11 +92,9 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
       base.arrows map (a => (a, Set(base.d0(a), base.d1(a))))
     
-    val arrows: MapView[Set[base.Node], List[base.Arrow]] =
-      arrowsWithDomainAndCodomain.groupBy(_._2).view.
-        mapValues {
-          v => listSorted(v map (_._1))
-        }
+    val arrows: Map[Set[base.Node], List[base.Arrow]] =
+      arrowsWithDomainAndCodomain.groupBy(_._2).
+        map { case (k, v) => k -> listSorted(v map (_._1)) } toMap
     
     def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit =
       val p = coordinates(obj.toString)

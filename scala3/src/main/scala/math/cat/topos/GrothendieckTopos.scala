@@ -9,13 +9,12 @@ import scalakittens.{Good, Result}
 import scalakittens.Containers.*
 import math.cat.topos.Format.shortTitle
 
-import scala.collection.{MapView, View, mutable}
+import scala.collection.{View, mutable}
 import scala.language.{implicitConversions, postfixOps}
 import SetFunction.inclusion
 import math.sets.Functions.Injection
 
 import scala.annotation.targetName
-import scala.collection.MapView
 
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
@@ -38,9 +37,9 @@ trait GrothendieckTopos
 
   def inclusionOf(p: Point): Includer
 
-  private[topos] def subdiagramsOfRepresentables: MapView[domain.Obj, Set[Diagram]]
+  private[topos] def subdiagramsOfRepresentables: Map[domain.Obj, Set[Diagram]]
 
-  private[topos] def subobjectsOfRepresentables: MapView[domain.Obj, Set[Diagramme]]
+  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagramme]]
 
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
@@ -254,7 +253,7 @@ trait GrothendieckTopos
     * An equalizer of first projection and intersection
     */
   lazy val Ω1: Diagram = ΩxΩ.source.filter("<", _ => {
-    case (a: Diagram, b: Diagram) => a ⊂ b
+    case (a: Diagram, b: Diagram) => a.source ⊂ b.source
     case (a: Diagramme, b: Diagramme) => a ⊂ b
   }) asOldDiagram
 
@@ -594,8 +593,10 @@ trait GrothendieckTopos
 
       val grouped: Map[XObject, XArrows] = arrowsInvolved.groupBy(arrow => d0.d1(arrow))
 
-      val fromRootObjects: MapView[XObject, XArrow] =
-        grouped.view.mapValues(_.head) // does not matter which one, in this case
+      val fromRootObjects: Map[XObject, XArrow] =
+        grouped.map {
+          case (k, v) => k -> v.head
+        } toMap // does not matter which one, in this case
 
       def arrowFromRootObject(x: XObject) =
         if LimitBuilder.rootObjects(x) then d0.id(x) else fromRootObjects(x)
@@ -707,8 +708,10 @@ trait GrothendieckTopos
       val reverseIndex: Map[XObject, Int] = inverse(directIndex)
 
       // for every object it gives the inclusion of this object's image into the union
-      val objectToInjection: MapView[XObject, Injection[Any, (Int, Any)]] =
-        reverseIndex.view mapValues union.injection
+      val objectToInjection: Map[XObject, Injection[Any, (Int, Any)]] =
+        reverseIndex map {
+          case (k, v) => k -> union.injection(v)
+        } toMap
 
       // All possible functions in the diagram, bundled with domain objects
       val functionsToUnion: Set[(XObject, SetFunction)] = for
@@ -784,7 +787,9 @@ trait GrothendieckTopos
 
     def subobjects: Iterable[Diagramme] =
       val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))
-      val allPowers: MapView[XObject, Set[set]] = allSets.view mapValues Sets.pow
+      val allPowers: Map[XObject, Set[set]] = allSets map {
+        case (k, v) => k -> Sets.pow(v)
+      } toMap
 
       val listOfComponents: List[Set[set]] = listOfObjects map allPowers
 

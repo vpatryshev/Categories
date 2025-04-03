@@ -23,9 +23,9 @@ abstract class Diagram(
   given Conversion[d1.Arrow, SetFunction] = asFunction
 
   private[topos] def setAt(x: Any): set = itsaset(objectsMapping(x))
-
-  @targetName("subdiagramOf")
-  infix inline def ⊂(other: Diagram): Boolean = source ⊂ other.source
+//
+//  @targetName("subdiagramOf")
+//  infix inline def ⊂(other: Diagram): Boolean = source ⊂ other.source
 
   def functionForArrow(a: Any): SetFunction = source.functionForArrow(a)
 

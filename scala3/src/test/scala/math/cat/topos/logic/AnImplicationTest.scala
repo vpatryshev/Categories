@@ -20,7 +20,7 @@ class AnImplicationTest extends Fixtures:
     def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
       val topos = new CategoryOfDiagrams(cat)
       import topos._
-      val desc = s"Testing implication over ${cat.name} ($number/$total)"
+      val desc = s"Testing implication over ${cat.name} ($number/$total), ${Ω.points.size} points in Ω"
       println(desc)
       val True = Ω.True asPredicateIn topos
       val False = Ω.False asPredicateIn topos
