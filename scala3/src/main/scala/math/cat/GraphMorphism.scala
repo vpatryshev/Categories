@@ -86,7 +86,7 @@ trait GraphMorphism extends Morphism[Graph, Graph]:
         case otherwise => false
     ))
 
-  override def hashCode: Int = d0.hashCode ^ d1.hashCode * 1024
+  override lazy val hashCode: Int = d0.hashCode ^ d1.hashCode * 1024
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 

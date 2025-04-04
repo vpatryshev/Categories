@@ -26,7 +26,7 @@ class LayoutTest extends Specification:
         Map(
         "𝟙"->List(List(Set("0"))),
         "Z2"->List(List(Set("1"))),
-        "_2_"->List(List(Set("0")), List(Set("1"))),
+        "𝟚"->List(List(Set("0")), List(Set("1"))),
         "Z3"->List(List(Set("0"))),
         "Z4"->List(List(Set("0"))),
         "ParallelPair"->List(List(Set("0")), List(Set("1"))),

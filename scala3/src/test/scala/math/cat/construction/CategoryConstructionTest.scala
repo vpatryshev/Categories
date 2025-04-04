@@ -277,7 +277,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
 
     "2" >> {
-      val sut = _2_
+      val sut = `𝟚`
       sut.objects === Set("0", "1")
       val expected = Set("0.0", "0.1", "1.1")
       val arrows = sut.arrows

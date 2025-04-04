@@ -202,14 +202,14 @@ trait GrothendieckTopos
           * @param b second subrepresentable
           * @return their intersection
           */
-        private def union(a: Diagram, b: Diagram): Diagram =
-          val om = (o: domain.Obj) => a.source.setAt(o) | b.source.setAt(o)
+        private def union(a: Diagramme, b: Diagramme): Diagramme =
+          val om = (o: domain.Obj) => a.setAt(o) | b.setAt(o)
 
           // this is how, given an arrow `b`, the new diagram gets from one point to another
           def am(f: domain.Arrow): SetFunction =
             val o = domain.d0(f)
-            val ao = a.source(o)
-            val bo = b.source(o)
+            val ao = a(o)
+            val bo = b(o)
             val x = om(o)
             val y = om(domain.d1(f))
 
@@ -229,9 +229,11 @@ trait GrothendieckTopos
 
         end union
 
+        def unionOld(a: Diagram, b: Diagram): Diagram = union(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
+
         def disjunctionOfTwoSubreps(pair: Any): Diagram = pair match
-          case (a: Diagram, b: Diagram) => union(a,b)
-          case (a: Diagramme, b: Diagramme) => union(a,b)
+          case (a: Diagram, b: Diagram) => unionOld(a,b)
+          case (a: Diagramme, b: Diagramme) => unionOld(a,b)
 
         def perObject(x: d0.d0.Obj): SetFunction =
           val dom = ΩxΩ.source(x)

@@ -259,7 +259,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
       rightCorner <- Result(right andThen coeq)
     } yield (leftCorner, rightCorner)
 
-  override def hashCode: Int = getClass.hashCode * 7 + objects.hashCode
+  override lazy val hashCode: Int = getClass.hashCode * 7 + objects.hashCode
 
   override def equals(x: Any): Boolean = x match
     case sc: SetCategory => objects == sc.objects

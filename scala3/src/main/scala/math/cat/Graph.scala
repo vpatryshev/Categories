@@ -17,7 +17,7 @@ trait Graph(val name: String) extends GraphData:
 
   def size: Int = nodes.size
 
-  override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
+  override lazy val hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
   override def equals(x: Any): Boolean =
     x match

@@ -53,8 +53,8 @@ class TopologyTest extends Fixtures:
       ok
     }
 
-    "  exist for _2_" in {
-      topologies(`Set^_2_`).size === 4
+    "  exist for `𝟚`" in {
+      topologies(`Set^𝟚`).size === 4
     }
 
     "  exist for _3_" in {

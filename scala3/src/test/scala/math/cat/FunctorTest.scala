@@ -52,7 +52,7 @@ class FunctorTest extends Test:
     "report incorrect object mappings" in:
       expectError("Object mapping fails for 1",
         Functor("failing test",
-          _2_, _2_)(
+          `𝟚`, `𝟚`)(
           Map("0" -> "1", "1" -> "3"),
           Map.empty[String, String]))
 

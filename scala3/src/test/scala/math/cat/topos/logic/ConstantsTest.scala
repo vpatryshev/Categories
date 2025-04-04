@@ -42,8 +42,8 @@ class ConstantsTest extends Fixtures:
       checkAt(topos)(omega.True("0"))("0" -> Set("0.0"))
     }
 
-    "exist for _2_" in {
-      val topos = new CategoryOfDiagrams(_2_)
+    "exist for `𝟚`" in {
+      val topos = new CategoryOfDiagrams(`𝟚`)
       val omega = topos.Ω
       val False = omega.False
       val True = omega.True

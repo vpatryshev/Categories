@@ -20,8 +20,8 @@ class GrothendieckToposTest extends Fixtures:
     "be good for`𝟙`" in:
       checkPoints(`Set^𝟙`, "0->()", "0->(0->{0.0})")
 
-    "be good for _2_" in:
-      checkPoints(`Set^_2_`,
+    "be good for `𝟚`" in:
+      checkPoints(`Set^𝟚`,
         "0->(), 1->()",
         "0->(1->{0.1}), 1->(1->{1.1})",
         "0->(0->{0.0}, 1->{0.1}), 1->(1->{1.1})")

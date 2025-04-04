@@ -190,8 +190,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       actual.forall(_ ⊂ sut)
 
-    "exist for representables in Set^_2_" in:
-      val topos = `Set^_2_`
+    "exist for representables in `Set^𝟚`" in:
+      val topos = `Set^𝟚`
       val obj0 = topos.objectNamed("0")
       val obj1 = topos.objectNamed("1")
 

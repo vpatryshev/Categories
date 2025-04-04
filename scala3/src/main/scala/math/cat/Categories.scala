@@ -45,7 +45,7 @@ object Categories extends CategoryFactory:
   /**
     * Category <b>2</b>: 2 objects linearly ordered
     */
-  lazy val _2_ : Cat = fromSegment(2)
+  lazy val `𝟚` : Cat = fromSegment(2)
 
   /**
     * Category <b>3</b>: 3 objects linearly ordered
@@ -164,7 +164,7 @@ object Categories extends CategoryFactory:
     */
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SimpleCategories = List(`𝟘`,`𝟙`, _2_, _3_, _4_,
+  lazy val SimpleCategories = List(`𝟘`,`𝟙`, `𝟚`, _3_, _4_,
     _1plus1_,
     Z2, Z3, Z4
   )
