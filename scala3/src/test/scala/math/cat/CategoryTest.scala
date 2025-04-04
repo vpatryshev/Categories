@@ -42,7 +42,7 @@ class CategoryTest extends Test:
     }
 
     "degree" >> {
-      val sut = segment(10)
+      val sut = fromSegment(10)
       sut.degree("4", 0) === Good("9", Nil)
       sut.degree("4", 1) === Good("4", List("4.4"))
       sut.degree("4", 5) === Good("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))

@@ -24,7 +24,7 @@ class LayoutTest extends Specification:
           "Discrete_2.1"->List(List(Set("a"))),
           "Discrete_2.2"->List(List(Set("b")))) ++ 
         Map(
-        "_1_"->List(List(Set("0"))),
+        "𝟙"->List(List(Set("0"))),
         "Z2"->List(List(Set("1"))),
         "_2_"->List(List(Set("0")), List(Set("1"))),
         "Z3"->List(List(Set("0"))),
@@ -51,7 +51,7 @@ class LayoutTest extends Specification:
         expectedLayersOfClusters.map {
           case (k, v) => k -> united(v)
         } toMap
-        
+
       val expectedLayers = premap
 
       def gradedObjectsOf(c: Category): Set[GradedObjects] =
@@ -71,10 +71,10 @@ class LayoutTest extends Specification:
       val missing = (expectedLayersOfClusters.keySet diff actualLayersOfClusters.keySet).toList
       missing === Nil
 
-//      val extra = (actualLayersOfClusters.keySet diff expectedLayersOfClusters.keySet).toList
-//      extra === Nil
-      
-      expectedLayersOfClusters.keySet === actualLayersOfClusters.keySet
+      val extra = (actualLayersOfClusters.keySet diff expectedLayersOfClusters.keySet).toList
+      extra === Nil
+
+      actualLayersOfClusters.keySet === expectedLayersOfClusters.keySet
 
       for
         name <- actualLayersOfClusters.keySet

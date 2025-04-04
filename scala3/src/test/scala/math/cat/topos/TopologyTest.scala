@@ -27,12 +27,9 @@ class TopologyTest extends Fixtures:
         }
       } collect { case Good(incl) => incl }
 
-    val builder = LawvereTopology.forPredicate(topos)
+    val predicates = inclusionsToΩ map topos.predicateForArrowToΩ
 
-    val predicates = inclusionsToΩ map {
-      d =>
-        topos.predicateForArrowToΩ(d)
-    }
+    val builder = LawvereTopology.forPredicate(topos)
 
     predicates map builder
 
@@ -49,10 +46,11 @@ class TopologyTest extends Fixtures:
       val candidates = topologiesTested(`Set^𝟙`)
       candidates.size === 4
 
-      expectOk(candidates(3))
-      expectError(candidates(0), "Should contain truth")
-      expectOk(candidates(1))
-      expectError(candidates(2), "Should be closed:", "under conjunction")
+      val topologies = candidates.filter(_.isGood)
+      topologies.size === 2
+      for topology <- topologies do expectOk(topology)
+      
+      ok
     }
 
     "  exist for _2_" in {

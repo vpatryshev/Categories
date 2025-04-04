@@ -20,5 +20,3 @@ abstract class Diagram(
   given Conversion[d1.Arrow, SetFunction] = asFunction
 
   infix def apply(x: Any): set = source(x)
-
-  override def toString: String = source.toString

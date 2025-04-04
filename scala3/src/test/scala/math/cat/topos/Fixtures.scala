@@ -25,7 +25,7 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
   case class checkThatIn(topos: GrothendieckTopos, number: Int, total: Int):
 
     def reportIn(topos: GrothendieckTopos): String => Unit =
-      report(_, s"in ${topos.tag}")
+      report(_, topos.tag)
 
     def mustBeMonoid[P](what: String,
       unit: P,

@@ -31,7 +31,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
     "have segments" >> {
       for i <- 0 until 10 do
-        Category.segment(i).arrows.size === i * (i + 1) / 2
+        Category.fromSegment(i).arrows.size === i * (i + 1) / 2
 
       ok
     }
@@ -262,7 +262,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     // following are tests for accompanying object
 
     "0" >> {
-      val expected = "_0_: ({}, {}, {})"
+      val expected = "𝟘: ({}, {}, {})"
       val actual =`𝟘`.toString
       actual === expected
       `𝟘`.objects must beEmpty
@@ -306,7 +306,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
 
     "Segment" >> {
-      def sut: Cat = segment(3)
+      def sut: Cat = fromSegment(3)
       sut === _3_
     }
   }

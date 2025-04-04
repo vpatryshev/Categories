@@ -504,7 +504,7 @@ trait GrothendieckTopos
     }
 
   abstract class Diagramme(tag: Any)
-    extends Functor(s"Diagram $tag in $topos"):
+    extends Functor(tag):
     diagramme =>
     private type XObject = d0.Obj // topos.domain.Obj ???
     private type XObjects = Set[XObject]
@@ -766,7 +766,11 @@ trait GrothendieckTopos
       })".replace("Set()", "{}")
 
     override def toString: String = toString(x =>
-      s"$x ->{${asString(objectsMapping(x))}}".replace(s"Diagramme[${d0.name}]", "").replace(s"Diagram[${d0.name}]", ""))
+      s"$x ->{${asString(objectsMapping(x))}}".
+        replace(s"Functor ", "").
+        replace(s"Diagramme[${d0.name}]", "").
+        replace(s"Diagram[${d0.name}]", "")
+    )
 
     def toShortString: String = toString(x => {
       val obRepr = shortTitle(asString(objectsMapping(x)))
