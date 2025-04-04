@@ -49,8 +49,8 @@ class CategoryTest extends Test:
     }
 
     "id case 1" >> {
-      _3_.id("2") === "2.2"
-      _3_.name === "_3_"
+      `𝟛`.id("2") === "2.2"
+      `𝟛`.name === "𝟛"
     }
 
     "id case 2" >> {
@@ -133,8 +133,8 @@ class CategoryTest extends Test:
 
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
-      _3_.arrows.forall {
-        case a@PairRegex(x, y) => (x == y) === _3_.isIsomorphism(a)
+       `𝟛`.arrows.forall {
+        case a@PairRegex(x, y) => (x == y) === `𝟛`.isIsomorphism(a)
         case s => failure(s"$s does not look like an arrow in a poset"); false
       }
 
@@ -169,8 +169,8 @@ class CategoryTest extends Test:
     }
 
     "isEndomorphism" in {
-      _3_.arrows.forall {
-        case a@PairRegex(x, y) => (x == y) === _3_.isEndomorphism(a)
+      `𝟛`.arrows.forall {
+        case a@PairRegex(x, y) => (x == y) === `𝟛`.isEndomorphism(a)
         case s => failure(s"$s does not look like an arrow in a poset"); false
       }
       
@@ -522,10 +522,10 @@ class CategoryTest extends Test:
     }
 
     "op" in {
-      val op3 = _3_.op
+      val op3 = `𝟛`.op
       import op3._
-      op3.arrows === _3_.arrows
-      op3.objects === _3_.objects
+      op3.arrows === `𝟛`.arrows
+      op3.objects === `𝟛`.objects
       op3.d0("1.2") === "2"
       op3.factory.iHope
       ok
@@ -567,7 +567,7 @@ class CategoryTest extends Test:
      `𝟘`.connectedComponents.isEmpty === true
     }
     "build 3" in {
-      _3_.connectedComponents.map(_.name) === Set("_3_.1")
+       `𝟛`.connectedComponents.map(_.name) === Set(" `𝟛`.1")
     }
     "build 1+1" in {
       val c1: Category = category"Discrete_2.1:({a}, {a:a->a})"
@@ -585,8 +585,8 @@ class CategoryTest extends Test:
   "baseGraph" >> {
     import Graph._
 
-    "good for _3_" >> {
-      _3_.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
+    "good for `𝟛`" >> {
+       `𝟛`.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
     }
 
     "good for _4_" >> {

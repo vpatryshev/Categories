@@ -34,7 +34,7 @@ class LayoutTest extends Specification:
         "Pushout"->List(List(Set("a")), List(Set("b"),Set("c"))),
         "Pushout4"->List(List(Set("a")), List(Set("b"),Set("c"),Set("d"),Set("e"))),
         "SplitMono"->List(List(Set("a")), List(Set("b"))),
-        "_3_"->List(List(Set("0")), List(Set("1")), List(Set("2"))),
+        "𝟛"->List(List(Set("0")), List(Set("1")), List(Set("2"))),
         "Square"->List(List(Set("a")), List(Set("b"),Set("c")), List(Set("d"))),
         "M"->List(List(Set("b"),Set("d")), List(Set("a"),Set("c"),Set("e"))),
         "W"->List(List(Set("a"),Set("c"),Set("e")), List(Set("b"),Set("d"))),

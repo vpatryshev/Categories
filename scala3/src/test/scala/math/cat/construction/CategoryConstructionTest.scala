@@ -286,9 +286,9 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
 
     "3" >> {
-      _3_.objects === Set("0", "1", "2")
+     `𝟛`.objects === Set("0", "1", "2")
       val expected = Set("0.0", "1.1", "2.2", "0.1", "0.2", "1.2")
-      expected === _3_.arrows
+      expected === `𝟛`.arrows
     }
 
     "Z2" >> {
@@ -307,7 +307,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
     "Segment" >> {
       def sut: Cat = fromSegment(3)
-      sut === _3_
+      sut === `𝟛`
     }
   }
 

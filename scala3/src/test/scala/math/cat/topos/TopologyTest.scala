@@ -49,7 +49,7 @@ class TopologyTest extends Fixtures:
       val topologies = candidates.filter(_.isGood)
       topologies.size === 2
       for topology <- topologies do expectOk(topology)
-      
+
       ok
     }
 
@@ -57,8 +57,8 @@ class TopologyTest extends Fixtures:
       topologies(`Set^𝟚`).size === 4
     }
 
-    "  exist for _3_" in {
-      topologies(`Set^_3_`).size === 8
+    "  exist for `𝟛`" in {
+      topologies(`Set^𝟛`).size === 8
     }
 
     "  exist for ParallelPair" in {
