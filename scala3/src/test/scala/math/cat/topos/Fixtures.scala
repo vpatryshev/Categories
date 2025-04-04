@@ -14,10 +14,10 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
   type SUT = Diagram
 
   def report(what: String, where: String = ""): Unit =
-    println(s"  checking $what $where")
+    println(s"  $where:\tchecking $what")
 
   def reportIn(topos: GrothendieckTopos): String => Unit =
-    report(_, s"in ${topos.tag}")
+    report(_, topos.tag)
 
   trait TestCase:
     def check(cat: Category, number: Int, total: Int): MatchResult[Any]

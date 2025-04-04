@@ -40,12 +40,12 @@ class TopologyTest extends Fixtures:
     topologiesTested(topos) collect { case Good(topo) => topo}
 
   "Topologies" should {
-    "exist for`𝟘`" in {
+    "  exist for`𝟘`" in {
       val all = topologies(`Set^𝟘`)
       all.length === 1
     }
 
-    "exist for`𝟙`" in {
+    "  exist for`𝟙`" in {
       val candidates = topologiesTested(`Set^𝟙`)
       candidates.size === 4
 
@@ -55,31 +55,31 @@ class TopologyTest extends Fixtures:
       expectError(candidates(2), "Should be closed:", "under conjunction")
     }
 
-    "exist for _2_" in {
+    "  exist for _2_" in {
       topologies(`Set^_2_`).size === 4
     }
 
-    "exist for _3_" in {
+    "  exist for _3_" in {
       topologies(`Set^_3_`).size === 8
     }
 
-    "exist for ParallelPair" in {
+    "  exist for ParallelPair" in {
       topologies(`Set^ParallelPair`).size === 4
     }
 
-    "exist for Pullback" in {
+    "  exist for Pullback" in {
       topologies(`Set^Pullback`).size === 8
     }
 
-    "exist for Pushout" in {
+    "  exist for Pushout" in {
       topologies(`Set^Pushout`).size === 8
     }
 
-    "exist for Z3" in {
+    "  exist for Z3" in {
       topologies(`Set^Z3`).size === 2
     }
 
-    "exist for HalfSimplicial" in {
+    "  exist for HalfSimplicial" in {
       topologies(`Set^Simplicial`).size === 6
     }
 
