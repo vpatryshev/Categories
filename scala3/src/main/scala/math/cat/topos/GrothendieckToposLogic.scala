@@ -61,7 +61,7 @@ trait GrothendieckToposLogic:
           val PQtoΩxΩ: SetFunction =
             new SetFunction(
               s"PQ->ΩxΩ($o)",
-              dom, ΩxΩ(o),
+              dom, ΩxΩ.source(o),
               v => (po(v), qo(v))
             )
     
@@ -140,7 +140,7 @@ trait GrothendieckToposLogic:
 
       override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
           val value = p(o)
-          new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
+          new SetFunction(s"tag($o)", _1.source(o), Set(value), _ => value)
 
   lazy val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.`∅`)
   

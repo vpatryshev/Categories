@@ -35,7 +35,7 @@ class CategoryOfDiagrams(val domain: Category)
         val function = _1.arrowsMapping(a)
         function restrictTo(d0, d1) iHope
 
-    val all: Set[Diagram] = 
+    val allDiagrammes: Set[Diagramme] =
       for
         (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
         // some mappings are not working for a given candidate
@@ -43,10 +43,10 @@ class CategoryOfDiagrams(val domain: Category)
 
         om = objectMapping(candidate)
       // some of these build attempts will fail, because of compatibility checks
-        diagram: thisTopos.Diagramme <- thisTopos.Diagramme.tryBuild("__" + i, om, am) asOption
-      yield diagram.asOldDiagram
+        diagram <- Diagramme.tryBuild("__" + i, om, am) asOption
+      yield diagram
 
-    all
+    allDiagrammes.map(_.asOldDiagram)
   
   end subterminals
   
