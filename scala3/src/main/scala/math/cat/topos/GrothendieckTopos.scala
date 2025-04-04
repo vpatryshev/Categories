@@ -26,6 +26,8 @@ trait GrothendieckTopos
   type Arrow = DiagramArrow
 
   val domain: Category
+  
+  def tag = s"Set^${domain.name}"
 
   type Mapping = domain.Obj => Any => Any
 
@@ -213,6 +215,7 @@ trait GrothendieckTopos
 
             val fa = a.arrowsMapping(f)
             val fb = b.arrowsMapping(f)
+
             def unionOfMappings(z: Any): Any =
               if ao(z) then fa(z)
               else if bo(z) then fb(z)
@@ -228,6 +231,7 @@ trait GrothendieckTopos
 
         def disjunctionOfTwoSubreps(pair: Any): Diagram = pair match
           case (a: Diagram, b: Diagram) => union(a,b)
+          case (a: Diagramme, b: Diagramme) => union(a,b)
 
         def perObject(x: d0.d0.Obj): SetFunction =
           val dom = ΩxΩ(x)
@@ -509,8 +513,6 @@ trait GrothendieckTopos
 
     override val d0: Category = thisTopos.domain
     override val d1: Category = SetCategory.Setf
-
-
 
     def asOldDiagram: Diagram =
       new Diagram(s"OldDiagram from $tag in $topos", thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):

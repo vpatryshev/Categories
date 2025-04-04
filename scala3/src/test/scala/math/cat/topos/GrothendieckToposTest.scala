@@ -71,12 +71,12 @@ class GrothendieckToposTest extends Fixtures:
       val χ10: SetFunction = asFunction(χ1("0"))
       val sample1: χ1.d1.d1.Arrow = χ1("0")
       val sample2 = χ10(1)
-      def short(x: Any) = x match {
+      def short(x: Any) = (x match {
         case tD: topos.Diagramme => tD.toShortString
         case d: Diagram => d.source.toShortString
         case other => 
           other.toString
-      } replaceAll ("\\s+", "")
+      }).replaceAll("\\s+", "")
 
       short(χ10(1)) === "Diagram[ParallelPair](0->{0},1->{a,b})"
       short(χ10(2)) === "Diagram[ParallelPair](0->{0},1->{a,b})"
