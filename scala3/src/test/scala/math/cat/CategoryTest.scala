@@ -567,7 +567,7 @@ class CategoryTest extends Test:
      `𝟘`.connectedComponents.isEmpty === true
     }
     "build 3" in {
-       `𝟛`.connectedComponents.map(_.name) === Set(" `𝟛`.1")
+       `𝟛`.connectedComponents.map(_.name) === Set("𝟛.1")
     }
     "build 1+1" in {
       val c1: Category = category"Discrete_2.1:({a}, {a:a->a})"

@@ -45,12 +45,11 @@ object Categories extends CategoryFactory:
   /**
     * Category <b>2</b>: 2 objects linearly ordered
     */
-  lazy val `𝟚` : Cat = fromSegment(2)
-
+  lazy val `𝟚` : Cat = fromSegment(2, "𝟚")
   /**
     * Category <b>3</b>: 3 objects linearly ordered
     */
-  lazy val `𝟛` : Cat = fromSegment(3)
+  lazy val `𝟛` : Cat = fromSegment(3, "𝟛")
 
   /**
     * Category <b>4</b>: 4 objects linearly ordered
