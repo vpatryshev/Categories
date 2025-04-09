@@ -22,7 +22,7 @@ class CategoryOfDiagrams(val domain: Category)
   override type Obj = Diagram
   override type Arrow = DiagramArrow
   
-  lazy val subterminals: Set[Diagram] =
+  lazy val subterminals: Set[Diagramme] =
     def objectMapping(candidate: Set[domain.Obj]) =
       (obj: thisTopos.domain.Obj) =>
         if candidate contains obj then _1(obj) else `∅`
@@ -46,7 +46,7 @@ class CategoryOfDiagrams(val domain: Category)
         diagram <- Diagramme.tryBuild("__" + i, om, am) asOption
       yield diagram
 
-    allDiagrammes.map(_.asOldDiagram)
+    allDiagrammes
   
   end subterminals
   

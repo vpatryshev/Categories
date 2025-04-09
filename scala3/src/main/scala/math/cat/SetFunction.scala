@@ -26,8 +26,11 @@ case class SetFunction private[cat](
   self =>
 
 // TODO: uncomment when the problem is solved - BEFORE MERGE TO master
-//  if (!d0.isEmpty && d1.isEmpty) then
-//    throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
+  if (!d0.isEmpty && d1.isEmpty) then
+    throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
+
+  if (d0.isFinite) for (x <- d0) if (!d1.contains(mapping(x))) then
+    throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")
 
   def tagged(newTag: String): SetFunction = SetFunction(newTag, d0, d1, mapping)
 
@@ -41,8 +44,19 @@ case class SetFunction private[cat](
     * @return their composition g ∘ f: X -> Z
     */
   infix def andThen(g: SetFunction): Option[SetFunction] =
-    if d1 == g.d0 then
-      val transform = (x: Any) => g(self(x))
+    if d1 == g.d0 then // TODO: it should not be equal. It can be just that d1 < g.d0
+      val transform = (x: Any) => {
+        val y = self(x) // TODO: hey, this y does not belong to d1!!!!
+        val xind0 = d0.contains(x)
+        val yind1 = d1.contains(y)
+        val yingd0 = g.d0.contains(y)
+        try g(y)
+        catch
+          case e: Exception => 
+            val itsok = g.d0.contains(y)
+            val z = g(y)
+            throw new IllegalArgumentException(s"Cannot compose $tag and $g.tag: d0 ($d0) is not contained in d1 ($d1)", e)
+      }
       Some(new SetFunction(tagOfComposition(g.tag, tag), d0, g.d1, transform))
     else None
 

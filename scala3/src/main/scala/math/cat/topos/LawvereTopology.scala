@@ -1,8 +1,9 @@
 package math.cat.topos
 
+import math.cat.Functor
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result
-import scalakittens.Result._
+import scalakittens.Result.*
 
 import scala.language.postfixOps
 
@@ -37,7 +38,14 @@ object LawvereTopology:
           val closure: topos.Predicate = closureOp.typed[topos.Predicate] iHope
 
   def mustContainTruth(topos: CategoryOfDiagrams)(predicate: topos.Predicate): Outcome =
-    OKif(topos.Ω.True ∈ predicate.d0.typed[Diagram].iHope, s"Should contain truth: ${predicate.tag}")
+    val truth: Point = topos.Ω.True
+    val predD0: Functor = predicate.d0
+    val itsOk = predD0 match {
+      case d: Diagram => OKif(truth ∈ d, s"Should contain truth: ${predicate.tag}")
+      case tD: topos.Diagramme => OKif(truth ∈ tD.asOldDiagram, s"Should contain truth: ${predicate.tag}")
+      case other => Oops(s"Expected a diagram, got $other")
+    }
+    itsOk    
 
   def mustBeClosed[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
     val jj = j ∘ j

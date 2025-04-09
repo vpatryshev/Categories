@@ -47,6 +47,7 @@ class AnImplicationTest extends Fixtures:
             val q2r = q ⟹ r
             val left = p_and_q ⟹ r
             val right = p ⟹ q2r
+            left.equalsWithDetails(right, printDetails = true) === true
             left === right
 
         report(s"conjunction distributivity for ${pt1.tag}")

@@ -52,7 +52,7 @@ trait GrothendieckTopos
     override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map `x => Ω(x)` .
-    private[topos] val subrepresentablesIndexed = subdiagramsOfRepresentables
+    private[topos] val subrepresentablesIndexed = subobjectsOfRepresentables
 
     // this one is consumed by Functor constructor
     def objectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
@@ -148,7 +148,10 @@ trait GrothendieckTopos
       * @param b second subrepresentable
       * @return their intersection
       */
-    private[topos] def intersection(a: Diagram, b: Diagram): Diagram =
+    private[topos] def intersectionOld(a: Diagram, b: Diagram): Diagram =
+      intersection(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
+
+    private[topos] def intersection(a: Diagramme, b: Diagramme): Diagramme =
       val om = (o: domain.Obj) => a.source(o) & b.source(o)
 
       // this is how, given an arrow `b`, the new diagram gets from one point to another
@@ -158,17 +161,19 @@ trait GrothendieckTopos
 
         a.arrowsMapping(f).restrictTo(x, y).iHope
 
-      topos.Diagramme(
+      Diagramme(
         concat(a.tag, "∩", b.tag),
         o => om(o),
         f => am(f)
-      ).asOldDiagram
+      )
 
     lazy val conjunction: DiagramArrow =
 
       def conjunctionOfTwoSubreps(pair: Any): Diagram = pair match
         case (a: Diagram, b: Diagram) =>
-          intersection(a,b)
+          intersectionOld(a, b)
+        case (a: Diagramme, b: Diagramme) =>
+          intersection(a,b).asOldDiagram
         case bs =>
           throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
 
@@ -229,11 +234,22 @@ trait GrothendieckTopos
 
         end union
 
-        def unionOld(a: Diagram, b: Diagram): Diagram = union(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
+        def unionOld(a: Diagram, b: Diagram): Diagram = 
+          union(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
 
         def disjunctionOfTwoSubreps(pair: Any): Diagram = pair match
           case (a: Diagram, b: Diagram) => unionOld(a,b)
+          case (a: Diagram, b: Diagramme) => unionOld(a,b.asOldDiagram)
+          case (a: Diagramme, b: Diagram) => unionOld(a.asOldDiagram,b)
           case (a: Diagramme, b: Diagramme) => unionOld(a,b)
+          case (a: Any, b:Any) =>
+            val isDiagram1 = a.isInstanceOf[Diagram]
+            val isDiagram2 = a.isInstanceOf[Diagramme]
+            if (isDiagram1) unionOld(a.asInstanceOf[Diagram], b.asInstanceOf[Diagram])
+            else if (isDiagram2) unionOld(a.asInstanceOf[Diagramme], b.asInstanceOf[Diagramme])
+            else throw new IllegalArgumentException(s"Fuck, $a and $b")
+          case other =>
+            throw new IllegalArgumentException(s"total fuck, other is ${other.getClass}")
 
         def perObject(x: d0.d0.Obj): SetFunction =
           val dom = ΩxΩ.source(x)
@@ -261,6 +277,8 @@ trait GrothendieckTopos
   lazy val Ω1: Diagram = ΩxΩ.source.filter("<", _ => {
     case (a: Diagram, b: Diagram) => a.source ⊂ b.source
     case (a: Diagramme, b: Diagramme) => a ⊂ b
+    case somethingElse => 
+      false
   }) asOldDiagram
 
   /**
@@ -508,13 +526,12 @@ trait GrothendieckTopos
   abstract class Diagramme(tag: Any)
     extends Functor(tag):
     diagramme =>
+    override val d0: Category = thisTopos.domain
+    override val d1: Category = SetCategory.Setf
     private type XObject = d0.Obj // topos.domain.Obj ???
     private type XObjects = Set[XObject]
     private type XArrow = d0.Arrow // topos.domain.Arrow ???
     private type XArrows = Set[XArrow]
-
-    override val d0: Category = thisTopos.domain
-    override val d1: Category = SetCategory.Setf
 
     def asOldDiagram: Diagram =
       new Diagram(thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):
@@ -836,8 +853,6 @@ trait GrothendieckTopos
       arrowMap:   domain.Arrow => SetFunction): Diagramme =
 
       new Diagramme(tag.toString):
-        override val d0: Category = thisTopos.domain
-        override val d1: Category = SetCategory.Setf
         override private[topos] def setAt(x: Any): set = objectsMap(x)
         override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
         override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
