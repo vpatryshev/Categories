@@ -9,63 +9,52 @@ import testing.TestBase
  */
 class FunctionsTest extends TestBase:
 
-  "Functions" >> {
-    "id should be an identity" >> {
+  "Functions" should:
+    "id should be an identity" in:
       id[String](Set("Hello world"))("привет медвед") === "привет медвед"
       id[String](Set("Hello world")).unapply("привет медвед") === "привет медвед"
-    }
     
-    "inclusion should be practically usable" >> {
+    "inclusion should be practically usable" in:
       val f = inclusion[Integer, Number]
       val n:Number = 1
       f(1) === n
-    }
 
-    "Schwartzian transform as defined in Wikipedia" >> {
+    "Schwartzian transform as defined in Wikipedia" in:
       val f = schwartzianTransform { (s: String) => s.toUpperCase}
       val actual = Set("aX", "mmm").map(f)
       val expected = Set(("aX", "AX"), ("mmm", "MMM"))
-      actual == expected
       actual === expected
-    }
-  }
   
-  "Bijection" >> {
-    "composition with a bijection is still an bijection" >> {
+  "Bijection" should:
+    "composition with a bijection is still an bijection" in:
       val f = bijection[Int, Int](_ + 42, _ - 42)
       val g = bijection[Int, Int](_ + 1, _ - 1)
       val fg: Bijection[Int, Int] = f andThen g
       fg(7) === 50
       fg.unapply(7) == -36
-    }
     
-    "applyTo" >> {
+    "applyTo" in:
       val f = bijection[Int, Int](_ + 42, _ - 42)
       Set.empty.map(f) === Set.empty[Int]
       Set(768, 87, 21).map(f) == Set(810, 129, 63)
-    }
-    "inverse" >> {
+
+    "inverse" in:
       val f = bijection[Int, Int](_ + 2, _ - 2)
       val g = f.inverse
       g(7) === 5
-    }
-    "unapply" >> {
+
+    "unapply" in:
       val f = bijection[Int, Int](_ + 2, _ - 2)
       f.unapply(7) === 5
-    }
-  }
   
-  "Injection" >> {
-    "applied to a set should produce a set of the same size" >> {
+  "Injection" should:
+    "applied to a set should produce a set of the same size" in:
       val s = Set("a", "b", "cdef")
       val f = injection{ (s: String) => s + "!"}
       s.map(f) === Set("a!", "b!", "cdef!")
-    }
 
-    "composition with an injection is still an injection" >> {
+    "composition with an injection is still an injection" in:
       val f = injection{ (s: String) => s + "!"}
       val g = injection{ (s: String) => s + "?!"}
       val fg: Injection[String, String] = f andThen g
       ok
-    }
-  }

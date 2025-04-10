@@ -38,7 +38,7 @@ class LayoutTest extends Specification:
         "Square"->List(List(Set("a")), List(Set("b"),Set("c")), List(Set("d"))),
         "M"->List(List(Set("b"),Set("d")), List(Set("a"),Set("c"),Set("e"))),
         "W"->List(List(Set("a"),Set("c"),Set("e")), List(Set("b"),Set("d"))),
-        "_4_"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3"))),
+        "`𝟜`"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3"))),
         "Simplicial3"->List(List(Set("0")), List(Set("1")), List(Set("2"))),
         "_5_"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3")), List(Set("4"))),
         "AAAAAA" -> List(List(Set("1", "2", "3", "4", "5", "6")))

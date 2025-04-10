@@ -386,8 +386,8 @@ class CategoryTest extends Test:
       Square.isTerminal("d") must beTrue
     }
 
-    "isTerminal_positive _4_" >> {
-      _4_.isTerminal("3") must beTrue
+    "isTerminal_positive `𝟜`" >> {
+      `𝟜`.isTerminal("3") must beTrue
     }
 
     "isTerminal_negative Square" >> {
@@ -395,9 +395,9 @@ class CategoryTest extends Test:
       Square.isTerminal("b") must beFalse
     }
 
-    "isTerminal_negative _4_" >> {
-      _4_.isTerminal("0") must beFalse
-      _4_.isTerminal("1") must beFalse
+    "isTerminal_negative `𝟜`" >> {
+      `𝟜`.isTerminal("0") must beFalse
+      `𝟜`.isTerminal("1") must beFalse
     }
 
     "isTerminal_negative ParallelPair" >> {
@@ -407,7 +407,7 @@ class CategoryTest extends Test:
 
     "Terminal_misc" >> {
       Square.terminal === Good("d")
-      _4_.terminal === Good("3")
+      `𝟜`.terminal === Good("3")
     }
 
     "Initial_none" >> {
@@ -417,11 +417,11 @@ class CategoryTest extends Test:
 
     "Initial_misc" >> {
       Square.initial === Good("a")
-      _4_.initial === Good("0")
+      `𝟜`.initial === Good("0")
     }
 
     "foreach" >> {
-      _4_ foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
+      `𝟜` foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
       ok
     }
 
@@ -502,9 +502,9 @@ class CategoryTest extends Test:
         Map("b" -> Set(), "c" -> Set())
     }
 
-    "isInitial _4_" in {
-      _4_.isInitial("0") === true
-      _4_.isInitial("1") === false
+    "isInitial `𝟜`" in {
+      `𝟜`.isInitial("0") === true
+      `𝟜`.isInitial("1") === false
     }
 
     "isInitial in Simplicial3" in {
@@ -589,8 +589,8 @@ class CategoryTest extends Test:
        `𝟛`.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
     }
 
-    "good for _4_" >> {
-      _4_.baseGraph === graph"({0,1,2,3}, {0.1: 0 -> 1, 1.2: 1 -> 2, 2.3: 2 -> 3})"
+    "good for `𝟜`" >> {
+      `𝟜`.baseGraph === graph"({0,1,2,3}, {0.1: 0 -> 1, 1.2: 1 -> 2, 2.3: 2 -> 3})"
     }
     
     "good for Pullback" >> {
