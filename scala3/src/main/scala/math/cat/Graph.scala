@@ -119,7 +119,7 @@ trait Graph(val name: String) extends GraphData:
 
   end subgraph
   
-  def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] = 
+  def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] =
     val result = new Graph(name):
 
       lazy val nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
