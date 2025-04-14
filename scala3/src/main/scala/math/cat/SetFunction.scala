@@ -4,7 +4,7 @@ import math.Base
 import math.Base._
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
-import scalakittens.Result
+import scalakittens.{Params, Result}
 import scalakittens.Result._
 import scala.language.implicitConversions
 
@@ -25,12 +25,12 @@ case class SetFunction private[cat](
   extends SetMorphism[Any, Any](tag, d0, d1, mapping):
   self =>
 
-// TODO: uncomment when the problem is solved - BEFORE MERGE TO master
   if (!d0.isEmpty && d1.isEmpty) then
     throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
 
-  if (d0.isFinite) for (x <- d0) if (!d1.contains(mapping(x))) then
-    throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")
+  if (Params.fullCheck)
+    if (d0.isFinite) for (x <- d0) if (!d1.contains(mapping(x))) then
+      throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")
 
   def tagged(newTag: String): SetFunction = SetFunction(newTag, d0, d1, mapping)
 
@@ -77,7 +77,8 @@ case class SetFunction private[cat](
   infix def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] =
     val domOk = OKif(newDomain subsetOf d0, "Bad domain for restriction")
     val codomOk = OKif(newCodomain subsetOf d1, "Bad codomain for restriction")
-    val success: Outcome = domOk andAlso codomOk
+    val compatible = OKif (newDomain.isEmpty || !newCodomain.isEmpty, "Empty codomain for nonempty domain")
+    val success: Outcome = domOk andAlso codomOk andAlso compatible
     success returning new SetFunction(tag, newDomain, newCodomain, function)
 
   override lazy val hashCode: Int =

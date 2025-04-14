@@ -17,15 +17,15 @@ class AnImplicationTest extends Fixtures:
 
   "Implication" should {
 
-    def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
-      val topos = new CategoryOfDiagrams(cat)
+    def check(topos: CategoryOfDiagrams, number: Int, total: Int): MatchResult[Any] =
+      val cat = topos.domain
       val report = reportIn(topos)
       import topos._
-      val desc = s"Testing implication over ${cat.name} ($number/$total), ${Ω.points.size} points in Ω"
+      val desc = s"Testing implication in ${topos.name} ($number/$total), ${Ω.points.size} points in Ω"
       println(desc)
       val True = Ω.True asPredicateIn topos
       val False = Ω.False asPredicateIn topos
-
+      val context = s"${Ω.tag} in ${topos.name}"
       for pt1 <- Ω.points do
         report(s"True ⟹ ${pt1.tag} = ${pt1.tag}")
         val p = pt1 asPredicateIn topos
@@ -36,19 +36,7 @@ class AnImplicationTest extends Fixtures:
         (p ⟹ p) === True
         report(s"${pt1.tag} ⟹ True = True")
         (p ⟹ True) === True
-
-        report(s"adjunction for ${pt1.tag}")
-        for pt2 <- Ω.points do
-          val q = pt2 asPredicateIn topos
-          val p_and_q = p ∧ q
-
-          for pt3 <- Ω.points do
-            val r = pt3 asPredicateIn topos
-            val q2r = q ⟹ r
-            val left = p_and_q ⟹ r
-            val right = p ⟹ q2r
-            left.equalsWithDetails(right, printDetails = true) === true
-            left === right
+        checkAdjunction(topos)(p, context)
 
         report(s"conjunction distributivity for ${pt1.tag}")
         for pt2 <- Ω.points do
@@ -80,15 +68,79 @@ class AnImplicationTest extends Fixtures:
 
     end check
 
+    def checkAdjunction(topos: GrothendieckTopos)(p: topos.Predicate, context: String): MatchResult[Any] =
+      val testname = s"$context, adjunction for ${p.tag}"
+      report(s"adjunction for ${p.tag}")
+
+      for pt2 <- topos.Ω.points do
+        val q = pt2 asPredicateIn topos
+        checkAdjunction2(topos)(p, q, context)
+
+      ok
+
+    def checkAdjunction2(topos: GrothendieckTopos)(
+                        p: topos.Predicate, q: topos.Predicate, context: String
+    ): MatchResult[Any] =
+      val p_and_q = p ∧ q
+      for pt3 <- topos.Ω.points do
+        val r = pt3 asPredicateIn topos
+        checkAdjunctionpqr(topos)(p, q, p_and_q, r, context)
+      ok
+
+    def checkAdjunctionpqr(topos: GrothendieckTopos)(
+      p: topos.Predicate, q: topos.Predicate, p_and_q: topos.Predicate,r: topos.Predicate, context: String
+    ): MatchResult[Any] =
+      val q2r = q ⟹ r
+      val left = p_and_q ⟹ r
+      val right = p ⟹ q2r
+      left.equalsWithDetails(right, printDetails = true, context) aka context must beTrue
+
     def checkAt(i: Int): MatchResult[Any] =
       groupedCategoriesToTest(i) foreach:
-        case (cat, index) => check(cat, index, totalOfGrouped)
+        case (cat, index) =>
+          val topos = new CategoryOfDiagrams(cat)
+          check(topos, index, totalOfGrouped)
       ok
 
     def nameThem(i: Int): String =
       groupedCategoriesToTest(i).map{_._1.name} mkString ", "
 
-    s"work for domains: ${nameThem(0)}" in checkAt(0)
-    s"work for domains: ${nameThem(1)}" in checkAt(1)
-    s"work for domains: ${nameThem(2)}" in checkAt(2)
+    "work for adjunctions in set^𝟙" in:
+      val sut = `Set^𝟙`
+      val True = `Set^𝟙`.Ω.True asPredicateIn `Set^𝟙`
+      val False = `Set^𝟙`.Ω.False asPredicateIn `Set^𝟙`
+      val p = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
+      p === False
+      val q = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
+      q === False
+      val p_and_q = p ∧ q
+      p_and_q === False
+      False ∧ False === False
+      val r = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
+      r === False
+      val q2r = q ⟹ r
+      q2r === True
+      False ⟹ r === True
+      False ⟹ False === True
+      False ⟹ True === True
+      p ⟹ True === True
+      p_and_q === p
+      val p_q_true = p_and_q ⟹ True
+      p_q_true === True
+      p_and_q ⟹ False === True
+      val left = p_and_q ⟹ r
+      left === True
+      val r1 = False ⟹ q2r
+      r1 === True
+      val right = p ⟹ q2r
+      right === True
+
+      left === right
+//      checkAdjunctionpqr(`Set^𝟙`)(p, q, p_and_q, r, "adjunction in set^𝟙")
+
+//    "work for set^𝟙" in check(`Set^𝟙`, -1, 1)
+
+//    s"work for domains: ${nameThem(0)}" in checkAt(0)
+//    s"work for domains: ${nameThem(1)}" in checkAt(1)
+//    s"work for domains: ${nameThem(2)}" in checkAt(2)
   }

@@ -1,15 +1,15 @@
 package math.cat.topos
 
 import math.Base.concat
-import math.cat.SetFunction._
+import math.cat.SetFunction.*
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow}
 import math.cat.{Morphism, SetFunction}
 import math.sets.Sets
 import Sets.{set, setOf}
-import scalakittens.Result
+import scalakittens.{Params, Result}
 
 import scala.collection.mutable
-import scala.language.{postfixOps, implicitConversions}
+import scala.language.{implicitConversions, postfixOps}
 
 trait GrothendieckToposLogic:
   topos: GrothendieckTopos =>
@@ -47,14 +47,16 @@ trait GrothendieckToposLogic:
     //)
     
     private def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: Any): Predicate =
-      requireCompatibility(q)
+      if (Params.fullCheck)
+        requireCompatibility(q)
 
       new Predicate(newTag):
         val d0 = p.d0
 
         override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
           val dom = setAt(o)
-          require(q.setAt(o) == dom)
+          if (Params.fullCheck)
+            require(q.setAt(o) == dom)
           val po = p.transformAt(o)
           val qo = q.transformAt(o)
 

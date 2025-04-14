@@ -40,7 +40,7 @@ object Categories extends CategoryFactory:
   /**
     * Discrete 2-object category
     */
-  lazy val _1plus1_ : Cat = asCat(discrete(Set("a", "b")))
+  lazy val `𝟙+𝟙` : Cat = asCat(discrete(Set("a", "b")))
 
   /**
     * Category <b>2</b>: 2 objects linearly ordered
@@ -163,8 +163,8 @@ object Categories extends CategoryFactory:
     */
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SimpleCategories = List(`𝟘`,`𝟙`, `𝟚`, `𝟛`, `𝟜`,
-    _1plus1_,
+  lazy val SimpleCategories = List(`𝟘`,`𝟙`, `𝟚`, `𝟛`, `𝟜`, `𝟝`,
+    `𝟙+𝟙`,
     Z2, Z3, Z4
   )
 

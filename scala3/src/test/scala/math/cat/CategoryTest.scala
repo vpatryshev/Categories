@@ -482,7 +482,7 @@ class CategoryTest extends Test:
     "buildBundles ParallelPair" >> {
       ParallelPair.buildBundles(Set("0"), Set("0", "a", "b")) ===
         Map("0" -> Set("0", "a", "b"))
-      ParallelPair.buildBundles(Set("1"), Set("0", "a", "b")) must throwA[IllegalArgumentException]
+      ParallelPair.buildBundles(Set("1"), Set("0", "a", "b")) must throwA[InstantiationException]
     }
 
     "buildBundles Pullback" >> {
@@ -572,7 +572,7 @@ class CategoryTest extends Test:
     "build 1+1" in {
       val c1: Category = category"Discrete_2.1:({a}, {a:a->a})"
       val c2: Category = category"Discrete_2.2:({b}, {b:b->b})"
-      _1plus1_.connectedComponents === Set(c1, c2)
+      `𝟙+𝟙`.connectedComponents === Set(c1, c2)
     }
     "build Z2+ParallelPair" in {
       val sut = category"A:({1, 2, 3}, {1: 1 -> 1, a: 1 -> 1, b: 2 -> 3, c: 2 -> 3}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"

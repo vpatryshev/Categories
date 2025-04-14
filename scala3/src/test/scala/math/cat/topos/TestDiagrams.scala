@@ -19,16 +19,21 @@ trait TestDiagrams extends Test:
   val `Set^𝟘`:            CategoryOfDiagrams = toposOver(`𝟘`)
   val `Set^𝟙`:            CategoryOfDiagrams = toposOver(`𝟙`)
   val `Set^𝟚`:            CategoryOfDiagrams = toposOver(`𝟚`)
-  val `Set^𝟛`:          CategoryOfDiagrams = toposOver(`𝟛`)
+  val `Set^𝟛`:            CategoryOfDiagrams = toposOver(`𝟛`)
+  val `Set^𝟜`:            CategoryOfDiagrams = toposOver(`𝟜`)
+  val `Set^𝟝`:            CategoryOfDiagrams = toposOver(`𝟝`)
+  val `Set^𝟙+𝟙`:            CategoryOfDiagrams = toposOver(`𝟙+𝟙`)
   val `Set^M`:            CategoryOfDiagrams = toposOver(M)
   val `Set^W`:            CategoryOfDiagrams = toposOver(W)
+  val `Set^Z2`:           CategoryOfDiagrams = toposOver(Z2)
   val `Set^Z3`:           CategoryOfDiagrams = toposOver(Z3)
+  val `Set^Z4`:           CategoryOfDiagrams = toposOver(Z4)
   val `Set^Pullback`:     CategoryOfDiagrams = toposOver(Pullback)
   val `Set^Pushout`:      CategoryOfDiagrams = toposOver(Pushout)
   val `Set^ParallelPair`: CategoryOfDiagrams = toposOver(ParallelPair)
   val `Set^Simplicial`:   CategoryOfDiagrams = toposOver(Simplicial3)
   val `Set^Square`:       CategoryOfDiagrams = toposOver(Square)
-
+  
   def build(name: String, topos: GrothendieckTopos)(
     objectsMap: String => set,
     arrowMap: String => SetFunction): topos.Diagramme =
@@ -183,7 +188,7 @@ trait TestDiagrams extends Test:
       Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
     )
 
-//object Debug extends TestDiagrams:
+//object Publish extends TestDiagrams:
 //
 //  @main def allToposes(): Unit =
 //    println(toposes.values)

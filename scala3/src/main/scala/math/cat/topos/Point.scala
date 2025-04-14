@@ -60,7 +60,7 @@ class Point(
 
   // TODO: fix this awkward unnecessary casting
   inline infix def asPredicateIn(t: GrothendieckTopos): t.Predicate =
-    require(t eq topos)
+    require(t eq topos) // we don't need full compare, just an identity check
     predicate.asInstanceOf[t.Predicate]
 
   override def toString: String =

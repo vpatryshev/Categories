@@ -1,13 +1,13 @@
 package math.cat
 
-import math.Base._
+import math.Base.*
 import math.cat.Graph.build
 import math.cat.construction.{CategoryData, CategoryFactory}
-import math.sets.Functions._
+import math.sets.Functions.*
 import math.sets.Sets.*
 import math.sets.{BinaryRelation, FactorSet, Sets}
-import scalakittens.Result._
-import scalakittens.{Good, Result}
+import scalakittens.Result.*
+import scalakittens.{Params, Good, Result}
 
 import scala.annotation.tailrec
 import scala.collection.IterableOnce
@@ -568,10 +568,12 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return a map.
     */
   def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] =
-    val badArrows: Arrows = arrows filterNot (d0(_) ∈ setOfObjects)
+    if (Params.fullCheck)
+      val badArrows: Arrows = arrows filterNot (d0(_) ∈ setOfObjects)
 
-    // TODO: return a Result
-    require(badArrows.isEmpty, s"These arrows don't belong: ${asString(badArrows)} in $name")
+      // TODO: return a Result
+      require(badArrows.isEmpty, s"These arrows don't belong: ${asString(badArrows)} in $name")
+
     val grouped = arrows.groupBy(d0)
     val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
     setOfObjects.map(o => o -> mor(o)).toMap withDefaultValue Set.empty[Arrow]

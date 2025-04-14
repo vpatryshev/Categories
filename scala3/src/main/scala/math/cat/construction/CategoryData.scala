@@ -1,12 +1,12 @@
 package math.cat.construction
 
-import math.Base._
-import math.cat.construction._
-import math.cat.construction.CategoryData._
+import math.Base.*
+import math.cat.construction.*
+import math.cat.construction.CategoryData.*
 import math.cat.{Category, Graph}
-import math.sets.Sets._
-import scalakittens.Result
-import scalakittens.Result._
+import math.sets.Sets.*
+import scalakittens.{Params, Result}
+import scalakittens.Result.*
 
 import java.util.Objects
 import scala.collection.mutable
@@ -20,15 +20,17 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
   type Objects = Nodes
 
-  val graph: Graph = this
+  val graph: Graph
 
   /// TODO: figure out why do we need it
-  def d0(f: Arrow): Node = graph.d0(f)
-  def d1(f: Arrow): Node = graph.d1(f)
+  def d0(f: Arrow): Node = 
+    graph.d0(f)
+  def d1(f: Arrow): Node = 
+    graph.d1(f)
   
   lazy val listOfObjects: List[Obj] =
-    if isFinite then listSorted(objects)
-    else throw new IllegalStateException("Cannot sort infinite set")
+    require(isFinite, "Cannot sort infinite set")
+    listSorted(objects)
 
   implicit def obj(x: Any): Obj = asNode(x)
 
@@ -366,19 +368,18 @@ object CategoryData:
             }
         } toMap
 
-      require(newArrows.nonEmpty,
-        s"${data.name}: ${missing.size} arrows still missing: $missing")
+      if (newArrows.isEmpty) then data else
 
-      val newData: Result[PartialData] =
-        data.addArrows(newArrows).map { graph =>
-          new PartialData(graph):
-            override def newComposition(f: Any, g: Any): Option[Arrow] =
-              data.newComposition(f, g).map(_.asInstanceOf[Arrow])
+        val newData: Result[PartialData] =
+          data.addArrows(newArrows).map(
+            graph =>
+              new PartialData(graph):
+                override def newComposition(f: Any, g: Any): Option[Arrow] =
+                  data.newComposition(f, g).map(_.asInstanceOf[Arrow])
 
-            override val compositionSource: CompositionTable =
-              data.composition.asInstanceOf[CompositionTable]
-      }
-      
-      newData map transitiveClosure iHope
+                override val compositionSource: CompositionTable =
+                  data.composition.asInstanceOf[CompositionTable]
+          )
+        newData map transitiveClosure iHope
 
 end CategoryData

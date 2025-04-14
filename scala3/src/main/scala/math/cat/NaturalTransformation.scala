@@ -59,16 +59,25 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
     val d1: Functor = self.d1
     def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
       self.mappingAt(x)
-
-  private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
-    if d0.d0.isFinite then buildMap(d0.d0.objects, o => mappingAt(o)) else Map.empty
-  
-  override lazy val hashCode: Int = d0.hashCode | d1.hashCode*17 | asMap.hashCode*127
   
   override def toString: String =
     val s = String.valueOf(tag)
     if s.isEmpty then details else s
-  
+
+
+  lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] = try {
+    if d0.d0.isFinite then buildMap(d0.d0.objects, o => mappingAt(o)) else Map.empty
+  } catch {
+    case e: Exception =>
+      System.err.println(s"Failed to build map for $self")
+      throw e
+  }
+
+  override lazy val hashCode: Int = d0.hashCode | d1.hashCode * 17 | {
+    val amhc = asMap.hashCode
+    amhc.hashCode * 127
+  }
+
   def details = s"NT($tag)(${
     if domainCategory.isFinite then
       domainCategory.listOfObjects.map(o => s"$o->(${mappingAt(o)})").mkString(", ")
@@ -76,10 +85,13 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
   })"
   
   override def equals(x: Any): Boolean = x match
-    case nt: NaturalTransformation => equalsWithDetails(nt, printDetails = false)
+    case nt: NaturalTransformation => equalsWithDetails(nt)
     case otherwise => false
 
-  private[cat] def equalsWithDetails(other: NaturalTransformation, printDetails: Boolean): Boolean =
+  private[cat] def equalsWithDetails(
+    other: NaturalTransformation,
+    printDetails: Boolean = false,
+    context: String = "..."): Boolean =
     (this eq other) || (
       hashCode == other.hashCode &&
       d0 == other.d0 &&
@@ -89,8 +101,10 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
           val second: other.d1.d1.Arrow = other.mappingAt(o)
           val same = first == second
           if !same && printDetails then
-            printMapDifference(asFunction(first), asFunction(second))
-            println(s"same?: $same")
+            val first2 = mappingAt(o)
+            val second2 = other.mappingAt(o)
+            printMapDifference(asFunction(first), asFunction(second), context)
+//            System.err.println(s"same?: $same")
           !same
         )
 
@@ -99,13 +113,13 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
 
 object NaturalTransformation:
 
-  def printMapDifference(sf1: SetFunction, sf2: SetFunction): Unit =
+  def printMapDifference(sf1: SetFunction, sf2: SetFunction, context: String): Unit =
     val diff = SetFunction.Diff(sf1, sf2)
     if diff.badKeys.nonEmpty then
-      println("wow, bad keys $badkeys")
+      System.err.println("wow, bad keys $badkeys")
 
     if diff.distinctValuesAt.nonEmpty then
-      println(s"Different values at these keys: ${diff.distinctValuesAt}")
+      System.err.println(s"$context: Different values at these keys: ${diff.distinctValuesAt}")
 
 
   def validate[

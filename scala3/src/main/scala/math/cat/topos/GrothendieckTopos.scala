@@ -22,8 +22,12 @@ trait GrothendieckTopos
   extends Topos with GrothendieckToposLogic:
   topos =>
   val thisTopos: GrothendieckTopos = this
-  type Obj = Diagram
-  type Arrow = DiagramArrow
+
+  type Node = Diagram
+  override type Obj = Diagram
+  override type Arrow = DiagramArrow
+  type ObjectMapping = domain.Obj => set
+  type ArrowMapping = domain.Arrow => SetFunction
 
   val domain: Category
   
@@ -46,13 +50,14 @@ trait GrothendieckTopos
   /**
     * Subobject classifier. Ω is "Option-Z" on your Mac.
     */
-  val Ω: Ωlike = new Ωlike("Ω")
+  val Ω: Ωlike = new Ωlike
 
-  class Ωlike(name: String) extends Diagramme(name):
+  class Ωlike extends Diagramme("Ω"):
     override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map `x => Ω(x)` .
     private[topos] val subrepresentablesIndexed = subobjectsOfRepresentables
+    def toposName: String = topos.tag
 
     // this one is consumed by Functor constructor
     def objectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
@@ -172,6 +177,10 @@ trait GrothendieckTopos
       def conjunctionOfTwoSubreps(pair: Any): Diagram = pair match
         case (a: Diagram, b: Diagram) =>
           intersectionOld(a, b)
+        case (a: Diagram, b: Diagramme) =>
+          intersectionOld(a, b.asOldDiagram)
+        case (a: Diagramme, b: Diagram) =>  
+          intersectionOld(a.asOldDiagram, b)
         case (a: Diagramme, b: Diagramme) =>
           intersection(a,b).asOldDiagram
         case bs =>
@@ -246,6 +255,9 @@ trait GrothendieckTopos
             throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
 
         def disjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
+          case (a: Diagram, b: Diagram) => union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
+          case (a: Diagram, b: Diagramme) => union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b)
+          case (a: Diagramme, b: Diagram) => union(a,b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
           case (a: Diagramme, b: Diagramme) => union(a, b)
           case other =>
             throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
@@ -589,7 +601,7 @@ trait GrothendieckTopos
       // before all alphanumerics. Cheap trick, but works.
       // Any better suggestions?
       // DO NOT: sort differently without runing TopologyTest
-      val sorted = objMappings.toList.sortBy(_.toString.replace("}", "!")) zipWithIndex
+      val sorted = objMappings.sortBy(_.toString.replace("}", "!")) zipWithIndex
 
       sorted map { p => p._1 named ("p" + p._2) }
 
@@ -848,8 +860,8 @@ trait GrothendieckTopos
 
     private[topos] def apply(
       tag: Any,
-      objectsMap: domain.Obj => set,
-      arrowMap:   domain.Arrow => SetFunction): Diagramme =
+      objectsMap: ObjectMapping,
+      arrowMap:   ArrowMapping): Diagramme =
 
       new Diagramme(tag.toString):
         override private[topos] def setAt(x: Any): set = objectsMap(x)
@@ -858,8 +870,8 @@ trait GrothendieckTopos
 
     def tryBuild(
       tag: Any,
-      objectsMap: domain.Obj => set,
-      arrowMap:   domain.Arrow => SetFunction): Result[Diagramme] =
+      objectsMap: ObjectMapping,
+      arrowMap:   ArrowMapping): Result[Diagramme] =
       val diagram: Diagramme = apply(tag, objectsMap, arrowMap)
 
       Functor.validateFunctor(diagram) returning diagram
