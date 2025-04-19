@@ -29,8 +29,11 @@ class ConjunctionTest extends Fixtures:
         val p: Predicate = pt.asPredicateIn(topos)
         True.getClass === p.getClass
         False.getClass === p.getClass
-// fails        False.getClass === (False ∧ p).getClass
-        (False ∧ p) === False
+        val False_and_p = False ∧ p
+        False_and_p.asMap === False.asMap
+        False_and_p.asMap.hashCode === False.asMap.hashCode
+        False_and_p.hashCode == False.hashCode
+        False_and_p === False
       
       checkThatIn(topos, number, total).mustBeMonoid[Predicate](
         "conjunction",

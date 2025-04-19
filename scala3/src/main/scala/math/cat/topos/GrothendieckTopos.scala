@@ -57,7 +57,7 @@ trait GrothendieckTopos
   val Ω: Ωlike = new Ωlike
 
   class Ωlike extends Diagramme("Ω"):
-    override val d1: Category = SetCategory.Setf
+//    override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.
     // These are values `Ω(x)`. We cache them in the following map `x => Ω(x)` .
     private[topos] val subrepresentablesIndexed = subobjectsOfRepresentables
@@ -197,9 +197,7 @@ trait GrothendieckTopos
       val cache: mutable.Map[ΩxΩ.d0.Obj, SetFunction] =
         mutable.Map[ΩxΩ.d0.Obj, SetFunction]()
 
-      new DiagramArrow("∧"):
-        override val d0: Functor = ΩxΩ
-        override val d1: Functor = Ω
+      new DiagramArrow("∧", ΩxΩ, Ω):
 
         def perObject(x: d0.d0.Obj): SetFunction =
           cache.getOrElseUpdate(x, calculatePerObject(x))
@@ -209,9 +207,7 @@ trait GrothendieckTopos
 
 
     lazy val disjunction: DiagramArrow =
-      new DiagramArrow("v"):
-        override val d0: Functor = ΩxΩ
-        override val d1: Functor = Ω
+      new DiagramArrow("v", ΩxΩ, Ω):
 
         /**
           * Union of two subrepresentables on object `x`
@@ -361,12 +357,21 @@ trait GrothendieckTopos
     */
   def χ(inclusion: Arrow, theTag: String): Predicate =
     val objToFunction: domain.Obj => SetFunction = χAt(inclusion)
-
-    new Predicate(theTag):
-      val d0: Diagram = inclusion.d1
-
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-        objToFunction(x)
+    inclusion.d1 match {
+      case d: Diagram =>
+        new Predicate(theTag, d.source.asInstanceOf[Diagramme]):
+          override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+            objToFunction(x)
+      case d: Diagramme =>
+        new Predicate(theTag, d):
+          override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+            objToFunction(x)
+      case basura => throw new IllegalArgumentException(s"Oops, basure $basura")
+    }
+//    new Predicate(theTag, inclusion.d1.asInstanceOf[Diagramme]):
+//
+//      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+//        objToFunction(x)
 
   def χ(inclusion: Arrow): Predicate =
     χ(inclusion, s"χ(${inclusion.tag})")

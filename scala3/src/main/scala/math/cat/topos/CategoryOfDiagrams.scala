@@ -23,27 +23,33 @@ class CategoryOfDiagrams(val domain: Category)
   override type Arrow = DiagramArrow
   
   lazy val subterminals: Set[Diagramme] =
-    def objectMapping(candidate: Set[domain.Obj]) =
+
+    def objectMapping(candidate: Set[domain.Obj]): ObjectMapping =
       (obj: thisTopos.domain.Obj) =>
         if candidate contains obj then _1(obj) else `∅`
 
-    def arrowMapping(candidate: Set[domain.Obj]): domain.Arrow => SetFunction =
-      val omc = objectMapping(candidate)
+    def arrowMapping(candidate: Set[domain.Obj], omc: ObjectMapping): ArrowMapping =
       (a: thisTopos.domain.Arrow) =>
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
         val function = _1.arrowsMapping(a)
         function restrictTo(d0, d1) iHope
 
+    def mapping(candidate: Set[domain.Obj]): DiagramMapping =
+      val ofObjects = objectMapping(candidate)
+      val ofArrows = arrowMapping(candidate, ofObjects)
+      val mapping = DiagramMapping(ofObjects, ofArrows)
+      mapping
+
     val allDiagrammes: Set[Diagramme] =
       for
         (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
         // some mappings are not working for a given candidate
-        am: Map[domain.Arrow, SetFunction] = domain.arrows map (a => a -> arrowMapping(candidate)(a)) toMap
-
-        om = objectMapping(candidate)
+        theMapping: DiagramMapping = mapping(candidate)
+        mo = theMapping.ofObjects
+        ma = theMapping.ofArrows
       // some of these build attempts will fail, because of compatibility checks
-        diagram <- Diagramme.tryBuild("__" + i, om, am) asOption
+        diagram <- Diagramme.tryBuild("__" + i, mo, ma) asOption
       yield diagram
 
     allDiagrammes
@@ -59,17 +65,13 @@ class CategoryOfDiagrams(val domain: Category)
   override def id(o: Obj): Arrow =
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
 
-    new DiagramArrow("Id"):
-      override val d0: Functor = o
-      override val d1: Functor = o
+    new DiagramArrow("Id", o, o):
 
       override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         objectMap(x)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
-    new DiagramArrow(concat(g.tag, " ∘ ", f.tag)):
-      val d0: Functor = f.d0
-      val d1: Functor = g.d1
+    new DiagramArrow(concat(g.tag, " ∘ ", f.tag), f.d0, g.d1):
 
       override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         val f_x = f.mappingAt(x)

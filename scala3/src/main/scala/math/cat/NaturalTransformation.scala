@@ -25,7 +25,10 @@ import scala.annotation.targetName
   *            V         V
   *    g[a]: g[x] ---> g[y]
   */
-abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Functor]:
+abstract class NaturalTransformation(
+  val tag: Any,
+  val d0: Functor,
+  val d1: Functor) extends Morphism[Functor, Functor]:
   self =>
   lazy val domainCategory:   Category = d0.d0
   lazy val codomainCategory: Category = d1.d1
@@ -47,31 +50,29 @@ abstract class NaturalTransformation(val tag: Any) extends Morphism[Functor, Fun
       d1.d1.m(gThere, fHere) getOrElse
         cannotDo(s"Bad transformation for $x for $fHere and $gThere")
 
-    new NaturalTransformation(s"${self.tag} ∘ ${g.tag}"):
-      val d0: Functor = g.d0
-      val d1: Functor = self.d1
+    new NaturalTransformation(s"${self.tag} ∘ ${g.tag}", g.d0, self.d1):
       def mappingAt(x: d0.d0.Obj): d1.d1.Arrow = compositionAt(x)
   
   end ∘
 
-  infix def named(newTag: Any): NaturalTransformation = new NaturalTransformation(newTag):
-    val d0: Functor = self.d0
-    val d1: Functor = self.d1
-    def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-      self.mappingAt(x)
-  
+  infix def named(newTag: Any): NaturalTransformation =
+    new NaturalTransformation(newTag, self.d0, self.d1):
+      def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        self.mappingAt(x)
+
   override def toString: String =
     val s = String.valueOf(tag)
     if s.isEmpty then details else s
 
 
-  lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] = try {
-    if d0.d0.isFinite then buildMap(d0.d0.objects, o => mappingAt(o)) else Map.empty
-  } catch {
-    case e: Exception =>
-      System.err.println(s"Failed to build map for $self")
-      throw e
-  }
+  def asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
+    if d0.d0.isFinite then buildMap(d0.d0.objects, o => {
+      val y = mappingAt(o)
+      if (y.toString.contains("Some"))
+        val x = mappingAt(o)
+        println(s"Wtf, $x")
+      y
+    }) else Map.empty
 
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode * 17 | {
     val amhc = asMap.hashCode
@@ -155,9 +156,7 @@ object NaturalTransformation:
   (
     mappings: f.d0.Obj => f.d1.Arrow
   ): Result[NaturalTransformation] =
-    validate(f, g)(mappings) returning new NaturalTransformation(tag):
-      val d0: Functor = f
-      val d1: Functor = g
+    validate(f, g)(mappings) returning new NaturalTransformation(tag, f, g):
       override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         mappings(x)
 
@@ -173,9 +172,7 @@ object NaturalTransformation:
       val `f(x)`: f.d1.Obj = f.objectsMapping(x)
       f.d1.id(`f(x)`)
 
-    new NaturalTransformation("Id"):
-      val d0: Functor = f
-      val d1: Functor = f
+    new NaturalTransformation("Id", f, f):
 
       override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         `id of f(x)`(x)

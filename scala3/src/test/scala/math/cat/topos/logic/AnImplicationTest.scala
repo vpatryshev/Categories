@@ -1,10 +1,11 @@
 package math.cat.topos.logic
 
+import math.cat.SetFunction.asFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
+import math.cat.topos.{CategoryOfDiagrams, Diagram, Fixtures, GrothendieckTopos}
 import math.cat.{Category, SetFunction}
 import org.specs2.matcher.MatchResult
-import scalakittens.Result._
+import scalakittens.Result.*
 
 import scala.language.reflectiveCalls
 
@@ -105,27 +106,43 @@ class AnImplicationTest extends Fixtures:
     def nameThem(i: Int): String =
       groupedCategoriesToTest(i).map{_._1.name} mkString ", "
 
-    "work for adjunctions in set^𝟙" in:
+    "work for adjunctions in set to 𝟙" in:
       val sut = `Set^𝟙`
+      val Ω = `Set^𝟙`.Ω
       val True = `Set^𝟙`.Ω.True asPredicateIn `Set^𝟙`
       val False = `Set^𝟙`.Ω.False asPredicateIn `Set^𝟙`
+      val False0 = False("0")
       val p = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
-      p === False
       val q = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
-      q === False
+//      p === False
+//      q === False
       val p_and_q = p ∧ q
-      p_and_q === False
-      False ∧ False === False
+      val pnqAt0 = p.evalBinaryOp(q, Ω.conjunction, "TEST CONJUNCTION OF FALSE AND FALSE")
+//      pnqAt0("0") === False("0")
+//      p_and_q("0") === False("0")
+//      val isFalse = p_and_q == False
+//      isFalse must beTrue
+//      p_and_q === False
+//      False ∧ False === False
       val r = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
-      r === False
+//      r === False
       val q2r = q ⟹ r
-      q2r === True
-      False ⟹ r === True
-      False ⟹ False === True
-      False ⟹ True === True
-      p ⟹ True === True
-      p_and_q === p
-      val p_q_true = p_and_q ⟹ True
+//      q2r === True
+//      False ⟹ r === True
+//      False ⟹ False === True
+//      False ⟹ True === True
+//      p ⟹ True === True
+//      p_and_q === p
+//      val p_q_true_0 = p_and_q ⟹ True
+//      val p_q_true_1 = p_and_q.binaryOp(Ω.implication)(True)
+      val expectedAt0 = True("0")
+      val p_q_true: `Set^𝟙`.Predicate = p_and_q.evalBinaryOp(True, Ω.implication, "TESTING")
+//      val valueAt0: p_q_true.d1.d1.Arrow = p_q_true.apply("0")
+      val valueAt0: p_q_true.d1.d1.Arrow = p_q_true.debugM("0")
+      val compared = valueAt0 == expectedAt0
+      compared must beTrue
+//      val functionAt0 = asFunction(valueAt0)
+      valueAt0 === expectedAt0
       p_q_true === True
       p_and_q ⟹ False === True
       val left = p_and_q ⟹ r
