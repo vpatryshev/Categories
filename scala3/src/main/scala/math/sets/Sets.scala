@@ -202,11 +202,6 @@ object Sets:
       predicate
     )
 
-  def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
-
-  def buildMap[K, V](keys: Iterable[K], f: K => V): Map[K, V] =
-    keys map { k => k -> f(k)} toMap
-
   def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
 
   def parse(input: Reader): Result[Set[String]] = (new SetParser).read(input)

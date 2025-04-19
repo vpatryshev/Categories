@@ -11,6 +11,11 @@ import scala.language.postfixOps
 object Base:
   type IntMap[X] = Map[Int, X]
 
+  def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
+
+  def buildMap[K, V](keys: Iterable[K], f: K => V): Map[K, V] =
+    keys map { k => k -> f(k) } toMap
+
   /**
     * Builds an inverse map. Assumes that the map is inversible.
     *

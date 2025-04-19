@@ -28,6 +28,10 @@ trait GrothendieckTopos
   override type Arrow = DiagramArrow
   type ObjectMapping = domain.Obj => set
   type ArrowMapping = domain.Arrow => SetFunction
+  case class DiagramMapping( // named tuple does not work, as of Scala version 3.6.3
+    ofObjects: ObjectMapping,
+    ofArrows: ArrowMapping
+  )
 
   val domain: Category
   
@@ -104,7 +108,6 @@ trait GrothendieckTopos
           case xD: Diagramme => diaMappe(xD)
           case xD: Diagram => diaMap(xD)
           case _ =>
-            System.err.println("wtf, got $x:${x.getClass")
             throw new IllegalArgumentException(s"Expected a diagramme, got $x of type ${x.getClass}")
       }
       // no validation here, the function is known to be ok

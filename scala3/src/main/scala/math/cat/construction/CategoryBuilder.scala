@@ -4,6 +4,7 @@ import math.cat._
 import math.sets.Sets._
 
 import scala.language.{implicitConversions, postfixOps}
+import math.Base.*
 
 /**
   * Given `CategoryData` as a source,

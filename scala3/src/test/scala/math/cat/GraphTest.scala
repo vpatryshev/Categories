@@ -5,6 +5,7 @@ import math.sets.{PoSet, Sets}
 import scalakittens.Good
 
 import scala.language.postfixOps
+import math.Base.*
 
 class GraphTest extends Test:
   import Graph._
@@ -274,7 +275,7 @@ class GraphTest extends Test:
     "FromPoset" >> {
       val nodes = Set("a", "b", "c")
       val sut = Graph.ofPoset("sut", PoSet(nodes, (a: String, b: String) => a <= b))
-      val arrows = Sets.idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
+      val arrows = idMap(Set(("a", "a"), ("a", "b"), ("a", "c"), ("b", "b"), ("b", "c"), ("c", "c")))
       val expected = Graph.fromArrowMap("sut", nodes, arrows) iHope
       
       sut.nodes === expected.nodes
