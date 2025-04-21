@@ -30,7 +30,7 @@ trait TestDiagrams extends Test:
   implicit def translateArrowMapping(f: Functor)(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => am(f.toString)
   
-  lazy val EmptyDiagram: Diagram = build("empty", _0_)(
+  lazy val EmptyDiagram: Diagram = build("empty", `𝟘`)(
     Map.empty[String, set],
     Map.empty[String, SetFunction]
   )
@@ -109,7 +109,7 @@ trait TestDiagrams extends Test:
     )
 
   def const(x: set): Diagram =
-    build(s"Point($x)", _1_)(
+    build(s"Point($x)", `𝟙`)(
       Map[String, set]("0" -> x),
       Map[String, SetFunction]()
     )

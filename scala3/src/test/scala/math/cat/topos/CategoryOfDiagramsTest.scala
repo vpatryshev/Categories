@@ -211,8 +211,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     }
 
-    "exist for representables in Set to _2_" in {
-      val topos = new CategoryOfDiagrams(_2_)
+    "exist for representables in Set to 𝟚" in {
+      val topos = new CategoryOfDiagrams(`𝟚`)
       val r0 = topos.Representable(topos.objectNamed("0"))
 
       val obj0 = topos.objectNamed("0")
@@ -251,21 +251,21 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   }
 
   "Cartesian product of arrows" should {
-    "exist in Set to _1_" in {
-      val topos = new CategoryOfDiagrams(_1_)
-      val d01 = build(s"d01", _1_)(
+    "exist in Set to 𝟙" in {
+      val topos = new CategoryOfDiagrams(`𝟙`)
+      val d01 = build(s"d01", `𝟙`)(
         Map[String, set]("0" -> Set(11, 12)),
         Map[String, SetFunction]()
       )
-      val d02 = build(s"d02", _1_)(
+      val d02 = build(s"d02", `𝟙`)(
         Map[String, set]("0" -> Set(21, 22)),
         Map[String, SetFunction]()
       )
-      val d11 = build(s"d11", _1_)(
+      val d11 = build(s"d11", `𝟙`)(
         Map[String, set]("0" -> Set("a11", "a12")),
         Map[String, SetFunction]()
       )
-      val d12 = build(s"d12", _1_)(
+      val d12 = build(s"d12", `𝟙`)(
         Map[String, set]("0" -> Set("b21", "b22")),
         Map[String, SetFunction]()
       )

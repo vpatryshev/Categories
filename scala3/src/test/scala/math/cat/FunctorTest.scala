@@ -45,28 +45,28 @@ class FunctorTest extends Test:
     "report missing object mappings" in:
       expectError("Object mapping fails for 1",
       Functor("failing test",
-        _4_, _4_)(
+        `𝟜`, `𝟜`)(
         Map("0" -> "1"),
         Map.empty[String, String]))
 
     "report incorrect object mappings" in:
       expectError("Object mapping fails for 1",
         Functor("failing test",
-          _2_, _2_)(
+          `𝟚`, `𝟚`)(
           Map("0" -> "1", "1" -> "3"),
           Map.empty[String, String]))
 
     "report missing arrows mappings" in:
       expectError("Missing arrow mappings for 0.1, 1.2, 2.3, 0.3, 1.3, 0.2",
         Functor("failing test",
-        _4_, _4_)(
+        `𝟜`, `𝟜`)(
         Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
           Map.empty[String, String]))
 
     "report inconsistent arrow mappings" in:
-      val objectMapping: _4_.Node => _4_.Node =
-        Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
-      val arrowMapping: _4_.Arrow => _4_.Arrow = Map[_4_.Arrow, _4_.Arrow](
+      val objectMapping: `𝟜`.Node => `𝟜`.Node =
+        Map[`𝟜`.Node, `𝟜`.Node]("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
+      val arrowMapping: `𝟜`.Arrow => `𝟜`.Arrow = Map[`𝟜`.Arrow, `𝟜`.Arrow](
         "0.0" -> "1.1",
         "0.1" -> "1.2",
         "0.2" -> "1.3",
@@ -79,11 +79,11 @@ class FunctorTest extends Test:
         "3.3" -> "3.3"
       )
       expectError("Inconsistent mapping for d1(0.2)",
-        Functor("id mapping broken", _4_, _4_)(objectMapping, arrowMapping))
+        Functor("id mapping broken", `𝟜`, `𝟜`)(objectMapping, arrowMapping))
 
     "report a failure" in:
-      val objectMapping: _4_.Node => _4_.Node =
-        Map[_4_.Node, _4_.Node]("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
+      val objectMapping: `𝟜`.Node => `𝟜`.Node =
+        Map[`𝟜`.Node, `𝟜`.Node]("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
       val arrowMapping = Map(
         "0.0" -> "1.1",
         "0.1" -> "1.2",
@@ -98,7 +98,7 @@ class FunctorTest extends Test:
       )
 
       expectError("Object mapping fails for 3",
-        Functor("something wrong here", _4_, _4_)(objectMapping, arrowMapping))
+        Functor("something wrong here", `𝟜`, `𝟜`)(objectMapping, arrowMapping))
   }
 
   "functor" should {

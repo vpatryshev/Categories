@@ -26,13 +26,13 @@ class TopologyTest extends Fixtures:
     topologiesTested(cat) collect { case Good(topo) => topo}
   
   "Topologies" should {
-    "exist for _0_" in {
-      val all = topologies(_0_)
+    "exist for \uD835\uDFD8" in {
+      val all = topologies(`𝟘`)
       all.length === 1
     }
 
-    "exist for _1_" in {
-      val candidates = topologiesTested(_1_)
+    "exist for 𝟙" in {
+      val candidates = topologiesTested(`𝟙`)
       candidates.size === 4
       
       expectOk(candidates(3))
@@ -41,12 +41,12 @@ class TopologyTest extends Fixtures:
       expectError(candidates(2), "Should be closed:", "under conjunction")
     }
 
-    "exist for _2_" in {
-      topologies(_2_).size === 4
+    "exist for 𝟚" in {
+      topologies(`𝟚`).size === 4
     }
 
-    "exist for _3_" in {
-      topologies(_3_).size === 8
+    "exist for " in {
+      topologies(`𝟛`).size === 8
     }
 
     "exist for ParallelPair" in {

@@ -42,15 +42,15 @@ class CategoryTest extends Test:
     }
 
     "degree" >> {
-      val sut = segment(10)
+      val sut = fromSegment(10)
       sut.degree("4", 0) === Good("9", Nil)
       sut.degree("4", 1) === Good("4", List("4.4"))
       sut.degree("4", 5) === Good("4", List("4.4", "4.4", "4.4", "4.4", "4.4"))
     }
 
     "id case 1" >> {
-      _3_.id("2") === "2.2"
-      _3_.name === "_3_"
+      `𝟛`.id("2") === "2.2"
+      `𝟛`.name === "𝟛"
     }
 
     "id case 2" >> {
@@ -133,8 +133,8 @@ class CategoryTest extends Test:
 
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
-      _3_.arrows.forall {
-        case a@PairRegex(x, y) => (x == y) === _3_.isIsomorphism(a)
+      `𝟛`.arrows.forall {
+        case a@PairRegex(x, y) => (x == y) === `𝟛`.isIsomorphism(a)
         case s => failure(s"$s does not look like an arrow in a poset"); false
       }
 
@@ -169,8 +169,8 @@ class CategoryTest extends Test:
     }
 
     "isEndomorphism" in {
-      _3_.arrows.forall {
-        case a@PairRegex(x, y) => (x == y) === _3_.isEndomorphism(a)
+      `𝟛`.arrows.forall {
+        case a@PairRegex(x, y) => (x == y) === `𝟛`.isEndomorphism(a)
         case s => failure(s"$s does not look like an arrow in a poset"); false
       }
       
@@ -386,8 +386,8 @@ class CategoryTest extends Test:
       Square.isTerminal("d") must beTrue
     }
 
-    "isTerminal_positive _4_" >> {
-      _4_.isTerminal("3") must beTrue
+    "isTerminal_positive 𝟜" >> {
+      `𝟜`.isTerminal("3") must beTrue
     }
 
     "isTerminal_negative Square" >> {
@@ -395,9 +395,9 @@ class CategoryTest extends Test:
       Square.isTerminal("b") must beFalse
     }
 
-    "isTerminal_negative _4_" >> {
-      _4_.isTerminal("0") must beFalse
-      _4_.isTerminal("1") must beFalse
+    "isTerminal_negative 𝟜" >> {
+      `𝟜`.isTerminal("0") must beFalse
+      `𝟜`.isTerminal("1") must beFalse
     }
 
     "isTerminal_negative ParallelPair" >> {
@@ -407,7 +407,7 @@ class CategoryTest extends Test:
 
     "Terminal_misc" >> {
       Square.terminal === Good("d")
-      _4_.terminal === Good("3")
+      `𝟜`.terminal === Good("3")
     }
 
     "Initial_none" >> {
@@ -417,11 +417,11 @@ class CategoryTest extends Test:
 
     "Initial_misc" >> {
       Square.initial === Good("a")
-      _4_.initial === Good("0")
+      `𝟜`.initial === Good("0")
     }
 
     "foreach" >> {
-      _4_ foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
+      `𝟜` foreach (i => (i.toInt >= 0 && i.toInt < 4) === true)
       ok
     }
 
@@ -502,9 +502,9 @@ class CategoryTest extends Test:
         Map("b" -> Set(), "c" -> Set())
     }
 
-    "isInitial _4_" in {
-      _4_.isInitial("0") === true
-      _4_.isInitial("1") === false
+    "isInitial 𝟜" in {
+      `𝟜`.isInitial("0") === true
+      `𝟜`.isInitial("1") === false
     }
 
     "isInitial in Simplicial3" in {
@@ -522,10 +522,10 @@ class CategoryTest extends Test:
     }
 
     "op" in {
-      val op3 = _3_.op
+      val op3 = `𝟛`.op
       import op3._
-      op3.arrows === _3_.arrows
-      op3.objects === _3_.objects
+      op3.arrows === `𝟛`.arrows
+      op3.objects === `𝟛`.objects
       op3.d0("1.2") === "2"
       op3.factory.iHope
       ok
@@ -564,15 +564,15 @@ class CategoryTest extends Test:
 
   "components" should {
     "build 0" in {
-      _0_.connectedComponents.isEmpty === true
+      `𝟘`.connectedComponents.isEmpty === true
     }
     "build 3" in {
-      _3_.connectedComponents.map(_.name) === Set("_3_.1")
+      `𝟛`.connectedComponents.map(_.name) === Set("𝟛.1")
     }
     "build 1+1" in {
       val c1: Category = category"Discrete_2.1:({a}, {a:a->a})"
       val c2: Category = category"Discrete_2.2:({b}, {b:b->b})"
-      _1plus1_.connectedComponents === Set(c1, c2)
+      `𝟙+𝟙`.connectedComponents === Set(c1, c2)
     }
     "build Z2+ParallelPair" in {
       val sut = category"A:({1, 2, 3}, {1: 1 -> 1, a: 1 -> 1, b: 2 -> 3, c: 2 -> 3}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})"
@@ -585,12 +585,12 @@ class CategoryTest extends Test:
   "baseGraph" >> {
     import Graph._
 
-    "good for _3_" >> {
-      _3_.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
+    "good for " >> {
+      `𝟛`.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
     }
 
-    "good for _4_" >> {
-      _4_.baseGraph === graph"({0,1,2,3}, {0.1: 0 -> 1, 1.2: 1 -> 2, 2.3: 2 -> 3})"
+    "good for 𝟜" >> {
+      `𝟜`.baseGraph === graph"({0,1,2,3}, {0.1: 0 -> 1, 1.2: 1 -> 2, 2.3: 2 -> 3})"
     }
     
     "good for Pullback" >> {

@@ -18,16 +18,19 @@ class LayoutTest extends Specification:
     "special cases of graded" >> {
       ok
     }
-    
+
     "graded" >> {
       val expectedLayersOfClusters =
         Map(
           "Discrete_2.1"->List(List(Set("a"))),
           "Discrete_2.2"->List(List(Set("b")))) ++ 
         Map(
-        "_1_"->List(List(Set("0"))),
+        "𝟙"->List(List(Set("0"))),
         "Z2"->List(List(Set("1"))),
-        "_2_"->List(List(Set("0")), List(Set("1"))),
+        "𝟚"->List(List(Set("0")), List(Set("1"))),
+        "𝟛"->List(List(Set("0")), List(Set("1")), List(Set("2"))),
+        "𝟜"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3"))),
+        "𝟝"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3")), List(Set("4"))),
         "Z3"->List(List(Set("0"))),
         "Z4"->List(List(Set("0"))),
         "ParallelPair"->List(List(Set("0")), List(Set("1"))),
@@ -35,13 +38,10 @@ class LayoutTest extends Specification:
         "Pushout"->List(List(Set("a")), List(Set("b"),Set("c"))),
         "Pushout4"->List(List(Set("a")), List(Set("b"),Set("c"),Set("d"),Set("e"))),
         "SplitMono"->List(List(Set("a")), List(Set("b"))),
-        "_3_"->List(List(Set("0")), List(Set("1")), List(Set("2"))),
         "Square"->List(List(Set("a")), List(Set("b"),Set("c")), List(Set("d"))),
         "M"->List(List(Set("b"),Set("d")), List(Set("a"),Set("c"),Set("e"))),
         "W"->List(List(Set("a"),Set("c"),Set("e")), List(Set("b"),Set("d"))),
-        "_4_"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3"))),
         "Simplicial3"->List(List(Set("0")), List(Set("1")), List(Set("2"))),
-        "_5_"->List(List(Set("0")), List(Set("1")), List(Set("2")), List(Set("3")), List(Set("4"))),
         "AAAAAA" -> List(List(Set("1", "2", "3", "4", "5", "6")))
       ).view.filterKeys(KnownFiniteCategories.map(_.name).contains).toMap
       

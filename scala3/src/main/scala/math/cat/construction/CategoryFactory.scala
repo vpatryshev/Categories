@@ -26,8 +26,11 @@ private[cat] trait CategoryFactory:
     * @param n number of elements
     * @return a new category
     */
-  def segment(n: Int): Cat =
-    val numbers = fromPoset(s"_${n}_", PoSet.range(0, n, 1))
+  def fromSegment(n: Int): Cat =
+    fromSegment(n, s"_${n}_")
+
+  def fromSegment(n: Int, name: String): Cat =
+    val numbers = fromPoset(name, PoSet.range(0, n, 1))
     convert2Cat(numbers) { case (a, b) => s"$a.$b" } iHope
 
   private def convert2Cat[O, A](source: Category)(
@@ -159,7 +162,7 @@ private[cat] trait CategoryFactory:
             case Some("," ~ Good(m)) =>
               buildCategory(graphOpt, m)
             case Some("," ~ multTableErrors) =>
-              multTableErrors orCommentTheError "Failed to parse composition table" returning segment(0)
+              multTableErrors orCommentTheError "Failed to parse composition table" returning fromSegment(0)
             case Some(garbage) => Result.error(s"bad data: $garbage")
 
         case nonsense => Result.error(s"malformed <<$nonsense>>")

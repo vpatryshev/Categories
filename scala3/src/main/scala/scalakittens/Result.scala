@@ -168,7 +168,7 @@ case object Empty extends NoResult with NoGood[Nothing]:
   @targetName("and_also")
   infix def <*>[U](other: Result[U]): Result[(Nothing, U)] = empty[(Nothing, U)]
   inline def errorDetails: Option[String] = None
-  infix def orCommentTheError(message: =>Any): Result[Nothing] = Result.error(message)
+  infix def orCommentTheError(message: =>Any): Result[Nothing] = Oops(message)
 
 private object NoException extends Exception:
   def root(x: Throwable): Throwable = x match

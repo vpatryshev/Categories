@@ -15,15 +15,15 @@ import SetFunction._
 class GrothendieckToposTest extends Fixtures:
 
   "Subobject classifier" should {
-    "exist for _0_" in {
-      val topos = new CategoryOfDiagrams(_0_)
+    "exist for 𝟘" in {
+      val topos = new CategoryOfDiagrams(`𝟘`)
       import topos._
       val points = Ω.points
       points.size === 1
     }
 
-    "exist for _1_" in {
-      val topos = new CategoryOfDiagrams(_1_)
+    "exist for 𝟙" in {
+      val topos = new CategoryOfDiagrams(`𝟙`)
       import topos._
       val points = Ω.points
       points.size === 2
@@ -37,8 +37,8 @@ class GrothendieckToposTest extends Fixtures:
       points.map(_.toShortString) === List("p0(0->())", "p1(0->(0->{0.0}))")
     }
 
-    "exist for _2_" in {
-      val topos = new CategoryOfDiagrams(_2_)
+    "exist for 𝟚" in {
+      val topos = new CategoryOfDiagrams(`𝟚`)
       import topos._
       val points = Ω.points
       val omega0 = Ω("0")
@@ -49,8 +49,8 @@ class GrothendieckToposTest extends Fixtures:
         "p0(0->(), 1->())"::"p1(0->(1->{0.1}), 1->(1->{1.1}))"::"p2(0->(0->{0.0}, 1->{0.1}), 1->(1->{1.1}))"::Nil
     }
 
-    "exist for _3_" in {
-      val topos = new CategoryOfDiagrams(_3_)
+    "exist for " in {
+      val topos = new CategoryOfDiagrams(`𝟛`)
       import topos._
       val points = Ω.points
       val omega0 = Ω("0")

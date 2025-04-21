@@ -1,7 +1,7 @@
 package math.cat.topos
 
 import math.Base.concat
-import math.cat.SetFunction._
+import math.cat.SetFunction.*
 import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow, const}
 import math.cat.{Morphism, SetFunction}
 import math.sets.Sets
@@ -9,7 +9,7 @@ import Sets.{set, setOf}
 import scalakittens.Result
 
 import scala.collection.mutable
-import scala.language.{postfixOps, implicitConversions}
+import scala.language.{implicitConversions, postfixOps}
 
 trait GrothendieckToposLogic:
   topos: GrothendieckTopos =>
@@ -31,42 +31,51 @@ trait GrothendieckToposLogic:
       concat(wrapTag(tag1), op, wrapTag(tag2))
 
     private def setAt(o: Any): set =
-      val function = p.mappingAt(o)
+      val function: SetFunction = p.mappingAt(o).asInstanceOf[SetFunction] // d1.d1.Arrow = SetFunction, and if we d
       setOf(function.d0)
 
     private def transformAt(o: Any): SetFunction =
-      mappingAt(o)
+      mappingAt(o).asInstanceOf[SetFunction]
 
-    private[topos] def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
+    def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
       binaryOpNamed(q, ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)
 
-    private[topos] def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: Any): Predicate =
+    def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: Any): Predicate =
     // TODO: when identification is fixed (finding the right point), uncomment
     // cache.getOrElseUpdate((name, p, q), 
       evalBinaryOp(q, ΩxΩ_to_Ω, name)
     //)
-    
-    private def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: Any): Predicate =
+
+    def binopMappingAt(ΩxΩ_to_Ω: DiagramArrow, p: Predicate, q: Predicate, o: d0.d0.Obj): d1.d1.Arrow =
+      val dom = p.setAt(o)
+      val d0 = dom.head
+      require(q.setAt(o) == dom)
+
+      val po: SetFunction = p.transformAt(o)
+      val pom = po.mapping
+      val qo: SetFunction = q.transformAt(o)
+      val qom = qo.mapping
+      val PQtoΩxΩ: SetFunction =
+        new SetFunction(
+          s"PQ->ΩxΩ($o)",
+          dom, ΩxΩ(o),
+          v => (po(v), qo(v))
+        )
+      val pairAtEmpty = PQtoΩxΩ.mapping(Set())
+      val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
+      val opAtPairAtEmpty = op.mapping(pairAtEmpty)
+      val theMapping = PQtoΩxΩ andThen op
+      val result: SetFunction = theMapping.getOrElse(throw new IllegalStateException("Failed to compose"))
+      val resultAtEmpty = result.mapping(Set())
+      result
+
+    def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: Any): Predicate =
       requireCompatibility(q)
 
       new Predicate(newTag):
         val d0 = p.d0
-
-        override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
-          val dom = setAt(o)
-          require(q.setAt(o) == dom)
-          val po = p.transformAt(o)
-          val qo = q.transformAt(o)
-
-          val PQtoΩxΩ: SetFunction =
-            new SetFunction(
-              s"PQ->ΩxΩ($o)",
-              dom, ΩxΩ(o),
-              v => (po(v), qo(v))
-            )
-    
-          val op: SetFunction = asFunction(ΩxΩ_to_Ω(o))
-          Result(PQtoΩxΩ andThen op) iHope
+        def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
+          binopMappingAt(ΩxΩ_to_Ω, p, q, o)
 
     end evalBinaryOp
     

@@ -30,37 +30,36 @@ object Categories extends CategoryFactory:
   /**
     * Empty category
     */
-  lazy val _0_ : Cat = segment(0)
+  lazy val `𝟘` : Cat = fromSegment(0, "𝟘")
 
   /**
     * Singleton category
     */
-  lazy val _1_ : Cat = segment(1)
+  lazy val `𝟙` : Cat = fromSegment(1, "𝟙")
 
   /**
     * Discrete 2-object category
     */
-  lazy val _1plus1_ : Cat = asCat(discrete(Set("a", "b")))
+  lazy val `𝟙+𝟙` : Cat = asCat(discrete(Set("a", "b")))
 
   /**
-    * Category <b>2</b>: 2 objects linearly ordered
+    * Category <b>𝟚</b>: 2 objects linearly ordered
     */
-  lazy val _2_ : Cat = segment(2)
-
+  lazy val `𝟚` : Cat = fromSegment(2, "𝟚")
   /**
-    * Category <b>3</b>: 3 objects linearly ordered
+    * Category <b>𝟛</b>: 3 objects linearly ordered
     */
-  lazy val _3_ : Cat = segment(3)
+  lazy val `𝟛` : Cat = fromSegment(3, "𝟛")
 
   /**
     * Category <b>4</b>: 4 objects linearly ordered
     */
-  lazy val _4_ : Cat = segment(4)
+  lazy val `𝟜` : Cat = fromSegment(4, "𝟜")
 
   /**
-    * Category <b>5</b>: 5 objects linearly ordered
+    * Category <b>𝟝</b>: 5 objects linearly ordered
     */
-  lazy val _5_ : Cat = segment(5)
+  lazy val `𝟝` : Cat = fromSegment(5, "𝟝")
 
   /**
     * Category with 2 objects and 2 parallel arrows from one to another
@@ -164,14 +163,14 @@ object Categories extends CategoryFactory:
     */
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SimpleCategories = List(_0_, _1_, _2_, _3_, _4_,
-    _1plus1_,
+  lazy val SimpleCategories = List(`𝟘`,`𝟙`, `𝟚`, `𝟛`, `𝟜`, `𝟝`,
+    `𝟙+𝟙`,
     Z2, Z3, Z4
   )
 
   lazy val LessSimpleCategories = List(
     W, // this one is the hardest for logic calculations
-    _5_,
+    `𝟝`,
     ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
     AAAAAA,
     Simplicial3, M)

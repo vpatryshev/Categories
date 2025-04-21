@@ -15,8 +15,8 @@ class NaturalTransformationTest extends Test {
   type SUT = ((((F, F), F), NT), NT)
 
   "natural transformation" should {
-    val c = _2_
-    val d = _5_
+    val c = `𝟚`
+    val d = `𝟝`
     def buildFunctor(name: String, op: Int => Int) =
       Functor(name, c, d)(
         { case s => op(s.toInt).toString },

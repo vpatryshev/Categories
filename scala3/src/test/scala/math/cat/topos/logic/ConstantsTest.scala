@@ -12,8 +12,8 @@ import scala.language.reflectiveCalls
 
 class ConstantsTest extends Fixtures:
   "True and False" should {
-    "exist for _0_" in {
-      val topos = new CategoryOfDiagrams(_0_)
+    "exist for 𝟘" in {
+      val topos = new CategoryOfDiagrams(`𝟘`)
       import topos._
       Ω.True.toString === "⊤"
       val tTrue = Ω.True.mapping
@@ -31,16 +31,15 @@ class ConstantsTest extends Fixtures:
       ok
     }
 
-
-    "exist for _1_" in {
-      val topos = new CategoryOfDiagrams(_1_)
+    "exist for 𝟙" in {
+      val topos = new CategoryOfDiagrams(`𝟙`)
       val omega = topos.Ω
       checkAt(omega.False("0"))("0" -> Sets.Empty)
       checkAt(omega.True("0"))("0" -> Set("0.0"))
     }
 
-    "exist for _2_" in {
-      val topos = new CategoryOfDiagrams(_2_)
+    "exist for 𝟚" in {
+      val topos = new CategoryOfDiagrams(`𝟚`)
       val omega = topos.Ω
       val False = omega.False
       val True = omega.True
@@ -51,8 +50,8 @@ class ConstantsTest extends Fixtures:
       checkAt(True("1"))("0" -> Sets.Empty, "1" -> Set("1.1"))
     }
 
-    "exist for _3_" in {
-      val topos = new CategoryOfDiagrams(_3_)
+    "exist for " in {
+      val topos = new CategoryOfDiagrams(`𝟛`)
       val omega = topos.Ω
       val False = omega.False
       val True = omega.True

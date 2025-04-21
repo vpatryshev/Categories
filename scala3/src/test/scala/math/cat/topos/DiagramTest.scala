@@ -87,7 +87,7 @@ class DiagramTest extends Test with TestDiagrams:
     }
 
     "validate empty diagram" in {
-      EmptyDiagram.d0 === _0_
+      EmptyDiagram.d0 === `𝟘`
       EmptyDiagram.d1 === Setf
     }
   }
@@ -95,7 +95,7 @@ class DiagramTest extends Test with TestDiagrams:
   "Diagram limit" should {
     "exist for an empty diagram" in {
       val sut = const(Set("a", "b"))
-          sut.d0 === _1_
+          sut.d0 === `𝟙`
           sut.d1 === Setf
           sut.objectsMapping("0") === Set("a", "b")
     }
@@ -103,7 +103,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
       val sut = const(x)
-      sut.d0 === _1_
+      sut.d0 === `𝟙`
       sut.d1 === Setf
 
       sut.limit match
@@ -250,7 +250,7 @@ class DiagramTest extends Test with TestDiagrams:
   "Diagram colimit" should {
     "exist for a empty diagram" in {
       val sut = EmptyDiagram
-      sut.d0 === _0_
+      sut.d0 === `𝟘`
       sut.d1 === Setf
       sut.colimit match
         case Good(sut.Cocone(Sets.Empty, arrowFrom)) => ok
@@ -262,7 +262,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for a point" in {
       val expected: set = Set("x", "y", "z")
       val sut = const(expected)
-      sut.d0 === _1_
+      sut.d0 === `𝟙`
       sut.d1 === Setf
       val colimit = sut.colimit.iHope
       val vertex = sut.setOf(colimit.vertex)

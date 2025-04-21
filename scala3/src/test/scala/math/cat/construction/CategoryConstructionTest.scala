@@ -31,7 +31,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
     "have segments" >> {
       for i <- 0 until 10 do
-        Category.segment(i).arrows.size === i * (i + 1) / 2
+        Category.fromSegment(i).arrows.size === i * (i + 1) / 2
 
       ok
     }
@@ -102,8 +102,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       Simplicial3.objects must haveSize(3)
     }
 
-    "constructor_1_bare" >> {
-      val sutOpt = Category("constructor_1_bare",
+    "constructor𝟙 bare" >> {
+      val sutOpt = Category("constructor𝟙 bare",
         objects = Set("1"),
         domain = EmptyMap,
         codomain = EmptyMap,
@@ -115,9 +115,9 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       ok
     }
 
-    "constructor_1_full" >> {
+    "constructor𝟙 full" >> {
       expect(_.arrows must haveSize(1))(
-        Category("constructor_1_full", Set("1"),
+        Category("constructor𝟙 full", Set("1"),
           Map("1" -> "1"), // d0
           Map("1" -> "1"), // d1
           Map(("1", "1") -> "1"),
@@ -131,7 +131,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       sut.objects === Set("0")
     }
 
-    "parse_1_1" >> {
+    "parse𝟙 1" >> {
       val sut = category"({1, 0}, {}, {})"
       sut.objects === Set("0", "1")
     }
@@ -262,22 +262,22 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     // following are tests for accompanying object
 
     "0" >> {
-      val expected = "_0_: ({}, {}, {})"
-      val actual = _0_.toString
+      val expected = "𝟘: ({}, {}, {})"
+      val actual = `𝟘`.toString
       actual === expected
-      _0_.objects must beEmpty
-      _0_.arrows must beEmpty
+      `𝟘`.objects must beEmpty
+      `𝟘`.arrows must beEmpty
     }
 
     "1" >> {
-      _1_.objects === Set("0")
-      _1_.arrows === Set("0.0")
-      _1_.objects.size === 1
-      _1_.arrows.size === 1
+      `𝟙`.objects === Set("0")
+      `𝟙`.arrows === Set("0.0")
+      `𝟙`.objects.size === 1
+      `𝟙`.arrows.size === 1
     }
 
     "2" >> {
-      val sut = _2_
+      val sut = `𝟚`
       sut.objects === Set("0", "1")
       val expected = Set("0.0", "0.1", "1.1")
       val arrows = sut.arrows
@@ -286,9 +286,9 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
 
     "3" >> {
-      _3_.objects === Set("0", "1", "2")
+      `𝟛`.objects === Set("0", "1", "2")
       val expected = Set("0.0", "1.1", "2.2", "0.1", "0.2", "1.2")
-      expected === _3_.arrows
+      expected === `𝟛`.arrows
     }
 
     "Z2" >> {
@@ -306,8 +306,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     }
 
     "Segment" >> {
-      def sut: Cat = segment(3)
-      sut === _3_
+      def sut: Cat = fromSegment(3)
+      sut === `𝟛`
     }
   }
 
