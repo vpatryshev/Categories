@@ -1,7 +1,8 @@
 git fetch
-git stash
-git checkout master
+export stashed=`git stash`
+git checkout main || git checkout master
 git pull --rebase
 git checkout -b "$1"
-git stash pop
+[[ $stashed == *"No local changes"* ]] || git stash pop
+
 

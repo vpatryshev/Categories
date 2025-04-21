@@ -4,7 +4,7 @@ import math.Base
 import math.Base._
 import math.sets.Sets._
 import math.sets.{Functions, Sets}
-import scalakittens.Result
+import scalakittens.{Params, Result}
 import scalakittens.Result._
 import scala.language.implicitConversions
 

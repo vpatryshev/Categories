@@ -19,12 +19,12 @@ class RegressionTest extends Fixtures:
 
   "Logic" should {
     val `Set^𝟙` = CategoryOfDiagrams(`𝟙`)
+    val sut = `Set^𝟙`
+    val Ω = `Set^𝟙`.Ω
+    val True = `Set^𝟙`.Ω.True asPredicateIn `Set^𝟙`
+    val False = `Set^𝟙`.Ω.False asPredicateIn `Set^𝟙`
 
     "work for adjunctions in set to 𝟙" in:
-      val sut = `Set^𝟙`
-      val Ω = `Set^𝟙`.Ω
-      val True = `Set^𝟙`.Ω.True asPredicateIn `Set^𝟙`
-      val False = `Set^𝟙`.Ω.False asPredicateIn `Set^𝟙`
       val False0 = False("0")
       val p = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
       val q = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`

@@ -19,7 +19,7 @@ trait GrothendieckToposLogic:
 
   abstract class Predicate(myTag: Any) extends DiagramArrow(myTag):
     p: DiagramArrow =>
-  
+
     val d1: Diagram = Ω
 
     private def wrapTag(tag: Any): String =
