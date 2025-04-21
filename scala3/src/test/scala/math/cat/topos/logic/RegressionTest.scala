@@ -37,7 +37,15 @@ class RegressionTest extends Fixtures:
       val p_0 = p.mappingAt("0") //, "p, expected false")
       val q_0 = q.mappingAt("0")//, "q, expected false")
       val pq_0 = p_and_q.mappingAt("0")//, "pq, expected false")
-      val p_q_true: `Set^𝟙`.Predicate = p_and_q.binaryOp(Ω.implication)(True) //, "TESTING")
+      val pq_0_at_empty = pq_0(Set.empty)
+      val pairOfFalses = (pq_0_at_empty, pq_0_at_empty)
+      val implication = Ω.implication
+      val implicationFun = implication("0").asInstanceOf[SetFunction]
+      val mustBeTrueAt0 = implicationFun(pairOfFalses) // we pass a (false,false) to a Map, and we get a (true)
+      val p_q_true: `Set^𝟙`.Predicate = p_and_q.binaryOp(implication)(True) //, "TESTING")
+      val v0: p_q_true.d1.d1.Arrow = p_q_true.binopMappingAt(implication, p, q)("0")
+      val v0compared = v0 == expectedAt0
+      v0compared must beTrue
       val valueAt0: p_q_true.d1.d1.Arrow = p_q_true.mappingAt("0")//, "p_q_true, expected true")
       val compared = valueAt0 == expectedAt0
       compared must beTrue
