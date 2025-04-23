@@ -27,7 +27,6 @@ class LogicLawsTest extends Fixtures:
     val distributivityTestCase = new TestCase:
       def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
         val topos = new CategoryOfDiagrams(cat)
-        val report = reportIn(topos)(_)
         import topos._
         val points = Ω.points
 

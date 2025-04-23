@@ -16,7 +16,7 @@ class NegationTest extends Fixtures:
         def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
           val topos = new CategoryOfDiagrams(cat)
           import topos._
-          val rep = reportIn(topos)(_)
+          val rep = report(_)
           val desc = s"Testing negation over ${cat.name} ($number/$total)"
           println(desc)
           val True = Ω.True asPredicateIn topos

@@ -24,7 +24,7 @@ case class SetFunction private[cat](
   mapping: Any => Any)
   extends SetMorphism[Any, Any](tag, d0, d1, mapping):
   self =>
-
+  val mappingForDebug = mapping
   if (!d0.isEmpty && d1.isEmpty) then
     throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
 
@@ -44,16 +44,17 @@ case class SetFunction private[cat](
     * @return their composition g ∘ f: X -> Z
     */
   infix def andThen(g: SetFunction): Option[SetFunction] =
-    if d1 == g.d0 then // TODO: it should not be equal. It can be just that d1 < g.d0
+    if g.d0 subsetOf d1 then // TODO: it should not be equal. It can be just that d1 >= g.d0
       val transform = (x: Any) => {
         val y = self(x) // TODO: hey, this y does not belong to d1!!!!
+        println(s"${this.tag}o${g.tag}: $x |-> $y")
         val xind0 = d0.contains(x)
         val yind1 = d1.contains(y)
         val yingd0 = g.d0.contains(y)
+        println(s"$xind0, $yingd0, $yingd0")
         try g(y)
         catch
           case e: Exception => 
-            val itsok = g.d0.contains(y)
             val z = g(y)
             throw new IllegalArgumentException(s"Cannot compose $tag and $g.tag: d0 ($d0) is not contained in d1 ($d1)", e)
       }

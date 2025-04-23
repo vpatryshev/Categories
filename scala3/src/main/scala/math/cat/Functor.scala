@@ -418,7 +418,7 @@ object Functor:
     val composablePairs = Result.forValue(Category.composablePairs(domain))
 
     Result.check:
-      Category.composablePairs(domain) map :
+      Category.composablePairs(domain) map:
         case (fx, fy) => check(fx, fy)
 
   private def checkArrowMapping(f: Functor): Outcome =

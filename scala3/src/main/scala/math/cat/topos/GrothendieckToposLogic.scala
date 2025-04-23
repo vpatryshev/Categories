@@ -20,32 +20,7 @@ trait GrothendieckToposLogic:
   abstract class Predicate(myTag: Any, override val d0: Diagramme) extends DiagramArrow(myTag, d0, Ω):
     p: DiagramArrow =>
 
-    def debugM(x: String) = {
-      val o = topos.domain.asNode(x)
-/*
-        override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
-          val dom = setAt(o)
-          if (Params.fullCheck)
-            require(q.setAt(o) == dom)
-          val po = p.transformAt(o)
-          val qo = q.transformAt(o)
-
-          val PQtoΩxΩ: SetFunction =
-            new SetFunction(
-              s"PQ->ΩxΩ($o)",
-              dom, ΩxΩ.source(o),
-              v => (po(v), qo(v))
-            )
-    
-          val op: SetFunction = asFunction(ΩxΩ_to_Ω(o))
-          val theMapping = PQtoΩxΩ andThen op
-
-          theMapping.getOrElse(throw new IllegalStateException("Failed to compose"))
-
- */
-      val res = mappingAt(o)
-      res
-    }
+    override val d1: Diagram = Ω
 
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
@@ -55,7 +30,7 @@ trait GrothendieckToposLogic:
     private def tag2(tag1: Any, op: String, tag2: Any): String = 
       concat(wrapTag(tag1), op, wrapTag(tag2))
 
-    private def setAt(o: Any): set =
+    def setAt(o: Any): set =
       val function: SetFunction = p.mappingAt(o).asInstanceOf[SetFunction] // d1.d1.Arrow = SetFunction, and if we d
       setOf(function.d0)
 
@@ -67,34 +42,17 @@ trait GrothendieckToposLogic:
 
     def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: Any): Predicate =
     // TODO: when identification is fixed (finding the right point), uncomment
-    // cache.getOrElseUpdate((name, p, q), 
+    // cache.getOrElseUpdate((ΩxΩ_to_Ω, p, q), 
       evalBinaryOp(q, ΩxΩ_to_Ω, name)
     //)
     
     def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: Any): Predicate =
-      if (Params.fullCheck)
-        requireCompatibility(q)
+      requireCompatibility(q)
 
       new Predicate(newTag, p.d0):
         def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
-          val dom = setAt(o)
-          if (Params.fullCheck)
-            require(q.setAt(o) == dom)
-          val po = p.transformAt(o)
-          val qo = q.transformAt(o)
+          binopMappingAt(ΩxΩ_to_Ω, p, q, o)
 
-          val PQtoΩxΩ: SetFunction =
-            new SetFunction(
-              s"PQ->ΩxΩ($o)",
-              dom, ΩxΩ.source(o),
-              v => (po(v), qo(v))
-            )
-    
-          val op: SetFunction = asFunction(ΩxΩ_to_Ω(o))
-          val theMapping = PQtoΩxΩ andThen op
-
-          val result: SetFunction = theMapping.getOrElse(throw new IllegalStateException("Failed to compose"))
-          result
     end evalBinaryOp
     
     private def requireCompatibility(q: Predicate): Unit =
@@ -121,6 +79,34 @@ trait GrothendieckToposLogic:
       * @return  a function that takes another predicate `q` and returns `this implies q`
       */
     lazy val ⟹ = binaryOp(Ω.implication)
+
+    def binopMappingAt(
+      ΩxΩ_to_Ω: DiagramArrow,
+      left: Predicate,
+      right: Predicate,
+      o: domain.Obj): Ω.d1.Arrow =
+      val dom = left.setAt(o)
+      val d0 = dom.head
+      if (Params.fullCheck)
+        require(right.setAt(o) == dom)
+
+      val po: SetFunction = left.transformAt(o)
+      val pom = po.mapping
+      val qo: SetFunction = right.transformAt(o)
+      val qom = qo.mapping
+      val PQtoΩxΩ: SetFunction =
+        new SetFunction(
+          s"PQ->ΩxΩ($o)",
+          dom, ΩxΩ(o),
+          v => (po(v), qo(v))
+        )
+      val pairAtEmpty = PQtoΩxΩ.mapping(Set())
+      val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
+      val opAtPairAtEmpty = op.mapping(pairAtEmpty)
+      val theMapping = PQtoΩxΩ andThen op
+      val result: SetFunction = theMapping.getOrElse(throw new IllegalStateException("Failed to compose"))
+      val resultAtEmpty = result.mapping(Set())
+      result
 
   def ¬(p: topos.Predicate): topos.Predicate =
     p.binaryOpNamed(FalsePredicate, Ω.implication, "¬")
