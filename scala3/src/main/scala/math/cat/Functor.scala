@@ -1,6 +1,6 @@
 package math.cat
 
-import math.Base._
+import math.Base.*
 import math.sets.Functions.*
 import math.sets.Sets
 import math.sets.Sets.*
@@ -8,6 +8,7 @@ import scalakittens.Result.*
 import scalakittens.{Bad, Result}
 import scalakittens.Containers.*
 import math.cat.SetCategory.Setf.asArrow
+import scalakittens.Params.verbose
 
 /**
   * Functor class.
@@ -427,7 +428,7 @@ object Functor:
         val isBad = Result.forValue(f.arrowsMapping(a)).isBad
         if isBad then
           val another = Result.forValue(f.arrowsMapping(a))
-          println(s"Arrow mapping for $a is $another")
+          verbose(s"Arrow mapping for $a is $another")
         isBad
 
     OKif(missingMappings.isEmpty, s"Missing arrow mappings for ${missingMappings.mkString(", ")}") andThen

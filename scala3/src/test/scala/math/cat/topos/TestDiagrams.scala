@@ -191,4 +191,4 @@ trait TestDiagrams extends Test:
 //object Publish extends TestDiagrams:
 //
 //  @main def allToposes(): Unit =
-//    println(toposes.values)
+//    log(toposes.values)

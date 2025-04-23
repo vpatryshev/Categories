@@ -10,8 +10,11 @@ object Params:
   def flag(name: String, alt: Boolean = false): Boolean =
     config(name, alt.toString).toBooleanOption getOrElse alt
 
-  def fullCheck: Boolean = flag("FullCheck", false)
-  def verbose: Boolean = flag("Verbose", false)
-  def debug: Boolean = flag("Debug", false)
-  def profile: Boolean = flag("Profile", false)
-  def trace: Boolean = flag("Trace", false)
+  lazy val fullCheck: Boolean = flag("FullCheck")
+  lazy val verbose:   Boolean = flag("Verbose")
+  lazy val debug:     Boolean = flag("Debug")
+  lazy val profile:   Boolean = flag("Profile")
+  lazy val trace:     Boolean = flag("Trace")
+
+  inline def debug(s: String): Unit = if (debug) then println(s)
+  inline def verbose(s: String): Unit = if (verbose) println(s)

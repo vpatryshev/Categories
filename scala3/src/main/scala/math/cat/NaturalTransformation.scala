@@ -6,7 +6,9 @@ import math.sets.Sets.*
 import scalakittens.Result
 import scalakittens.Result.{Outcome, *}
 import SetFunction.*
+import scalakittens.Params.*
 
+import java.rmi.server.LogStream.log
 import scala.annotation.targetName
 import scala.language.{implicitConversions, postfixOps}
 import scala.annotation.targetName
@@ -70,7 +72,7 @@ abstract class NaturalTransformation(
       val y = mappingAt(o)
       if (y.toString.contains("Some"))
         val x = mappingAt(o)
-        println(s"Wtf, $x")
+        verbose(s"Wtf, $x")
       y
     }) else Map.empty
 

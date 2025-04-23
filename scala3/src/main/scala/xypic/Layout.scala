@@ -4,6 +4,7 @@ import math.Base.*
 import math.cat.Categories.*
 import math.cat.{Category, Graph}
 import math.geometry2d.*
+import scalakittens.Params.verbose
 
 import java.io.{File, FileWriter}
 import java.util.Date
@@ -179,7 +180,7 @@ object TestIt:
     showAll()
 
     out.close()
-    println(s"Done: ${new Date}")
+    verbose(s"Done: ${new Date}")
 
   private def showAll(): Unit =
     val fullMap = for
