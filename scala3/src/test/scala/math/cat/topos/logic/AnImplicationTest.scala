@@ -71,7 +71,7 @@ class AnImplicationTest extends Fixtures:
 
     def checkAdjunction(topos: GrothendieckTopos)(p: topos.Predicate, context: String): MatchResult[Any] =
       val testname = s"$context, adjunction for ${p.tag}"
-      report(s"adjunction for ${p.tag}")
+      reportIn(topos)(s"adjunction for ${p.tag}")
 
       for pt2 <- topos.Ω.points do
         val q = pt2 asPredicateIn topos

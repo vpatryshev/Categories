@@ -4,9 +4,10 @@ package sets
 import math.Base.itsImmutable
 import math.cat.SetMorphism
 import math.sets.Functions.Injection
-import math.sets.MathSetOps._
-import scalakittens.{Good, Result}
+import math.sets.MathSetOps.*
+import scalakittens.{Good, Marker, Result}
 import scalakittens.Containers.*
+import scalakittens.Params.{debug, verbose}
 
 import java.io.Reader
 import scala.collection.immutable.AbstractSeq
@@ -264,7 +265,7 @@ object Sets:
     source: => Iterable[X],
     sizeEvaluator: => Int,
     predicate: X => Boolean) extends
-    setForIterable[X](source, sizeEvaluator, predicate):
+    SetForIterable[X](source, sizeEvaluator, predicate):
       override def incl(elem: X): Set[X] = setOf[X](
         List(elem) ++ source,
         if contains(elem) then sizeEvaluator else sizePlus(sizeEvaluator, 1),
@@ -342,11 +343,10 @@ object Sets:
 
     def word: Parser[String] = regex("""[\w\\.]+""".r)
 
-  private[math] class setForIterable[X](
+  class SetForIterable[X](
     source: => Iterable[X],
     sizeEvaluator: => Int,
-    predicate: X => Boolean) extends Set[X]:
-
+    predicate: X => Boolean) extends Set[X] with Marker:
     override def size: Int = sizeEvaluator
     
     def isInfinite: Boolean = sizeEvaluator == InfiniteSize
@@ -366,17 +366,22 @@ object Sets:
       found || yes
 //      i.contains(x) // TODO: inline
     
-    override infix def contains(x: X): Boolean = 
-      predicate(x) && (isInfinite || iteratorContains(x))
+    override infix def contains(x: X): Boolean =
+      val isOk = predicate(x)
+      if (!isOk)
+        verbose(s"$this doesn't contain $x - via predicate=$predicate\n")
+        debug(created.mkString("\n"))
+
+      isOk && (isInfinite || iteratorContains(x))
 
     override def isEmpty: Boolean = !iterator.hasNext
 
-    override def excl(x: X): Set[X] = new setForIterable(
+    override def excl(x: X): Set[X] = new SetForIterable(
       source filterNot(x ==),
       sizePlus(sizeEvaluator, -1),
       (y: X) => y != x && predicate(y))
 
-    override def incl(x: X): Set[X] = new setForIterable(
+    override def incl(x: X): Set[X] = new SetForIterable(
       List(x) ++ source,
       sizePlus(sizeEvaluator, +1),
       (y:X) => y == x || predicate(y))

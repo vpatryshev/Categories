@@ -23,10 +23,7 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
     def check(cat: Category, number: Int, total: Int): MatchResult[Any]
 
   case class checkThatIn(topos: GrothendieckTopos, number: Int, total: Int):
-
-    def reportIn(topos: GrothendieckTopos): String => Unit =
-      report(_, topos.tag)
-
+    val report = reportIn(topos)
     def mustBeMonoid[P](what: String,
       unit: P,
       binop: (P, P) => P): MatchResult[Any] =

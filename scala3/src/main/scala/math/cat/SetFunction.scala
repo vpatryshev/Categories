@@ -49,11 +49,6 @@ case class SetFunction private[cat](
     if g.d0 subsetOf d1 then // TODO: it should not be equal. It can be just that d1 >= g.d0
       val transform = (x: Any) => {
         val y = self(x) // TODO: hey, this y does not belong to d1!!!!
-        debug(s"${this.tag}o${g.tag}: $x |-> $y")
-        val xind0 = d0.contains(x)
-        val yind1 = d1.contains(y)
-        val yingd0 = g.d0.contains(y)
-        debug(s"$xind0, $yingd0, $yingd0")
         try g(y)
         catch
           case e: Exception => 

@@ -1,14 +1,12 @@
 package math.cat.topos.logic
 
-import math.cat.SetFunction.asFunction
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.topos.{CategoryOfDiagrams, Diagram, Fixtures, GrothendieckTopos}
-import math.cat.{Category, SetFunction}
+import math.cat.topos.{CategoryOfDiagrams, Fixtures}
+import math.cat.SetFunction
+import math.cat.Categories.*
 import org.specs2.matcher.MatchResult
-import scalakittens.Result.*
 
 import scala.language.reflectiveCalls
-import math.cat.Categories.*
+import scala.language.implicitConversions
 
 /**
  * You may wonder where does this name come from.
@@ -21,30 +19,56 @@ class RegressionTest extends Fixtures:
     val `Set^𝟙` = CategoryOfDiagrams(`𝟙`)
     val sut = `Set^𝟙`
     val Ω = `Set^𝟙`.Ω
-    val True = `Set^𝟙`.Ω.True asPredicateIn `Set^𝟙`
+    val ΩxΩ = `Set^𝟙`.ΩxΩ
+    val Ω1 = `Set^𝟙`.Ω1
+    val True: `Set^𝟙`.Predicate = `Set^𝟙`.Ω.True asPredicateIn `Set^𝟙`
     val False = `Set^𝟙`.Ω.False asPredicateIn `Set^𝟙`
 
     "work for adjunctions in set to 𝟙" in:
+      import `Set^𝟙`.Predicates.*
       val False0 = False("0")
-      val p = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
-      val q = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
+      val p = Ω.points.head asPredicateIn `Set^𝟙`
+      val q = Ω.points.head asPredicateIn `Set^𝟙`
       val p_and_q = p ∧ q
       val pnqAt0 = p.binaryOp(Ω.conjunction)(q) // , "TEST CONJUNCTION OF FALSE AND FALSE")
       val r = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
       val q2r = q ⟹ r
       val true_0 = True("0")
-      val true_0_at_emtpy = true_0(Set.empty)
+      val true_0_at_empty = true_0(Set.empty)
       val p_0 = p.mappingAt("0") //, "p, expected false")
       val q_0 = q.mappingAt("0")//, "q, expected false")
       val pq_0 = p_and_q.mappingAt("0")//, "pq, expected false")
       val pq_0_at_empty = pq_0(Set.empty)
       val pairOfFalses = (pq_0_at_empty, pq_0_at_empty)
-      val pairFT = (pq_0_at_empty, true_0_at_emtpy)
+      val pairFT = (pq_0_at_empty, true_0_at_empty)
+//      val inclusionOfΩ1 = Ω.inclusionOfΩ1
+//      val inclusionDiagramme = inclusionOfΩ1.d1.asInstanceOf[Diagram].source.asInstanceOf[`Set^𝟙`.Diagramme]
       val implication = Ω.implication
       val implicationFun = implication("0").asInstanceOf[SetFunction]
       val mustBeTrueAt0 = implicationFun(pairFT) // we pass a (false,true) to a Map, and we get a (true)
       val p_q_true: `Set^𝟙`.Predicate = p_and_q.binaryOp(implication)(True) //, "TESTING")
-      val v0: p_q_true.d1.d1.Arrow = p_q_true.binopMappingAt(implication, p_and_q, True, "0")
+      p_and_q === p
+      val omega0 = Ω("0")
+      (omega0 contains pq_0_at_empty) === true
+      binopMappingAt(implication, p, True, "0") === true_0
+      val v0: p_q_true.d1.d1.Arrow = binopMappingAt(implication, p_and_q, True, "0")
+      val PQtoΩxΩ: SetFunction = tuplingAt(p_and_q, True, "0")
+      val pairAtEmpty = PQtoΩxΩ.mapping(Set())
+      val omega2_0 = ΩxΩ("0")
+      (omega2_0 contains pairAtEmpty) === true
+      val omega1_0 = Ω1("0")
+      (omega1_0 contains pairAtEmpty) === true
+      val op: SetFunction = implicationFun
+  //    val Ax = inclusionDiagramme("0")
+
+//      val arrows: Set[(Any, set)] = `Set^𝟙`myArrows(Ω.inclusionOfΩ1, "0", inclusionDiagramme, Ax, pairAtEmpty) //.toMap
+      val opAtPairAtEmpty = op.mapping(pairAtEmpty)
+      opAtPairAtEmpty === true_0_at_empty
+      val theMapping = PQtoΩxΩ andThen op
+      val result: SetFunction = theMapping.getOrElse(throw new IllegalStateException("Failed to compose"))
+      val resultAtEmpty = result.mapping(Set())
+      resultAtEmpty === true_0_at_empty
+
       v0 === true_0
       val valueAt0: p_q_true.d1.d1.Arrow = p_q_true.mappingAt("0")// v0 is true, but this one is false, wtf?
       valueAt0 === true_0

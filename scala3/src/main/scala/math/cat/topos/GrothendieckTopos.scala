@@ -9,10 +9,11 @@ import scalakittens.{Good, Result}
 import scalakittens.Containers.*
 import math.cat.topos.Format.shortTitle
 
-import scala.collection.{View, mutable}
+import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
 import SetFunction.inclusion
 import math.sets.Functions.Injection
+import scalakittens.Params.{debug, verbose}
 
 import scala.annotation.targetName
 
@@ -282,13 +283,14 @@ trait GrothendieckTopos
     buildArrow("π1", ΩxΩ, Ω, firstProjection)
 
   /**
-    * An equalizer of first projection and intersection
+    * An equalizer of first projection and intersection, actually
     */
   lazy val Ω1: Diagram = ΩxΩ.source.filter("<", _ => {
     case (a: Diagram, b: Diagram) => a.source ⊂ b.source
+    case (a: Diagram, b: Diagramme) => a.source ⊂ b
+    case (a: Diagramme, b: Diagram) => a ⊂ b.source
     case (a: Diagramme, b: Diagramme) => a ⊂ b
-    case somethingElse => 
-      false
+    case somethingElse => false
   }) asOldDiagram
 
   /**
@@ -298,30 +300,25 @@ trait GrothendieckTopos
     _ => (subrep: Any) => (subrep, subrep)
   )
 
-  /**
-    * Given an inclusion (a natural transformation from a diagram A to a diagram B), and an object x in domain
-    * produce a function that maps elements of A(x) to elements of Ω(x)
-    * @param inclusion the inclusion
-    * @param x an object of domain
-    * @return a function A(x) -> Ω(x)
-    */
-  private[topos] def χAt(inclusion: Arrow)(x: domain.Obj): SetFunction =
-    val A: Diagram = inclusion.d1
-    val B: Diagram = inclusion.d0
+  private[topos] case class χAt(inclusion: Arrow, x: domain.Obj):
+    val A = inclusion.d1.source
+    val B = inclusion.d0.source
 
-    val Ax = A.source(x)
-    val Bx = B.source(x) // Bx is a subset of Ax
-
-    // for each element ax of set Ax find all arrows x->y 
-    // that map ax to an ay that belongs to By 
+    // for each element ax of set Ax find all arrows x->y
+    // that map ax to an ay that belongs to By
     def myArrows(ax: Any): Set[(Any, set)] =
+      def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
+
+      def hits(By: set)(f: domain.Arrow) =
+        val image = image_via(f)
+        By contains image
+      //            image_via(f) ∈ By
+
       domain.objects.map {
         y =>
           val all_arrows_to_y: domain.Arrows = domain.hom(x, y)
-          def image_via(f: domain.Arrow) = A.source.functionForArrow(f)(ax)
-          val By = B.source(y)
-          def hits_By(f: domain.Arrow) = image_via(f) ∈ By
-          y -> itsaset(all_arrows_to_y filter hits_By)
+          val By = B(y)
+          y -> itsaset(all_arrows_to_y filter hits(By))
         }
 
     def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
@@ -331,32 +328,38 @@ trait GrothendieckTopos
       domain.objects.forall(o => mapping(o) == repr(o))
 
     def myRepresentable(ax: Any): Any =
-      val arrows = myArrows(ax).toMap
+      val arrowsSet = myArrows(ax)
+      val arrows = arrowsSet.toMap
       val choices = Ω(x) find {
         _ match
-          case d: Diagram => sameMapping(d, arrows)
-          case td: topos.Diagramme => sameMappinge(td, arrows)
-          case other => false
+          case d: Diagram =>
+            sameMapping(d, arrows)
+          case td: topos.Diagramme =>
+            sameMappinge(td, arrows)
+          case other =>
+            false
       }
       Result(choices) orCommentTheError s"No representable found for $ax -> $arrows" iHope
 
-    new SetFunction(s"[χ($x)]", Ax, Ω(x), ax => myRepresentable(ax))
+    def asFunction: SetFunction =
+      val Ax = A(x)
+      new SetFunction(s"[χ($x)]", Ax, Ω(x), ax => myRepresentable(ax))
 
   end χAt
 
   /**
     * Builds a map that classifies a subobject
     * B ----> 1
-    * v      v
-    * |      |
-    * v      v
+    * v       v
+    * |       |
+    * v       v
     * A ----> Ω
     *
     * @param inclusion B >--> A - a natural transformation from diagram B to diagram A
     * @return A -> Ω
     */
   def χ(inclusion: Arrow, theTag: String): Predicate =
-    val objToFunction: domain.Obj => SetFunction = χAt(inclusion)
+    def objToFunction(x: domain.Obj): SetFunction = χAt(inclusion: Arrow, x: domain.Obj).asFunction
     inclusion.d1 match {
       case d: Diagram =>
         new Predicate(theTag, d.source.asInstanceOf[Diagramme]):
@@ -821,13 +824,20 @@ trait GrothendieckTopos
       val codom: Sets.set = om(d0.d1(a))
       new SetFunction("", dom, codom, arrowsMapping(a))
 
-    // TODO: write tests
+    // TODO: write tests !!!!!!!
     def filter[O, A](tag: String, predicate: XObject => Any => Boolean): Diagramme =
+      debug(s"$tag: filter $predicate")
       def objectMapping(o: domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
         objectsMapping(o) filter predicate(o)
 
       val arrowToFunction = (a: domain.Arrow) => extendToArrows(objectMapping)(a)
-      Diagramme(tag, d0.obj andThen objectMapping, arrowToFunction)
+
+      def mappingOfd0Objects(x: Any): set =
+        val theSet = objectMapping(d0.obj(x))
+        debug(s"Fucking created a set for $x: $theSet")
+        theSet
+
+      Diagramme(tag, mappingOfd0Objects, arrowToFunction)
 
     def subobjects: Iterable[Diagramme] =
       val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))

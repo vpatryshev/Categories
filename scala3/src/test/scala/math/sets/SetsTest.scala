@@ -392,11 +392,11 @@ class SetsTest extends TestBase:
       val s00 = List(1,2,3,4,5,6,7,8,9,10)
       val s10 = List(1,2,3,4,5,6,7,8,9,10)
       val s20 = List(1,2,3,4,5,6,7,8,9,10,11)
-      val s0 = setForIterable[Any](s00, 5, _ => true)
-      val s1 = setForIterable[Any](s10, 5, _ => true)
-      val s2 = setForIterable[Any](s20, 5, _ => true)
-      val s3 = setForIterable[Any](s20, 11, _ => true)
-      val s4 = setForIterable[Any](s20, 3, (x:Any) => x.toString.toInt % 2 == 0)
+      val s0 = SetForIterable[Any](s00, 5, _ => true)
+      val s1 = SetForIterable[Any](s10, 5, _ => true)
+      val s2 = SetForIterable[Any](s20, 5, _ => true)
+      val s3 = SetForIterable[Any](s20, 11, _ => true)
+      val s4 = SetForIterable[Any](s20, 3, (x:Any) => x.toString.toInt % 2 == 0)
       s0 === s1
       s1 === s0
       s2 === s1
