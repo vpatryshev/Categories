@@ -30,12 +30,12 @@ object Categories extends CategoryFactory:
   /**
     * Empty category
     */
-  lazy val`𝟘` : Cat = fromSegment(0, "𝟘")
+  lazy val `𝟘` : Cat = fromSegment(0, "𝟘")
 
   /**
     * Singleton category
     */
-  lazy val`𝟙` : Cat = fromSegment(1, "𝟙")
+  lazy val `𝟙` : Cat = fromSegment(1, "𝟙")
 
   /**
     * Discrete 2-object category
@@ -43,11 +43,11 @@ object Categories extends CategoryFactory:
   lazy val `𝟙+𝟙` : Cat = asCat(discrete(Set("a", "b")))
 
   /**
-    * Category <b>2</b>: 2 objects linearly ordered
+    * Category <b>𝟚</b>: 2 objects linearly ordered
     */
   lazy val `𝟚` : Cat = fromSegment(2, "𝟚")
   /**
-    * Category <b>3</b>: 3 objects linearly ordered
+    * Category <b>𝟛</b>: 3 objects linearly ordered
     */
   lazy val `𝟛` : Cat = fromSegment(3, "𝟛")
 
@@ -57,7 +57,7 @@ object Categories extends CategoryFactory:
   lazy val `𝟜` : Cat = fromSegment(4, "𝟜")
 
   /**
-    * Category <b>5</b>: 5 objects linearly ordered
+    * Category <b>𝟝</b>: 5 objects linearly ordered
     */
   lazy val `𝟝` : Cat = fromSegment(5, "𝟝")
 

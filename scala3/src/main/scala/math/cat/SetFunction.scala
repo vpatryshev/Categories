@@ -23,13 +23,12 @@ case class SetFunction private[cat](
   override val tag: String,
   override val d0: set,
   override val d1: set,
-  mapping: Any => Any)
-  extends SetMorphism[Any, Any](tag, d0, d1, mapping):
+  sourceMapping: Any => Any)
+  extends SetMorphism[Any, Any](tag, d0, d1, sourceMapping):
   self =>
-  val mappingForDebug = mapping
   if (!d0.isEmpty && d1.isEmpty) then
     throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
-
+  
   if (Params.fullCheck)
     if (d0.isFinite) for (x <- d0) if (!d1.contains(mapping(x))) then
       throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")

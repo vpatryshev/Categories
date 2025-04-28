@@ -19,7 +19,13 @@ class SetMorphism[X, Y] (
     val d1: Set[Y],
     val function: X => Y)
   extends Morphism[Set[X], Set[Y]] with Map[X, Y]:
-  
+
+  lazy val mapping: X => Y =
+    if (d0.isFinite)
+      buildMap(d0, function)
+    else
+      function
+
   /**
    * Two set morphisms are equal if they have equal d0s and d1s and map d0 elements to the same values.
    * Note that there's no negation in this calculation; there is a deep reason for it, to be disclosed much, much later.

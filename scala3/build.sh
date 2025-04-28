@@ -9,7 +9,7 @@ rm -rf target
 rm -rf project/target
 sbt clean 
 sbt compile || { say "oy! bleen... oops... build failed" && exit 1 }
-exit 42
+#exit 42
 sbt test package
 res=$?
 #echo "Tests returned <<$res>>"
