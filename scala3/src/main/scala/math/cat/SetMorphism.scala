@@ -20,10 +20,11 @@ class SetMorphism[X, Y] (
     val function: X => Y)
   extends Morphism[Set[X], Set[Y]] with Map[X, Y]:
 
+  // TODO: investigate the impact of this caching.
   lazy val mapping: X => Y =
-    if (d0.isFinite)
-      buildMap(d0, function)
-    else
+//    if (d0.isFinite)
+//      buildMap(d0, function)
+//    else
       function
 
   /**

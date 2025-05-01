@@ -133,7 +133,7 @@ class CategoryTest extends Test:
 
     "isIsomorphism_positive()" >> {
       Z3.isIsomorphism("2") must beTrue
-       `𝟛`.arrows.forall {
+      `𝟛`.arrows.forall {
         case a@PairRegex(x, y) => (x == y) === `𝟛`.isIsomorphism(a)
         case s => failure(s"$s does not look like an arrow in a poset"); false
       }
@@ -386,7 +386,7 @@ class CategoryTest extends Test:
       Square.isTerminal("d") must beTrue
     }
 
-    "isTerminal_positive `𝟜`" >> {
+    "isTerminal_positive 𝟜" >> {
       `𝟜`.isTerminal("3") must beTrue
     }
 
@@ -395,7 +395,7 @@ class CategoryTest extends Test:
       Square.isTerminal("b") must beFalse
     }
 
-    "isTerminal_negative `𝟜`" >> {
+    "isTerminal_negative 𝟜" >> {
       `𝟜`.isTerminal("0") must beFalse
       `𝟜`.isTerminal("1") must beFalse
     }
@@ -502,7 +502,7 @@ class CategoryTest extends Test:
         Map("b" -> Set(), "c" -> Set())
     }
 
-    "isInitial `𝟜`" in {
+    "isInitial 𝟜" in {
       `𝟜`.isInitial("0") === true
       `𝟜`.isInitial("1") === false
     }
@@ -564,10 +564,10 @@ class CategoryTest extends Test:
 
   "components" should {
     "build 0" in {
-     `𝟘`.connectedComponents.isEmpty === true
+      `𝟘`.connectedComponents.isEmpty === true
     }
     "build 3" in {
-       `𝟛`.connectedComponents.map(_.name) === Set("𝟛.1")
+      `𝟛`.connectedComponents.map(_.name) === Set("𝟛.1")
     }
     "build 1+1" in {
       val c1: Category = category"Discrete_2.1:({a}, {a:a->a})"
@@ -585,11 +585,11 @@ class CategoryTest extends Test:
   "baseGraph" >> {
     import Graph._
 
-    "good for `𝟛`" >> {
-       `𝟛`.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
+    "good for 𝟛" >> {
+      `𝟛`.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
     }
 
-    "good for `𝟜`" >> {
+    "good for 𝟜" >> {
       `𝟜`.baseGraph === graph"({0,1,2,3}, {0.1: 0 -> 1, 1.2: 1 -> 2, 2.3: 2 -> 3})"
     }
     
