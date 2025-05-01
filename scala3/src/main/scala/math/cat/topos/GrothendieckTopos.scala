@@ -99,7 +99,7 @@ trait GrothendieckTopos
           val x1 = om1(domain.d0(b))
           val y1 = om1(domain.d1(b))
 
-          // A function fom x1 to y1 - it does the transition
+          // A function from x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g => domain.m(g, b).get)
 
         Diagramme("", om1, am1).asOldDiagram // no validation, we know it's ok

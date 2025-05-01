@@ -147,9 +147,9 @@ object SetMorphism:
       for
         x <- f.d0
       yield
-        val y = Result.forValue(f.function(x))
-        val yInD1 = y filter (f.d1 contains)
-        yInD1 orCommentTheError s"${f.tag}: Value $y for $x should be in d1 ${f.d1}"
+        Result.forValue(f.function(x), s"${f.tag} failed on $x)") filter(
+          (y: Y) => f.d1 contains y, 
+          (y: Y) => s"${f.tag}: Value $y for $x should be in d1=${f.d1}")
     } returning f
 
   /**

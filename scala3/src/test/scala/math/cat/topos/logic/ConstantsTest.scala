@@ -12,7 +12,7 @@ import scala.language.reflectiveCalls
 
 class ConstantsTest extends Fixtures:
   "True and False" should {
-    "exist for𝟘" in {
+    "exist for 𝟘" in {
       val topos = `Set^𝟘`
       import topos._
       Ω.True.toString === "⊤"
@@ -34,7 +34,6 @@ class ConstantsTest extends Fixtures:
       ok
     }
 
-
     "exist for 𝟙" in {
       val topos = new CategoryOfDiagrams(`𝟙`)
       val omega = topos.Ω
@@ -42,7 +41,7 @@ class ConstantsTest extends Fixtures:
       checkAt(topos)(omega.True("0"))("0" -> Set("0.0"))
     }
 
-    "exist for `𝟚`" in {
+    "exist for 𝟚" in {
       val topos = new CategoryOfDiagrams(`𝟚`)
       val omega = topos.Ω
       val False = omega.False

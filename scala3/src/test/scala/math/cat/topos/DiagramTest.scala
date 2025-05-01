@@ -46,13 +46,32 @@ class DiagramTest extends Test with TestDiagrams:
       sut.d1 === Setf
     }
 
-    "get validated - negative" in {
+    "get validated with inconsistent mappings - negative" in {
       val a: set = Set(1, 2, 3, 4, 5)
       val b: set = Set(0, 1, 2)
 
-      val f = fun(a,b)("f", x => Math.min(2, x.toString.toInt))
-      val g = fun(b,b)("g", x => x.toString.toInt % 3)
+      val f = fun(a,b)("f", x => Math.min(2, x.toInt))
+      val g = fun(b,b)("g", x => x.toInt % 3)
       val topos = new CategoryOfDiagrams(ParallelPair)
+      expectError(_.
+        matches(raw"Inconsistent mapping for d0\(b\) - Set\(.*\) vs .*Set\(5, 1, 2, 3, 4\).*"),
+        Diagram.tryBuild(topos)(
+          "Bad Bad Bad",
+          Map("0" -> a, "1" -> b),
+          Map("a" -> f, "b" -> g)
+        )
+      )
+    }
+
+    "get validated with inconsistent domains - negative" in {
+      val a: set = Set(1, 2, 3, 4, 5)
+      val b: set = Sets.Empty
+
+      // The following two things are actually not set functions, they are broken
+      val f = new SetFunction("f", a, b, x => Math.min(2, x.toString.toInt)) // Note: this i
+      val g = new SetFunction("g", b, b, x => x.toString.toInt % 3)
+      val topos = new CategoryOfDiagrams(ParallelPair)
+
       expectError(_.
         matches(raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"),
         topos.Diagramme.tryBuild(
@@ -64,7 +83,7 @@ class DiagramTest extends Test with TestDiagrams:
     }
 
     "validate empty diagram" in {
-      EmptyDiagram.d0 ===`𝟘`
+      EmptyDiagram.d0 === `𝟘`
       EmptyDiagram.d1 === Setf
     }
   }
@@ -72,7 +91,7 @@ class DiagramTest extends Test with TestDiagrams:
   "diagram limit" should {
     "exist for an empty diagram" in {
       val sut = const(Set("a", "b"))
-          sut.d0 ===`𝟙`
+          sut.d0 === `𝟙`
           sut.d1 === Setf
           sut.objectsMapping("0") === Set("a", "b")
     }
@@ -80,7 +99,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
       val sut = const(x)
-      sut.d0 ===`𝟙`
+      sut.d0 === `𝟙`
       sut.d1 === Setf
 
       sut.limit match
@@ -227,7 +246,7 @@ class DiagramTest extends Test with TestDiagrams:
   "diagram colimit" should {
     "exist for a empty diagram" in {
       val sut = EmptyDiagram
-      sut.d0 ===`𝟘`
+      sut.d0 === `𝟘`
       sut.d1 === Setf
       sut.colimit match
         case Good(sut.Cocone(Sets.`∅`, arrowFrom)) => ok
@@ -239,7 +258,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for a point" in {
       val expected: set = Set("x", "y", "z")
       val sut = const(expected)
-      sut.d0 ===`𝟙`
+      sut.d0 === `𝟙`
       sut.d1 === Setf
       val colimit = sut.colimit.iHope
       val vertex = itsaset(colimit.vertex)

@@ -29,7 +29,7 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   protected def foreach_(f: T => Unit): Unit
   infix def foreach(f: T => Unit): Result[T] = {foreach_(f); this}
   infix def filter(p: T => Boolean): Result[T]
-  infix def filter(p: T => Boolean, onError: T=> String): Result[T]
+  infix def filter(p: T => Boolean, onError: T => String): Result[T]
   infix def filter(p: T => Boolean, errorMessage: => String): Result[T] = filter(p, x => errorMessage)
   infix def filter(flag:Boolean, errorMessage: => String):Result[T] = filter ((x:T) => flag, errorMessage)
   infix def withFilter(p: T => Boolean): Result[T] = filter(p)
@@ -46,7 +46,7 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   inline def optionally[U](f: T => U => U): U => U = this.map(f).getOrElse(identity[U])
   def iHope: T
 
-case class Good[T](protected val value: T) extends Result[T] with SomethingInside[T] with PositiveAttitude:
+case class Good[T](val value: T) extends Result[T] with SomethingInside[T] with PositiveAttitude:
   val listErrors: Errors = Nil
   def onError[X >: Errors, Y](op: X => Y): Result[T] = this
   def asOption: Option[T] = Some(value)
@@ -256,7 +256,7 @@ object Result:
   private inline def exception[T](x: Throwable): Bad[T] = bad(x::Nil)
   private inline def exception[T](x: Throwable, comment: Any): Bad[T] = exception[T](x) orCommentTheError comment
 
-  private def partition[T](results: IterableOnce[Result[T]]): (List[T], List[Errors]) =
+  def partition[T](results: IterableOnce[Result[T]]): (List[T], List[Errors]) =
     val (goodOnes, badOnes) = 
       results.iterator.foldLeft((List.empty[T], List.empty[Errors]))(
         (collected, current) =>

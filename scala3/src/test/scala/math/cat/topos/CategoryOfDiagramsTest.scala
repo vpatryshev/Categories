@@ -118,7 +118,6 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       idtrans.d0 === d
       idtrans.d1 === d
 
-
   "Initial object" should:
     "exist in Set to M" in:
       val topos = `Set^M`
@@ -202,7 +201,6 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       sor(obj0).size === 3
       sor(obj1).size === 2
 
-
   "Cartesian product" should:
     "exist in Set to ParallelPair" in:
       val topos = `Set^ParallelPair`
@@ -215,7 +213,6 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     "exist in Set to M" in:
       val topos = `Set^M`
-
       val actual = topos.product2(SampleMDiagram, SampleMDiagram)
       for
         x <- topos.domain.objects
@@ -223,7 +220,6 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         actual(x).size === SampleMDiagram(x).size * SampleMDiagram(x).size
 
       ok
-
 
   "Cartesian product of arrows" should:
     "exist in Set to 𝟙" in:

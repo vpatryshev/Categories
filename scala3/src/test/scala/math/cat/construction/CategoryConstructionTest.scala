@@ -284,7 +284,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
     "0" >> {
       val expected = "𝟘: ({}, {}, {})"
-      val actual =`𝟘`.toString
+      val actual = `𝟘`.toString
       actual === expected
       `𝟘`.objects must beEmpty
       `𝟘`.arrows must beEmpty

@@ -16,3 +16,7 @@ libraryDependencies += ("org.specs2" %% "specs2-scalacheck" % "4.12.0" % Test).c
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
+Test / fork := true
+Test / testForkedParallel := true
+
+
