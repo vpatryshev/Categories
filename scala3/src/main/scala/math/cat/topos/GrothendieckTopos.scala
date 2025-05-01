@@ -546,10 +546,8 @@ trait GrothendieckTopos
     }
 
   abstract class Diagramme(tag: Any)
-    extends Functor(tag):
+    extends Functor(tag, thisTopos.domain, SetCategory.Setf):
     diagramme =>
-    override val d0: Category = thisTopos.domain
-    override val d1: Category = SetCategory.Setf
     private type XObject = d0.Obj // topos.domain.Obj ???
     private type XObjects = Set[XObject]
     private type XArrow = d0.Arrow // topos.domain.Arrow ???

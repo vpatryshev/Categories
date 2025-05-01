@@ -91,8 +91,6 @@ class CategoryOfDiagrams(val domain: Category)
     }
     
   case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
-    override val d0: Category = thisTopos.domain
-    override val d1: Category = SetCategory.Setf
     override def objectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow = am(f)
  

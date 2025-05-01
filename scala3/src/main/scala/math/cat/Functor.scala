@@ -16,11 +16,11 @@ import scalakittens.Params.verbose
   * @param d0 domain
   * @param d1 codomain
   */
-abstract class Functor(val tag: Any) extends GraphMorphism:
-
-  val d0: Category
-  val d1: Category
-
+abstract class Functor(
+  taggedAs: Any,
+  override val d0: Category, override val d1: Category
+) extends GraphMorphism:
+  val tag = taggedAs
   /**
     * Objects of the functor domain
     * @return the objects
@@ -56,8 +56,9 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
     * @returns another arrow
     */
   override def arrowsMapping(a: d0.Arrow): d1.Arrow =
-    if   d0.isIdentity(a)
-    then d1.id(objectsMapping(d0.d0(a)))
+    val domainX: d0.Obj = d0.d0(a)
+    if d0.isIdentity(a)
+    then d1.id(objectsMapping(domainX))
     else arrowsMappingCandidate(a)
 
   /**
@@ -74,9 +75,7 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
       def `g(f(object))`(x: d0.Obj) = g.objectsMapping(objectsMapping(x))
       def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(arrowsMapping(a))
 
-      new Functor(concat(g.tag, "∘", this.tag)):
-        override val d0: Category = f.d0
-        override val d1: Category = f.d1
+      new Functor(concat(g.tag, "∘", this.tag), f.d0, g.d1):
 
         def objectsMapping(x: d0.Obj): d1.Obj = `g(f(object))`(x)
 
@@ -138,17 +137,13 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
   /**
     * Left Kan Extension.
     * TODO: implement
-    * 
+    *
     * @param X
     * @return
     */
   def Lan(X: Functor): Result[Functor] =
-    val thisd1 = d1
     OKif(X.d0 == d0) returning
-      new Functor(s"Lan_$tag(${X.tag}"):
-        override val d0: Category = thisd1
-        override val d1: Category = X.d1
-
+      new Functor(s"Lan_$tag(${X.tag}", d1, X.d1):
         override def objectsMapping(x: d0.Obj): d1.Obj = ???
         override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
 
@@ -160,12 +155,8 @@ abstract class Functor(val tag: Any) extends GraphMorphism:
     * @return
     */
   def Ran(X: Functor): Result[Functor] =
-    val thisd1 = d1
     OKif(X.d0 == d0) returning
-      new Functor(s"Ran_$tag(${X.tag}") :
-        override val d0: Category = thisd1
-        override val d1: Category = X.d1
-
+      new Functor(s"Ran_$tag(${X.tag}", d1, X.d1) :
         override def objectsMapping(x: d0.Obj): d1.Obj = ???
         override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
 
@@ -329,12 +320,10 @@ object Functor:
     * @param c the category
     * @return identity functor on the given category
     */
-  def id(c: Category): Functor = new Functor(s"id[$c]"):
-    override val d0: Category = c
-    override val d1: Category = c
-    override def objectsMapping(x: d0.Obj): d1.Obj = x
+  def id(c: Category): Functor = new Functor("id", c, c):
+      override def objectsMapping(x: d0.Obj): d1.Obj = x
 
-    override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a
+      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a
 
   /**
     * Builds a constant functor from a category to an object in another.
@@ -356,9 +345,7 @@ object Functor:
     codom: Category)(
     objectsMorphism: dom.Obj => codom.Obj,
     arrowsMorphism: dom.Arrow => codom.Arrow): Functor =
-    new Functor(tag):
-      override val d0: Category = dom
-      override val d1: Category = codom
+    new Functor(tag, dom, codom):
       override def objectsMapping(x: d0.Obj): d1.Obj = objectsMorphism(x)
 
       override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
@@ -410,26 +397,20 @@ object Functor:
     def check(fx: domain.Arrow, gx: domain.Arrow): Outcome =
       val fy = f.arrowsMapping(fx)
       val gy = f.arrowsMapping(gx)
-      val gy_fy = f.d1.m(fy, gy)
-      val gx_fx = f.d0.m(fx, gx)
-      val expected = gx_fx map (gf => f.arrowsMapping(gf))
+      val gy_fy: Option[codomain.Arrow] = codomain.m(fy, gy)
+      val gx_fx: Option[domain.Arrow] = domain.m(fx, gx)
+      val expected: Option[codomain.Arrow] = gx_fx map (gf => f.arrowsMapping(gf))
       OKif(gy_fy == expected,
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
 
     val composablePairs = Result.forValue(Category.composablePairs(domain))
 
     Result.check:
-      Category.composablePairs(domain) map:
+      Category.composablePairs(domain) map :
         case (fx, fy) => check(fx, fy)
 
   private def checkArrowMapping(f: Functor): Outcome =
-    val missingMappings = f.d0.arrows.filter:
-      a =>
-        val isBad = Result.forValue(f.arrowsMapping(a)).isBad
-        if isBad then
-          val another = Result.forValue(f.arrowsMapping(a))
-          verbose(s"Arrow mapping for $a is $another")
-        isBad
+    val missingMappings = f.d0.arrows.filter(a => Result.forValue(f.arrowsMapping(a)).isBad)
 
     OKif(missingMappings.isEmpty, s"Missing arrow mappings for ${missingMappings.mkString(", ")}") andThen
     Result.check {
