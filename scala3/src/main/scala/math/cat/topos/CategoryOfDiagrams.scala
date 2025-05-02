@@ -33,12 +33,7 @@ class CategoryOfDiagrams(val domain: Category)
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
         val function = _1.arrowsMapping(a)
-        function restrictTo(d0, d1)
-
-
-    def arrowsMappedOnSetOfObjects(objects: Set[domain.Node]) = {
-      domain.arrows map (a => arrowMapping(objects)(a).map((f: SetFunction) => a -> f))
-    }
+        function restrictTo(d0, d1) iHope
 
     def mapping(candidate: Set[domain.Obj]): DiagramMapping =
       val ofObjects = objectMapping(candidate)
@@ -49,12 +44,12 @@ class CategoryOfDiagrams(val domain: Category)
     val allDiagrammes: Set[Diagramme] =
       for
         (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
-        om = objectMapping(candidate)
-        mappingsResults = arrowsMappedOnSetOfObjects(candidate)
-        // some of these build attempts will fail, because of compatibility checks
-        (goodOnes, badOnes) = Result.partition(mappingsResults)
-        am: Map[domain.Arrow, SetFunction] = goodOnes.toMap if badOnes.isEmpty
-        diagram: Diagram <- Diagram.tryBuild(topos)("__" + i, om, am).asOption
+        // some mappings are not working for a given candidate
+        theMapping: DiagramMapping = mapping(candidate)
+        mo = theMapping.ofObjects
+        ma = theMapping.ofArrows
+      // some of these build attempts will fail, because of compatibility checks
+        diagram <- Diagramme.tryBuild("__" + i, mo, ma) asOption
       yield diagram
 
     allDiagrammes
