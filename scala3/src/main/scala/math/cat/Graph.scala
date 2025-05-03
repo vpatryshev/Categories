@@ -35,7 +35,7 @@ trait Graph(val name: String) extends GraphData:
   private infix def equal(that: Graph) = checkThat {
     this.nodes == that.nodes && this.arrows == that.arrows &&
     arrows.forall(arrowHere =>
-      val arrowThere: that.Arrow = arrowHere
+      val arrowThere: that.Arrow = that.asArrow(arrowHere)
       (d0(arrowHere) == that.d0(arrowThere)) && (d1(arrowHere) == that.d1(arrowThere))
     )
   }
@@ -164,10 +164,13 @@ private[cat] trait GraphData:
     case notaNode => 
       throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
-  implicit def asArrow(a: Any): Arrow = a match
-    case arrow: Arrow @unchecked if arrows(arrow) => arrow
-    case badArrow: Arrow => throw new IllegalArgumentException(s"<<$badArrow>> is not listed as an arrow")
-    case notAnArrow => throw new IllegalArgumentException(s"<<$notAnArrow>> is not an arrow")
+  implicit def asArrow(a: Any): Arrow = 
+    a match
+      case arrow: Arrow @unchecked if arrows(arrow) => arrow
+      case badArrow: Arrow =>
+        throw new IllegalArgumentException(s"<<$badArrow>> is not listed as an arrow")
+      case notAnArrow =>
+        throw new IllegalArgumentException(s"<<$notAnArrow>> is not an arrow")
 
   /*
     TODO: figure out how come this does not work

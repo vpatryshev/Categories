@@ -114,7 +114,7 @@ trait GrothendieckTopos
       // no validation here, the function is known to be ok
       new SetFunction(s"[$a]", d0.untyped, d1.untyped, tmpTransformer)
 
-    protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = am(a)
+    protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow = am(a)
 
     /**
       * Given an arrow `a`,
@@ -203,7 +203,7 @@ trait GrothendieckTopos
         def perObject(x: d0.d0.Obj): SetFunction =
           cache.getOrElseUpdate(x, calculatePerObject(x))
 
-        override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
 
 
@@ -267,7 +267,7 @@ trait GrothendieckTopos
           val codom = Ω.source(x)
           new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
 
-        override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
           perObject(x)
 
     end disjunction
@@ -363,11 +363,11 @@ trait GrothendieckTopos
     inclusion.d1 match {
       case d: Diagram =>
         new Predicate(theTag, d.source.asInstanceOf[Diagramme]):
-          override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
             objToFunction(x)
       case d: Diagramme =>
         new Predicate(theTag, d):
-          override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
             objToFunction(x)
       case basura => throw new IllegalArgumentException(s"Oops, basure $basura")
     }
@@ -558,8 +558,8 @@ trait GrothendieckTopos
         override val d0: Category = diagramme.d0
         override val d1: Category = diagramme.d1
         override def calculateObjectsMapping(x: this.d0.Obj): this.d1.Obj = diagramme(x)
-        override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow =
-          diagramme.arrowsMappingCandidate(a)
+        override def calculateArrowsMapping(a: this.d0.Arrow): d1.Arrow =
+          diagramme.arrowsMapping(a)
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
@@ -882,7 +882,7 @@ trait GrothendieckTopos
       new Diagramme(tag.toString):
         override private[topos] def setAt(x: Any): set = objectsMap(x)
         override def calculateObjectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
-        override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
+        override def calculateArrowsMapping(a: d0.Arrow): d1.Arrow = arrowMap(a)
 
     def tryBuild(
       tag: Any,

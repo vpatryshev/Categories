@@ -67,15 +67,15 @@ class CategoryOfDiagrams(val domain: Category)
 
     new DiagramArrow("Id", o, o):
 
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         objectMap(x)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
     new DiagramArrow(concat(g.tag, " ∘ ", f.tag), f.d0, g.d1):
 
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-        val f_x = f.mappingAt(x)
-        val g_x = g.mappingAt(x)
+      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        val f_x = f(x)
+        val g_x = g(x)
         m(f_x, g_x)
 
   } else None
@@ -92,7 +92,7 @@ class CategoryOfDiagrams(val domain: Category)
     
   case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
     override def calculateObjectsMapping(x: d0.Obj): d1.Obj = om(x)
-    override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow = am(f)
+    override protected def calculateArrowsMapping(f: d0.Arrow): d1.Arrow = am(f)
  
     // have to validate right here, because a representable must exist, and all checks should be passing
     private val probablyFunctor: Result[Functor] = Functor.validateFunctor(this)

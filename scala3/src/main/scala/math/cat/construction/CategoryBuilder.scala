@@ -52,7 +52,7 @@ class CategoryBuilder(val source: CategoryData):
       override inline def d0(f: Arrow): Obj = d0Map(f)
       override inline def d1(f: Arrow): Obj = d1Map(f)
 
-      inline def id(o: Obj): Arrow = idMap(o)
+      def id(o: Obj): Arrow = idMap(o)
   
       private val mMap = {
         for

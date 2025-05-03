@@ -29,7 +29,8 @@ abstract class Functor(
 
   lazy val listOfObjects: List[d0.Obj] = d0.listOfObjects
 
-  lazy val objectCache = new Cache[d0.Obj, d1.Obj](domainObjects.isFinite)
+  lazy val objectMapping = Cache[d0.Obj, d1.Obj](domainObjects.isFinite, calculateObjectsMapping)
+  lazy val arrowMapping = Cache[d0.Arrow, d1.Arrow](domainObjects.isFinite, calculateArrowsMapping)
 
   /**
     * How the functor maps objects
@@ -38,19 +39,17 @@ abstract class Functor(
     */
   def calculateObjectsMapping(x: d0.Obj): d1.Obj
 
-  def objectsMapping(x: d0.Obj): d1.Obj = objectCache(x, calculateObjectsMapping)
-
   /**
-    * The same mapping as objects (@see[[objectsMapping]]), but they are also nodes of the underlying graph
+    * The same mapping as objects (@see[[objectMapping]]), but they are also nodes of the underlying graph
     */
-  override def nodesMapping(n: d0.Node): d1.Node = objectsMapping(n)
+  override def nodesMapping(n: d0.Node): d1.Node = objectMapping(n)
 
   /**
     * This function is used for partially defining mapping of arrows
     * @param a arrow
     * @return another arrow
     */
-  protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow
+  protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow
 
   override def toString: String = s"Functor $tag"
 
@@ -62,8 +61,8 @@ abstract class Functor(
   override def arrowsMapping(a: d0.Arrow): d1.Arrow =
     val domainX: d0.Obj = d0.d0(a)
     if d0.isIdentity(a)
-    then d1.id(objectsMapping(domainX))
-    else arrowsMappingCandidate(a)
+    then d1.id(objectMapping(domainX))
+    else arrowMapping(a)
 
   /**
     * Composes two functors
@@ -76,14 +75,14 @@ abstract class Functor(
   infix def andThen(g: Functor): Option[Functor] =
     if d1 != g.d0 then None else Some {
       val f = this
-      def `g(f(object))`(x: d0.Obj) = g.objectsMapping(objectsMapping(x))
+      def `g(f(object))`(x: d0.Obj) = g.objectMapping(objectMapping(x))
       def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(arrowsMapping(a))
 
       new Functor(concat(g.tag, "∘", this.tag), f.d0, g.d1):
 
         def calculateObjectsMapping(x: d0.Obj): d1.Obj = `g(f(object))`(x)
 
-        protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
+        protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow =
           `g(f(arrow))`(a)
 
       }
@@ -149,7 +148,7 @@ abstract class Functor(
     OKif(X.d0 == d0) returning
       new Functor(s"Lan_$tag(${X.tag}", d1, X.d1):
         override def calculateObjectsMapping(x: d0.Obj): d1.Obj = ???
-        override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
+        override protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow = ???
 
   /**
     * Right Kan Extension.
@@ -162,7 +161,7 @@ abstract class Functor(
     OKif(X.d0 == d0) returning
       new Functor(s"Ran_$tag(${X.tag}", d1, X.d1) :
         override def calculateObjectsMapping(x: d0.Obj): d1.Obj = ???
-        override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = ???
+        override protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow = ???
 
   /**
     * Builds a cocone from this functor to a given vertex
@@ -327,7 +326,7 @@ object Functor:
   def id(c: Category): Functor = new Functor("id", c, c):
       override def calculateObjectsMapping(x: d0.Obj): d1.Obj = x
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = a
+      override protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow = a
 
   /**
     * Builds a constant functor from a category to an object in another.
@@ -352,7 +351,7 @@ object Functor:
     new Functor(tag, dom, codom):
       override def calculateObjectsMapping(x: d0.Obj): d1.Obj = objectsMorphism(x)
 
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
+      override protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow =
         arrowsMorphism(a)
 
   /**

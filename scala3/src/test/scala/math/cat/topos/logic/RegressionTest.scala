@@ -33,11 +33,13 @@ class RegressionTest extends Fixtures:
       val pnqAt0 = p.binaryOp(Ω.conjunction)(q) // , "TEST CONJUNCTION OF FALSE AND FALSE")
       val r = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
       val q2r = q ⟹ r
-      val true_0 = True("0")
-      val true_0_at_empty = true_0(Set.empty)
-      val p_0 = p.mappingAt("0") //, "p, expected false")
-      val q_0 = q.mappingAt("0")//, "q, expected false")
-      val pq_0 = p_and_q.mappingAt("0")//, "pq, expected false")
+      val true_0: True.d1.d1.Arrow = True("0")
+      true_0.isInstanceOf[SetFunction] === true
+      val true_0_f = true_0.asInstanceOf[SetFunction]
+      val true_0_at_empty = true_0_f.apply(Set.empty)
+      val p_0 = p("0") //, "p, expected false")
+      val q_0 = q("0")//, "q, expected false")
+      val pq_0 = p_and_q("0").asInstanceOf[SetFunction]//, "pq, expected false")
       val pq_0_at_empty = pq_0(Set.empty)
       val pairOfFalses = (pq_0_at_empty, pq_0_at_empty)
       val pairFT = (pq_0_at_empty, true_0_at_empty)
@@ -59,9 +61,6 @@ class RegressionTest extends Fixtures:
       val omega1_0 = Ω1("0")
       (omega1_0 contains pairAtEmpty) === true
       val op: SetFunction = implicationFun
-  //    val Ax = inclusionDiagramme("0")
-
-//      val arrows: Set[(Any, set)] = `Set^𝟙`myArrows(Ω.inclusionOfΩ1, "0", inclusionDiagramme, Ax, pairAtEmpty) //.toMap
       val opAtPairAtEmpty = op.mapping(pairAtEmpty)
       opAtPairAtEmpty === true_0_at_empty
       val theMapping = PQtoΩxΩ andThen op
@@ -70,7 +69,7 @@ class RegressionTest extends Fixtures:
       resultAtEmpty === true_0_at_empty
 
       v0 === true_0
-      val valueAt0: p_q_true.d1.d1.Arrow = p_q_true.mappingAt("0")// v0 is true, but this one is false, wtf?
+      val valueAt0: p_q_true.d1.d1.Arrow = p_q_true("0")// v0 is true, but this one is false, wtf?
       valueAt0 === true_0
       p_q_true === True
       p_and_q ⟹ False === True

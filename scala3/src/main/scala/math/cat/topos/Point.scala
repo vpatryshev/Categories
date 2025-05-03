@@ -1,31 +1,32 @@
 package math.cat.topos
 
+import scalakittens.{Cache, Params, Result}
 import math.Base.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.{Category, SetCategory, SetFunction}
+import math.cat.topos.Format.shortTitle
 import math.sets.Sets
 
 import scala.annotation.targetName
 import scala.language.implicitConversions
-import math.cat.topos.Format.shortTitle
 
 /**
   * A point of a topos object (of a diagram in a Grothendieck topos)
   * @param tag used to visually identify a point
   * @param topos the topos
-  * @param mapping for each domain object, choose something in the topos diagram
+  * @param fromObjectToSubset for each domain object, choose something in the topos diagram
   */
 class Point(
   val tag: Any,
   val topos: GrothendieckTopos,
-  val mapping: Any => Any) extends (Any => Any):
+  val fromObjectToSubset: Any => Any) extends (Any => Any):
   p =>
   val baseTopos: GrothendieckTopos = topos
   private val domainCategory: Category = topos.domain
-
+  lazy val mapping = Cache[Any, Any](true, fromObjectToSubset)
   def apply(x: Any): Any = mapping(x)
   
-  infix def named(name: Any): Point = new Point(name, topos, mapping)
+  infix def named(name: Any): Point = new Point(name, topos, fromObjectToSubset)
 
   // @deprecated("This should be redefined via composition", "03/28/2020")
   def transform(f: DiagramArrow): Point =
@@ -41,12 +42,12 @@ class Point(
 
   def asDiagramme: topos.Diagramme =
     def arrowToFunction(a: topos.thisTopos.domain.Arrow): Any => Any =
-      (z: Any) => mapping(topos.thisTopos.domain.d1(a))
+      (z: Any) => fromObjectToSubset(topos.thisTopos.domain.d1(a))
 
-    def objectsMapping(x: topos.thisTopos.domain.Obj): Sets.set = Set(mapping(x))
+    def objectsMapping(x: topos.thisTopos.domain.Obj): Sets.set = Set(fromObjectToSubset(x))
 
     topos.Diagramme(tag,
-      (x: topos.domain.Obj) => Set(mapping(x)),
+      (x: topos.domain.Obj) => Set(fromObjectToSubset(x)),
       (a: topos.domain.Arrow) =>
         SetFunction(s"$tag(.)",
           objectsMapping(topos.domain.d0(a)),

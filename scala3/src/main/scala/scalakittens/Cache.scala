@@ -2,11 +2,9 @@ package scalakittens
 
 import scala.collection.mutable
 
-class Cache[K,V](isFinite: Boolean) {
+case class Cache[K,V](isFinite: Boolean, build: K => V):
   private val cache: mutable.Map[K, V] = mutable.Map[K, V]()
 
-  def apply(k: K, build: K => V): V =
-    val r = if (isFinite) then cache.getOrElseUpdate(k, build(k))
-    else build(k)
-    r
-}
+  private val app: K => V = if (isFinite) (k: K) => cache.getOrElseUpdate(k, build(k)) else (k: K) => build(k)
+  
+  inline def apply(k: K): V = app(k)

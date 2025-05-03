@@ -20,7 +20,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
   type Objects = Nodes
   val graph: Graph
-  lazy val cache = new Cache[(Node, Node), Arrows](isFinite)
+  lazy val homCache = Cache[(Node, Node), Arrows](isFinite, (from, to) => calculateHom(from, to))
 
   /// TODO: figure out why do we need it
   def d0(f: Arrow): Node = 
@@ -157,7 +157,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
     * @return the set of all arrows from x to y
     */
   def hom(from: Obj, to: Obj): Arrows = 
-    cache((from, to), (from, to) => calculateHom(from, to))
+    homCache((from, to))
 //    if isFinite then
 //      homCache.getOrElseUpdate((from, to), calculateHom(from, to))
 //    else calculateHom(from, to)

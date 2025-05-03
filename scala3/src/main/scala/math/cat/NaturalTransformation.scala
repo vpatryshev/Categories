@@ -3,7 +3,7 @@ package math.cat
 import math.Base.*
 import math.cat.NaturalTransformation.printMapDifference
 import math.sets.Sets.*
-import scalakittens.Result
+import scalakittens.{Cache, Result}
 import scalakittens.Result.{Outcome, *}
 import SetFunction.*
 import scalakittens.Params.*
@@ -35,7 +35,15 @@ abstract class NaturalTransformation(
   lazy val domainCategory:   Category = d0.d0
   lazy val codomainCategory: Category = d1.d1
 
-  def mappingAt(x: d0.d0.Obj): d1.d1.Arrow
+  def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow
+
+  lazy val mappingAt = Cache[d0.d0.Obj, d1.d1.Arrow](domainCategory.isFinite, calculateMappingAt)
+
+  def ap0(x: Any): Any = {
+    val y = mappingAt(x)
+    y
+  }
+
   def apply(x: Any): d1.d1.Arrow = mappingAt(x)
 
   /**
@@ -53,14 +61,19 @@ abstract class NaturalTransformation(
         cannotDo(s"Bad transformation for $x for $fHere and $gThere")
 
     new NaturalTransformation(s"${self.tag} ∘ ${g.tag}", g.d0, self.d1):
-      def mappingAt(x: d0.d0.Obj): d1.d1.Arrow = compositionAt(x)
+      def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = {
+        val arrow = compositionAt(x)
+        if (arrow.toString == "()")
+          println("WTF, it's a bug!")
+        arrow
+      }
   
   end ∘
 
   infix def named(newTag: Any): NaturalTransformation =
     new NaturalTransformation(newTag, self.d0, self.d1):
-      def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-        self.mappingAt(x)
+      def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        self.calculateMappingAt(x)
 
   override def toString: String =
     val s = String.valueOf(tag)
@@ -68,13 +81,8 @@ abstract class NaturalTransformation(
 
 
   def asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
-    if d0.d0.isFinite then buildMap(d0.d0.objects, o => {
-      val y = mappingAt(o)
-      if (y.toString.contains("Some"))
-        val x = mappingAt(o)
-        verbose(s"Wtf, $x")
-      y
-    }) else Map.empty
+    if d0.d0.isFinite then buildMap(d0.d0.objects, o => apply(o)) 
+    else Map.empty
 
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode * 17 | {
     val amhc = asMap.hashCode
@@ -83,7 +91,7 @@ abstract class NaturalTransformation(
 
   def details = s"NT($tag)(${
     if domainCategory.isFinite then
-      domainCategory.listOfObjects.map(o => s"$o->(${mappingAt(o)})").mkString(", ")
+      domainCategory.listOfObjects.map(o => s"$o->(${apply(o)})").mkString(", ")
     else s"${d0.tag}->${d1.tag}"
   })"
   
@@ -95,24 +103,26 @@ abstract class NaturalTransformation(
     other: NaturalTransformation,
     printDetails: Boolean = false,
     context: String = "..."): Boolean =
-    (this eq other) || (
-      hashCode == other.hashCode &&
+    (this eq other) || {
+      val hc = hashCode
+      val otherHC = other.hashCode
+      hc == otherHC &&
       d0 == other.d0 &&
       d1 == other.d1 && {
         val foundBad: Option[Any] = domainCategory.objects find (o =>
-          val first: d1.d1.Arrow = mappingAt(o)
-          val second: other.d1.d1.Arrow = other.mappingAt(o)
+          val first: d1.d1.Arrow = this(o)
+          val second: other.d1.d1.Arrow = other(o)
           val same = first == second
           if !same && printDetails then
-            val first2 = mappingAt(o)
-            val second2 = other.mappingAt(o)
+            val first2 = this(o)
+            val second2 = other(o)
             printMapDifference(asFunction(first), asFunction(second), context)
 //            System.err.println(s"same?: $same")
           !same
         )
 
         foundBad.isEmpty
-    })
+    }}
 
 object NaturalTransformation:
 
@@ -159,7 +169,7 @@ object NaturalTransformation:
     mappings: f.d0.Obj => f.d1.Arrow
   ): Result[NaturalTransformation] =
     validate(f, g)(mappings) returning new NaturalTransformation(tag, f, g):
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         mappings(x)
 
   /**
@@ -171,10 +181,10 @@ object NaturalTransformation:
   def id(f: Functor): NaturalTransformation =
 
     def `id of f(x)`(x: f.d0.Obj): f.d1.Arrow =
-      val `f(x)`: f.d1.Obj = f.objectsMapping(x)
+      val `f(x)`: f.d1.Obj = f.objectMapping(x)
       f.d1.id(`f(x)`)
 
     new NaturalTransformation("Id", f, f):
 
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         `id of f(x)`(x)

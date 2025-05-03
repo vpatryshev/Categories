@@ -50,7 +50,7 @@ trait GrothendieckToposLogic:
   abstract class Predicate(myTag: Any, override val d0: Diagramme) extends DiagramArrow(myTag, d0, Ω):
     p: DiagramArrow =>
 
-    override val d1: Diagram = Ω
+//    override val d1: Diagram = Ω
 
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
@@ -61,11 +61,11 @@ trait GrothendieckToposLogic:
       concat(wrapTag(tag1), op, wrapTag(tag2))
 
     def setAt(o: Any): set =
-      val function: SetFunction = p.mappingAt(o).asInstanceOf[SetFunction] // d1.d1.Arrow = SetFunction, and if we d
+      val function: SetFunction = p(o).asInstanceOf[SetFunction] // d1.d1.Arrow = SetFunction, and if we d
       setOf(function.d0)
 
     private[GrothendieckToposLogic] def transformAt(o: Any): SetFunction =
-      mappingAt(o).asInstanceOf[SetFunction]
+      apply(o).asInstanceOf[SetFunction]
 
     def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
       binaryOpNamed(q, ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)
@@ -80,7 +80,7 @@ trait GrothendieckToposLogic:
       requireCompatibility(q)
 
       new Predicate(newTag, p.d0):
-        def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
+        def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
           Predicates.binopMappingAt(ΩxΩ_to_Ω, p, q, o)
 
     end evalBinaryOp
@@ -126,11 +126,11 @@ trait GrothendieckToposLogic:
     f.d0 match
       case d: topos.Diagramme =>
         new topos.Predicate(f.tag, d):
-          override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.mappingAt(x)
+          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
 
       case d: Diagram =>
         new topos.Predicate(f.tag, d.source.asInstanceOf[topos.Diagramme]):
-          override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow = f(mappingAt(x))
+          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f(apply(x))
 
       case basura => throw new IllegalArgumentException(s"WTF: basura $basura")
 
@@ -146,8 +146,8 @@ trait GrothendieckToposLogic:
 
     new Predicate(pt.tag, _1.source.asInstanceOf[GrothendieckToposLogic.this.Diagramme]):
 
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-        inclusion.mappingAt(x)
+      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        inclusion.calculateMappingAt(x)
 
   /**
     * An arrow from terminal to the point as a diagram
@@ -156,7 +156,7 @@ trait GrothendieckToposLogic:
   def uniqueFromTerminalTo(p: Point): Arrow =
     new DiagramArrow(p.tag, _1, p.asDiagram):
 
-      override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
+      override def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
           val value = p(o)
           new SetFunction(s"tag($o)", _1.source(o), Set(value), _ => value)
 
