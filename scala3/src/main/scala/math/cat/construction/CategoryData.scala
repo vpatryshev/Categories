@@ -5,7 +5,7 @@ import math.cat.construction.*
 import math.cat.construction.CategoryData.*
 import math.cat.{Category, Graph}
 import math.sets.Sets.*
-import scalakittens.{Params, Result}
+import scalakittens.{Cache, Params, Result}
 import scalakittens.Result.*
 
 import java.util.Objects
@@ -19,8 +19,8 @@ import scalakittens.Containers.*
 private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
   type Objects = Nodes
-
   val graph: Graph
+  lazy val cache = new Cache[(Node, Node), Arrows](isFinite)
 
   /// TODO: figure out why do we need it
   def d0(f: Arrow): Node = 
@@ -149,9 +149,6 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   private[cat] def build: Result[Category] =
     factory.map { _.newCategory }
 
-  // TODO: try to start using
-  private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
-
   /**
     * Produces a collection of arrows from x to y.
     *
@@ -159,10 +156,15 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
     * @param to   second object
     * @return the set of all arrows from x to y
     */
-  def hom(from: Obj, to: Obj): Arrows =
-    if isFinite then
-      homCache.getOrElseUpdate((from, to), calculateHom(from, to))
-    else calculateHom(from, to)
+  def hom(from: Obj, to: Obj): Arrows = 
+    cache((from, to), (from, to) => calculateHom(from, to))
+//    if isFinite then
+//      homCache.getOrElseUpdate((from, to), calculateHom(from, to))
+//    else calculateHom(from, to)
+//
+//  // TODO: try to start using
+//  private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
+
 
   private def calculateHom(from: Obj, to: Obj): Arrows =
     setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
@@ -368,7 +370,7 @@ object CategoryData:
             }
         } toMap
 
-      if (newArrows.isEmpty) then data else
+      if newArrows.isEmpty then data else
 
         val newData: Result[PartialData] =
           data.addArrows(newArrows).map(

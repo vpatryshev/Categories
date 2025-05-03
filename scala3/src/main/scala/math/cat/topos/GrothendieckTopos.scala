@@ -65,7 +65,7 @@ trait GrothendieckTopos
     def toposName: String = topos.tag
 
     // this one is consumed by Functor constructor
-    def objectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
+    def calculateObjectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
 
     // for each arrow `a: x -> y` produce a transition `Ω(x) -> Ω(y)`.
     private def am(a: domain.Arrow): SetFunction =
@@ -557,13 +557,13 @@ trait GrothendieckTopos
       new Diagram(thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):
         override val d0: Category = diagramme.d0
         override val d1: Category = diagramme.d1
-        override def objectsMapping(x: this.d0.Obj): this.d1.Obj = diagramme(x)
+        override def calculateObjectsMapping(x: this.d0.Obj): this.d1.Obj = diagramme(x)
         override def arrowsMappingCandidate(a: this.d0.Arrow): d1.Arrow =
           diagramme.arrowsMappingCandidate(a)
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
-    private[topos] def setAt(x: Any): set = itsaset(objectsMapping(x))
+    private[topos] def setAt(x: Any): set = itsaset(calculateObjectsMapping(x))
 
     @targetName("isSubdiagramOf")
     infix inline def ⊂(other: Diagram): Boolean =
@@ -588,7 +588,7 @@ trait GrothendieckTopos
         f(d00) == d01
 
     private lazy val listOfComponents: List[set] =
-      val objs = listOfObjects map objectsMapping
+      val objs = listOfObjects map calculateObjectsMapping
       objs map itsaset
 
     def point(mapping: XObject => Any, id: Any = ""): Point =
@@ -616,7 +616,7 @@ trait GrothendieckTopos
 
     def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
-    infix def apply(x: Any): set = itsaset(objectsMapping(x))
+    infix def apply(x: Any): set = itsaset(calculateObjectsMapping(x))
 
     /**
      * Calculates this diagram's limit
@@ -805,14 +805,14 @@ trait GrothendieckTopos
       })".replace("Set()", "{}")
 
     override def toString: String = toString(x =>
-      s"$x ->{${asString(objectsMapping(x))}}".
+      s"$x ->{${asString(calculateObjectsMapping(x))}}".
         replace(s"Functor ", "").
         replace(s"Diagramme[${d0.name}]", "").
         replace(s"Diagram[${d0.name}]", "")
     )
 
     def toShortString: String = toString(x => {
-      val obRepr = shortTitle(asString(objectsMapping(x)))
+      val obRepr = shortTitle(asString(calculateObjectsMapping(x)))
       if obRepr.isEmpty then "" else s"$x->{$obRepr}"
     }.replace(s"Diagramme[${d0.name}]", "")
     )
@@ -826,7 +826,7 @@ trait GrothendieckTopos
     def filter[O, A](tag: String, predicate: XObject => Any => Boolean): Diagramme =
       debug(s"$tag: filter $predicate")
       def objectMapping(o: domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
-        objectsMapping(o) filter predicate(o)
+        calculateObjectsMapping(o) filter predicate(o)
 
       val arrowToFunction = (a: domain.Arrow) => extendToArrows(objectMapping)(a)
 
@@ -838,7 +838,7 @@ trait GrothendieckTopos
       Diagramme(tag, mappingOfd0Objects, arrowToFunction)
 
     def subobjects: Iterable[Diagramme] =
-      val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(objectsMapping(o)))
+      val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(calculateObjectsMapping(o)))
       val allPowers: Map[XObject, Set[set]] = allSets map {
         case (k, v) => k -> Sets.pow(v)
       } toMap
@@ -881,7 +881,7 @@ trait GrothendieckTopos
 
       new Diagramme(tag.toString):
         override private[topos] def setAt(x: Any): set = objectsMap(x)
-        override def objectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
+        override def calculateObjectsMapping(o: d0.Obj): d1.Obj = objectsMap(o)
         override def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow = arrowMap(a)
 
     def tryBuild(

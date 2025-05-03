@@ -165,10 +165,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     "be good for pullback diagram" in:
       val sut: `Set^Pullback`.Diagramme = SamplePullbackDiagram
-      val sample = sut.d0.objects map (ob => sut.objectsMapping(ob))
+      val sample = sut.d0.objects map (ob => sut.calculateObjectsMapping(ob))
 
       def fullSet(d: `Set^Pullback`.Diagramme): List[String] =
-        d.d0.objects.toList map d.objectsMapping map itsaset map asString
+        d.d0.objects.toList map d.calculateObjectsMapping map itsaset map asString
 
       val listOfSubobjects = sut.subobjects.toList
       val actual =

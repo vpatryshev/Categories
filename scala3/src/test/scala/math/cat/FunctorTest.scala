@@ -244,7 +244,7 @@ class FunctorTest extends Test:
           sut.d1 === Setf
           sut.objectsMapping("a") === a
           sut.objectsMapping("b") === b
-          sut.objectsMapping("c") === c
+          sut.calculateObjectsMapping("c") === c
           sut.arrowsMapping("ac") === ac
         }
       )

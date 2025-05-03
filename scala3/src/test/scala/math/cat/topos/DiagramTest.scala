@@ -28,7 +28,7 @@ class DiagramTest extends Test with TestDiagrams:
       val dom = Pullback
       val testTopos = new CategoryOfDiagrams(dom)
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
-      sut1.objectsMapping("b") === BuildPullbackDiagram.sb
+      sut1.calculateObjectsMapping("b") === BuildPullbackDiagram.sb
 
       val diagram: testTopos.Diagramme =
         testTopos.Diagramme("Test",
@@ -92,7 +92,7 @@ class DiagramTest extends Test with TestDiagrams:
       val sut = const(Set("a", "b"))
           sut.d0 === `𝟙`
           sut.d1 === Setf
-          sut.objectsMapping("0") === Set("a", "b")
+          sut.calculateObjectsMapping("0") === Set("a", "b")
     }
 
     "exist for a point" in {

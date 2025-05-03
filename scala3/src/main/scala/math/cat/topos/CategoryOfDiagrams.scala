@@ -63,7 +63,7 @@ class CategoryOfDiagrams(val domain: Category)
   def pow(d: Diagramme): Diagramme = ??? // power object; tbd
 
   override def id(o: Obj): Arrow =
-    def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.objectsMapping(x))
+    def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.calculateObjectsMapping(x))
 
     new DiagramArrow("Id", o, o):
 
@@ -91,7 +91,7 @@ class CategoryOfDiagrams(val domain: Category)
     }
     
   case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
-    override def objectsMapping(x: d0.Obj): d1.Obj = om(x)
+    override def calculateObjectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def arrowsMappingCandidate(f: d0.Arrow): d1.Arrow = am(f)
  
     // have to validate right here, because a representable must exist, and all checks should be passing
