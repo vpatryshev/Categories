@@ -11,7 +11,6 @@ import scalakittens.Result._
 import scala.language.postfixOps
 
 class Fixtures extends Test with math.cat.topos.TestDiagrams:
-  type SUT = Diagram
 
   def report(what: String, where: String = ""): Unit =
     println(s"  $where:\tchecking $what")

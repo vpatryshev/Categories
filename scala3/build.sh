@@ -12,5 +12,5 @@ sbt compile || { say "oy! bleen... oops... build failed" && exit 1 }
 sbt package || { say "oops... package failed" && exit 1 }
 sbt test
 res=$?
-echo "Tests returned <<$res>>"
-[ -z "$res" ] && say "Marivanna.... ya gotova" || say "oy! bleen... oops... tests failed"
+# echo "Tests returned <<$res>>"
+[[ $res -eq 0 ]] && say "Marivanna.... ya gotova" || say "oy! bleen... oops... tests failed"

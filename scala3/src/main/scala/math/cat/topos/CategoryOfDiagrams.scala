@@ -84,11 +84,6 @@ class CategoryOfDiagrams(val domain: Category)
     buildMap[domain.Obj, Set[Diagramme]](domain.objects,
       x => Representable(x).subobjects.toSet
     )
-
-  private[topos] def subdiagramsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
-    subobjectsOfRepresentables.map {
-      (k, v) => (k, v.map(_.asOldDiagram))
-    }
     
   case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
     override def calculateObjectsMapping(x: d0.Obj): d1.Obj = om(x)

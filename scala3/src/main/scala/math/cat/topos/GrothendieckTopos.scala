@@ -47,8 +47,6 @@ trait GrothendieckTopos
 
   def inclusionOf(p: Point): Includer
 
-  private[topos] def subdiagramsOfRepresentables: Map[domain.Obj, Set[Diagram]]
-
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagramme]]
 
   /**
@@ -105,8 +103,8 @@ trait GrothendieckTopos
 
       val tmpTransformer: Any => Any = x => {
         x match
-          case xD: Diagramme => diaMappe(xD)
-          case xD: Diagram => diaMap(xD)
+          case xD: Diagramme => diaMappe(xD).source
+          case xD: Diagram => diaMap(xD).source
           case _ =>
             throw new IllegalArgumentException(s"Expected a diagramme, got $x of type ${x.getClass}")
       }
