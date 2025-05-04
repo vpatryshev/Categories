@@ -9,8 +9,8 @@ rm -rf target
 rm -rf project/target
 sbt clean 
 sbt compile || { say "oy! bleen... oops... build failed" && exit 1 }
-#exit 42
-sbt test package
+sbt package || { say "oops... package failed" && exit 1 }
+sbt test
 res=$?
-#echo "Tests returned <<$res>>"
+echo "Tests returned <<$res>>"
 [ -z "$res" ] && say "Marivanna.... ya gotova" || say "oy! bleen... oops... tests failed"

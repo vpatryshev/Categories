@@ -45,7 +45,7 @@ class ConjunctionTest extends Fixtures:
       val desc = s"Testing True value over ${domain.name} ($number/$total)"
 
       def diagonalMap_Ω(x: topos.domain.Obj): SetFunction =
-        fun(Ω(x), ΩxΩ(x))(s"Δ[$x]", subrep => (subrep, subrep))
+        fun(Ω(x), diagramme(ΩxΩ)(x))(s"Δ[$x]", subrep => (subrep, subrep))
 
       val conjunction = Ω.conjunction
 

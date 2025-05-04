@@ -56,7 +56,7 @@ class RegressionTest extends Fixtures:
       val v0: p_q_true.d1.d1.Arrow = binopMappingAt(implication, p_and_q, True, "0")
       val PQtoΩxΩ: SetFunction = tuplingAt(p_and_q, True, "0")
       val pairAtEmpty = PQtoΩxΩ.mapping(Set())
-      val omega2_0 = ΩxΩ("0")
+      val omega2_0 = `Set^𝟙`.diagramme(ΩxΩ)("0")
       (omega2_0 contains pairAtEmpty) === true
       val omega1_0 = Ω1("0")
       (omega1_0 contains pairAtEmpty) === true

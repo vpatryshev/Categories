@@ -26,7 +26,7 @@ class CategoryOfDiagrams(val domain: Category)
 
     def objectMapping(candidate: Set[domain.Obj]): ObjectMapping =
       (obj: thisTopos.domain.Obj) =>
-        if candidate contains obj then _1(obj) else `∅`
+        if candidate contains obj then diagramme(_1)(obj) else `∅`
 
     def arrowMapping(candidate: Set[domain.Obj], omc: ObjectMapping): ArrowMapping =
       (a: thisTopos.domain.Arrow) =>

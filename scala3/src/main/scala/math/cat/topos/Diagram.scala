@@ -14,8 +14,6 @@ abstract class Diagram(
   val t: GrothendieckTopos)(val source: t.Diagramme)
   extends Functor(source.tag, source.d0, source.d1):
 
-  def asFunction(a: d1.Arrow): SetFunction = source.asFunction(a)
-
   given Conversion[d1.Arrow, SetFunction] = source.asFunction
 
-  infix def apply(x: Any): set = source(x)
+//  infix def apply(x: Any): set = source(x)

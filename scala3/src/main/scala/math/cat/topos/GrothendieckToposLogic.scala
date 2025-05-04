@@ -28,7 +28,7 @@ trait GrothendieckToposLogic:
       val qo: SetFunction = right.transformAt(o)
       new SetFunction(
         s"PQ->ΩxΩ($o)",
-        dom, ΩxΩ(o),
+        dom, diagramme(ΩxΩ)(o),
         v => (po(v), qo(v))
       )
 
@@ -165,8 +165,10 @@ trait GrothendieckToposLogic:
   lazy val _0: Obj = initialT iHope
 
   lazy val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal", Sets.`{∅}`)
-  
+
   lazy val _1: Obj = terminalT iHope
 
   private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Diagram =
     topos.const(name, value)
+
+  def diagramme(obj: Obj): Diagramme = obj.source.asInstanceOf[Diagramme]

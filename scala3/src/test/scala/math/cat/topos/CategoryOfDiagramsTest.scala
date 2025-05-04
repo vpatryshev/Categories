@@ -19,7 +19,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     for
       x <- topos.domain.objects
     do
-      val setAtx: Set[?] = obj(x)
+      val setAtx: Set[?] = topos.diagramme(obj)(x)
       setAtx.size === expected
 
   case class check(f: String => Any)(data: List[String], fullList: List[String]):
@@ -207,13 +207,13 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val d1 = SampleParallelPairDiagram1
       val d2 = SampleParallelPairDiagram2
 
-      val actual = topos.product2(d1, d2)
+      val actual: `Set^ParallelPair`.Diagramme = `Set^ParallelPair`.product2(d1, d2)
       actual("0").size === 15
       actual("1") === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
 
     "exist in Set to M" in:
       val topos = `Set^M`
-      val actual = topos.product2(SampleMDiagram, SampleMDiagram)
+      val actual = topos.diagramme(topos.product2(SampleMDiagram, SampleMDiagram))
       for
         x <- topos.domain.objects
       do
