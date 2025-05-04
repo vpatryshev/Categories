@@ -45,7 +45,6 @@ trait GrothendieckTopos
     case d: Diagramme => d.asOldDiagram
     case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
 
-
   def inclusionOf(p: Point): Includer
 
   private[topos] def subdiagramsOfRepresentables: Map[domain.Obj, Set[Diagram]]
@@ -277,7 +276,7 @@ trait GrothendieckTopos
   end Ωlike
 
 
-  val ΩxΩ: Obj = product2(Ω, Ω)
+  val ΩxΩ: Diagram = product2(Ω, Ω)
 
   private lazy val firstProjectionOf_ΩxΩ =
     buildArrow("π1", ΩxΩ, Ω, firstProjection)
@@ -285,13 +284,13 @@ trait GrothendieckTopos
   /**
     * An equalizer of first projection and intersection, actually
     */
-  lazy val Ω1: Diagram = ΩxΩ.source.filter("<", _ => {
+  lazy val Ω1: Diagramme = ΩxΩ.source.filter("<", _ => {
     case (a: Diagram, b: Diagram) => a.source ⊂ b.source
     case (a: Diagram, b: Diagramme) => a.source ⊂ b
     case (a: Diagramme, b: Diagram) => a ⊂ b.source
     case (a: Diagramme, b: Diagramme) => a ⊂ b
     case somethingElse => false
-  }) asOldDiagram
+  }).asInstanceOf[Diagramme]
 
   /**
     * Diagonal for Ω
@@ -380,28 +379,31 @@ trait GrothendieckTopos
     χ(inclusion, s"χ(${inclusion.tag})")
 
   trait Includer:
-    val subdiagram: Diagram
+    val subdiagram: Diagramme
 
     infix def in(diagram: Diagram): Result[DiagramArrow] =
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
         for
           x <- domain.objects
-          incl: Result[SetFunction] = inclusion(subdiagram.source(x), diagram.source(x))
+          incl: Result[SetFunction] = inclusion(subdiagram(x), diagram.source(x))
           pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map { x -> _ }
         yield pair
 
       val name = concat(subdiagram.tag, "⊂", diagram.tag)
       for
         map <- Result traverse results
-        arrow <- NaturalTransformation.build(name, subdiagram, diagram)(map.toMap)
+        arrow <- NaturalTransformation.build(name, subdiagram, diagram.source)(map.toMap)
       yield arrow
 
     end in
   end Includer
 
   def inclusionOf(diagram: Diagram): Includer =
+    inclusionOf(diagram.source.asInstanceOf[Diagramme]) // because it doesn't know the topos is the same
+
+  def inclusionOf(diagram: Diagramme): Includer =
     new Includer:
-      val subdiagram: Diagram = diagram
+      val subdiagram: Diagramme = diagram
 
   /**
     * Builds a `DiagramArrow`, given domain, codomain, and a mapping

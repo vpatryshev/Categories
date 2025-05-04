@@ -16,6 +16,6 @@ abstract class Diagram(
 
   def asFunction(a: d1.Arrow): SetFunction = source.asFunction(a)
 
-  given Conversion[d1.Arrow, SetFunction] = asFunction
+  given Conversion[d1.Arrow, SetFunction] = source.asFunction
 
   infix def apply(x: Any): set = source(x)

@@ -117,7 +117,7 @@ class CategoryOfDiagrams(val domain: Category)
   
   end Representable
 
-  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram)
+  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagramme)
 
 object CategoryOfDiagrams:
   type DiagramArrow = NaturalTransformation
