@@ -32,7 +32,7 @@ class CategoryOfDiagrams(val domain: Category)
       (a: thisTopos.domain.Arrow) =>
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
-        val function = _1.arrowsMapping(a)
+        val function = _1.source.asFunction(_1.arrowsMapping(a))
         function restrictTo(d0, d1) iHope
 
     def mapping(candidate: Set[domain.Obj]): DiagramMapping =
@@ -84,7 +84,7 @@ class CategoryOfDiagrams(val domain: Category)
     buildMap[domain.Obj, Set[Diagramme]](domain.objects,
       x => Representable(x).subobjects.toSet
     )
-    
+
   case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
     override def calculateObjectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def calculateArrowsMapping(f: d0.Arrow): d1.Arrow = am(f)

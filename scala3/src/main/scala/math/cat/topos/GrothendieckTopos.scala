@@ -274,7 +274,7 @@ trait GrothendieckTopos
   end Ωlike
 
 
-  val ΩxΩ: Diagram = product2(Ω, Ω)
+  val ΩxΩ: Obj = product2(Ω, Ω).asOldDiagram
 
   private lazy val firstProjectionOf_ΩxΩ =
     buildArrow("π1", ΩxΩ, Ω, firstProjection)
@@ -391,6 +391,24 @@ trait GrothendieckTopos
       for
         map <- Result traverse results
         arrow <- NaturalTransformation.build(name, subdiagram, diagram.source)(map.toMap)
+      yield arrow
+
+    end in
+
+    infix def in(diagram: Diagramme): Result[DiagramArrow] =
+      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
+        for
+          x <- domain.objects
+          incl: Result[SetFunction] = inclusion(subdiagram(x), diagram(x))
+          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map {
+            x -> _
+          }
+        yield pair
+
+      val name = concat(subdiagram.tag, "⊂", diagram.tag)
+      for
+        map <- Result traverse results
+        arrow <- NaturalTransformation.build(name, subdiagram, diagram)(map.toMap)
       yield arrow
 
     end in
@@ -517,7 +535,7 @@ trait GrothendieckTopos
     private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
 
     def transition(z: Diagram)(a: domain.Arrow)(pz: Any) =
-      z.arrowsMapping(a)(pz)
+      z.source.asFunction(z.arrowsMapping(a))(pz)
 
     private def mappingOfArrows(a: domain.Arrow): SetFunction =
       val from = productAt(domain.d0(a))
@@ -537,7 +555,7 @@ trait GrothendieckTopos
     * Cartesian product of two diagrams
     * TODO: figure out how to ensure the same d0 in both Di
     */
-  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
+  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x.source, y.source).diagram
   def product2(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
   def product2Diagramme(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
 
