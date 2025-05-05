@@ -175,15 +175,15 @@ trait GrothendieckTopos
 
     lazy val conjunction: DiagramArrow =
 
-      def conjunctionOfTwoSubreps(pair: Any): Diagram = pair match
+      def conjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
         case (a: Diagram, b: Diagram) =>
-          intersectionOld(a, b)
+          intersection(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
         case (a: Diagram, b: Diagramme) =>
-          intersectionOld(a, b.asOldDiagram)
+          intersection(a.source.asInstanceOf[Diagramme], b)
         case (a: Diagramme, b: Diagram) =>  
-          intersectionOld(a.asOldDiagram, b)
+          intersection(a, b.source.asInstanceOf[Diagramme])
         case (a: Diagramme, b: Diagramme) =>
-          intersection(a,b).asOldDiagram
+          intersection(a,b)
         case bs =>
           throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
 
@@ -300,7 +300,7 @@ trait GrothendieckTopos
   private[topos] case class χAt(inclusion: Arrow, x: domain.Obj):
     val A = inclusion.d1.source
     val B = inclusion.d0.source
-
+    val Ωatx = Ω(x)
     // for each element ax of set Ax find all arrows x->y
     // that map ax to an ay that belongs to By
     def myArrows(ax: Any): Set[(Any, set)] =
@@ -327,7 +327,7 @@ trait GrothendieckTopos
     def myRepresentable(ax: Any): Any =
       val arrowsSet = myArrows(ax)
       val arrows = arrowsSet.toMap
-      val choices = Ω(x) find {
+      val choices = Ωatx find {
         _ match
           case d: Diagram =>
             sameMapping(d, arrows)

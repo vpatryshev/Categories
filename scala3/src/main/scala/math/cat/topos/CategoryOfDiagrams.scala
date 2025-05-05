@@ -32,7 +32,8 @@ class CategoryOfDiagrams(val domain: Category)
       (a: thisTopos.domain.Arrow) =>
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
-        val function = _1.source.asFunction(_1.arrowsMapping(a))
+        val arrow = _1.arrowsMapping(a)
+        val function = _1.source.asFunction(arrow)
         function restrictTo(d0, d1) iHope
 
     def mapping(candidate: Set[domain.Obj]): DiagramMapping =

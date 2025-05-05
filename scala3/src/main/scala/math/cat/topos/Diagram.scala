@@ -13,5 +13,3 @@ import scala.language.{implicitConversions, postfixOps}
 abstract class Diagram(
   val t: GrothendieckTopos)(val source: t.Diagramme)
   extends Functor(source.tag, source.d0, source.d1)
-
-//  given Conversion[d1.Arrow, SetFunction] = source.asFunction

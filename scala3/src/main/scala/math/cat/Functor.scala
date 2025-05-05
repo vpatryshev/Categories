@@ -30,7 +30,13 @@ abstract class Functor(
   lazy val listOfObjects: List[d0.Obj] = d0.listOfObjects
 
   lazy val objectMapping = Cache[d0.Obj, d1.Obj](domainObjects.isFinite, calculateObjectsMapping)
-  lazy val arrowMapping = Cache[d0.Arrow, d1.Arrow](domainObjects.isFinite, calculateArrowsMapping)
+  lazy val arrowMapping = Cache[d0.Arrow, d1.Arrow](domainObjects.isFinite, calculateMappingForArrow)
+
+  private def calculateMappingForArrow(a: d0.Arrow): d1.Arrow =
+    val domainX: d0.Obj = d0.d0(a)
+    if d0.isIdentity(a)
+    then d1.id(objectMapping(domainX))
+    else calculateArrowsMapping(a)
 
   /**
     * How the functor maps objects
@@ -59,10 +65,7 @@ abstract class Functor(
     * @returns another arrow
     */
   override def arrowsMapping(a: d0.Arrow): d1.Arrow =
-    val domainX: d0.Obj = d0.d0(a)
-    if d0.isIdentity(a)
-    then d1.id(objectMapping(domainX))
-    else arrowMapping(a)
+    arrowMapping(a)
 
   /**
     * Composes two functors
