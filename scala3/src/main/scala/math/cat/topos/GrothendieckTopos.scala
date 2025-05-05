@@ -87,24 +87,9 @@ trait GrothendieckTopos
 
         Diagramme("", om1, am1).asOldDiagram // no validation, we know it's ok
 
-      def diaMap(rx: Diagram): Diagram /*a subrepresentable on `x`*/ =
-        // this is how elements of objects projections, that is, subterminals, are transformed by `a`
-        def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
-
-        // this is how, given an arrow `b`, the new diagram gets from one point to another
-        def am1(b: domain.Arrow): SetFunction =
-          val x1 = om1(domain.d0(b))
-          val y1 = om1(domain.d1(b))
-
-          // A function from x1 to y1 - it does the transition
-          new SetFunction("", x1, y1, g => domain.m(g, b).get)
-
-        Diagramme("", om1, am1).asOldDiagram // no validation, we know it's ok
-
       val tmpTransformer: Any => Any = x => {
         x match
           case xD: Diagramme => diaMappe(xD).source
-          case xD: Diagram => diaMap(xD).source
           case _ =>
             throw new IllegalArgumentException(s"Expected a diagramme, got $x of type ${x.getClass}")
       }
