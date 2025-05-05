@@ -73,7 +73,7 @@ trait GrothendieckTopos
 
       // How one diagram is transformed via `a`:
       // For each `rx ⊂ Repr(x)` we have to produce a diagram `ry ⊂ Repr(y)`
-      def diaMappe(rx: Diagramme): Diagram /*a subrepresentable on `x`*/ =
+      def diaMap(rx: Diagramme): Diagramme /*a subrepresentable on `x`*/ =
         // this is how elements of objects projections, that is, subterminals, are transformed by `a`
         def om1(o: domain.Obj): set = transformingOfSubrepresentables(a, rx)(o)
 
@@ -85,16 +85,10 @@ trait GrothendieckTopos
           // A function fom x1 to y1 - it does the transition
           new SetFunction("", x1, y1, g => domain.m(g, b).get)
 
-        Diagramme("", om1, am1).asOldDiagram // no validation, we know it's ok
+        Diagramme("", om1, am1) // no validation, we know it's ok
 
-      val tmpTransformer: Any => Any = x => {
-        x match
-          case xD: Diagramme => diaMappe(xD).source
-          case _ =>
-            throw new IllegalArgumentException(s"Expected a diagramme, got $x of type ${x.getClass}")
-      }
       // no validation here, the function is known to be ok
-      new SetFunction(s"[$a]", d0.untyped, d1.untyped, tmpTransformer)
+      new SetFunction(s"[$a]", d0.untyped, d1.untyped, x => diaMap(x.asInstanceOf[Diagramme]))
 
     protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow = am(a)
 
@@ -116,15 +110,6 @@ trait GrothendieckTopos
         if candidate ∈ rx_at_x1
       yield f
 
-    private def transformingOfSubrepresentables(a: domain.Arrow, rx: Diagram)(x1: domain.Obj): set =
-      val y = domain.d1(a)
-      val rx_at_x1 = rx.source(x1)
-      for
-        f <- domain.hom(y, x1)
-        candidate <- domain.m(a, f)
-        if candidate ∈ rx_at_x1
-      yield f
-
     Functor.validateFunctor(this) iHope
 
     // TODO: redefine as classifying an empty
@@ -139,9 +124,6 @@ trait GrothendieckTopos
       * @param b second subrepresentable
       * @return their intersection
       */
-    private[topos] def intersectionOld(a: Diagram, b: Diagram): Diagram =
-      intersection(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
-
     private[topos] def intersection(a: Diagramme, b: Diagramme): Diagramme =
       val om = (o: domain.Obj) => a.source(o) & b.source(o)
 
@@ -152,11 +134,7 @@ trait GrothendieckTopos
 
         a.arrowsMapping(f).restrictTo(x, y).iHope
 
-      Diagramme(
-        concat(a.tag, "∩", b.tag),
-        o => om(o),
-        f => am(f)
-      )
+      Diagramme(concat(a.tag, "∩", b.tag), om, am)
 
     lazy val conjunction: DiagramArrow =
 
@@ -229,10 +207,10 @@ trait GrothendieckTopos
           union(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
 
         def disjunctionOfTwoSubrepsOld(pair: Any): Diagram = pair match
-          case (a: Diagram, b: Diagram) => unionOld(a,b)
-          case (a: Diagram, b: Diagramme) => unionOld(a,b.asOldDiagram)
-          case (a: Diagramme, b: Diagram) => unionOld(a.asOldDiagram,b)
-          case (a: Diagramme, b: Diagramme) => unionOld(a,b)
+          case (a: Diagram, b: Diagram) => union(a.source.asInstanceOf[Diagramme],b.source.asInstanceOf[Diagramme])
+          case (a: Diagram, b: Diagramme) => union(a.source.asInstanceOf[Diagramme],b)
+          case (a: Diagramme, b: Diagram) => union(a,b.source.asInstanceOf[Diagramme])
+          case (a: Diagramme, b: Diagramme) => union(a,b)
           case other =>
             throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
 
