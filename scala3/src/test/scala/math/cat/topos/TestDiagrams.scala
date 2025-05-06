@@ -70,7 +70,7 @@ trait TestDiagrams extends Test:
       Map("a" -> f, "b" -> g)
     )
   
-  val SampleParallelPairSubdiagram1: Diagram =
+  val SampleParallelPairSubdiagram1: `Set^ParallelPair`.Diagramme =
     val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1, 2)
     val f = fun(a,b)("f", x => Math.min(2, x.toInt))

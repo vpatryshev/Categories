@@ -63,10 +63,11 @@ class GrothendieckToposTest extends Fixtures:
 
     "be good for ParallelPair" in:
       val topos = `Set^ParallelPair`
-      import topos._
+//      import topos._
       val omega = topos.Ω
 
-      val i1: topos.Arrow = inclusionOf(SampleParallelPairSubdiagram1) in SampleParallelPairDiagram1.asOldDiagram iHope
+      val inc: `Set^ParallelPair`.Includer = `Set^ParallelPair`.inclusionOf(SampleParallelPairSubdiagram1)
+      val i1: `Set^ParallelPair`.Arrow = inc in SampleParallelPairDiagram1 iHope
       val χ1: DiagramArrow = topos.χ(i1)
       val χ10: SetFunction = asFunction(χ1("0"))
       val sample1: χ1.d1.d1.Arrow = χ1("0")

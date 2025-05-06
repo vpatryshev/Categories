@@ -203,21 +203,13 @@ trait GrothendieckTopos
 
         end union
 
-        def unionOld(a: Diagram, b: Diagram): Diagram = 
-          union(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
-
-        def disjunctionOfTwoSubrepsOld(pair: Any): Diagram = pair match
-          case (a: Diagram, b: Diagram) => union(a.source.asInstanceOf[Diagramme],b.source.asInstanceOf[Diagramme])
-          case (a: Diagram, b: Diagramme) => union(a.source.asInstanceOf[Diagramme],b)
-          case (a: Diagramme, b: Diagram) => union(a,b.source.asInstanceOf[Diagramme])
-          case (a: Diagramme, b: Diagramme) => union(a,b)
-          case other =>
-            throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
-
         def disjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
-          case (a: Diagram, b: Diagram) => union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
-          case (a: Diagram, b: Diagramme) => union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b)
-          case (a: Diagramme, b: Diagram) => union(a,b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
+          case (a: Diagram, b: Diagram) =>
+            union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
+          case (a: Diagram, b: Diagramme) =>
+            union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b)
+          case (a: Diagramme, b: Diagram) =>
+            union(a,b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
           case (a: Diagramme, b: Diagramme) => union(a, b)
           case other =>
             throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
@@ -377,7 +369,7 @@ trait GrothendieckTopos
     end in
   end Includer
 
-  def inclusionOf(diagram: Diagram): Includer =
+  def inclusionOfOld(diagram: Diagram): Includer =
     inclusionOf(diagram.source.asInstanceOf[Diagramme]) // because it doesn't know the topos is the same
 
   def inclusionOf(diagram: Diagramme): Includer =
@@ -534,6 +526,8 @@ trait GrothendieckTopos
     private type XObjects = Set[XObject]
     private type XArrow = d0.Arrow // topos.domain.Arrow ???
     private type XArrows = Set[XArrow]
+
+    def source: Diagramme = this
 
     def asOldDiagram: Diagram =
       new Diagram(thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):

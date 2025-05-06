@@ -14,17 +14,7 @@ class TopologyTest extends Fixtures:
     val subs: List[topos.Diagramme] = Ω.subobjects.toList
 
     val inclusionsToΩ =
-      subs map { sub =>
-        try {
-          val supbold = sub.asOldDiagram
-          val incl = topos.inclusionOf(supbold) in Ω.asOldDiagram
-          incl
-        } catch {
-          case e: Exception =>
-            println(s"Failed on $sub")
-            e.printStackTrace()
-            Oops(e)
-        }
+      subs map { sub => inclusionOf(sub) in Ω
       } collect { case Good(incl) => incl }
 
     val predicates = inclusionsToΩ map topos.predicateForArrowToΩ
