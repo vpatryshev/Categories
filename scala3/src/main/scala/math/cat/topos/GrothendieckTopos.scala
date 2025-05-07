@@ -232,7 +232,7 @@ trait GrothendieckTopos
   val ΩxΩ: Obj = product2Diagramme(Ω, Ω).asOldDiagram
 
   private lazy val firstProjectionOf_ΩxΩ =
-    buildArrow("π1", ΩxΩ, Ω.asOldDiagram, firstProjection)
+    buildArrow("π1", ΩxΩ, Ω, firstProjection)
 
   /**
     * An equalizer of first projection and intersection, actually
@@ -248,7 +248,7 @@ trait GrothendieckTopos
   /**
     * Diagonal for Ω
     */
-  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω.asOldDiagram, ΩxΩ,
+  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
     _ => (subrep: Any) => (subrep, subrep)
   )
 
@@ -381,8 +381,20 @@ trait GrothendieckTopos
     * @param mapping maps objects to functions
     * @return a natural transformation (crashes if not)
     */
-  def buildArrow(tag: Any, from: Diagram, to: Diagram,
-    mapping: Mapping): DiagramArrow =
+  def buildArrow(tag: Any, from: Diagramme, to: Diagramme,
+    mapping: Mapping): DiagramArrow = buildOldArrow(tag, from.asOldDiagram, to.asOldDiagram, mapping)
+
+  /**
+   * Builds a `DiagramArrow`, given domain, codomain, and a mapping
+   *
+   * @param tag     arrow tag
+   * @param from    domain
+   * @param to      codomain
+   * @param mapping maps objects to functions
+   * @return a natural transformation (crashes if not)
+   */
+  def buildOldArrow(tag: Any, from: Diagram, to: Diagram,
+                    mapping: Mapping): DiagramArrow =
     NaturalTransformation.build(tag, from, to)(
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
 
@@ -476,18 +488,18 @@ trait GrothendieckTopos
 
     buildArrow(
       concat(f.tag, "×", g.tag),
-      productOfDomains.asOldDiagram,
-      productOfCodomains.asOldDiagram,
+      productOfDomains,
+      productOfCodomains,
       mapping)
   end productOfArrows
 
-  private[topos] case class product2builder(x: Diagram, y: Diagram):
+  private[topos] case class product2builder(x: Diagramme, y: Diagramme):
 
-    private def productAt(o: domain.Obj) = Sets.product2(x.source(o), y.source(o))
+    private def productAt(o: domain.Obj) = Sets.product2(x(o), y(o))
     private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
 
-    def transition(z: Diagram)(a: domain.Arrow)(pz: Any) =
-      z.source.asFunction(z.arrowsMapping(a))(pz)
+    def transition(z: Diagramme)(a: domain.Arrow)(pz: Any) =
+      z.asFunction(z.arrowsMapping(a))(pz)
 
     private def mappingOfArrows(a: domain.Arrow): SetFunction =
       val from = productAt(domain.d0(a))
@@ -507,7 +519,7 @@ trait GrothendieckTopos
     * Cartesian product of two diagrams
     * TODO: figure out how to ensure the same d0 in both Di
     */
-  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram.asOldDiagram
+  def product2(x: Diagram, y: Diagram): Diagram = ??? // will have to rename the one below, when ready
   def product2Diagramme(x: Diagramme, y: Diagramme): Diagramme = product2builder(x.asOldDiagram, y.asOldDiagram).diagram
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =

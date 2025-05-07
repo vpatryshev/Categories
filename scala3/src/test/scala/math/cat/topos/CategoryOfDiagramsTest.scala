@@ -245,16 +245,16 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       )
 
       val f: DiagramArrow = topos.buildArrow("f",
-        d01.asOldDiagram, d11.asOldDiagram,
+        d01, d11,
         x => i => "a" + i)
 
       val g: DiagramArrow = topos.buildArrow("g",
-        d02.asOldDiagram, d12.asOldDiagram,
+        d02, d12,
         x => i => "b" + i)
 
       val expected = topos.buildArrow("f×g",
-        topos.product2Diagramme(d01, d02).asOldDiagram,
-        topos.product2Diagramme(d11, d12).asOldDiagram,
+        topos.product2Diagramme(d01, d02),
+        topos.product2Diagramme(d11, d12),
         x =>
           case (i, j) => ("a" + i, "b" + j)
       )
@@ -311,16 +311,16 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       )
 
       val f: DiagramArrow = topos.buildArrow("f",
-        d01.asOldDiagram, d11.asOldDiagram,
+        d01, d11,
         x => i => "a" + i)
 
       val g: DiagramArrow = topos.buildArrow("g",
-        d02.asOldDiagram, d12.asOldDiagram,
+        d02, d12,
         x => i => "b" + i)
 
       val expected = topos.buildArrow("f×g",
-        topos.product2(d01.asOldDiagram, d02.asOldDiagram),
-        topos.product2(d11.asOldDiagram, d12.asOldDiagram),
+        topos.product2Diagramme(d01, d02),
+        topos.product2Diagramme(d11, d12),
         x =>
           case (i, j) => ("a" + i, "b" + j)
       )
