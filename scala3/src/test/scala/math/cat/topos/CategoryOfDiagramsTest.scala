@@ -4,7 +4,9 @@ import math.Base.*
 import math.Test
 import math.cat.Categories.*
 import math.cat.SetFunction
-import math.sets.Sets._
+import math.cat.topos.CategoryOfDiagrams.DiagramArrow
+import math.cat.topos.Constructor.build
+import math.sets.Sets.*
 import scalakittens.Good
 
 import scala.annotation.targetName
@@ -104,7 +106,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     "exist in Set to W" in:
       val topos = `Set^W`
-      val d = SampleWDiagram
+      val d = SampleWDiagram.asOldDiagram
       val identity_transformation = topos.id(d)
       identity_transformation.d0 === d
       identity_transformation.d1 === d
@@ -113,7 +115,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     "exist in Set to M" in:
       // todo: test composition
       val topos = `Set^M`
-      val d = SampleMDiagram
+      val d = SampleMDiagram.asOldDiagram
       val idtrans = topos.id(d)
       idtrans.d0 === d
       idtrans.d1 === d
@@ -161,7 +163,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val actual = sut.subobjects
       actual.size === 1
       actual.head === sut
-      actual.forall(_ ⊂ sut)
+      actual.forall(_ ⊂ sut.asOldDiagram)
 
     "be good for pullback diagram" in:
       val sut: `Set^Pullback`.Diagramme = SamplePullbackDiagram
@@ -187,7 +189,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       actual.last === sut
 
-      actual.forall(_ ⊂ sut)
+      actual.forall(_ ⊂ sut.asOldDiagram)
 
     "exist for representables in `Set to 𝟚`" in:
       val topos = `Set^𝟚`
@@ -204,18 +206,19 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   "Cartesian product" should:
     "exist in Set to ParallelPair" in:
       val topos = `Set^ParallelPair`
-      val d1 = SampleParallelPairDiagram1
-      val d2 = SampleParallelPairDiagram2
+      val d1: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram1
+      val d2: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram2
 
-      val actual: `Set^ParallelPair`.Diagramme = `Set^ParallelPair`.product2(d1, d2)
+      val actual: `Set^ParallelPair`.Diagramme = `Set^ParallelPair`.product2Diagramme(d1, d2)
       actual("0").size === 15
-      actual("1") === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
+      val value1: set = actual("1")
+      value1 === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
 
     "exist in Set to M" in:
       val topos = `Set^M`
-      val actual = topos.diagramme(topos.product2(SampleMDiagram, SampleMDiagram))
+      val actual = topos.product2Diagramme(SampleMDiagram, SampleMDiagram)
       for
-        x <- topos.domain.objects
+        x: topos.domain.Node <- topos.domain.objects
       do
         actual(x).size === SampleMDiagram(x).size * SampleMDiagram(x).size
 
@@ -224,39 +227,39 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   "Cartesian product of arrows" should:
     "exist in Set to 𝟙" in:
       val topos = `Set^𝟙`
-      val d01 = build(s"d01", topos)(
+      val d01: topos.Diagramme = build(s"d01", topos)(
         Map[String, set]("0" -> Set(11, 12)),
         Map[String, SetFunction]()
       )
-      val d02 = build(s"d02", topos)(
+      val d02: topos.Diagramme = build(s"d02", topos)(
         Map[String, set]("0" -> Set(21, 22)),
         Map[String, SetFunction]()
       )
-      val d11 = build(s"d11", topos)(
+      val d11: topos.Diagramme = build(s"d11", topos)(
         Map[String, set]("0" -> Set("a11", "a12")),
         Map[String, SetFunction]()
       )
-      val d12 = build(s"d12", topos)(
+      val d12: topos.Diagramme = build(s"d12", topos)(
         Map[String, set]("0" -> Set("b21", "b22")),
         Map[String, SetFunction]()
       )
 
-      val f = topos.buildArrow("f",
-        d01, d11,
+      val f: DiagramArrow = topos.buildArrow("f",
+        d01.asOldDiagram, d11.asOldDiagram,
         x => i => "a" + i)
 
-      val g = topos.buildArrow("g",
-        d02, d12,
+      val g: DiagramArrow = topos.buildArrow("g",
+        d02.asOldDiagram, d12.asOldDiagram,
         x => i => "b" + i)
 
       val expected = topos.buildArrow("f×g",
-        topos.product2(d01, d02),
-        topos.product2(d11, d12),
+        topos.product2Diagramme(d01, d02).asOldDiagram,
+        topos.product2Diagramme(d11, d12).asOldDiagram,
         x =>
           case (i, j) => ("a" + i, "b" + j)
       )
 
-      val actual = topos.productOfArrows(f, g)
+      val actual: DiagramArrow = topos.productOfArrows(f, g)
 
       actual === expected
 
@@ -307,17 +310,17 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         )
       )
 
-      val f = topos.buildArrow("f",
-        d01, d11,
+      val f: DiagramArrow = topos.buildArrow("f",
+        d01.asOldDiagram, d11.asOldDiagram,
         x => i => "a" + i)
 
-      val g = topos.buildArrow("g",
-        d02, d12,
+      val g: DiagramArrow = topos.buildArrow("g",
+        d02.asOldDiagram, d12.asOldDiagram,
         x => i => "b" + i)
 
       val expected = topos.buildArrow("f×g",
-        topos.product2(d01, d02),
-        topos.product2(d11, d12),
+        topos.product2(d01.asOldDiagram, d02.asOldDiagram),
+        topos.product2(d11.asOldDiagram, d12.asOldDiagram),
         x =>
           case (i, j) => ("a" + i, "b" + j)
       )

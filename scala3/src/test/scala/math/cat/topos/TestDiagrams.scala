@@ -10,7 +10,8 @@ import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
 import SetFunction._
 
-trait TestDiagrams extends Test:
+trait TestDiagrams:
+  import Constructor.*
   val toposes: mutable.Map[String, CategoryOfDiagrams] = mutable.Map[String, CategoryOfDiagrams]()
 
   private def toposOver(domain: Category): CategoryOfDiagrams =
@@ -22,7 +23,7 @@ trait TestDiagrams extends Test:
   val `Set^𝟛`:            CategoryOfDiagrams = toposOver(`𝟛`)
   val `Set^𝟜`:            CategoryOfDiagrams = toposOver(`𝟜`)
   val `Set^𝟝`:            CategoryOfDiagrams = toposOver(`𝟝`)
-  val `Set^𝟙+𝟙`:            CategoryOfDiagrams = toposOver(`𝟙+𝟙`)
+  val `Set^𝟙+𝟙`:           CategoryOfDiagrams = toposOver(`𝟙+𝟙`)
   val `Set^M`:            CategoryOfDiagrams = toposOver(M)
   val `Set^W`:            CategoryOfDiagrams = toposOver(W)
   val `Set^Z2`:           CategoryOfDiagrams = toposOver(Z2)
@@ -33,13 +34,6 @@ trait TestDiagrams extends Test:
   val `Set^ParallelPair`: CategoryOfDiagrams = toposOver(ParallelPair)
   val `Set^Simplicial`:   CategoryOfDiagrams = toposOver(Simplicial3)
   val `Set^Square`:       CategoryOfDiagrams = toposOver(Square)
-  
-  def build(name: String, topos: GrothendieckTopos)(
-    objectsMap: String => set,
-    arrowMap: String => SetFunction): topos.Diagramme =
-    def om(o: topos.domain.Obj): set = objectsMap(o.toString)
-    def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
-    topos.Diagramme(name, om, am)
 
   implicit def translateObjectMapping(f: Functor)(om: String => set): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => om(f.toString)
@@ -70,28 +64,11 @@ trait TestDiagrams extends Test:
       Map("a" -> f, "b" -> g)
     )
   
-  val SampleParallelPairSubdiagram1: `Set^ParallelPair`.Diagramme =
-    val a: set = Set(1, 2, 3)
-    val b: set = Set(0, 1, 2)
-    val f = fun(a,b)("f", x => Math.min(2, x.toInt))
-    val g = fun(a,b)("g", x => x.toInt % 3)
-    build(
-      "ParallelPair Sample1", `Set^ParallelPair`)(
-      Map("0" -> a, "1" -> b),
-      Map("a" -> f, "b" -> g)
-    )
-  
+  val SampleParallelPairSubdiagram1: `Set^ParallelPair`.Diagramme = buildPPdiagram(`Set^ParallelPair`)
+
   val SampleParallelPairSubdiagram2: Diagram =
-    val a: set = Set(1, 2, 3)
-    val b: set = Set(0, 1, 2)
-    val f = fun(a,b)("ParSub2.f", x => Math.min(2, x.toInt))
-    val g = fun(a,b)("ParSub2.g", x => x.toInt % 3)
-    build(
-      "ParallelPair Sample1", `Set^ParallelPair`)(
-      Map("0" -> a, "1" -> b),
-      Map("a" -> f, "b" -> g)
-    )
-  
+    buildPPdiagram(`Set^ParallelPair`, "ParSub2.").asOldDiagram
+
   val SampleParallelPairDiagram2: `Set^ParallelPair`.Diagramme =
     val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1)
@@ -188,7 +165,37 @@ trait TestDiagrams extends Test:
       Map("ba" -> ba, "bc" -> bc, "dc" -> dc, "de" -> de)
     )
 
-//object Publish extends TestDiagrams:
-//
-//  @main def allToposes(): Unit =
-//    log(toposes.values)
+object Constructor:
+  def build(name: String, topos: GrothendieckTopos)(
+    objectsMap: String => set,
+    arrowMap: String => SetFunction): topos.Diagramme =
+    def om(o: topos.domain.Obj): set = objectsMap(o.toString)
+    def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
+    topos.Diagramme(name, om, am)
+
+  def buildPPdiagram(topos: CategoryOfDiagrams, prefix: String = "") = {
+    val a: set = Set(1, 2, 3)
+    val b: set = Set(0, 1, 2)
+    val f = fun(a, b)(s"${prefix}f", x => Math.min(2, x.toInt))
+    val g = fun(a, b)(s"${prefix}g", x => x.toInt % 3)
+    build(
+      "ParallelPair Sample1", topos)(
+      Map("0" -> a, "1" -> b),
+      Map("a" -> f, "b" -> g)
+    )
+  }
+
+class SetupTest extends Test:
+  "diagrams" should:
+    "all get instantiated" in:
+      val allThat = new TestDiagrams {}
+      allThat.`Set^M`.toString === "Set^M"
+
+object Publish:
+  
+    @main def allToposes(): Unit =
+      try
+        val allThat  = new TestDiagrams{}
+        println(allThat.toposes.values)
+      catch
+        case x: Exception => x.printStackTrace()

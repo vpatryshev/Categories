@@ -55,7 +55,7 @@ class Point(
           arrowToFunction(a)))
 
   @targetName("in")
-  infix inline def ∈(container: Diagram): Boolean = asDiagramme ⊂ container.source
+  infix inline def ∈(container: Diagram): Boolean = asDiagramme ⊂ container
 
   private lazy val predicate: topos.Predicate = topos predicateFor this
 

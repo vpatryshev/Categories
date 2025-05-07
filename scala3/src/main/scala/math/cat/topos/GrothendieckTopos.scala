@@ -40,9 +40,9 @@ trait GrothendieckTopos
 
   type Mapping = domain.Obj => Any => Any
 
-  given Conversion[Functor, Diagram] = _ match
-    case d: Diagram => d
-    case d: Diagramme => d.asOldDiagram
+  given Conversion[Functor, Diagramme] = _ match
+    case d: Diagram => d.source.asInstanceOf[Diagramme]
+    case d: Diagramme => d
     case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
 
   def inclusionOf(p: Point): Includer
@@ -229,26 +229,26 @@ trait GrothendieckTopos
   end Ωlike
 
 
-  val ΩxΩ: Obj = product2(Ω, Ω).asOldDiagram
+  val ΩxΩ: Obj = product2Diagramme(Ω, Ω).asOldDiagram
 
   private lazy val firstProjectionOf_ΩxΩ =
-    buildArrow("π1", ΩxΩ, Ω, firstProjection)
+    buildArrow("π1", ΩxΩ, Ω.asOldDiagram, firstProjection)
 
   /**
     * An equalizer of first projection and intersection, actually
     */
   lazy val Ω1: Diagramme = ΩxΩ.source.filter("<", _ => {
-    case (a: Diagram, b: Diagram) => a.source ⊂ b.source
-    case (a: Diagram, b: Diagramme) => a.source ⊂ b
-    case (a: Diagramme, b: Diagram) => a ⊂ b.source
-    case (a: Diagramme, b: Diagramme) => a ⊂ b
+    case (a: Diagram, b: Diagram) => a.source ⊂ b
+    case (a: Diagram, b: Diagramme) => a.source ⊂ b.asOldDiagram
+    case (a: Diagramme, b: Diagram) => a ⊂ b
+    case (a: Diagramme, b: Diagramme) => a ⊂ b.asOldDiagram
     case somethingElse => false
   }).asInstanceOf[Diagramme]
 
   /**
     * Diagonal for Ω
     */
-  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
+  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω.asOldDiagram, ΩxΩ,
     _ => (subrep: Any) => (subrep, subrep)
   )
 
@@ -369,9 +369,6 @@ trait GrothendieckTopos
     end in
   end Includer
 
-  def inclusionOfOld(diagram: Diagram): Includer =
-    inclusionOf(diagram.source.asInstanceOf[Diagramme]) // because it doesn't know the topos is the same
-
   def inclusionOf(diagram: Diagramme): Includer =
     new Includer:
       val subdiagram: Diagramme = diagram
@@ -474,13 +471,13 @@ trait GrothendieckTopos
 
       { case (a, b) => (fx(a), gx(b)) }
 
-    val productOfDomains = product2(f.d0, g.d0)
-    val productOfCodomains = product2(f.d1, g.d1)
+    val productOfDomains = product2Diagramme(f.d0, g.d0)
+    val productOfCodomains = product2Diagramme(f.d1, g.d1)
 
     buildArrow(
       concat(f.tag, "×", g.tag),
-      productOfDomains,
-      productOfCodomains,
+      productOfDomains.asOldDiagram,
+      productOfCodomains.asOldDiagram,
       mapping)
   end productOfArrows
 
@@ -510,9 +507,8 @@ trait GrothendieckTopos
     * Cartesian product of two diagrams
     * TODO: figure out how to ensure the same d0 in both Di
     */
-  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x.source, y.source).diagram
-  def product2(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
-  def product2Diagramme(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
+  def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram.asOldDiagram
+  def product2Diagramme(x: Diagramme, y: Diagramme): Diagramme = product2builder(x.asOldDiagram, y.asOldDiagram).diagram
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
     (inclusionOf(p) in d) map {
@@ -872,7 +868,7 @@ trait GrothendieckTopos
     Diagramme(
       tag,
       (x: domain.Obj) => value,
-      (a: domain.Arrow) => SetFunction.id(value))
+      (a: domain.Arrow) => SetFunction.id(value)).asOldDiagram
 
   def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
