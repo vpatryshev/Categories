@@ -239,9 +239,9 @@ trait GrothendieckTopos
     */
   lazy val Ω1: Diagramme = ΩxΩ.source.filter("<", _ => {
     case (a: Diagram, b: Diagram) => a.source ⊂ b
-    case (a: Diagram, b: Diagramme) => a.source ⊂ b.asOldDiagram
+    case (a: Diagram, b: Diagramme) => a.source ⊂ b
     case (a: Diagramme, b: Diagram) => a ⊂ b
-    case (a: Diagramme, b: Diagramme) => a ⊂ b.asOldDiagram
+    case (a: Diagramme, b: Diagramme) => a ⊂ b
     case somethingElse => false
   }).asInstanceOf[Diagramme]
 
@@ -550,12 +550,15 @@ trait GrothendieckTopos
     private[topos] def setAt(x: Any): set = itsaset(calculateObjectsMapping(x))
 
     @targetName("isSubdiagramOf")
-    infix inline def ⊂(other: Diagram): Boolean =
-      d0.objects.forall { o => this (o) subsetOf other.source(o) }
+    infix inline def ⊂(other: Diagramme): Boolean =
+      d0.objects.forall { o => this (o) subsetOf other(o) }
+
+    @targetName("isSubdiagramOfOld")
+    infix inline def ⊂(other: Diagram): Boolean = ⊂(other.source)
 
     @targetName("in")
-    infix inline def ∈(other: Diagram): Boolean =
-      d0.objects.forall { o => other.source(o)(this(o)) }
+    infix inline def ∈(other: Diagramme): Boolean =
+      d0.objects.forall { o => other(o)(this (o)) }
 
     def asFunction(a: d1.Arrow): SetFunction = a match
       case sf: SetFunction => sf
