@@ -54,11 +54,9 @@ class Point(
           objectsMapping(topos.domain.d1(a)),
           arrowToFunction(a)))
 
-  @targetName("inOld")
-  infix inline def ∈(container: Diagram): Boolean = asDiagramme ⊂ container
-
   @targetName("in")
-  infix inline def ∈(container: topos.Diagramme): Boolean = asDiagramme ⊂ container
+  infix inline def ∈(container: topos.Diagramme): Boolean =
+    asDiagramme ⊂ container
 
   private lazy val predicate: topos.Predicate = topos predicateFor this
 

@@ -163,7 +163,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val actual = sut.subobjects
       actual.size === 1
       actual.head === sut
-      actual.forall(_ ⊂ sut.asOldDiagram)
+      actual.forall(_ ⊂ sut)
 
     "be good for pullback diagram" in:
       val sut: `Set^Pullback`.Diagramme = SamplePullbackDiagram
@@ -189,7 +189,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       actual.last === sut
 
-      actual.forall(_ ⊂ sut.asOldDiagram)
+      actual.forall(_ ⊂ sut)
 
     "exist for representables in `Set to 𝟚`" in:
       val topos = `Set^𝟚`

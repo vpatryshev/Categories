@@ -26,13 +26,19 @@ class TopologyTest extends Fixtures:
   def topologies(topos: CategoryOfDiagrams): List[LawvereTopology] =
     topologiesTested(topos) collect { case Good(topo) => topo}
 
-  "Topologies" should {
-    "  exist for`𝟘`" in {
-      val all = topologies(`Set^𝟘`)
+  "Topologies" should :
+    "  exist for 𝟘" in :
+      val all = topologiesTested(`Set^𝟘`)
       all.length === 1
-    }
+      val errors = all collect:
+        case bad: Bad[_] => bad.listErrors
 
-    "  exist for`𝟙`" in {
+      errors === Nil
+
+      val goodOnes = topologies(`Set^𝟘`)
+      goodOnes.length === 1
+
+    "  exist for 𝟙" in :
       val candidates = topologiesTested(`Set^𝟙`)
       candidates.size === 4
 
@@ -41,34 +47,24 @@ class TopologyTest extends Fixtures:
       for topology <- topologies do expectOk(topology)
 
       ok
-    }
 
-    "  exist for `𝟚`" in {
+    "  exist for 𝟚" in :
       topologies(`Set^𝟚`).size === 4
-    }
 
-    "  exist for `𝟛`" in {
+    "  exist for 𝟛" in :
       topologies(`Set^𝟛`).size === 8
-    }
 
-    "  exist for ParallelPair" in {
+    "  exist for ParallelPair" in :
       topologies(`Set^ParallelPair`).size === 4
-    }
 
-    "  exist for Pullback" in {
+    "  exist for Pullback" in :
       topologies(`Set^Pullback`).size === 8
-    }
 
-    "  exist for Pushout" in {
+    "  exist for Pushout" in :
       topologies(`Set^Pushout`).size === 8
-    }
 
-    "  exist for Z3" in {
+    "  exist for Z3" in :
       topologies(`Set^Z3`).size === 2
-    }
 
-    "  exist for HalfSimplicial" in {
+    "  exist for HalfSimplicial" in :
       topologies(`Set^Simplicial`).size === 6
-    }
-
-  }
