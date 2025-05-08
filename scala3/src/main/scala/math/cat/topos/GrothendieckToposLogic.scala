@@ -142,7 +142,7 @@ trait GrothendieckToposLogic:
     */
   infix def predicateFor(pt: Point): Predicate =
 
-    val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω.asOldDiagram) iHope
+    val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 
     new Predicate(pt.tag, _1.source.asInstanceOf[GrothendieckToposLogic.this.Diagramme]):
 

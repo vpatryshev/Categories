@@ -13,7 +13,7 @@ import SetFunction._
 trait TestDiagrams:
   import Constructor.*
   val toposes: mutable.Map[String, CategoryOfDiagrams] = mutable.Map[String, CategoryOfDiagrams]()
-
+  
   private def toposOver(domain: Category): CategoryOfDiagrams =
     toposes.getOrElseUpdate(domain.name, new CategoryOfDiagrams(domain))
 
@@ -64,10 +64,11 @@ trait TestDiagrams:
       Map("a" -> f, "b" -> g)
     )
   
-  val SampleParallelPairSubdiagram1: `Set^ParallelPair`.Diagramme = buildPPdiagram(`Set^ParallelPair`)
+  val SampleParallelPairSubdiagram1: `Set^ParallelPair`.Diagramme =
+    buildPPdiagram(`Set^ParallelPair`)
 
-  val SampleParallelPairSubdiagram2: Diagram =
-    buildPPdiagram(`Set^ParallelPair`, "ParSub2.").asOldDiagram
+  val SampleParallelPairSubdiagram2: `Set^ParallelPair`.Diagramme =
+    buildPPdiagram(`Set^ParallelPair`, "ParSub2.")
 
   val SampleParallelPairDiagram2: `Set^ParallelPair`.Diagramme =
     val a: set = Set(1, 2, 3)

@@ -7,10 +7,7 @@ sdk use java 24.ea.17-open
 #sbt evicted
 rm -rf target
 rm -rf project/target
-sbt clean 
-sbt compile || { say "oy! bleen... oops... build failed" && exit 1 }
-sbt package || { say "oops... package failed" && exit 1 }
-sbt test
+sbt clean test
 res=$?
 # echo "Tests returned <<$res>>"
 [[ $res -eq 0 ]] && say "Marivanna.... ya gotova" || say "oy! bleen... oops... tests failed"

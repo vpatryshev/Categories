@@ -520,9 +520,9 @@ trait GrothendieckTopos
     * TODO: figure out how to ensure the same d0 in both Di
     */
   def product2(x: Diagram, y: Diagram): Diagram = ??? // will have to rename the one below, when ready
-  def product2Diagramme(x: Diagramme, y: Diagramme): Diagramme = product2builder(x.asOldDiagram, y.asOldDiagram).diagram
+  def product2Diagramme(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
 
-  def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
+  def standardInclusion(p: Point, d: Diagramme): Result[DiagramArrow] =
     (inclusionOf(p) in d) map {
       q => (q ∘ uniqueFromTerminalTo(p)) named p.tag
     }
@@ -553,8 +553,8 @@ trait GrothendieckTopos
     infix inline def ⊂(other: Diagramme): Boolean =
       d0.objects.forall { o => this (o) subsetOf other(o) }
 
-    @targetName("isSubdiagramOfOld")
-    infix inline def ⊂(other: Diagram): Boolean = ⊂(other.source)
+//    @targetName("isSubdiagramOfOld")
+//    infix inline def ⊂(other: Diagram): Boolean = ⊂(other.source)
 
     @targetName("in")
     infix inline def ∈(other: Diagramme): Boolean =
