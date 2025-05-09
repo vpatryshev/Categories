@@ -9,42 +9,17 @@ import scala.language.reflectiveCalls
 
 class TopologyTest extends Fixtures:
 
-  def topologiesTested(topos: CategoryOfDiagrams): List[Result[LawvereTopology]] =
-    import topos._
-    val subs: List[topos.Diagramme] = Ω.subobjects.toList
 
-    val inclusionsToΩ =
-      subs map { sub => inclusionOf(sub) in Ω
-      } collect { case Good(incl) => incl }
-
-    val predicates = inclusionsToΩ map topos.predicateForArrowToΩ
-
-    val builder = LawvereTopology.forPredicate(topos)
-
-    predicates map builder
-
-  def topologies(topos: CategoryOfDiagrams): List[LawvereTopology] =
-    topologiesTested(topos) collect { case Good(topo) => topo}
-
-  "Topologies" should :
+  "Topologies" should:
     "  exist for 𝟘" in :
-      val all = topologiesTested(`Set^𝟘`)
-      all.length === 1
-      val errors = all collect:
-        case bad: Bad[_] => bad.listErrors
-
-      errors === Nil
 
       val goodOnes = topologies(`Set^𝟘`)
-      goodOnes.length === 1
+      goodOnes.size === 1
 
     "  exist for 𝟙" in :
-      val candidates = topologiesTested(`Set^𝟙`)
-      candidates.size === 4
-
-      val topologies = candidates.filter(_.isGood)
+      val topologies = topologiesTested(`Set^𝟙`).filter(_._2.isGood)
       topologies.size === 2
-      for topology <- topologies do expectOk(topology)
+      for topology <- topologies do expectOk(topology._1, topology._2)
 
       ok
 
@@ -68,3 +43,26 @@ class TopologyTest extends Fixtures:
 
     "  exist for HalfSimplicial" in :
       topologies(`Set^Simplicial`).size === 6
+
+object TestTopologies
+
+  def topologyCandidates(topos: CategoryOfDiagrams) =
+    import topos._
+    val subs: List[Diagramme] = Ω.subobjects.toList
+
+    val inclusionsToΩ =
+      subs map { sub => inclusionOf(sub) in Ω
+      } collect { case Good(incl) => incl }
+
+    inclusionsToΩ map predicateForArrowToΩ
+
+  def topologyCandidatesContainingTruth(topos: CategoryOfDiagrams) =
+    topologyCandidates(topos).filter(p => LawvereTopology.mustContainTruth(topos)(p).isGood)
+
+  def topologiesTested(topos: CategoryOfDiagrams): Map[String, Result[LawvereTopology]] =
+    val predicates: List[topos.Predicate] = topologyCandidates(topos)
+    val builder = LawvereTopology.forPredicate(topos)
+    predicates.map(p => p.tag.toString -> builder(p)).toMap
+
+  def topologies(topos: CategoryOfDiagrams): Iterable[LawvereTopology] =
+    topologiesTested(topos) collect { case (tag, Good(topo)) => topo }

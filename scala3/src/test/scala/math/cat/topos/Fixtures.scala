@@ -13,10 +13,10 @@ import scala.language.postfixOps
 class Fixtures extends Test with math.cat.topos.TestDiagrams:
   lazy val titleWidth = toposes.keys.map(_.length).max + 2
 
-  def title(name: String) = s"  $name:" + (" " * (titleWidth - name.length))
+  def header(name: String) = s"  $name:" + (" " * (titleWidth - name.length))
 
   def report(what: String, where: String = ""): Unit =
-    println(s"  ${title(where)} $what")
+    println(s"  ${header(where)} $what")
 
   def reportIn(topos: GrothendieckTopos): String => Unit =
     report(_, topos.tag)
