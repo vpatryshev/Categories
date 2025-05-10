@@ -51,7 +51,7 @@ trait GrothendieckToposLogic:
     p: DiagramArrow =>
 
     def containsTruth: Boolean = Truth ∈ d0
-      
+
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
       if (ts.contains("∧") || ts.contains("∨") || ts.contains("=>"))
@@ -113,7 +113,7 @@ trait GrothendieckToposLogic:
   def ¬(p: topos.Predicate): topos.Predicate =
     p.binaryOpNamed(FalsePredicate, Ω.implication, "¬")
 
-  lazy val FalsePredicate: topos.Predicate = predicateFor(Ω.False)
+  lazy val FalsePredicate: topos.Predicate = predicateFor(Falsehood)
 
   lazy val TruePredicate: topos.Predicate = predicateFor(Truth)
 
@@ -145,7 +145,6 @@ trait GrothendieckToposLogic:
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 
     new Predicate(pt.tag, _1.source.asInstanceOf[GrothendieckToposLogic.this.Diagramme]):
-
       override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         inclusion.calculateMappingAt(x)
 

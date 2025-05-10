@@ -8,14 +8,9 @@ import org.specs2.matcher.MatchResult
 import scala.language.reflectiveCalls
 import scala.language.implicitConversions
 
-/**
- * You may wonder where does this name come from.
- * This is done to make sure this suite starts running as early as possible, because it's very long.
- * We run on all available cores, so other suites will run in parallel.
- */
-class RegressionTest extends Fixtures:
+class Regression250323_Test extends Fixtures:
 
-  "Logic" should {
+  "Logic" should:
     val `Set^𝟙` = CategoryOfDiagrams(`𝟙`)
     val sut = `Set^𝟙`
     val Ω = `Set^𝟙`.Ω
@@ -81,4 +76,3 @@ class RegressionTest extends Fixtures:
       right === True
 
       left === right
-  }

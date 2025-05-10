@@ -1,4 +1,4 @@
-name := "Categories, scala 3"
+   name := "Categories, scala 3"
 
 version := "3.0"
 

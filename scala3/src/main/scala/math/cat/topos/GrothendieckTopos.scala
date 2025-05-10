@@ -235,15 +235,15 @@ trait GrothendieckTopos
   val ΩxΩ: Obj = product2Diagramme(Ω, Ω).asOldDiagram
 
   private lazy val firstProjectionOf_ΩxΩ =
-    buildArrow("π1", ΩxΩ, Ω, firstProjection)
+    buildArrow("π1", ΩxΩ.source.asInstanceOf[Diagramme], Ω, firstProjection)
 
   /**
     * An equalizer of first projection and intersection, actually
     */
   lazy val Ω1: Diagramme = ΩxΩ.source.filter("<", _ => {
-    case (a: Diagram, b: Diagram) => a.source ⊂ b
-    case (a: Diagram, b: Diagramme) => a.source ⊂ b
-    case (a: Diagramme, b: Diagram) => a ⊂ b
+    case (a: Diagram, b: Diagram) => a.source.asInstanceOf[Diagramme] ⊂ b.source.asInstanceOf[Diagramme]
+    case (a: Diagram, b: Diagramme) => a.source.asInstanceOf[Diagramme] ⊂ b
+    case (a: Diagramme, b: Diagram) => a ⊂ b.source.asInstanceOf[Diagramme]
     case (a: Diagramme, b: Diagramme) => a ⊂ b
     case somethingElse => false
   }).asInstanceOf[Diagramme]
@@ -251,13 +251,13 @@ trait GrothendieckTopos
   /**
     * Diagonal for Ω
     */
-  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
+  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ.source.asInstanceOf[topos.Diagramme],
     _ => (subrep: Any) => (subrep, subrep)
   )
 
   private[topos] case class χAt(inclusion: Arrow, x: domain.Obj):
-    val A = inclusion.d1.source
-    val B = inclusion.d0.source
+    val A = inclusion.d1.asInstanceOf[Diagramme].source
+    val B = inclusion.d0.asInstanceOf[Diagramme].source
     val Ωatx = Ω(x)
     // for each element ax of set Ax find all arrows x->y
     // that map ax to an ay that belongs to By
@@ -485,6 +485,12 @@ trait GrothendieckTopos
       val gx = g(x).asInstanceOf[SetMorphism[Any, Any]]
 
       { case (a, b) => (fx(a), gx(b)) }
+
+    implicit def asDiagramme(f: Functor): Diagramme =
+      f match
+        case d: Diagramme => d
+        case dOld: Diagram => dOld.source
+        case basura => throw new IllegalArgumentException(s"Oops, $f is not a diagramme")
 
     val productOfDomains = product2Diagramme(f.d0, g.d0)
     val productOfCodomains = product2Diagramme(f.d1, g.d1)

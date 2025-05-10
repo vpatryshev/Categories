@@ -216,7 +216,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     "exist in Set to M" in:
       val topos = `Set^M`
-      val actual = topos.product2Diagramme(SampleMDiagram, SampleMDiagram)
+      val actual = `Set^M`.product2Diagramme(SampleMDiagram, SampleMDiagram)
       for
         x: topos.domain.Node <- topos.domain.objects
       do
@@ -332,7 +332,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   "Diagramme points" should {
 
-    def checkPoint(topos: GrothendieckTopos, sut: topos.Diagramme)(point: Point, expected: List[Int]) = {
+    def checkPoint(topos: GrothendieckTopos)(sut: topos.Diagramme)(point: Point, expected: List[Int]) = {
       val objects = sut.d0.objects.toList
       val actual = objects map point.apply
       actual must_== expected
@@ -340,7 +340,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     "exist in paralel pair" in {
       val sut: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram1
-      val check = checkPoint(`Set^ParallelPair`, sut)
+      val check = checkPoint(`Set^ParallelPair`)(sut)
       sut.points match
         case p1 :: p2 :: p3 :: Nil =>
           check(p1, 1 :: 1 :: Nil)
@@ -357,7 +357,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val actual = sut.points
       actual match
         case p1 :: p2 :: p3 :: p4 :: p5 :: Nil =>
-          val check = checkPoint(`Set^Pullback`, sut)
+          val check = checkPoint(`Set^Pullback`)(sut)
           check(p1, 1 :: 2 :: 1 :: Nil)
           check(p2, 1 :: 4 :: 1 :: Nil)
           check(p3, 2 :: 3 :: 0 :: Nil)
@@ -373,7 +373,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val actual = sut.points
       actual match
         case p1 :: Nil =>
-          val check = checkPoint(`Set^Z3`, sut)
+          val check = checkPoint(`Set^Z3`)(sut)
           check(p1, 2223 :: Nil)
         case oops => failure("Expected 1 point in $actual: $oops")
 

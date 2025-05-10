@@ -39,7 +39,7 @@ object LawvereTopology:
 
   def mustContainTruth(topos: CategoryOfDiagrams): topos.Predicate => Outcome =
     (predicate: topos.Predicate) => OKif(predicate.containsTruth, s"Should contain truth: ${predicate.tag}")
-  
+
   def mustBeClosed[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
     val jj = j ∘ j
     OKif(jj == j, s"Should be closed: ${j.tag}")
