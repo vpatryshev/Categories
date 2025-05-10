@@ -50,8 +50,8 @@ trait GrothendieckToposLogic:
   abstract class Predicate(myTag: Any, override val d0: Diagramme) extends DiagramArrow(myTag, d0, Ω):
     p: DiagramArrow =>
 
-//    override val d1: Diagram = Ω
-
+    def containsTruth: Boolean = Truth ∈ d0
+      
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
       if (ts.contains("∧") || ts.contains("∨") || ts.contains("=>"))
@@ -115,7 +115,7 @@ trait GrothendieckToposLogic:
 
   lazy val FalsePredicate: topos.Predicate = predicateFor(Ω.False)
 
-  lazy val TruePredicate: topos.Predicate = predicateFor(Ω.True)
+  lazy val TruePredicate: topos.Predicate = predicateFor(Truth)
 
   /**
     * Builds a predicate for an arrow to Ω

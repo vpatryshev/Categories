@@ -14,7 +14,15 @@ class Regression250509_Test extends Fixtures:
     "exist for 𝟙" in :
       val candidates = topologyCandidates(`Set^𝟙`)
       candidates.size === 4
-      topologyCandidatesContainingTruth(`Set^𝟙`).size === 2
+      
+      val predicate_1 = candidates.find(_.tag == "1⊂Ω").get
+      val predicate_3 = candidates.find(_.tag == "3⊂Ω").get
+      
+      val theyContainTruth = topologyCandidatesContainingTruth(`Set^𝟙`)
+      theyContainTruth.size === 2
+
+      predicate_1.containsTruth must beTrue
+      predicate_3.containsTruth must beTrue
 
       val topologies = topologiesTested(`Set^𝟙`)
       val goodOnes = topologies.filter(_._2.isGood)

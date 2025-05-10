@@ -21,7 +21,7 @@ class RegressionTest extends Fixtures:
     val Ω = `Set^𝟙`.Ω
     val ΩxΩ = `Set^𝟙`.ΩxΩ
     val Ω1 = `Set^𝟙`.Ω1
-    val True: `Set^𝟙`.Predicate = `Set^𝟙`.Ω.True asPredicateIn `Set^𝟙`
+    val True: `Set^𝟙`.Predicate = `Set^𝟙`.Truth asPredicateIn `Set^𝟙`
     val False = `Set^𝟙`.Ω.False asPredicateIn `Set^𝟙`
 
     "work for adjunctions in set to 𝟙" in:

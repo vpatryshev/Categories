@@ -38,17 +38,8 @@ object LawvereTopology:
           val closure: topos.Predicate = closureOp.typed[topos.Predicate] iHope
 
   def mustContainTruth(topos: CategoryOfDiagrams): topos.Predicate => Outcome =
-    val truth: Point = topos.Ω.True
-    (predicate: topos.Predicate) =>
-      val predD0: Functor = predicate.d0
-      val itsOk = predD0 match
-        case tD: topos.Diagramme =>
-          val itsin = truth ∈ tD
-          OKif(truth ∈ tD, s"Should contain truth: ${predicate.tag}")
-        case other => Oops(s"Expected a diagram, got $other")
-
-      itsOk
-
+    (predicate: topos.Predicate) => OKif(predicate.containsTruth, s"Should contain truth: ${predicate.tag}")
+  
   def mustBeClosed[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
     val jj = j ∘ j
     OKif(jj == j, s"Should be closed: ${j.tag}")

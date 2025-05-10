@@ -15,9 +15,9 @@ class ConstantsTest extends Fixtures:
     "exist for 𝟘" in {
       val topos = `Set^𝟘`
       import topos._
-      Ω.True.toString === "⊤"
-      val tTrue = Ω.True.mapping
-      val tFalse = Ω.False.mapping
+      Truth.toString === "⊤"
+      val tTrue = Truth.mapping
+      val tFalse = Falsehood.mapping
       tTrue === tFalse // that's a degenerate topos, but tags are still distinct
     }
 

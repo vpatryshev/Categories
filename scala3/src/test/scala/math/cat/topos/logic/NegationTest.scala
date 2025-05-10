@@ -19,8 +19,8 @@ class NegationTest extends Fixtures:
           val rep = report(_)
           val desc = s"Testing negation over ${cat.name} ($number/$total)"
           println(desc)
-          val True = Ω.True asPredicateIn topos
-          val False = Ω.False asPredicateIn topos
+          val True = Truth asPredicateIn topos
+          val False = Falsehood asPredicateIn topos
 
           ¬(True) === False
           ¬(False) === True

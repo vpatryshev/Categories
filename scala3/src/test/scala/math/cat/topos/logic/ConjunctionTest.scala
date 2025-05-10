@@ -20,8 +20,8 @@ class ConjunctionTest extends Fixtures:
       import topos._
       val desc = s"Testing $what over ${domain.name} ($number/$total)"
       val rep = report(_)
-      val True = Ω.True.asPredicateIn(topos)
-      val False = Ω.False.asPredicateIn(topos)
+      val True = Truth.asPredicateIn(topos)
+      val False = Falsehood.asPredicateIn(topos)
 
       for pt <- Ω.points do
         rep(s"conjunction with False for ${pt.tag}")
@@ -48,12 +48,10 @@ class ConjunctionTest extends Fixtures:
         fun(Ω(x), diagramme(ΩxΩ)(x))(s"Δ[$x]", subrep => (subrep, subrep))
 
       val conjunction = Ω.conjunction
-
-      val True = Ω.True
       
       // TODO(vlad): stop using this `transform`, it makes no sense.
       // We just need an composition of point with Δ_Ω
-      val pointOfTrueAndTrue = True.transform(Δ_Ω)
+      val pointOfTrueAndTrue = Truth.transform(Δ_Ω)
 
       val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
@@ -62,7 +60,7 @@ class ConjunctionTest extends Fixtures:
         o <- domain.objects
       do
         val p = pointOfTrueAndTrue(o)
-        p aka s"$desc, @$o" must_== (Ω.True(o), Ω.True(o))
+        p aka s"$desc, @$o" must_== (Truth(o), Truth(o))
         val monoAt_o = monomorphism(o)
         val actual = asFunction(monoAt_o)(p)
         actual aka s"$desc, @$o" must_== p

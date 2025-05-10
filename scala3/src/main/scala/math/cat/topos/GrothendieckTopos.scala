@@ -54,6 +54,9 @@ trait GrothendieckTopos
     */
   val Ω: Ωlike = new Ωlike
 
+  val Truth: Point = Ω.True
+  val Falsehood: Point = Ω.False
+
   class Ωlike extends Diagramme("Ω"):
 //    override val d1: Category = SetCategory.Setf
     // For each object `x` we produce a set of all subobjects of `Representable(x)`.

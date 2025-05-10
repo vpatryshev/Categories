@@ -24,8 +24,8 @@ class AnImplicationTest extends Fixtures:
       import topos._
       val desc = s"Testing implication in ${topos.name} ($number/$total), ${Ω.points.size} points in Ω"
       println(desc)
-      val True = Ω.True asPredicateIn topos
-      val False = Ω.False asPredicateIn topos
+      val True = Truth asPredicateIn topos
+      val False = Falsehood asPredicateIn topos
       val context = s"${Ω.tag} in ${topos.name}"
       for pt1 <- Ω.points do
         report(s"True ⟹ ${pt1.tag} = ${pt1.tag}")
