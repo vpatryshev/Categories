@@ -50,7 +50,7 @@ trait GrothendieckToposLogic:
   abstract class Predicate(myTag: Any, override val d0: Diagramme) extends DiagramArrow(myTag, d0, Ω):
     p: DiagramArrow =>
 
-    def containsTruth: Boolean = Truth ∈ d0
+    def containsTruth: Boolean = Truth ∈ d0.asInstanceOf[Truth.topos.Diagramme] // find a fix
 
     private def wrapTag(tag: Any): String =
       val ts = tag.toString

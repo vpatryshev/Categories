@@ -40,10 +40,11 @@ trait GrothendieckTopos
 
   type Mapping = domain.Obj => Any => Any
 
-  given Conversion[Functor, Diagramme] = _ match
-    case d: Diagram => d.source.asInstanceOf[Diagramme]
-    case d: Diagramme => d
-    case basura => throw new IllegalArgumentException(s"Not a diagram: $basura")
+//  given Conversion[Functor, Diagramme] = _ match
+//    case d: Diagram => d.source.asInstanceOf[Diagramme]
+//    case d: Diagramme => d
+//    case basura => 
+//      throw new IllegalArgumentException(s"Not a diagram: $basura")
 
   def inclusionOf(p: Point): Includer
 
@@ -385,19 +386,7 @@ trait GrothendieckTopos
     * @return a natural transformation (crashes if not)
     */
   def buildArrow(tag: Any, from: Diagramme, to: Diagramme,
-    mapping: Mapping): DiagramArrow = buildOldArrow(tag, from.asOldDiagram, to.asOldDiagram, mapping)
-
-  /**
-   * Builds a `DiagramArrow`, given domain, codomain, and a mapping
-   *
-   * @param tag     arrow tag
-   * @param from    domain
-   * @param to      codomain
-   * @param mapping maps objects to functions
-   * @return a natural transformation (crashes if not)
-   */
-  def buildOldArrow(tag: Any, from: Diagram, to: Diagram,
-                    mapping: Mapping): DiagramArrow =
+    mapping: Mapping): DiagramArrow =DiagramArrow
     NaturalTransformation.build(tag, from, to)(
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
 
@@ -445,11 +434,11 @@ trait GrothendieckTopos
     */
   protected def buildOneArrow(
     tag: Any,
-    from: Diagram,
-    to: Diagram,
+    from: Diagramme,
+    to: Diagramme,
     mapping: Mapping
   )(o: from.d0.Obj): from.d1.Arrow =
-    SetFunction.build(s"$tag[$o]", from.source(o), to.source(o), mapping(o)).iHope
+    SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope
 
   /**
    * Given a `from` and `to` diagrams, build an arrow
@@ -479,21 +468,19 @@ trait GrothendieckTopos
     * @return a product of `f` and `g`
     */
   def productOfArrows(f: DiagramArrow, g: DiagramArrow): DiagramArrow =
+    val fd0: Diagramme = f.d0.asInstanceOf[Diagramme]
+    val gd0: Diagramme = g.d0.asInstanceOf[Diagramme]
+    val fd1: Diagramme = f.d1.asInstanceOf[Diagramme]
+    val gd1: Diagramme = g.d1.asInstanceOf[Diagramme]
 
     val mapping: Mapping = x =>
-      val fx = f(x).asInstanceOf[SetMorphism[Any, Any]]
-      val gx = g(x).asInstanceOf[SetMorphism[Any, Any]]
+      val fx = f(x).asInstanceOf[Any => Any]
+      val gx = g(x).asInstanceOf[Any => Any]
 
       { case (a, b) => (fx(a), gx(b)) }
 
-    implicit def asDiagramme(f: Functor): Diagramme =
-      f match
-        case d: Diagramme => d
-        case dOld: Diagram => dOld.source
-        case basura => throw new IllegalArgumentException(s"Oops, $f is not a diagramme")
-
-    val productOfDomains = product2Diagramme(f.d0, g.d0)
-    val productOfCodomains = product2Diagramme(f.d1, g.d1)
+    val productOfDomains = product2Diagramme(fd0, gd0)
+    val productOfCodomains = product2Diagramme(fd1, gd1)
 
     buildArrow(
       concat(f.tag, "×", g.tag),
