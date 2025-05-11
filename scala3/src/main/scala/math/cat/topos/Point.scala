@@ -33,14 +33,10 @@ class Point(
     def apply(o: Any) =
       f(o) match
         case sf: SetFunction => sf(p(o))
-        case weirdStuff =>
-          cannotDo(s"${f(o)} was supposed to be a set function")
 
     new Point(s"${f.tag}(${p.tag})", p.topos, apply)
 
-  def asDiagram: Diagram = asDiagramme.asOldDiagram
-
-  def asDiagramme: topos.Diagramme =
+  def   asDiagramme: topos.Diagramme =
     def arrowToFunction(a: topos.thisTopos.domain.Arrow): Any => Any =
       (z: Any) => fromObjectToSubset(topos.thisTopos.domain.d1(a))
 

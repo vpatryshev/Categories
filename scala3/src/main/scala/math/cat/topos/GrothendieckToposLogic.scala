@@ -153,11 +153,10 @@ trait GrothendieckToposLogic:
     * @return
     */
   def uniqueFromTerminalTo(p: Point): Arrow =
-    new DiagramArrow(p.tag, _1, p.asDiagram):
-
+    new DiagramArrow(p.tag, _1, p.asDiagramme):
       override def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
-          val value = p(o)
-          new SetFunction(s"tag($o)", _1.source(o), Set(value), _ => value)
+        val value = p(o)
+        new SetFunction(s"tag($o)", _1.source(o), Set(value), _ => value)
 
   lazy val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.`∅`)
   

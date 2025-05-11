@@ -67,9 +67,7 @@ class CategoryOfDiagrams(val domain: Category)
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.calculateObjectsMapping(x))
 
     new DiagramArrow("Id", o, o):
-
-      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-        objectMap(x)
+      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = objectMap(x)
 
   override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
     new DiagramArrow(concat(g.tag, " ∘ ", f.tag), f.d0, g.d1):

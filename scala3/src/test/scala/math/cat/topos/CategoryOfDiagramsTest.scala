@@ -106,8 +106,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     "exist in Set to W" in:
       val topos = `Set^W`
-      val d = SampleWDiagram.asOldDiagram
-      val identity_transformation = topos.id(d)
+      val d = SampleWDiagram
+      val identity_transformation = topos.id(d.asOldDiagram)
       identity_transformation.d0 === d
       identity_transformation.d1 === d
       identity_transformation ∘ identity_transformation === identity_transformation

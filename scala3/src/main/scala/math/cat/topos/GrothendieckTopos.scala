@@ -43,7 +43,7 @@ trait GrothendieckTopos
 //  given Conversion[Functor, Diagramme] = _ match
 //    case d: Diagram => d.source.asInstanceOf[Diagramme]
 //    case d: Diagramme => d
-//    case basura => 
+//    case basura =>
 //      throw new IllegalArgumentException(s"Not a diagram: $basura")
 
   def inclusionOf(p: Point): Includer
