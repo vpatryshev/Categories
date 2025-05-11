@@ -386,7 +386,7 @@ trait GrothendieckTopos
     * @return a natural transformation (crashes if not)
     */
   def buildArrow(tag: Any, from: Diagramme, to: Diagramme,
-    mapping: Mapping): DiagramArrow =DiagramArrow
+    mapping: Mapping): DiagramArrow =
     NaturalTransformation.build(tag, from, to)(
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
 
