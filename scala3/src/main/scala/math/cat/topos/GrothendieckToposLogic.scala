@@ -67,15 +67,16 @@ trait GrothendieckToposLogic:
       apply(o).asInstanceOf[SetFunction]
 
     def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
-      binaryOpNamed(q, ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)
+      binaryOpNamed(ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)(q)
 
-    def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: Any): Predicate =
-    // TODO: when identification is fixed (finding the right point), uncomment
-    // cache.getOrElseUpdate((ΩxΩ_to_Ω, p, q), 
-      evalBinaryOp(q, ΩxΩ_to_Ω, name)
-    //)
+    def binaryOpNamed(ΩxΩ_to_Ω: DiagramArrow, opTag: Any)(q: Predicate): Predicate =
+      evalBinaryOp(ΩxΩ_to_Ω, opTag)(q)
+      
+    val bop: Cache[(DiagramArrow, Any), Predicate => Predicate] =
+      Cache[(DiagramArrow, Any), Predicate => Predicate](true, 
+        (arrow, opTag) => Cache[Predicate, Predicate](true, evalBinaryOp(arrow, opTag)(_)))
     
-    def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: Any): Predicate =
+    def evalBinaryOp(ΩxΩ_to_Ω: DiagramArrow, newTag: Any)(q: Predicate): Predicate =
       requireCompatibility(q)
 
       new Predicate(newTag, p.d0):
@@ -110,7 +111,7 @@ trait GrothendieckToposLogic:
     lazy val ⟹ = binaryOp(Ω.implication)
 
   def ¬(p: topos.Predicate): topos.Predicate =
-    p.binaryOpNamed(FalsePredicate, Ω.implication, "¬")
+    p.binaryOpNamed(Ω.implication, "¬")(FalsePredicate)
 
   lazy val FalsePredicate: topos.Predicate = predicateFor(Falsehood)
 
