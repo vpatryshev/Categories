@@ -6,7 +6,7 @@ import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow}
 import math.cat.{Morphism, SetFunction}
 import math.sets.Sets
 import Sets.{set, setOf}
-import scalakittens.{Params, Result}
+import scalakittens.{Cache, Params, Result}
 
 import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
@@ -31,7 +31,6 @@ trait GrothendieckToposLogic:
         dom, diagramme(ΩxΩ)(o),
         v => (po(v), qo(v))
       )
-
 
     def binopMappingAt(
                         ΩxΩ_to_Ω: DiagramArrow,
@@ -134,13 +133,14 @@ trait GrothendieckToposLogic:
 
       case basura => throw new IllegalArgumentException(s"WTF: basura $basura")
 
-
   /**
     * Builds a predicate for a point in Ω
     * @param pt the point
     * @return an arrow pt -> Ω
     */
-  infix def predicateFor(pt: Point): Predicate =
+  val predicateFor = Cache[Point, Predicate](true, calculatePredicate)
+
+  infix def calculatePredicate(pt: Point): Predicate =
 
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 

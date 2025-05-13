@@ -316,21 +316,18 @@ trait GrothendieckTopos
     */
   def χ(inclusion: Arrow, theTag: String): Predicate =
     def objToFunction(x: domain.Obj): SetFunction = χAt(inclusion: Arrow, x: domain.Obj).asFunction
+
     inclusion.d1 match {
-      case d: Diagram =>
-        new Predicate(theTag, d.source.asInstanceOf[Diagramme]):
-          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-            objToFunction(x)
+//      case d: Diagram =>
+//        new Predicate(theTag, d.source.asInstanceOf[Diagramme]):
+//          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+//            objToFunction(x)
       case d: Diagramme =>
         new Predicate(theTag, d):
           override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
             objToFunction(x)
-      case basura => throw new IllegalArgumentException(s"Oops, basure $basura")
+//      case basura => throw new IllegalArgumentException(s"Oops, basure $basura")
     }
-//    new Predicate(theTag, inclusion.d1.asInstanceOf[Diagramme]):
-//
-//      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-//        objToFunction(x)
 
   def χ(inclusion: Arrow): Predicate =
     χ(inclusion, s"χ(${inclusion.tag})")
@@ -815,7 +812,6 @@ trait GrothendieckTopos
 
       def mappingOfd0Objects(x: Any): set =
         val theSet = objectMapping(d0.obj(x))
-        debug(s"Fucking created a set for $x: $theSet")
         theSet
 
       Diagramme(tag, mappingOfd0Objects, arrowToFunction)

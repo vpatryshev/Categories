@@ -368,9 +368,8 @@ object Sets:
     
     override infix def contains(x: X): Boolean =
       val isOk = predicate(x)
-      if (!isOk)
-        verbose(s"$this doesn't contain $x - via predicate=$predicate\n")
-        debug(created.mkString("\n"))
+//      if (!isOk)
+//        debug(s"$this doesn't contain $x - via predicate=$predicate\n")
 
       isOk && (isInfinite || iteratorContains(x))
 

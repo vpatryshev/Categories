@@ -16,8 +16,8 @@ object Params:
   lazy val profile:   Boolean = flag("Profile")
   lazy val trace:     Boolean = flag("Trace")
 
-  def debug(s: String): Unit =
-    if (debug) then
-      println(s"DEBUG:$s")
-  def verbose(s: String): Unit =
-    if (verbose) then println(s"VERBOSE:$s")
+  inline def debug(s: String): Unit =
+    if (debug) then println(s"DEBUG:$s")
+
+  inline def verbose(s: String): Unit =
+    if (verbose || debug) then println(s"VERBOSE:$s")

@@ -34,7 +34,6 @@ abstract class NaturalTransformation(
   self =>
   lazy val domainCategory:   Category = d0.d0
   lazy val codomainCategory: Category = d1.d1
-
   def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow
 
   lazy val mappingAt = Cache[d0.d0.Obj, d1.d1.Arrow](domainCategory.isFinite, calculateMappingAt)
@@ -80,8 +79,10 @@ abstract class NaturalTransformation(
     if s.isEmpty then details else s
 
 
-  def asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
-    if d0.d0.isFinite then buildMap(d0.d0.objects, o => apply(o)) 
+  private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
+    if d0.d0.isFinite then 
+      debug(s"building map for $tag")
+      buildMap(d0.d0.objects, o => apply(o)) 
     else Map.empty
 
   override lazy val hashCode: Int = d0.hashCode | d1.hashCode * 17 | {
@@ -103,12 +104,11 @@ abstract class NaturalTransformation(
     other: NaturalTransformation,
     printDetails: Boolean = false,
     context: String = "..."): Boolean =
-    (this eq other) || {
-      val hc = hashCode
-      val otherHC = other.hashCode
-      hc == otherHC &&
-      d0 == other.d0 &&
-      d1 == other.d1 && {
+    (this eq other) || (
+      (d0 == other.d0) &&
+      (d1 == other.d1) &&
+      (asMap == other.asMap)
+    ) || {
         val foundBad: Option[Any] = domainCategory.objects find (o =>
           val first: d1.d1.Arrow = this(o)
           val second: other.d1.d1.Arrow = other(o)
@@ -122,7 +122,7 @@ abstract class NaturalTransformation(
         )
 
         foundBad.isEmpty
-    }}
+    }
 
 object NaturalTransformation:
 
