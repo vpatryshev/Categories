@@ -99,8 +99,6 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
     case arrows: Arrows => arrows
     case _ => throw new IllegalStateException(s"arrows of $name coming from graph are not Arrows")
 
-  def composablePairs: Iterable[(Arrow, Arrow)] = Category.composablePairs(this)
-
   private[cat] def checkCompositions: Outcome =
     val check1 = Result.check(missingCompositions.map {
       case (f, g) => Oops(s"composition must be defined for $f and $g in $name")

@@ -17,6 +17,9 @@ trait Graph(val name: String) extends GraphData:
 
   def size: Int = nodes.size
 
+  def composablePairs: Iterable[(Arrow, Arrow)] =
+    for (f <- arrows; g <-arrows if follows(g, f)) yield (f, g)
+
   override lazy val hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
   override def equals(x: Any): Boolean =

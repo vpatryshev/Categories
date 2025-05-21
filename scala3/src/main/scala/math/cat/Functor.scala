@@ -17,7 +17,7 @@ import scalakittens.Params.verbose
   * @param d1 codomain
   */
 abstract class Functor(
-  taggedAs: Any,
+  taggedAs: String,
   override val d0: Category, override val d1: Category
 ) extends GraphMorphism:
   val tag = taggedAs

@@ -520,7 +520,7 @@ trait GrothendieckTopos
       q => (q ∘ uniqueFromTerminalTo(p)) named p.tag
     }
 
-  abstract class Diagramme(tag: Any)
+  abstract class Diagramme(tag: String)
     extends Functor(tag, thisTopos.domain, SetCategory.Setf):
     diagramme =>
     private type XObject = d0.Obj // topos.domain.Obj ???

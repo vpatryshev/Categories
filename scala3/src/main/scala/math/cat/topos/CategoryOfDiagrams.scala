@@ -84,7 +84,7 @@ class CategoryOfDiagrams(val domain: Category)
       x => Representable(x).subobjects.toSet
     )
 
-  case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"hom($x, _)", thisTopos.domain):
+  case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"${thisTopos.tag}.hom($x, _)"):
     override def calculateObjectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def calculateArrowsMapping(f: d0.Arrow): d1.Arrow = am(f)
  
