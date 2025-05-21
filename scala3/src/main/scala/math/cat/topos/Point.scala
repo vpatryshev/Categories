@@ -23,10 +23,10 @@ class Point(
   p =>
   val baseTopos: GrothendieckTopos = topos
   private val domainCategory: Category = topos.domain
-  lazy val mapping = Cache[Any, Any](true, fromObjectToSubset)
+  lazy val mapping = Cache[Any, Any](tag, fromObjectToSubset, true)
   def apply(x: Any): Any = mapping(x)
   
-  infix def named(name: Any): Point = new Point(name, topos, fromObjectToSubset)
+  infix def named(name: String): Point = new Point(name, topos, fromObjectToSubset)
 
   // @deprecated("This should be redefined via composition", "03/28/2020")
   def transform(f: DiagramArrow): Point =

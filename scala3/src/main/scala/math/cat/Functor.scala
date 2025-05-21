@@ -29,14 +29,15 @@ abstract class Functor(
 
   lazy val listOfObjects: List[d0.Obj] = d0.listOfObjects
 
-  lazy val objectMapping = Cache[d0.Obj, d1.Obj](domainObjects.isFinite, calculateObjectsMapping)
-  lazy val arrowMapping = Cache[d0.Arrow, d1.Arrow](domainObjects.isFinite, calculateMappingForArrow)
+  lazy val objectMapping = Cache[d0.Obj, d1.Obj](tag, calculateObjectsMapping, domainObjects.isFinite)
+  lazy val arrowMapping = Cache[d0.Arrow, d1.Arrow](tag, calculateMappingForArrow, domainObjects.isFinite)
 
   private def calculateMappingForArrow(a: d0.Arrow): d1.Arrow =
     val domainX: d0.Obj = d0.d0(a)
     if d0.isIdentity(a)
     then d1.id(objectMapping(domainX))
-    else calculateArrowsMapping(a)
+    else
+      calculateArrowsMapping(a)
 
   /**
     * How the functor maps objects
@@ -409,10 +410,8 @@ object Functor:
       OKif(gy_fy == expected,
         s"Functor must preserve composition (failed on $fx, $fy, $gx, $gy, $gy_fy; $expected)")
 
-    val composablePairs = Result.forValue(Category.composablePairs(domain))
-
     Result.check:
-      Category.composablePairs(domain) map :
+      domain.composablePairs map :
         case (fx, fy) => check(fx, fy)
 
   private def checkArrowMapping(f: Functor): Outcome =
