@@ -1,5 +1,7 @@
 package scalakittens
 
+import scala.collection.mutable
+
 object Params:
   def config(name: String, alt: String): String =
     val p1 = Option(System.getenv(name))
@@ -18,6 +20,19 @@ object Params:
 
   inline def debug(s: String): Unit =
     if (debug) then println(s"DEBUG:$s")
+
+  private val allKeys = mutable.Map[String, Array[StackTraceElement]]()
+
+  def deepDebug(s: String): Unit =
+    if (debug) then
+      val stack = Thread.currentThread().getStackTrace
+      val calledBy: StackTraceElement = stack(6)
+      val msg = s"$s from ${calledBy.getFileName}:${calledBy.getLineNumber}"
+      debug(msg)
+      if (allKeys contains msg) then
+        val previous = allKeys.get(msg)
+        println("WTF! Duplicate msg")
+      allKeys += (msg -> stack)
 
   inline def verbose(s: String): Unit =
     if (verbose || debug) then println(s"VERBOSE:$s")

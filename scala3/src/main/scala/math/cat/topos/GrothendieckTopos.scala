@@ -5,7 +5,7 @@ import math.cat.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.*
 import math.sets.{FactorSet, Functions, Sets}
-import scalakittens.{Good, Result}
+import scalakittens.{Cache, Good, Result}
 import scalakittens.Containers.*
 import math.cat.topos.Format.shortTitle
 
@@ -143,12 +143,6 @@ trait GrothendieckTopos
     lazy val conjunction: DiagramArrow =
 
       def conjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
-        case (a: Diagram, b: Diagram) =>
-          intersection(a.source.asInstanceOf[Diagramme], b.source.asInstanceOf[Diagramme])
-        case (a: Diagram, b: Diagramme) =>
-          intersection(a.source.asInstanceOf[Diagramme], b)
-        case (a: Diagramme, b: Diagram) =>  
-          intersection(a, b.source.asInstanceOf[Diagramme])
         case (a: Diagramme, b: Diagramme) =>
           intersection(a,b)
         case bs =>
@@ -159,16 +153,15 @@ trait GrothendieckTopos
         val codom = Ω.source(x)
         new SetFunction(s"∧[$x]", dom.untyped, codom, pair => conjunctionOfTwoSubreps(pair))
 
-      val cache: mutable.Map[ΩxΩ.d0.Obj, SetFunction] =
-        mutable.Map[ΩxΩ.d0.Obj, SetFunction]()
+      val cache: Cache[ΩxΩ.d0.Obj, SetFunction] = new Cache[ΩxΩ.d0.Obj, SetFunction](
+        "∧", calculatePerObject, domain.isFinite
+      )
 
       new DiagramArrow("∧", ΩxΩ, Ω):
 
-        def perObject(x: d0.d0.Obj): SetFunction =
-          cache.getOrElseUpdate(x, calculatePerObject(x))
+        def perObject(x: d0.d0.Obj): SetFunction = cache(x)
 
-        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-          perObject(x)
+        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = perObject(x)
 
 
     lazy val disjunction: DiagramArrow =
@@ -208,12 +201,6 @@ trait GrothendieckTopos
         end union
 
         def disjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
-          case (a: Diagram, b: Diagram) =>
-            union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
-          case (a: Diagram, b: Diagramme) =>
-            union(a.source.asInstanceOf[GrothendieckTopos.this.Diagramme],b)
-          case (a: Diagramme, b: Diagram) =>
-            union(a,b.source.asInstanceOf[GrothendieckTopos.this.Diagramme])
           case (a: Diagramme, b: Diagramme) => union(a, b)
           case other =>
             throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
@@ -531,9 +518,6 @@ trait GrothendieckTopos
     @targetName("isSubdiagramOf")
     infix inline def ⊂(other: Diagramme): Boolean =
       d0.objects.forall { o => this (o) subsetOf other(o) }
-
-//    @targetName("isSubdiagramOfOld")
-//    infix inline def ⊂(other: Diagram): Boolean = ⊂(other.source)
 
     @targetName("in")
     infix inline def ∈(other: Diagramme): Boolean =
