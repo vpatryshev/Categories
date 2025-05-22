@@ -28,7 +28,7 @@ import scala.annotation.targetName
   *    g[a]: g[x] ---> g[y]
   */
 abstract class NaturalTransformation(
-  val tag: Any,
+  val tag: String,
   val d0: Functor,
   val d1: Functor) extends Morphism[Functor, Functor]:
   self =>
@@ -36,7 +36,7 @@ abstract class NaturalTransformation(
   lazy val codomainCategory: Category = d1.d1
   def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow
 
-  lazy val mappingAt = Cache[d0.d0.Obj, d1.d1.Arrow](domainCategory.isFinite, calculateMappingAt)
+  lazy val mappingAt = Cache[d0.d0.Obj, d1.d1.Arrow](tag, calculateMappingAt, domainCategory.isFinite)
 
   def ap0(x: Any): Any = {
     val y = mappingAt(x)
@@ -69,7 +69,7 @@ abstract class NaturalTransformation(
   
   end ∘
 
-  infix def named(newTag: Any): NaturalTransformation =
+  infix def named(newTag: String): NaturalTransformation =
     new NaturalTransformation(newTag, self.d0, self.d1):
       def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         self.calculateMappingAt(x)
@@ -164,7 +164,7 @@ object NaturalTransformation:
     * @param g   second functor
     * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
     */
-  def build(tag: Any = "", f: Functor, g: Functor)
+  def build(tag: String = "", f: Functor, g: Functor)
   (
     mappings: f.d0.Obj => f.d1.Arrow
   ): Result[NaturalTransformation] =

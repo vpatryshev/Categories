@@ -382,24 +382,10 @@ trait GrothendieckTopos
     * @param mapping maps objects to functions
     * @return a natural transformation (crashes if not)
     */
-  def buildArrow(tag: Any, from: Diagramme, to: Diagramme,
+  def buildArrow(tag: String, from: Diagramme, to: Diagramme,
     mapping: Mapping): DiagramArrow =
     NaturalTransformation.build(tag, from, to)(
       (o: from.d0.Obj) => buildOneArrow(tag, from, to, mapping)(o)).iHope
-
-  /**
-   * Builds a `DiagrammeArrow`, given domain, codomain, and a mapping
-   *
-   * @param tag     arrow tag
-   * @param from    domain
-   * @param to      codomain
-   * @param mapping maps objects to functions
-   * @return a natural transformation (crashes if not)
-   */
-  def buildArrowe(tag: Any, from: Diagramme, to: Diagramme,
-                 mapping: Mapping): DiagramArrow =
-    NaturalTransformation.build(tag, from, to)(
-      (o: from.d0.Obj) => buildOneArrowe(tag, from, to, mapping)(o)).iHope
 
   private val p1: Any => Any =
     case (a, b) => a
@@ -571,7 +557,7 @@ trait GrothendieckTopos
       val objs = listOfObjects map calculateObjectsMapping
       objs map itsaset
 
-    def point(mapping: XObject => Any, id: Any = ""): Point =
+    def point(mapping: XObject => Any, id: String = ""): Point =
       new Point(id, topos, (x: Any) => mapping(x))
 
     lazy val objMappings: List[Point] =

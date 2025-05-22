@@ -46,7 +46,7 @@ trait GrothendieckToposLogic:
       val resultAtEmpty = result.mapping(Set())
       result
 
-  abstract class Predicate(myTag: Any, override val d0: Diagramme) extends DiagramArrow(myTag, d0, Ω):
+  abstract class Predicate(myTag: String, override val d0: Diagramme) extends DiagramArrow(myTag, d0, Ω):
     p: DiagramArrow =>
 
     def containsTruth: Boolean = Truth ∈ d0.asInstanceOf[Truth.topos.Diagramme] // find a fix
@@ -69,14 +69,14 @@ trait GrothendieckToposLogic:
     def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
       binaryOpNamed(ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)(q)
 
-    def binaryOpNamed(ΩxΩ_to_Ω: DiagramArrow, opTag: Any)(q: Predicate): Predicate =
+    def binaryOpNamed(ΩxΩ_to_Ω: DiagramArrow, opTag: String)(q: Predicate): Predicate =
       evalBinaryOp(ΩxΩ_to_Ω, opTag)(q)
       
-    val bop: Cache[(DiagramArrow, Any), Predicate => Predicate] =
-      Cache[(DiagramArrow, Any), Predicate => Predicate](true, 
+    val bop: Cache[(DiagramArrow, String), Predicate => Predicate] =
+      Cache[(DiagramArrow, String), Predicate => Predicate](true, 
         (arrow, opTag) => Cache[Predicate, Predicate](true, evalBinaryOp(arrow, opTag)(_)))
     
-    def evalBinaryOp(ΩxΩ_to_Ω: DiagramArrow, newTag: Any)(q: Predicate): Predicate =
+    def evalBinaryOp(ΩxΩ_to_Ω: DiagramArrow, newTag: String)(q: Predicate): Predicate =
       requireCompatibility(q)
 
       new Predicate(newTag, p.d0):

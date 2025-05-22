@@ -17,7 +17,7 @@ import scala.language.implicitConversions
   * @param fromObjectToSubset for each domain object, choose something in the topos diagram
   */
 class Point(
-  val tag: Any,
+  val tag: String,
   val topos: GrothendieckTopos,
   val fromObjectToSubset: Any => Any) extends (Any => Any):
   p =>
