@@ -153,13 +153,13 @@ trait GrothendieckTopos
         val codom = Ω.source(x)
         new SetFunction(s"∧[$x]", dom.untyped, codom, pair => conjunctionOfTwoSubreps(pair))
 
-      val cache: Cache[ΩxΩ.d0.Obj, SetFunction] = new Cache[ΩxΩ.d0.Obj, SetFunction](
+      val cache: ΩxΩ.d0.Obj => (Any => Any) = new Cache[ΩxΩ.d0.Obj, SetFunction](
         "∧", calculatePerObject, domain.isFinite
       )
 
       new DiagramArrow("∧", ΩxΩ, Ω):
 
-        def perObject(x: d0.d0.Obj): SetFunction = cache(x)
+        def perObject(x: d0.d0.Obj): Any => Any = cache(x)
 
         override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = perObject(x)
 

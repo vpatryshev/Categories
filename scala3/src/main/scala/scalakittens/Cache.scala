@@ -8,7 +8,7 @@ case class Cache[K,V](tag: Any, build: K => V, isFinite: Boolean = true) extends
   private val cache: mutable.Map[K, V] = mutable.Map[K, V]()
 
     override def equals(obj: Any): Boolean = obj match
-      case other: Cache[K, V] => 
+      case other: Cache[_, _] =>
         build == other.build && isFinite == other.isFinite
       case anything => false
       
