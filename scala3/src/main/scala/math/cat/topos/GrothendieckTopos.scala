@@ -142,68 +142,68 @@ trait GrothendieckTopos
 
     lazy val conjunction: DiagramArrow =
 
-      def conjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
-        case (a: Diagramme, b: Diagramme) =>
-          intersection(a,b)
-        case bs =>
-          throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
+      def calcConjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
+        case (a: Diagramme, b: Diagramme) => intersection(a,b)
+        case bs => throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
+        
+      val conjunctionOfTwoSubreps: Any => Diagramme = Cache[Any, Diagramme](
+        s"∧", calcConjunctionOfTwoSubreps, domain.isFinite
+      )
 
       def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction =
         val dom = ΩxΩ.source(x)
         val codom = Ω.source(x)
-        new SetFunction(s"∧[$x]", dom.untyped, codom, pair => conjunctionOfTwoSubreps(pair))
+        new SetFunction(s"∧[$x]", dom.untyped, codom, conjunctionOfTwoSubreps)
 
-      val cache: ΩxΩ.d0.Obj => (Any => Any) = new Cache[ΩxΩ.d0.Obj, SetFunction](
+      val cache: ΩxΩ.d0.Obj => SetFunction = new Cache[ΩxΩ.d0.Obj, SetFunction](
         "∧", calculatePerObject, domain.isFinite
       )
 
       new DiagramArrow("∧", ΩxΩ, Ω):
-
-        def perObject(x: d0.d0.Obj): Any => Any = cache(x)
-
-        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = perObject(x)
+        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = cache(x)
 
 
     lazy val disjunction: DiagramArrow =
+      /**
+       * Union of two subrepresentables on object `x`
+       * @param a first subrepresentable
+       * @param b second subrepresentable
+       * @return their intersection
+       */
+      def union(a: Diagramme, b: Diagramme): Diagramme =
+        val om = (o: domain.Obj) => a.setAt(o) | b.setAt(o)
+
+        // this is how, given an arrow `b`, the new diagram gets from one point to another
+        def am(f: domain.Arrow): SetFunction =
+          val o = domain.d0(f)
+          val ao = a(o)
+          val bo = b(o)
+          val x = om(o)
+          val y = om(domain.d1(f))
+
+          val fa = a.arrowsMapping(f)
+          val fb = b.arrowsMapping(f)
+
+          def unionOfMappings(z: Any): Any =
+            if ao(z) then fa(z)
+            else if bo(z) then fb(z)
+            else throw new IllegalArgumentException(s"$z was supposed to be in $ao or in $bo")
+
+          new SetFunction("", x, y, unionOfMappings)
+
+        topos.Diagramme(
+          concat(a.tag, "∪", b.tag),
+          o => om(o), f => am(f))
+
+      end union
+
+      def disjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
+        case (a: Diagramme, b: Diagramme) => union(a, b)
+        case other =>
+          throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
+
       new DiagramArrow("v", ΩxΩ, Ω):
 
-        /**
-          * Union of two subrepresentables on object `x`
-          * @param a first subrepresentable
-          * @param b second subrepresentable
-          * @return their intersection
-          */
-        private def union(a: Diagramme, b: Diagramme): Diagramme =
-          val om = (o: domain.Obj) => a.setAt(o) | b.setAt(o)
-
-          // this is how, given an arrow `b`, the new diagram gets from one point to another
-          def am(f: domain.Arrow): SetFunction =
-            val o = domain.d0(f)
-            val ao = a(o)
-            val bo = b(o)
-            val x = om(o)
-            val y = om(domain.d1(f))
-
-            val fa = a.arrowsMapping(f)
-            val fb = b.arrowsMapping(f)
-
-            def unionOfMappings(z: Any): Any =
-              if ao(z) then fa(z)
-              else if bo(z) then fb(z)
-              else throw new IllegalArgumentException(s"$z was supposed to be in $ao or in $bo")
-
-            new SetFunction("", x, y, unionOfMappings)
-
-          topos.Diagramme(
-            concat(a.tag, "∪", b.tag),
-            o => om(o), f => am(f))
-
-        end union
-
-        def disjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
-          case (a: Diagramme, b: Diagramme) => union(a, b)
-          case other =>
-            throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
 
         def perObject(x: d0.d0.Obj): SetFunction =
           val dom = ΩxΩ.source(x)

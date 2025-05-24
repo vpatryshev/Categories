@@ -62,7 +62,7 @@ object TestTopologies
   def topologiesTested(topos: CategoryOfDiagrams): Map[String, Result[LawvereTopology]] =
     val predicates: List[topos.Predicate] = topologyCandidates(topos)
     val builder = LawvereTopology.forPredicate(topos)
-    predicates.map(p => p.tag.toString -> builder(p)).toMap
+    predicates.map(p => p.tag -> builder(p)).toMap
 
   def topologies(topos: CategoryOfDiagrams): Iterable[LawvereTopology] =
     topologiesTested(topos) collect { case (tag, Good(topo)) => topo }
