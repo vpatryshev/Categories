@@ -128,7 +128,7 @@ trait GrothendieckTopos
       * @param b second subrepresentable
       * @return their intersection
       */
-    private[topos] def intersection(a: Diagramme, b: Diagramme): Diagramme =
+    private[this] def intersection(a: Diagramme, b: Diagramme): Diagramme =
       val om = (o: domain.Obj) => a.source(o) & b.source(o)
 
       // this is how, given an arrow `b`, the new diagram gets from one point to another
@@ -155,12 +155,8 @@ trait GrothendieckTopos
         val codom = Ω.source(x)
         new SetFunction(s"∧[$x]", dom.untyped, codom, conjunctionOfTwoSubreps)
 
-      val cache: ΩxΩ.d0.Obj => SetFunction = new Cache[ΩxΩ.d0.Obj, SetFunction](
-        "∧", calculatePerObject, domain.isFinite
-      )
-
       new DiagramArrow("∧", ΩxΩ, Ω):
-        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = cache(x)
+        override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = calculatePerObject(x)
 
 
     lazy val disjunction: DiagramArrow =
@@ -197,21 +193,23 @@ trait GrothendieckTopos
 
       end union
 
-      def disjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
+      def calcDisjunctionOfTwoSubreps(pair: Any): Diagramme = pair match
         case (a: Diagramme, b: Diagramme) => union(a, b)
         case other =>
           throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
 
+      val disjunctionOfTwoSubreps: Any => Diagramme = Cache[Any, Diagramme](
+        "v", calcDisjunctionOfTwoSubreps, domain.isFinite
+      )
+
+      def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction =
+        val dom = ΩxΩ.source(x)
+        val codom = Ω.source(x)
+        new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
+
       new DiagramArrow("v", ΩxΩ, Ω):
-
-
-        def perObject(x: d0.d0.Obj): SetFunction =
-          val dom = ΩxΩ.source(x)
-          val codom = Ω.source(x)
-          new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
-
         override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-          perObject(x)
+          calculatePerObject(x)
 
     end disjunction
 
