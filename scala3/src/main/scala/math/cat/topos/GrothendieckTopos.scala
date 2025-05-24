@@ -218,7 +218,7 @@ trait GrothendieckTopos
   end Ωlike
 
 
-  val ΩxΩ: Obj = product2Diagramme(Ω, Ω).asOldDiagram
+  val ΩxΩ: Obj = product2(Ω, Ω).asOldDiagram
 
   private lazy val firstProjectionOf_ΩxΩ =
     buildArrow("π1", ΩxΩ.source.asInstanceOf[Diagramme], Ω, firstProjection)
@@ -262,10 +262,10 @@ trait GrothendieckTopos
           y -> itsaset(all_arrows_to_y filter hits(By))
         }
 
-    def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
-      domain.objects.forall(o => mapping(o) == repr.source(o))
+//    def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
+//      domain.objects.forall(o => mapping(o) == repr.source(o))
 
-    def sameMappinge(repr: topos.Diagramme, mapping: Map[Any, set]): Boolean =
+    def sameMapping(repr: topos.Diagramme, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
 
     def myRepresentable(ax: Any): Any =
@@ -274,9 +274,9 @@ trait GrothendieckTopos
       val choices = Ωatx find {
         _ match
           case d: Diagram =>
-            sameMapping(d, arrows)
+            sameMapping(d.source.asInstanceOf[Diagramme], arrows)
           case td: topos.Diagramme =>
-            sameMappinge(td, arrows)
+            sameMapping(td, arrows)
           case other =>
             false
       }
@@ -321,20 +321,21 @@ trait GrothendieckTopos
     val subdiagram: Diagramme
 
     infix def in(diagram: Diagram): Result[DiagramArrow] =
-      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
-        for
-          x <- domain.objects
-          incl: Result[SetFunction] = inclusion(subdiagram(x), diagram.source(x))
-          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map { x -> _ }
-        yield pair
-
-      val name = concat(subdiagram.tag, "⊂", diagram.tag)
-      for
-        map <- Result traverse results
-        arrow <- NaturalTransformation.build(name, subdiagram, diagram.source)(map.toMap)
-      yield arrow
-
-    end in
+      in(diagram.source.asInstanceOf[Diagramme])
+//      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
+//        for
+//          x <- domain.objects
+//          incl: Result[SetFunction] = inclusion(subdiagram(x), diagram.source(x))
+//          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map { x -> _ }
+//        yield pair
+//
+//      val name = concat(subdiagram.tag, "⊂", diagram.tag)
+//      for
+//        map <- Result traverse results
+//        arrow <- NaturalTransformation.build(name, subdiagram, diagram.source)(map.toMap)
+//      yield arrow
+//
+//    end in
 
     infix def in(diagram: Diagramme): Result[DiagramArrow] =
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
@@ -447,8 +448,8 @@ trait GrothendieckTopos
 
       { case (a, b) => (fx(a), gx(b)) }
 
-    val productOfDomains = product2Diagramme(fd0, gd0)
-    val productOfCodomains = product2Diagramme(fd1, gd1)
+    val productOfDomains = product2(fd0, gd0)
+    val productOfCodomains = product2(fd1, gd1)
 
     buildArrow(
       concat(f.tag, "×", g.tag),
@@ -484,7 +485,7 @@ trait GrothendieckTopos
     * TODO: figure out how to ensure the same d0 in both Di
     */
   def product2(x: Diagram, y: Diagram): Diagram = ??? // will have to rename the one below, when ready
-  def product2Diagramme(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
+  def product2(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagramme): Result[DiagramArrow] =
     (inclusionOf(p) in d) map {

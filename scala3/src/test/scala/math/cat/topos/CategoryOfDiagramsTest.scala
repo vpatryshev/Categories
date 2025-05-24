@@ -209,14 +209,14 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val d1: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram1
       val d2: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram2
 
-      val actual: `Set^ParallelPair`.Diagramme = `Set^ParallelPair`.product2Diagramme(d1, d2)
+      val actual: `Set^ParallelPair`.Diagramme = `Set^ParallelPair`.product2(d1, d2)
       actual("0").size === 15
       val value1: set = actual("1")
       value1 === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
 
     "exist in Set to M" in:
       val topos = `Set^M`
-      val actual = `Set^M`.product2Diagramme(SampleMDiagram, SampleMDiagram)
+      val actual = `Set^M`.product2(SampleMDiagram, SampleMDiagram)
       for
         x: topos.domain.Node <- topos.domain.objects
       do
@@ -253,8 +253,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         x => i => "b" + i)
 
       val expected = topos.buildArrow("f×g",
-        topos.product2Diagramme(d01, d02),
-        topos.product2Diagramme(d11, d12),
+        topos.product2(d01, d02),
+        topos.product2(d11, d12),
         x =>
           case (i, j) => ("a" + i, "b" + j)
       )
@@ -319,8 +319,8 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         x => i => "b" + i)
 
       val expected = topos.buildArrow("f×g",
-        topos.product2Diagramme(d01, d02),
-        topos.product2Diagramme(d11, d12),
+        topos.product2(d01, d02),
+        topos.product2(d11, d12),
         x =>
           case (i, j) => ("a" + i, "b" + j)
       )

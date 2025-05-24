@@ -19,7 +19,7 @@ class ConjunctionTest extends Fixtures:
     def checkProperties(topos: GrothendieckTopos, number: Int, total: Int, what: String): MatchResult[Any] =
       import topos._
       val desc = s"Testing $what over ${domain.name} ($number/$total)"
-      val rep = report(_)
+      val rep = reportIn(topos)
       val True = Truth.asPredicateIn(topos)
       val False = Falsehood.asPredicateIn(topos)
 
