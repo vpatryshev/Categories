@@ -822,11 +822,11 @@ trait GrothendieckTopos
 
       Functor.validateFunctor(diagram) returning diagram
 
-  def const(tag: String, value: set): Diagram =
+  def const(tag: String, value: set): Diagramme =
     Diagramme(
       tag,
       (x: domain.Obj) => value,
-      (a: domain.Arrow) => SetFunction.id(value)).asOldDiagram
+      (a: domain.Arrow) => SetFunction.id(value))
 
   def cleanupString(s: String): String =
     val s1 = s.replaceAll(s"->Diagram\\[[^]]+]", "->")
