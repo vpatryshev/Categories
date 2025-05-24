@@ -49,7 +49,7 @@ trait TestDiagrams:
   val SamplePullbackDiagram: `Set^Pullback`.Diagramme = BuildPullbackDiagram.asDiagram
 
     // TODO: implement
-  lazy val SamplePushoutDiagram: Diagram = ???
+  lazy val SamplePushoutDiagram: `Set^Pushout`.Diagramme = ???
   
   val SampleParallelPairDiagram1: `Set^ParallelPair`.Diagramme =
     val a: set = Set(1, 2, 3, 4, 5)

@@ -213,20 +213,21 @@ trait GrothendieckTopos
 
     end disjunction
 
-    lazy val implication: DiagramArrow = χ(inclusionOf(Ω1) in ΩxΩ iHope, "⟹")
+    lazy val implication: DiagramArrow = χ(inclusionOf(Ω1) in ΩxΩ_Diagramme iHope, "⟹")
 
   end Ωlike
 
 
+  val ΩxΩ_Diagramme: Diagramme = product2(Ω, Ω)
   val ΩxΩ: Obj = product2(Ω, Ω).asOldDiagram
 
   private lazy val firstProjectionOf_ΩxΩ =
-    buildArrow("π1", ΩxΩ.source.asInstanceOf[Diagramme], Ω, firstProjection)
+    buildArrow("π1", ΩxΩ_Diagramme, Ω, firstProjection)
 
   /**
     * An equalizer of first projection and intersection, actually
     */
-  lazy val Ω1: Diagramme = ΩxΩ.source.filter("<", _ => {
+  lazy val Ω1: Diagramme = ΩxΩ_Diagramme.filter("<", _ => {
     case (a: Diagram, b: Diagram) => a.source.asInstanceOf[Diagramme] ⊂ b.source.asInstanceOf[Diagramme]
     case (a: Diagram, b: Diagramme) => a.source.asInstanceOf[Diagramme] ⊂ b
     case (a: Diagramme, b: Diagram) => a ⊂ b.source.asInstanceOf[Diagramme]
@@ -303,15 +304,10 @@ trait GrothendieckTopos
     def objToFunction(x: domain.Obj): SetFunction = χAt(inclusion: Arrow, x: domain.Obj).asFunction
 
     inclusion.d1 match {
-//      case d: Diagram =>
-//        new Predicate(theTag, d.source.asInstanceOf[Diagramme]):
-//          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-//            objToFunction(x)
       case d: Diagramme =>
         new Predicate(theTag, d):
           override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
             objToFunction(x)
-//      case basura => throw new IllegalArgumentException(s"Oops, basure $basura")
     }
 
   def χ(inclusion: Arrow): Predicate =
@@ -322,20 +318,6 @@ trait GrothendieckTopos
 
     infix def in(diagram: Diagram): Result[DiagramArrow] =
       in(diagram.source.asInstanceOf[Diagramme])
-//      val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
-//        for
-//          x <- domain.objects
-//          incl: Result[SetFunction] = inclusion(subdiagram(x), diagram.source(x))
-//          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map { x -> _ }
-//        yield pair
-//
-//      val name = concat(subdiagram.tag, "⊂", diagram.tag)
-//      for
-//        map <- Result traverse results
-//        arrow <- NaturalTransformation.build(name, subdiagram, diagram.source)(map.toMap)
-//      yield arrow
-//
-//    end in
 
     infix def in(diagram: Diagramme): Result[DiagramArrow] =
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
