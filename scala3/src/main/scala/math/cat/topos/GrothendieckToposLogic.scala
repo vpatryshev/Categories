@@ -163,7 +163,7 @@ trait GrothendieckToposLogic:
 
   lazy val _1: Obj = terminalT iHope
 
-  private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Diagram =
+  private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Obj =
     topos.const(name, value).asOldDiagram
 
   def diagramme(obj: Obj): Diagramme = obj.source.asInstanceOf[Diagramme]

@@ -450,7 +450,7 @@ trait GrothendieckTopos
     * Cartesian product of two diagrams
     * TODO: figure out how to ensure the same d0 in both Di
     */
-  def product2(x: Diagram, y: Diagram): Diagram = ??? // will have to rename the one below, when ready
+  def product2(x: Obj, y: Obj): Obj = ??? // will have to rename the one below, when ready
   def product2(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagramme): Result[DiagramArrow] =
