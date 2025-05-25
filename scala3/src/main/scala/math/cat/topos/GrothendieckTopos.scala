@@ -24,8 +24,8 @@ trait GrothendieckTopos
   topos =>
   val thisTopos: GrothendieckTopos = this
 
-  type Node = Diagram
   override type Obj = Diagram
+  type Node = Obj
   override type Arrow = DiagramArrow
   type ObjectMapping = domain.Obj => set
   type ArrowMapping = domain.Arrow => SetFunction

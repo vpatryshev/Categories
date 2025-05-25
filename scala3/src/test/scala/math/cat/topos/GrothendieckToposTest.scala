@@ -74,7 +74,7 @@ class GrothendieckToposTest extends Fixtures:
       val sample2 = χ10(1)
       def short(x: Any) = (x match {
         case tD: topos.Diagramme => tD.toShortString
-        case d: Diagram => d.source.toShortString
+//        case d: Diagram => d.source.toShortString
         case other => 
           other.toString
       }).replaceAll("\\s+", "")

@@ -23,9 +23,6 @@ class ConstantsTest extends Fixtures:
 
     def checkAt(topos: GrothendieckTopos)(point: Any)(mappings: (String, set)*): MatchResult[Any] = {
       point match
-        case d: Diagram => Result.check {
-            for (k, v) <- mappings yield OKif(topos.diagramme(d)(k) == v, s"Failed on $k, expected $v, got ${topos.diagramme(d)(k)}")
-          } === OK
         case d: topos.Diagramme => Result.check {
           for (k, v) <- mappings yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
         } === OK

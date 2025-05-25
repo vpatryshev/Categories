@@ -72,8 +72,8 @@ class Point(
       domainCategory.listOfObjects map {
         x => {
           val obRepr = apply(x) match
-            case d: Diagram =>
-              shortTitle(d.source.toShortString)
+//            case d: Diagram =>
+//              shortTitle(d.source.toShortString)
             case d: topos.Diagramme =>
               shortTitle(d.toShortString)
             case other =>
