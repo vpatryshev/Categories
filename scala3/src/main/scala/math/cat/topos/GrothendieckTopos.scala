@@ -40,12 +40,6 @@ trait GrothendieckTopos
 
   type Mapping = domain.Obj => Any => Any
 
-//  given Conversion[Functor, Diagramme] = _ match
-//    case d: Diagram => d.source.asInstanceOf[Diagramme]
-//    case d: Diagramme => d
-//    case basura =>
-//      throw new IllegalArgumentException(s"Not a diagram: $basura")
-
   def inclusionOf(p: Point): Includer
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagramme]]
@@ -228,12 +222,12 @@ trait GrothendieckTopos
     * An equalizer of first projection and intersection, actually
     */
   lazy val Ω1: Diagramme = ΩxΩ_Diagramme.filter("<", _ => {
-    case (a: Diagram, b: Diagram) => a.source.asInstanceOf[Diagramme] ⊂ b.source.asInstanceOf[Diagramme]
-    case (a: Diagram, b: Diagramme) => a.source.asInstanceOf[Diagramme] ⊂ b
-    case (a: Diagramme, b: Diagram) => a ⊂ b.source.asInstanceOf[Diagramme]
+    case (a: Diagram, b: Diagram) => diagramme(a) ⊂ diagramme(b)
+    case (a: Diagram, b: Diagramme) => diagramme(a) ⊂ b
+    case (a: Diagramme, b: Diagram) => a ⊂ diagramme(b)
     case (a: Diagramme, b: Diagramme) => a ⊂ b
     case somethingElse => false
-  }).asInstanceOf[Diagramme]
+  })
 
   /**
     * Diagonal for Ω
@@ -275,7 +269,7 @@ trait GrothendieckTopos
       val choices = Ωatx find {
         _ match
           case d: Diagram =>
-            sameMapping(d.source.asInstanceOf[Diagramme], arrows)
+            sameMapping(diagramme(d), arrows)
           case td: topos.Diagramme =>
             sameMapping(td, arrows)
           case other =>
@@ -317,7 +311,7 @@ trait GrothendieckTopos
     val subdiagram: Diagramme
 
     infix def in(diagram: Diagram): Result[DiagramArrow] =
-      in(diagram.source.asInstanceOf[Diagramme])
+      in(diagramme(diagram))
 
     infix def in(diagram: Diagramme): Result[DiagramArrow] =
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =
