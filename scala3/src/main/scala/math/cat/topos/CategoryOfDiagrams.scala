@@ -18,8 +18,8 @@ class CategoryOfDiagrams(val domain: Category)
   override val graph: Graph = graphOfDiagrams(domain.name)
   override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
   override def toString: String = name
-  type Node = Diagram
   override type Obj = Diagram
+  type Node = Obj
   override type Arrow = DiagramArrow
   
   lazy val subterminals: Set[Diagramme] =

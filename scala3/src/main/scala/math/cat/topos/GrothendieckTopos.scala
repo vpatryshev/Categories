@@ -268,8 +268,8 @@ trait GrothendieckTopos
       val arrows = arrowsSet.toMap
       val choices = Ωatx find {
         _ match
-          case d: Diagram =>
-            sameMapping(diagramme(d), arrows)
+//          case d: Diagram =>
+//            sameMapping(diagramme(d), arrows)
           case td: topos.Diagramme =>
             sameMapping(td, arrows)
           case other =>
@@ -309,9 +309,6 @@ trait GrothendieckTopos
 
   trait Includer:
     val subdiagram: Diagramme
-
-    infix def in(diagram: Diagram): Result[DiagramArrow] =
-      in(diagramme(diagram))
 
     infix def in(diagram: Diagramme): Result[DiagramArrow] =
       val results: IterableOnce[Result[(domain.Obj, subdiagram.d1.Arrow)]] =

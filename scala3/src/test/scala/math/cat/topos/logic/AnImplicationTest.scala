@@ -2,7 +2,7 @@ package math.cat.topos.logic
 
 import math.cat.SetFunction.asFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.topos.{CategoryOfDiagrams, Diagram, Fixtures, GrothendieckTopos}
+import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
 import math.cat.{Category, SetFunction}
 import org.specs2.matcher.MatchResult
 import scalakittens.Result.*
@@ -12,7 +12,7 @@ import scala.language.reflectiveCalls
 /**
  * You may wonder where does this name come from.
  * This is done to make sure this suite starts running as early as possible, because it's very long.
- * We run on all available cores, so other suites will run in parallel.
+ * We run on all available cores, so other suites may run in parallel.
  */
 class AnImplicationTest extends Fixtures:
 
