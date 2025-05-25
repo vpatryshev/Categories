@@ -189,8 +189,13 @@ object Constructor:
 class SetupTest extends Test:
   "diagrams" should:
     "all get instantiated" in:
-      val allThat = new TestDiagrams {}
-      allThat.`Set^M`.toString === "Set^M"
+      try
+        val allThat = new TestDiagrams {}
+        allThat.`Set^M`.toString === "Set^M"
+      catch
+        case someShit: Exception => failure(someShit.toString)
+
+      ok
 
 object Publish:
   

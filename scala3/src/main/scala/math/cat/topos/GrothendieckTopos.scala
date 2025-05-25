@@ -222,9 +222,6 @@ trait GrothendieckTopos
     * An equalizer of first projection and intersection, actually
     */
   lazy val Ω1: Diagramme = ΩxΩ_Diagramme.filter("<", _ => {
-    case (a: Diagram, b: Diagram) => diagramme(a) ⊂ diagramme(b)
-    case (a: Diagram, b: Diagramme) => diagramme(a) ⊂ b
-    case (a: Diagramme, b: Diagram) => a ⊂ diagramme(b)
     case (a: Diagramme, b: Diagramme) => a ⊂ b
     case somethingElse => false
   })
@@ -268,12 +265,8 @@ trait GrothendieckTopos
       val arrows = arrowsSet.toMap
       val choices = Ωatx find {
         _ match
-//          case d: Diagram =>
-//            sameMapping(diagramme(d), arrows)
-          case td: topos.Diagramme =>
-            sameMapping(td, arrows)
-          case other =>
-            false
+          case td: topos.Diagramme => sameMapping(td, arrows)
+          case other => false
       }
       Result(choices) orCommentTheError s"No representable found for $ax -> $arrows" iHope
 
@@ -745,9 +738,9 @@ trait GrothendieckTopos
       new SetFunction("", dom, codom, arrowsMapping(a))
 
     // TODO: write tests !!!!!!!
-    def filter[O, A](tag: String, predicate: XObject => Any => Boolean): Diagramme =
+    def filter(tag: String, predicate: d0.Obj => Any => Boolean): Diagramme =
       debug(s"$tag: filter $predicate")
-      def objectMapping(o: domain.Obj | XObject): Sets.set = // TODO: union is not to be used here
+      def objectMapping(o: domain.Obj): Sets.set = // TODO: union is not to be used here
         calculateObjectsMapping(o) filter predicate(o)
 
       val arrowToFunction = (a: domain.Arrow) => extendToArrows(objectMapping)(a)
