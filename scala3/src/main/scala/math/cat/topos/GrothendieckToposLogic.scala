@@ -128,10 +128,6 @@ trait GrothendieckToposLogic:
         new topos.Predicate(f.tag, d):
           override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
 
-//      case d: Diagram =>
-//        new topos.Predicate(f.tag, d.source.asInstanceOf[topos.Diagramme]):
-//          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f(apply(x))
-
       case basura => throw new IllegalArgumentException(s"WTF: basura $basura")
 
   /**

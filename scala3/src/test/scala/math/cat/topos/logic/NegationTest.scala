@@ -16,7 +16,7 @@ class NegationTest extends Fixtures:
         def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
           val topos = new CategoryOfDiagrams(cat)
           import topos._
-          val rep = report(_)
+          val rep = reportIn(topos)
           val desc = s"Testing negation over ${cat.name} ($number/$total)"
           println(desc)
           val True = Truth asPredicateIn topos
@@ -26,12 +26,12 @@ class NegationTest extends Fixtures:
           ¬(False) === True
 
           for pt1 <- Ω.points do
-            rep(s"that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
+            rep(s"theck that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
             val p = pt1 asPredicateIn topos
             val not_p = ¬(p)
             ¬(¬(not_p)) === not_p
 
-            rep(s"that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
+            rep(s"check that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
             for pt2 <- Ω.points do
               val q = pt2 asPredicateIn topos
               ¬(p ∨ q) === not_p ∧ ¬(q)
