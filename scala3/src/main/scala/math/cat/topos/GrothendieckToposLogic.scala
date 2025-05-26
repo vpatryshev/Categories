@@ -28,7 +28,7 @@ trait GrothendieckToposLogic:
       val qo: SetFunction = right.transformAt(o)
       new SetFunction(
         s"PQ->ΩxΩ($o)",
-        dom, diagramme(ΩxΩ)(o),
+        dom, ΩxΩ(o),
         v => (po(v), qo(v))
       )
 
@@ -46,10 +46,10 @@ trait GrothendieckToposLogic:
       val resultAtEmpty = result.mapping(Set())
       result
 
-  abstract class Predicate(myTag: String, override val d0: Diagramme) extends DiagramArrow(myTag, d0, Ω):
+  abstract class Predicate(myTag: String, override val d0: Diagram) extends DiagramArrow(myTag, d0, Ω):
     p: DiagramArrow =>
 
-    def containsTruth: Boolean = Truth ∈ d0.asInstanceOf[Truth.topos.Diagramme] // find a fix
+    def containsTruth: Boolean = Truth ∈ d0.asInstanceOf[Truth.topos.Diagram] // find a fix
 
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
@@ -124,7 +124,7 @@ trait GrothendieckToposLogic:
     */
   infix def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
     f.d0 match
-      case d: topos.Diagramme =>
+      case d: topos.Diagram =>
         new topos.Predicate(f.tag, d):
           override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
 
@@ -141,7 +141,7 @@ trait GrothendieckToposLogic:
 
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 
-    new Predicate(pt.tag, _1.source.asInstanceOf[GrothendieckToposLogic.this.Diagramme]):
+    new Predicate(pt.tag, _1.source.asInstanceOf[GrothendieckToposLogic.this.Diagram]):
       override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         inclusion.calculateMappingAt(x)
 
@@ -150,7 +150,7 @@ trait GrothendieckToposLogic:
     * @return
     */
   def uniqueFromTerminalTo(p: Point): Arrow =
-    new DiagramArrow(p.tag, _1, p.asDiagramme):
+    new DiagramArrow(p.tag, _1, p.asDiagram):
       override def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
         val value = p(o)
         new SetFunction(s"tag($o)", _1.source(o), Set(value), _ => value)
@@ -164,6 +164,4 @@ trait GrothendieckToposLogic:
   lazy val _1: Obj = terminalT iHope
 
   private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Obj =
-    topos.const(name, value).asOldDiagram
-
-  def diagramme(obj: Obj): Diagramme = obj.source.asInstanceOf[Diagramme]
+    topos.const(name, value)

@@ -48,7 +48,7 @@ object TestTopologies
 
   def topologyCandidates(topos: CategoryOfDiagrams) =
     import topos._
-    val subs: List[Diagramme] = Ω.subobjects.toList
+    val subs: List[Diagram] = Ω.subobjects.toList
 
     val inclusionsToΩ =
       subs map { sub => inclusionOf(sub) in Ω

@@ -73,7 +73,7 @@ class GrothendieckToposTest extends Fixtures:
       val sample1: χ1.d1.d1.Arrow = χ1("0")
       val sample2 = χ10(1)
       def short(x: Any) = (x match {
-        case tD: topos.Diagramme => tD.toShortString
+        case tD: topos.Diagram => tD.toShortString
 //        case d: Diagram => d.source.toShortString
         case other => 
           other.toString

@@ -36,13 +36,13 @@ class Point(
 
     new Point(s"${f.tag}(${p.tag})", p.topos, apply)
 
-  def   asDiagramme: topos.Diagramme =
+  lazy val asDiagram: topos.Diagram =
     def arrowToFunction(a: topos.thisTopos.domain.Arrow): Any => Any =
       (z: Any) => fromObjectToSubset(topos.thisTopos.domain.d1(a))
 
     def objectsMapping(x: topos.thisTopos.domain.Obj): Sets.set = Set(fromObjectToSubset(x))
 
-    topos.Diagramme(tag,
+    topos.Diagram(tag,
       (x: topos.domain.Obj) => Set(fromObjectToSubset(x)),
       (a: topos.domain.Arrow) =>
         SetFunction(s"$tag(.)",
@@ -51,8 +51,8 @@ class Point(
           arrowToFunction(a)))
 
   @targetName("in")
-  infix inline def ∈(container: topos.Diagramme): Boolean =
-    asDiagramme ⊂ container
+  infix inline def ∈(container: topos.Diagram): Boolean =
+    asDiagram ⊂ container
 
   lazy val predicate: topos.Predicate = topos   predicateFor this
 
@@ -74,7 +74,7 @@ class Point(
           val obRepr = apply(x) match
 //            case d: Diagram =>
 //              shortTitle(d.source.toShortString)
-            case d: topos.Diagramme =>
+            case d: topos.Diagram =>
               shortTitle(d.toShortString)
             case other =>
               other.toString

@@ -30,8 +30,8 @@ class DiagramTest extends Test with TestDiagrams:
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
       sut1.calculateObjectsMapping("b") === BuildPullbackDiagram.sb
 
-      val diagram: testTopos.Diagramme =
-        testTopos.Diagramme("Test",
+      val diagram: testTopos.Diagram =
+        testTopos.Diagram("Test",
           (x: testTopos.domain.Obj) => BuildPullbackDiagram.om(x.toString),
           (a: testTopos.domain.Arrow) => BuildPullbackDiagram.am(a.toString))
 
@@ -54,7 +54,7 @@ class DiagramTest extends Test with TestDiagrams:
       val topos = new CategoryOfDiagrams(ParallelPair)
       expectError(_.
         matches(raw"Inconsistent mapping for d0\(b\) - Set\(.*\) vs .*Set\(5, 1, 2, 3, 4\).*"),
-        topos.Diagramme.tryBuild("Bad Bad Bad",
+        topos.Diagram.tryBuild("Bad Bad Bad",
           Map("0" -> a, "1" -> b),
           Map("a" -> f, "b" -> g)
         )
@@ -73,7 +73,7 @@ class DiagramTest extends Test with TestDiagrams:
 //
 //      expectError(_.
 //        matches(raw"Inconsistent mapping for d0\(b\) - Set\(0, 1, 2\) vs .*Set\(5, 1, 2, 3, 4\)"),
-//        topos.Diagramme.tryBuild(
+//        topos.Diagram.tryBuild(
 //          "Bad Bad Bad",
 //          Map("0" -> a, "1" -> b),
 //          Map("a" -> f, "b" -> g)
@@ -201,7 +201,7 @@ class DiagramTest extends Test with TestDiagrams:
         val cb = fun(c,b)("cb", x => Math.max(2, Math.min(4, x.toInt)))
         val cd = fun(c,d)("cd", _.toInt % 3)
         val ed = fun(e,d)("ed", x => (x.toInt + 1) % 2)
-        val sut = topos.Diagramme.tryBuild(
+        val sut = topos.Diagram.tryBuild(
           "W",
           Map("a" -> a, "b" -> b, "c" -> c, "d" -> d, "e" -> e),
           Map("ab" -> ab, "cb" -> cb, "cd" -> cd, "ed" -> ed)
@@ -271,7 +271,7 @@ class DiagramTest extends Test with TestDiagrams:
       val c: set = Set(0, 1)
       val ab = fun(a,b)("f", _.toInt + 1)
       val ac = fun(a,c)("g", _.toInt % 2)
-      val sut = topos.Diagramme.tryBuild(
+      val sut = topos.Diagram.tryBuild(
         "pushout",
         Map("a" -> a, "b" -> b, "c" -> c),
         Map("ab" -> ab, "ac" -> ac)
@@ -298,7 +298,7 @@ class DiagramTest extends Test with TestDiagrams:
       val b: set = Set(0, 1, 2)
       val f = fun(a,b)("f", x => Math.min(2, x.toInt))
       val g = fun(a,b)("g", x => x.toInt % 3)
-      val sut = topos.Diagramme.tryBuild(
+      val sut = topos.Diagram.tryBuild(
         "coEq",
         Map("0" -> a, "1" -> b),
         Map("a" -> f, "b" -> g)

@@ -18,15 +18,15 @@ class CategoryOfDiagrams(val domain: Category)
   override val graph: Graph = this
   override def nodes = BigSet.of[Node](name)
   override def toString: String = name
-  override type Obj = Diagramme
+  override type Obj = Diagram
   type Node = Obj
   override type Arrow = DiagramArrow
   
-  lazy val subterminals: Set[Diagramme] =
+  lazy val subterminals: Set[Diagram] =
 
     def objectMapping(candidate: Set[domain.Obj]): ObjectMapping =
       (obj: thisTopos.domain.Obj) =>
-        if candidate contains obj then diagramme(_1)(obj) else `∅`
+        if candidate contains obj then _1(obj) else `∅`
 
     def arrowMapping(candidate: Set[domain.Obj], omc: ObjectMapping): ArrowMapping =
       (a: thisTopos.domain.Arrow) =>
@@ -42,7 +42,7 @@ class CategoryOfDiagrams(val domain: Category)
       val mapping = DiagramMapping(ofObjects, ofArrows)
       mapping
 
-    val allDiagrammes: Set[Diagramme] =
+    val allDiagrammes: Set[Diagram] =
       for
         (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
         // some mappings are not working for a given candidate
@@ -50,7 +50,7 @@ class CategoryOfDiagrams(val domain: Category)
         mo = theMapping.ofObjects
         ma = theMapping.ofArrows
       // some of these build attempts will fail, because of compatibility checks
-        diagram <- Diagramme.tryBuild("__" + i, mo, ma) asOption
+        diagram <- Diagram.tryBuild("__" + i, mo, ma) asOption
       yield diagram
 
     allDiagrammes
@@ -61,7 +61,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   def objectNamed(name: String): domain.Obj = name
 
-  def pow(d: Diagramme): Diagramme = ??? // power object; tbd
+  def pow(d: Diagram): Diagram = ??? // power object; tbd
 
   override def id(o: Obj): Arrow =
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.calculateObjectsMapping(x))
@@ -79,12 +79,12 @@ class CategoryOfDiagrams(val domain: Category)
 
   } else None
 
-  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagramme]] =
-    buildMap[domain.Obj, Set[Diagramme]](domain.objects,
+  private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
+    buildMap[domain.Obj, Set[Diagram]](domain.objects,
       x => Representable(x).subobjects.toSet
     )
 
-  case class Representable(x: domain.Obj) extends thisTopos.Diagramme(s"${thisTopos.tag}.hom($x, _)"):
+  case class Representable(x: domain.Obj) extends thisTopos.Diagram(s"${thisTopos.tag}.hom($x, _)"):
     override def calculateObjectsMapping(x: d0.Obj): d1.Obj = om(x)
     override protected def calculateArrowsMapping(f: d0.Arrow): d1.Arrow = am(f)
  
@@ -111,7 +111,7 @@ class CategoryOfDiagrams(val domain: Category)
   
   end Representable
   
-  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagramme.asInstanceOf[Diagramme])
+  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram.asInstanceOf[Diagram])
 
 object CategoryOfDiagrams:
   type DiagramArrow = NaturalTransformation

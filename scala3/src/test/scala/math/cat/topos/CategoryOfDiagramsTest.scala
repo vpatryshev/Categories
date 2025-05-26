@@ -21,7 +21,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     for
       x <- topos.domain.objects
     do
-      val setAtx: Set[?] = topos.diagramme(obj)(x)
+      val setAtx: Set[?] = obj(x)
       setAtx.size === expected
 
   case class check(f: String => Any)(data: List[String], fullList: List[String]):
@@ -107,7 +107,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     "exist in Set to W" in:
       val topos = `Set^W`
       val d = SampleWDiagram
-      val identity_transformation = topos.id(d.asOldDiagram)
+      val identity_transformation = topos.id(d)
       identity_transformation.d0 === d
       identity_transformation.d1 === d
       identity_transformation ∘ identity_transformation === identity_transformation
@@ -115,7 +115,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     "exist in Set to M" in:
       // todo: test composition
       val topos = `Set^M`
-      val d = SampleMDiagram.asOldDiagram
+      val d = SampleMDiagram
       val idtrans = topos.id(d)
       idtrans.d0 === d
       idtrans.d1 === d
@@ -166,10 +166,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       actual.forall(_ ⊂ sut)
 
     "be good for pullback diagram" in:
-      val sut: `Set^Pullback`.Diagramme = SamplePullbackDiagram
+      val sut: `Set^Pullback`.Diagram = SamplePullbackDiagram
       val sample = sut.d0.objects map (ob => sut.calculateObjectsMapping(ob))
 
-      def fullSet(d: `Set^Pullback`.Diagramme): List[String] =
+      def fullSet(d: `Set^Pullback`.Diagram): List[String] =
         d.d0.objects.toList map d.calculateObjectsMapping map itsaset map asString
 
       val listOfSubobjects = sut.subobjects.toList
@@ -206,10 +206,10 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   "Cartesian product" should:
     "exist in Set to ParallelPair" in:
       val topos = `Set^ParallelPair`
-      val d1: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram1
-      val d2: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram2
+      val d1: `Set^ParallelPair`.Diagram = SampleParallelPairDiagram1
+      val d2: `Set^ParallelPair`.Diagram = SampleParallelPairDiagram2
 
-      val actual: `Set^ParallelPair`.Diagramme = `Set^ParallelPair`.product2(d1, d2)
+      val actual: `Set^ParallelPair`.Diagram = `Set^ParallelPair`.product2(d1, d2)
       actual("0").size === 15
       val value1: set = actual("1")
       value1 === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
@@ -227,19 +227,19 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
   "Cartesian product of arrows" should:
     "exist in Set to 𝟙" in:
       val topos = `Set^𝟙`
-      val d01: topos.Diagramme = build(s"d01", topos)(
+      val d01: topos.Diagram = build(s"d01", topos)(
         Map[String, set]("0" -> Set(11, 12)),
         Map[String, SetFunction]()
       )
-      val d02: topos.Diagramme = build(s"d02", topos)(
+      val d02: topos.Diagram = build(s"d02", topos)(
         Map[String, set]("0" -> Set(21, 22)),
         Map[String, SetFunction]()
       )
-      val d11: topos.Diagramme = build(s"d11", topos)(
+      val d11: topos.Diagram = build(s"d11", topos)(
         Map[String, set]("0" -> Set("a11", "a12")),
         Map[String, SetFunction]()
       )
-      val d12: topos.Diagramme = build(s"d12", topos)(
+      val d12: topos.Diagram = build(s"d12", topos)(
         Map[String, set]("0" -> Set("b21", "b22")),
         Map[String, SetFunction]()
       )
@@ -330,16 +330,16 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       actual === expected
 
 
-  "Diagramme points" should {
+  "Diagram points" should {
 
-    def checkPoint(topos: GrothendieckTopos)(sut: topos.Diagramme)(point: Point, expected: List[Int]) = {
+    def checkPoint(topos: GrothendieckTopos)(sut: topos.Diagram)(point: Point, expected: List[Int]) = {
       val objects = sut.d0.objects.toList
       val actual = objects map point.apply
       actual must_== expected
     }
 
     "exist in paralel pair" in {
-      val sut: `Set^ParallelPair`.Diagramme = SampleParallelPairDiagram1
+      val sut: `Set^ParallelPair`.Diagram = SampleParallelPairDiagram1
       val check = checkPoint(`Set^ParallelPair`)(sut)
       sut.points match
         case p1 :: p2 :: p3 :: Nil =>
@@ -353,7 +353,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
     "exist in pullback" in {
       val topos = `Set^Pullback`
-      val sut: `Set^Pullback`.Diagramme = SamplePullbackDiagram
+      val sut: `Set^Pullback`.Diagram = SamplePullbackDiagram
       val actual = sut.points
       actual match
         case p1 :: p2 :: p3 :: p4 :: p5 :: Nil =>

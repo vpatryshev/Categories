@@ -41,17 +41,17 @@ trait TestDiagrams:
   implicit def translateArrowMapping(f: Functor)(am: String => SetFunction): f.d0.Obj => f.d1.Obj =
     (x: f.d0.Obj) => am(f.toString)
   
-  lazy val EmptyDiagram: `Set^𝟘`.Diagramme = build("empty", `Set^𝟘`)(
+  lazy val EmptyDiagram: `Set^𝟘`.Diagram = build("empty", `Set^𝟘`)(
     Map.empty[String, set],
     Map.empty[String, SetFunction]
   )
   
-  val SamplePullbackDiagram: `Set^Pullback`.Diagramme = BuildPullbackDiagram.asDiagram
+  val SamplePullbackDiagram: `Set^Pullback`.Diagram = BuildPullbackDiagram.asDiagram
 
     // TODO: implement
-  lazy val SamplePushoutDiagram: `Set^Pushout`.Diagramme = ???
+  lazy val SamplePushoutDiagram: `Set^Pushout`.Diagram = ???
   
-  val SampleParallelPairDiagram1: `Set^ParallelPair`.Diagramme =
+  val SampleParallelPairDiagram1: `Set^ParallelPair`.Diagram =
     val a: set = Set(1, 2, 3, 4, 5)
     val b: set = Set(0, 1, 2, 3)
       
@@ -64,13 +64,13 @@ trait TestDiagrams:
       Map("a" -> f, "b" -> g)
     )
   
-  val SampleParallelPairSubdiagram1: `Set^ParallelPair`.Diagramme =
+  val SampleParallelPairSubdiagram1: `Set^ParallelPair`.Diagram =
     buildPPdiagram(`Set^ParallelPair`)
 
-  val SampleParallelPairSubdiagram2: `Set^ParallelPair`.Diagramme =
+  val SampleParallelPairSubdiagram2: `Set^ParallelPair`.Diagram =
     buildPPdiagram(`Set^ParallelPair`, "ParSub2.")
 
-  val SampleParallelPairDiagram2: `Set^ParallelPair`.Diagramme =
+  val SampleParallelPairDiagram2: `Set^ParallelPair`.Diagram =
     val a: set = Set(1, 2, 3)
     val b: set = Set(0, 1)
     val f = fun(a,b)("f", x => Math.min(1, x.toInt - 1))
@@ -81,7 +81,7 @@ trait TestDiagrams:
       Map("a" -> f, "b" -> g)
     )
   
-  val SampleZ3Diagram: `Set^Z3`.Diagramme =
+  val SampleZ3Diagram: `Set^Z3`.Diagram =
     val dom: set = Set(2220, 2221, 2222, 2223)
 
     def f(i: Int)(n: Int): Int = if n == 2223 then n else (2220 + (n + i) % 3)
@@ -102,7 +102,7 @@ trait TestDiagrams:
       arrowMap = Map("1" -> f1, "2" -> f2)
     )
 
-  def const(x: set): `Set^𝟙`.Diagramme =
+  def const(x: set): `Set^𝟙`.Diagram =
     build(s"Point($x)", `Set^𝟙`)(
       Map[String, set]("0" -> x),
       Map[String, SetFunction]()
@@ -122,7 +122,7 @@ trait TestDiagrams:
       om,
       am
     )
-    lazy val asDiagram: `Set^Pullback`.Diagramme = build(
+    lazy val asDiagram: `Set^Pullback`.Diagram = build(
       "Pullback Sample", `Set^Pullback`)(
       om,
       am
@@ -139,7 +139,7 @@ trait TestDiagrams:
     val cd = fun(c,d)("cd", _.substring(1, 2))
     val ed = fun(e,d)("ed", _.substring(1, 2))
   
-  val SampleWDiagram:  `Set^W`.Diagramme =
+  val SampleWDiagram:  `Set^W`.Diagram =
     import SampleWDiagramContent._
     build(
       "W Sample", `Set^W`)(
@@ -158,7 +158,7 @@ trait TestDiagrams:
     val dc = fun(d,c)("dc", "c1"+)
     val de = fun(d,e)("de", "e1"+)
 
-  val SampleMDiagram: `Set^M`.Diagramme =
+  val SampleMDiagram: `Set^M`.Diagram =
     import SampleMDiagramContent._
     build(
       "M Sample", `Set^M`)(
@@ -169,10 +169,10 @@ trait TestDiagrams:
 object Constructor:
   def build(name: String, topos: GrothendieckTopos)(
     objectsMap: String => set,
-    arrowMap: String => SetFunction): topos.Diagramme =
+    arrowMap: String => SetFunction): topos.Diagram =
     def om(o: topos.domain.Obj): set = objectsMap(o.toString)
     def am(o: topos.domain.Arrow): SetFunction = arrowMap(o.toString)
-    topos.Diagramme(name, om, am)
+    topos.Diagram(name, om, am)
 
   def buildPPdiagram(topos: CategoryOfDiagrams, prefix: String = "") = {
     val a: set = Set(1, 2, 3)

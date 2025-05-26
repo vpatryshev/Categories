@@ -38,8 +38,6 @@ class Regression250323_Test extends Fixtures:
       val pq_0_at_empty = pq_0(Set.empty)
       val pairOfFalses = (pq_0_at_empty, pq_0_at_empty)
       val pairFT = (pq_0_at_empty, true_0_at_empty)
-//      val inclusionOfΩ1 = Ω.inclusionOfΩ1
-//      val inclusionDiagramme = inclusionOfΩ1.d1.asInstanceOf[Diagram].source.asInstanceOf[`Set^𝟙`.Diagramme]
       val implication = Ω.implication
       val implicationFun = implication("0").asInstanceOf[SetFunction]
       val mustBeTrueAt0 = implicationFun(pairFT) // we pass a (false,true) to a Map, and we get a (true)
@@ -51,7 +49,7 @@ class Regression250323_Test extends Fixtures:
       val v0: p_q_true.d1.d1.Arrow = binopMappingAt(implication, p_and_q, True, "0")
       val PQtoΩxΩ: SetFunction = tuplingAt(p_and_q, True, "0")
       val pairAtEmpty = PQtoΩxΩ.mapping(Set())
-      val omega2_0 = `Set^𝟙`.diagramme(ΩxΩ)("0")
+      val omega2_0 = `Set^𝟙`.ΩxΩ("0")
       (omega2_0 contains pairAtEmpty) === true
       val omega1_0 = Ω1("0")
       (omega1_0 contains pairAtEmpty) === true
