@@ -24,7 +24,7 @@ trait GrothendieckTopos
   topos =>
   val thisTopos: GrothendieckTopos = this
 
-  override type Obj = Diagram
+  override type Obj = Diagramme
   type Node = Obj
   override type Arrow = DiagramArrow
   type ObjectMapping = domain.Obj => set
@@ -122,7 +122,7 @@ trait GrothendieckTopos
       * @param b second subrepresentable
       * @return their intersection
       */
-    private[this] def intersection(a: Diagramme, b: Diagramme): Diagramme =
+    private def intersection(a: Diagramme, b: Diagramme): Diagramme =
       val om = (o: domain.Obj) => a.source(o) & b.source(o)
 
       // this is how, given an arrow `b`, the new diagram gets from one point to another
@@ -213,7 +213,7 @@ trait GrothendieckTopos
 
 
   val ΩxΩ_Diagramme: Diagramme = product2(Ω, Ω)
-  val ΩxΩ: Obj = product2(Ω, Ω).asOldDiagram
+  val ΩxΩ: Obj = product2(Ω, Ω)
 
   private lazy val firstProjectionOf_ΩxΩ =
     buildArrow("π1", ΩxΩ_Diagramme, Ω, firstProjection)
@@ -450,7 +450,7 @@ trait GrothendieckTopos
     * Cartesian product of two diagrams
     * TODO: figure out how to ensure the same d0 in both Di
     */
-  def product2(x: Obj, y: Obj): Obj = ??? // will have to rename the one below, when ready
+//  def product2(x: Obj, y: Obj): Obj = ??? // will have to rename the one below, when ready
   def product2(x: Diagramme, y: Diagramme): Diagramme = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagramme): Result[DiagramArrow] =
@@ -468,13 +468,13 @@ trait GrothendieckTopos
 
     def source: Diagramme = this
 
-    def asOldDiagram: Diagram =
-      new Diagram(thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):
-        override val d0: Category = diagramme.d0
-        override val d1: Category = diagramme.d1
-        override def calculateObjectsMapping(x: this.d0.Obj): this.d1.Obj = diagramme(x)
-        override def calculateArrowsMapping(a: this.d0.Arrow): d1.Arrow =
-          diagramme.arrowsMapping(a)
+    def asOldDiagram: Diagramme = this
+//      new Diagram(thisTopos)(diagramme.asInstanceOf[thisTopos.Diagramme]):
+//        override val d0: Category = diagramme.d0
+//        override val d1: Category = diagramme.d1
+//        override def calculateObjectsMapping(x: this.d0.Obj): this.d1.Obj = diagramme(x)
+//        override def calculateArrowsMapping(a: this.d0.Arrow): d1.Arrow =
+//          diagramme.arrowsMapping(a)
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 

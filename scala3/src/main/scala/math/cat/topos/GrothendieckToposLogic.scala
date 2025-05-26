@@ -167,5 +167,3 @@ trait GrothendieckToposLogic:
     topos.const(name, value).asOldDiagram
 
   def diagramme(obj: Obj): Diagramme = obj.source.asInstanceOf[Diagramme]
-
-  def diagramme(obj: Diagramme): Diagramme = obj

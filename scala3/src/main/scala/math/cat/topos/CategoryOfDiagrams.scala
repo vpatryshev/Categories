@@ -16,9 +16,9 @@ class CategoryOfDiagrams(val domain: Category)
   with GrothendieckTopos:
   thisTopos =>
   override val graph: Graph = this
-  override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
+  override def nodes = BigSet.of[Node](name)
   override def toString: String = name
-  override type Obj = Diagram
+  override type Obj = Diagramme
   type Node = Obj
   override type Arrow = DiagramArrow
   
@@ -33,7 +33,7 @@ class CategoryOfDiagrams(val domain: Category)
         val d0 = omc(domain.d0(a))
         val d1 = omc(domain.d1(a))
         val arrow = _1.arrowsMapping(a)
-        val function = _1.source.asFunction(arrow)
+        val function = _1.asFunction(arrow)
         function restrictTo(d0, d1) iHope
 
     def mapping(candidate: Set[domain.Obj]): DiagramMapping =
@@ -116,16 +116,3 @@ class CategoryOfDiagrams(val domain: Category)
 object CategoryOfDiagrams:
   type DiagramArrow = NaturalTransformation
   val BaseCategory: Category = SetCategory.Setf
-
-  private def nameOfPowerCategory(domainName: String) = s"Sets^$domainName"
-  
-  private def graphOfDiagrams(domainName: String): Graph =
-    new Graph(nameOfPowerCategory(domainName)):
-      type Node = Diagram
-      type Arrow = DiagramArrow
-
-      override def nodes: Nodes   = BigSet.of[Node](name)
-      override def arrows: Arrows = BigSet.of[Arrow](s"Arrows in $name")
-
-      def d0(f: Arrow): Node = f.d0
-      def d1(f: Arrow): Node = f.d1
