@@ -141,7 +141,7 @@ trait GrothendieckToposLogic:
 
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 
-    new Predicate(pt.tag, _1.source.asInstanceOf[GrothendieckToposLogic.this.Diagram]):
+    new Predicate(pt.tag, _1):
       override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         inclusion.calculateMappingAt(x)
 
@@ -153,7 +153,7 @@ trait GrothendieckToposLogic:
     new DiagramArrow(p.tag, _1, p.asDiagram):
       override def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
         val value = p(o)
-        new SetFunction(s"tag($o)", _1.source(o), Set(value), _ => value)
+        new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
 
   lazy val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.`∅`)
   

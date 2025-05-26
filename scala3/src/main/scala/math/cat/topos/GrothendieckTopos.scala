@@ -60,7 +60,7 @@ trait GrothendieckTopos
     def toposName: String = topos.tag
 
     // this one is consumed by Functor constructor
-    def calculateObjectsMapping(x: d0.Obj): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
+    def calculateObjectsMapping(x: XObject): d1.Obj = subrepresentablesIndexed(x: domain.Obj)
 
     // for each arrow `a: x -> y` produce a transition `Ω(x) -> Ω(y)`.
     private def am(a: domain.Arrow): SetFunction =
@@ -123,7 +123,7 @@ trait GrothendieckTopos
       * @return their intersection
       */
     private def intersection(a: Diagram, b: Diagram): Diagram =
-      val om = (o: domain.Obj) => a.source(o) & b.source(o)
+      val om = (o: domain.Obj) => a(o) & b(o)
 
       // this is how, given an arrow `b`, the new diagram gets from one point to another
       def am(f: domain.Arrow): SetFunction =
@@ -141,12 +141,12 @@ trait GrothendieckTopos
         case bs => throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
         
       val conjunctionOfTwoSubreps: Any => Diagram = Cache[Any, Diagram](
-        s"∧", calcConjunctionOfTwoSubreps, domain.isFinite
+        "∧", calcConjunctionOfTwoSubreps, domain.isFinite
       )
 
       def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction =
-        val dom = ΩxΩ.source(x)
-        val codom = Ω.source(x)
+        val dom = ΩxΩ(x)
+        val codom = Ω(x)
         new SetFunction(s"∧[$x]", dom.untyped, codom, conjunctionOfTwoSubreps)
 
       new DiagramArrow("∧", ΩxΩ, Ω):
@@ -197,9 +197,7 @@ trait GrothendieckTopos
       )
 
       def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction =
-        val dom = ΩxΩ.source(x)
-        val codom = Ω.source(x)
-        new SetFunction(s"v[$x]", dom.untyped, codom, pair => disjunctionOfTwoSubreps(pair))
+        new SetFunction(s"v[$x]", ΩxΩ(x).untyped, Ω(x), pair => disjunctionOfTwoSubreps(pair))
 
       new DiagramArrow("v", ΩxΩ, Ω):
         override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
@@ -229,33 +227,26 @@ trait GrothendieckTopos
   /**
     * Diagonal for Ω
     */
-  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ.source.asInstanceOf[topos.Diagram],
+  lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
     _ => (subrep: Any) => (subrep, subrep)
   )
 
-  private[topos] case class χAt(inclusion: Arrow, x: domain.Obj):
-    val A = inclusion.d1.asInstanceOf[Diagram].source
-    val B = inclusion.d0.asInstanceOf[Diagram].source
+  private[topos] case class χAt(inclusion: DiagramArrow, x: domain.Obj):
+    val A = inclusion.d1.asInstanceOf[Diagram]
+    val B = inclusion.d0.asInstanceOf[Diagram]
     val Ωatx = Ω(x)
     // for each element ax of set Ax find all arrows x->y
     // that map ax to an ay that belongs to By
     def myArrows(ax: Any): Set[(Any, set)] =
       def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
 
-      def hits(By: set)(f: domain.Arrow) =
-        val image = image_via(f)
-        By contains image
-      //            image_via(f) ∈ By
+      def hits(`B(y)`: set)(f: domain.Arrow) =
+        `B(y)` contains image_via(f)
 
       domain.objects.map {
         y =>
-          val all_arrows_to_y: domain.Arrows = domain.hom(x, y)
-          val By = B(y)
-          y -> itsaset(all_arrows_to_y filter hits(By))
+          y -> itsaset(domain.hom(x, y) filter hits(B(y)))
         }
-
-//    def sameMapping(repr: Diagram, mapping: Map[Any, set]): Boolean =
-//      domain.objects.forall(o => mapping(o) == repr.source(o))
 
     def sameMapping(repr: topos.Diagram, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
@@ -461,12 +452,10 @@ trait GrothendieckTopos
   abstract class Diagram(tag: String)
     extends Functor(tag, thisTopos.domain, SetCategory.Setf):
     diagram =>
-    private type XObject = d0.Obj // topos.domain.Obj ???
-    private type XObjects = Set[XObject]
-    private type XArrow = d0.Arrow // topos.domain.Arrow ???
-    private type XArrows = Set[XArrow]
-
-    def source: Diagram = this
+    type XObject = d0.Obj // topos.domain.Obj ???
+    type XObjects = Set[XObject]
+    type XArrow = d0.Arrow // topos.domain.Arrow ???
+    type XArrows = Set[XArrow]
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 

@@ -85,7 +85,8 @@ class CategoryOfDiagrams(val domain: Category)
     )
 
   case class Representable(x: domain.Obj) extends thisTopos.Diagram(s"${thisTopos.tag}.hom($x, _)"):
-    override def calculateObjectsMapping(x: d0.Obj): d1.Obj = om(x)
+    override def calculateObjectsMapping(y: d0.Obj): d1.Obj = domain.hom(x, y)
+    
     override protected def calculateArrowsMapping(f: d0.Arrow): d1.Arrow = am(f)
  
     // have to validate right here, because a representable must exist, and all checks should be passing
@@ -98,20 +99,18 @@ class CategoryOfDiagrams(val domain: Category)
       * @return a function from domain.hom(x, f.d0) to domain.hom(x, f.d1)
       */
     private def am(f: domain.Arrow): SetFunction =
-      val d0: domain.Arrows = om(domain.d0(f))
-      val d1: domain.Arrows = om(domain.d1(f))
+      val d0: domain.Arrows = domain.hom(x, domain.d0(f))
+      val d1: domain.Arrows = domain.hom(x, domain.d1(f))
       val tuples: Set[(domain.Arrow, domain.Arrow)] = d0.flatMap{ g => domain.m(g, f) map (g -> _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
       new SetFunction("", itsaset(d0), itsaset(d1), a => mapping(a))
 
-    private def om(y: domain.Obj) = domain.hom(x, y)
-
     probablyFunctor iHope
   
   end Representable
   
-  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram.asInstanceOf[Diagram])
+  def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram)
 
 object CategoryOfDiagrams:
   type DiagramArrow = NaturalTransformation
