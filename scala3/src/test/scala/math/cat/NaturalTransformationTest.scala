@@ -33,20 +33,15 @@ class NaturalTransformationTest extends Test {
     val ghOpt: Result[NT] = NaturalTransformation.build("test_gh", g, h)(
       Map("0" -> "1.2", "1" -> "2.3"))
 
-    val `f->g` = fgOpt.iHope
-    val `g->h` = ghOpt.iHope
-
-    "build properly" in {
-      // if the test crashes on start, move lines 35-36 here
-      ok
-    }
+    def `f->g` = fgOpt.iHope
+    def `g->h` = ghOpt.iHope
 
     "compose" in {
         val `f->h` = `g->h` ∘ `f->g`
         `f->h`.d0 === f
         `f->h`.d1 === h
-        `f->h`.mappingAt("0") === "0.2"
-        `f->h`.mappingAt("1") === "2.3"
+        `f->h`("0") === "0.2"
+        `f->h`("1") === "2.3"
     }
 
     "have identity" in {

@@ -482,7 +482,7 @@ class CategoryTest extends Test:
     "buildBundles ParallelPair" >> {
       ParallelPair.buildBundles(Set("0"), Set("0", "a", "b")) ===
         Map("0" -> Set("0", "a", "b"))
-      ParallelPair.buildBundles(Set("1"), Set("0", "a", "b")) must throwA[IllegalArgumentException]
+      ParallelPair.buildBundles(Set("1"), Set("0", "a", "b")) must throwA[InstantiationException]
     }
 
     "buildBundles Pullback" >> {
@@ -585,7 +585,7 @@ class CategoryTest extends Test:
   "baseGraph" >> {
     import Graph._
 
-    "good for " >> {
+    "good for 𝟛" >> {
       `𝟛`.baseGraph === graph"({0,1,2}, {0.1: 0 -> 1, 1.2: 1 -> 2})"
     }
 

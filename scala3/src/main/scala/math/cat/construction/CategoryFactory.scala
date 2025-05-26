@@ -121,9 +121,6 @@ private[cat] trait CategoryFactory:
     CategoryData.partial[T](Graph.discrete[T](objects, s"Discrete_${objects.size}")
     )().build iHope
 
-  def composablePairs(graph: Graph): Iterable[(graph.Arrow, graph.Arrow)] =
-    for (f <- graph.arrows; g <- graph.arrows if graph.follows(g, f)) yield (f, g)
-
   /**
     * Factory method. Parses a string and builds a category from it.
     *

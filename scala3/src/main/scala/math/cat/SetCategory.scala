@@ -55,7 +55,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     */
   override def id(s: set): SetFunction = SetFunction.id(s)
 
-  override def toString: String = "Category of all Scala Sets"
+  override def toString: String = "Category of all Sets"
   
   /**
     * Set `x` to the power of set `y`.
@@ -176,7 +176,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     *
     * Need to filter, so that if an empty set does not belong to a subcategory, `initial` is empty
     */
-  override lazy val initial: Result[set] = Good(Sets.Empty) filter {
+  override lazy val initial: Result[set] = Good(Sets.`∅`) filter {
     emptySet => {
       thisCategory.contains(emptySet)
 //      emptySet.∈(thisCategory)
@@ -259,7 +259,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
       rightCorner <- Result(right andThen coeq)
     } yield (leftCorner, rightCorner)
 
-  override def hashCode: Int = getClass.hashCode * 7 + objects.hashCode
+  override lazy val hashCode: Int = getClass.hashCode * 7 + objects.hashCode
 
   override def equals(x: Any): Boolean = x match
     case sc: SetCategory => objects == sc.objects

@@ -19,7 +19,14 @@ class SetMorphism[X, Y] (
     val d1: Set[Y],
     val function: X => Y)
   extends Morphism[Set[X], Set[Y]] with Map[X, Y]:
-  
+
+  // TODO: investigate the impact of this caching.
+  lazy val mapping: X => Y =
+//    if (d0.isFinite)
+//      buildMap(d0, function)
+//    else
+      function
+
   /**
    * Two set morphisms are equal if they have equal d0s and d1s and map d0 elements to the same values.
    * Note that there's no negation in this calculation; there is a deep reason for it, to be disclosed much, much later.
@@ -57,12 +64,18 @@ class SetMorphism[X, Y] (
 
   /**
     * Getter: given a value, apply this morphism.
-    * Have to implement it, because we extend `Map`.
-    * @param x
-    * @return
+    * Have to implement it here, as we extend `Map` class.
+    * @param x the value to apply this morphism to.
+    * @return an optional value of function(x). Any failure gives a None.
     */
   def get(x: X): Option[Y] =
-    Result.forValue(x).filter(d0 contains).flatMap(x => Result.forValue(function(x))).asOption
+    Result.forValue(x)
+      .filter(d0 contains)
+      .flatMap(x => Result.forValue( {
+        val y = function(x)
+        y
+      }))
+      .asOption
 
   /**
     * Domain size of this morphism.
@@ -84,9 +97,9 @@ class SetMorphism[X, Y] (
   /**
     * Pretends to be removing a value from this morphism because it's a map.
     * We actually don't.
-    * @param x argument
-    * @param y value
-    * @tparam Y1 value type
+    * @param key argument
+    * @tparam X argument type
+    * @tparam Y value type
     * @return an exception is thrown
     */
   override def removed(key: X): scala.collection.immutable.Map[X,Y] = itsImmutable
@@ -238,7 +251,7 @@ object SetMorphism:
       p => (f(p._1), g(p._2)))
 
   /**
-    * Given a factorset, build a set morphims from its base set
+    * Given a factorset, build a set morphism from its base set
     * @param factorSet a factorset
     * @tparam X base set element type
     * @return a set morphism from base set to the factorset

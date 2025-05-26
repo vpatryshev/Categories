@@ -17,7 +17,10 @@ trait Graph(val name: String) extends GraphData:
 
   def size: Int = nodes.size
 
-  override def hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
+  def composablePairs: Iterable[(Arrow, Arrow)] =
+    for (f <- arrows; g <-arrows if follows(g, f)) yield (f, g)
+
+  override lazy val hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
   override def equals(x: Any): Boolean =
     x match
@@ -35,7 +38,7 @@ trait Graph(val name: String) extends GraphData:
   private infix def equal(that: Graph) = checkThat {
     this.nodes == that.nodes && this.arrows == that.arrows &&
     arrows.forall(arrowHere =>
-      val arrowThere: that.Arrow = arrowHere
+      val arrowThere: that.Arrow = that.asArrow(arrowHere)
       (d0(arrowHere) == that.d0(arrowThere)) && (d1(arrowHere) == that.d1(arrowThere))
     )
   }
@@ -120,6 +123,9 @@ trait Graph(val name: String) extends GraphData:
   end subgraph
   
   def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] = 
+    if (newArrows.isEmpty) then 
+      return Good(this)
+      
     val result = new Graph(name):
 
       lazy val nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
@@ -156,13 +162,18 @@ private[cat] trait GraphData:
 
   implicit def asNode(x: Any): Node = x match
     case node: Node @unchecked if nodes(node) => node
-    case badNode: Node => throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
-    case notaNode => throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
+    case badNode: Node => 
+      throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
+    case notaNode => 
+      throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
-  implicit def asArrow(a: Any): Arrow = a match
-    case arrow: Arrow @unchecked if arrows(arrow) => arrow
-    case badArrow: Arrow => throw new IllegalArgumentException(s"<<$badArrow>> is not listed as an arrow")
-    case notAnArrow => throw new IllegalArgumentException(s"<<$notAnArrow>> is not an arrow")
+  implicit def asArrow(a: Any): Arrow = 
+    a match
+      case arrow: Arrow @unchecked if arrows(arrow) => arrow
+      case badArrow: Arrow =>
+        throw new IllegalArgumentException(s"<<$badArrow>> is not listed as an arrow")
+      case notAnArrow =>
+        throw new IllegalArgumentException(s"<<$notAnArrow>> is not an arrow")
 
   /*
     TODO: figure out how come this does not work

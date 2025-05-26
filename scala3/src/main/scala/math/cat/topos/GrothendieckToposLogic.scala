@@ -2,11 +2,11 @@ package math.cat.topos
 
 import math.Base.concat
 import math.cat.SetFunction.*
-import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow, const}
+import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow}
 import math.cat.{Morphism, SetFunction}
 import math.sets.Sets
 import Sets.{set, setOf}
-import scalakittens.Result
+import scalakittens.{Cache, Params, Result}
 
 import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
@@ -17,10 +17,39 @@ trait GrothendieckToposLogic:
 // TODO: use the right tagging, find the right predicate
 //  private val cache = mutable.Map[(String, Predicate, Predicate), Predicate]()
 
-  abstract class Predicate(myTag: Any) extends DiagramArrow(myTag):
+  object Predicates:
+
+    def tuplingAt(left: Predicate, right: Predicate, o: domain.Obj): SetFunction =
+      val dom = left.setAt(o)
+      if (Params.fullCheck)
+        require(right.setAt(o) == dom)
+
+      val po: SetFunction = left.transformAt(o)
+      val qo: SetFunction = right.transformAt(o)
+      new SetFunction(
+        s"PQ->ΩxΩ($o)",
+        dom, ΩxΩ(o),
+        v => (po(v), qo(v))
+      )
+
+    def binopMappingAt(
+                        ΩxΩ_to_Ω: DiagramArrow,
+                        left: Predicate,
+                        right: Predicate,
+                        o: domain.Obj): Ω.d1.Arrow =
+      val PQtoΩxΩ: SetFunction = tuplingAt(left, right, o)
+      val pairAtEmpty = PQtoΩxΩ.mapping(Set())
+      val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
+      val opAtPairAtEmpty = op.mapping(pairAtEmpty)
+      val theMapping = PQtoΩxΩ andThen op
+      val result: SetFunction = theMapping.getOrElse(throw new IllegalStateException("Failed to compose"))
+      val resultAtEmpty = result.mapping(Set())
+      result
+
+  abstract class Predicate(myTag: String, override val d0: Diagram) extends DiagramArrow(myTag, d0, Ω):
     p: DiagramArrow =>
-  
-    val d1: Diagram = Ω
+
+    def containsTruth: Boolean = Truth ∈ d0.asInstanceOf[Truth.topos.Diagram] // find a fix
 
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
@@ -30,52 +59,29 @@ trait GrothendieckToposLogic:
     private def tag2(tag1: Any, op: String, tag2: Any): String = 
       concat(wrapTag(tag1), op, wrapTag(tag2))
 
-    private def setAt(o: Any): set =
-      val function: SetFunction = p.mappingAt(o).asInstanceOf[SetFunction] // d1.d1.Arrow = SetFunction, and if we d
+    def setAt(o: Any): set =
+      val function: SetFunction = p(o).asInstanceOf[SetFunction] // d1.d1.Arrow = SetFunction, and if we d
       setOf(function.d0)
 
-    private def transformAt(o: Any): SetFunction =
-      mappingAt(o).asInstanceOf[SetFunction]
+    private[GrothendieckToposLogic] def transformAt(o: Any): SetFunction =
+      apply(o).asInstanceOf[SetFunction]
 
     def binaryOp(ΩxΩ_to_Ω: DiagramArrow)(q: Predicate): Predicate =
-      binaryOpNamed(q, ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)
+      binaryOpNamed(ΩxΩ_to_Ω, ΩxΩ_to_Ω.tag)(q)
 
-    def binaryOpNamed(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, name: Any): Predicate =
-    // TODO: when identification is fixed (finding the right point), uncomment
-    // cache.getOrElseUpdate((name, p, q), 
-      evalBinaryOp(q, ΩxΩ_to_Ω, name)
-    //)
-
-    def binopMappingAt(ΩxΩ_to_Ω: DiagramArrow, p: Predicate, q: Predicate, o: d0.d0.Obj): d1.d1.Arrow =
-      val dom = p.setAt(o)
-      val d0 = dom.head
-      require(q.setAt(o) == dom)
-
-      val po: SetFunction = p.transformAt(o)
-      val pom = po.mapping
-      val qo: SetFunction = q.transformAt(o)
-      val qom = qo.mapping
-      val PQtoΩxΩ: SetFunction =
-        new SetFunction(
-          s"PQ->ΩxΩ($o)",
-          dom, ΩxΩ(o),
-          v => (po(v), qo(v))
-        )
-      val pairAtEmpty = PQtoΩxΩ.mapping(Set())
-      val op: SetFunction = ΩxΩ_to_Ω(o).asInstanceOf[SetFunction]
-      val opAtPairAtEmpty = op.mapping(pairAtEmpty)
-      val theMapping = PQtoΩxΩ andThen op
-      val result: SetFunction = theMapping.getOrElse(throw new IllegalStateException("Failed to compose"))
-      val resultAtEmpty = result.mapping(Set())
-      result
-
-    def evalBinaryOp(q: Predicate, ΩxΩ_to_Ω: DiagramArrow, newTag: Any): Predicate =
+    def binaryOpNamed(ΩxΩ_to_Ω: DiagramArrow, opTag: String)(q: Predicate): Predicate =
+      evalBinaryOp(ΩxΩ_to_Ω, opTag)(q)
+      
+    val bop: Cache[(DiagramArrow, String), Predicate => Predicate] =
+      Cache[(DiagramArrow, String), Predicate => Predicate](true, 
+        (arrow, opTag) => Cache[Predicate, Predicate](true, evalBinaryOp(arrow, opTag)(_)))
+    
+    def evalBinaryOp(ΩxΩ_to_Ω: DiagramArrow, newTag: String)(q: Predicate): Predicate =
       requireCompatibility(q)
 
-      new Predicate(newTag):
-        val d0 = p.d0
-        def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
-          binopMappingAt(ΩxΩ_to_Ω, p, q, o)
+      new Predicate(newTag, p.d0):
+        def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
+          Predicates.binopMappingAt(ΩxΩ_to_Ω, p, q, o)
 
     end evalBinaryOp
     
@@ -105,11 +111,11 @@ trait GrothendieckToposLogic:
     lazy val ⟹ = binaryOp(Ω.implication)
 
   def ¬(p: topos.Predicate): topos.Predicate =
-    p.binaryOpNamed(FalsePredicate, Ω.implication, "¬")
+    p.binaryOpNamed(Ω.implication, "¬")(FalsePredicate)
 
-  lazy val FalsePredicate: topos.Predicate = predicateFor(Ω.False)
+  lazy val FalsePredicate: topos.Predicate = predicateFor(Falsehood)
 
-  lazy val TruePredicate: topos.Predicate = predicateFor(Ω.True)
+  lazy val TruePredicate: topos.Predicate = predicateFor(Truth)
 
   /**
     * Builds a predicate for an arrow to Ω
@@ -117,47 +123,45 @@ trait GrothendieckToposLogic:
     * @return an arrow X -> Ω
     */
   infix def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
-    new topos.Predicate(f.tag):
-      override val d0: Obj = f.d0
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-        f.mappingAt(x)
+    f.d0 match
+      case d: topos.Diagram =>
+        new topos.Predicate(f.tag, d):
+          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
+
+      case basura => throw new IllegalArgumentException(s"WTF: basura $basura")
 
   /**
     * Builds a predicate for a point in Ω
     * @param pt the point
     * @return an arrow pt -> Ω
     */
-  infix def predicateFor(pt: Point): Predicate =
+  val predicateFor = Cache[Point, Predicate](true, calculatePredicate)
+
+  infix def calculatePredicate(pt: Point): Predicate =
 
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 
-    new Predicate(pt.tag):
-      override val d0: Obj = _1
-
-      override def mappingAt(x: d0.d0.Obj): d1.d1.Arrow =
-        inclusion.mappingAt(x)
+    new Predicate(pt.tag, _1):
+      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+        inclusion.calculateMappingAt(x)
 
   /**
     * An arrow from terminal to the point as a diagram
     * @return
     */
   def uniqueFromTerminalTo(p: Point): Arrow =
-    new DiagramArrow(p.tag):
+    new DiagramArrow(p.tag, _1, p.asDiagram):
+      override def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
+        val value = p(o)
+        new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
 
-      override val d0: Diagram = _1
-      override val d1: Diagram = p.asDiagram
-
-      override def mappingAt(o: d0.d0.Obj): d1.d1.Arrow =
-          val value = p(o)
-          new SetFunction(s"tag($o)", _1(o), Set(value), _ => value)
-
-  val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.Empty)
+  lazy val initialT: Result[Obj] = BaseCategory.initial map constSet("initial", Sets.`∅`)
   
   lazy val _0: Obj = initialT iHope
 
-  val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal", Sets.Unit)
-  
-  val _1: Obj = terminalT iHope
+  lazy val terminalT: Result[Obj] = BaseCategory.terminal map constSet("terminal", Sets.`{∅}`)
 
-  private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Diagram =
-    const(name, topos)(value)
+  lazy val _1: Obj = terminalT iHope
+
+  private[topos] def constSet(name: String, value: set)(obj: BaseCategory.Obj): Obj =
+    topos.const(name, value)

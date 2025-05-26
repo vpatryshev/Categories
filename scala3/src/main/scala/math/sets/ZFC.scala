@@ -2,6 +2,7 @@ package math.sets
 
 import scalakittens.Container
 import scalakittens.Containers.*
+import scalakittens.Params.verbose
 
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
@@ -9,10 +10,6 @@ import scala.annotation.targetName
 
 object ZFC:
   val PATIENCE = 100
-
-  // no logging by default
-  def log(s: String): Unit =
-    ()
 
   /**
     * A cache for storing sets that are built in the process
@@ -25,7 +22,7 @@ object ZFC:
     * @return
     */
   private def register(o: SetZ): SetZ =
-    log(s"exists $o")
+    verbose(s"exists $o")
     if !(domain contains o) then domain.append(o)
     o
 
@@ -74,7 +71,7 @@ object ZFC:
       */
     def denote(theId: String): SetZ =
       new SetZ(theId, thePredicate):
-        log(id + "=" + this)
+        verbose(id + "=" + this)
 
     def contains: Predicate = thePredicate
 

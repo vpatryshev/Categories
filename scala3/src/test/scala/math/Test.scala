@@ -2,9 +2,9 @@ package math
 
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
-import org.specs2.execute.{Result => TestResult}
-import scalakittens.Result.OKif
-import scalakittens._
+import org.specs2.execute.Result as TestResult
+import scalakittens.Result.{OKif, Outcome}
+import scalakittens.*
 import testing.TestBase
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,8 +32,8 @@ class Test extends TestBase:
 
   def expect(op: SUT => Unit)(sutOpt: Result[SUT]): MatchResult[Any] = checkOption[SUT](sutOpt, op)
 
-  def expectOk(r: Result[?]): TestResult =
-    r.isGood aka r.toString must beTrue
+  def expectOk(id: String, r: Result[?]): TestResult =
+    r.isGood aka s"$id: $r" must beTrue
   
   def expectError[T](op: String => Boolean, r: Result[T]): TestResult =
     r match
@@ -51,14 +51,21 @@ class Test extends TestBase:
         val details = nogood.errorDetails
         (details exists (_.contains(msg))) aka details.getOrElse("???") must beTrue
 
+    def expectErrors[T](msgs: Set[String], r: Result[T]): TestResult =
+      r match
+        case Good(bad) => failure(s"Expected failure, got a $bad")
+        case nogood =>
+          val details = nogood.errorDetails.getOrElse("").split("; ").toSet
+          msgs === details
+
     ok
 
-  def expectError(r: Result[?], messages: String*): TestResult =
+  def expectError(tag: String, r: Result[?], messages: String*): TestResult =
     r.isBad must beTrue
     r.errorDetails match
       case Some(things) =>
-        val matches = messages.map{ message => OKif(things.contains(message)) }
-        expectOk(Result.traverse(matches))
+        val matches: Seq[Outcome] = messages.map{ message => OKif(things.contains(message)) }
+        expectOk(tag, Result.traverse(matches))
 
       case None => failure(s"Expected errors in $r")
 

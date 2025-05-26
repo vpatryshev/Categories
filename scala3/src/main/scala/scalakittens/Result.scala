@@ -115,7 +115,7 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
 
   def iHope: T = throw new InstantiationException(errors)
 
-class Bad[T](val listErrors: Errors) extends Result[T] with NoGood[T]:
+case class Bad[T](listErrors: Errors) extends Result[T] with NoGood[T]:
 
   import Result._
 
@@ -212,7 +212,9 @@ object Result:
   
   private def attempt[T](
     eval: => Result[T],
-    onException: Exception => Result[T] = (e: Exception) => exception(e)): Result[T] =
+    onException: Exception => Result[T] = (e: Exception) => 
+      exception(e)
+    ): Result[T] =
     try { eval } catch { case e: Exception => onException(e) }
 
   private def attempt[T](eval: =>Result[T], errMsg: => String): Result[T] =

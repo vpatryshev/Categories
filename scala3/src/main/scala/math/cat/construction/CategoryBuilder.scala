@@ -4,6 +4,7 @@ import math.cat._
 import math.sets.Sets._
 
 import scala.language.{implicitConversions, postfixOps}
+import math.Base.*
 
 /**
   * Given `CategoryData` as a source,
@@ -16,7 +17,7 @@ import scala.language.{implicitConversions, postfixOps}
   */
 class CategoryBuilder(val source: CategoryData):
 
-  val graph = source.graph
+  val graph: Graph = source
 
   private def sd0[A](a: A): source.Obj = source.d0(a)
   private def sd1[A](a: A): source.Obj = source.d1(a)
@@ -27,7 +28,7 @@ class CategoryBuilder(val source: CategoryData):
       newFiniteCategory
     else
       new Category(source.name):
-        override val graph = source.graph
+        override val graph = source
         override def nodes = source.nodes.asInstanceOf[Nodes] // TODO: remove this cast
 
         override def d0(f: Arrow): Obj = sd0(f)
@@ -42,7 +43,7 @@ class CategoryBuilder(val source: CategoryData):
   def newFiniteCategory: Category =
 
     new Category(source.name):
-      override val graph = source.graph
+      override val graph: Graph = source
       override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
       private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => sd0(f))
       private val d1Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => sd1(f))
@@ -51,7 +52,7 @@ class CategoryBuilder(val source: CategoryData):
       override inline def d0(f: Arrow): Obj = d0Map(f)
       override inline def d1(f: Arrow): Obj = d1Map(f)
 
-      inline def id(o: Obj): Arrow = idMap(o)
+      def id(o: Obj): Arrow = idMap(o)
   
       private val mMap = {
         for

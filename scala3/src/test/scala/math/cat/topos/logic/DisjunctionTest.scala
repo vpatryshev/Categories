@@ -19,10 +19,10 @@ class DisjunctionTest extends Fixtures:
           val topos = new CategoryOfDiagrams(cat)
           import topos._
           val desc = s"Testing disjunction over ${cat.name} ($number/$total)"
-          val rep = report(_)
+          val rep = reportIn(topos)
           println(desc)
-          val True = Ω.True.asPredicateIn(topos)
-          val False = Ω.False.asPredicateIn(topos)
+          val True = Truth.asPredicateIn(topos)
+          val False = Falsehood.asPredicateIn(topos)
           checkThatIn(topos, number, total).mustBeMonoid[Predicate](
             "disjunction",
             False,

@@ -1,8 +1,11 @@
 package math.cat.topos
 
- import math.Base.*
+import scalakittens.{Cache, Params, Result}
+import math.Base.*
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.{Category, SetFunction}
+import math.cat.{Category, SetCategory, SetFunction}
+import math.cat.topos.Format.shortTitle
+import math.sets.Sets
 
 import scala.annotation.targetName
 import scala.language.implicitConversions
@@ -11,76 +14,76 @@ import scala.language.implicitConversions
   * A point of a topos object (of a diagram in a Grothendieck topos)
   * @param tag used to visually identify a point
   * @param topos the topos
-  * @param mapping for each domain object, choose something in the topos diagram
+  * @param fromObjectToSubset for each domain object, choose something in the topos diagram
   */
 class Point(
-  val tag: Any,
+  val tag: String,
   val topos: GrothendieckTopos,
-  val mapping: Any => Any) extends (Any => Any):
+  val fromObjectToSubset: Any => Any) extends (Any => Any):
   p =>
-
+  val baseTopos: GrothendieckTopos = topos
   private val domainCategory: Category = topos.domain
-
+  lazy val mapping = Cache[Any, Any](tag, fromObjectToSubset, true)
   def apply(x: Any): Any = mapping(x)
   
-  infix def named(name: Any): Point = new Point(name, topos, mapping)
+  infix def named(name: String): Point = new Point(name, topos, fromObjectToSubset)
 
   // @deprecated("This should be redefined via composition", "03/28/2020")
   def transform(f: DiagramArrow): Point =
     def apply(o: Any) =
       f(o) match
         case sf: SetFunction => sf(p(o))
-        case weirdStuff =>
-          cannotDo(s"${f(o)} was supposed to be a set function")
 
     new Point(s"${f.tag}(${p.tag})", p.topos, apply)
 
-  def asDiagram: Diagram =
-    new Diagram(tag, topos):
-      diagram =>
+  lazy val asDiagram: topos.Diagram =
+    def arrowToFunction(a: topos.thisTopos.domain.Arrow): Any => Any =
+      (z: Any) => fromObjectToSubset(topos.thisTopos.domain.d1(a))
 
-      override def objectsMapping(x: d0.Obj): d1.Obj = Set(mapping(x))
+    def objectsMapping(x: topos.thisTopos.domain.Obj): Sets.set = Set(fromObjectToSubset(x))
 
-      private def arrowToFunction(a: d0.Arrow): Any => Any =
-        (z: Any) => mapping(d0.d1(a))
-
-      override protected def arrowsMappingCandidate(a: d0.Arrow): d1.Arrow =
-        // need a set function from a.d0 to a.d1
-          SetFunction(
-            s"${diagram.tag}(.)",
-            objectsMapping(d0.d0(a)),
-            objectsMapping(d0.d1(a)),
-            arrowToFunction(a))
+    topos.Diagram(tag,
+      (x: topos.domain.Obj) => Set(fromObjectToSubset(x)),
+      (a: topos.domain.Arrow) =>
+        SetFunction(s"$tag(.)",
+          objectsMapping(topos.domain.d0(a)),
+          objectsMapping(topos.domain.d1(a)),
+          arrowToFunction(a)))
 
   @targetName("in")
-  infix inline def ∈(container: Diagram): Boolean = asDiagram ⊂ container
+  infix inline def ∈(container: topos.Diagram): Boolean =
+    asDiagram ⊂ container
 
-  private lazy val predicate: topos.Predicate = topos predicateFor this
+  lazy val predicate: topos.Predicate = topos   predicateFor this
 
   // TODO: fix this awkward unnecessary casting
   inline infix def asPredicateIn(t: GrothendieckTopos): t.Predicate =
-    require(t eq topos)
+    require(t eq topos) // we don't need a full compare, just an identity check
     predicate.asInstanceOf[t.Predicate]
 
   override def toString: String =
     if tag.toString.nonEmpty then tag.toString else
       val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
-      Diagram.cleanupString(raw.mkString(s"$tag(", ", ", ")"))
+      shortTitle(raw.mkString(s"$tag(", ", ", ")"))
 
   def toShortString: String =
-    val raw = domainCategory.objects.map(x => s"$x->${apply(x)}").mkString(s"$tag(", ", ", ")")
-    val short = Diagram.cleanupString(raw)
 
     val strings: List[String] =
-      domainCategory.listOfObjects map { x =>
-      val obRepr = apply(x) match
-        case d: Diagram => Diagram.cleanupString(d.toShortString)
-        case other => other.toString
+      domainCategory.listOfObjects map {
+        x => {
+          val obRepr = apply(x) match
+//            case d: Diagram =>
+//              shortTitle(d.source.toShortString)
+            case d: topos.Diagram =>
+              shortTitle(d.toShortString)
+            case other =>
+              other.toString
 
-      s"$x->$obRepr"
-    }
+          s"$x->$obRepr"
+        }
+      }
 
-    Diagram.cleanupString(strings.mkString(s"$tag(", ", ", ")"))
+    shortTitle(strings.mkString(s"$tag(", ", ", ")"))
 
   override lazy val hashCode: Int = System.identityHashCode(topos) * 79 + toString.hashCode
 

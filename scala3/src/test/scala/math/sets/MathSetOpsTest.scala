@@ -3,7 +3,7 @@ package math.sets
 import math.cat.SetMorphism
 import math.sets.MathSetOps.cantorIterator
 import org.specs2.execute.Failure
-import scalakittens.{Empty, Result}
+import scalakittens.Result
 import testing.TestBase
 
 import java.util.concurrent.atomic.AtomicBoolean

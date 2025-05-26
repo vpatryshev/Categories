@@ -1,11 +1,13 @@
 package math.cat
 
 import math.Base
-import math.Base._
-import math.sets.Sets._
+import math.Base.*
+import math.sets.Sets.*
 import math.sets.{Functions, Sets}
-import scalakittens.Result
-import scalakittens.Result._
+import scalakittens.Params.debug
+import scalakittens.{Params, Result}
+import scalakittens.Result.*
+
 import scala.language.implicitConversions
 
 /**
@@ -21,10 +23,18 @@ case class SetFunction private[cat](
   override val tag: String,
   override val d0: set,
   override val d1: set,
-  mapping: Any => Any)
-  extends SetMorphism[Any, Any](tag, d0, d1, mapping):
+  sourceMapping: Any => Any)
+  extends SetMorphism[Any, Any](tag, d0, d1, sourceMapping):
   self =>
+  if (!d0.isEmpty && d1.isEmpty) then
+    throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
   
+  if (Params.fullCheck)
+    if (d0.isFinite) for (x <- d0) if (!d1.contains(mapping(x))) then
+      throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")
+
+  def tagged(newTag: String): SetFunction = SetFunction(newTag, d0, d1, sourceMapping)
+
   private def tagOfComposition(tag1: String, tag2: String): String =
     Base.concat(tag1, "∘", tag2)
   
@@ -57,8 +67,8 @@ case class SetFunction private[cat](
   infix def restrictTo(newDomain: set, newCodomain: set): Result[SetFunction] =
     val domOk = OKif(newDomain subsetOf d0, "Bad domain for restriction")
     val codomOk = OKif(newCodomain subsetOf d1, "Bad codomain for restriction")
-    val isCompatible = OKif(newDomain.isEmpty || newCodomain.nonEmpty, "Can't restrict to empty codomain")
-    val success: Outcome = domOk andAlso codomOk andAlso isCompatible
+    val compatible = OKif (newDomain.isEmpty || !newCodomain.isEmpty, "Empty codomain for nonempty domain")
+    val success: Outcome = domOk andAlso codomOk andAlso compatible
     success returning new SetFunction(tag, newDomain, newCodomain, function)
 
   override lazy val hashCode: Int =
@@ -70,7 +80,8 @@ case class SetFunction private[cat](
 object SetFunction:
 
   def build(name: String, d0: set, d1: set, function: Any => Any): Result[SetFunction] =
-    SetMorphism.check[Any, Any, SetFunction](new SetFunction(name, d0, d1, function))
+    Result.forValue(new SetFunction(name, d0, d1, function)) flatMap SetMorphism.check[Any, Any, SetFunction]
+
   /**
     * Factory method. Builds constant morphism from one set to another (constant function).
     *
@@ -136,11 +147,11 @@ object SetFunction:
   def exponent(x: set, y: set): Set[SetFunction] =
     Sets.exponent(x, y).map { apply("exponent", x, y, _) }
 
-  def tryBuild(from: set, to: set)(name: String, mapping: String => Any): Result[SetFunction] =
-    SetFunction.build(name, from, to, x => mapping(x.toString))
+  def tryBuild(name: String, from: set, to: set, mapping: String => Any = identity): Result[SetFunction] =
+    build(name, from, to, x => mapping(x.toString))
 
   def fun(from: set, to: set)(name: String, mapping: String => Any): SetFunction =
-    tryBuild(from, to)(name, mapping).iHope
+    tryBuild(name, from, to, mapping).iHope
 
   def asFunction(a: /*almost*/ Any): SetFunction = a.asInstanceOf[SetFunction]
 

@@ -11,30 +11,33 @@ import scalakittens.Result._
 import scala.language.postfixOps
 
 class Fixtures extends Test with math.cat.topos.TestDiagrams:
-  type SUT = Diagram
+  lazy val titleWidth = toposes.keys.map(_.length).max + 4
+
+  def header(name: String): String =
+    s"  $name:" + (" " * (titleWidth - name.length))
+
+  def report(what: String, where: String = ""): Unit =
+    println(s"  ${header(where)} $what")
+
+  def reportIn(topos: GrothendieckTopos): String => Unit =
+    report(_, topos.tag)
 
   trait TestCase:
     def check(cat: Category, number: Int, total: Int): MatchResult[Any]
 
-  def report(what: String): Unit =
-    println(s"  checking $what")
-    
-//  def report(cat: Category, number: Int, total: Int)(what: String): Unit =
-//    println(s"  checking $what over ${cat.name} ($number/$total)")
-
   case class checkThatIn(topos: GrothendieckTopos, number: Int, total: Int):
-    
+    val report = reportIn(topos)
     def mustBeMonoid[P](what: String,
       unit: P,
       binop: (P, P) => P): MatchResult[Any] =
       import topos._
-      val rep = report(_)
+      val report = reportIn(topos)
       val points: Seq[Point] = Ω.points
       println(s"Testing $what monoidal properties (${points.size} points in Ω) in ${domain.name} ($number/$total)")
       def predicate(p: Point): P = p.asPredicateIn(topos).asInstanceOf[P]
 
       for pt1 <- points do
-        rep(s"monoidal props at ${pt1.tag}")
+        report(s"monoidal props at ${pt1.tag}")
         val p: P = predicate(pt1)
         val actual = binop(unit, p)
 // different classes in scala 3        actual.getClass === p.getClass

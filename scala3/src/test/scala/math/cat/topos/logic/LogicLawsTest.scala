@@ -34,7 +34,7 @@ class LogicLawsTest extends Fixtures:
         println(desc)
 
         for pt1 <- points do
-          report(s"distributivity at ${pt1.tag}")
+          reportIn(topos)(s"distributivity at ${pt1.tag}")
           val p: topos.Predicate = pt1.asPredicateIn(topos)
 
           for pt2 <- points do

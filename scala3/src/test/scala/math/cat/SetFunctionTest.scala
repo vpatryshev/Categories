@@ -164,11 +164,11 @@ class SetFunctionTest extends Specification:
 
     "check with empty domain or codomain" >> {
       val aset: set = setOf.elements(1, 2, 3, 4, 5)
-      val emptyToNonempty: SetFunction = fun(Sets.Empty, aset)("020", _.toString)
-      val good: SetFunction = fun(Sets.Empty, Sets.Empty)("good", _.toString)
+      val emptyToNonempty: SetFunction = fun(`∅`, aset)("020", _.toString)
+      val good: SetFunction = fun(`∅`, `∅`)("good", _.toString)
       good.toString === "good: 0 elements -> 0 elements"
       emptyToNonempty.toString === "020: 0 elements -> 5 elements"
-      val bad: Result[SetFunction] = tryBuild(aset, Sets.Empty)("bad", _.toString)
+      val bad: Result[SetFunction] = tryBuild("bad", aset, `∅`)
       bad.isBad must beTrue
       bad.errorDetails must beSome
     }
@@ -188,15 +188,15 @@ class SetFunctionTest extends Specification:
       anotherGood.isGood must beTrue
 
       anotherGood match
-        case Good(sf) => sf.restrictTo(Sets.Empty, Sets.Empty).isGood must beTrue
+        case Good(sf) => sf.restrictTo(`∅`, `∅`).isGood must beTrue
         case _ => failure("should have been good")
 
-      val emptyToEmpty: Result[SetFunction] = sut.restrictTo(Sets.Empty, Sets.Empty)
+      val emptyToEmpty: Result[SetFunction] = sut.restrictTo(`∅`, `∅`)
       emptyToEmpty.isGood must beTrue
 
-      val emptyToNonempty = sut.restrictTo(Sets.Empty, strings)
+      val emptyToNonempty = sut.restrictTo(`∅`, strings)
       emptyToNonempty.isGood must beTrue
-      val bad: Result[SetFunction] = sut.restrictTo(someNumbers, Sets.Empty)
+      val bad: Result[SetFunction] = sut.restrictTo(someNumbers, `∅`)
       bad.isBad must beTrue
       bad.errorDetails must beSome
 
@@ -209,11 +209,11 @@ class SetFunctionTest extends Specification:
 
     "check constraint" >> {
       val aset: set = setOf.elements(1, 2, 3, 4, 5)
-      val emptyToNonempty: SetFunction = fun(Sets.Empty, aset)("020", _.toString)
-      val good: SetFunction = fun(Sets.Empty, Sets.Empty)("good", _.toString)
+      val emptyToNonempty: SetFunction = fun(`∅`, aset)("020", _.toString)
+      val good: SetFunction = fun(`∅`, `∅`)("good", _.toString)
       good.toString === "good: 0 elements -> 0 elements"
       emptyToNonempty.toString === "020: 0 elements -> 5 elements"
-      val bad: Result[SetFunction] = tryBuild(aset, Sets.Empty)("bad", _.toString)
+      val bad: Result[SetFunction] = tryBuild("bad", aset, `∅`)
       bad.isBad must beTrue
       bad.errorDetails must beSome
     }

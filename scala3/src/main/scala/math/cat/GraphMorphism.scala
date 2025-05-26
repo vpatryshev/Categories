@@ -10,7 +10,7 @@ import scala.language.postfixOps
   */
 trait GraphMorphism extends Morphism[Graph, Graph]:
   m =>
-  val tag: Any
+  val tag: String
   val d0: Graph
   val d1: Graph
 
@@ -78,15 +78,14 @@ trait GraphMorphism extends Morphism[Graph, Graph]:
     * @return true iff they are equal
     */
   override def equals(gm: Any): Boolean =
-    this.eq(gm.asInstanceOf[AnyRef]) || (
-    hashCode == gm.hashCode && 
-      (gm match
-        case other: GraphMorphism @unchecked =>
-          sameNodes(other) && sameArrows(other)
-        case otherwise => false
-    ))
+    gm match
+      case other: GraphMorphism @unchecked =>
+        eq(other) || (
+          hashCode == gm.hashCode &&
+          sameNodes(other) && sameArrows(other))
+      case otherwise => false
 
-  override def hashCode: Int = d0.hashCode ^ d1.hashCode * 1024
+  override lazy val hashCode: Int = d0.hashCode ^ d1.hashCode * 1024
 
   //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
 

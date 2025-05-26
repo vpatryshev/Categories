@@ -1,4 +1,5 @@
 #!/bin/zsh
+
 clear && printf '\e[3J'
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk use java 24.ea.17-open
@@ -6,4 +7,7 @@ sdk use java 24.ea.17-open
 #sbt evicted
 rm -rf target
 rm -rf project/target
-sbt clean test package && say "hey, build is ok" | say "oops, build failed" | tee build.log
+sbt clean test
+res=$?
+# echo "Tests returned <<$res>>"
+[[ $res -eq 0 ]] && say "Marivanna.... ya gotova" || say "oy! bleen... oops... tests failed"

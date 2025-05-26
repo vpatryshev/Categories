@@ -19,9 +19,9 @@ class ConjunctionTest extends Fixtures:
     def checkProperties(topos: GrothendieckTopos, number: Int, total: Int, what: String): MatchResult[Any] =
       import topos._
       val desc = s"Testing $what over ${domain.name} ($number/$total)"
-      val rep = report(_)
-      val True = Ω.True.asPredicateIn(topos)
-      val False = Ω.False.asPredicateIn(topos)
+      val rep = reportIn(topos)
+      val True = Truth.asPredicateIn(topos)
+      val False = Falsehood.asPredicateIn(topos)
 
       for pt <- Ω.points do
         rep(s"conjunction with False for ${pt.tag}")
@@ -48,21 +48,19 @@ class ConjunctionTest extends Fixtures:
         fun(Ω(x), ΩxΩ(x))(s"Δ[$x]", subrep => (subrep, subrep))
 
       val conjunction = Ω.conjunction
-
-      val True = Ω.True
       
       // TODO(vlad): stop using this `transform`, it makes no sense.
       // We just need an composition of point with Δ_Ω
-      val pointOfTrueAndTrue = True.transform(Δ_Ω)
+      val pointOfTrueAndTrue = Truth.transform(Δ_Ω)
 
-      val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
+      val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ_Diagramme
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
 
       for
         o <- domain.objects
       do
         val p = pointOfTrueAndTrue(o)
-        p aka s"$desc, @$o" must_== (Ω.True(o), Ω.True(o))
+        p aka s"$desc, @$o" must_== (Truth(o), Truth(o))
         val monoAt_o = monomorphism(o)
         val actual = asFunction(monoAt_o)(p)
         actual aka s"$desc, @$o" must_== p
@@ -73,9 +71,9 @@ class ConjunctionTest extends Fixtures:
       // the following part is for finding exactly where comparison failed
       if !theyAreTheSame then
         for o <- domain.objects do
-          val con_o = asFunction(classifyingArrow.mappingAt(o)).toList.sortBy(_._1.toString)
+          val con_o = asFunction(classifyingArrow(o)).toList.sortBy(_._1.toString)
           val tru_classif_o =
-            asFunction(conjunction.mappingAt(o)).toList.sortBy(_._1.toString)
+            asFunction(conjunction(o)).toList.sortBy(_._1.toString)
 
           val pairs = con_o zip tru_classif_o
 

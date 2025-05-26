@@ -4,9 +4,10 @@ package sets
 import math.Base.itsImmutable
 import math.cat.SetMorphism
 import math.sets.Functions.Injection
-import math.sets.MathSetOps._
-import scalakittens.{Good, Result}
+import math.sets.MathSetOps.*
+import scalakittens.{Good, Marker, Result}
 import scalakittens.Containers.*
+import scalakittens.Params.{debug, verbose}
 
 import java.io.Reader
 import scala.collection.immutable.AbstractSeq
@@ -22,6 +23,8 @@ object Sets:
     * In set theory, set elements have no type
     */
   type set = Set[Any]
+
+  def itsaset(x: Any): set = x.asInstanceOf[set]
 
   type factorset = FactorSet[Any]
 
@@ -53,12 +56,12 @@ object Sets:
   /**
     * Standard empty set
     */
-  val Empty: set = Set.empty[Any]
+  val `∅`: set = Set.empty[Any]
 
   /**
     * A singleton set. There are plenty of singletons, they are all isomorphic.
     */
-  val Unit: set = Set(Empty)
+  val `{∅}`: set = Set(`∅`)
 
   /**
     * A big set of all finite sets in Scala. This set is infinite.
@@ -200,11 +203,6 @@ object Sets:
       predicate
     )
 
-  def idMap[X](xs: Set[X]): Map[X, X] = buildMap(xs, identity)
-
-  def buildMap[K, V](keys: Iterable[K], f: K => V): Map[K, V] =
-    keys map { k => k -> f(k)} toMap
-
   def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
 
   def parse(input: Reader): Result[Set[String]] = (new SetParser).read(input)
@@ -267,7 +265,7 @@ object Sets:
     source: => Iterable[X],
     sizeEvaluator: => Int,
     predicate: X => Boolean) extends
-    setForIterable[X](source, sizeEvaluator, predicate):
+    SetForIterable[X](source, sizeEvaluator, predicate):
       override def incl(elem: X): Set[X] = setOf[X](
         List(elem) ++ source,
         if contains(elem) then sizeEvaluator else sizePlus(sizeEvaluator, 1),
@@ -345,21 +343,44 @@ object Sets:
 
     def word: Parser[String] = regex("""[\w\\.]+""".r)
 
-  private[math] class setForIterable[X](
+  class SetForIterable[X](
     source: => Iterable[X],
     sizeEvaluator: => Int,
-    predicate: X => Boolean) extends Set[X]:
+    predicate: X => Boolean) extends Set[X] with Marker:
+    override def size: Int = sizeEvaluator
+    
+    def isInfinite: Boolean = sizeEvaluator == InfiniteSize
+    
+    override def iterator: Iterator[X] = source.iterator filter predicate take sizeEvaluator
 
-    override infix def contains(x: X): Boolean = predicate(x)
+    def iteratorContains(x: X): Boolean = 
+      val i = iterator
+      val found = source.toList match
+        case Nil => false
+        case head :: tail =>
+          val e1 = head.equals(x)
+          val e2 = x.equals(head)
+          e1 && e2
+
+      val yes = i.exists(_ == x) // Note--this seems faster than manual inlining!
+      found || yes
+//      i.contains(x) // TODO: inline
+    
+    override infix def contains(x: X): Boolean =
+      val isOk = predicate(x)
+//      if (!isOk)
+//        debug(s"$this doesn't contain $x - via predicate=$predicate\n")
+
+      isOk && (isInfinite || iteratorContains(x))
 
     override def isEmpty: Boolean = !iterator.hasNext
 
-    override def excl(x: X): Set[X] = new setForIterable(
+    override def excl(x: X): Set[X] = new SetForIterable(
       source filterNot(x ==),
       sizePlus(sizeEvaluator, -1),
       (y: X) => y != x && predicate(y))
 
-    override def incl(x: X): Set[X] = new setForIterable(
+    override def incl(x: X): Set[X] = new SetForIterable(
       List(x) ++ source,
       sizePlus(sizeEvaluator, +1),
       (y:X) => y == x || predicate(y))
@@ -369,10 +390,6 @@ object Sets:
       val target: Iterable[Y] = source.map(f)
       val predicate: Y => Boolean = (y: Y) => iterator exists { f(_) == y }
       setOf(target, size, predicate)
-
-    override def size: Int = sizeEvaluator
-
-    override def iterator: Iterator[X] = source.iterator filter predicate
 
     override infix def filter(p: X => Boolean): Set[X] =
       filteredSet(source, (x: X) => predicate(x) && p(x))
