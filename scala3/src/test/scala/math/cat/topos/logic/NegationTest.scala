@@ -13,7 +13,7 @@ class NegationTest extends Fixtures:
     "work for all known domains" in {
 
       val testCase = new TestCase:
-        def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
+        def check(cat: Category, number: Int, total: Int): MatchResult =
           val topos = new CategoryOfDiagrams(cat)
           import topos._
           val rep = reportIn(topos)
@@ -22,19 +22,19 @@ class NegationTest extends Fixtures:
           val True = Truth asPredicateIn topos
           val False = Falsehood asPredicateIn topos
 
-          ¬(True) === False
-          ¬(False) === True
+          ¬(True) must be_==(False)
+          ¬(False) must be_==(True)
 
           for pt1 <- Ω.points do
             rep(s"theck that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
             val p = pt1 asPredicateIn topos
             val not_p = ¬(p)
-            ¬(¬(not_p)) === not_p
+            ¬(¬(not_p)) must be_==(not_p)
 
             rep(s"check that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
             for pt2 <- Ω.points do
               val q = pt2 asPredicateIn topos
-              ¬(p ∨ q) === not_p ∧ ¬(q)
+              ¬(p ∨ q) must be_==(not_p) ∧ ¬(q)
 
           ok
 

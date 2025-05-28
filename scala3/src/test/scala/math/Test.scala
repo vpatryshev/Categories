@@ -1,6 +1,5 @@
 package math
 
-import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import org.specs2.execute.Result as TestResult
 import scalakittens.Result.{OKif, Outcome}
@@ -19,18 +18,18 @@ class Test extends TestBase:
 
   type SUT
 
-  def checkOption[T](g: Result[T], op: T => Unit): MatchResult[Any] =
+  def checkOption[T](g: Result[T], op: T => Unit): TestResult =
     g match
       case Good(sut) => op(sut)
       case bad => failure(bad.toString)
 
     ok
 
-  def check[T](g: T, op: T => Unit): MatchResult[Any] =
+  def check[T](g: T, op: T => Unit): TestResult =
     op(g)
     ok
 
-  def expect(op: SUT => Unit)(sutOpt: Result[SUT]): MatchResult[Any] = checkOption[SUT](sutOpt, op)
+  def expect(op: SUT => Unit)(sutOpt: Result[SUT]): TestResult = checkOption[SUT](sutOpt, op)
 
   def expectOk(id: String, r: Result[?]): TestResult =
     r.isGood aka s"$id: $r" must beTrue
@@ -56,7 +55,7 @@ class Test extends TestBase:
         case Good(bad) => failure(s"Expected failure, got a $bad")
         case nogood =>
           val details = nogood.errorDetails.getOrElse("").split("; ").toSet
-          msgs === details
+          msgs must be_==(details)
 
     ok
 

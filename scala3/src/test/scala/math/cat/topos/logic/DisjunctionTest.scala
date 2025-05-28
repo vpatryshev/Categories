@@ -15,7 +15,7 @@ class DisjunctionTest extends Fixtures:
     "work for all known domains" in {
 
       val testCase = new TestCase:
-        def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
+        def check(cat: Category, number: Int, total: Int): MatchResult =
           val topos = new CategoryOfDiagrams(cat)
           import topos._
           val desc = s"Testing disjunction over ${cat.name} ($number/$total)"
@@ -32,7 +32,7 @@ class DisjunctionTest extends Fixtures:
           for pt <- Ω.points do
             rep(s"disjunction with False for ${pt.tag}")
             val p = pt.asPredicateIn(topos)
-            (True ∨ p) === True
+            (True ∨ p) must be_==(True)
 
           ok
 

@@ -2,44 +2,44 @@ package math.cat.topos
 
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.SetFunction
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 
 import scala.language.postfixOps
 import SetFunction.*
 
 class GrothendieckToposTest extends Fixtures:
 
-  def checkPoints(topos: GrothendieckTopos, expected: String*): MatchResult[Any] =
+  def checkPoints(topos: GrothendieckTopos, expected: String*): MatchResult =
     val points = topos.Ω.points
-    points.map(_.toShortString.replaceFirst("p\\d+\\(", "").dropRight(1)) === expected.toList
+    points.map(_.toShortString.replaceFirst("p\\d+\\(", "").dropRight(1)) must be_==(expected.toList)
 
   "Subobject classifier" should:
-    "be good for`𝟘`" in:
+    "be good for`𝟘`" in :
       checkPoints(`Set^𝟘`, "")
 
-    "be good for`𝟙`" in:
+    "be good for`𝟙`" in :
       checkPoints(`Set^𝟙`, "0->()", "0->(0->{0.0})")
 
-    "be good for `𝟚`" in:
+    "be good for `𝟚`" in :
       checkPoints(`Set^𝟚`,
         "0->(), 1->()",
         "0->(1->{0.1}), 1->(1->{1.1})",
         "0->(0->{0.0}, 1->{0.1}), 1->(1->{1.1})")
 
-    "be good for `𝟛`" in:
+    "be good for `𝟛`" in :
       checkPoints(`Set^𝟛`,
         "0->(), 1->(), 2->()",
         "0->(2->{0.2}), 1->(2->{1.2}), 2->(2->{2.2})",
         "0->(1->{0.1}, 2->{0.2}), 1->(1->{1.1}, 2->{1.2}), 2->(2->{2.2})",
         "0->(0->{0.0}, 1->{0.1}, 2->{0.2}), 1->(1->{1.1}, 2->{1.2}), 2->(2->{2.2})")
       
-    "be good for ParallelPair" in:
+    "be good for ParallelPair" in :
       checkPoints(`Set^ParallelPair`,
       "0->(), 1->()",
       "0->(1->{a,b}), 1->(1->{1})",
       "0->(0->{0}, 1->{a,b}), 1->(1->{1})")
 
-    "be good for Pullback" in:
+    "be good for Pullback" in :
       checkPoints(`Set^Pullback`,
         "a->(), b->(), c->()",
         "a->(c->{ac}), b->(c->{bc}), c->(c->{c})",
@@ -47,7 +47,7 @@ class GrothendieckToposTest extends Fixtures:
         "a->(a->{a}, c->{ac}), b->(c->{bc}), c->(c->{c})",
         "a->(a->{a}, c->{ac}), b->(b->{b}, c->{bc}), c->(c->{c})")
 
-    "be good for Pushout" in:
+    "be good for Pushout" in :
       checkPoints(`Set^Pushout`,
         "a->(), b->(), c->()",
         "a->(c->{ac}), b->(), c->(c->{c})",
@@ -56,12 +56,12 @@ class GrothendieckToposTest extends Fixtures:
         "a->(a->{a}, b->{ab}, c->{ac}), b->(b->{b}), c->(c->{c})"
       )
 
-    "be good for Z3" in:
+    "be good for Z3" in :
       checkPoints(`Set^Z3`, "0->()","0->(0->{0,1,2})")
 
   "Classifying map" should:
 
-    "be good for ParallelPair" in:
+    "be good for ParallelPair" in :
       val topos = `Set^ParallelPair`
 //      import topos._
       val omega = topos.Ω

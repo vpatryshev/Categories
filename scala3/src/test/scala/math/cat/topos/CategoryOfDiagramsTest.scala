@@ -22,13 +22,13 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       x <- topos.domain.objects
     do
       val setAtx: Set[?] = obj(x)
-      setAtx.size === expected
+      setAtx.size must be_==(expected)
 
   case class check(f: String => Any)(data: List[String], fullList: List[String]):
     private def check1(x: String, y: String) =
       val expected = x.split(",").toSet.filter(_.nonEmpty)
       val actual = f(y)
-      actual.toString aka s"@$y" must_== expected.toString
+      actual.toString must be_==(expected.toString)
 
     @targetName("sep1")
     def |(x: String): check =
@@ -49,7 +49,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   "representables" should:
 
-    "be good in Set to W" in:
+    "be good in Set to W" in :
       val topos = `Set^W`
       import topos.domain.*
       val ob = (o: String) =>
@@ -65,7 +65,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       ok
 
-    "be good in Set to M" in:
+    "be good in Set to M" in :
       val topos = `Set^M`
       import topos.domain.*
       val ob = (o: String) =>
@@ -88,7 +88,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       ok
 
-    "be good in Set to Z3" in:
+    "be good in Set to Z3" in :
       val topos = `Set^Z3`
       import topos.domain.*
       def ob(o: String) =
@@ -104,24 +104,24 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   "Identity arrow" should:
 
-    "exist in Set to W" in:
+    "exist in Set to W" in :
       val topos = `Set^W`
       val d = SampleWDiagram
       val identity_transformation = topos.id(d)
-      identity_transformation.d0 === d
-      identity_transformation.d1 === d
-      identity_transformation ∘ identity_transformation === identity_transformation
+      identity_transformation.d0 must be_==(d)
+      identity_transformation.d1 must be_==(d)
+      identity_transformation ∘ identity_transformation must be_==(identity_transformation)
 
-    "exist in Set to M" in:
+    "exist in Set to M" in :
       // todo: test composition
       val topos = `Set^M`
       val d = SampleMDiagram
       val idtrans = topos.id(d)
-      idtrans.d0 === d
-      idtrans.d1 === d
+      idtrans.d0 must be_==(d)
+      idtrans.d1 must be_==(d)
 
   "Initial object" should:
-    "exist in Set to M" in:
+    "exist in Set to M" in :
       val topos = `Set^M`
 
       val initialOpt = topos.initialT
@@ -135,37 +135,37 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   "Terminal object" should:
 
-    "exist in Set to W" in:
+    "exist in Set to W" in :
       val topos = `Set^W`
 
       val terminalOpt = topos.terminalT
       terminalOpt match
         case Good(terminal) =>
-          terminal === topos._1
+          terminal must be_==(topos._1)
           checkConstSize(topos)(terminal, 1)
           val ab = terminal.arrowsMapping("ab")
-          terminal.asFunction(ab).d0 === Set(Set())
+          terminal.asFunction(ab).d0 must be_==(Set(Set()))
         case none => failure(s"Could not build a terminal in $topos: $none")
 
       ok
 
-    "exist in Set to Square" in:
+    "exist in Set to Square" in :
       val topos = `Set^Square`
       val subterminals = topos.subterminals
-      subterminals.size === 6
+      subterminals.size must be_==(6)
       subterminals must contain(topos._0)
       subterminals must contain(topos._1)
 
 
   "List of subobjects" should:
-    "be good for empty diagram" in:
+    "be good for empty diagram" in :
       val sut = EmptyDiagram
       val actual = sut.subobjects
-      actual.size === 1
-      actual.head === sut
+      actual.size must be_==(1)
+      actual.head must be_==(sut)
       actual.forall(_ ⊂ sut)
 
-    "be good for pullback diagram" in:
+    "be good for pullback diagram" in :
       val sut: `Set^Pullback`.Diagram = SamplePullbackDiagram
       val sample = sut.d0.objects map (ob => sut.calculateObjectsMapping(ob))
 
@@ -175,23 +175,23 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val listOfSubobjects = sut.subobjects.toList
       val actual =
         listOfSubobjects.sortBy(fullSet)(Ordering.by(_.mkString(";"))).reverse
-      actual.size === 85
+      actual.size must be_==(85)
       val objects = actual map fullSet
 
-      actual.head.points.size === 0
+      actual.head.points.size must be_==(0)
       val last = actual.last
-      sut.d0 === last.d0
-      sut.d1 === last.d1
+      sut.d0 must be_==(last.d0)
+      sut.d1 must be_==(last.d1)
 
       sut.sameNodes(last) must beTrue
       sut.sameArrows(last) must beTrue
       val comp = actual.last == sut
 
-      actual.last === sut
+      actual.last must be_==(sut)
 
       actual.forall(_ ⊂ sut)
 
-    "exist for representables in `Set to 𝟚`" in:
+    "exist for representables in `Set to 𝟚`" in :
       val topos = `Set^𝟚`
       val obj0 = topos.objectNamed("0")
       val obj1 = topos.objectNamed("1")
@@ -199,33 +199,33 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val r0 = topos.Representable(obj0)
 
       val sor = topos.subobjectsOfRepresentables
-      sor.size === 2
-      sor(obj0).size === 3
-      sor(obj1).size === 2
+      sor.size must be_==(2)
+      sor(obj0).size must be_==(3)
+      sor(obj1).size must be_==(2)
 
   "Cartesian product" should:
-    "exist in Set to ParallelPair" in:
+    "exist in Set to ParallelPair" in :
       val topos = `Set^ParallelPair`
       val d1: `Set^ParallelPair`.Diagram = SampleParallelPairDiagram1
       val d2: `Set^ParallelPair`.Diagram = SampleParallelPairDiagram2
 
       val actual: `Set^ParallelPair`.Diagram = `Set^ParallelPair`.product2(d1, d2)
-      actual("0").size === 15
+      actual("0").size must be_==(15)
       val value1: set = actual("1")
-      value1 === Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1))
+      value1 must be_==(Set((0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1)))
 
-    "exist in Set to M" in:
+    "exist in Set to M" in :
       val topos = `Set^M`
       val actual = `Set^M`.product2(SampleMDiagram, SampleMDiagram)
       for
         x: topos.domain.Node <- topos.domain.objects
       do
-        actual(x).size === SampleMDiagram(x).size * SampleMDiagram(x).size
+        actual(x).size must be_==(SampleMDiagram(x).size * SampleMDiagram(x).size)
 
       ok
 
   "Cartesian product of arrows" should:
-    "exist in Set to 𝟙" in:
+    "exist in Set to 𝟙" in :
       val topos = `Set^𝟙`
       val d01: topos.Diagram = build(s"d01", topos)(
         Map[String, set]("0" -> Set(11, 12)),
@@ -261,9 +261,9 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       val actual: DiagramArrow = topos.productOfArrows(f, g)
 
-      actual === expected
+      actual must be_==(expected)
 
-    "exist in Set to ParallelPair" in:
+    "exist in Set to ParallelPair" in :
       val topos = `Set^ParallelPair`
 
       val dom1a = Set[Any](101, 102)
@@ -327,7 +327,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       val actual = topos.productOfArrows(f, g)
 
-      actual === expected
+      actual must be_==(expected)
 
 
   "Diagram points" should {
@@ -335,7 +335,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
     def checkPoint(topos: GrothendieckTopos)(sut: topos.Diagram)(point: Point, expected: List[Int]) = {
       val objects = sut.d0.objects.toList
       val actual = objects map point.apply
-      actual must_== expected
+      actual must be_==(expected)
     }
 
     "exist in paralel pair" in {

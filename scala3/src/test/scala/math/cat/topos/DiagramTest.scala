@@ -20,15 +20,15 @@ class DiagramTest extends Test with TestDiagrams:
 
     "validate as a functor with Set as domain" in {
       val sut = BuildPullbackDiagram.asFunctor.iHope
-      sut.d0 === Pullback
-      sut.d1 === Setf
+      sut.d0 must be_==(Pullback)
+      sut.d1 must be_==(Setf)
     }
 
     "test build" in {
       val dom = Pullback
       val testTopos = new CategoryOfDiagrams(dom)
       val sut1 = BuildPullbackDiagram.asFunctor.iHope
-      sut1.calculateObjectsMapping("b") === BuildPullbackDiagram.sb
+      sut1.calculateObjectsMapping("b") must be_==(BuildPullbackDiagram.sb)
 
       val diagram: testTopos.Diagram =
         testTopos.Diagram("Test",
@@ -41,8 +41,8 @@ class DiagramTest extends Test with TestDiagrams:
 
     "get validated - positive" in {
       val sut = SamplePullbackDiagram
-      sut.d0 === Pullback
-      sut.d1 === Setf
+      sut.d0 must be_==(Pullback)
+      sut.d1 must be_==(Setf)
     }
 
     "get validated with inconsistent mappings - negative" in {
@@ -83,7 +83,7 @@ class DiagramTest extends Test with TestDiagrams:
 
     "validate empty diagram" in {
       EmptyDiagram.d0 === `𝟘`
-      EmptyDiagram.d1 === Setf
+      EmptyDiagram.d1 must be_==(Setf)
     }
   }
 
@@ -91,19 +91,19 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for an empty diagram" in {
       val sut = const(Set("a", "b"))
           sut.d0 === `𝟙`
-          sut.d1 === Setf
-          sut.calculateObjectsMapping("0") === Set("a", "b")
+          sut.d1 must be_==(Setf)
+          sut.calculateObjectsMapping("0") must be_==(Set("a", "b"))
     }
 
     "exist for a point" in {
       val x: set = Set("x", "y", "z")
       val sut = const(x)
       sut.d0 === `𝟙`
-      sut.d1 === Setf
+      sut.d1 must be_==(Setf)
 
       sut.limit match
         case Good(sut.Cone(vertex, arrowTo)) =>
-          itsaset(vertex).size === x.size
+          itsaset(vertex).size must be_==(x.size)
         case none => failure(s"We expected a limit, got $none")
       
       ok
@@ -113,7 +113,7 @@ class DiagramTest extends Test with TestDiagrams:
       val sut = SamplePullbackDiagram
       val limit = sut.limit.iHope
       val vertex = itsaset(limit.vertex)
-      vertex.size === 5
+      vertex.size must be_==(5)
       val ara = limit.arrowTo("a")
       val arb = limit.arrowTo("b")
 
@@ -135,8 +135,8 @@ class DiagramTest extends Test with TestDiagrams:
       val limit = sut.limit.iHope
 
       val vertex = itsaset(limit.vertex)
-      vertex.size === 3
-      vertex === Set(1 :: Nil, 2 :: Nil, 5 :: Nil)
+      vertex.size must be_==(3)
+      vertex must be_==(Set(1 :: Nil, 2 :: Nil, 5 :: Nil))
       
       val ar0 = limit.arrowTo("0")
       val ar1 = limit.arrowTo("1")
@@ -155,9 +155,9 @@ class DiagramTest extends Test with TestDiagrams:
       "exist for a monoid Z3" in {
         val sut = SampleZ3Diagram
         val limit = sut.limit.iHope
-        limit.vertex === Set(List(2223))
+        limit.vertex must be_==(Set(List(2223)))
         val ar0 = limit.arrowTo("0")
-        ar0(List(2223)) === 2223
+        ar0(List(2223)) must be_==(2223)
       }
 
       "exist for a W, regular data" in {
@@ -165,7 +165,7 @@ class DiagramTest extends Test with TestDiagrams:
         val limit = sut.limit.iHope
 
         val vertex = itsaset(limit.vertex)
-        vertex.size === 16
+        vertex.size must be_==(16)
         val ara = limit.arrowTo("a")
         val arb = limit.arrowTo("b")
         val arc = limit.arrowTo("c")
@@ -210,7 +210,7 @@ class DiagramTest extends Test with TestDiagrams:
         val limit = sut.limit.iHope
 
         val vertex = itsaset(limit.vertex)
-        vertex.size === 8
+        vertex.size must be_==(8)
         val ara = limit.arrowTo("a")
         val arb = limit.arrowTo("b")
         val arc = limit.arrowTo("c")
@@ -246,7 +246,7 @@ class DiagramTest extends Test with TestDiagrams:
     "exist for a empty diagram" in {
       val sut = EmptyDiagram
       sut.d0 === `𝟘`
-      sut.d1 === Setf
+      sut.d1 must be_==(Setf)
       sut.colimit match
         case Good(sut.Cocone(Sets.`∅`, arrowFrom)) => ok
         case none => failure(s"no colimit? $none")
@@ -258,10 +258,10 @@ class DiagramTest extends Test with TestDiagrams:
       val expected: set = Set("x", "y", "z")
       val sut = const(expected)
       sut.d0 === `𝟙`
-      sut.d1 === Setf
+      sut.d1 must be_==(Setf)
       val colimit = sut.colimit.iHope
       val vertex = itsaset(colimit.vertex)
-      vertex.size === expected.size
+      vertex.size must be_==(expected.size)
     }
 
     "exist for a pushout" in {
@@ -310,8 +310,8 @@ class DiagramTest extends Test with TestDiagrams:
       val vertex = itsaset(colimit.vertex)
       val ar0 = colimit.arrowFrom("0")
       val ar1 = colimit.arrowFrom("1")
-      a.foreach(ar0(_) === element)
-      b.foreach(ar1(_) === element)
+      a.foreach(ar0(_) must be_==(element))
+      b.foreach(ar1(_) must be_==(element))
       
       ok
     }
@@ -320,7 +320,7 @@ class DiagramTest extends Test with TestDiagrams:
       val sut = SampleZ3Diagram
       sut.colimit match
         case Good(sut.Cocone(vertex, arrowFrom)) =>
-          vertex === Set(Set((0, 2220), (0, 2221), (0, 2222)), Set((0, 2223)))
+          vertex must be_==(Set(Set((0, 2220), (0, 2221), (0, 2222)), Set((0, 2223))))
         case x => failure(s"We expected a colimit, got $x")
       ok
     }
@@ -329,7 +329,7 @@ class DiagramTest extends Test with TestDiagrams:
       val sut = SampleMDiagram
       val colimit = sut.colimit.iHope
       val vertex = itsaset(colimit.vertex)
-      vertex.size === 8
+      vertex.size must be_==(8)
       val ara = colimit.arrowFrom("a")
       val arb = colimit.arrowFrom("b")
       val arc = colimit.arrowFrom("c")

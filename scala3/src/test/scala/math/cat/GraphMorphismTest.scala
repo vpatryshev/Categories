@@ -26,10 +26,10 @@ class GraphMorphismTest extends Test:
         SetMorphism.build(arrows1, arrows2, Map("1a" -> 11, "1b" -> 111, "2to1" -> 21, "3to2" -> 32, "1to3" -> 13)).iHope.asInstanceOf[graph1.Arrow => graph2.Arrow]
 
       val sut = GraphMorphism("test", graph1, graph2)(nm, am)
-      sut.nodesMapping(3) === 3
-      sut.arrowsMapping("1b") === 111
-      sut.d0 === graph1
-      sut.d1 === graph2
+      sut.nodesMapping(3) must be_==(3)
+      sut.arrowsMapping("1b") must be_==(111)
+      sut.d0 must be_==(graph1)
+      sut.d1 must be_==(graph2)
     }
 
     "id" >> {
@@ -38,11 +38,11 @@ class GraphMorphismTest extends Test:
       val map = Map("1a" -> (1, 1), "1b" -> (1, 1), "2to1" -> (2, 1), "3to2" -> (3, 2), "1to3" -> (1, 3))
       val graph = Graph.fromArrowMap("g", objects, map).iHope
       val sut: GraphMorphism = GraphMorphism.id(graph)
-      sut.d0 === graph
-      sut.d1 === graph
+      sut.d0 must be_==(graph)
+      sut.d1 must be_==(graph)
       sut.arrowsMapping("1a") === "1a"
       val sameThing = sut == GraphMorphism.id(graph)
-      sameThing === true
+      sameThing must beTrue
     }
 
     "compose" >> {
@@ -64,7 +64,7 @@ class GraphMorphismTest extends Test:
         (i:Int) => i%3+1
       ).iHope
 
-      g3.isFinite === true
+      g3.isFinite must beTrue
 
       val add1 = (i: Int) => 1+i
       val mod3 = (i: Int) => 1+(i+2)%3
@@ -84,26 +84,26 @@ class GraphMorphismTest extends Test:
 
       val actual: GraphMorphism = sut1 andThen sut2 get
       
-      actual.d0 === expected.d0
-      actual.d1 === expected.d1
+      actual.d0 must be_==(expected.d0)
+      actual.d1 must be_==(expected.d1)
       val nodeDiff: List[expected.d0.Node] = expected.d0.nodes.filterNot(expected.sameNodesMapping(actual)).toList
       
       val nodeDiffVals = nodeDiff map
         ((x:expected.d0.Node) => (x, actual.nodesMapping(x), expected.nodesMapping(x)))
 
-      nodeDiffVals === Nil
-      expected.sameNodes(actual) === true
+      nodeDiffVals must be_==(Nil)
+      expected.sameNodes(actual) must beTrue
 
       val arrowDiff: List[expected.d0.Arrow] = expected.d0.arrows.filterNot(expected.sameArrowsMapping(actual)).toList
 
       val arrowDiffVals = arrowDiff map
         ((x:expected.d0.Arrow) => (x, actual.arrowsMapping(x), expected.arrowsMapping(x)))
 
-      arrowDiffVals === Nil
+      arrowDiffVals must be_==(Nil)
 
-      expected.sameArrows(actual) === true
+      expected.sameArrows(actual) must beTrue
       val sameThing = expected == actual
-      sameThing === true
+      sameThing must beTrue
     }
 
   }

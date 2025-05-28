@@ -2,7 +2,8 @@ package scalakittens
 
 import testing.TestBase
 import Result.*
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
+import scala.language.implicitConversions
 
 import scala.collection.immutable.Nil as bad
 
@@ -13,11 +14,11 @@ import scala.collection.immutable.Nil as bad
 class ResultTest extends TestBase:
 
   implicit class checker(r: Result[?]):
-    infix def mustBeBad(beef: String*): MatchResult[Any] =
+    infix def mustBeBad(beef: String*): MatchResult =
       (r.isBad aka r.toString) must_== true
       r.errorDetails must beSome(beef mkString "; ")
 
-    infix def mustBeGood[T](value: T): MatchResult[Any] =
+    infix def mustBeGood[T](value: T): MatchResult =
       (r.isGood aka r.toString) must_== true
       r must_== Good(value)
 
@@ -25,13 +26,13 @@ class ResultTest extends TestBase:
 
   "Good" should:
     "be good" in :
-      Good(42).isGood === true
+      Good(42).isGood must beTrue
 
     "be not bad" in :
-      Good(43).isBad === false
+      Good(43).isBad must beFalse
 
     "list no errors" in :
-      Good(scala.math.Pi).listErrors.isEmpty === true
+      Good(scala.math.Pi).listErrors.isEmpty must beTrue
 
     "do nothing on error" in :
       var beenThere = false
@@ -39,7 +40,7 @@ class ResultTest extends TestBase:
         beenThere = true
       })
 
-      beenThere === false
+      beenThere must beFalse
 
     "Map as designed" in :
       Good("hello") map ((s: String) => s.toUpperCase) mustBeGood "HELLO"
@@ -69,7 +70,7 @@ class ResultTest extends TestBase:
     "blend properly via <*>" in :
       Good(1) <*> Good(2) mustBeGood ((1, 2))
       Good(1) <*> oops mustBeBad "oops"
-      Good(1) <*> Empty === Empty
+      Good(1) <*> Empty must be_==(Empty)
 
     "call function in foreach" in :
       var v: String = ":("
@@ -82,7 +83,7 @@ class ResultTest extends TestBase:
       Good("huilo") filter ((s: String) => s.startsWith("he")) must_== Empty
 
     "Show nothing in errorDetails" in :
-      Good("sh").errorDetails === None
+      Good("sh").errorDetails must be_==(None)
 
     "combine with other goods in sugared loop" in :
       val actual =
@@ -100,7 +101,7 @@ class ResultTest extends TestBase:
 
   "Bad" should:
     "be bad" in :
-      oops.isGood === false
+      oops.isGood must beFalse
 
     "list errors" in :
       val errors: Iterable[Throwable] =
@@ -119,7 +120,7 @@ class ResultTest extends TestBase:
         ed = es
       })
       (beenThere aka "visited what you were not supposed to visit") must_== true
-      ed === errors
+      ed must be_==(errors)
 
   "Map as designed" in :
     var wasThere = false

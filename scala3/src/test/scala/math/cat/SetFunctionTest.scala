@@ -22,8 +22,8 @@ class SetFunctionTest extends Specification:
 
     "building TypelessSetMorphism" >> {
       val sut = fun(Set(1, 2, "a"), Set("x1", "x2", "xa", 77))("test", "x" +)
-      sut(1) === "x1"
-      sut("a") === "xa"
+      sut(1) must be_==("x1")
+      sut("a") must be_==("xa")
       
       try
         sut(3)
@@ -41,8 +41,8 @@ class SetFunctionTest extends Specification:
       val f = fun(x,y)("f", "x" + )
       val g = fun(y,z)("g", _.length)
       
-      g.andThen(f).isDefined === false
-      f.andThen(g).isDefined === true
+      g.andThen(f).isDefined must beFalse
+      f.andThen(g).isDefined must beTrue
     }
 
     "TypelessSetMorphism then another" >> {
@@ -53,8 +53,8 @@ class SetFunctionTest extends Specification:
       val g = fun(y,z)("g", _.length)
       val sut = Result(f andThen g) iHope
       
-      sut(1) === 2
-      sut("a") === 2
+      sut(1) must be_==(2)
+      sut("a") must be_==(2)
       try
         sut(z)
         failure("3 is not in domain")
@@ -68,9 +68,9 @@ class SetFunctionTest extends Specification:
       val s0 = Set(1, 2, "a").untyped
       val s1 = Set("x1", "x2", "xa", 77).untyped
       val sut = SetFunction.constant(s0, s1, 77)
-      sut.d0 === s0
-      sut.d1 === s1
-      for x <- s0 do sut(x) === 77
+      sut.d0 must be_==(s0)
+      sut.d1 must be_==(s1)
+      for x <- s0 do sut(x) must be_==(77)
 
       try
         sut(3)
@@ -95,9 +95,9 @@ class SetFunctionTest extends Specification:
       val s0 = Set(1, 2, "a").untyped
       val s1 = Set(0, 1, 2, "b", s0, "a").untyped
       val sut = inclusion(s0, s1).iHope
-      sut.d0 === s0
-      sut.d1 === s1
-      for x <- s0 do sut(x) === x
+      sut.d0 must be_==(s0)
+      sut.d1 must be_==(s1)
+      for x <- s0 do sut(x) must be_==(x)
 
       try
         sut("b")
@@ -112,9 +112,9 @@ class SetFunctionTest extends Specification:
       def predicate = (x: Any) => x.toString.charAt(0) == '1'
 
       val sut = filterByPredicate(s)(predicate)
-      sut.d1 === s
+      sut.d1 must be_==(s)
       sut.d0 === (s filter predicate)
-      for x <- List(1, "1xya2") do sut(x) === x
+      for x <- List(1, "1xya2") do sut(x) must be_==(x)
       try
         sut(2)
         failure("Must have thrown an exception")
@@ -127,9 +127,9 @@ class SetFunctionTest extends Specification:
     "building ai identity" >> {
       val s: set = Set(1, 2, "a")
       val sut = id(s)
-      sut.d0 === s
-      sut.d1 === s
-      for x <- s do sut(x) === x
+      sut.d0 must be_==(s)
+      sut.d1 must be_==(s)
+      for x <- s do sut(x) must be_==(x)
 
       try
         sut("b")
@@ -144,7 +144,7 @@ class SetFunctionTest extends Specification:
       val set1: set = setOf.elements(1, 2)
 
       val sut = SetFunction.exponent(set1, set1)
-      sut.size === 4
+      sut.size must be_==(4)
       val check1 = sut.contains(SetFunction.id(set1))
       check1 must beTrue
     }
@@ -154,7 +154,7 @@ class SetFunctionTest extends Specification:
       val set2: set = setOf.elements(1, 2, 3, 4, 5)
 
       val sut = SetFunction.exponent(set1, set2)
-      sut.size === 125
+      sut.size must be_==(125)
       for i <- set2 do
         val c = SetFunction.constant(set1, set2, 1)
         sut.contains(c) must beTrue
