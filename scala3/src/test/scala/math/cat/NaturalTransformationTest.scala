@@ -38,8 +38,8 @@ class NaturalTransformationTest extends Test {
 
     "compose" in {
         val `f->h` = `g->h` ∘ `f->g`
-        `f->h`.d0 === f
-        `f->h`.d1 === h
+        `f->h`.d0 must be_==(f)
+        `f->h`.d1 must be_==(h)
         `f->h`("0") === "0.2"
         `f->h`("1") === "2.3"
     }

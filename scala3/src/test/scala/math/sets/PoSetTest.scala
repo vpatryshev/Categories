@@ -11,12 +11,12 @@ class PoSetTest extends TestBase:
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})").
           getOrElse(throw new IllegalArgumentException("Did not parse"))
 
-      actual.elements === expected.elements
+      actual.elements must be_==(expected.elements)
       val product = Sets.product2(expected.elements, expected.elements)
 
       for p <- product do
         // could not use `===`, something wrong with it in combination with `aka`
-        (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must_== expected.le(p)
+        (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must be_==(expected.le(p))
 
       expected.equals(actual) must beTrue // here we check equality
       actual.equals(expected) must beTrue // here we check equality again
@@ -43,8 +43,8 @@ class PoSetTest extends TestBase:
     "Equals_positive" >> {
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
       val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
-      sut2 === sut1
-      sut1 === sut2
+      sut2 must be_==(sut1)
+      sut1 must be_==(sut2)
     }
 
     "Equals_negative" >> {
@@ -68,7 +68,7 @@ class PoSetTest extends TestBase:
       val opsut = ~sut
 
       opsut.le("c", "a") must beTrue
-      ~opsut === sut
+      ~opsut must be_==(sut)
     }
 
     "Discrete" >> {
@@ -81,19 +81,19 @@ class PoSetTest extends TestBase:
 
     "UnderlyingSet" >> {
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
-      sut.elements === Set("a", "b", "c")
+      sut.elements must be_==(Set("a", "b", "c"))
     }
 
     "Parser" >> {
       val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
       val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})").
         getOrElse(throw new IllegalArgumentException("Did not parse"))
-      actual.size === 3
-      actual.elements === Set("a", "b", "c")
+      actual.size must be_==(3)
+      actual.elements must be_==(Set("a", "b", "c"))
       actual.le("a", "b") must beTrue
       actual.le("b", "c") must beTrue
       actual.le("a", "c") must beTrue
-      expected === actual
+      expected must be_==(actual)
     }
 
     "Range" >> {

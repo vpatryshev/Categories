@@ -1,33 +1,38 @@
 package math.cat
 
-import math.sets.PoSet
-import org.specs2.mutable._
-import scalakittens.Good
+import math.Test
+import math.cat.SetMorphism.*
+import math.sets.Sets.*
+import math.sets.{N, PoSet, Sets}
+import org.specs2.execute.Result as MatchResult
+import org.specs2.mutable.*
+import scalakittens.*
+
+import scala.language.implicitConversions
 
 /**
  * Test suite for PoSetMorphism class
  */
-class PoSetMorphismTest extends Specification:
+class PoSetMorphismTest extends Test:
   private val intComparator = (x:Int, y:Int) => x <= y
   private val stringComparator = (x:String, y:String) => x <= y
 
-  "PoSetMorphism" >> {
+  "PoSetMorphism" should :
 
-    "Constructor" >> {
+    "Constructor" in :
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5")
       
       PoSetMorphism.build(x, y, (n: Int) => s"#$n") match
         case Good(sut) =>
           sut(3) === "#3"
-          sut.d0 === x
-          sut.d1 === y
+          sut.d0 must be_==(x)
+          sut.d1 must be_==(y)
         case nogood => failure(nogood.toString)
 
       ok
-    }
 
-    "Constructor_negative_badCodomain" >> {
+    "Constructor_negative_badCodomain" in :
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(stringComparator, "#1", "#2", "#3", "#5")
 
@@ -36,16 +41,14 @@ class PoSetMorphismTest extends Specification:
         case nogood => ok
 
       ok
-    }
 
-    "Constructor_negative_lostOrder" >> {
+    "Constructor_negative_lostOrder" in :
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y = PoSet(intComparator, 1, 2, 3, 4, 5)
       val sut = PoSetMorphism.build(x, y, (n: Int) => 1 + (n - 3) * (n - 3))
-      sut.isBad === true
-    }
+      sut.isBad must beTrue
 
-    "Equals" >> {
+    "Equals" in :
       val x1 = PoSet(intComparator, 1, 2, 3, 4, 5)
       val y1 = PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5")
       val x2 = PoSet(intComparator, 5, 4, 3, 2, 1)
@@ -53,45 +56,41 @@ class PoSetMorphismTest extends Specification:
       val sut1 = PoSetMorphism.build(x1, y1, (n: Int) => "#" + n)
       val sut2 = PoSetMorphism.build(x2, y2,
         Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5"))
-      sut1 === sut2
+      sut1 must be_==(sut2)
       val sut3 = PoSetMorphism.build(x2, y2, Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#4"))
       sut1 !== sut3
-    }
 
-    "Compose" >> {
+    "Compose" in :
       val fOpt = PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(intComparator, 1, 2, 3, 4, 5), (n: Int) => n - 10)
       val gOpt = PoSetMorphism.build(PoSet(intComparator, 1, 2, 3, 4, 5), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + n)
       
       fOpt andAlso gOpt match
         case Good((f, g)) =>
           val h = f andThen g
-          h === PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10)).asOption
+          h must be_==
+            (PoSetMorphism.build(PoSet(intComparator, 11, 12, 13, 14, 15), PoSet(stringComparator, "#1", "#2", "#3", "#4", "#5"), (n: Int) => "#" + (n - 10)).asOption)
         case none => failure(s"failed to compose: $none")
 
       ok
-    }
 
-    "id" >> {
+    "id" in :
       val s = PoSet(stringComparator, "1", "haha", "2.71828")
       val sut = PoSetMorphism.id(s)
-      sut.d0 === PoSet(stringComparator, "2.71828", "1", "haha")
-      sut.d1 === PoSet(stringComparator, "2.71828", "1", "haha")
-      sut("haha") === "haha"
-    }
+      sut.d0 must be_==(PoSet(stringComparator, "2.71828", "1", "haha"))
+      sut.d1 must be_==(PoSet(stringComparator, "2.71828", "1", "haha"))
+      val actual = sut("haha")
+      actual must be_==("haha")
 
-    "Const" >> {
+    "Range" in :
+      val sut = PoSet.range(2, 11, 3)
+      sut must contain(8)
+      sut.toSet must be_==(Set(2, 5, 8))
+      sut.le(5, 8) must beTrue
+
+    "Const" in :
       val strings = PoSet(stringComparator, "a", "b", "c")
       val ints = PoSet(intComparator, 1, 2, 3)
       val sut = PoSetMorphism.const(strings, ints, 2)
-      sut.d0 === strings
-      sut.d1 === ints
+      sut.d0 must be_==(strings)
+      sut.d1 must be_==(ints)
       sut("a") === 2
-    }
-
-    "Range" >> {
-      val sut = PoSet.range(2, 11, 3)
-      sut must contain(8)
-      sut must not contain 11
-      sut.le(5, 8) must beTrue
-    }
-  }

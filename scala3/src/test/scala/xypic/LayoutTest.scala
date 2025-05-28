@@ -2,7 +2,7 @@ package xypic
 
 import math.cat.Categories._
 import math.cat.Category
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 import org.specs2.mutable.Specification
 import scalakittens._
 
@@ -69,19 +69,19 @@ class LayoutTest extends Specification:
         lol.toMap
 
       val missing = (expectedLayersOfClusters.keySet diff actualLayersOfClusters.keySet).toList
-      missing === Nil
+      missing must be_==(Nil)
 
       val extra = (actualLayersOfClusters.keySet diff expectedLayersOfClusters.keySet).toList
-      extra === Nil
+      extra must be_==(Nil)
 
-      actualLayersOfClusters.keySet === expectedLayersOfClusters.keySet
+      actualLayersOfClusters.keySet must be_==(expectedLayersOfClusters.keySet)
 
       for
         name <- actualLayersOfClusters.keySet
       do 
-        actualLayersOfClusters(name) === expectedLayersOfClusters(name)
+        actualLayersOfClusters(name) must be_==(expectedLayersOfClusters(name))
 
-      actualLayersOfClusters === expectedLayersOfClusters
+      actualLayersOfClusters must be_==(expectedLayersOfClusters)
 
       val actualLayers: Map[String, List[Set[String]]] = (for
         c <- KnownFiniteCategories
@@ -94,9 +94,9 @@ class LayoutTest extends Specification:
 
       for
         name <- expectedLayers.keySet
-      do actualLayers(name) === expectedLayers(name)
+      do actualLayers(name) must be_==(expectedLayers(name))
       
-      actualLayers === expectedLayers
+      actualLayers must be_==(expectedLayers)
     }
 
   }

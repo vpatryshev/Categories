@@ -25,7 +25,6 @@ class SetMorphismTest extends Test:
 
     try {
       m(4)
-      m(4)
       failure("4 does not belong to domain; should have thrown an error");
     } catch  {
       case e: NoSuchElementException => // as expected
@@ -34,15 +33,15 @@ class SetMorphismTest extends Test:
   }
 
   "Composition with id" >>  {
-    m.andThen(id(strings)) === Some(m)
-    id(ints).andThen(m) === Some(m)
+    m.andThen(id(strings)) must be_==(Some(m))
+    id(ints).andThen(m) must be_==(Some(m))
   }
 
   "Constructor2" >> {
     val sut = SetMorphism.build(testSetX, testSetZ, (n: Int) => "#" + n).iHope
     sut(3) === "#3"
-    sut.d0 === testSetX
-    sut.d1 === testSetZ
+    sut.d0 must be_==(testSetX)
+    sut.d1 must be_==(testSetZ)
   }
 
   "Constructor_negative" >> {
@@ -54,7 +53,7 @@ class SetMorphismTest extends Test:
     val sut1 = SetMorphism.build(testSetX, testSetZ, (n: Int) => "#" + n).iHope
     val sut2 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
                            Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#5")).iHope
-    sut1 === sut2
+    sut1 must be_==(sut2)
     val sut3 = SetMorphism.build(Set(5, 4, 3, 2, 1), Set("#5", "#4", "#3", "#2", "#1"),
                            Map(1 -> "#1", 2 -> "#2", 3 -> "#3", 4 -> "#4", 5 -> "#3")).iHope
     (sut1 != sut3) must beTrue
@@ -66,7 +65,7 @@ class SetMorphismTest extends Test:
     val g = SetMorphism.build(testSetX, testSetZ, (n: Int) => "#" + n).iHope
     val h = f andThen g
     
-    h === Some(SetMorphism.build(x, testSetZ, (n: Int) => "#" + (n - 10)).iHope)
+    h must be_==(Some(SetMorphism.build(x, testSetZ, (n: Int) => "#" + (n - 10)).iHope))
   }
 
   "Revert" >> {
@@ -76,14 +75,14 @@ class SetMorphismTest extends Test:
       Set(Set("abc", "def"), Set("x"), Set()),
       Map(1 -> Set("x"), 2 -> Set(), 3 -> Set("abc", "def"), 4 -> Set(), 5 -> Set())).iHope
     
-    sut2 === sut1.revert
+    sut2 must be_==(sut1.revert)
   }
 
   "id" >> {
     val s = Set(1, "haha", 2.71828)
     val sut = SetMorphism.id(s)
-    Set(2.71828, 1, "haha") === sut.d0
-    Set(2.71828, 1, "haha") === sut.d1
+    Set(2.71828, 1, "haha") must be_==(sut.d0)
+    Set(2.71828, 1, "haha") must be_==(sut.d1)
     sut("haha") === "haha"
   }
 
@@ -92,9 +91,9 @@ class SetMorphismTest extends Test:
     val ints = Set(1, 2, 3)
     val two:Int = 2
     val sut = SetMorphism.const(strings, ints, two)
-    sut.d0 === strings
-    sut.d1 === ints
-    sut("a") === 2
+    sut.d0 must be_==(strings)
+    sut.d1 must be_==(ints)
+    sut("a") must be_==(2)
   }
 
   "Hom" >> {
@@ -125,11 +124,11 @@ class SetMorphismTest extends Test:
 
     def m(x: Int, y: Int, z: Int) = Map(0 -> x, 1 -> y, 2 -> z)
 
-    sut === Set(
+    sut must be_==(Set(
       m(0, 1, 2), m(0, 1, 5),
       m(0, 4, 2), m(0, 4, 5),
       m(3, 1, 2), m(3, 1, 5),
-      m(3, 4, 2), m(3, 4, 5))
+      m(3, 4, 2), m(3, 4, 5)))
   }
 
   "Pullback" >> {
@@ -140,8 +139,8 @@ class SetMorphismTest extends Test:
     val (left, right) = SetMorphism.pullback(f, g)
     val pullbackSet = Set[(BigInt,BigInt)]((1,2),(1,4),(2,6),(2,8),(3,6),(3,8),(4,10),(5,10))
     for p <- pullbackSet do
-      left(p) === p._1
-      right(p) === p._2
+      left(p) must be_==(p._1)
+      right(p) must be_==(p._2)
 
     ok
   }
@@ -152,11 +151,11 @@ class SetMorphismTest extends Test:
 
     inclusion[BigInt](xs, ys) match
       case Good(sm) =>
-        sm.d0 === xs
-        sm.d1 === ys
+        sm.d0 must be_==(xs)
+        sm.d1 must be_==(ys)
         for
           i <- xs
-        do sm(i) === i
+        do sm(i) must be_==(i)
 
       case nogood => failure(nogood.toString)
     ok
@@ -185,8 +184,8 @@ class SetMorphismTest extends Test:
     val g = new SetMorphism("g", gd0, gd1, (_: String).toLowerCase)
     val product = SetMorphism.product2(f, g)
     product.tag === "f×g"
-    product.d0 === expected_d0
-    product.d1 === expected_d1
+    product.d0 must be_==(expected_d0)
+    product.d1 must be_==(expected_d1)
 
     for
       (x, y) <- expected_d0

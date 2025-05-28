@@ -7,5 +7,5 @@ import testing.TestBase
   */
 class _Test extends TestBase:
   "You" should:
-    "be ok" in:
+    "be ok" in :
       ok

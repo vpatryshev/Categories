@@ -4,8 +4,7 @@ import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos, Point}
 import math.cat.{Category, SetFunction}
 import SetFunction.fun
-import org.specs2.matcher.MatchResult
-import org.specs2.matcher.ShouldMatchers.thisValue
+import org.specs2.execute.Result as MatchResult
 import scalakittens.Result._
 import SetFunction._
 
@@ -16,7 +15,7 @@ class ConjunctionTest extends Fixtures:
 
   "Conjunction" should {
 
-    def checkProperties(topos: GrothendieckTopos, number: Int, total: Int, what: String): MatchResult[Any] =
+    def checkProperties(topos: GrothendieckTopos, number: Int, total: Int, what: String): MatchResult =
       import topos._
       val desc = s"Testing $what over ${domain.name} ($number/$total)"
       val rep = reportIn(topos)
@@ -26,10 +25,10 @@ class ConjunctionTest extends Fixtures:
       for pt <- Ω.points do
         rep(s"conjunction with False for ${pt.tag}")
         val p: Predicate = pt.asPredicateIn(topos)
-        True.getClass === p.getClass
-        False.getClass === p.getClass
+        True.getClass must be_==(p.getClass)
+        False.getClass must be_==(p.getClass)
 // fails        False.getClass === (False ∧ p).getClass
-        (False ∧ p) === False
+        (False ∧ p) must be_==(False)
       
       checkThatIn(topos, number, total).mustBeMonoid[Predicate](
         "conjunction",
@@ -40,7 +39,7 @@ class ConjunctionTest extends Fixtures:
 
     end checkProperties
 
-    def checkTrue(topos: GrothendieckTopos, number: Int, total: Int): MatchResult[Any] =
+    def checkTrue(topos: GrothendieckTopos, number: Int, total: Int): MatchResult =
       import topos._
       val desc = s"Testing True value over ${domain.name} ($number/$total)"
 
@@ -60,10 +59,10 @@ class ConjunctionTest extends Fixtures:
         o <- domain.objects
       do
         val p = pointOfTrueAndTrue(o)
-        p aka s"$desc, @$o" must_== (Truth(o), Truth(o))
+        p aka s"$desc, @$o" must be_==(Truth(o), Truth(o))
         val monoAt_o = monomorphism(o)
         val actual = asFunction(monoAt_o)(p)
-        actual aka s"$desc, @$o" must_== p
+        actual aka s"$desc, @$o" must be_==(p)
 
       val classifyingArrow: DiagramArrow = χ(monomorphism)
       val theyAreTheSame = classifyingArrow == conjunction // nice to have this line, to check the comparison
@@ -79,22 +78,22 @@ class ConjunctionTest extends Fixtures:
 
           pairs foreach {
             case ((k1, v1), (k2, v2)) =>
-              k1 === k2
-              v1 aka s"At $k1 at $o" must_== v2
+              k1 must be_==(k2)
+              v1 must be_==(v2)
           }
 
-          tru_classif_o === con_o
+          tru_classif_o must be_==(con_o)
 
-      classifyingArrow aka desc must_== conjunction
+      classifyingArrow aka desc must be_==(conjunction)
     end checkTrue
 
     val testCase = new TestCase:
-      def check(category: Category, number: Int, total: Int): MatchResult[Any] =
+      def check(category: Category, number: Int, total: Int): MatchResult =
         val topos = new CategoryOfDiagrams(category)
         checkTrue(topos, number, total)
         checkProperties(topos, number, total, "conjunction")
 
     
-    "work for all known domains" in:
+    "work for all known domains" in :
       test(testCase)
   }

@@ -188,7 +188,7 @@ object Constructor:
 
 class SetupTest extends Test:
   "diagrams" should:
-    "all get instantiated" in:
+    "all get instantiated" in :
       try
         val allThat = new TestDiagrams {}
         allThat.`Set^M`.toString === "Set^M"

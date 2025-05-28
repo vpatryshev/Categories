@@ -4,7 +4,7 @@ import math.Test
 import math.cat.Categories._
 import math.cat.SetCategory.Setf
 import math.sets.Sets.set
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 import scalakittens.Good
 
 import scala.language.postfixOps
@@ -42,28 +42,28 @@ class FunctorTest extends Test:
   
   "Constructor" should {
 
-    "report missing object mappings" in:
+    "report missing object mappings" in :
       expectError("Object mapping fails for 1",
       Functor("failing test",
         `𝟜`, `𝟜`)(
         Map("0" -> "1"),
         Map.empty[String, String]))
 
-    "report incorrect object mappings" in:
+    "report incorrect object mappings" in :
       expectError("Object mapping fails for 1",
         Functor("failing test",
           `𝟚`, `𝟚`)(
           Map("0" -> "1", "1" -> "3"),
           Map.empty[String, String]))
 
-    "report missing arrows mappings" in:
+    "report missing arrows mappings" in :
       expectError("Missing arrow mappings for 0.1, 1.2, 2.3, 0.3, 1.3, 0.2",
         Functor("failing test",
         `𝟜`, `𝟜`)(
         Map("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "3"),
           Map.empty[String, String]))
 
-    "report inconsistent arrow mappings" in:
+    "report inconsistent arrow mappings" in :
       val objectMapping: `𝟜`.Node => `𝟜`.Node =
         Map[`𝟜`.Node, `𝟜`.Node]("0" -> "1", "1" -> "2", "2" -> "1", "3" -> "3")
       val arrowMapping: `𝟜`.Arrow => `𝟜`.Arrow = Map[`𝟜`.Arrow, `𝟜`.Arrow](
@@ -81,7 +81,7 @@ class FunctorTest extends Test:
       expectError("Inconsistent mapping for d1(0.2)",
         Functor("id mapping broken", `𝟜`, `𝟜`)(objectMapping, arrowMapping))
 
-    "report a failure" in:
+    "report a failure" in :
       val objectMapping: `𝟜`.Node => `𝟜`.Node =
         Map[`𝟜`.Node, `𝟜`.Node]("0" -> "1", "1" -> "2", "2" -> "3", "3" -> "4")
       val arrowMapping = Map(
@@ -138,7 +138,7 @@ class FunctorTest extends Test:
         obj0("c") -> arr1("a0d")
       ))
         
-      actual === Set(expected)
+      actual must be_==(Set(expected))
     }
     
     "build all cones" in {
@@ -159,7 +159,7 @@ class FunctorTest extends Test:
         obj0("c") -> arr1("a1d")
       ))
       
-      allCones === Set(c1, c2)
+      allCones must be_==(Set(c1, c2))
     }
     
     "limit with two candidates" in {
@@ -186,7 +186,7 @@ class FunctorTest extends Test:
         obj0("b") -> arr1("bd0"),
         obj0("c") -> arr1("cd0")
       ))
-      actual === Set(expected)
+      actual must be_==(Set(expected))
     }
     
     "all cocones" in {
@@ -205,7 +205,7 @@ class FunctorTest extends Test:
         obj0("b") -> arr1("bd1"),
         obj0("c") -> arr1("cd1")
       ))
-      allCocones === Set(expected1, expected2)
+      allCocones must be_==(Set(expected1, expected2))
     }
     
     "colimit with two candidates" in {
@@ -240,12 +240,12 @@ class FunctorTest extends Test:
       
       checkOption[Functor](sutOpt,
         sut => {
-          sut.d0 === Pullback
-          sut.d1 === Setf
-          sut.objectMapping("a") === a
-          sut.objectMapping("b") === b
-          sut.calculateObjectsMapping("c") === c
-          sut.arrowsMapping("ac") === ac
+          sut.d0 must be_==(Pullback)
+          sut.d1 must be_==(Setf)
+          sut.objectMapping("a") must be_==(a)
+          sut.objectMapping("b") must be_==(b)
+          sut.calculateObjectsMapping("c") must be_==(c)
+          sut.arrowsMapping("ac") must be_==(ac)
         }
       )
     }

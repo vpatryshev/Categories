@@ -39,7 +39,7 @@ object Base:
     * @param list the list
     * @return the
     */
-  def toMap[X](list: List[X]): IntMap[X] =
+  def toIntMap[X](list: List[X]): IntMap[X] =
     list.zipWithIndex map { case (x, i) => i -> x } toMap
 
   extension [T] (opt: Option[T])

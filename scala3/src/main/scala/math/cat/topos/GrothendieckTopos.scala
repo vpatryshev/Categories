@@ -641,7 +641,7 @@ trait GrothendieckTopos
       val setsToJoin: List[Set[Any]] = listOfObjects map nodesMapping
       val union: DisjointUnion[Any] = DisjointUnion(setsToJoin)
       val typelessUnion: set = union.unionSet untyped
-      val directIndex: IntMap[XObject] = toMap(listOfObjects)
+      val directIndex: IntMap[XObject] = toIntMap(listOfObjects)
       val reverseIndex: Map[XObject, Int] = inverse(directIndex)
 
       // for every object it gives the inclusion of this object's image into the union

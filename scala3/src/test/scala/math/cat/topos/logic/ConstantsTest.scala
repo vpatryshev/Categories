@@ -4,7 +4,7 @@ import math.cat.Categories.*
 import math.cat.topos.*
 import math.sets.Sets
 import math.sets.Sets.set
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 import scalakittens.Result
 import scalakittens.Result.*
 
@@ -18,14 +18,14 @@ class ConstantsTest extends Fixtures:
       Truth.toString === "⊤"
       val tTrue = Truth.mapping
       val tFalse = Falsehood.mapping
-      tTrue === tFalse // that's a degenerate topos, but tags are still distinct
+      tTrue must be_==(tFalse) // that's a degenerate topos, but tags are still distinct
     }
 
-    def checkAt(topos: GrothendieckTopos)(point: Any)(mappings: (String, set)*): MatchResult[Any] = {
+    def checkAt(topos: GrothendieckTopos)(point: Any)(mappings: (String, set)*): MatchResult = {
       point match
         case d: topos.Diagram => Result.check {
           for (k, v) <- mappings yield OKif(d(k) == v, s"Failed on $k, expected $v, got ${d(k)}")
-        } === OK
+        } must be_==(OK)
         case trash => failure(s"Expected a diagram, got $trash")
 
       ok

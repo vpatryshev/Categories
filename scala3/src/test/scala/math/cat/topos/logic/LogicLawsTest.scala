@@ -2,7 +2,7 @@ package math.cat.topos.logic
 
 import math.cat.Category
 import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 
 import scala.language.reflectiveCalls
 
@@ -14,7 +14,7 @@ class LogicLawsTest extends Fixtures:
       p: topos.Predicate, q: topos.Predicate, pAndQ: topos.Predicate, r: topos.Predicate) =
       val p_qr = p ∧ (q ∨ r)
       val p_and_q_pr = pAndQ ∨ (p ∧ r)
-      p_qr === p_and_q_pr
+      p_qr must be_==(p_and_q_pr)
 
     // distributivity of disjunction over conjunction
     def disjunctionOverConjunction(topos: GrothendieckTopos)(
@@ -22,10 +22,10 @@ class LogicLawsTest extends Fixtures:
       q: topos.Predicate, pOrQ: topos.Predicate, r: topos.Predicate) =
       val p_qr = p ∨ (q ∧ r)
       val p_and_q_pr = pOrQ ∧ (p ∨ r)
-      p_qr === p_and_q_pr
+      p_qr must be_==(p_and_q_pr)
 
     val distributivityTestCase = new TestCase:
-      def check(cat: Category, number: Int, total: Int): MatchResult[Any] =
+      def check(cat: Category, number: Int, total: Int): MatchResult =
         val topos = new CategoryOfDiagrams(cat)
         import topos._
         val points = Ω.points

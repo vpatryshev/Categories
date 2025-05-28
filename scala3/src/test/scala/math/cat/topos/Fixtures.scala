@@ -3,8 +3,7 @@ package math.cat.topos
 import math.Test
 import math.cat.Categories._
 import math.cat.Category
-import org.specs2.execute.{Result => TestResult}
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 import scalakittens.Result
 import scalakittens.Result._
 
@@ -23,13 +22,13 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
     report(_, topos.tag)
 
   trait TestCase:
-    def check(cat: Category, number: Int, total: Int): MatchResult[Any]
+    def check(cat: Category, number: Int, total: Int): MatchResult
 
   case class checkThatIn(topos: GrothendieckTopos, number: Int, total: Int):
     val report = reportIn(topos)
     def mustBeMonoid[P](what: String,
       unit: P,
-      binop: (P, P) => P): MatchResult[Any] =
+      binop: (P, P) => P): MatchResult =
       import topos._
       val report = reportIn(topos)
       val points: Seq[Point] = Ω.points
@@ -40,22 +39,22 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
         report(s"monoidal props at ${pt1.tag}")
         val p: P = predicate(pt1)
         val actual = binop(unit, p)
-// different classes in scala 3        actual.getClass === p.getClass
-        actual === p
+// different classes in scala 3        actual.getClass must be_==(p).getClass
+        actual must be_==(p)
         // idempotence
-        binop(p, p) === p
+        binop(p, p) must be_==(p)
 
         for pt2 <- points do
           val q = predicate(pt2)
           val p_q = binop(p, q)
 
           // commutativity
-          p_q === binop(q, p)
+          p_q must be_==(binop(q, p))
 
           for pt3 <- points do
             val r = predicate(pt3)
             // associativity
-            binop(p_q, r) === binop(p, binop(q, r))
+            binop(p_q, r) must be_==(binop(p, binop(q, r)))
 
       ok
     
@@ -64,7 +63,7 @@ class Fixtures extends Test with math.cat.topos.TestDiagrams:
   val categoriesToTest: List[Cat] = SomeKnownCategories
   val allFiniteCategories = categoriesToTest.filter(_.isFinite)
 
-  def test(testCase: TestCase): MatchResult[Any] =
+  def test(testCase: TestCase): MatchResult =
     allFiniteCategories .zipWithIndex foreach:
       case (c, i) => testCase.check(c, i, allFiniteCategories.size)
 

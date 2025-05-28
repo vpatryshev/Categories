@@ -4,7 +4,7 @@ import math.cat.SetFunction.asFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
 import math.cat.{Category, SetFunction}
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 import scalakittens.Result.*
 
 import scala.language.reflectiveCalls
@@ -16,7 +16,7 @@ import scala.language.reflectiveCalls
  */
 class AnImplicationTest extends Fixtures:
 
-  def check(topos: CategoryOfDiagrams, number: Int, total: Int): MatchResult[Any] =
+  def check(topos: CategoryOfDiagrams, number: Int, total: Int): MatchResult =
     val cat = topos.domain
     val report = reportIn(topos)
     import topos._
@@ -28,13 +28,13 @@ class AnImplicationTest extends Fixtures:
     for pt1 <- Ω.points do
       report(s"True ⟹ ${pt1.tag} = ${pt1.tag}")
       val p = pt1 asPredicateIn topos
-      (True ⟹ p) === p
+      (True ⟹ p) must be_==(p)
       report(s"False ⟹ ${pt1.tag} = True")
-      (False ⟹ p) === True
+      (False ⟹ p) must be_==(True)
       report(s"${pt1.tag} ⟹ ${pt1.tag}")
-      (p ⟹ p) === True
+      (p ⟹ p) must be_==(True)
       report(s"${pt1.tag} ⟹ True = True")
-      (p ⟹ True) === True
+      (p ⟹ True) must be_==(True)
       checkAdjunction(topos)(p, context)
 
       report(s"conjunction distributivity for ${pt1.tag}")
@@ -48,7 +48,7 @@ class AnImplicationTest extends Fixtures:
           val r2q = r ⟹ q
           val left = r2p ∧ r2q
           val right = r ⟹ p_and_q
-          left === right
+          left must be_==(right)
 
       report(s"disjunction distributivity for ${pt1.tag}")
       for pt2 <- Ω.points do
@@ -61,13 +61,13 @@ class AnImplicationTest extends Fixtures:
           val q2r = q ⟹ r
           val left = p2r ∧ q2r
           val right = p_or_q ⟹ r
-          left === right
+          left must be_==(right)
 
     ok
 
   end check
 
-  def checkAdjunction(topos: GrothendieckTopos)(p: topos.Predicate, context: String): MatchResult[Any] =
+  def checkAdjunction(topos: GrothendieckTopos)(p: topos.Predicate, context: String): MatchResult =
     val testname = s"$context, adjunction for ${p.tag}"
     reportIn(topos)(s"adjunction for ${p.tag}")
 
@@ -79,7 +79,7 @@ class AnImplicationTest extends Fixtures:
 
   def checkAdjunction2(topos: GrothendieckTopos)(
     p: topos.Predicate, q: topos.Predicate, context: String
-  ): MatchResult[Any] =
+  ): MatchResult =
     val p_and_q = p ∧ q
     for pt3 <- topos.Ω.points do
       val r = pt3 asPredicateIn topos
@@ -88,7 +88,7 @@ class AnImplicationTest extends Fixtures:
 
   def checkAdjunctionpqr(topos: GrothendieckTopos)(
     p: topos.Predicate, q: topos.Predicate, p_and_q: topos.Predicate, r: topos.Predicate, context: String
-  ): MatchResult[Any] =
+  ): MatchResult =
     val q2r = q ⟹ r
     val left = p_and_q ⟹ r
     val right = p ⟹ q2r
@@ -97,7 +97,7 @@ class AnImplicationTest extends Fixtures:
     ok
 
   "Implication" should:
-    def checkAt(i: Int): MatchResult[Any] =
+    def checkAt(i: Int): MatchResult =
       groupedCategoriesToTest(i) foreach:
         case (cat, index) =>
           val topos = new CategoryOfDiagrams(cat)
@@ -107,12 +107,12 @@ class AnImplicationTest extends Fixtures:
     def nameThem(i: Int): String =
       groupedCategoriesToTest(i).map{_._1.name} mkString ", "
 
-//    "run all" in:
+//    "run all" in :
 //      s"work for domains: ${nameThem(0)}" in checkAt(0)
 //      s"work for domains: ${nameThem(1)}" in checkAt(1)
 //      s"work for domains: ${nameThem(2)}" in checkAt(2)
 
-    "do M" in:
+    "do M" in :
       val topos = `Set^M`
       check(topos, 0, 1)
 
