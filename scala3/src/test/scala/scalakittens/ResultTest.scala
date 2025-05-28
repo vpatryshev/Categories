@@ -178,9 +178,9 @@ class ResultTest extends TestBase:
     oops.getOrElse(":)") must be_==(":)")
 
   "blend properly via <*>" in :
-    oops <*> Good(2)  must be_==(oops)
+    oops <*> Good(2) must be_==(oops)
     oops <*> error(":(") mustBeBad("oops", ":(")
-    oops <*> Empty  must be_==(oops)
+    oops <*> Empty must be_==(oops)
 
   "ignore call function in foreach" in :
     var wasThere = false
@@ -189,8 +189,8 @@ class ResultTest extends TestBase:
     wasThere aka "visited what you were not supposed to visit" must beFalse
 
   "filter as designed" in :
-    oops filter((s: String) => s.startsWith("he"), "oi vei")  must be_==(oops)
-    oops filter((s: String) => s.startsWith("lo"), "oi vei")  must be_==(oops)
+    oops filter((s: String) => s.startsWith("he"), "oi vei") must be_==(oops)
+    oops filter((s: String) => s.startsWith("lo"), "oi vei") must be_==(oops)
 
   "Merge errorDetails" in :
     val detailsOpt: Option[String] = 
@@ -198,7 +198,7 @@ class ResultTest extends TestBase:
     detailsOpt.isEmpty must beFalse
     val desc = detailsOpt.get
     val expectedDesc = "beer too expensive; are we there?"
-    desc  must be_==(expectedDesc)
+    desc must be_==(expectedDesc)
     detailsOpt must beSome(expectedDesc)
 
   "combine with goods in sugared loop" in :
@@ -241,14 +241,14 @@ class ResultTest extends TestBase:
       var wasThere = false
       Empty map (x => {
         wasThere = true; null == x
-      })  must be_==(Empty)
+      }) must be_==(Empty)
       wasThere aka "visited what you were not supposed to visit" must beFalse
 
     "flatMap as designed" in :
       var wasThere = false
       Empty flatMap (s => {
         wasThere = true; Empty
-      })  must be_==(Empty)
+      }) must be_==(Empty)
       wasThere aka "visited what you were not supposed to visit" must beFalse
 
     "collect nothing" in :
@@ -256,7 +256,7 @@ class ResultTest extends TestBase:
       val sut: Result[String] = Empty
       sut collect( {
         case "hello" => wasThere = true; 1
-      }, _ => "whatever")  must be_==(Empty)
+      }, _ => "whatever") must be_==(Empty)
       wasThere aka "visited what you were not supposed to visit" must beFalse
 
     "convert to None" in :
@@ -265,15 +265,15 @@ class ResultTest extends TestBase:
     "get ignored in orElse" in :
       Empty.orElse(Result.error(":(")) must be_==(Result.error(":("))
       Empty.orElse(Good(":)")) must be_==(Good(":)"))
-      Empty.orElse(Empty)  must be_==(Empty)
+      Empty.orElse(Empty) must be_==(Empty)
 
     "get ignored in getOrElse" in :
-      Empty.getOrElse(":)")  must be_==(":)")
+      Empty.getOrElse(":)") must be_==(":)")
 
     "blend properly via <*>" in :
-      Empty <*> Good(2)  must be_==(Empty)
-      Empty <*> Result.error(":(")  must be_==(Empty)
-      Empty <*> Empty  must be_==(Empty)
+      Empty <*> Good(2) must be_==(Empty)
+      Empty <*> Result.error(":(") must be_==(Empty)
+      Empty <*> Empty must be_==(Empty)
 
     "ignore call function in foreach" in :
       var wasThere = false
@@ -281,8 +281,8 @@ class ResultTest extends TestBase:
       wasThere aka "visited what you were not supposed to visit" must beFalse
 
     "Filter as designed" in :
-      Empty filter((x: Any) => x != null, "oi vei")  must be_==(Empty)
-      Empty filter((x: Any) => x == null, "oi vei")  must be_==(Empty)
+      Empty filter((x: Any) => x != null, "oi vei") must be_==(Empty)
+      Empty filter((x: Any) => x == null, "oi vei") must be_==(Empty)
 
     "Show nothing in errorDetails" in :
       Empty.errorDetails must beNone
@@ -291,17 +291,17 @@ class ResultTest extends TestBase:
       val nr: Result[String] = Empty
       val actual1 = for (x <- nr;
                          y <- Good("y")) yield x + y
-      actual1  must be_==(Empty)
+      actual1 must be_==(Empty)
 
       val actual2 = for (x <- Good("x");
                          y <- nr) yield x + y
-      actual2  must be_==(Empty)
+      actual2 must be_==(Empty)
 
     "combine with bads in sugared loop" in :
       val nr: Result[String] = Empty
       val actual1 = for (x <- nr;
                          y <- Result.error[String]("y yourself")) yield x + y
-      actual1  must be_==(nr)
+      actual1 must be_==(nr)
       val actual2 = for (x <- Result.error[String]("x yourself");
                          y <- nr) yield x + y
 
@@ -311,4 +311,4 @@ class ResultTest extends TestBase:
       val nr: Result[String] = Empty
       val actual1 = for (x <- nr;
                          y <- nr) yield x + y
-      actual1  must be_==(nr)
+      actual1 must be_==(nr)

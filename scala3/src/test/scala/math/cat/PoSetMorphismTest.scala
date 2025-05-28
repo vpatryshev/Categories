@@ -84,9 +84,8 @@ class PoSetMorphismTest extends Test:
     "Range" in :
       val sut = PoSet.range(2, 11, 3)
       sut must contain(8)
-      sut must be_==(Set(2, 3, 8))
-      val actual: Boolean = sut.le(5, 8)
-      actual must beTrue
+      sut.toSet must be_==(Set(2, 5, 8))
+      sut.le(5, 8) must beTrue
 
     "Const" in :
       val strings = PoSet(stringComparator, "a", "b", "c")

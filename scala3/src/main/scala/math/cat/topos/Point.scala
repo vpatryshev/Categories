@@ -54,7 +54,7 @@ class Point(
   infix inline def ∈(container: topos.Diagram): Boolean =
     asDiagram ⊂ container
 
-  lazy val predicate: topos.Predicate = topos   predicateFor this
+  lazy val predicate: topos.Predicate = topos.predicateFor(this)
 
   // TODO: fix this awkward unnecessary casting
   inline infix def asPredicateIn(t: GrothendieckTopos): t.Predicate =

@@ -29,6 +29,7 @@ class Regression250509_Test extends Fixtures with TestTopologies:
       expectedToBeGood_1 match
         case Good(value) => ok
         case Bad(errors) => failure(errors.toString)
+        case somethingTotallyImpossible => failure(s"WTF? $somethingTotallyImpossible")
 
       val expectedToBeGood_3 = topologies("3⊂Ω")
       expectedToBeGood_3 match
