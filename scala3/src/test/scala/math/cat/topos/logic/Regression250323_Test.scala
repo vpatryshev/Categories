@@ -3,7 +3,7 @@ package math.cat.topos.logic
 import math.cat.topos.{CategoryOfDiagrams, Fixtures}
 import math.cat.SetFunction
 import math.cat.Categories.*
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 
 import scala.language.reflectiveCalls
 import scala.language.implicitConversions

@@ -79,12 +79,12 @@ class ConjunctionTest extends Fixtures:
           pairs foreach {
             case ((k1, v1), (k2, v2)) =>
               k1 must be_==(k2)
-              v1 aka s"At $k1 at $o" must_== v2
+              v1 must be_==(v2)
           }
 
           tru_classif_o must be_==(con_o)
 
-      classifyingArrow aka desc must_== conjunction
+      classifyingArrow aka desc must be_==(conjunction)
     end checkTrue
 
     val testCase = new TestCase:

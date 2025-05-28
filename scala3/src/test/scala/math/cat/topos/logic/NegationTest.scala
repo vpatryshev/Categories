@@ -2,7 +2,7 @@ package math.cat.topos.logic
 
 import math.cat.Category
 import math.cat.topos.{CategoryOfDiagrams, Fixtures}
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 
 import scala.language.reflectiveCalls
 
@@ -34,7 +34,7 @@ class NegationTest extends Fixtures:
             rep(s"check that ¬(${pt1.tag} ∨ x) = ¬${pt1.tag} ∧ ¬x")
             for pt2 <- Ω.points do
               val q = pt2 asPredicateIn topos
-              ¬(p ∨ q) must be_==(not_p) ∧ ¬(q)
+              ¬(p ∨ q) must be_==(not_p ∧ ¬(q))
 
           ok
 

@@ -4,7 +4,7 @@ import math.cat.Categories.*
 import math.cat.topos.*
 import math.sets.Sets
 import math.sets.Sets.set
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 import scalakittens.Result
 import scalakittens.Result.*
 

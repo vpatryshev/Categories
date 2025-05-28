@@ -1,19 +1,23 @@
 package math.cat
 
-import math.sets.PoSet
-import org.specs2.mutable._
+import math.Test
+import math.cat.SetMorphism.*
+import math.sets.Sets.*
+import math.sets.{N, PoSet, Sets}
 import org.specs2.execute.Result as MatchResult
+import org.specs2.mutable.*
+import scalakittens.*
+
 import scala.language.implicitConversions
-import scalakittens.Good
 
 /**
  * Test suite for PoSetMorphism class
  */
-class PoSetMorphismTest extends Specification:
+class PoSetMorphismTest extends Test:
   private val intComparator = (x:Int, y:Int) => x <= y
   private val stringComparator = (x:String, y:String) => x <= y
 
-  "PoSetMorphism" must :
+  "PoSetMorphism" should :
 
     "Constructor" in :
       val x = PoSet(intComparator, 1, 2, 3, 4, 5)
@@ -74,12 +78,13 @@ class PoSetMorphismTest extends Specification:
       val sut = PoSetMorphism.id(s)
       sut.d0 must be_==(PoSet(stringComparator, "2.71828", "1", "haha"))
       sut.d1 must be_==(PoSet(stringComparator, "2.71828", "1", "haha"))
-      sut("haha") === "haha"
+      val actual = sut("haha")
+      actual must be_==("haha")
 
     "Range" in :
       val sut = PoSet.range(2, 11, 3)
       sut must contain(8)
-      sut.toSet must be_==(Set(2, 3))
+      sut must be_==(Set(2, 3, 8))
       val actual: Boolean = sut.le(5, 8)
       actual must beTrue
 
@@ -90,6 +95,3 @@ class PoSetMorphismTest extends Specification:
       sut.d0 must be_==(strings)
       sut.d1 must be_==(ints)
       sut("a") === 2
-
-    "whatever" in :
-      1 === 1

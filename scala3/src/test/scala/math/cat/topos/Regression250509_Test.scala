@@ -3,7 +3,6 @@ package math.cat.topos
 import math.cat.Categories.*
 import math.cat.SetFunction
 import math.cat.topos.{CategoryOfDiagrams, Fixtures}
-import TopologyTest.*
 import org.specs2.execute.Result as MatchResult
 import scalakittens.{Bad, Good}
 

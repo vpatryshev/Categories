@@ -30,22 +30,22 @@ class FunctionsTest extends TestBase:
       val f = bijection[Int, Int](_ + 42, _ - 42)
       val g = bijection[Int, Int](_ + 1, _ - 1)
       val fg: Bijection[Int, Int] = f andThen g
-      fg(7) must be_==(50)
-      fg.unapply(7) == -36
+      fg(7) === 50
+      fg.unapply(7) === -36
     
     "applyTo" in :
       val f = bijection[Int, Int](_ + 42, _ - 42)
-      Set.empty.map(f) must be_==(Set.empty)[Int]
-      Set(768, 87, 21).map(f) == Set(810, 129, 63)
+      Set.empty.map(f) must be_==(Set.empty[Int])
+      Set(768, 87, 21).map(f) must be_==(Set(810, 129, 63))
 
     "inverse" in :
       val f = bijection[Int, Int](_ + 2, _ - 2)
       val g = f.inverse
-      g(7) must be_==(5)
+      g(7) === 5
 
     "unapply" in :
       val f = bijection[Int, Int](_ + 2, _ - 2)
-      f.unapply(7) must be_==(5)
+      f.unapply(7) === 5
   
   "Injection" should:
     "applied to a set should produce a set of the same size" in :

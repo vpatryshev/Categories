@@ -11,12 +11,12 @@ class PoSetTest extends TestBase:
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})").
           getOrElse(throw new IllegalArgumentException("Did not parse"))
 
-      actual.elements must be_==(expected).elements
+      actual.elements must be_==(expected.elements)
       val product = Sets.product2(expected.elements, expected.elements)
 
       for p <- product do
         // could not use `===`, something wrong with it in combination with `aka`
-        (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must_== expected.le(p)
+        (actual.le(p) aka s"@<<$p>>: ${actual.le(p)}") must be_==(expected.le(p))
 
       expected.equals(actual) must beTrue // here we check equality
       actual.equals(expected) must beTrue // here we check equality again

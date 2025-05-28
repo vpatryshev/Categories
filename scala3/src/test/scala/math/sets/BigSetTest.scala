@@ -18,7 +18,7 @@ class BigSetTest extends TestBase:
     "get created from predicate" in {
       val sut =
         BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a', ".a.....")
-      sut.size must be_==(Sets).InfiniteSize
+      sut.size must be_==(Sets.InfiniteSize)
       sut.hashCode * 0 must be_==(0) // meaning, no exception thrown
       sut.toString === ".a....."
       sut.iterator must throwA[UnsupportedOperationException]
@@ -33,7 +33,7 @@ class BigSetTest extends TestBase:
           (s: String) => s.length == 7 && s.charAt(1) == 'a',
           "Set of .a....."
         ) filter (_.head == 'b')
-      sut.size must be_==(Sets).InfiniteSize
+      sut.size must be_==(Sets.InfiniteSize)
       sut.toString === "Set of .a....., filtered"
       sut.iterator must throwA[UnsupportedOperationException]
       sut.contains("bandana") must beTrue
@@ -46,7 +46,7 @@ class BigSetTest extends TestBase:
       val flip = Functions.bijection[String, String]((_:String).reverse, (_:String).reverse)
       val sut =
         BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') map flip
-      sut.size must be_==(Sets).InfiniteSize
+      sut.size must be_==(Sets.InfiniteSize)
       sut.toString === "Big Set with a predicate"
       sut.iterator must throwA[UnsupportedOperationException]
       sut.contains("Esteban") must beTrue

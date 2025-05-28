@@ -3,7 +3,7 @@ package math.cat.topos.logic
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
 import math.cat.{Category, SetFunction}
-import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result as MatchResult
 import scalakittens.Result._
 
 import scala.language.reflectiveCalls

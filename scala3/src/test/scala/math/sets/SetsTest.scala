@@ -15,19 +15,19 @@ class SetsTest extends TestBase:
 
   "Set Parser" should:
     "parse the string" in :
-      Sets.parse("{a, bc, def, more}") must be_==(Good)(Set("a", "bc", "def", "more"))
+      Sets.parse("{a, bc, def, more}") must be_==(Good(Set("a", "bc", "def", "more")))
 
     "parse({a,b,c} with spaces" in :
-      Sets.parse("  { a , b,  c} ") must be_==(Good)(Set("a", "b", "c"))
+      Sets.parse("  { a , b,  c} ") must be_==(Good(Set("a", "b", "c")))
 
     "parse empty to an empty set" in :
-      Sets.parse("{}").map(_.isEmpty) must be_==(Good)(true)
-      Sets.parse(" {  } ").map(_.isEmpty) must be_==(Good)(true)
+      Sets.parse("{}").map(_.isEmpty) must be_==(Good(true))
+      Sets.parse(" {  } ").map(_.isEmpty) must be_==(Good(true))
 
     "parse singleton producing singleton" in :
-      Sets.parse("{0}") must be_==(Good)(Set("0"))
-      Sets.parse("{xyz}") must be_==(Good)(Set("xyz"))
-      Sets.parse("{ xyz }") must be_==(Good)(Set("xyz"))
+      Sets.parse("{0}") must be_==(Good(Set("0")))
+      Sets.parse("{xyz}") must be_==(Good(Set("xyz")))
+      Sets.parse("{ xyz }") must be_==(Good(Set("xyz")))
 
     "parse without closing curly should throw an exception" in :
       try
@@ -146,12 +146,12 @@ class SetsTest extends TestBase:
     "produce set(1) for range(1,3,2)" in :
       val r = range(1, 3, 2)
       r must haveSize(1)
-      r must be_==(setOf).elements(1)
+      r must be_==(setOf.elements(1))
 
     "produce set(0, 2) for range(0,3,2)  " in :
       val r = range(0, 3, 2)
       r must haveSize(2)
-      r must be_==(setOf).elements(0, 2)
+      r must be_==(setOf.elements(0, 2))
 
   "union" should:
     "work for a list of sets" in :
@@ -258,9 +258,9 @@ class SetsTest extends TestBase:
       segment must contain((3,3))
 
     "be empty for an empty list of components" in :
-      val source = List()
-      val expected = Set(List())
-      val actual = product(source)
+      val source = List[Set[AnyRef]]()
+      val expected = Set(List[AnyRef]())
+      val actual = product[AnyRef](source)
       actual must be_==(expected)
 
     "give a list of singletons for a singleton list (of set)" in :
@@ -337,7 +337,7 @@ class SetsTest extends TestBase:
       N.contains(7688721) must beTrue
       val first10 = N.take(10)
 
-      0 to 9 forall (i => first10 must contain(i))
+      0 to 9 foreach (i => first10 must contain(i))
 
       ok
 
@@ -359,9 +359,9 @@ class SetsTest extends TestBase:
       factoring.content must haveSize(2)
       val twoSets = Array(Set(2, 4, 6, 8, 10), Set(1, 3, 5, 7, 9))
       val factor = Set(twoSets(1), twoSets(0))
-      factor must be_==(factoring).content
-      factoring.asFunction(6) must be_==(twoSets)(0)
-      factoring.asFunction(7) must be_==(twoSets)(1)
+      factor must be_==(factoring.content)
+      factoring.asFunction(6) must be_==(twoSets(0))
+      factoring.asFunction(7) must be_==(twoSets(1))
 
     "Pullback, plain case" in :
       val xs = Set(1,2,3,4,5)
@@ -439,9 +439,9 @@ class SetsTest extends TestBase:
       s4 must contain(4)
       s4 contains 5 must beFalse
       s4 must contain(6)
-//      s0 contains 12 must beFalse
-//      s0 contains "1" must beFalse
-//      s4 contains 8 must beFalse
+      s0 contains 12 must beFalse
+      s0 contains "1" must beFalse
+      s4 contains 8 must beFalse
 
   "not return false positives" in :
     val s = Set(1, 2, 3)
