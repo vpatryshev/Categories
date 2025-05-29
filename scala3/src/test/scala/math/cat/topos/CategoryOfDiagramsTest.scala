@@ -332,7 +332,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   "Diagram points" should {
 
-    def checkPoint(topos: GrothendieckTopos)(sut: topos.Diagram)(point: Point, expected: List[Int]) = {
+    def checkPoint(topos: GrothendieckTopos)(sut: topos.Diagram)(point: topos.Point, expected: List[Int]) = {
       val objects = sut.d0.objects.toList
       val actual = objects map point.apply
       actual must be_==(expected)
