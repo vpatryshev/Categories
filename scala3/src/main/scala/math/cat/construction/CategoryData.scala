@@ -5,13 +5,10 @@ import math.cat.construction.*
 import math.cat.construction.CategoryData.*
 import math.cat.{Category, Graph}
 import math.sets.Sets.*
-import scalakittens.{Cache, Params, Result}
+import scalakittens.{Cache, Result}
 import scalakittens.Result.*
 
-import java.util.Objects
-import scala.collection.mutable
 import scala.language.{implicitConversions, postfixOps}
-import scalakittens.Containers.*
 
 /**
   * The data used in building an instance of Category
@@ -20,7 +17,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
   type Objects = Nodes
   val graph: Graph
-  lazy val homCache = Cache[(Node, Node), Arrows](isFinite, (from, to) => calculateHom(from, to))
+  private lazy val homCache = Cache[(Node, Node), Arrows](isFinite, (from, to) => calculateHom(from, to))
 
   /// TODO: figure out why do we need it
   def d0(f: Arrow): Node = 
@@ -95,10 +92,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
 
 //  def nodes: Objects = graph.nodes
 
-  def arrows: Arrows = graph.arrows match
-    case arrows: Arrows => arrows
-    case _ => throw new IllegalStateException(s"arrows of $name coming from graph are not Arrows")
-
+  def arrows: Arrows = graph.arrows.asInstanceOf[Arrows] // TODO: fix
   private[cat] def checkCompositions: Outcome =
     val check1 = Result.check(missingCompositions.map {
       case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
@@ -156,13 +150,6 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
     */
   def hom(from: Obj, to: Obj): Arrows = 
     homCache((from, to))
-//    if isFinite then
-//      homCache.getOrElseUpdate((from, to), calculateHom(from, to))
-//    else calculateHom(from, to)
-//
-//  // TODO: try to start using
-//  private val homCache: mutable.Map[(Obj, Obj), Arrows] = mutable.Map[(Obj, Obj), Arrows]()
-
 
   private def calculateHom(from: Obj, to: Obj): Arrows =
     setOf(arrows filter ((f: Arrow) => (d0(f) == from) && (d1(f) == to)))
@@ -183,9 +170,9 @@ private[construction] class PartialData(override val graph: Graph)
 
   def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
   
-  type CompositionTable = Composition[graph.Arrow]
+  type CompositionTable = Composition[Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
-  val compositionSource: CompositionTable = CategoryData.Empty[graph.Arrow]
+  val compositionSource: CompositionTable = CategoryData.Empty[Arrow]
   
   override def id(o: Obj): Arrow = o
 
@@ -237,40 +224,34 @@ private[construction] class PartialData(override val graph: Graph)
 
   // this is a technical method to list all possible triples that have compositions defined pairwise
   private[cat] def composableTriples(compositionSource: CompositionTable):
-    Set[(graph.Arrow, graph.Arrow, graph.Arrow)] =
+    Set[(Arrow, Arrow, Arrow)] =
     for
-      a <- graph.arrows
-      b <- graph.arrows if compositionSource.contains((a, b))
-      c <- graph.arrows if compositionSource.contains((b, c))
-      /* The following two lines don't work yet.
-         They also break other tests, totally unrelated.
-            b <- graph.arrows if compositionSource contains ((b, a))
-            c <- graph.arrows if compositionSource contains ((b, c))
-       */
-      
+      a <- arrows
+      b <- arrows if compositionSource.contains((a, b))
+      c <- arrows if compositionSource.contains((b, c))
     yield (a, b, c)
 
   
   // adding composition with identities to a composition table
   private def defineCompositionWithIds: CompositionTable =
-    graph.arrows.foldLeft(compositionSource) { (m, f) =>
-      val fA: graph.Arrow = f
-      val id_d0: graph.Arrow = graph.d0(f)
-      val id_d1: graph.Arrow = graph.d1(f)
+    arrows.foldLeft(compositionSource) { (m, f) =>
+      val fA: Arrow = f
+      val id_d0: Arrow = d0(f)
+      val id_d1: Arrow = d1(f)
       m + ((id_d0, fA) -> fA) + ((fA, id_d1) -> fA)
     }
 
   // adding unique available compositions
   private[cat] def addUniqueCompositions(compositionSource: CompositionTable):
-    Map[(graph.Arrow, graph.Arrow), graph.Arrow] =
+    Map[(Arrow, Arrow), Arrow] =
     
-    def candidates(a: graph.Arrow, b: graph.Arrow) =
-      graph.arrowsBetween(graph.d0(a), graph.d1(b)).take(2).toList
+    def candidates(a: Arrow, b: Arrow) =
+      arrowsBetween(d0(a), d1(b)).take(2).toList
 
     composablePairs.foldLeft(compositionSource) {
       case (m, (a, b)) =>
-        val aA = a.asInstanceOf[graph.Arrow] // no check
-        val bA = b.asInstanceOf[graph.Arrow] // no check
+        val aA = a.asInstanceOf[Arrow] // no check
+        val bA = b.asInstanceOf[Arrow] // no check
         candidates(a, b) match
           case c::Nil => m + ((aA, bA) -> c)
           case _       => m
