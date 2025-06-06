@@ -26,7 +26,7 @@ trait GrothendieckTopos
   val thisTopos: GrothendieckTopos = this
 
   override type Obj = Diagram
-//  type Node = Obj
+  type Node = Obj
   override type Arrow = DiagramArrow
   type ObjectMapping = domain.Obj => set
   type ArrowMapping = domain.Arrow => SetFunction
@@ -866,14 +866,7 @@ trait GrothendieckTopos
 
     override def toString: String =
       if !tag.isEmpty then tag else
-<<<<<<< Updated upstream
         val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
-||||||| Stash base
-      if tag.nonEmpty then tag else
-        val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
-=======
-        val raw = domainCategory.listOfObjects.take(20).map(x => s"$x -> ${apply(x)}")
->>>>>>> Stashed changes
         shortTitle(raw.mkString(s"$tag(", ", ", ")"))
 
     def toShortString: String =
