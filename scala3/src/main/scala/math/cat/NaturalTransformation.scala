@@ -128,10 +128,10 @@ object NaturalTransformation:
 
   def printMapDifference(sf1: SetFunction, sf2: SetFunction, context: String): Unit =
     val diff = SetFunction.Diff(sf1, sf2)
-    if diff.badKeys.nonEmpty then
+    if !diff.badKeys.isEmpty then
       System.err.println("wow, bad keys $badkeys")
 
-    if diff.distinctValuesAt.nonEmpty then
+    if !diff.distinctValuesAt.isEmpty then
       System.err.println(s"$context: Different values at these keys: ${diff.distinctValuesAt}")
 
 

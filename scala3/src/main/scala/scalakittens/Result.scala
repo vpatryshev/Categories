@@ -280,7 +280,7 @@ object Result:
   infix def traverse[T](results: IterableOnce[Result[T]]): Result[Iterable[T]] =
     val (goodOnes, badOnes) = partition(results)
 
-    if badOnes.nonEmpty then badOrEmpty(badOnes.flatten)
+    if !badOnes.isEmpty then badOrEmpty(badOnes.flatten)
     else Good(goodOnes.reverse)
 
   def fold(results:Iterable[Outcome]): Outcome =

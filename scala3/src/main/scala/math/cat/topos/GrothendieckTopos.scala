@@ -707,7 +707,7 @@ trait GrothendieckTopos
 
     def toString(contentMapper: XObject => String): String =
       s"Diagram[${d0.name}](${
-        listOfObjects map contentMapper filter (_.nonEmpty) mkString ", "
+        listOfObjects map contentMapper filterNot (_.isEmpty) mkString ", "
       })".replace("Set()", "{}")
 
     override def toString: String = toString(x =>
@@ -863,7 +863,7 @@ trait GrothendieckTopos
       predicate.asInstanceOf[t.Predicate]
 
     override def toString: String =
-      if tag.nonEmpty then tag else
+      if !tag.isEmpty then tag else
         val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
         shortTitle(raw.mkString(s"$tag(", ", ", ")"))
 

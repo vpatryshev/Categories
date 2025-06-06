@@ -26,7 +26,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   case class check(f: String => Any)(data: List[String], fullList: List[String]):
     private def check1(x: String, y: String) =
-      val expected = x.split(",").toSet.filter(_.nonEmpty)
+      val expected = x.split(",").toSet.filterNot(_.isEmpty)
       val actual = f(y)
       actual.toString must be_==(expected.toString)
 
