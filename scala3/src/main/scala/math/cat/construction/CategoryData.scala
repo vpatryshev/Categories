@@ -16,14 +16,13 @@ import scala.language.{implicitConversions, postfixOps}
 private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
   type Objects = Nodes
-  val graph: Graph
   private lazy val homCache = Cache[(Node, Node), Arrows](isFinite, (from, to) => calculateHom(from, to))
 
   /// TODO: figure out why do we need it
-  def d0(f: Arrow): Node = 
-    graph.d0(f)
-  def d1(f: Arrow): Node = 
-    graph.d1(f)
+//  def d0(f: Arrow): Node =
+//    graph.d0(f)
+//  def d1(f: Arrow): Node =
+//    graph.d1(f)
   
   lazy val listOfObjects: List[Obj] =
     require(isFinite, "Cannot sort infinite set")
@@ -90,9 +89,6 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   
   def objectByAlphabet: List[Obj] = listSorted(objects)
 
-//  def nodes: Objects = graph.nodes
-
-  def arrows: Arrows = graph.arrows.asInstanceOf[Arrows] // TODO: fix
   private[cat] def checkCompositions: Outcome =
     val check1 = Result.check(missingCompositions.map {
       case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
@@ -165,11 +161,19 @@ end CategoryData
   * @param graph the underlying graph
   * @return category data
   */
-private[construction] class PartialData(override val graph: Graph)
+private[construction] class PartialData(val graph: Graph)
   extends CategoryData(graph.name):
 
+  override type Node = graph.Node
+  override type Arrow = graph.Arrow
+
+  override def d0(f: Arrow): Node = graph.d0(f)
+
+  override def d1(f: Arrow): Node = graph.d1(f)
+
   def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
-  
+  def arrows: Arrows = graph.arrows.asInstanceOf[Arrows] // TODO: remove this cast
+
   type CompositionTable = Composition[Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
   val compositionSource: CompositionTable = CategoryData.Empty[Arrow]
@@ -271,7 +275,6 @@ private[construction] class PartialData(override val graph: Graph)
   private[cat] override def build: Result[Category] = Result.forValue {
     CategoryData.transitiveClosure(this).factory.map { validData => validData.newCategory }
   }.flatten
-
 end PartialData
 
 object CategoryData:
@@ -320,13 +323,15 @@ object CategoryData:
 
   end addIdentitiesToGraph
 
-  def apply(gr: Graph)(
-    ids: gr.Node => gr.Arrow,
-    composition: (gr.Arrow, gr.Arrow) => Option[gr.Arrow]): CategoryData =
-    new CategoryData(gr.name):
-      override val graph: gr.type = gr
+  def apply(graph: Graph)(
+    ids: graph.Node => graph.Arrow,
+    composition: (graph.Arrow, graph.Arrow) => Option[graph.Arrow]): CategoryData =
+    new CategoryData(graph.name):
 
-      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
+      def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
+      def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
+      def d0(a: Arrow) = graph.d0(a)
+      def d1(a: Arrow) = graph.d1(a)
 
       override def id(o: Obj): Arrow = ids(o)
 

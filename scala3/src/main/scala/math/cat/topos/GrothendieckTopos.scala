@@ -16,6 +16,7 @@ import math.sets.Functions.Injection
 import scalakittens.Params.{debug, verbose}
 
 import scala.annotation.targetName
+import math.cat.SetCategory.Setf.asArrow
 
 // see also http://www.cs.man.ac.uk/~david/categories/book/book.pdf - ML implementation of topos
 
@@ -25,7 +26,7 @@ trait GrothendieckTopos
   val thisTopos: GrothendieckTopos = this
 
   override type Obj = Diagram
-  type Node = Obj
+//  type Node = Obj
   override type Arrow = DiagramArrow
   type ObjectMapping = domain.Obj => set
   type ArrowMapping = domain.Arrow => SetFunction
@@ -209,21 +210,19 @@ trait GrothendieckTopos
 
     end disjunction
 
-    lazy val implication: DiagramArrow = χ(inclusionOf(Ω1) in ΩxΩ_Diagramme iHope, "⟹")
+    lazy val implication: DiagramArrow = χ(inclusionOf(Ω1) in ΩxΩ iHope, "⟹")
 
   end Ωlike
 
-
-  val ΩxΩ_Diagramme: Diagram = product2(Ω, Ω)
   val ΩxΩ: Obj = product2(Ω, Ω)
 
   private lazy val firstProjectionOf_ΩxΩ =
-    buildArrow("π1", ΩxΩ_Diagramme, Ω, firstProjection)
+    buildArrow("π1", ΩxΩ, Ω, firstProjection)
 
   /**
    * An equalizer of first projection and intersection, actually
    */
-  lazy val Ω1: Diagram = ΩxΩ_Diagramme.filter("<", _ => {
+  lazy val Ω1: Diagram = ΩxΩ.filter("<", _ => {
     case (a: Diagram, b: Diagram) => a ⊂ b
     case somethingElse => false
   })
@@ -530,9 +529,12 @@ trait GrothendieckTopos
      * @return this functor's limit
      */
     override def limit: Result[Cone] =
-      val bundleObjects: XObjects = LimitBuilder.bundles.keySet
+      val bundles: Map[XObject, Set[XArrow]] = LimitBuilder.bundles
+      val bundleObjects: XObjects = bundles.keySet
 
-      def arrowsFromBundles(obj: XObject): XArrows = LimitBuilder.bundles.get(obj).toSet.flatten
+      def arrowsFromBundles(obj: XObject): XArrows =
+        val maybeArrows: Iterable[Set[XArrow]] = bundles.get(obj) // it's an Option, but there's a bug in compiler (3.7.0)
+        maybeArrows.toSet.flatten
 
       // For each object of domain we have an arrow from one of the objects used in building the product
       val arrowsInvolved: XArrows =
@@ -864,7 +866,14 @@ trait GrothendieckTopos
 
     override def toString: String =
       if !tag.isEmpty then tag else
+<<<<<<< Updated upstream
         val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
+||||||| Stash base
+      if tag.nonEmpty then tag else
+        val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
+=======
+        val raw = domainCategory.listOfObjects.take(20).map(x => s"$x -> ${apply(x)}")
+>>>>>>> Stashed changes
         shortTitle(raw.mkString(s"$tag(", ", ", ")"))
 
     def toShortString: String =
@@ -879,9 +888,9 @@ trait GrothendieckTopos
             s"$x->$obRepr"
           }
         }
-      
+
       shortTitle(strings.mkString(s"$tag(", ", ", ")"))
-        
+
 
     override lazy val hashCode: Int = System.identityHashCode(topos) * 79 + toString.hashCode
 

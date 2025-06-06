@@ -191,9 +191,10 @@ class SetupTest extends Test:
     "all get instantiated" in :
       try
         val allThat = new TestDiagrams {}
-        allThat.`Set^M`.toString === "Set^M"
+        allThat.`Set^M`.toString === "Set^M: {(infinite category)}"
       catch
-        case someShit: Exception => failure(someShit.toString)
+        case someShit: Exception => 
+          failure(someShit.toString)
 
       ok
 

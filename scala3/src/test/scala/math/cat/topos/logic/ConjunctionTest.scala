@@ -52,7 +52,7 @@ class ConjunctionTest extends Fixtures:
       // We just need an composition of point with Δ_Ω
       val pointOfTrueAndTrue = Truth.transform(Δ_Ω)
 
-      val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ_Diagramme
+      val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
 
       for

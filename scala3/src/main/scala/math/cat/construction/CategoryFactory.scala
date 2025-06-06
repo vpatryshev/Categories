@@ -69,10 +69,15 @@ private[cat] trait CategoryFactory:
     * @return category based on he poset
     */
   def fromPoset[T <: Matchable](theName: String = "", poset: PoSet[T]): Category =
+    val graph: Graph = Graph.ofPoset(theName, poset)
+
     new Category(theName):
-      override val graph: Graph = Graph.ofPoset(theName, poset)
       type Node = T
       type Arrow = (T, T)
+      type Arrows = Set[Arrow]
+      def arrows = graph.arrows.asInstanceOf[Arrows]
+      def d0(f: Arrow) = graph.d0(f)
+      def d1(f: Arrow) = graph.d1(f)
 
       override def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
       override def id(o: Obj): Arrow = (o, o)
