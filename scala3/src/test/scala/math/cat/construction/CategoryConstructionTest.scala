@@ -365,7 +365,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         data.newComposition(f, g).map { h => (h, (data.d0(f), data.d1(g))) }
     }.toMap
 
-    require(newArrows.nonEmpty, 
+    require(!newArrows.isEmpty,
       s"${data.name}: ${missing.size} arrows still missing: $missing")
 
     val newGraph: Graph = data.addArrows(newArrows) iHope
@@ -409,7 +409,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
       val parsed = parser.parseAll(parser.category, source)
       parsed match
-        case parser.Success(res, _) => if res.errorDetails.nonEmpty then
+        case parser.Success(res, _) => if !res.errorDetails.isEmpty then
           val p = Categories.read(source).iHope
           res.errorDetails must be_==(None)
 
@@ -454,7 +454,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
       val parsed = parser.parseAll(parser.category, source)
       parsed match
-        case parser.Success(res, _) => if res.errorDetails.nonEmpty then
+        case parser.Success(res, _) => if !res.errorDetails.isEmpty then
           val p = Categories.read(source).iHope
           res.errorDetails must be_==(None)
 

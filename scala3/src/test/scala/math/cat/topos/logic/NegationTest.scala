@@ -26,7 +26,7 @@ class NegationTest extends Fixtures:
           ¬(False) must be_==(True)
 
           for pt1 <- Ω.points do
-            rep(s"theck that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
+            rep(s"check that ¬¬¬${pt1.tag} = ¬${pt1.tag}")
             val p = pt1 asPredicateIn topos
             val not_p = ¬(p)
             ¬(¬(not_p)) must be_==(not_p)

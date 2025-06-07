@@ -74,7 +74,7 @@ class ResultTest extends TestBase:
 
     "call function in foreach" in :
       var v: String = ":("
-      Good(":)") foreach (v = _)
+      Good(":)") foreach (x => v = x)
       v === ":)"
 
     "filter as designed" in :

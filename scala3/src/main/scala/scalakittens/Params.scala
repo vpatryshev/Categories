@@ -25,7 +25,7 @@ object Params:
 
   def deepDebug(s: String): Unit =
     if (debug) then
-      val stack = Thread.currentThread().getStackTrace
+      val stack: Array[StackTraceElement] = callStack
       val calledBy: StackTraceElement = stack(6)
       val msg = s"$s from ${calledBy.getFileName}:${calledBy.getLineNumber}"
       debug(msg)
@@ -33,6 +33,13 @@ object Params:
         val previous = allKeys.get(msg)
         println("WTF! Duplicate msg")
       allKeys += (msg -> stack)
+
+  private def callStack = Thread.currentThread.getStackTrace
+
+  def limitStack(max: Int): Unit =
+    val n = callStack.length
+    if (n > max)
+      throw new StackOverflowError(s"Stack too big: $n > $max")
 
   inline def verbose(s: String): Unit =
     if (verbose || debug) then println(s"VERBOSE:$s")

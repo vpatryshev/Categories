@@ -1,7 +1,7 @@
 package math.cat.topos.logic
 
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
-import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos, Point}
+import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
 import math.cat.{Category, SetFunction}
 import SetFunction.fun
 import org.specs2.execute.Result as MatchResult
@@ -52,7 +52,7 @@ class ConjunctionTest extends Fixtures:
       // We just need an composition of point with Δ_Ω
       val pointOfTrueAndTrue = Truth.transform(Δ_Ω)
 
-      val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ_Diagramme
+      val monomorphismMaybe = inclusionOf(pointOfTrueAndTrue) in ΩxΩ
       val monomorphism: DiagramArrow = monomorphismMaybe iHope
 
       for

@@ -4,11 +4,12 @@ import math.Base.*
 import math.sets.Sets.*
 import math.sets.*
 import scalakittens.Result.*
-import scalakittens.{Good, Result}
+import scalakittens.{Good, Params, Result}
 
 import java.io.Reader
 import scala.language.{implicitConversions, postfixOps}
 import scalakittens.Containers.*
+import scalakittens.Params.limitStack
 
 import scala.annotation.targetName
 
@@ -43,7 +44,7 @@ trait Graph(val name: String) extends GraphData:
     )
   }
 
-  override def toString: String =
+  override lazy val toString: String =
     val nodeStrings = nodes.toList.map(_.toString).sorted mkString ", " 
     val arrowStrings =
       arrows.toList.map(a => s"$a: ${d0(a)}->${d1(a)}").sorted mkString ", "
@@ -167,7 +168,9 @@ private[cat] trait GraphData:
     case notaNode => 
       throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
-  implicit def asArrow(a: Any): Arrow = 
+  implicit def asArrow(a: Any): Arrow =
+    limitStack(500)
+    
     a match
       case arrow: Arrow @unchecked if arrows(arrow) => arrow
       case badArrow: Arrow =>

@@ -63,7 +63,7 @@ object SVG {
       buffer.append(segment(Segment(Pt(dx * i, 0), Pt(dx * i, w)), "lightgray"))
       buffer.append(segment(Segment(Pt(0, dy * i), Pt(h, dy * i)), "lightgray"))
     
-    override def toString: String =
+    override lazy val toString: String =
       s"""<svg width="$w" height="$h">
          |  <rect x="0" y="0" rx="$dx" ry="$dy" width="$w" height="$h"
          |  style="fill:blue;stroke:black;stroke-width:5;opacity:0.03" />
@@ -84,7 +84,7 @@ object SVG {
 
     case class CircleWithText(txt: String, cc: Pt) extends Shape:
 
-      override def toString: String =
+      override lazy val toString: String =
         val localCenter = frame.rescale(cc)
         text(txt)(localCenter) + s"""
            |<circle ${asSvg(localCenter, "c")} r="10"
@@ -94,7 +94,7 @@ object SVG {
     // see also https://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath
     
     case class Endomorphism(name: String, p0: Pt, space: Int, ord: Int) extends Shape:
-      override def toString: String =
+      override lazy val toString: String =
         val p = frame.rescale(p0)
         val curve = 45 * (ord + 1)
         val s00 = Segment(p, p + Pt(-curve, -curve))
@@ -115,7 +115,7 @@ object SVG {
       ord: Int,
       center: Pt
     ) extends Shape:
-      override def toString: String =
+      override lazy val toString: String =
         val localSegment = frame.rescale(fullSegment)
         if ord == 0 then
           val localCenter = rescale(center)

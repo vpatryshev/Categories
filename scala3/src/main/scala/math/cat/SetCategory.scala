@@ -21,10 +21,10 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   /**
     * Inner graph of this category of sets
     */
-  override val graph: Graph = graphOfSets(objects)
+  val graph: Graph = graphOfSets(objects)
   type Node = set
   type Arrow = SetFunction
-
+  val arrows = graph.arrows.asInstanceOf[Arrows] // todo: try to make it align; don't use map
   override def nodes: Nodes = objects
   /**
     * Domain of an arrow
@@ -55,7 +55,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     */
   override def id(s: set): SetFunction = SetFunction.id(s)
 
-  override def toString: String = "Category of all Sets"
+  override lazy val toString: String = "Category of all Sets"
   
   /**
     * Set `x` to the power of set `y`.

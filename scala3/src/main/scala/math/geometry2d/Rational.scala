@@ -24,13 +24,13 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
   infix def min(other: Rational): Rational = if this < other then this else other
   infix def max(other: Rational): Rational = if this < other then other else this
   
-  override def toString = s"$n/$d"
+  override lazy val toString = s"$n/$d"
   
   override def equals(o: Any): Boolean = o match
     case r: Rational => n * r.d == r.n * d
     case other => false
 
-  override def hashCode(): Int = n.hashCode() * 2017 + d.hashCode()
+  override lazy val hashCode: Int = n.hashCode * 2017 + d.hashCode
 
   override def compare(that: Rational): Int = (this - that).n compare 0
 
