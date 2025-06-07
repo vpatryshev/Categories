@@ -697,7 +697,7 @@ abstract class Category(name: String) extends CategoryData(name):
           override def arrows = sub.arrows.asInstanceOf[Arrows]
 
           override def id(o: Obj): Arrow = src.id(o)
-x
+
           override def m(f: Arrow, g: Arrow): Option[Arrow] =
             src.m(f, g) map asArrow
     }
