@@ -697,7 +697,7 @@ trait GrothendieckTopos
 
     def toString(contentMapper: XObject => String): String =
       s"Diagram[${d0.name}](${
-        listOfObjects map contentMapper filter (_.nonEmpty) mkString ", "
+        listOfObjects map contentMapper filterNot (_.isEmpty) mkString ", "
       })".replace("Set()", "{}")
 
     override lazy val toString: String = toString(x =>

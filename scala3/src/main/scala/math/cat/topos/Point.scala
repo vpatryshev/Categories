@@ -62,7 +62,7 @@ class Point(
     predicate.asInstanceOf[t.Predicate]
 
   override def toString: String =
-    if tag.toString.nonEmpty then tag.toString else
+    if !tag.toString.isEmpty then tag.toString else
       val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
       shortTitle(raw.mkString(s"$tag(", ", ", ")"))
 

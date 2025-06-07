@@ -31,7 +31,7 @@ case class GradedObjects(category: Category) {
       case (sum, current) =>
         val (ns, nc) = nextLayer(sum)
         (ns, nc)
-    } takeWhile(_._2.nonEmpty)
+    } takeWhile(!_._2.isEmpty)
   } map (_._2) toList
   
   def clusterDiameter(size: Int): Int = size match
