@@ -125,7 +125,7 @@ class SetMorphism[X, Y] (
   infix def restrictTo(newDomain: Set[X]): Result[SetMorphism[X, Y]] =
     OKif(newDomain subsetOf d0) returning new SetMorphism[X, Y](tag, newDomain, d1, function)
 
-  override def toString: String = tag match
+  override lazy val toString: String = tag match
     case "" => d0 map (x => s"$x -> ${this(x)}") mkString ("{", ", ", "}")
     case _  => s"$tag: ${plural(d0.size, "element")} -> ${plural(d1.size, "element")}"
 

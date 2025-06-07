@@ -400,7 +400,7 @@ object Sets:
       case s: Set[?] => if this.isInfinite then this.eq(s) else super.equals(s)
       case somethingElse => false
 
-    override def toString: String =
+    override lazy val toString: String =
       if this.isInfinite then
         sample.mkString("infinite Set(", ",", ",...)")
       else

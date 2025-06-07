@@ -57,7 +57,7 @@ case class Good[T](val value: T) extends Result[T] with SomethingInside[T] with 
     case None    => Result.error(onError(value))
   def fold[U](good: T => U, bad: Errors => U): U = good(value)
 
-  override def toString: String = value match
+  override lazy val toString: String = value match
     case () => "Good."
     case x => s"Good($x)"
 
@@ -94,8 +94,8 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   def tap(op: T => Unit): Result[T] = this
 
   private val timestamp: Long = clock.currentTime
-  inline def tag: String = s"${ts2b32(timestamp)}"
-  inline override def toString = s"Error: ~$tag($errors)"
+  lazy val tag: String = s"${ts2b32(timestamp)}"
+  override lazy val toString = s"Error: ~$tag($errors)"
 
   private def base32map = "abdeghjklmnopqrstvxyz.".zipWithIndex.map{case (c,i) => ('a'+i).toChar -> c}.toMap withDefault identity
 
@@ -178,7 +178,7 @@ private object NoException extends Exception:
 class ResultException(message:String, source: Throwable = NoException)
   extends Exception(message, NoException.root(source)):
   private val check: String = message
-  override def toString: String = message
+  override lazy val toString: String = message
   override def equals(other: Any): Boolean = other match
     case that: ResultException => that.toString == toString
     case basura                => false
@@ -329,7 +329,7 @@ object Result:
       case (b1,b2,b3,b4,b5,b6,b7,b8,b9,b10)                                                       => bad(b1, b2, b3, b4, b5, b6, b7, b8, b9, b10)
 
   object OK extends Good(⊤) with Outcome:
-    override def toString = "OK"
+    override lazy val toString = "OK"
   
   def OKif(cond: => Boolean): Outcome = OK.filter(_ => cond)
   def OKif(cond: => Boolean, onError: => String): Outcome = OK.filter(_ => cond, _ => onError)
