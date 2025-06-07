@@ -74,7 +74,7 @@ abstract class NaturalTransformation(
       def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         self.calculateMappingAt(x)
 
-  override def toString: String =
+  override lazy val toString: String =
     val s = String.valueOf(tag)
     if s.isEmpty then details else s
 

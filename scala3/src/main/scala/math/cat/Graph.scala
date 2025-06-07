@@ -44,7 +44,7 @@ trait Graph(val name: String) extends GraphData:
     )
   }
 
-  override def toString: String =
+  override lazy val toString: String =
     val nodeStrings = nodes.toList.map(_.toString).sorted mkString ", " 
     val arrowStrings =
       arrows.toList.map(a => s"$a: ${d0(a)}->${d1(a)}").sorted mkString ", "

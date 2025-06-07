@@ -5,17 +5,16 @@ import testing.TestBase
 
 class BigSetTest extends TestBase:
 
-  "BigSet" should {
+  "BigSet" should :
 
-    "get created from set" in {
+    "get created from set" in :
       val sut = BigSet(Set("abc", "def"))
       sut.iterator.toList === "abc" :: "def" :: Nil
       sut.size must be_==(2)
       sut.toString === "Set(abc, def)"
       BigSet(Set.empty[System]).isEmpty must beTrue
-    }
 
-    "get created from predicate" in {
+    "get created from predicate" in :
       val sut =
         BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a', ".a.....")
       sut.size must be_==(Sets.InfiniteSize)
@@ -25,9 +24,8 @@ class BigSetTest extends TestBase:
       sut.contains("caramba") must beTrue
       sut.contains("carramba") must beFalse
       sut.contains("policia") must beFalse
-    }
-    
-    "filter properly" in {
+
+    "filter properly" in :
       val sut =
         BigSet.comprehension[String](
           (s: String) => s.length == 7 && s.charAt(1) == 'a',
@@ -40,9 +38,8 @@ class BigSetTest extends TestBase:
       sut.contains("caramba") must beFalse
       sut.contains("carramba") must beFalse
       sut.contains("policia") must beFalse
-    }
 
-    "map properly" in {
+    "map properly" in :
       val flip = Functions.bijection[String, String]((_:String).reverse, (_:String).reverse)
       val sut =
         BigSet.comprehension[String]((s: String) => s.length == 7 && s.charAt(1) == 'a') map flip
@@ -53,5 +50,3 @@ class BigSetTest extends TestBase:
       sut.contains("caramba") must beFalse
       sut.contains("carramba") must beFalse
       sut.contains("policia") must beFalse
-    }
-  }

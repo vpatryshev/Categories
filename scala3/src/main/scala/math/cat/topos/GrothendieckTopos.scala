@@ -707,12 +707,12 @@ trait GrothendieckTopos
 
       Good(Cocone(theFactorset.content, coconeMap))
 
-    def toString(contentMapper: XObject => String): String =
+    private def toString(contentMapper: XObject => String): String =
       s"Diagram[${d0.name}](${
         listOfObjects map contentMapper filterNot (_.isEmpty) mkString ", "
       })".replace("Set()", "{}")
 
-    override def toString: String = toString(x =>
+    override lazy val toString: String = toString(x =>
       s"$x ->{${asString(calculateObjectsMapping(x))}}".
         replace(s"Functor ", "").
         replace(s"Diagram[${d0.name}]", "").
@@ -864,7 +864,7 @@ trait GrothendieckTopos
       require(t eq topos) // we don't need a full compare, just an identity check
       predicate.asInstanceOf[t.Predicate]
 
-    override def toString: String =
+    override lazy val toString: String =
       if !tag.isEmpty then tag else
         val raw = domainCategory.listOfObjects.map(x => s"$x -> ${apply(x)}")
         shortTitle(raw.mkString(s"$tag(", ", ", ")"))

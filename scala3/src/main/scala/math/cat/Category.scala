@@ -68,7 +68,7 @@ abstract class Category(name: String) extends CategoryData(name):
     source = Option(s)
     this
   
-  override def toString: String =
+  override lazy val toString: String =
     source getOrElse
       val prefix = if name.isEmpty then "" else name + ": "
       if (isFinite)
