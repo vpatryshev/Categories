@@ -87,7 +87,7 @@ trait GraphMorphism extends Morphism[Graph, Graph]:
 
   override lazy val hashCode: Int = d0.hashCode ^ d1.hashCode * 1024
 
-  //  override def toString: String = s"($nodesMapping, $arrowsMapping)"
+  //  override lazy val toString: String = s"($nodesMapping, $arrowsMapping)"
 
   infix def andThen(g: GraphMorphism): Option[GraphMorphism] =
     OKif(this.d1 == g.d0, "Composition should be defined") returning {

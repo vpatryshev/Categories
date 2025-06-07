@@ -700,7 +700,7 @@ trait GrothendieckTopos
         listOfObjects map contentMapper filter (_.nonEmpty) mkString ", "
       })".replace("Set()", "{}")
 
-    override def toString: String = toString(x =>
+    override lazy val toString: String = toString(x =>
       s"$x ->{${asString(calculateObjectsMapping(x))}}".
         replace(s"Functor ", "").
         replace(s"Diagram[${d0.name}]", "").

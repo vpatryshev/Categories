@@ -17,7 +17,7 @@ class CategoryOfDiagrams(val domain: Category)
   thisTopos =>
   override val graph: Graph = this
   override def nodes = BigSet.of[Node](name)
-  override def toString: String = name
+  override lazy val toString: String = name
   override type Obj = Diagram
   type Node = Obj
   override type Arrow = DiagramArrow

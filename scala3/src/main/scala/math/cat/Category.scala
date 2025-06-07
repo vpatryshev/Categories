@@ -68,16 +68,19 @@ abstract class Category(name: String) extends CategoryData(name):
     source = Option(s)
     this
   
-  override def toString: String =
+  override lazy val toString: String =
     source getOrElse
       val prefix = if name.isEmpty then "" else name + ": "
-      val objectsAsString = asString(objects)
-      s"$prefix({$objectsAsString}, {" +
-        (nonIdentities map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
-        (composablePairs collect {
-          case (first, second) if !isIdentity(first) && !isIdentity(second) =>
-            concat(second, "∘", first) + s" = ${m(first, second).get}"
-        }).mkString(", ") + "})"
+      if (isFinite)
+        val objectsAsString = asString(objects)
+        s"$prefix({$objectsAsString}, {" +
+          (nonIdentities map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
+          (composablePairs collect {
+            case (first, second) if !isIdentity(first) && !isIdentity(second) =>
+              concat(second, "∘", first) + s" = ${m(first, second).get}"
+          }).mkString(", ") + "})"
+      else
+        s"$prefix{(infinite category)}"
 
   /**
     * Checks whether an arrow is an isomorphism.
@@ -627,12 +630,6 @@ abstract class Category(name: String) extends CategoryData(name):
 
 // TODO: figure out which one is faster  
     Graph.build(name, nodes, essentialArrows.toSet, d0,  d1) iHope
-//    val essentialArrowsMap: Map[Arrow, (Node, Node)] = essentialArrows map {
-//      a => a -> (d0(a), d1(a))
-//    } toMap
-//
-//    Graph.fromArrowMap(name, nodes, essentialArrowsMap) iHope
-
 
   @tailrec
   private def selectBaseArrows(arrows: List[Arrow]): List[Arrow] =
@@ -692,8 +689,13 @@ abstract class Category(name: String) extends CategoryData(name):
     subgraph(newName, setOfObjects) map {
       sub =>
         new Category(newName):
-          override val graph: Graph = sub
-          override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
+          override val graph = sub
+          override type Nodes = Set[Node]
+          override type Arrows = Set[Arrow]
+          override def d0(f: Arrow) = sub.d0(f)
+          override def d1(f: Arrow) = sub.d1(f)
+          override def nodes = sub.nodes.asInstanceOf[Nodes]
+          override def arrows = sub.arrows.asInstanceOf[Arrows]
 
           override def id(o: Obj): Arrow = src.id(o)
 
