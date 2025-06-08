@@ -83,7 +83,7 @@ object ZFC:
 
     def choose1: Option[Any] = domain headOption
 
-    override def toString: String = toString(PATIENCE)
+    override lazy val toString: String = toString(PATIENCE)
 
     def toString(patience: Int): String = id
 

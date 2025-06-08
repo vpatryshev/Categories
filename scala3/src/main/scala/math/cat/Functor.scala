@@ -58,7 +58,7 @@ abstract class Functor(
     */
   protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow
 
-  override def toString: String = s"Functor $tag"
+  override lazy val toString: String = s"Functor $tag"
 
   /**
     * How the functor maps arrows
@@ -223,7 +223,7 @@ abstract class Functor(
     */
   case class Cone(vertex: d1.Obj, arrowTo: d0.Obj => d1.Arrow):
 
-    override def toString: String = s"Cone[$vertex]"
+    override lazy val toString: String = s"Cone[$vertex]"
 
     /**
       * A cone from y1 to F is factored by this cone (with vertex y)
@@ -261,7 +261,7 @@ abstract class Functor(
             })
         case somethingElse => false
 
-    override def hashCode: Int =
+    override lazy val hashCode: Int =
       domainObjects.foldLeft(vertex.hashCode) ((hash, x) => hash * 13 + arrowTo(x).hashCode)
 
   end Cone
@@ -275,7 +275,7 @@ abstract class Functor(
     */
   case class Cocone(vertex: d1.Obj, arrowFrom: d0.Obj => d1.Arrow):
 
-    override def toString: String = "Cocone[" + vertex + "]"
+    override lazy val toString: String = "Cocone[" + vertex + "]"
 
     /**
       * A cocone from F to y1 is factored by this cocone (from F to y)
@@ -314,7 +314,7 @@ abstract class Functor(
             })
       case somethingElse => false
 
-    override def hashCode: Int =
+    override lazy val hashCode: Int =
       domainObjects.foldLeft(vertex.hashCode) ((hash, x) => hash * 13 + arrowFrom(x).hashCode)
 
   end Cocone

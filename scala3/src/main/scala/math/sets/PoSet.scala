@@ -53,7 +53,7 @@ case class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends
    */
   override def size: Int = elements.size
 
-  override def hashCode: Int = elements.hashCode * 1021 + comparator.hashCode
+  override lazy val hashCode: Int = elements.hashCode * 1021 + comparator.hashCode
 
   /**
     * Two posets are equal if they have the same elements and partial order is the same.
@@ -95,7 +95,7 @@ case class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends
    */
   @targetName("build") def unary_~ = new PoSet[T](elements, (x: T, y: T) => le(y, x))
 
-  override def toString: String =
+  override lazy val toString: String =
     def orderedPairs = Sets.product2(elements, elements) filter ((p: (T, T)) => le(p))
     "({" + (elements mkString ", ") + "}, {" +
             ((orderedPairs map (p => "" + p._1 + " <= " + p._2)) mkString ", ") + "})"

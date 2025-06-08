@@ -4,7 +4,7 @@ import math.Base.*
 import math.sets.Sets.*
 import math.sets.*
 import scalakittens.Result.*
-import scalakittens.{Good, Result}
+import scalakittens.{Good, Params, Result}
 
 import java.io.Reader
 import scala.language.{implicitConversions, postfixOps}
@@ -43,7 +43,7 @@ trait Graph(val name: String) extends GraphData:
     )
   }
 
-  override def toString: String =
+  override lazy val toString: String =
     val nodeStrings = nodes.toList.map(_.toString).sorted mkString ", " 
     val arrowStrings =
       arrows.toList.map(a => s"$a: ${d0(a)}->${d1(a)}").sorted mkString ", "

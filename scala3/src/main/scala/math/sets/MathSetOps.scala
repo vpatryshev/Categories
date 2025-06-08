@@ -37,7 +37,7 @@ object MathSetOps:
         private var yi: Iterator[Iterator[Y]] = Iterator.empty
         private var shift = 0
 
-        def hasNext: Boolean = xi.hasNext || iterators.nonEmpty
+        def hasNext: Boolean = xi.hasNext || !iterators.isEmpty
 
         def next(): (X, Y) =
           if !yi.hasNext then
@@ -47,7 +47,7 @@ object MathSetOps:
           val yii = yi.next()
           val y = yii.next()
 
-          if iterators.nonEmpty && yii.isEmpty then
+          if !iterators.isEmpty && yii.isEmpty then
             iterators.dequeue()
             yi = iterators.iterator
             shift += 1
