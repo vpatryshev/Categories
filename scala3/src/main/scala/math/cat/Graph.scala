@@ -9,7 +9,6 @@ import scalakittens.{Good, Params, Result}
 import java.io.Reader
 import scala.language.{implicitConversions, postfixOps}
 import scalakittens.Containers.*
-import scalakittens.Params.limitStack
 
 import scala.annotation.targetName
 
@@ -169,8 +168,6 @@ private[cat] trait GraphData:
       throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
   implicit def asArrow(a: Any): Arrow =
-    limitStack(500)
-    
     a match
       case arrow: Arrow @unchecked if arrows(arrow) => arrow
       case badArrow: Arrow =>
