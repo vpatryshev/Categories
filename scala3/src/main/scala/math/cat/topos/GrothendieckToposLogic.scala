@@ -135,7 +135,7 @@ trait GrothendieckToposLogic:
     * @param pt the point
     * @return an arrow pt -> Ω
     */
-  val predicateFor = Cache[Point, Predicate](true, calculatePredicate)
+  val predicateFor = Cache[topos.Point, Predicate](true, calculatePredicate)
 
   infix def calculatePredicate(pt: Point): Predicate =
 

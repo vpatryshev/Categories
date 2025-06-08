@@ -47,7 +47,7 @@ class CategoryOfDiagrams(val domain: Category)
       val mapping = DiagramMapping(ofObjects, ofArrows)
       mapping
 
-    val allDiagrammes: Set[Diagram] =
+    val allDiagrams: Set[Diagram] =
       for
         (candidate, i) <- Sets.pow(domain.objects).zipWithIndex
         // some mappings are not working for a given candidate
@@ -58,7 +58,7 @@ class CategoryOfDiagrams(val domain: Category)
         diagram <- Diagram.tryBuild("__" + i, mo, ma) asOption
       yield diagram
 
-    allDiagrammes
+    allDiagrams
   
   end subterminals
   

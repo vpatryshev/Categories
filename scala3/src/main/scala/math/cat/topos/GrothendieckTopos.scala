@@ -707,7 +707,7 @@ trait GrothendieckTopos
 
       Good(Cocone(theFactorset.content, coconeMap))
 
-    private def toString(contentMapper: XObject => String): String =
+    def toString(contentMapper: XObject => String): String =
       s"Diagram[${d0.name}](${
         listOfObjects map contentMapper filterNot (_.isEmpty) mkString ", "
       })".replace("Set()", "{}")
