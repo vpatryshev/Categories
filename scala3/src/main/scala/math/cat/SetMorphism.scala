@@ -129,7 +129,7 @@ class SetMorphism[X, Y] (
     case "" => d0 map (x => s"$x -> ${this(x)}") mkString ("{", ", ", "}")
     case _  => s"$tag: ${plural(d0.size, "element")} -> ${plural(d1.size, "element")}"
 
-  override def hashCode: Int = d0.hashCode * 4/*random number*/ + d1.hashCode
+  override lazy val hashCode: Int = d0.hashCode * 4/*random number*/ + d1.hashCode
 
 object SetMorphism:
   /**

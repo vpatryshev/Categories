@@ -35,7 +35,7 @@ abstract class BigSet[T](val name: String = "A BIG SET") extends Set[T]:
   infix override def filter(p: T => Boolean): BigSet[T] =
     comprehension((t: T) => p(t) && (t ∈ this), s"$name, filtered")
 
-  override def hashCode: Int = System.identityHashCode(this)
+  override lazy val hashCode: Int = System.identityHashCode(this)
 
   /**
     * This is a pretty bad equality for sets, but what can we do?

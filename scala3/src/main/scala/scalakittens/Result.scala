@@ -155,7 +155,7 @@ case class Bad[T](listErrors: Errors) extends Result[T] with NoGood[T]:
     case that: Bad[?] => that.listErrors == listErrors
     case basura       => false
 
-  override def hashCode: Int = listErrors.hashCode + tag.hashCode*71
+  override lazy val hashCode: Int = listErrors.hashCode + tag.hashCode*71
 
 def empty[T]: Result[T] = Empty.asInstanceOf[Result[T]] // see the same in Scala Set
 

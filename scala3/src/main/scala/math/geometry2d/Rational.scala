@@ -30,7 +30,7 @@ case class Rational(private val n0: BigInt, private val d0: BigInt = 1) extends 
     case r: Rational => n * r.d == r.n * d
     case other => false
 
-  override def hashCode(): Int = n.hashCode() * 2017 + d.hashCode()
+  override lazy val hashCode: Int = n.hashCode * 2017 + d.hashCode
 
   override def compare(that: Rational): Int = (this - that).n compare 0
 

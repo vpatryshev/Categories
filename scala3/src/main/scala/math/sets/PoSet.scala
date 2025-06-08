@@ -53,7 +53,7 @@ case class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends
    */
   override def size: Int = elements.size
 
-  override def hashCode: Int = elements.hashCode * 1021 + comparator.hashCode
+  override lazy val hashCode: Int = elements.hashCode * 1021 + comparator.hashCode
 
   /**
     * Two posets are equal if they have the same elements and partial order is the same.
