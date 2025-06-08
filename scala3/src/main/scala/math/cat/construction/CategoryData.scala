@@ -18,12 +18,6 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Objects = Nodes
   private lazy val homCache = Cache[(Node, Node), Arrows](isFinite, (from, to) => calculateHom(from, to))
 
-  /// TODO: figure out why do we need it
-//  def d0(f: Arrow): Node =
-//    graph.d0(f)
-//  def d1(f: Arrow): Node =
-//    graph.d1(f)
-  
   lazy val listOfObjects: List[Obj] =
     require(isFinite, "Cannot sort infinite set")
     listSorted(objects)
@@ -40,27 +34,27 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph
     val objectsHaveIds = OKif(!finiteObjects) orElse
-      Result.check { 
-        objects.map { x =>
-          val ux = id(x)
-          OKif(d0(ux) == x, s"Domain of id $ux should be $x in $name") andAlso
-          OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
-        }
-      }
+      Result.check :
+        objects.map :
+          (x: Node) =>
+            val ux = id(x)
+            OKif(d0(ux) == x, s"Domain of id $ux should be $x in $name") andAlso
+            OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
 
     val idsAreNeutral = OKif(!finiteArrows) orElse
-      Result.check { arrows.map { f =>
-        val u_f = m(id(d0(f)), f)
-        val f_u = m(f, id(d1(f)))
-        OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
-        OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
-      }}
+      Result.check :
+        arrows.map :
+          (f: Arrow) =>
+            val u_f = m(id(d0(f)), f)
+            val f_u = m(f, id(d1(f)))
+            OKif(u_f contains f, s"Left unit law broken for ${id(d0(f))} and $f: got $u_f in $name") andAlso
+            OKif(f_u contains f, s"Right unit law broken for ${id(d1(f))} and $f: got $f_u in $name")
 
     val compositionsAreOk =
       idsAreNeutral andThen OKif(!finiteArrows) orElse checkCompositions
 
     def listAssociativityProblems =
-      Result.check {
+      Result.check :
         for
           f <- arrows
           g <- arrows
@@ -71,7 +65,6 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
           val h_gf = m(gf, h)
           val hg_f = m(f, hg)
           OKif(h_gf == hg_f, s"Associativity broken for $f, $g and $h, got $h_gf vs $hg_f in $name")
-      }
 
     val compositionIsAssociative = OKif(!finiteArrows) orElse 
           (compositionsAreOk andThen listAssociativityProblems)
@@ -90,26 +83,25 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def objectByAlphabet: List[Obj] = listSorted(objects)
 
   private[cat] def checkCompositions: Outcome =
-    val check1 = Result.check(missingCompositions.map {
-      case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
-    })
+    val check1 = Result.check :
+      missingCompositions.map :
+        case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
 
-    val check2 = Result.check {
+    val check2 = Result.check :
       for
         f <- arrows
         g <- arrows
         h = m(f, g)
       yield
         if follows(g, f) then
-          Result(h).flatMap{ gf =>
-            OKif(sameDomain(gf, f),
-              s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
-              OKif(sameCodomain(gf, g),
-                s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)} in $name")
-          }
+          Result(h).flatMap :
+            gf =>
+              OKif(sameDomain(gf, f),
+                s"Wrong composition $gf of $f and $g : its d0 is ${d0(gf)}, must be ${d0(f)} in $name") andAlso
+                OKif(sameCodomain(gf, g),
+                  s"Wrong composition $gf of $f and $g: its d1 is ${d1(gf)}, must be ${d1(g)} in $name")
         else
           OKif(h.isEmpty, s"Wrongly defined composition of $f and $g in $name")
-      }
 
     check1 andAlso check2
   
@@ -171,8 +163,8 @@ private[construction] class PartialData(val graph: Graph)
 
   override def d1(f: Arrow): Node = graph.d1(f)
 
-  def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
-  def arrows: Arrows = graph.arrows.asInstanceOf[Arrows] // TODO: remove this cast
+  def nodes: Nodes = graph.nodes
+  def arrows: Arrows = graph.arrows
 
   type CompositionTable = Composition[Arrow]
   lazy val composition: CompositionTable = fillCompositionTable
@@ -210,18 +202,18 @@ private[construction] class PartialData(val graph: Graph)
     val triplesToScan = composableTriples(compositionSource)
 
     val compositions: CompositionTable =
-      triplesToScan.foldLeft(compositionSource) {
-      (m, t) =>
-        val (f, g, h) = t
-        val gf = m((f, g))
-        val hg = m((g, h))
-        if m.contains(gf, h) && !m.contains(f, hg) then
-          m + ((f, hg) -> m((gf, h)))
-        else if m.contains(f, hg) && !m.contains(gf, h) then
-          m + ((gf, h) -> m((f, hg)))
-        else
-          m
-    }
+      triplesToScan.foldLeft(compositionSource) :
+        (m, t) =>
+          val (f, g, h) = t
+          val gf = m((f, g))
+          val hg = m((g, h))
+          if m.contains(gf, h) && !m.contains(f, hg) then
+            m + ((f, hg) -> m((gf, h)))
+          else if m.contains(f, hg) && !m.contains(gf, h) then
+            m + ((gf, h) -> m((f, hg)))
+          else
+            m
+
     compositions
   
   end deduceCompositions  
@@ -238,12 +230,12 @@ private[construction] class PartialData(val graph: Graph)
   
   // adding composition with identities to a composition table
   private def defineCompositionWithIds: CompositionTable =
-    arrows.foldLeft(compositionSource) { (m, f) =>
-      val fA: Arrow = f
-      val id_d0: Arrow = d0(f)
-      val id_d1: Arrow = d1(f)
-      m + ((id_d0, fA) -> fA) + ((fA, id_d1) -> fA)
-    }
+    arrows.foldLeft(compositionSource) :
+      (m, f) =>
+        val fA: Arrow = f
+        val id_d0: Arrow = d0(f)
+        val id_d1: Arrow = d1(f)
+        m + ((id_d0, fA) -> fA) + ((fA, id_d1) -> fA)
 
   // adding unique available compositions
   private[cat] def addUniqueCompositions(compositionSource: CompositionTable):
@@ -252,14 +244,11 @@ private[construction] class PartialData(val graph: Graph)
     def candidates(a: Arrow, b: Arrow) =
       arrowsBetween(d0(a), d1(b)).take(2).toList
 
-    composablePairs.foldLeft(compositionSource) {
+    composablePairs.foldLeft(compositionSource) :
       case (m, (a, b)) =>
-        val aA = a.asInstanceOf[Arrow] // no check
-        val bA = b.asInstanceOf[Arrow] // no check
         candidates(a, b) match
-          case c::Nil => m + ((aA, bA) -> c)
-          case _       => m
-    }
+          case c::Nil => m + ((a, b) -> c)
+          case _                       => m
 
   end addUniqueCompositions
 
@@ -273,7 +262,8 @@ private[construction] class PartialData(val graph: Graph)
     *         TODO: eliminate code duplication
     */
   private[cat] override def build: Result[Category] = Result.forValue {
-    CategoryData.transitiveClosure(this).factory.map { validData => validData.newCategory }
+    CategoryData.transitiveClosure(this).factory.map :
+      validData => validData.newCategory
   }.flatten
 end PartialData
 
@@ -330,8 +320,8 @@ object CategoryData:
 
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
       def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
-      def d0(a: Arrow) = graph.d0(a)
-      def d1(a: Arrow) = graph.d1(a)
+      def d0(a: Arrow): Obj = graph.d0(a)
+      def d1(a: Arrow): Obj = graph.d1(a)
 
       override def id(o: Obj): Arrow = ids(o)
 
@@ -347,11 +337,10 @@ object CategoryData:
     if missing.isEmpty then data else
 
       val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] =
-        data.nonexistentCompositions.flatMap{
+        data.nonexistentCompositions.flatMap {
           case (f, g) =>
-            data.newComposition(f, g).map {
+            data.newComposition(f, g).map :
               h => (h, (data.d0(f), data.d1(g)))
-            }
         } toMap
 
       if newArrows.isEmpty then data else

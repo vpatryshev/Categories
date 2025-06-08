@@ -21,6 +21,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   override def nodes: Nodes = BigSet.of[Node](name)
 
+  // we never scan all arrows in a category of diagrams, so it's not implemented
   override def arrows: Arrows = ???
 
   override def d0(f: DiagramArrow): Diagram = f.d0.asInstanceOf[Diagram]
@@ -66,7 +67,7 @@ class CategoryOfDiagrams(val domain: Category)
 
   def objectNamed(name: String): domain.Obj = name
 
-  def pow(d: Diagram): Diagram = ??? // power object; tbd
+  def pow(d: Diagram): Diagram = ??? // TODO: power object
 
   override def id(o: Diagram): Arrow =
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.calculateObjectsMapping(x))
@@ -76,7 +77,7 @@ class CategoryOfDiagrams(val domain: Category)
       override def calculateMappingAt(x: thisArrow.d0.d0.Obj): thisArrow.d1.d1.Arrow =
         objectMap(x)
 
-  override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
+  override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option(
     new DiagramArrow(concat(g.tag, " ∘ ", f.tag), f.d0, g.d1):
       thisArrow =>
 
@@ -85,7 +86,7 @@ class CategoryOfDiagrams(val domain: Category)
         val g_x = g(x)
         m(f_x, g_x)
 
-  } else None
+  ) else None
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     buildMap[domain.Obj, Set[Diagram]](domain.objects,

@@ -194,8 +194,6 @@ trait GrothendieckTopos
 
       def calcDisjunctionOfTwoSubreps(pair: Any): Diagram = pair match
         case (a: Diagram, b: Diagram) => union(a, b)
-        case other =>
-          throw new IllegalArgumentException(s"Expected a pair of diagrams, but encountered ${other.getClass}")
 
       val disjunctionOfTwoSubreps: Any => Diagram = Cache[Any, Diagram](
         "v", calcDisjunctionOfTwoSubreps, domain.isFinite
@@ -247,10 +245,9 @@ trait GrothendieckTopos
       def hits(`B(y)`: set)(f: domain.Arrow) =
         `B(y)` contains image_via(f)
 
-      domain.objects.map {
+      domain.objects.map :
         y =>
           y -> itsaset(domain.hom(x, y) filter hits(B(y)))
-      }
 
     def sameMapping(repr: topos.Diagram, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
@@ -258,11 +255,11 @@ trait GrothendieckTopos
     def myRepresentable(ax: Any): Any =
       val arrowsSet = myArrows(ax)
       val arrows = arrowsSet.toMap
-      val choices = Ωatx find {
+      val choices = Ωatx find :
         _ match
           case td: topos.Diagram => sameMapping(td, arrows)
           case other => false
-      }
+
       Result(choices) orCommentTheError s"No representable found for $ax -> $arrows" iHope
 
     def asFunction: SetFunction =
@@ -285,12 +282,11 @@ trait GrothendieckTopos
   def χ(inclusion: Arrow, theTag: String): Predicate =
     def objToFunction(x: domain.Obj): SetFunction = χAt(inclusion: Arrow, x: domain.Obj).asFunction
 
-    inclusion.d1 match {
+    inclusion.d1 match
       case d: Diagram =>
         new Predicate(theTag, d):
           override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
             objToFunction(x)
-    }
 
   def χ(inclusion: Arrow): Predicate =
     χ(inclusion, s"χ(${inclusion.tag})")
@@ -303,9 +299,9 @@ trait GrothendieckTopos
         for
           x <- domain.objects
           incl: Result[SetFunction] = inclusion(subdiagram(x), diagram(x))
-          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map {
+          pair: Result[(domain.Obj, subdiagram.d1.Arrow)] = incl.map :
             x -> _
-          }
+
         yield pair
 
       val name = concat(subdiagram.tag, "⊂", diagram.tag)
@@ -454,9 +450,8 @@ trait GrothendieckTopos
   def product2(x: Diagram, y: Diagram): Diagram = product2builder(x, y).diagram
 
   def standardInclusion(p: Point, d: Diagram): Result[DiagramArrow] =
-    (inclusionOf(p) in d) map {
+    (inclusionOf(p) in d) map :
       q => (q ∘ uniqueFromTerminalTo(p)) named p.tag
-    }
 
   abstract class Diagram(tag: String)
     extends Functor(tag, thisTopos.domain, SetCategory.Setf):
@@ -708,9 +703,8 @@ trait GrothendieckTopos
       Good(Cocone(theFactorset.content, coconeMap))
 
     def toString(contentMapper: XObject => String): String =
-      s"Diagram[${d0.name}](${
-        listOfObjects map contentMapper filterNot (_.isEmpty) mkString ", "
-      })".replace("Set()", "{}")
+      val contents = listOfObjects map contentMapper filterNot (_.isEmpty) mkString ", "
+      s"Diagram[${d0.name}]($contents)".replace("Set()", "{}")
 
     override lazy val toString: String = toString(x =>
       s"$x ->{${asString(calculateObjectsMapping(x))}}".
@@ -732,7 +726,6 @@ trait GrothendieckTopos
 
     // TODO: write tests !!!!!!!
     def filter(tag: String, predicate: d0.Obj => Any => Boolean): Diagram =
-      debug(s"$tag: filter $predicate")
 
       def objectMapping(o: domain.Obj): Sets.set = // TODO: union is not to be used here
         calculateObjectsMapping(o) filter predicate(o)
@@ -872,15 +865,13 @@ trait GrothendieckTopos
     def toShortString: String =
 
       val strings: List[String] =
-        domainCategory.listOfObjects map {
-          x => {
+        domainCategory.listOfObjects map :
+          x =>
             val obRepr = apply(x) match
               case d: Diagram => shortTitle(d.toShortString)
               case other => other.toString
 
             s"$x->$obRepr"
-          }
-        }
 
       shortTitle(strings.mkString(s"$tag(", ", ", ")"))
 

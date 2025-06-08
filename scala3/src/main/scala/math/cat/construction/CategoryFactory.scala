@@ -34,7 +34,7 @@ private[cat] trait CategoryFactory:
     convert2Cat(numbers) { case (a, b) => s"$a.$b" } iHope
 
   private def convert2Cat[O, A](source: Category)(
-    arrow2string: (source.Arrow => String) = (x: source.Arrow) => x.toString
+    arrow2string: source.Arrow => String = (x: source.Arrow) => x.toString
   ): Result[Cat] =
     val stringToObject: Map[String, source.Obj] = source.objects map (o => o.toString -> o) toMap
     val string2Arrow = source.arrows map (a => arrow2string(a) -> a) toMap
@@ -75,9 +75,9 @@ private[cat] trait CategoryFactory:
       type Node = T
       type Arrow = (T, T)
       type Arrows = Set[Arrow]
-      def arrows = graph.arrows.asInstanceOf[Arrows]
-      def d0(f: Arrow) = graph.d0(f)
-      def d1(f: Arrow) = graph.d1(f)
+      def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
+      def d0(f: Arrow): Obj = graph.d0(f)
+      def d1(f: Arrow): Obj = graph.d1(f)
 
       override def nodes: Nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
       override def id(o: Obj): Arrow = (o, o)
@@ -98,7 +98,7 @@ private[cat] trait CategoryFactory:
     * @param objects            set of objects (same as identity arrows)
     * @param domain             maps arrows to domains
     * @param codomain           maps arrows to codomain
-    * @param composition        source table of arrows composition (may be incomplete)
+    * @param composition        source table of arrows composition (can be incomplete)
     * @param compositionFactory creates a new arrow for a composition of two arrows
     * @return a newly-built category
     */
@@ -153,7 +153,7 @@ private[cat] trait CategoryFactory:
     def category: Parser[Result[Cat]] =
       (name ?) ~ "(" ~ graphData ~ (("," ~ multTable) ?) ~ ")" ^^ {
         case nameOpt ~ "(" ~ gOpt ~ mOpt ~ ")" =>
-          val name = nameOpt getOrElse (Good("c"))
+          val name = nameOpt getOrElse Good("c")
           val graphOpt = (gOpt andAlso name) map {
             case (g, n) => g build n
           }
@@ -180,13 +180,13 @@ private[cat] trait CategoryFactory:
         cat <- convert2Cat(raw)()
       yield cat
 
-    def multTable: Parser[Result[Map[(String, String), String]]] =
+    private def multTable: Parser[Result[Map[(String, String), String]]] =
       "{" ~ repsep(multiplication, ",") ~ "}" ^^ {
         case "{" ~ m ~ "}" => Result traverse m map (_.toMap)
         case nonsense => Result.error(s"malformed <<$nonsense>>")
       }
 
-    def multiplication: Parser[Result[((String, String), String)]] =
+    private def multiplication: Parser[Result[((String, String), String)]] =
       word ~ ("o" | "∘") ~ word ~ "=" ~ word ^^ {
         case g ~ o ~ f ~ "=" ~ h => Good(((f, g), h))
         case someShit => Result.error(s"Failed to parse $someShit")
