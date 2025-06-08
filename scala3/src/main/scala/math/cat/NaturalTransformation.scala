@@ -80,7 +80,7 @@ abstract class NaturalTransformation(
 
 
   private lazy val asMap: Map[d0.d0.Obj, d1.d1.Arrow] =
-    if d0.d0.isFinite then 
+    if d0.d0.isFinite then
       debug(s"building map for $tag")
       buildMap(d0.d0.objects, o => apply(o)) 
     else Map.empty
