@@ -40,11 +40,11 @@ object LawvereTopology:
   def mustContainTruth(topos: CategoryOfDiagrams): topos.Predicate => Outcome =
     (predicate: topos.Predicate) => OKif(predicate.containsTruth, s"Should contain truth: ${predicate.tag}")
 
-  def mustBeClosed[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
+  private def mustBeClosed[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
     val jj = j ∘ j
     OKif(jj == j, s"Should be closed: ${j.tag}")
 
-  def mustBeClosedUnderConjunction[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
+  private def mustBeClosedUnderConjunction[O, A](topos: CategoryOfDiagrams)(j: topos.Predicate): Outcome =
     val jxj = topos.productOfArrows(j, j)
     val ∧ = topos.Ω.conjunction
     OKif((∧ ∘ jxj) == (j ∘ ∧), s"Should be closed under conjunction: ${j.tag}")
