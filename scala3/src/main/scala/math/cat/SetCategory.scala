@@ -24,7 +24,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   val graph: Graph = graphOfSets(objects)
   type Node = set
   type Arrow = SetFunction
-  val arrows = graph.arrows.asInstanceOf[Arrows] // todo: try to make it align; don't use map
+  val arrows: Arrows = graph.arrows.asInstanceOf[Arrows] // todo: try to make it align; don't use map
   override def nodes: Nodes = objects
   /**
     * Domain of an arrow
@@ -89,7 +89,8 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     *  @return true iff f is an epimorphism
     */
   override def isEpimorphism(f: SetFunction): Boolean =
-    f.d1 forall {y => f.d0 exists {y == f(_)}}
+    f.d1 forall :
+      y => f.d0 exists { y == f(_) }
 
   /**
     * Equalizer of two arrows (does not have to exist)
@@ -113,10 +114,11 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
   override def coequalizer(f: SetFunction, g: SetFunction): Result[SetFunction] = 
   OKif(areParallel(f, g), s"Arrows $f and $g must be parallel") andThen {
     val theFactorset: factorset = new FactorSet[Any](f.d1)
-    OKif((theFactorset untyped) ∈ thisCategory.objects) returning {
-      f.d0.foreach { x => theFactorset.merge(f(x), g(x)) }
+    OKif((theFactorset untyped) ∈ thisCategory.objects) returning :
+      f.d0.foreach :
+        x => theFactorset.merge(f(x), g(x))
+
       SetFunction.forFactorset(theFactorset)
-    }
   }
 
   /**
@@ -125,14 +127,14 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     *  @return a coequalizer arrow, if one exists, None otherwise
     */
   override def coequalizer(arrowsToEqualize: Iterable[SetFunction]): Result[SetFunction] =
-    OKif(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer") andThen {
+    OKif(arrowsToEqualize.iterator.hasNext, "Need at least one arrow for coequalizer") andThen :
       val f0 = arrowsToEqualize.head
       val otherArrows = arrowsToEqualize.tail
       val dataOk = Result.traverse(
-        for (f <- otherArrows) yield OKif(areParallel(f0, f), s"$f0 and $f must be parallel")
+        for (f <- otherArrows)
+        yield OKif(areParallel(f0, f), s"$f0 and $f must be parallel")
       ) 
       dataOk andThen equalizeFunctions(f0, otherArrows)
-    }
 
   private def equalizeFunctions(
     f: SetFunction,
@@ -153,35 +155,29 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     *  @return x^n^ and its projections to x
     */
   override def degree(x: set, n: Int): Result[(set, List[SetFunction])] =
-    Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen {
+    Result.OKif(n >= 0, s"No negative degree exists yet, for n=$n") andThen :
 
       val actualDomain: Set[List[Any]] =
-        Sets.exponent(Sets.numbers(n), x.untyped).map {
+        Sets.exponent(Sets.numbers(n), x.untyped).map :
           _.toList.sortBy(_._1).map(_._2)
-        }
 
       val domain: set = actualDomain untyped
 
       def takeElementAt(i: Int)(obj: Any): Any = obj.asInstanceOf[List[Any]](i)
       
-      val projections = (0 until n).map {
+      val projections = (0 until n).map :
         i => SetFunction.build(s"set^$n", domain, x, takeElementAt(i))
-      }
 
-      Result.traverse(projections).map { ps => (domain, ps.toList) }
-    }
+      Result.traverse(projections).map :
+        ps => (domain, ps.toList)
 
   /**
     * Initial object of this category. Does not have to exist.
     *
     * Need to filter, so that if an empty set does not belong to a subcategory, `initial` is empty
     */
-  override lazy val initial: Result[set] = Good(Sets.`∅`) filter {
-    emptySet => {
-      thisCategory.contains(emptySet)
-//      emptySet.∈(thisCategory)
-    }
-  }
+  override lazy val initial: Result[set] = Good(Sets.`∅`) filter :
+    emptySet => thisCategory.contains(emptySet)
 
   /**
     * Terminal object of this category. Does not have to exist.
@@ -199,12 +195,11 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     * @return Good pair of arrows from product object to x and y, or None.
     */
   override def product(x: set, y: set): Result[(SetFunction, SetFunction)] =
-    Good(product2(x, y).untyped).filter(contains).flatMap{
+    Good(product2(x, y).untyped).filter(contains).flatMap :
       ps =>
         val p1 = SetFunction.build("p1", ps, x, { case (a, b) => a })
         val p2 = SetFunction.build("p2", ps, y, { case (a, b) => b })
-        (p1 andAlso p2)
-    }
+        p1 andAlso p2
 
   /**
     * Pullback of two arrows.
@@ -237,10 +232,12 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     val unionSet: set = Sets.union(taggedX, taggedY)
     val ix0 = SetFunction.build("ix", x, taggedX, tagX)
     val ix1 = SetFunction.inclusion(taggedX, unionSet)
-    val ix = (ix0 andAlso ix1).flatMap{ case (f, g) => Result(f andThen g) }
+    val ix = (ix0 andAlso ix1).flatMap :
+      case (f, g) => Result(f andThen g)
     val iy0 = SetFunction.build("iy", y, taggedY, tagY)
     val iy1 = SetFunction.inclusion(taggedY, unionSet)
-    val iy = (iy0 andAlso iy1).flatMap{ case (f, g) => Result(f andThen g) }
+    val iy = (iy0 andAlso iy1).flatMap :
+      case (f, g) => Result(f andThen g)
     ix andAlso iy
 
   /**
@@ -250,14 +247,14 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     *  @return Good pair of function from d1(f) and d1(g) to the pushout set, or None.
     */
   override def pushout(f: SetFunction, g: SetFunction): Result[(SetFunction, SetFunction)] =
-    for {
+    for
       (left, right) <- union(f.d1, g.d1)
       leftSide <- Result(f andThen left)
       rightSide <- Result(g andThen right)
       coeq <- coequalizer(leftSide, rightSide)
       leftCorner <- Result(left andThen coeq)
       rightCorner <- Result(right andThen coeq)
-    } yield (leftCorner, rightCorner)
+    yield (leftCorner, rightCorner)
 
   override lazy val hashCode: Int = getClass.hashCode * 7 + objects.hashCode
 

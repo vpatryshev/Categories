@@ -20,7 +20,7 @@ abstract class Functor(
   taggedAs: String,
   override val d0: Category, override val d1: Category
 ) extends GraphMorphism:
-  val tag = taggedAs
+  val tag: String = taggedAs
   /**
     * Objects of the functor domain
     * @return the objects
@@ -29,8 +29,8 @@ abstract class Functor(
 
   lazy val listOfObjects: List[d0.Obj] = d0.listOfObjects
 
-  lazy val objectMapping = Cache[d0.Obj, d1.Obj](tag, calculateObjectsMapping, domainObjects.isFinite)
-  lazy val arrowMapping = Cache[d0.Arrow, d1.Arrow](tag, calculateMappingForArrow, domainObjects.isFinite)
+  lazy val objectMapping: d0.Obj => d1.Obj = Cache[d0.Obj, d1.Obj](tag, calculateObjectsMapping, domainObjects.isFinite)
+  lazy val arrowMapping: d0.Arrow => d1.Arrow = Cache[d0.Arrow, d1.Arrow](tag, calculateMappingForArrow, domainObjects.isFinite)
 
   private def calculateMappingForArrow(a: d0.Arrow): d1.Arrow =
     val domainX: d0.Obj = d0.d0(a)
@@ -42,7 +42,7 @@ abstract class Functor(
   /**
     * How the functor maps objects
     * @param x object of domain category
-    * @returns an object on codomain category
+    * @return an object on codomain category
     */
   def calculateObjectsMapping(x: d0.Obj): d1.Obj
 
@@ -63,7 +63,7 @@ abstract class Functor(
   /**
     * How the functor maps arrows
     * @param a the arrow to map
-    * @returns another arrow
+    * @return another arrow
     */
   override def arrowsMapping(a: d0.Arrow): d1.Arrow =
     arrowMapping(a)
@@ -77,19 +77,15 @@ abstract class Functor(
     * TODO: find a solution to get rid of castings
     */
   infix def andThen(g: Functor): Option[Functor] =
-    if d1 != g.d0 then None else Some {
-      val f = this
-      def `g(f(object))`(x: d0.Obj) = g.objectMapping(objectMapping(x))
-      def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(arrowsMapping(a))
+    val f = this
+    def `g(f(object))`(x: d0.Obj) = g.objectMapping(objectMapping(x))
+    def `g(f(arrow))`(a: d0.Arrow) = g.arrowsMapping(arrowsMapping(a))
 
+    if d1 != g.d0 then None else Some (
       new Functor(concat(g.tag, "∘", this.tag), f.d0, g.d1):
-
-        def calculateObjectsMapping(x: d0.Obj): d1.Obj = `g(f(object))`(x)
-
-        protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow =
-          `g(f(arrow))`(a)
-
-      }
+        def calculateObjectsMapping(x: d0.Obj): d1.Obj              = `g(f(object))`(x)
+        protected def calculateArrowsMapping(a: d0.Arrow): d1.Arrow = `g(f(arrow))`(a)
+    )
 
   /**
     * Builds a cone from a given vertex object to this functor
@@ -97,7 +93,7 @@ abstract class Functor(
     * @param arrowTo arrows from vertex to objects in the functor's image
     * @return optional cone
     */
-  def cone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cone] =
+  private def cone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cone] =
     Option(Cone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
 
   /**
@@ -133,7 +129,7 @@ abstract class Functor(
     * @param candidate cone to check
     * @return true iff it is a limit
     */
-  def isLimit(candidate: Cone): Boolean =
+  private def isLimit(candidate: Cone): Boolean =
     allCones.forall((aCone: Cone) => candidate.factorsOnRight(aCone))
 
   /**
@@ -145,8 +141,8 @@ abstract class Functor(
     * Left Kan Extension.
     * TODO: implement
     *
-    * @param X
-    * @return
+    * @param X a functor
+    * @return Left Kan extension for X
     */
   def Lan(X: Functor): Result[Functor] =
     OKif(X.d0 == d0) returning
@@ -158,7 +154,7 @@ abstract class Functor(
     * Right Kan Extension.
     * TODO: implement
     *
-    * @param X
+    * @param X a functor
     * @return
     */
   def Ran(X: Functor): Result[Functor] =
@@ -173,7 +169,7 @@ abstract class Functor(
     * @param arrowTo arrows from functor's image to the vertex
     * @return an optional cocone
     */
-  def cocone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cocone] =
+  private def cocone(vertex: d1.Obj)(arrowTo: Iterable[(d0.Obj, d1.Arrow)]): Option[Cocone] =
     Option(Cocone(vertex, arrowTo.toMap)) filter (_.isWellFormed)
 
   /**
@@ -209,7 +205,7 @@ abstract class Functor(
     * @param candidate cone to check
     * @return true iff it is a limit
     */
-  def isColimit(candidate: Cocone): Boolean =
+  private def isColimit(candidate: Cocone): Boolean =
     allCocones.forall((aCocone: Cocone) => candidate.factorsOnRight(aCocone))
 
   def colimit: Result[Cocone] = allCocones find isColimit
@@ -227,7 +223,7 @@ abstract class Functor(
 
     /**
       * A cone from y1 to F is factored by this cone (with vertex y)
-      * if there is an h : y1 -> y such that each f1: y1 -> F(x) is equal to
+      * if there is a h : y1 -> y such that each f1: y1 -> F(x) is equal to
       * f ∘ h, where f: y -> F(x).
       *
       * @param factored a cone that may be factored
@@ -279,20 +275,19 @@ abstract class Functor(
 
     /**
       * A cocone from F to y1 is factored by this cocone (from F to y)
-      * if there is an h : y -> y1 such that each f1: F(x) -> y1 is equal to
+      * if there is a h : y -> y1 such that each f1: F(x) -> y1 is equal to
       * h ∘ f, where f: F(x) -> y.
       *
       * @param factored a cone that may be factored
       * @return true if it is so
       */
     def factorsOnRight(factored: Cocone): Boolean =
-      d1.hom(factored.vertex, vertex) exists (
+      d1.hom(factored.vertex, vertex) exists :
         h =>
           val failsOn = domainObjects.find(
-            (x: d0.Obj) => !(d1.m(factored.arrowFrom(x), h) contains(arrowFrom (x))))
+            (x: d0.Obj) => !(d1.m(factored.arrowFrom(x), h) contains arrowFrom (x)))
           val itWorks = failsOn.isEmpty
           itWorks
-      )
 
     /**
       * @return true if this actually a well-formed cone.
@@ -300,8 +295,8 @@ abstract class Functor(
     def isWellFormed: Boolean = d0.arrows.forall {
       (f: d0.Arrow) =>
         val Fx02y = arrowFrom(d0.d0(f))
-        var Fx12y: d1.Arrow = arrowFrom(d0.d1(f))
-        var F_f: d1.Arrow = arrowsMapping(f)
+        val Fx12y: d1.Arrow = arrowFrom(d0.d1(f))
+        val F_f: d1.Arrow = arrowsMapping(f)
         Fx02y ∈ d1.m(F_f, Fx12y)
     }
 
@@ -361,7 +356,7 @@ object Functor:
   /**
     * Builds a functor, given the data:
     *
-    * @param atag           functor tag
+    * @param aTag           functor tag
     * @param dom            domain category
     * @param codom          codomain category
     * @param objectsMapping objects mapping
@@ -369,12 +364,12 @@ object Functor:
     * @return
     */
   def apply(
-    atag: String,
-    dom: Category,
-    codom: Category)(
+             aTag: String,
+             dom: Category,
+             codom: Category)(
     objectsMapping: dom.Obj => codom.Obj,
     arrowsMapping: dom.Arrow => codom.Arrow): Result[Functor] =
-    validateFunctor(unsafeBuild(atag, dom, codom)(objectsMapping, arrowsMapping))
+    validateFunctor(unsafeBuild(aTag, dom, codom)(objectsMapping, arrowsMapping))
 
   /**
     * Validates a functor candidate.
