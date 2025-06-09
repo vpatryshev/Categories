@@ -40,7 +40,7 @@ trait GrothendieckTopos
 
   def tag = s"Set^${domain.name}"
 
-  type Mapping = domain.Obj => Any => Any
+  private type Mapping = domain.Obj => Any => Any
 
   def inclusionOf(p: Point): Includer
 
@@ -229,17 +229,17 @@ trait GrothendieckTopos
    * Diagonal for Ω
    */
   lazy val Δ_Ω: DiagramArrow = buildArrow("Δ", Ω, ΩxΩ,
-    _ => (subrep: Any) => (subrep, subrep)
+    _ => (sub: Any) => (sub, sub)
   )
 
   private[topos] case class χAt(inclusion: DiagramArrow, x: domain.Obj):
-    val A = inclusion.d1.asInstanceOf[Diagram]
-    val B = inclusion.d0.asInstanceOf[Diagram]
-    val Ωatx = Ω(x)
+    private val A = inclusion.d1.asInstanceOf[Diagram]
+    private val B = inclusion.d0.asInstanceOf[Diagram]
+    private val `Ω(x)` = Ω(x)
 
     // for each element ax of set Ax find all arrows x->y
     // that map ax to an ay that belongs to By
-    def myArrows(ax: Any): Set[(Any, set)] =
+    private def myArrows(ax: Any): Set[(Any, set)] =
       def image_via(f: domain.Arrow) = A.functionForArrow(f)(ax)
 
       def hits(`B(y)`: set)(f: domain.Arrow) =
@@ -252,10 +252,10 @@ trait GrothendieckTopos
     def sameMapping(repr: topos.Diagram, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
 
-    def myRepresentable(ax: Any): Any =
+    private def myRepresentable(ax: Any): Any =
       val arrowsSet = myArrows(ax)
       val arrows = arrowsSet.toMap
-      val choices = Ωatx find :
+      val choices = `Ω(x)` find :
         _ match
           case td: topos.Diagram => sameMapping(td, arrows)
           case other => false
@@ -342,10 +342,10 @@ trait GrothendieckTopos
       throw new IllegalArgumentException(s"Expected a pair, got $trash")
 
   // π1
-  protected val firstProjection: Mapping = Function.const(p1)
+  private val firstProjection: Mapping = Function.const(p1)
 
   // π2
-  protected val secondProjection: Mapping = Function.const(p2)
+  private val secondProjection: Mapping = Function.const(p2)
 
   /**
    * Given a `from` and `to` diagrams, build an arrow
@@ -359,32 +359,12 @@ trait GrothendieckTopos
    * @param o       the object
    * @return an arrow (it's a `SetFunction`, actually)
    */
-  protected def buildOneArrow(
+  private def buildOneArrow(
                                tag: Any,
                                from: Diagram,
                                to: Diagram,
                                mapping: Mapping
                              )(o: from.d0.Obj): from.d1.Arrow =
-    SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope
-
-  /**
-   * Given a `from` and `to` diagrams, build an arrow
-   * `from(o)` -> `to(o)`, for each given `o`,
-   * using the provided mapping
-   *
-   * @param tag     tag of a natural transformation
-   * @param from    domain diagram
-   * @param to      codomain diagram
-   * @param mapping given an object `o`, produce a function over this object
-   * @param o       the object
-   * @return an arrow (it's a `SetFunction`, actually)
-   */
-  protected def buildOneArrowe(
-                                tag: Any,
-                                from: Diagram,
-                                to: Diagram,
-                                mapping: Mapping
-                              )(o: from.d0.Obj): from.d1.Arrow =
     SetFunction.build(s"$tag[$o]", from(o), to(o), mapping(o)).iHope
 
   /**
@@ -424,7 +404,7 @@ trait GrothendieckTopos
 
     private def mappingOfObjects(o: domain.Obj): set = productAt(o).untyped
 
-    def transition(z: Diagram)(a: domain.Arrow)(pz: Any) =
+    private def transition(z: Diagram)(a: domain.Arrow)(pz: Any) =
       z.asFunction(z.arrowsMapping(a))(pz)
 
     private def mappingOfArrows(a: domain.Arrow): SetFunction =
@@ -438,7 +418,7 @@ trait GrothendieckTopos
 
       new SetFunction("", from.untyped, to.untyped, f)
 
-    val diagram = Diagram(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a))
+    val diagram: Diagram = Diagram(concat(x.tag, "×", y.tag), mappingOfObjects, a => mappingOfArrows(a))
 
   end product2builder
 
@@ -457,9 +437,9 @@ trait GrothendieckTopos
     extends Functor(tag, thisTopos.domain, SetCategory.Setf):
     diagram =>
     type XObject = d0.Obj // topos.domain.Obj ???
-    type XObjects = Set[XObject]
-    type XArrow = d0.Arrow // topos.domain.Arrow ???
-    type XArrows = Set[XArrow]
+    private type XObjects = Set[XObject]
+    private type XArrow = d0.Arrow // topos.domain.Arrow ???
+    private type XArrows = Set[XArrow]
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
@@ -488,13 +468,13 @@ trait GrothendieckTopos
         f(d00) == d01
 
     private lazy val listOfComponents: List[set] =
-      val objs = listOfObjects map calculateObjectsMapping
-      objs map itsaset
+      val components = listOfObjects map calculateObjectsMapping
+      components map itsaset
 
     def point(mapping: XObject => Any, id: String = ""): Point =
       new Point(id, (x: Any) => mapping(x))
 
-    lazy val objMappings: List[Point] =
+    private lazy val objMappings: List[Point] =
       (for
         valuesPerObject <- Sets.product(listOfComponents)
         tuples = listOfObjects zip valuesPerObject
@@ -509,7 +489,7 @@ trait GrothendieckTopos
       // because closing curly is replaced with '!' which goes
       // before all alphanumerics. Cheap trick, but works.
       // Any better suggestions?
-      // DO NOT: sort differently without runing TopologyTest
+      // DO NOT: sort differently without running TopologyTest
       val sorted = objMappings.sortBy(_.toString.replace("}", "!")) zipWithIndex
 
       sorted map { p => p._1 named ("p" + p._2) }
@@ -538,9 +518,8 @@ trait GrothendieckTopos
       val grouped: Map[XObject, XArrows] = arrowsInvolved.groupBy(arrow => d0.d1(arrow))
 
       val fromRootObjects: Map[XObject, XArrow] =
-        grouped.map {
+        grouped.map :
           case (k, v) => k -> v.head
-        } toMap // does not matter which one, in this case
 
       def arrowFromRootObject(x: XObject) =
         if LimitBuilder.rootObjects(x) then d0.id(x) else fromRootObjects(x)
@@ -604,8 +583,6 @@ trait GrothendieckTopos
      * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value
      *
      * @param point element of Cartesian product
-     * @param f     arrow function
-     * @param g     another arrow function, which may use a different element of Cartesian product
      * @return true if they are equal
      */
     private[cat] def allArrowsAreCompatibleOnPoint(point: Point): XArrows => Boolean =
@@ -630,8 +607,6 @@ trait GrothendieckTopos
      * Builds a predicate that checks if a given set of arrows map a given element of Cartesian product to the same value
      *
      * @param point element of Cartesian product
-     * @param f     arrow function
-     * @param g     another arrow function, which may use a different element of Cartesian product
      * @return true if they are equal
      */
     private[cat] def arrowActionOnPoint(a: XArrow, point: Point): Any =
@@ -653,9 +628,8 @@ trait GrothendieckTopos
 
       // for every object it gives the inclusion of this object's image into the union
       val objectToInjection: Map[XObject, Injection[Any, (Int, Any)]] =
-        reverseIndex map {
+        reverseIndex map :
           case (k, v) => k -> union.injection(v)
-        } toMap
 
       // All possible functions in the diagram, bundled with domain objects
       val functionsToUnion: Set[(XObject, SetFunction)] = for
@@ -672,7 +646,7 @@ trait GrothendieckTopos
       val canonicalFunctionPerObject: Map[XObject, SetFunction] =
         functionsToUnion.toMap
 
-      val theFactorset: factorset = new FactorSet(typelessUnion)
+      lazy val theFactorset: factorset = FactorSet(typelessUnion)
 
       // have to factor the union by the equivalence relation caused
       // by two morphisms mapping the same element to two possibly different.
@@ -719,7 +693,7 @@ trait GrothendieckTopos
     }.replace(s"Diagram[${d0.name}]", "")
     )
 
-    def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
+    private def extendToArrows(om: XObject => Sets.set)(a: XArrow): SetFunction =
       val dom: Sets.set = om(d0.d0(a))
       val codom: Sets.set = om(d0.d1(a))
       new SetFunction("", dom, codom, arrowsMapping(a))
@@ -740,9 +714,8 @@ trait GrothendieckTopos
 
     def subobjects: Iterable[Diagram] =
       val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(calculateObjectsMapping(o)))
-      val allPowers: Map[XObject, Set[set]] = allSets map {
+      val allPowers: Map[XObject, Set[set]] = allSets map :
         case (k, v) => k -> Sets.pow(v)
-      } toMap
 
       val listOfComponents: List[Set[set]] = listOfObjects map allPowers
 
@@ -809,7 +782,6 @@ trait GrothendieckTopos
    * A point of a topos object (of a diagram in a Grothendieck topos)
    *
    * @param tag                used to visually identify a point
-   * @param topos              the topos
    * @param fromObjectToSubset for each domain object, choose something in the topos diagram
    */
   class Point(
