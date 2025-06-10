@@ -6,7 +6,7 @@ import scala.collection.immutable.Set
 /**
   * A primitive idea of a container; can be empty.
   * Created by vpatryshev on 10/18/15.
-  * There's a reason not to inherit it from Iterable, which requires too much boilerplate, and renamings.
+  * There's a reason not to inherit it from Iterable, which requires too much boilerplate and renamings.
   * E.g. we'll need to rename `empty` in Result. 
   */
 trait Container[+T]:

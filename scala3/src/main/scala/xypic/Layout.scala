@@ -13,7 +13,7 @@ import scala.language.{implicitConversions, postfixOps}
 
 case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
   val category: Category = go.category
-  val base: Graph = category.baseGraph
+  private val base: Graph = category.baseGraph
 
   private var dir = (1, 0)
   private var previousLayerLength = 1
@@ -95,7 +95,9 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
     
     val arrows: Map[Set[base.Node], List[base.Arrow]] =
       arrowsWithDomainAndCodomain.groupBy(_._2).
-        map { case (k, v) => k -> listSorted(v map (_._1)) } toMap
+        map :
+          case (k, v) => 
+            k -> listSorted(v map (_._1))
     
     def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit =
       val p = coordinates(obj.toString)
@@ -163,9 +165,9 @@ object TestIt:
     val h = 300
     val frame = SVG.Frame(15, Pt(w, h))
     val c = Pt(w/2, h/2)
-    val withCoords: Set[(Any, Pt)] = GroupOfObjects(seq).arrangeInCircle(c, 100)
+    val withCoordinates: Set[(Any, Pt)] = GroupOfObjects(seq).arrangeInCircle(c, 100)
 
-    withCoords foreach:
+    withCoordinates foreach:
       case (name, p) => frame.CircleWithText(name.toString, p).draw()
 
     "<br/>" + frame

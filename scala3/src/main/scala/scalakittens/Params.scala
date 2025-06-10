@@ -19,17 +19,17 @@ object Params:
   lazy val trace:     Boolean = flag("Trace")
 
   inline def debug(s: String): Unit =
-    if (debug) then println(s"DEBUG:$s")
+    if debug then println(s"DEBUG:$s")
 
   private val allKeys = mutable.Map[String, Array[StackTraceElement]]()
 
   def deepDebug(s: String): Unit =
-    if (debug) then
+    if debug then
       val stack: Array[StackTraceElement] = callStack
       val calledBy: StackTraceElement = stack(6)
       val msg = s"$s from ${calledBy.getFileName}:${calledBy.getLineNumber}"
       debug(msg)
-      if (allKeys contains msg) then
+      if allKeys contains msg then
         val previous = allKeys.get(msg)
         println("WTF! Duplicate msg")
       allKeys += (msg -> stack)
@@ -42,4 +42,4 @@ object Params:
       throw new StackOverflowError(s"Stack too big: $n > $max")
 
   inline def verbose(s: String): Unit =
-    if (verbose || debug) then println(s"VERBOSE:$s")
+    if verbose || debug then println(s"VERBOSE:$s")
