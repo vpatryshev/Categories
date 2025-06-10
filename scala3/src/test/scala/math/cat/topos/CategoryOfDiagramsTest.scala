@@ -170,7 +170,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val sample = sut.d0.objects map (ob => sut.calculateObjectsMapping(ob))
 
       def fullSet(d: `Set^Pullback`.Diagram): List[String] =
-        d.d0.objects.toList map d.calculateObjectsMapping map itsaset map asString
+        d.d0.objects.toList map d.calculateObjectsMapping map itIsaSet map asString
 
       val listOfSubobjects = sut.subobjects.toList
       val actual =

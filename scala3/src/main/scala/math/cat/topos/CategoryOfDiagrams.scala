@@ -114,7 +114,7 @@ class CategoryOfDiagrams(val domain: Category)
       val tuples: Set[(domain.Arrow, domain.Arrow)] = d0.flatMap{ g => domain.m(g, f) map (g -> _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
-      new SetFunction("", itsaset(d0), itsaset(d1), a => mapping(a))
+      new SetFunction("", itIsaSet(d0), itIsaSet(d1), a => mapping(a))
 
     probablyFunctor iHope
   

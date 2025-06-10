@@ -17,7 +17,7 @@ object Base:
     keys map { k => k -> f(k) } toMap
 
   /**
-   * Builds an inverse map. Assumes that the map is inversible.
+   * Builds an inverse map. Assumes that the map is invertible.
    *
    * @tparam A map key type
    * @tparam B map value type
@@ -70,10 +70,10 @@ object Base:
    * @param args args
    * @return a StringBuffer
    */
-  def bufferFromContext(sc: StringContext, args: Any*) =
+  def bufferFromContext(sc: StringContext, args: Any*): StringBuffer =
     val strings = sc.parts.iterator
     val expressions = args.iterator
-    var buf = new StringBuffer(strings.next())
+    val buf = new StringBuffer(strings.next())
     while (strings.hasNext)
       buf.append(expressions.next())
       buf.append(strings.next())
@@ -87,7 +87,7 @@ object Base:
   def notNull[T](value: => T, explanation: String): T =
     (Result.forValue(value) orCommentTheError explanation) iHope
 
-  def plural(n: Int, w: String) = if n == 1 then s"1 $w" else s"$n ${w}s"
+  def plural(n: Int, w: String): String = if n == 1 then s"1 $w" else s"$n ${w}s"
 
   def checkThat(cond: => Boolean): Boolean =
     try cond catch case x => false

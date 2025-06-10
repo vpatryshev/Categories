@@ -3,10 +3,10 @@ package math.geometry2d
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
-object SVG {
+object SVG:
 
   private def polyline(points: Pt*): String =
-    points map ((p:Pt) => s"${p.x.toDouble},${p.y.toDouble}") mkString(
+    points map point mkString(
       """<polyline points="""",
       " ",
       """" style="fill:none;stroke:black;stroke-width:1" />""")
@@ -25,25 +25,24 @@ object SVG {
     val headStart = seg.p1 - (seg.unit * q)
     SVG.polyline(headStart - seg.orthonorm*q/3, seg.p1, headStart + seg.orthonorm*q/3)
   
-  case class Frame(diagonal: Pt, grid: Int, range: Segment) { 
+  case class Frame(diagonal: Pt, grid: Int, range: Segment): 
     frame =>
-    val w = diagonal.x.toInt
-    val h = diagonal.y.toInt
+    val w: Int = diagonal.x.toInt
+    val h: Int = diagonal.y.toInt
     private val dx = w/grid
     private val dy = h/grid
     private val topLeft: Pt = range.p0
     private val bottomRight: Pt = range.p1
     private val center: Pt = (topLeft + bottomRight) / 2
     private val origSize = bottomRight - topLeft + Pt(2, 2)
-    private val scale = {
+    private val scale =
       val raw = Pt(Rational(w) / origSize.x, Rational(-h) / origSize.y)
       val snapped = snap(raw)
       Pt(
         (raw.x.abs max snapped.x) * raw.x.signum,
         (raw.y.abs max snapped.y) * raw.y.signum)
-    }
 
-    private def snap(x: Rational) = Rational((x/grid).toInt*grid, 1)
+    private def snap(x: Rational) = Rational((x/grid).toInt*grid)
     
     private def snap(pt: Pt): Pt = Pt(snap(pt.x), snap(pt.y))
 
@@ -75,11 +74,11 @@ object SVG {
     trait Shape:
       def draw(): Unit = frame.draw(this)
       
-      def text(txt: String)(p: Pt) =
+      def text(txt: String)(p: Pt): String =
         s"""<text text-anchor="middle" style="font: 14px sans-serif;" dominant-baseline="central"
            |${asSvg(p)}>$txt</text>""".stripMargin
 
-    def asSvg(p: Pt, prefix: String = ""): String =
+    private def asSvg(p: Pt, prefix: String = ""): String =
       s"""${prefix}x="${p.x.toDouble}" ${prefix}y="${p.y.toDouble}""""
 
     case class CircleWithText(txt: String, cc: Pt) extends Shape:
@@ -143,7 +142,6 @@ object SVG {
             | stroke="black" fill="transparent"/>""".stripMargin +
             arrowhead(Segment(s1.p0, s1.p1))
           out
-  }
 
   def Frame(raster: Int, diagonal: Pt, points: Iterable[Pt] = Nil): Frame =
     val range = points match
@@ -155,4 +153,3 @@ object SVG {
 
     Frame(diagonal, raster, range)
 
-}

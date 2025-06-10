@@ -9,7 +9,7 @@ import scala.language.postfixOps
 import scala.annotation.targetName
 
 object ZFC:
-  val PATIENCE = 100
+  private val PATIENCE = 100
 
   /**
     * A cache for storing sets that are built in the process
@@ -18,8 +18,8 @@ object ZFC:
 
   /**
     * Adds another set to cache
-    * @param o
-    * @return
+    * @param o a set to add to cache
+    * @return the added set
     */
   private def register(o: SetZ): SetZ =
     verbose(s"exists $o")
@@ -59,8 +59,8 @@ object ZFC:
 
   /**
     * Class of sets in ZF(C)
-    * @param id
-    * @param thePredicate
+    * @param id an id of a set in ZFC
+    * @param thePredicate filtering the set's elements
     */
   class SetZ(val id: String, val thePredicate: Predicate):
 
@@ -77,9 +77,9 @@ object ZFC:
 
     override def equals(o: Any): Boolean = o match
       case sz: SetZ => equal(this, sz)
-      case otherwisse => false
+      case otherwise => false
 
-    infix def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
+    private infix def isSubsetOf(s: SetZ): Boolean = (this eq s) || forall(s.contains)
 
     def choose1: Option[Any] = domain headOption
 

@@ -247,7 +247,7 @@ trait GrothendieckTopos
 
       domain.objects.map :
         y =>
-          y -> itsaset(domain.hom(x, y) filter hits(B(y)))
+          y -> itIsaSet(domain.hom(x, y) filter hits(B(y)))
 
     def sameMapping(repr: topos.Diagram, mapping: Map[Any, set]): Boolean =
       domain.objects.forall(o => mapping(o) == repr(o))
@@ -443,7 +443,7 @@ trait GrothendieckTopos
 
     given Conversion[d1.Obj, set] = x => x.asInstanceOf[set]
 
-    private[topos] def setAt(x: Any): set = itsaset(calculateObjectsMapping(x))
+    private[topos] def setAt(x: Any): set = itIsaSet(calculateObjectsMapping(x))
 
     @targetName("isSubdiagramOf")
     infix inline def ⊂(other: Diagram): Boolean =
@@ -469,7 +469,7 @@ trait GrothendieckTopos
 
     private lazy val listOfComponents: List[set] =
       val components = listOfObjects map calculateObjectsMapping
-      components map itsaset
+      components map itIsaSet
 
     def point(mapping: XObject => Any, id: String = ""): Point =
       new Point(id, (x: Any) => mapping(x))
@@ -496,7 +496,7 @@ trait GrothendieckTopos
 
     def functionForArrow(a: Any): SetFunction = arrowsMapping(a)
 
-    infix def apply(x: Any): set = itsaset(calculateObjectsMapping(x))
+    infix def apply(x: Any): set = itIsaSet(calculateObjectsMapping(x))
 
     /**
      * Calculates this diagram's limit
@@ -543,7 +543,7 @@ trait GrothendieckTopos
       final private[cat] lazy val listOfObjects: List[XObject] = listSorted(rootObjects)
       // Here we have a non-repeating collection of sets to use for building a limit
       final private[cat] lazy val setsToUse =
-        listOfObjects map nodesMapping map (x => itsaset(x))
+        listOfObjects map nodesMapping map (x => itIsaSet(x))
       // this is the product of these sets; will have to take a subset of this product
       final private[cat] lazy val prod: Set[List[Any]] = product(setsToUse)
       final lazy private val d0op = Categories.op(d0)
@@ -713,7 +713,7 @@ trait GrothendieckTopos
       Diagram(tag, mappingOfd0Objects, arrowToFunction)
 
     def subobjects: Iterable[Diagram] =
-      val allSets: Map[XObject, set] = buildMap(domainObjects, o => itsaset(calculateObjectsMapping(o)))
+      val allSets: Map[XObject, set] = buildMap(domainObjects, o => itIsaSet(calculateObjectsMapping(o)))
       val allPowers: Map[XObject, Set[set]] = allSets map :
         case (k, v) => k -> Sets.pow(v)
 
@@ -721,7 +721,7 @@ trait GrothendieckTopos
 
       def isPresheaf(om: XObject => Sets.set) = d0.arrows.forall:
         a =>
-          val d00 = itsaset(om(d0.d0(a)))
+          val d00 = itIsaSet(om(d0.d0(a)))
           val d01: set = om(d0.d1(a))
           val f = arrowsMapping(a)
           d00 map f subsetOf d01
@@ -729,7 +729,7 @@ trait GrothendieckTopos
       val objMappings: Iterable[Map[XObject, Sets.set]] = for
         values <- Sets.product(listOfComponents).view
         om0: Point = point(listOfObjects zip values toMap)
-        om: Map[XObject, Sets.set] = buildMap(d0.objects, x => itsaset(om0(x)))
+        om: Map[XObject, Sets.set] = buildMap(d0.objects, x => itIsaSet(om0(x)))
         if isPresheaf(om)
       yield om
 
