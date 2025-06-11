@@ -34,7 +34,7 @@ class Regression250509_Test extends Fixtures with TestTopologies:
       val expectedToBeGood_3 = topologies("3⊂Ω")
       expectedToBeGood_3 match
         case Good(value) => ok
-        case Bad(errors) => failure(errors.toString)
+        case other => failure(other.toString)
 
       val goodOnes = topologies.filter(_._2.isGood)
       goodOnes.size === 2

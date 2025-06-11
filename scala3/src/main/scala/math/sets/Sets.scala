@@ -353,7 +353,7 @@ object Sets:
     
     override def iterator: Iterator[X] = source.iterator filter predicate take sizeEvaluator
 
-    private def iteratorContains(x: X): Boolean = 
+    private def iteratorContains(x: X): Boolean =
       val i = iterator
       val found = source.toList match
         case Nil => false
@@ -363,7 +363,7 @@ object Sets:
           e1 && e2
 
       found || (i contains x)
-    
+
     override infix def contains(x: X): Boolean =
       val isOk = predicate(x)
 
