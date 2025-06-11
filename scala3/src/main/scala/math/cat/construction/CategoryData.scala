@@ -34,7 +34,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def factory: Result[CategoryBuilder] =
     val graphIsOk = validateGraph
     val objectsHaveIds = OKif(!finiteObjects) orElse
-      Result.check :
+      Result.check:
         objects.map :
           (x: Node) =>
             val ux = id(x)
@@ -42,7 +42,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
             OKif(d1(ux) == x, s"Codomain of id $ux should be $x in $name")
 
     val idsAreNeutral = OKif(!finiteArrows) orElse
-      Result.check :
+      Result.check:
         arrows.map :
           (f: Arrow) =>
             val u_f = m(id(d0(f)), f)
@@ -54,7 +54,7 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
       idsAreNeutral andThen OKif(!finiteArrows) orElse checkCompositions
 
     def listAssociativityProblems =
-      Result.check :
+      Result.check:
         for
           f <- arrows
           g <- arrows
@@ -83,11 +83,11 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   def objectByAlphabet: List[Obj] = listSorted(objects)
 
   private[cat] def checkCompositions: Outcome =
-    val check1 = Result.check :
+    val check1 = Result.check:
       missingCompositions.map :
         case (f, g) => Oops(s"composition must be defined for $f and $g in $name")
 
-    val check2 = Result.check :
+    val check2 = Result.check:
       for
         f <- arrows
         g <- arrows

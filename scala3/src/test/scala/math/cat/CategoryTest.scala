@@ -25,7 +25,7 @@ class CategoryTest extends Test:
 
   private val defineComposition = Category.arrowBuilder
   
-  "Category" should:
+  "Category" should :
 
     "calculate composablePairs" in :
       M.composablePairs must be_==(Set(
@@ -449,7 +449,7 @@ class CategoryTest extends Test:
       op3.factory.iHope
       ok
 
-  "AAAAAA" should:
+  "AAAAAA" should :
 
     "pass a regression test of 7/7/19" in :
       val cd = AAAAAA.asArrow("23")
@@ -463,7 +463,7 @@ class CategoryTest extends Test:
       val cluster = clusters.head
       cluster.size must be_==(6)
 
-  "complete subcategory" should:
+  "complete subcategory" should :
     "be ok for Square" in :
       Square.completeSubcategory("abd", Set("a", "b", "d")) must be_==
         (Good(category"abd:({a,b,d}, {ab: a -> b, bd: b -> d, ad: a -> d}, {bd ∘ ab = ad})"))
@@ -473,7 +473,7 @@ class CategoryTest extends Test:
 
       Square.completeSubcategory("abx", Set("a", "b", "x")).errorDetails must beSome("Unknown nodes: x")
 
-  "components" should:
+  "components" should :
     "build 0" in :
       `𝟘`.connectedComponents.isEmpty must beTrue
 
@@ -491,7 +491,7 @@ class CategoryTest extends Test:
         category"A.1:({1}, {1: 1 -> 1, a: 1 -> 1}, {1 ∘ 1 = 1, 1 ∘ a = a, a ∘ 1 = a, a ∘ a = 1})",
         category"A:({2, 3}, {b: 2 -> 3, c: 2 -> 3})"))
 
-  "baseGraph" should:
+  "baseGraph" should :
     import Graph._
 
     "good for 𝟛" in :
@@ -523,7 +523,7 @@ class CategoryTest extends Test:
       AAAAAA.baseGraph must be_==
         (graph"({1,2,3,4,5,6}, {12:1->2, 23:2->3, 34:3->4, 45:4->5, 56:5->6, 61:6->1})")
 
-  "SetCategory" should:
+  "SetCategory" should :
     "have products" in :
       val first: set = setOf.elements("a", "b")
       val second: set = setOf.elements(1, 2, 3)

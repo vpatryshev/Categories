@@ -10,7 +10,7 @@ import scala.language.{implicitConversions, reflectiveCalls}
 
 class Regression250509_Test extends Fixtures with TestTopologies:
 
-  "Topologies" should:
+  "Topologies" should :
     "exist for 𝟙" in :
       val candidates = topologyCandidates(`Set^𝟙`)
       candidates.size === 4

@@ -187,7 +187,7 @@ object Constructor:
   }
 
 class SetupTest extends Test:
-  "diagrams" should:
+  "diagrams" should :
     "all get instantiated" in :
       try
         val allThat = new TestDiagrams {}

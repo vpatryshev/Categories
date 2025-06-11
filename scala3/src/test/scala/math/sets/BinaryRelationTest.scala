@@ -6,7 +6,7 @@ import testing.TestBase
 
 class BinaryRelationTest extends TestBase:
 
-  "BinaryRelation" should:
+  "BinaryRelation" should :
 
     "buildFromPairs" in :
       val r = BinaryRelation(setOf.elements(("one", 1), ("two", 2)))

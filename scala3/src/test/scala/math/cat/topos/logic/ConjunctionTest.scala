@@ -13,7 +13,7 @@ import scala.reflect.Selectable.reflectiveSelectable
 
 class ConjunctionTest extends Fixtures:
 
-  "Conjunction" should {
+  "Conjunction" should :
 
     def checkProperties(topos: GrothendieckTopos, number: Int, total: Int, what: String): MatchResult =
       import topos._
@@ -76,11 +76,10 @@ class ConjunctionTest extends Fixtures:
 
           val pairs = con_o zip tru_classif_o
 
-          pairs foreach {
+          pairs foreach :
             case ((k1, v1), (k2, v2)) =>
               k1 must be_==(k2)
               v1 must be_==(v2)
-          }
 
           tru_classif_o must be_==(con_o)
 
@@ -96,4 +95,3 @@ class ConjunctionTest extends Fixtures:
     
     "work for all known domains" in :
       test(testCase)
-  }

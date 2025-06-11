@@ -10,7 +10,7 @@ import scala.language.reflectiveCalls
 class TopologyTest extends Fixtures with TestTopologies:
 
 
-  "Topologies" should:
+  "Topologies" should :
     "  exist for 𝟘" in :
 
       val goodOnes = topologies(`Set^𝟘`)

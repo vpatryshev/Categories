@@ -96,7 +96,7 @@ class AnImplicationTest extends Fixtures:
       left.equalsWithDetails(right, printDetails = true, context) aka context must beTrue
     ok
 
-  "Implication" should:
+  "Implication" should :
     def checkAt(i: Int): MatchResult =
       groupedCategoriesToTest(i) foreach:
         case (cat, index) =>

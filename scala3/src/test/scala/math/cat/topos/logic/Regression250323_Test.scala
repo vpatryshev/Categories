@@ -10,7 +10,7 @@ import scala.language.implicitConversions
 
 class Regression250323_Test extends Fixtures:
 
-  "Logic" should:
+  "Logic" should :
     val `Set^𝟙` = CategoryOfDiagrams(`𝟙`)
     val sut = `Set^𝟙`
     val Ω = `Set^𝟙`.Ω
