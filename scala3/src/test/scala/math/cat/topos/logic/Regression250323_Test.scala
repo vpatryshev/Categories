@@ -25,11 +25,10 @@ class Regression250323_Test extends Fixtures:
       val p = Ω.points.head asPredicateIn `Set^𝟙`
       val q = Ω.points.head asPredicateIn `Set^𝟙`
       val p_and_q = p ∧ q
-      val pnqAt0 = p.binaryOp(Ω.conjunction)(q) // , "TEST CONJUNCTION OF FALSE AND FALSE")
+      val pnqAt0 = p.binaryOp(Ω.conjunction)(q) // , "TEST CONJUNCTION OF FALSE AND FALSE"
       val r = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
       val q2r = q ⟹ r
       val true_0: True.d1.d1.Arrow = True("0")
-      true_0.isInstanceOf[SetFunction] must beTrue
       val true_0_f = true_0.asInstanceOf[SetFunction]
       val true_0_at_empty = true_0_f.apply(Set.empty)
       val p_0 = p("0") //, "p, expected false")

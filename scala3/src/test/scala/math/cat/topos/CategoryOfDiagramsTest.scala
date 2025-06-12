@@ -2,7 +2,6 @@ package math.cat.topos
 
 import math.Base.*
 import math.Test
-import math.cat.Categories.*
 import math.cat.SetFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.Constructor.build

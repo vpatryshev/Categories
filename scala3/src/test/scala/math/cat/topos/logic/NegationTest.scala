@@ -8,9 +8,9 @@ import scala.language.reflectiveCalls
 
 class NegationTest extends Fixtures:
 
-  "Negation" should {
+  "Negation" should :
 
-    "work for all known domains" in {
+    "work for all known domains" in :
 
       val testCase = new TestCase:
         def check(cat: Category, number: Int, total: Int): MatchResult =
@@ -41,5 +41,3 @@ class NegationTest extends Fixtures:
         end check
 
       test(testCase)
-    }
-  }
