@@ -12,13 +12,12 @@ import scala.language.postfixOps
   * Tests for Layout class
   */
 class LayoutTest extends Specification:
-  "Layout" >> {
+  "Layout" should :
 
-    "special cases of graded" >> {
+    "special cases of graded" in :
       ok
-    }
 
-    "graded" >> {
+    "graded" in :
       val expectedLayersOfClusters =
         Map(
           "Discrete_2.1"->List(List(Set("a"))),
@@ -48,9 +47,8 @@ class LayoutTest extends Specification:
       def united[T](lss: List[List[Set[T]]]): List[Set[T]] = lss.map(ls => U(ls.toSet))
 
       val premap: Map[String, List[Set[String]]] =
-        expectedLayersOfClusters.map {
+        expectedLayersOfClusters.map :
           case (k, v) => k -> united(v)
-        } toMap
 
       val expectedLayers = premap
 
@@ -97,6 +95,3 @@ class LayoutTest extends Specification:
       do actualLayers(name) must be_==(expectedLayers(name))
       
       actualLayers must be_==(expectedLayers)
-    }
-
-  }

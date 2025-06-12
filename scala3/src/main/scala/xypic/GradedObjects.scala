@@ -3,15 +3,17 @@ package xypic
 import math.cat.Category
 import math.geometry2d.{GroupOfObjects, Pt, Rational}
 
+import scala.collection.MapView
 import scala.language.postfixOps
 
 case class GradedObjects(category: Category) {
   private val allArrows: category.Arrows = category.arrows
   
-  private def groupByNumberOfIncoming(arrows: category.Arrows): Map[Int, category.Objects] =
+  private def groupByNumberOfIncoming(arrows: category.Arrows): MapView[Int, category.Objects] =
     val objWithSizes: Map[category.Obj, Int] = arrows.groupBy(category.d1).view.mapValues(_.size).toMap
-    objWithSizes.groupBy(_._2).map :
-      case (k, v) => k -> v.keySet
+    val groupedByObjects = objWithSizes.groupBy(_._2)
+    groupedByObjects.view.mapValues :
+      case v => v.keySet
 
   private def objectsWithSmallerNumberOfIncoming(arrows: category.Arrows): category.Objects =
     groupByNumberOfIncoming(arrows).toList.sortBy(_._1).headOption.map(_._2).toSet.flatten
@@ -21,7 +23,7 @@ case class GradedObjects(category: Category) {
   
   private def nextLayer(objects: category.Objects): (category.Objects, category.Objects) = {
     val newOne = objectsWithSmallerNumberOfIncoming(arrowsNotConnecting(objects))
-    (objects union newOne, newOne)
+    (objects.union(newOne), newOne)
   }
   
   lazy val layers: List[category.Objects] = {

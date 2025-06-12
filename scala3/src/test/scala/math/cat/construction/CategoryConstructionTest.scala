@@ -26,16 +26,15 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
   private val defineComposition = Category.arrowBuilder
   
-  "Category" >> {
+  "Category" should :
 
-    "have segments" >> {
+    "have segments" in :
       for i <- 0 until 10 do
         Category.fromSegment(i).arrows.size must be_==(i * (i + 1) / 2)
 
       ok
-    }
 
-    "parsing example1" >> {
+    "parsing example1" in :
       val d0d1 = Map(
         "0.1" -> ("0", "1"),
         "0.2" -> ("0", "2"),
@@ -78,9 +77,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         case oops => failure(oops.toString)
 
       ok
-    }
 
-    "regression from 6/9/15" >> {
+    "regression from 6/9/15" in :
       val expected = Category("regression from 6/9/15",
         objects = Set("0", "1", "2"),
         domain = Map("0" -> "0", "1" -> "1", "2" -> "2", "a" -> "0", "b" -> "1"),
@@ -95,26 +93,22 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       val sample2 = category"sample2:({0,1,2}, {a: 0 -> 2, b: 1 -> 2})"
       sample2 must be_==(expected)
 
-    }
-
-    "constructor_Simplicial3" >> {
+    "constructor_Simplicial3" in :
       Simplicial3.objects must haveSize(3)
-    }
 
-    "constructor 𝟙 bare" >> {
-      val sutOpt = Category("constructor𝟙bare",
+    "constructor 𝟙 bare" in :
+      val sutOpt = Category(
+        "constructor𝟙bare",
         objects = Set("1"),
         domain = EmptyMap,
         codomain = EmptyMap,
         composition = EmptyComposition,
         defineComposition
       )
-      checkOption(sutOpt, _.arrows must haveSize(1)
-      )
+      checkOption(sutOpt, _.arrows must haveSize(1))
       ok
-    }
 
-    "constructor 𝟙 full" >> {
+    "constructor 𝟙 full" in :
       expect(_.arrows must haveSize(1))(
         Category("constructor 𝟙 full", Set("1"),
           Map("1" -> "1"), // d0
@@ -123,28 +117,23 @@ class CategoryConstructionTest extends Test with CategoryFactory:
           defineComposition
         )
       )
-    }
 
-    "parse_1" >> {
+    "parse_1" in :
       val sut = category"({0}, {}, {})"
       sut.objects must be_==(Set("0"))
-    }
 
-    "parse 𝟙 1" >> {
+    "parse 𝟙 1" in :
       val sut = category"({1, 0}, {}, {})"
       sut.objects must be_==(Set("0", "1"))
-    }
 
-    "parse_2" >> {
+    "parse_2" in :
       val sut = category"({1, 0}, {a: 0 -> 1}, {})"
       sut.objects must be_==(Set("0", "1"))
-    }
 
-    "parse_Z3" >> {
+    "parse_Z3" in :
       Z3.arrows must be_==(Set("0", "1", "2"))
-    }
 
-    "parse_nonsense" >> {
+    "parse_nonsense" in :
       try
         category"(bs)"
         failure("should not have worked")
@@ -152,9 +141,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         case x: Exception => ok
 
       ok
-    }
-    
-    "parse_negative" >> {
+
+    "parse_negative" in :
       val actual = Category("Bad Example", Set("0", "1", "2"),
         Map(
           "0_1" -> "0", "0_2" -> "0", "a" -> "1",
@@ -193,7 +181,6 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
       expectError(expectedErrors.mkString("; "), actual)
       actual.isBad
-    }
 
     def checkParsing(catOpt: Result[Category]): MatchResult =
       expect(sut =>
@@ -202,7 +189,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         parsed must be_==(catOpt)
       )(catOpt)
 
-    "parse_positive_0" >> {
+    "parse_positive_0" in :
       val sutOpt = Category("sample0", Set("1"),
         EmptyMap, // d0
         EmptyMap, // d1
@@ -210,14 +197,12 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         defineComposition
       )
       checkParsing(sutOpt)
-    }
 
-    "parse_positive_3" >> {
+    "parse_positive_3" in :
       val parsed = category"({1, 2}, {1: 1->1, 2: 2->2, 2_1: 2->1}, {2_1 ∘ 2 = 2_1})"
       parsed.objects.size must be_==(2)
-    }
 
-    "parse_positive_4" >> {
+    "parse_positive_4" in :
       val parsed = category"""(
         {1, 2},
         {1: 1->1, 2: 2->2, 2_1: 2->1, 2_a: 2->2}, 
@@ -225,9 +210,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
          2_a ∘ 2 = 2_a, 2 ∘ 2 = 2, 1 ∘ 1 = 1, 1 ∘ 2_1 = 2_1}
       )"""
       parsed.objects.size must be_==(2)
-    }
 
-    "parse_positive_5" >> {
+    "parse_positive_5" in :
       val sutOpt = Category("sample5", Set("1", "2"),
         Map("2_1" -> "2"), // d0
         Map("2_1" -> "1"), // d1
@@ -236,18 +220,16 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       )
 
       checkParsing(sutOpt)
-    }
 
-    "parse_positive_6" >> {
+    "parse_positive_6" in :
       checkParsing(Category("sample6", Set("1", "2"),
         Map("2_1" -> "2", "2_a" -> "2"), // d0
         Map("2_1" -> "1", "2_a" -> "2"), // d1
         Map(("2_a", "2_a") -> "2_a"),
         defineComposition
       ))
-    }
 
-    "parse_positive_7" >> {
+    "parse_positive_7" in :
       val sutOpt = Category("sample7", Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
@@ -258,9 +240,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         defineComposition
       )
       checkParsing(sutOpt)
-    }
 
-    "parse_positive_8" >> {
+    "parse_positive_8" in :
       val sutOpt = Category("sample8", Set("0", "1", "2"),
         Map("0_1" -> "0", "0_2" -> "0", "2_1" -> "2", "2_a" -> "2"), // d0
         Map("0_1" -> "1", "0_2" -> "2", "2_1" -> "1", "2_a" -> "2"), // d1
@@ -272,71 +253,58 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       )
       checkParsing(sutOpt)
       ok
-    }
 
-    "parse_positive" >> {
+    "parse_positive" in :
       checkParsing(Good(Simplicial3))
       ok
-    }
 
     // following are tests for accompanying object
 
-    "0" >> {
+    "0" in :
       val expected = "𝟘: ({}, {}, {})"
       val actual = `𝟘`.toString
       actual must be_==(expected)
       `𝟘`.objects.size === 0
       `𝟘`.arrows.size === 0
-    }
 
-    "1" >> {
+    "1" in :
      `𝟙`.objects must be_==(Set("0"))
      `𝟙`.arrows must be_==(Set("0.0"))
      `𝟙`.objects.size must be_==(1)
      `𝟙`.arrows.size must be_==(1)
-    }
 
-    "2" >> {
+    "2" in :
       val sut = `𝟚`
       sut.objects must be_==(Set("0", "1"))
       val expected = Set("0.0", "0.1", "1.1")
       val arrows = sut.arrows
       arrows must be_==(expected)
       sut.arrowsBetween("0", "1").size must be_==(1)
-    }
 
-    "3" >> {
+    "3" in :
      `𝟛`.objects must be_==(Set("0", "1", "2"))
       val expected = Set("0.0", "1.1", "2.2", "0.1", "0.2", "1.2")
       expected === `𝟛`.arrows
-    }
 
-    "Z2" >> {
+    "Z2" in :
       Z2.arrows must be_==(Set("1", "a"))
       Z2.m("a", "a") must beSome("1")
-    }
 
-    "SplitMono" >> {
+    "SplitMono" in :
       SplitMono.objects must be_==(Set("a", "b"))
       SplitMono.arrows must be_==(Set("a", "b", "ab", "ba", "bb"))
-    }
 
-    "M" >> {
+    "M" in :
       M.objects.size must be_==(5)
-    }
 
-    "Segment" >> {
+    "Segment" in :
       def sut: Cat = fromSegment(3)
       sut === `𝟛`
-    }
-  }
 
-  "Square" should {
-    "pass a regression test of 3/31/19" in {
+  "Square" should :
+    "pass a regression test of 3/31/19" in :
       Square.d0("cd") === "c"
       Square.d1("cd") === "d"
-    }
-  }
 
   private[cat] def transitiveClosure(
     data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData =
@@ -377,8 +345,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       override val compositionSource = data.composition.asInstanceOf[CompositionTable]
     (newData.validateGraph returning newData) orCommentTheError s"Failed on $newData" iHope
 
-  "Parser, regression test of 6/18/21" should {
-    "Parse AAA" in  {
+  "Parser, regression test of 6/18/21" should :
+    "Parse AAA" in :
       val source = "AAA: ({1,2,3}, {12: 1 -> 2, 23: 2 -> 3, 31: 3 -> 1})"
       val graph = Graph.read(source)
       graph.isGood must beTrue
@@ -416,9 +384,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
 
       ok
-    }
 
-    "Parse AAAAAA" in  {
+    "Parse AAAAAA" in :
       val source =
         "AAAAAA: ({1,2,3,4,5,6}, {12: 1 -> 2, 23: 2 -> 3, 34: 3 -> 4, 45: 4 -> 5, 56: 5 -> 6, 61: 6 -> 1})"
       val graph = Graph.read(source)
@@ -461,5 +428,3 @@ class CategoryConstructionTest extends Test with CategoryFactory:
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
 
       ok
-    }
-  }

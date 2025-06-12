@@ -59,7 +59,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
     }
 
   private def pullUp(layers: List[List[(go.Cluster, Pt)]]): List[List[(go.Cluster, Pt)]] =
-    layers map (_.reverse) map {
+    layers.map(_.reverse).map {
       case p1::p2::tail =>
         val altPoint = p1._2 + Pt(0, 1)
         val newOne = 
@@ -70,7 +70,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
         else p1
         newOne::p2::tail
       case other => other
-    } map (_.reverse)
+    }.map(_.reverse)
   
   private val coordinates1 = coordinates0.toList match
     case layer1::tail => layer1::pullUp(pullLeft(tail))
@@ -91,12 +91,13 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
     val center = coordinates.values.reduce(_+_) / coordinates.size
     
     val arrowsWithDomainAndCodomain: Set[(base.Arrow, Set[base.Node])] =
-      base.arrows map (a => (a, Set(base.d0(a), base.d1(a))))
+      base.arrows.map:
+        a => (a, Set(base.d0(a), base.d1(a)))
     
     val arrows: Map[Set[base.Node], List[base.Arrow]] =
       arrowsWithDomainAndCodomain.groupBy(_._2).
         map :
-          case (k, v) => 
+          case (k, v) =>
             k -> listSorted(v map (_._1))
     
     def drawEndomorphisms(obj: base.Node, arrows: List[base.Arrow]): Unit =
@@ -124,7 +125,7 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
 
 case class Layout(category: Category, w: Int, h: Int):
   
-  val gradedObjects: Set[GradedObjects] = category.connectedComponents map GradedObjects.apply
+  val gradedObjects: Set[GradedObjects] = category.connectedComponents.map(GradedObjects.apply)
   
   private def wideDigit(c: Char): String = s"&#${c - '0' + 0x1D7D8};"
   
@@ -132,12 +133,12 @@ case class Layout(category: Category, w: Int, h: Int):
   private val withIndex = "([^_]+)_?(\\d+)".r
   
   val name: String = category.name match
-    case digits(n) => n map wideDigit mkString
+    case digits(n) => n.map(wideDigit).mkString
     case withIndex(word, n) => s"$word<sub>$n</sub>"
     case other => other
 
-  private val layouts = gradedObjects map (ComponentLayout(_, w, h))
-  private val svgs = layouts map (_.svg)
+  private val layouts = gradedObjects.map(ComponentLayout(_, w, h))
+  private val svgs = layouts.map(_.svg)
   val html: String = svgs.mkString(
     s"<table><tr><th colspan=${svgs.size}><font size=+1>$name</font></th></tr>" +
     s"<tr><td><font size=-1>$category</font></td></tr>" +
@@ -191,10 +192,10 @@ object TestIt:
       html = layout.html
     yield html
 
-    val htmlVersion = fullMap mkString "<hr/>"
+    val htmlVersion = fullMap.mkString("<hr/>")
     writeHtml(htmlVersion)
 
-    writeHtml(polygon('a' until 'j'))
+    writeHtml(polygon('a'.until('j')))
 
   private def writeHtml(content: String): Unit =
     out.write(html(content))
