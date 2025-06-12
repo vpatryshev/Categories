@@ -123,22 +123,20 @@ trait Graph(val name: String) extends GraphData:
   end subgraph
   
   def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] = 
-    if (newArrows.isEmpty) then 
-      return Good(this)
+    if newArrows.isEmpty then
+      Good(this)
+    else
+      val result = new Graph(name):
+        lazy val nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
+        lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows).asInstanceOf[Arrows]
+
+        private def d0d1(f: Arrow): Option[(Graph.this.Node, Graph.this.Node)] =
+          newArrows.get(f.asInstanceOf[graph.Arrow])  // shortcut: no check required
       
-    val result = new Graph(name):
-
-      lazy val nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
-
-      lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows).asInstanceOf[Arrows]
-
-      private def d0d1(f: Arrow): Option[(Graph.this.Node, Graph.this.Node)] =
-        newArrows.get(f.asInstanceOf[graph.Arrow])  // shortcut: no check required
-      
-      def d0(f: Arrow): Node = d0d1(f).map(_._1).getOrElse(graph.d0(f))
-      def d1(f: Arrow): Node = d0d1(f).map(_._2).getOrElse(graph.d1(f))
+        def d0(f: Arrow): Node = d0d1(f).map(_._1).getOrElse(graph.d0(f))
+        def d1(f: Arrow): Node = d0d1(f).map(_._2).getOrElse(graph.d1(f))
     
-    result.validate orCommentTheError s"Failed in Graph $this"
+      result.validate orCommentTheError s"Failed in Graph $this"
   
   override def validate: Result[Graph] = super.validate returning this
 
@@ -167,7 +165,7 @@ private[cat] trait GraphData:
     case notaNode => 
       throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
-  implicit def asArrow(a: Any): Arrow = 
+  implicit def asArrow(a: Any): Arrow =
     a match
       case arrow: Arrow @unchecked if arrows(arrow) => arrow
       case badArrow: Arrow =>
@@ -187,15 +185,14 @@ private[cat] trait GraphData:
   protected lazy val finiteArrows: Boolean = arrows.isFinite
 
   lazy val isFinite: Boolean = finiteNodes && finiteArrows
+  lazy val isInfinite: Boolean = !isFinite
+
+  private def arrowOk(a: Arrow) =
+    OKif(d0(a) ∈ nodes, " d0 for " + a + " should be in set of nodes") andAlso
+    OKif(d1(a) ∈ nodes, " d1 for " + a + " should be in set of nodes")
 
   def validate: Result[GraphData] =
-    OKif(!finiteArrows) orElse {
-      def arrowOk(a: Arrow) = {
-        OKif(d0(a) ∈ nodes, " d0 for " + a + " should be in set of nodes") andAlso
-        OKif(d1(a) ∈ nodes, " d1 for " + a + " should be in set of nodes")
-      }
-      Result.fold(arrows map arrowOk)
-    } returning this
+    (OKif(!finiteArrows) orElse Result.fold(arrows map arrowOk)) returning this
 
   infix def build(name: String): Graph = new Graph(name):
 
@@ -241,7 +238,7 @@ object Graph:
     d10: A => N): Result[Graph] =
     val parsed: Result[GraphData] = data[N, A](nodes0, arrows0, d00, d10)
 
-    parsed.flatMap{
+    parsed.flatMap :
       d =>
         new Graph(name) {
 
@@ -253,7 +250,6 @@ object Graph:
           override def d0(f: Arrow): Node = d00(f)
           override def d1(f: Arrow): Node = d10(f)
         } validate
-    }
 
   def fromArrowMap[N <: Matchable, A <: Matchable] (name: String, nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] =
     build(name, nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
@@ -293,7 +289,7 @@ object Graph:
       Graph.read(bufferFromContext(sc, args*)) iHope
   
   class GraphParser extends Sets.SetParser:
-    def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
+    private def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
       case nameOpt~"("~gOpt~")" =>
         val name = nameOpt getOrElse Good("graph")
         gOpt.andAlso(name) map { case (g, n) => g build n }
@@ -307,9 +303,9 @@ object Graph:
     }
 
     def graphData: Parser[Result[GraphData]] = parserOfSet~","~arrows ^^ {
-      case s~","~arrows => (arrows andAlso s).flatMap{
+      case s~","~arrows => (arrows andAlso s).flatMap :
         case (arr, s0) => Graph.data(s0, arr)
-      }
+
       case nonsense => Result.error(s"Failed to parse $nonsense")
     }
 

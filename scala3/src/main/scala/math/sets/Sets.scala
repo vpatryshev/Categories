@@ -24,7 +24,7 @@ object Sets:
     */
   type set = Set[Any]
 
-  def itsaset(x: Any): set = x.asInstanceOf[set]
+  def itIsaSet(x: Any): set = x.asInstanceOf[set]
 
   type factorset = FactorSet[Any]
 
@@ -203,7 +203,7 @@ object Sets:
       predicate
     )
 
-  def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
+  private[sets] def toString(s: Set[?]): String = "{" + s.mkString(", ") + "}"
 
   def parse(input: Reader): Result[Set[String]] = (new SetParser).read(input)
 
@@ -353,7 +353,7 @@ object Sets:
     
     override def iterator: Iterator[X] = source.iterator filter predicate take sizeEvaluator
 
-    def iteratorContains(x: X): Boolean = 
+    private def iteratorContains(x: X): Boolean =
       val i = iterator
       val found = source.toList match
         case Nil => false
@@ -362,14 +362,10 @@ object Sets:
           val e2 = x.equals(head)
           e1 && e2
 
-      val yes = i.exists(_ == x) // Note--this seems faster than manual inlining!
-      found || yes
-//      i.contains(x) // TODO: inline
-    
+      found || (i contains x)
+
     override infix def contains(x: X): Boolean =
       val isOk = predicate(x)
-//      if (!isOk)
-//        debug(s"$this doesn't contain $x - via predicate=$predicate\n")
 
       isOk && (isInfinite || iteratorContains(x))
 

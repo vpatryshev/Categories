@@ -42,10 +42,12 @@ case class FactorSet[X](domain: Set[X]) extends Set[Set[X]]:
     * @param r the binary relation. Does not have to be symmetrical or transitive.
     */
   private def factorByRelation(r: BinaryRelation[X, X]): Unit =
-    for {
+    for
       x1 <- domain
       x2 <- domain
-      if r(x1, x2) || r(x2, x1)} merge(x1, x2)
+      if r(x1, x2) || r(x2, x1)
+    do
+      merge(x1, x2)
 
   /**
     * Merges equivalence classes for two elements
@@ -56,12 +58,10 @@ case class FactorSet[X](domain: Set[X]) extends Set[Set[X]]:
   def merge(x1: X, x2: X): Unit =
     for (
       class1 <- equivalenceClasses.get(x1);
-      class2 <- equivalenceClasses.get(x2) if x1 != x2) {
-      val merged: Set[X] = class1 ++ class2
-      for (x3 <- merged) {
-        equivalenceClasses = equivalenceClasses + (x3 -> merged)
-      }
-    }
+      class2 <- equivalenceClasses.get(x2) if x1 != x2)
+        val merged: Set[X] = class1 ++ class2
+        for (x3 <- merged)
+          equivalenceClasses = equivalenceClasses + (x3 -> merged)
 
   /**
     * @return the function from the domain set to the factorset.

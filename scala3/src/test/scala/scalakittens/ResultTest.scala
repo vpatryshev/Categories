@@ -24,7 +24,7 @@ class ResultTest extends TestBase:
 
   private val oops = error("oops")
 
-  "Good" should:
+  "Good" should :
     "be good" in :
       Good(42).isGood must beTrue
 
@@ -99,7 +99,7 @@ class ResultTest extends TestBase:
       Good("x") == Good("y") must beFalse
       Good("x") == null must beFalse
 
-  "Bad" should:
+  "Bad" should :
     "be bad" in :
       oops.isGood must beFalse
 
@@ -223,7 +223,7 @@ class ResultTest extends TestBase:
     val actual: Result[Int] = blended map sum.tupled
     actual mustBeBad("x yourself", "y yourself")
 
-  "Empty" should:
+  "Empty" should :
     "be bad" in :
       Empty.isGood must beFalse
 

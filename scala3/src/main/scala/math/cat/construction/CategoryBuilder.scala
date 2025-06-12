@@ -28,9 +28,8 @@ class CategoryBuilder(val source: CategoryData):
       newFiniteCategory
     else
       new Category(source.name):
-        override val graph = source
         override def nodes = source.nodes.asInstanceOf[Nodes] // TODO: remove this cast
-
+        override def arrows = source.arrows.asInstanceOf[Arrows]
         override def d0(f: Arrow): Obj = sd0(f)
         override def d1(f: Arrow): Obj = sd1(f)
         def id(o: Obj): Arrow = sid(o)
@@ -43,10 +42,15 @@ class CategoryBuilder(val source: CategoryData):
   def newFiniteCategory: Category =
 
     new Category(source.name):
-      override val graph: Graph = source
-      override def nodes = graph.nodes.asInstanceOf[Nodes] // TODO: remove this cast
-      private val d0Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => sd0(f))
-      private val d1Map: Map[Any, Obj]   = buildMap(graph.arrows,  f => sd1(f))
+
+      override type Node = source.Node
+      override type Arrow = source.Arrow
+
+      override def arrows: Arrows = source.arrows.asInstanceOf[Arrows]
+
+      override def nodes = graph.nodes.asInstanceOf[Nodes]
+      private val d0Map: Map[Any, Obj]   = buildMap(source.arrows,  f => sd0(f))
+      private val d1Map: Map[Any, Obj]   = buildMap(source.arrows,  f => sd1(f))
       private val idMap: Map[Any, Arrow] = buildMap(source.objects, o => sid(o))
 
       override inline def d0(f: Arrow): Obj = d0Map(f)

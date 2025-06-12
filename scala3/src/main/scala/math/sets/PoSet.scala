@@ -17,7 +17,7 @@ import scala.annotation.targetName
  * `le` a function that compares two elements a and b, returning true iff b >= a
  *
  */
-case class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends Set[T]:
+case class PoSet[T](elements: Set[T], comparator: (T, T) => Boolean) extends Set[T]:
 
   /**
     * Checks whether one element is less or equal to another
@@ -51,7 +51,7 @@ case class PoSet[T](val elements: Set[T], comparator: (T, T) => Boolean) extends
   /**
    * Size of this poset
    */
-  override def size: Int = elements.size
+  override lazy val size: Int = elements.size
 
   override lazy val hashCode: Int = elements.hashCode * 1021 + comparator.hashCode
 

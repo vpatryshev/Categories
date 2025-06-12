@@ -9,7 +9,7 @@ import scala.language.reflectiveCalls
 
 class SpeedTest extends Fixtures:
 
-  "Speed" should {
+  "Speed" should :
 
     "work for all known domains" in :
 
@@ -32,4 +32,3 @@ class SpeedTest extends Fixtures:
       categoriesToTestSpeed filter (_.isFinite) foreach check
 
       ok
-  }

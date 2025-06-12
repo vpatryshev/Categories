@@ -2,7 +2,6 @@ package math.cat.topos
 
 import math.Base.*
 import math.Test
-import math.cat.Categories.*
 import math.cat.SetFunction
 import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.Constructor.build
@@ -47,7 +46,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
   val appliesTo = new diagramTable
 
-  "representables" should:
+  "representables" should :
 
     "be good in Set to W" in :
       val topos = `Set^W`
@@ -102,7 +101,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       ok
 
-  "Identity arrow" should:
+  "Identity arrow" should :
 
     "exist in Set to W" in :
       val topos = `Set^W`
@@ -120,7 +119,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       idtrans.d0 must be_==(d)
       idtrans.d1 must be_==(d)
 
-  "Initial object" should:
+  "Initial object" should :
     "exist in Set to M" in :
       val topos = `Set^M`
 
@@ -133,7 +132,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       ok
 
 
-  "Terminal object" should:
+  "Terminal object" should :
 
     "exist in Set to W" in :
       val topos = `Set^W`
@@ -157,7 +156,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       subterminals must contain(topos._1)
 
 
-  "List of subobjects" should:
+  "List of subobjects" should :
     "be good for empty diagram" in :
       val sut = EmptyDiagram
       val actual = sut.subobjects
@@ -170,7 +169,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       val sample = sut.d0.objects map (ob => sut.calculateObjectsMapping(ob))
 
       def fullSet(d: `Set^Pullback`.Diagram): List[String] =
-        d.d0.objects.toList map d.calculateObjectsMapping map itsaset map asString
+        d.d0.objects.toList map d.calculateObjectsMapping map itIsaSet map asString
 
       val listOfSubobjects = sut.subobjects.toList
       val actual =
@@ -203,7 +202,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
       sor(obj0).size must be_==(3)
       sor(obj1).size must be_==(2)
 
-  "Cartesian product" should:
+  "Cartesian product" should :
     "exist in Set to ParallelPair" in :
       val topos = `Set^ParallelPair`
       val d1: `Set^ParallelPair`.Diagram = SampleParallelPairDiagram1
@@ -224,7 +223,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
 
       ok
 
-  "Cartesian product of arrows" should:
+  "Cartesian product of arrows" should :
     "exist in Set to 𝟙" in :
       val topos = `Set^𝟙`
       val d01: topos.Diagram = build(s"d01", topos)(

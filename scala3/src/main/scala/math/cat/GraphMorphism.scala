@@ -106,7 +106,7 @@ object GraphMorphism:
     f0: domain.Node => codomain.Node,
     f1: domain.Arrow => codomain.Arrow):
   GraphMorphism = new GraphMorphism:
-    val tag = taggedAs
+    val tag: String = taggedAs
     val d0: Graph = domain
     val d1: Graph = codomain
     override def nodesMapping(n: d0.Node): d1.Node = f0(n)

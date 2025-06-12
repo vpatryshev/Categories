@@ -10,7 +10,7 @@ import scala.language.implicitConversions
 
 class Regression250323_Test extends Fixtures:
 
-  "Logic" should:
+  "Logic" should :
     val `Set^𝟙` = CategoryOfDiagrams(`𝟙`)
     val sut = `Set^𝟙`
     val Ω = `Set^𝟙`.Ω
@@ -25,11 +25,10 @@ class Regression250323_Test extends Fixtures:
       val p = Ω.points.head asPredicateIn `Set^𝟙`
       val q = Ω.points.head asPredicateIn `Set^𝟙`
       val p_and_q = p ∧ q
-      val pnqAt0 = p.binaryOp(Ω.conjunction)(q) // , "TEST CONJUNCTION OF FALSE AND FALSE")
+      val pnqAt0 = p.binaryOp(Ω.conjunction)(q) // , "TEST CONJUNCTION OF FALSE AND FALSE"
       val r = `Set^𝟙`.Ω.points.head asPredicateIn `Set^𝟙`
       val q2r = q ⟹ r
       val true_0: True.d1.d1.Arrow = True("0")
-      true_0.isInstanceOf[SetFunction] must beTrue
       val true_0_f = true_0.asInstanceOf[SetFunction]
       val true_0_at_empty = true_0_f.apply(Set.empty)
       val p_0 = p("0") //, "p, expected false")
@@ -45,8 +44,8 @@ class Regression250323_Test extends Fixtures:
       p_and_q must be_==(p)
       val omega0 = Ω("0")
       (omega0 contains pq_0_at_empty) must beTrue
-      binopMappingAt(implication, p, True, "0") must be_==(true_0)
-      val v0: p_q_true.d1.d1.Arrow = binopMappingAt(implication, p_and_q, True, "0")
+      binaryOpMappingAt(implication, p, True, "0") must be_==(true_0)
+      val v0: p_q_true.d1.d1.Arrow = binaryOpMappingAt(implication, p_and_q, True, "0")
       val PQtoΩxΩ: SetFunction = tuplingAt(p_and_q, True, "0")
       val pairAtEmpty = PQtoΩxΩ.mapping(Set())
       val omega2_0 = `Set^𝟙`.ΩxΩ("0")

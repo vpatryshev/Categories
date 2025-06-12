@@ -19,7 +19,7 @@ object MathSetOps:
       override def iterator: Iterator[(X, Y)] = cantorIterator(xs, ys)
 
   /**
-    * Having two iterables, possibly infinitey, iterate over pairs 
+    * Having two iterables, possibly infinitely, iterate over pairs 
     * using Cantor's algorithm, slightly modified.
     *
     * @param xs first iterable

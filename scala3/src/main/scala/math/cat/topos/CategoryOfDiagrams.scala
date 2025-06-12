@@ -15,13 +15,19 @@ class CategoryOfDiagrams(val domain: Category)
   extends Category(s"Set^${domain.name}")
   with GrothendieckTopos:
   thisTopos =>
-  override val graph: Graph = this
-  override def nodes = BigSet.of[Node](name)
-  override lazy val toString: String = name
+
+  override type Node = Diagram
   override type Obj = Diagram
-  type Node = Obj
-  override type Arrow = DiagramArrow
-  
+
+  override def nodes: Nodes = BigSet.of[Node](name)
+
+  // we never scan all arrows in a category of diagrams, so it's not implemented
+  override def arrows: Arrows = ???
+
+  override def d0(f: DiagramArrow): Diagram = f.d0.asInstanceOf[Diagram]
+
+  override def d1(f: DiagramArrow): Diagram = f.d1.asInstanceOf[Diagram]
+
   lazy val subterminals: Set[Diagram] =
 
     def objectMapping(candidate: Set[domain.Obj]): ObjectMapping =
@@ -61,23 +67,26 @@ class CategoryOfDiagrams(val domain: Category)
 
   def objectNamed(name: String): domain.Obj = name
 
-  def pow(d: Diagram): Diagram = ??? // power object; tbd
+  def pow(d: Diagram): Diagram = ??? // TODO: power object
 
-  override def id(o: Obj): Arrow =
+  override def id(o: Diagram): Arrow =
     def objectMap(x: o.d0.Obj): o.d1.Arrow = o.d1.id(o.calculateObjectsMapping(x))
 
     new DiagramArrow("Id", o, o):
-      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = objectMap(x)
+      thisArrow =>
+      override def calculateMappingAt(x: thisArrow.d0.d0.Obj): thisArrow.d1.d1.Arrow =
+        objectMap(x)
 
-  override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option {
+  override def m(f: Arrow, g: Arrow): Option[Arrow] = if f.d1 == g.d0 then Option(
     new DiagramArrow(concat(g.tag, " ∘ ", f.tag), f.d0, g.d1):
+      thisArrow =>
 
-      override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
+      override def calculateMappingAt(x: thisArrow.d0.d0.Obj): thisArrow.d1.d1.Arrow =
         val f_x = f(x)
         val g_x = g(x)
         m(f_x, g_x)
 
-  } else None
+  ) else None
 
   private[topos] def subobjectsOfRepresentables: Map[domain.Obj, Set[Diagram]] =
     buildMap[domain.Obj, Set[Diagram]](domain.objects,
@@ -85,9 +94,10 @@ class CategoryOfDiagrams(val domain: Category)
     )
 
   case class Representable(x: domain.Obj) extends thisTopos.Diagram(s"${thisTopos.tag}.hom($x, _)"):
-    override def calculateObjectsMapping(y: d0.Obj): d1.Obj = domain.hom(x, y)
+    override def calculateObjectsMapping(y: Representable.this.d0.Obj): Representable.this.d1.Obj =
+      Representable.this.d0.hom(x, y)
     
-    override protected def calculateArrowsMapping(f: d0.Arrow): d1.Arrow = am(f)
+    override protected def calculateArrowsMapping(f: Representable.this.d0.Arrow): Representable.this.d1.Arrow = am(f)
  
     // have to validate right here, because a representable must exist, and all checks should be passing
     private val probablyFunctor: Result[Functor] = Functor.validateFunctor(this)
@@ -104,7 +114,7 @@ class CategoryOfDiagrams(val domain: Category)
       val tuples: Set[(domain.Arrow, domain.Arrow)] = d0.flatMap{ g => domain.m(g, f) map (g -> _) }
       val mapping: Map[domain.Arrow, domain.Arrow] = tuples toMap
 
-      new SetFunction("", itsaset(d0), itsaset(d1), a => mapping(a))
+      new SetFunction("", itIsaSet(d0), itIsaSet(d1), a => mapping(a))
 
     probablyFunctor iHope
   

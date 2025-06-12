@@ -6,8 +6,8 @@ import scalakittens.Result
 import scala.language.postfixOps
 
 /**
-  * Base tools used in this package.
-  */
+ * Base tools used in this package.
+ */
 object Base:
   type IntMap[X] = Map[Int, X]
 
@@ -17,45 +17,46 @@ object Base:
     keys map { k => k -> f(k) } toMap
 
   /**
-    * Builds an inverse map. Assumes that the map is inversible.
-    *
-    * @tparam A map key type
-    * @tparam B map value type
-    * @param m the map to invert
-    * @return inverse for map m
-    */
+   * Builds an inverse map. Assumes that the map is invertible.
+   *
+   * @tparam A map key type
+   * @tparam B map value type
+   * @param m the map to invert
+   * @return inverse for map m
+   */
   def inverse[A, B](m: Map[A, B]): Map[B, A] =
-    
-    val result: Map[B, A] = m map:
+
+    val result: Map[B, A] = m map :
       case (k, v) => v -> k
 
     require(result.size == m.size, "map not invertible")
     result
 
   /**
-    * Builds a map that returns a list element by its index.
-    *
-    * @tparam X  element type
-    * @param list the list
-    * @return the
-    */
+   * Builds a map that returns a list element by its index.
+   *
+   * @tparam X element type
+   * @param list the list
+   * @return the
+   */
   def toIntMap[X](list: List[X]): IntMap[X] =
     list.zipWithIndex map { case (x, i) => i -> x } toMap
 
-  extension [T] (opt: Option[T])
+  extension [T](opt: Option[T])
     def iHope: T = opt.getOrElse(throw new InstantiationException("Oops, no value"))
 
   /**
-    * Concatenates two strings using a connector
-    * @param first first value (can be anything)
-    * @param conn connector string
-    * @param second second value (can be anything)
-    * @return
-    */
+   * Concatenates two strings using a connector
+   *
+   * @param first  first value (can be anything)
+   * @param conn   connector string
+   * @param second second value (can be anything)
+   * @return
+   */
   inline def concat(first: Any, conn: String, second: Any): String =
-    def stringOf(x:  Any): String =
+    def stringOf(x: Any): String =
       val s0 = String.valueOf(x).trim
-      if s0.contains(" ") || s0.contains(conn) then "("+s0+")" else s0
+      if s0.contains(" ") || s0.contains(conn) then "(" + s0 + ")" else s0
 
     val s1 = stringOf(first)
     val s2 = stringOf(second)
@@ -64,14 +65,15 @@ object Base:
 
   /**
    * Use this method for building objects from strings
-   * @param sc context
+   *
+   * @param sc   context
    * @param args args
    * @return a StringBuffer
    */
-  def bufferFromContext(sc: StringContext, args: Any*) =
+  def bufferFromContext(sc: StringContext, args: Any*): StringBuffer =
     val strings = sc.parts.iterator
     val expressions = args.iterator
-    var buf = new StringBuffer(strings.next())
+    val buf = new StringBuffer(strings.next())
     while (strings.hasNext)
       buf.append(expressions.next())
       buf.append(strings.next())
@@ -85,7 +87,7 @@ object Base:
   def notNull[T](value: => T, explanation: String): T =
     (Result.forValue(value) orCommentTheError explanation) iHope
 
-  def plural(n: Int, w: String) = if n == 1 then s"1 $w" else s"$n ${w}s"
+  def plural(n: Int, w: String): String = if n == 1 then s"1 $w" else s"$n ${w}s"
 
   def checkThat(cond: => Boolean): Boolean =
     try cond catch case x => false

@@ -13,7 +13,7 @@ class GrothendieckToposTest extends Fixtures:
     val points = topos.Ω.points
     points.map(_.toShortString.replaceFirst("p\\d+\\(", "").dropRight(1)) must be_==(expected.toList)
 
-  "Subobject classifier" should:
+  "Subobject classifier" should :
     "be good for`𝟘`" in :
       checkPoints(`Set^𝟘`, "")
 
@@ -59,7 +59,7 @@ class GrothendieckToposTest extends Fixtures:
     "be good for Z3" in :
       checkPoints(`Set^Z3`, "0->()","0->(0->{0,1,2})")
 
-  "Classifying map" should:
+  "Classifying map" should :
 
     "be good for ParallelPair" in :
       val topos = `Set^ParallelPair`

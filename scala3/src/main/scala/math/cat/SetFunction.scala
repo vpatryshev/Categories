@@ -17,23 +17,24 @@ import scala.language.implicitConversions
   * @param tag     name of the morphism
   * @param d0      domain
   * @param d1      codomain
-  * @param mapping the function that implements the morphism
+  * @param implementation the function that implements the morphism
   */
 case class SetFunction private[cat](
-  override val tag: String,
-  override val d0: set,
-  override val d1: set,
-  sourceMapping: Any => Any)
-  extends SetMorphism[Any, Any](tag, d0, d1, sourceMapping):
+                                     override val tag: String,
+                                     override val d0: set,
+                                     override val d1: set,
+                                     override val implementation: Any => Any)
+  extends SetMorphism[Any, Any](tag, d0, d1, implementation):
   self =>
-  if (!d0.isEmpty && d1.isEmpty) then
-    throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
+  require (d0.isEmpty || !d1.isEmpty,
+    s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
   
   if (Params.fullCheck)
-    if (d0.isFinite) for (x <- d0) if (!d1.contains(mapping(x))) then
-      throw new IllegalArgumentException(s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")
+    if (d0.isFinite)
+      for (x <- d0)
+        require (d1.contains(mapping(x)), s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")
 
-  def tagged(newTag: String): SetFunction = SetFunction(newTag, d0, d1, sourceMapping)
+  def tagged(newTag: String): SetFunction = SetFunction(newTag, d0, d1, implementation)
 
   private def tagOfComposition(tag1: String, tag2: String): String =
     Base.concat(tag1, "∘", tag2)
@@ -69,7 +70,7 @@ case class SetFunction private[cat](
     val codomOk = OKif(newCodomain subsetOf d1, "Bad codomain for restriction")
     val compatible = OKif (newDomain.isEmpty || !newCodomain.isEmpty, "Empty codomain for nonempty domain")
     val success: Outcome = domOk andAlso codomOk andAlso compatible
-    success returning new SetFunction(tag, newDomain, newCodomain, function)
+    success returning new SetFunction(tag, newDomain, newCodomain, implementation)
 
   override lazy val hashCode: Int =
     d1.hashCode + 2 * d0.map(x => (x, mapping(x))).hashCode
@@ -145,7 +146,8 @@ object SetFunction:
     * @return y < sup > x, represented as a set of all morphisms.
     */
   def exponent(x: set, y: set): Set[SetFunction] =
-    Sets.exponent(x, y).map { apply("exponent", x, y, _) }
+    Sets.exponent(x, y).map :
+      apply("exponent", x, y, _)
 
   def tryBuild(name: String, from: set, to: set, mapping: String => Any = identity): Result[SetFunction] =
     build(name, from, to, x => mapping(x.toString))

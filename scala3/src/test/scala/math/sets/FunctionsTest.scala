@@ -9,7 +9,7 @@ import testing.TestBase
  */
 class FunctionsTest extends TestBase:
 
-  "Functions" should:
+  "Functions" should :
     "id should be an identity" in :
       id[String](Set("Hello world"))("привет медвед") === "привет медвед"
       id[String](Set("Hello world")).unapply("привет медвед") === "привет медвед"
@@ -25,7 +25,7 @@ class FunctionsTest extends TestBase:
       val expected = Set(("aX", "AX"), ("mmm", "MMM"))
       actual must be_==(expected)
   
-  "Bijection" should:
+  "Bijection" should :
     "composition with a bijection is still an bijection" in :
       val f = bijection[Int, Int](_ + 42, _ - 42)
       val g = bijection[Int, Int](_ + 1, _ - 1)
@@ -47,7 +47,7 @@ class FunctionsTest extends TestBase:
       val f = bijection[Int, Int](_ + 2, _ - 2)
       f.unapply(7) === 5
   
-  "Injection" should:
+  "Injection" should :
     "applied to a set should produce a set of the same size" in :
       val s = Set("a", "b", "cdef")
       val f = injection{ (s: String) => s + "!"}

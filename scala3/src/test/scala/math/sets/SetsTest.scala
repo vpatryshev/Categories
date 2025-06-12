@@ -13,7 +13,7 @@ import scala.collection.immutable.Set as ===
  */
 class SetsTest extends TestBase:
 
-  "Set Parser" should:
+  "Set Parser" should :
     "parse the string" in :
       Sets.parse("{a, bc, def, more}") must be_==(Good(Set("a", "bc", "def", "more")))
 
@@ -56,7 +56,7 @@ class SetsTest extends TestBase:
 
     ok
 
-  "sets" should:
+  "sets" should :
 
     "group via groupBy" in :
       val xs = Set(2, 3, -2, 5, 6, 7)
@@ -74,7 +74,7 @@ class SetsTest extends TestBase:
       m(3) must be_==(Set.empty)
       m(4) must be_==(Set(2, -2))
 
-  "Iterable" should:
+  "Iterable" should :
 
     "produce a set" in :
       val source = List("one", "two", "three", "")
@@ -142,7 +142,7 @@ class SetsTest extends TestBase:
       setOf.elements(1,2,3).contains(3) must beTrue
       setOf.elements(1,2,3).contains(4) must beFalse
 
-  "range" should:
+  "range" should :
     "produce set(1) for range(1,3,2)" in :
       val r = range(1, 3, 2)
       r must haveSize(1)
@@ -153,7 +153,7 @@ class SetsTest extends TestBase:
       r must haveSize(2)
       r must be_==(setOf.elements(0, 2))
 
-  "union" should:
+  "union" should :
     "work for a list of sets" in :
       val sets = (1 to 5) map (n => setOf[Int]((10 * n) to (10 * n) + n))
       val expected = Set(10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41, 42, 43, 44, 50, 51, 52, 53, 54, 55)
@@ -202,7 +202,7 @@ class SetsTest extends TestBase:
       union(Set(1, 2), N) must haveSize(Int.MaxValue)
       union(N, Set(1, 2)) must haveSize(Int.MaxValue)
 
-  "product" should:
+  "product" should :
 
     "be empty if one component is empty" in :
       product2(Set("a", "b", "c"), Set.empty).isEmpty must beTrue
@@ -295,14 +295,14 @@ class SetsTest extends TestBase:
       val actual = product(source)
       actual must be_==(Set.empty)
 
-  "Powerset" should:
+  "Powerset" should :
     "get 8 elements for a 3-element set" in :
       val s = Set("a", "b", "c")
       val actual = pow(s)
       val expected = Set(Set.empty, Set("a"), Set("b"), Set("c"), Set("a", "b"), Set("a", "c"), Set("b", "c"), s)
       actual must be_==(expected)
 
-  "exponent" should:
+  "exponent" should :
     "give 9 maps from {x,y,z}^{1,2}" in :
       val domain = Set("1", "2")
       val codomain = Set("x", "y", "z")
@@ -310,7 +310,7 @@ class SetsTest extends TestBase:
       actual must haveSize(9)
       actual must contain(Map("1" -> "y", "2" -> "x"))
 
-  "Other tests" should:
+  "Other tests" should :
     "toString should work as expected" in :
       val sut = Set("a", "b", "c")
       Sets.toString(sut) === "{a, b, c}"
@@ -408,7 +408,7 @@ class SetsTest extends TestBase:
 //      s0 contains 6 must beFalse
 //      s4 contains 8 must beFalse
 
-  "setOf" should:
+  "setOf" should :
 
     "should be good" in :
       val source = List("one", "two", "three", "")
