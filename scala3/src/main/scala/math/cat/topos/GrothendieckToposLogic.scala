@@ -73,8 +73,8 @@ trait GrothendieckToposLogic:
       evalBinaryOp(ΩxΩ_to_Ω, opTag)(q)
       
     val bop: Cache[(DiagramArrow, String), Predicate => Predicate] =
-      Cache[(DiagramArrow, String), Predicate => Predicate](true, 
-        (arrow, opTag) => Cache[Predicate, Predicate](true, evalBinaryOp(arrow, opTag)(_)))
+      Cache[(DiagramArrow, String), Predicate => Predicate](
+        (arrow, opTag) => Cache[Predicate, Predicate](evalBinaryOp(arrow, opTag)(_)))
     
     private def evalBinaryOp(ΩxΩ_to_Ω: DiagramArrow, newTag: String)(q: Predicate): Predicate =
       requireCompatibility(q)
@@ -134,7 +134,7 @@ trait GrothendieckToposLogic:
     * Builds a predicate for a point in Ω
     * For a given point, produces an arrow pt -> Ω
     */
-  val predicateFor: Point => Predicate = Cache[topos.Point, Predicate](true, calculatePredicate)
+  val predicateFor: Point => Predicate = Cache[topos.Point, Predicate](calculatePredicate)
 
   private infix def calculatePredicate(pt: Point): Predicate =
 

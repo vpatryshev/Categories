@@ -36,7 +36,7 @@ abstract class NaturalTransformation(
   def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow
 
   private lazy val mappingAt: d0.d0.Obj => d1.d1.Arrow =
-    Cache[d0.d0.Obj, d1.d1.Arrow](tag, calculateMappingAt, domainCategory.isFinite)
+    Cache[d0.d0.Obj, d1.d1.Arrow](calculateMappingAt)
 
   def apply(x: Any): d1.d1.Arrow = mappingAt(x)
 

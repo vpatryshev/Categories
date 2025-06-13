@@ -16,7 +16,7 @@ import scala.language.{implicitConversions, postfixOps}
 private[cat] abstract class CategoryData(name: String) extends Graph(name):
   type Obj = Node
   type Objects = Nodes
-  private lazy val homCache = Cache[(Node, Node), Arrows](isFinite, (from, to) => calculateHom(from, to))
+  private lazy val homCache = Cache[(Node, Node), Arrows]((from, to) => calculateHom(from, to))
 
   lazy val listOfObjects: List[Obj] =
     require(isFinite, "Cannot sort infinite set")

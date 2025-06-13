@@ -145,7 +145,7 @@ trait GrothendieckTopos
         case bs => throw new IllegalArgumentException(s"Expected a pair of diagrams, got $bs")
 
       val conjunctionOfTwoSubreps: Any => Diagram = Cache[Any, Diagram](
-        "∧", calcConjunctionOfTwoSubreps, domain.isFinite
+        calcConjunctionOfTwoSubreps
       )
 
       def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction =
@@ -196,7 +196,7 @@ trait GrothendieckTopos
         case (a: Diagram, b: Diagram) => union(a, b)
 
       val disjunctionOfTwoSubreps: Any => Diagram = Cache[Any, Diagram](
-        "v", calcDisjunctionOfTwoSubreps, domain.isFinite
+        calcDisjunctionOfTwoSubreps
       )
 
       def calculatePerObject(x: ΩxΩ.d0.Obj): SetFunction =
@@ -790,7 +790,7 @@ trait GrothendieckTopos
     p =>
 
     private val domainCategory: Category = topos.domain
-    lazy val mapping: Any => Any = Cache[Any, Any](tag, fromObjectToSubset, true)
+    lazy val mapping: Any => Any = Cache[Any, Any](fromObjectToSubset)
 
     def apply(x: Any): Any = mapping(x)
 

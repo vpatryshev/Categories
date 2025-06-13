@@ -29,8 +29,8 @@ abstract class Functor(
 
   lazy val listOfObjects: List[d0.Obj] = d0.listOfObjects
 
-  lazy val objectMapping: d0.Obj => d1.Obj = Cache[d0.Obj, d1.Obj](tag, calculateObjectsMapping, domainObjects.isFinite)
-  lazy val arrowMapping: d0.Arrow => d1.Arrow = Cache[d0.Arrow, d1.Arrow](tag, calculateMappingForArrow, domainObjects.isFinite)
+  lazy val objectMapping: d0.Obj => d1.Obj = Cache[d0.Obj, d1.Obj](calculateObjectsMapping)
+  lazy val arrowMapping: d0.Arrow => d1.Arrow = Cache[d0.Arrow, d1.Arrow](calculateMappingForArrow)
 
   private def calculateMappingForArrow(a: d0.Arrow): d1.Arrow =
     val domainX: d0.Obj = d0.d0(a)
