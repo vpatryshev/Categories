@@ -12,6 +12,8 @@ case class Cache[K,V](tag: Any, build: K => V, isFinite: Boolean = true) extends
         build == other.build && isFinite == other.isFinite
       case anything => false
       
-  private val app: K => V = if (isFinite) (k: K) => cache.getOrElseUpdate(k, build(k)) else (k: K) => build(k)
+  private val app: K => V = 
+    if isFinite then (k: K) => cache.getOrElseUpdate(k, build(k)) 
+    else (k: K) => build(k)
 
   inline def apply(k: K): V = app(k)

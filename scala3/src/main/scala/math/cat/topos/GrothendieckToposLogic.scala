@@ -21,7 +21,7 @@ trait GrothendieckToposLogic:
 
     def tuplingAt(left: Predicate, right: Predicate, o: domain.Obj): SetFunction =
       val dom = left.setAt(o)
-      if (Params.fullCheck)
+      if Params.fullCheck then
         require(right.setAt(o) == dom)
 
       val po: SetFunction = left.transformAt(o)
@@ -53,7 +53,7 @@ trait GrothendieckToposLogic:
 
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
-      if (ts.contains("∧") || ts.contains("∨") || ts.contains("=>"))
+      if ts.contains("∧") || ts.contains("∨") || ts.contains("=>") then
         s"($ts)" else ts
 
     private def tag2(tag1: Any, op: String, tag2: Any): String = 

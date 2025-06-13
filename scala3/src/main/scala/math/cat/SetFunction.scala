@@ -29,9 +29,9 @@ case class SetFunction private[cat](
   require (d0.isEmpty || !d1.isEmpty,
     s"Cannot create SetFunction $tag: d0 ($d0) is not empty and d1 is empty")
   
-  if (Params.fullCheck)
-    if (d0.isFinite)
-      for (x <- d0)
+  if Params.fullCheck then
+    if d0.isFinite then
+      for x <- d0 do
         require (d1.contains(mapping(x)), s"Cannot create SetFunction $tag: d0 ($d0) is not contained in d1 ($d1)")
 
   def tagged(newTag: String): SetFunction = SetFunction(newTag, d0, d1, implementation)

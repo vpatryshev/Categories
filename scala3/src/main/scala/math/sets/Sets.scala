@@ -1,5 +1,4 @@
-package math
-package sets
+package math.sets
 
 import math.Base.itsImmutable
 import math.cat.SetMorphism
@@ -75,7 +74,7 @@ object Sets:
     lazy val parIterable: Iterable[X] = new ParallelIterable(set1, set2)
     lazy val size = {
       val longSize = set1.size.toLong + set2.size.toLong
-      if (longSize > Int.MaxValue) InfiniteSize else longSize.toInt
+      if longSize > Int.MaxValue then InfiniteSize else longSize.toInt
     }
 
     def inX1(x: X) = x match
@@ -194,7 +193,7 @@ object Sets:
     val predicate = (p: (X, Y)) => (p._1 ∈ xs) && (p._2 ∈ ys)
     setOf(
       cantorIterable(xs, ys),
-      if (xs.isEmpty || ys.isEmpty) 0 else
+      if xs.isEmpty || ys.isEmpty then 0 else
       if xs.isInfinite || xs.isInfinite then InfiniteSize else {
         val s1 = xs.size.toLong
         val s2 = ys.size.toLong
@@ -448,7 +447,7 @@ object Sets:
     val r = Set("c", "b", "a")
     println(s"Is $r equal to $q? ${Good(r) == q}")
     println(s"Does $q contain $a? ${q contains "a"}")
-    val tuples = for (arg <- Set(1, 2, 3)) yield ("key" + arg, "v" + arg)
+    val tuples = for arg <- Set(1, 2, 3) yield ("key" + arg, "v" + arg)
 
     println(Map() ++ tuples)
 

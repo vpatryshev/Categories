@@ -56,11 +56,13 @@ case class FactorSet[X](domain: Set[X]) extends Set[Set[X]]:
     * @param x2 second element
     */
   def merge(x1: X, x2: X): Unit =
-    for (
-      class1 <- equivalenceClasses.get(x1);
-      class2 <- equivalenceClasses.get(x2) if x1 != x2)
-        val merged: Set[X] = class1 ++ class2
-        for (x3 <- merged)
+    if x1 != x2 then
+      for
+        class1 <- equivalenceClasses.get(x1)
+        class2 <- equivalenceClasses.get(x2)
+      do
+        val merged = class1 ++ class2
+        for x3 <- merged do
           equivalenceClasses = equivalenceClasses + (x3 -> merged)
 
   /**

@@ -71,7 +71,7 @@ abstract class Category(name: String) extends CategoryData(name):
   override lazy val toString: String =
     source getOrElse
       val prefix = if name.isEmpty then "" else name + ": "
-      if (isInfinite)
+      if isInfinite then
         s"$prefix{(infinite category)}"
       else
         val objectsAsString = asString(objects)
@@ -568,7 +568,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return a map.
     */
   def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] =
-    if (Params.fullCheck)
+    if Params.fullCheck then
       val badArrows: Arrows = arrows filterNot (d0(_) ∈ setOfObjects)
 
       // TODO: return a Result

@@ -413,19 +413,17 @@ object Functor:
     val missingMappings = f.d0.arrows.filter(a => Result.forValue(f.arrowsMapping(a)).isBad)
 
     OKif(missingMappings.isEmpty, s"Missing arrow mappings for ${missingMappings.mkString(", ")}") andThen
-    Result.check {
-    for (a <- f.d0.arrows) yield {
-      val aa = f.arrowsMapping(a)
-      val domainActual = f.d1.d0(aa)
-      val codomainActual = f.d1.d1(aa)
-      val domainExpected = f.calculateObjectsMapping(f.d0.d0(a))
-      val codomainExpected = f.calculateObjectsMapping(f.d0.d1(a))
-      OKif(domainActual == domainExpected,
-          s"Inconsistent mapping for d0($a) - $domainActual vs $domainExpected") andAlso
-      OKif(codomainActual == codomainExpected,
-          s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected")
-      }
-    }
+    Result.check :
+      for a <- f.d0.arrows yield
+        val aa = f.arrowsMapping(a)
+        val domainActual = f.d1.d0(aa)
+        val codomainActual = f.d1.d1(aa)
+        val domainExpected = f.calculateObjectsMapping(f.d0.d0(a))
+        val codomainExpected = f.calculateObjectsMapping(f.d0.d1(a))
+        OKif(domainActual == domainExpected,
+            s"Inconsistent mapping for d0($a) - $domainActual vs $domainExpected") andAlso
+        OKif(codomainActual == codomainExpected,
+            s"Inconsistent mapping for d1($a) - $codomainActual vs $codomainExpected")
 
   private def checkObjectMapping(f: Functor): Outcome =
     Result check {

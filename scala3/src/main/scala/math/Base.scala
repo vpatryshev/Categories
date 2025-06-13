@@ -74,7 +74,7 @@ object Base:
     val strings = sc.parts.iterator
     val expressions = args.iterator
     val buf = new StringBuffer(strings.next())
-    while (strings.hasNext)
+    while strings.hasNext do
       buf.append(expressions.next())
       buf.append(strings.next())
     buf

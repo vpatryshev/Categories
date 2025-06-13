@@ -38,7 +38,7 @@ object Params:
 
   def limitStack(max: Int): Unit =
     val n = callStack.length
-    if (n > max)
+    if n > max then
       throw new StackOverflowError(s"Stack too big: $n > $max")
 
   inline def verbose(s: String): Unit =

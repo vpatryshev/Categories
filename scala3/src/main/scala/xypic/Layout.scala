@@ -23,9 +23,9 @@ case class ComponentLayout(go: GradedObjects, w: Int, h: Int):
     case (comps, i) => i -> comps.sortBy(_.toString)
   } toMap
 
-  private val coordinates0: immutable.Iterable[List[(go.Cluster, Pt)]] = for {
+  private val coordinates0: immutable.Iterable[List[(go.Cluster, Pt)]] = for
     (i, layer) <- indexedClusters
-  } yield
+  yield
     val diameters = layer map (_.diameter)
     val layerLength = layer.length // diameters.sum
     val layerWidth = (diameters.max + 1) / 2

@@ -131,7 +131,7 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
       val f0 = arrowsToEqualize.head
       val otherArrows = arrowsToEqualize.tail
       val dataOk = Result.traverse(
-        for (f <- otherArrows)
+        for f <- otherArrows
         yield OKif(areParallel(f0, f), s"$f0 and $f must be parallel")
       ) 
       dataOk andThen equalizeFunctions(f0, otherArrows)
