@@ -265,7 +265,8 @@ class SetCategoryTest extends Specification:
           p1.d0 must be_==(p2.d0)
           val sut = p1.d0
           sut.size === 5
-          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) must be_==(((i+j) %2 == 1))
+          for i <- 1 to 3; j <- 2 to 4 
+            do sut((i, j)) must be_==(((i+j) %2 == 1))
         case none => failure(s"Where's my pullback? $none")
 
       ok

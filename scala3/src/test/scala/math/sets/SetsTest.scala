@@ -127,7 +127,7 @@ class SetsTest extends TestBase:
       //      s must contain(42)
       s.contains(42) must beTrue
       var n = 0
-      for (i <- s take 10)
+      for i <- s take 10 do
         n += 1
 
       n must be_==(10)
@@ -330,7 +330,7 @@ class SetsTest extends TestBase:
 
     "Set should be monadic" in :
       val i: Set[Int] = Set(1, 2, 3)
-      val s: Set[String] = for (n <- i) yield n.toString
+      val s: Set[String] = for n <- i yield n.toString
       s must be_==(Set("1", "2", "3"))
 
     "NNO's 10th element should be 9" in :

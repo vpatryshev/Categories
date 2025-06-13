@@ -92,7 +92,7 @@ class AnImplicationTest extends Fixtures:
     val q2r = q ⟹ r
     val left = p_and_q ⟹ r
     val right = p ⟹ q2r
-    if (left != equals)
+    if left != equals then
       left.equalsWithDetails(right, printDetails = true, context) aka context must beTrue
     ok
 

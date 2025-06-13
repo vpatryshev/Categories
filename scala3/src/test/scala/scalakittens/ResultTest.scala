@@ -202,17 +202,17 @@ class ResultTest extends TestBase:
     detailsOpt must beSome(expectedDesc)
 
   "combine with goods in sugared loop" in :
-    val actual1 = for (x <- error[String]("x yourself");
-                       y <- Good("y")) yield x + y
+    val actual1 = for x <- error[String]("x yourself");
+                       y <- Good("y") yield x + y
     actual1 mustBeBad "x yourself"
 
-    val actual2 = for (x <- Good("x");
-                       y <- error[String]("y yourself")) yield x + y
+    val actual2 = for x <- Good("x");
+                       y <- error[String]("y yourself") yield x + y
     actual2 mustBeBad "y yourself"
 
   "combine with bads in sugared loop" in :
-    val actual = for (x <- error[String]("x yourself");
-                      y <- error[String]("y yourself")) yield x + y
+    val actual = for x <- error[String]("x yourself");
+                      y <- error[String]("y yourself") yield x + y
     actual mustBeBad "x yourself"
 
   "work applicatively" in :
@@ -289,26 +289,26 @@ class ResultTest extends TestBase:
 
     "combine with goods in sugared loop" in :
       val nr: Result[String] = Empty
-      val actual1 = for (x <- nr;
-                         y <- Good("y")) yield x + y
+      val actual1 = for x <- nr;
+                         y <- Good("y") yield x + y
       actual1 must be_==(Empty)
 
-      val actual2 = for (x <- Good("x");
-                         y <- nr) yield x + y
+      val actual2 = for x <- Good("x");
+                         y <- nr yield x + y
       actual2 must be_==(Empty)
 
     "combine with bads in sugared loop" in :
       val nr: Result[String] = Empty
-      val actual1 = for (x <- nr;
-                         y <- Result.error[String]("y yourself")) yield x + y
+      val actual1 = for x <- nr;
+                         y <- Result.error[String]("y yourself") yield x + y
       actual1 must be_==(nr)
-      val actual2 = for (x <- Result.error[String]("x yourself");
-                         y <- nr) yield x + y
+      val actual2 = for x <- Result.error[String]("x yourself");
+                         y <- nr yield x + y
 
       actual2 mustBeBad "x yourself"
 
     "combine with Empty in sugared loop" in :
       val nr: Result[String] = Empty
-      val actual1 = for (x <- nr;
-                         y <- nr) yield x + y
+      val actual1 = for x <- nr;
+                         y <- nr yield x + y
       actual1 must be_==(nr)
