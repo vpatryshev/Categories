@@ -1,6 +1,5 @@
 package math.cat.topos
 
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.SetFunction
 import org.specs2.execute.Result as MatchResult
 
@@ -68,7 +67,7 @@ class GrothendieckToposTest extends Fixtures:
 
       val inc: `Set^ParallelPair`.Includer = `Set^ParallelPair`.inclusionOf(SampleParallelPairSubdiagram1)
       val i1: `Set^ParallelPair`.Arrow = inc in SampleParallelPairDiagram1 iHope
-      val χ1: DiagramArrow = topos.χ(i1)
+      val χ1: topos.DiagramArrow = topos.χ(i1)
       val χ10: SetFunction = asFunction(χ1("0"))
       val sample1: χ1.d1.d1.Arrow = χ1("0")
       val sample2 = χ10(1)

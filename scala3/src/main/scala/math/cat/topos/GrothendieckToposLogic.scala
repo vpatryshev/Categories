@@ -2,7 +2,7 @@ package math.cat.topos
 
 import math.Base.concat
 import math.cat.SetFunction.*
-import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow}
+import math.cat.topos.CategoryOfDiagrams.BaseCategory
 import math.cat.{Morphism, SetFunction}
 import math.sets.Sets
 import Sets.{set, setOf}
@@ -123,12 +123,8 @@ trait GrothendieckToposLogic:
     * @return an arrow X -> Ω
     */
   infix def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
-    f.d0 match
-      case d: topos.Diagram =>
-        new topos.Predicate(f.tag, d):
-          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
-
-      case basura => throw new IllegalArgumentException(s"WTF: basura $basura")
+    new topos.Predicate(f.tag, f.d0):
+       override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
 
   /**
     * Builds a predicate for a point in Ω

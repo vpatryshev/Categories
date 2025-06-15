@@ -1,6 +1,5 @@
 package math.cat.topos.logic
 
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
 import math.cat.{Category, SetFunction}
 import SetFunction.fun

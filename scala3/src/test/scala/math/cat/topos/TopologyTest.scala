@@ -1,7 +1,6 @@
 package math.cat.topos
 
 import math.cat.Categories.*
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result.Oops
 import scalakittens.{Bad, Good, Result}
 

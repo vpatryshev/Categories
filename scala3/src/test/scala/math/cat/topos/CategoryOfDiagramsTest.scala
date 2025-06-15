@@ -3,7 +3,6 @@ package math.cat.topos
 import math.Base.*
 import math.Test
 import math.cat.SetFunction
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.Constructor.build
 import math.sets.Sets.*
 import scalakittens.Good
@@ -243,11 +242,11 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         Map[String, SetFunction]()
       )
 
-      val f: DiagramArrow = topos.buildArrow("f",
+      val f: topos.DiagramArrow = topos.buildArrow("f",
         d01, d11,
         x => i => "a" + i)
 
-      val g: DiagramArrow = topos.buildArrow("g",
+      val g: topos.DiagramArrow = topos.buildArrow("g",
         d02, d12,
         x => i => "b" + i)
 
@@ -258,7 +257,7 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
           case (i, j) => ("a" + i, "b" + j)
       )
 
-      val actual: DiagramArrow = topos.productOfArrows(f, g)
+      val actual: topos.DiagramArrow = topos.productOfArrows(f, g)
 
       actual must be_==(expected)
 
@@ -309,11 +308,11 @@ class CategoryOfDiagramsTest extends Test with TestDiagrams:
         )
       )
 
-      val f: DiagramArrow = topos.buildArrow("f",
+      val f: topos.DiagramArrow = topos.buildArrow("f",
         d01, d11,
         x => i => "a" + i)
 
-      val g: DiagramArrow = topos.buildArrow("g",
+      val g: topos.DiagramArrow = topos.buildArrow("g",
         d02, d12,
         x => i => "b" + i)
 

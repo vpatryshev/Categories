@@ -11,7 +11,7 @@ import NaturalTransformation.id
   */
 class NaturalTransformationTest extends Test {
   type F = Functor
-  type NT = NaturalTransformation
+  type NT = NaturalTransformation[F]
   type SUT = ((((F, F), F), NT), NT)
 
   "natural transformation" should {

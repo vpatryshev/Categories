@@ -26,10 +26,10 @@ import scala.annotation.targetName
   *            V         V
   *    g[a]: g[x] ---> g[y]
   */
-abstract class NaturalTransformation(
+abstract class NaturalTransformation[F <: Functor](
   val tag: String,
-  val d0: Functor,
-  val d1: Functor) extends Morphism[Functor, Functor]:
+  val d0: F,
+  val d1: F) extends Morphism[F, F]:
   self =>
   lazy val domainCategory:   Category = d0.d0
   lazy val codomainCategory: Category = d1.d1
@@ -46,7 +46,7 @@ abstract class NaturalTransformation(
     * @return
     */
   @targetName("compose")
-  infix def ∘(g: NaturalTransformation): NaturalTransformation =
+  infix def ∘(g: NaturalTransformation[F]): NaturalTransformation[F] =
     
     def compositionAt(x: d0.d0.Obj): d1.d1.Arrow =
       val fHere:  d1.d1.Arrow = self(x)
@@ -54,7 +54,7 @@ abstract class NaturalTransformation(
       d1.d1.m(gThere, fHere) getOrElse
         cannotDo(s"Bad transformation for $x for $fHere and $gThere")
 
-    new NaturalTransformation(s"${self.tag} ∘ ${g.tag}", g.d0, self.d1):
+    new NaturalTransformation[F](s"${self.tag} ∘ ${g.tag}", g.d0, self.d1):
       def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         val arrow = compositionAt(x)
         require (arrow.toString != "()", s"WTF, it's a bug: bad arrow $arrow")
@@ -62,8 +62,8 @@ abstract class NaturalTransformation(
 
   end ∘
 
-  infix def named(newTag: String): NaturalTransformation =
-    new NaturalTransformation(newTag, self.d0, self.d1):
+  infix def named(newTag: String): NaturalTransformation[F] =
+    new NaturalTransformation[F](newTag, self.d0, self.d1):
       def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         self.calculateMappingAt(x)
 
@@ -86,11 +86,11 @@ abstract class NaturalTransformation(
   })"
   
   override def equals(x: Any): Boolean = x match
-    case nt: NaturalTransformation => equalsWithDetails(nt)
+    case nt: NaturalTransformation[F] => equalsWithDetails(nt)
     case otherwise => false
 
   private[cat] def equalsWithDetails(
-    other: NaturalTransformation,
+    other: NaturalTransformation[F],
     printDetails: Boolean = false,
     context: String = "..."): Boolean =
     (this eq other) || (
@@ -151,11 +151,11 @@ object NaturalTransformation:
     * @param g   second functor
     * @param mappings a set morphism that for each domain object x returns f(x) -> g(x)
     */
-  def build(tag: String = "", f: Functor, g: Functor)
+  def build[F <: Functor](tag: String = "", f: F, g: F)
   (
     mappings: f.d0.Obj => f.d1.Arrow
-  ): Result[NaturalTransformation] =
-    validate(f, g)(mappings) returning new NaturalTransformation(tag, f, g):
+  ): Result[NaturalTransformation[F]] =
+    validate(f, g)(mappings) returning new NaturalTransformation[F](tag, f, g):
       override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow =
         mappings(x)
 
@@ -165,7 +165,7 @@ object NaturalTransformation:
     * @param f the functor for which we are building the identity transformation
     * @return identity natural transformation for the functor
     */
-  def id(f: Functor): NaturalTransformation =
+  def id(f: Functor): NaturalTransformation [Functor]=
 
     def `id of f(x)`(x: f.d0.Obj): f.d1.Arrow =
       val `f(x)`: f.d1.Obj = f.objectMapping(x)

@@ -21,6 +21,18 @@ class CategoryOfDiagrams(val domain: Category)
 
   override def nodes: Nodes = BigSet.of[Node](name)
 
+  /**
+   * This method is redefined, because there's no set of arrows defined
+   * and we also should only accept a DiagramArrow, which type can be checked in runtime
+   * @param a
+   * @return
+   */
+  override implicit def asArrow(a: Any): Arrow =
+    a match
+      case arrow: DiagramArrow => arrow
+      case notAnArrow =>
+        throw new IllegalArgumentException(s"<<$notAnArrow>> is not a diagram arrow")
+  
   // we never scan all arrows in a category of diagrams, so it's not implemented
   override def arrows: Arrows = ???
 
@@ -123,5 +135,4 @@ class CategoryOfDiagrams(val domain: Category)
   def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram)
 
 object CategoryOfDiagrams:
-  type DiagramArrow = NaturalTransformation
   val BaseCategory: Category = SetCategory.Setf

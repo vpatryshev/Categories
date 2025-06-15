@@ -1,7 +1,6 @@
 package math.cat.topos
 
 import math.cat.Functor
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result
 import scalakittens.Result.*
 
@@ -13,13 +12,13 @@ import scala.language.postfixOps
 trait LawvereTopology:
   def tag: String
 
-  def topos: CategoryOfDiagrams
+  val topos: CategoryOfDiagrams
 
   // inclusion of this topology into topos.Ω
-  def inclusion: DiagramArrow
+  def inclusion: topos.DiagramArrow
 
   // classifying arrow for this inclusion
-  def closure: DiagramArrow
+  def closure: topos.DiagramArrow
 
 object LawvereTopology:
   

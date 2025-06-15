@@ -2,7 +2,6 @@ package math.cat.topos
 
 import math.Base.*
 import math.cat.*
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.sets.Sets.*
 import math.sets.{FactorSet, Functions, Sets}
 import scalakittens.{Cache, Good, Result}
@@ -27,6 +26,7 @@ trait GrothendieckTopos
 
   override type Obj = Diagram
   type Node = Obj
+  type DiagramArrow = NaturalTransformation[Diagram]
   override type Arrow = DiagramArrow
   type ObjectMapping = domain.Obj => set
   type ArrowMapping = domain.Arrow => SetFunction
