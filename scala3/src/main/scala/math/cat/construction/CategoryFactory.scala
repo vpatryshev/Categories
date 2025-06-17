@@ -73,6 +73,8 @@ private[cat] trait CategoryFactory:
 
     new Category(theName):
       type Node = T
+      type Object = T
+      type Nodes = Set[Object]
       type Arrow = (T, T)
       type Arrows = Set[Arrow]
       def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]

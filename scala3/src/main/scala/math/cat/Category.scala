@@ -19,6 +19,7 @@ import scalakittens.Containers.*
   * Category class, and the accompanying object.
   */
 abstract class Category(name: String) extends CategoryData(name):
+  thisCategory =>
 
   /**
     * Terminal object of this category (if exists)
@@ -683,10 +684,15 @@ abstract class Category(name: String) extends CategoryData(name):
     subgraph(newName, setOfObjects) map :
       sub =>
         new Category(newName):
+          override type Node = sub.Node
+          override type Arrow = sub.Arrow
+          override type Nodes = sub.Nodes
+          override type Arrows = sub.Arrows
+
           def d0(f: Arrow): Obj = sub.d0(f)
           def d1(f: Arrow): Obj = sub.d1(f)
-          override def nodes: Nodes = sub.nodes.asInstanceOf[Nodes]
-          override def arrows: Arrows = sub.arrows.asInstanceOf[Arrows]
+          override def nodes: Nodes = sub.nodes
+          override def arrows: Arrows = sub.arrows
 
           override def id(o: Obj): Arrow = src.id(o)
 

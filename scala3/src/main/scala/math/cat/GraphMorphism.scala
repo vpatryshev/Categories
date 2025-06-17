@@ -103,8 +103,8 @@ object GraphMorphism:
     taggedAs: String,
     domain: Graph,
     codomain: Graph)(
-    f0: domain.Node => codomain.Node,
-    f1: domain.Arrow => codomain.Arrow):
+             f0: domain.Node => codomain.Node,
+             f1: domain.Arrow => codomain.Arrow):
   GraphMorphism = new GraphMorphism:
     val tag: String = taggedAs
     val d0: Graph = domain

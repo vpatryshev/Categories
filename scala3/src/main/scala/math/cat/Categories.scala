@@ -195,8 +195,13 @@ object Categories extends CategoryFactory:
   def op(c: Category): Category =
     val opGraph = ~c
     new Category(opGraph.name):
-      override def nodes: Nodes = c.nodes.asInstanceOf[Nodes]
-      def arrows: Arrows = c.arrows.asInstanceOf[Arrows]
+      override type Node = opGraph.Node
+      override type Arrow = opGraph.Arrow
+      override type Nodes = opGraph.Nodes
+      override type Arrows = opGraph.Arrows
+
+      override def nodes: Nodes = opGraph.nodes
+      def arrows: Arrows = opGraph.arrows
       def d0(f: Arrow): Node = opGraph.d0(f)
       def d1(f: Arrow): Node = opGraph.d1(f)
       override def id(o: Obj): Arrow = asArrow(c.id(o))
@@ -204,5 +209,3 @@ object Categories extends CategoryFactory:
         c.m(g, f).map(asArrow)
         
       override lazy val op: Category = c
-      override type Node = opGraph.Node
-      override type Arrow = opGraph.Arrow

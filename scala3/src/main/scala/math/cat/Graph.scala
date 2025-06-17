@@ -101,7 +101,9 @@ trait Graph(val name: String) extends GraphData:
   def unary_~ : Graph =
     new Graph(if graph.name.startsWith("~") then graph.name.tail else "~" + graph.name):
       type Node = graph.Node
+      override type Nodes = graph.Nodes
       type Arrow = graph.Arrow
+      type Arrows = graph.Arrows
       def nodes: Nodes = graph.nodes
       def arrows: Arrows = graph.arrows
       def d0(f: Arrow): Node = graph.d1(f)
@@ -112,7 +114,9 @@ trait Graph(val name: String) extends GraphData:
       returning {
         new Graph(name):
           type Node = graph.Node
+          type Nodes = graph.Nodes
           type Arrow = graph.Arrow
+          type Arrows = graph.Arrows
 
           def nodes: Nodes = setOfNodes
           def arrows: Arrows = graph.arrows filter (a => setOfNodes(d0(a)) && setOfNodes(d1(a)))
@@ -122,16 +126,21 @@ trait Graph(val name: String) extends GraphData:
 
   end subgraph
   
-  def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] = 
+  def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] =
     if newArrows.isEmpty then
       Good(this)
     else
       val result = new Graph(name):
-        lazy val nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
-        lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows).asInstanceOf[Arrows]
+        type Node = graph.Node
+        type Nodes = graph.Nodes
+        type Arrow = graph.Arrow
+        type Arrows = graph.Arrows
+
+        lazy val nodes: Nodes = graph.nodes
+        lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows)
 
         private def d0d1(f: Arrow): Option[(Graph.this.Node, Graph.this.Node)] =
-          newArrows.get(f.asInstanceOf[graph.Arrow])  // shortcut: no check required
+          newArrows.get(f)  // shortcut: no check required
       
         def d0(f: Arrow): Node = d0d1(f).map(_._1).getOrElse(graph.d0(f))
         def d1(f: Arrow): Node = d0d1(f).map(_._2).getOrElse(graph.d1(f))
@@ -160,7 +169,7 @@ private[cat] trait GraphData:
 
   implicit def asNode(x: Any): Node = x match
     case node: Node @unchecked if nodes(node) => node
-    case badNode: Node => 
+    case badNode: Node =>
       throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
     case notaNode => 
       throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
@@ -195,12 +204,13 @@ private[cat] trait GraphData:
     (OKif(!finiteArrows) orElse Result.fold(arrows map arrowOk)) returning this
 
   infix def build(name: String): Graph = new Graph(name):
-
+    override type Node = data.Node
+    override type Arrow = data.Arrow
+    override type Nodes = data.Nodes
+    type Arrows = data.Arrows
     def nodes: Nodes = data.nodes
     def arrows: Arrows = data.arrows
 
-    override type Node = data.Node
-    override type Arrow = data.Arrow
 
     def d0(f: Arrow): Node = data.d0(f)
     def d1(f: Arrow): Node = data.d1(f)
@@ -222,7 +232,9 @@ object Graph:
     target: A => N): Result[GraphData] =
     new GraphData {
       override type Node = N
+      override type Nodes = Set[N]
       override type Arrow = A
+      override type Arrows = Set[A]
       def nodes: Nodes = setOfNodes
       def arrows: Arrows = setOfArrows
       
@@ -242,10 +254,17 @@ object Graph:
       d =>
         new Graph(name) {
 
-          override type Node = N
-          override type Arrow = A
-          val nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
-          val arrows: Arrows = d.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
+          override type Node = d.Node // TODO: find a way to use N
+          override type Arrow = d.Arrow // TODO: find a way to use A
+          override type Nodes = Set[d.Node]
+          override type Arrows = Set[d.Arrow]
+          // TODO: figure out why we even need it? d.Arrow is the same as A, by its definition
+          given ArrowIsA: Conversion[Arrow, A] with
+            def apply(a: Arrow): A = a match
+              case a: A => a
+
+          val nodes: Nodes = d.nodes
+          val arrows: Arrows = d.arrows
 
           override def d0(f: Arrow): Node = d00(f)
           override def d1(f: Arrow): Node = d10(f)
@@ -260,7 +279,10 @@ object Graph:
     
     new Graph(name):
       type Node = N
+      type Object = N
+      type Nodes = Set[N]
       type Arrow = N
+      type Arrows = Set[N]
       def nodes: Nodes = points
       def arrows: Arrows = Set.empty
       def d0(f: Arrow): Node = Map.empty(f) // there's nothing there, but we need a signature
@@ -274,7 +296,9 @@ object Graph:
 
     new Graph(name):
       type Node = N
+      override type Nodes = Set[N]
       type Arrow = (N, N)
+      type Arrows = Set[Arrow]
       def nodes: Nodes = points
       def arrows: Arrows = goodPairs
       def d0(f: Arrow): Node = f._1
