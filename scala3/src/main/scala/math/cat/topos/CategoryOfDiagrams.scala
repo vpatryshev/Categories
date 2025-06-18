@@ -7,6 +7,7 @@ import math.cat.topos.CategoryOfDiagrams.{BaseCategory, *}
 import math.sets.*
 import math.sets.Sets.*
 import scalakittens.Result
+import scalakittens.Result.{OKif, Outcome}
 
 import scala.language.{implicitConversions, postfixOps}
 import scala.reflect.Selectable.reflectiveSelectable
@@ -133,6 +134,43 @@ class CategoryOfDiagrams(val domain: Category)
   end Representable
   
   def inclusionOf(p: Point): Includer = inclusionOf(p.asDiagram)
+
+  /**
+   * See https://ncatlab.org/nlab/show/Lawvere-Tierney+topology
+   */
+  trait LawvereTopology:
+    def tag: String
+
+    // inclusion of this topology into topos.Ω
+    def inclusion: DiagramArrow
+
+    // classifying arrow for this inclusion
+    def closure: DiagramArrow
+
+  object LawvereTopology:
+
+    def forPredicate: Predicate => Result[LawvereTopology] =
+      (predicate: Predicate) =>
+        val closureOp = χ(predicate)
+        mustContainTruth(predicate) andAlso
+          mustBeClosed(closureOp) andAlso
+          mustBeClosedUnderConjunction(closureOp) returning
+            new LawvereTopology:
+              val tag: String = s"topology(${predicate.tag})"
+              val inclusion: Predicate = predicate
+              val closure: Predicate = closureOp
+
+    def mustContainTruth: Predicate => Outcome =
+      (predicate: Predicate) => OKif(predicate.containsTruth, s"Should contain truth: ${predicate.tag}")
+
+    private def mustBeClosed[O, A](j: Predicate): Outcome =
+      val jj = j ∘ j
+      OKif(jj == j, s"Should be closed: ${j.tag}")
+
+    private def mustBeClosedUnderConjunction[O, A](j: Predicate): Outcome =
+      val jxj = productOfArrows(j, j)
+      val ∧ = Ω.conjunction
+      OKif((∧ ∘ jxj) == (j ∘ ∧), s"Should be closed under conjunction: ${j.tag}")
 
 object CategoryOfDiagrams:
   val BaseCategory: Category = SetCategory.Setf
