@@ -9,6 +9,7 @@ import scalakittens.{Cache, Result}
 import scalakittens.Result.*
 
 import scala.language.{implicitConversions, postfixOps}
+import scalakittens.Params.*
 
 /**
   * The data used in building an instance of Category
@@ -25,6 +26,9 @@ private[cat] abstract class CategoryData(name: String) extends Graph(name):
   implicit def obj(x: Any): Obj = asNode(x)
 
   def id(o: Obj): Arrow
+
+  def composablePairs: Iterable[(Arrow, Arrow)] =
+    for f <- arrows; g <- arrows if follows(g, f) yield (f, g)
 
   def m(f: Arrow, g: Arrow): Option[Arrow]
   
@@ -252,7 +256,7 @@ private[construction] class PartialData(val graph: Graph)
 
   end addUniqueCompositions
 
-  def newComposition(f: Any, g: Any): Option[Arrow] = None
+  def newComposition(f: Arrow, g: Arrow): Option[Arrow] = None
 
   /**
     * Builds a category given a data.
@@ -270,7 +274,7 @@ end PartialData
 object CategoryData:
 
   type Composition[Arr] = Map[(Arr, Arr), Arr]
-  val nothing: Any => None.type = (t: Any) => None
+  def nothing[Arr]: (Arr, Arr) => Option[Arr] = (_, _) => None
 
   def Empty[Arr] = Map.empty[(Arr, Arr), Arr]
 
@@ -278,18 +282,19 @@ object CategoryData:
     * Builds a category given a limited (but sufficient) amount of data.
     * Objects have the same name as their identities.
     *
-    * @param g    the underlying graph
+    * @param sourceGraph    the underlying graph
     * @param comp source table of arrows composition (can be incomplete)
+    * @param compositionFactory a tool that produces proper compositions
     * @return a newly-built category
     */
-  def partial[Arr](g: Graph)(
+  def partial[Obj, Arr](sourceGraph: Graph)(
     comp: Composition[Arr] = Empty[Arr],
-    compositionFactory: ((Arr, Arr)) => Option[Arr] = nothing):
+    compositionFactory: (Arr, Arr) => Option[Arr] = nothing[Arr]):
   PartialData =
-    new PartialData(addIdentitiesToGraph(g)):
+    new PartialData(addIdentitiesToGraph(sourceGraph)):
 
-      override def newComposition(f: Any, g: Any): Option[Arrow] =
-        compositionFactory(f.asInstanceOf[Arr], g.asInstanceOf[Arr]).map(_.asInstanceOf[Arrow])
+      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] = // TODO: maybe just pass it?
+        compositionFactory(f.asInstanceOf[Arr], g.asInstanceOf[Arr]).map(itsanArrow)
 
       override val compositionSource: CompositionTable = comp.asInstanceOf[CompositionTable] // same type
 
@@ -328,12 +333,11 @@ object CategoryData:
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         composition(f, g) map asArrow
 
-  
-  // TODO: don't throw exception, return a result
   private[cat] def transitiveClosure(data: PartialData): PartialData =
-  
+    log(s"TC: $data")
     val missing = data.missingCompositions
-  
+    log(s"TC: missing: $missing")
+
     if missing.isEmpty then data else
 
       val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] =
@@ -343,14 +347,18 @@ object CategoryData:
               h => (h, (data.d0(f), data.d1(g)))
         } toMap
 
+      log(s"TC: new ones: $newArrows")
+
       if newArrows.isEmpty then data else
 
         val newData: Result[PartialData] =
           data.addArrows(newArrows).map(
             graph =>
               new PartialData(graph):
-                override def newComposition(f: Any, g: Any): Option[Arrow] =
-                  data.newComposition(f, g).map(_.asInstanceOf[Arrow])
+                override def newComposition(f: Arrow, g: Arrow): Option[Arrow] = {
+                  val candidate = data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]) // TODO: fix the casting
+                  candidate.map(itsanArrow)
+                }
 
                 override val compositionSource: CompositionTable =
                   data.composition.asInstanceOf[CompositionTable]

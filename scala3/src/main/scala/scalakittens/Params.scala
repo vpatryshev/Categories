@@ -1,5 +1,6 @@
 package scalakittens
 
+import java.io.{ByteArrayOutputStream, PrintStream}
 import scala.collection.mutable
 
 object Params:
@@ -14,9 +15,11 @@ object Params:
 
   lazy val fullCheck: Boolean = flag("FullCheck")
   lazy val verbose:   Boolean = flag("Verbose")
-  lazy val debug:     Boolean = flag("Debug")
+  def debug:     Boolean = flag("Debug")
   lazy val profile:   Boolean = flag("Profile")
   lazy val trace:     Boolean = flag("Trace")
+
+  def setDebug(flag: Boolean) = System.setProperty("Debug", flag.toString)
 
   inline def debug(s: String): Unit =
     if debug then println(s"DEBUG:$s")
@@ -43,3 +46,10 @@ object Params:
 
   inline def verbose(s: String): Unit =
     if verbose || debug then println(s"VERBOSE:$s")
+
+  private val testLog = ThreadLocal.withInitial(() => new ByteArrayOutputStream())
+  private val out = ThreadLocal.withInitial(() => new PrintStream(testLog.get))
+  def getLog = testLog.get.toString
+  def resetLog(): Unit = testLog.get.reset()
+  inline def log(text: String): Unit =
+    out.get.println(text)

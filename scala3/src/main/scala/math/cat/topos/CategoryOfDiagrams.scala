@@ -37,9 +37,9 @@ class CategoryOfDiagrams(val domain: Category)
   // we never scan all arrows in a category of diagrams, so it's not implemented
   override def arrows: Arrows = ???
 
-  override def d0(f: DiagramArrow): Diagram = f.d0.asInstanceOf[Diagram]
+  override def d0(f: DiagramArrow): Diagram = f.d0
 
-  override def d1(f: DiagramArrow): Diagram = f.d1.asInstanceOf[Diagram]
+  override def d1(f: DiagramArrow): Diagram = f.d1
 
   lazy val subterminals: Set[Diagram] =
 

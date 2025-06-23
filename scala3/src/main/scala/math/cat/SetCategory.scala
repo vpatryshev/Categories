@@ -18,13 +18,10 @@ import Setf.*
   */
 class SetCategory(objects: Set[set]) extends Category("Sets"):
   thisCategory =>
-  /**
-    * Inner graph of this category of sets
-    */
-  val graph: Graph = graphOfSets(objects)
+
   type Node = set
   type Arrow = SetFunction
-  val arrows: Arrows = graph.arrows.asInstanceOf[Arrows] // todo: try to make it align; don't use map
+  val arrows: Arrows = BigSet.of[SetFunction]("set of set functions")
   override def nodes: Nodes = objects
   /**
     * Domain of an arrow
@@ -163,13 +160,11 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
 
       val domain: set = actualDomain untyped
 
-      def takeElementAt(i: Int)(obj: Any): Any = obj.asInstanceOf[List[Any]](i)
-      
-      val projections = (0 until n).map :
-        i => SetFunction.build(s"set^$n", domain, x, takeElementAt(i))
+      def takeElementAt(i: Int)(obj: Any): Any = obj.asInstanceOf[List[Any]](i) // TODO: fix the casting
+      val projections: List[SetFunction] = (0 until n).toList.map :
+        i => new SetFunction(s"set^$n", domain, x, takeElementAt(i))
 
-      Result.traverse(projections).map :
-        ps => (domain, ps.toList)
+      Good((domain, projections))
 
   /**
     * Initial object of this category. Does not have to exist.
@@ -263,14 +258,6 @@ class SetCategory(objects: Set[set]) extends Category("Sets"):
     case other        => false
 
 object SetCategory:
-
-  private[cat] def graphOfSets(nodes0: Set[set]): Graph =
-    Graph.build[set, SetFunction](
-      "Sets",
-      nodes0,
-      BigSet.of[SetFunction]("set of set functions"),
-      (f: SetFunction) => f.d0,
-      (f: SetFunction) => f.d1) orCommentTheError "This graph should exist" iHope
 
   /**
     * Category of finite sets

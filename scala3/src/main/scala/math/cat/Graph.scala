@@ -17,9 +17,6 @@ trait Graph(val name: String) extends GraphData:
 
   def size: Int = nodes.size
 
-  def composablePairs: Iterable[(Arrow, Arrow)] =
-    for f <- arrows; g <-arrows if follows(g, f) yield (f, g)
-
   override lazy val hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
   override def equals(x: Any): Boolean =
@@ -173,6 +170,11 @@ private[cat] trait GraphData:
       throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
     case notaNode => 
       throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
+
+  def itsanArrow(a: Any): Arrow =
+    a match
+      case arrow: Arrow @unchecked => arrow
+
 
   implicit def asArrow(a: Any): Arrow =
     a match

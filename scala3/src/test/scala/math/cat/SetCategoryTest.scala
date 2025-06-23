@@ -25,12 +25,12 @@ class SetCategoryTest extends Specification:
     new SetCategory(BigSet.comprehension[Set[Any]](_.size % 2 == 1))
 
   "SetCategory" should :
-    "buildGraph" in :
-      val sets = BigSet(Set(s1, s2))
+    "build" in :
+      val sets: Set[set] = BigSet(Set(s1, s2))
       val arrow = fun(s1,s2)("sample", _.toInt / 7)
-      val theGraph = graphOfSets(sets)
-      theGraph.nodes must be_==(sets)
-      theGraph.arrows.contains(arrow) must beTrue
+      val theCat = new SetCategory(sets)
+      theCat.nodes must be_==(sets)
+      theCat.arrows.contains(arrow) must beTrue
 
     "produce no coequalizer if category is too small" in :
       val f = fun(s1,s2)("f", _ => 3)

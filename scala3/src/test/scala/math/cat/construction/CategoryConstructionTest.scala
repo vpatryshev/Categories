@@ -1,18 +1,16 @@
 package math.cat.construction
 
-import math.Base._
+import math.Base.*
 import math.Test
-import math.cat.Categories._
+import math.cat.Categories.*
 import math.cat.{Categories, Category, Graph}
-import math.cat.Graph.{GraphParser, _}
-import math.cat.SetCategory._
-import math.cat.construction._
-import math.sets.Sets
-import math.sets.Sets._
+import math.cat.construction.*
 import org.specs2.execute.Result as MatchResult
-import scalakittens.{Good, Result}
+import scalakittens.Params.*
+import scalakittens.{Good, Params, Result}
 
-import scala.language.{postfixOps, implicitConversions}
+import scala.annotation.tailrec
+import scala.language.{implicitConversions, postfixOps}
 
 /**
   * Tests for Category class construction
@@ -264,8 +262,8 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       val expected = "𝟘: ({}, {}, {})"
       val actual = `𝟘`.toString
       actual must be_==(expected)
-      `𝟘`.objects.size === 0
-      `𝟘`.arrows.size === 0
+      `𝟘`.objects.size must be_==(0)
+      `𝟘`.arrows.size must be_==(0)
 
     "1" in :
      `𝟙`.objects must be_==(Set("0"))
@@ -303,10 +301,10 @@ class CategoryConstructionTest extends Test with CategoryFactory:
 
   "Square" should :
     "pass a regression test of 3/31/19" in :
-      Square.d0("cd") === "c"
-      Square.d1("cd") === "d"
+      Square.d0("cd") must be_==("c")
+      Square.d1("cd") must be_==("d")
 
-  private[cat] def transitiveClosure(
+  @tailrec private[cat] final def transitiveClosure(
     data: PartialData, previouslyMissing: Int = Int.MaxValue): PartialData =
     
     try
@@ -319,7 +317,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       data.missingCompositions
     catch
       case x: Exception =>
-        throw new IllegalArgumentException(s"Faled on $data", x)
+        throw new IllegalArgumentException(s"Failed on $data", x)
 
     if missing.isEmpty then data else
       val newData: PartialData = appendArrows(data, missing)
@@ -339,10 +337,10 @@ class CategoryConstructionTest extends Test with CategoryFactory:
     val newGraph: Graph = data.addArrows(newArrows) iHope
     
     val newData = new PartialData(newGraph):
-      override def newComposition(f: Any, g: Any): Option[Arrow] =
-        data.newComposition(f, g).asInstanceOf[Option[Arrow]]
+      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] =
+        data.newComposition(f, g).map(itsanArrow)
 
-      override val compositionSource = data.composition.asInstanceOf[CompositionTable]
+      override val compositionSource: CompositionTable = data.composition.asInstanceOf[CompositionTable]
     (newData.validateGraph returning newData) orCommentTheError s"Failed on $newData" iHope
 
   "Parser, regression test of 6/18/21" should :
@@ -352,7 +350,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       graph.isGood must beTrue
       val parser = new CategoryParser
 
-      val data1 = CategoryData.partial[String](graph.iHope)(Map.empty, arrowBuilder)
+      val data1 = CategoryData.partial[String, String](graph.iHope)(Map.empty, arrowBuilder)
       val s1 = data1.toString
       val missing1 = data1.missingCompositions
       val data2: PartialData = appendArrows(data1, missing1)
@@ -379,7 +377,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       parsed match
         case parser.Success(res, _) => if !res.errorDetails.isEmpty then
           val p = Categories.read(source).iHope
-          res.errorDetails must be_==(None)
+          res.errorDetails must beNone
 
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
 
@@ -392,18 +390,44 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       graph.isGood must beTrue
       val parser = new CategoryParser
 
-      val data = CategoryData.partial[String](graph.iHope)(Map.empty, arrowBuilder)
+      val data = CategoryData.partial[String, String](graph.iHope)(Map.empty, arrowBuilder)
 
       val missingCompositions: List[(Any, Any)] = data.missingCompositions.toList
 
       val missing = try
         data.missingCompositions
       catch case x: Exception =>
-        throw new IllegalArgumentException(s"Faled on $data", x)
-      
-      val closure = CategoryData.transitiveClosure(data)
+        throw new IllegalArgumentException(s"Failed on $data", x)
 
-      val raw1 = closure.factory.map { validData => validData.newCategory }
+      val expected =
+        """TC: ({1, 2, 3, 4, 5, 6}, {12: 1->2, 1: 1->1, 23: 2->3, 2: 2->2, 34: 3->4, 3: 3->3, 45: 4->5, 4: 4->4, 56: 5->6, 5: 5->5, 61: 6->1, 6: 6->6})
+          |TC: missing: HashSet((56,61), (45,56), (34,45), (23,34), (61,12), (12,23))
+          |TC: new ones: HashMap(23∘12 -> (1,3), 34∘23 -> (2,4), 45∘34 -> (3,5), 61∘56 -> (5,1), 56∘45 -> (4,6), 12∘61 -> (6,2))
+          |TC: ({1, 2, 3, 4, 5, 6}, {12: 1->2, 12∘61: 6->2, 1: 1->1, 23: 2->3, 23∘12: 1->3, 2: 2->2, 34: 3->4, 34∘23: 2->4, 3: 3->3, 45: 4->5, 45∘34: 3->5, 4: 4->4, 56: 5->6, 56∘45: 4->6, 5: 5->5, 61: 6->1, 61∘56: 5->1, 6: 6->6})
+          |TC: missing: HashSet((61∘56,12), (34,56∘45), (56∘45,12∘61), (61∘56,23∘12), (45∘34,56), (23,45∘34), (23∘12,45∘34), (12,34∘23), (34∘23,56∘45), (34∘23,45), (23∘12,34), (12∘61,23), (56∘45,61), (45∘34,61∘56), (45,61∘56), (12∘61,34∘23), (61,23∘12), (56,12∘61))
+          |TC: new ones: HashMap(61∘56∘45∘34 -> (3,1), 12∘61∘56 -> (5,2), 61∘56∘45 -> (4,1), 12∘61∘56∘45 -> (4,2), 56∘45∘34 -> (3,6), 56∘45∘34∘23 -> (2,6), 34∘23∘12 -> (1,4), 45∘34∘23 -> (2,5), 23∘12∘61 -> (6,3), 45∘34∘23∘12 -> (1,5), 34∘23∘12∘61 -> (6,4), 23∘12∘61∘56 -> (5,3))
+          |TC: ({1, 2, 3, 4, 5, 6}, {12: 1->2, 12∘61: 6->2, 12∘61∘56: 5->2, 12∘61∘56∘45: 4->2, 1: 1->1, 23: 2->3, 23∘12: 1->3, 23∘12∘61: 6->3, 23∘12∘61∘56: 5->3, 2: 2->2, 34: 3->4, 34∘23: 2->4, 34∘23∘12: 1->4, 34∘23∘12∘61: 6->4, 3: 3->3, 45: 4->5, 45∘34: 3->5, 45∘34∘23: 2->5, 45∘34∘23∘12: 1->5, 4: 4->4, 56: 5->6, 56∘45: 4->6, 56∘45∘34: 3->6, 56∘45∘34∘23: 2->6, 5: 5->5, 61: 6->1, 61∘56: 5->1, 61∘56∘45: 4->1, 61∘56∘45∘34: 3->1, 6: 6->6})
+          |TC: missing: HashSet((61∘56∘45,23∘12), (45∘34∘23∘12,56), (23,61∘56∘45∘34), (56∘45∘34,12∘61), (12∘61∘56∘45,23), (34∘23,61∘56∘45), (56∘45,23∘12∘61), (23∘12∘61,45∘34), (34∘23∘12∘61,45), (34∘23∘12,56∘45), (12∘61∘56,34∘23), (56,34∘23∘12∘61), (61∘56∘45∘34,12), (23∘12,56∘45∘34), (61,45∘34∘23∘12), (45∘34∘23,61∘56), (56∘45∘34∘23,61), (61∘56,34∘23∘12), (23∘12∘61∘56,34), (45,23∘12∘61∘56), (34,12∘61∘56∘45), (12,56∘45∘34∘23), (12∘61,45∘34∘23), (45∘34,12∘61∘56))
+          |TC: new ones: HashMap(23∘12∘61∘56∘45 -> (4,3), 12∘61∘56∘45∘34 -> (3,2), 61∘56∘45∘34∘23 -> (2,1), 56∘45∘34∘23∘12 -> (1,6), 34∘23∘12∘61∘56 -> (5,4), 45∘34∘23∘12∘61 -> (6,5))
+          |TC: ({1, 2, 3, 4, 5, 6}, {12: 1->2, 12∘61: 6->2, 12∘61∘56: 5->2, 12∘61∘56∘45: 4->2, 12∘61∘56∘45∘34: 3->2, 1: 1->1, 23: 2->3, 23∘12: 1->3, 23∘12∘61: 6->3, 23∘12∘61∘56: 5->3, 23∘12∘61∘56∘45: 4->3, 2: 2->2, 34: 3->4, 34∘23: 2->4, 34∘23∘12: 1->4, 34∘23∘12∘61: 6->4, 34∘23∘12∘61∘56: 5->4, 3: 3->3, 45: 4->5, 45∘34: 3->5, 45∘34∘23: 2->5, 45∘34∘23∘12: 1->5, 45∘34∘23∘12∘61: 6->5, 4: 4->4, 56: 5->6, 56∘45: 4->6, 56∘45∘34: 3->6, 56∘45∘34∘23: 2->6, 56∘45∘34∘23∘12: 1->6, 5: 5->5, 61: 6->1, 61∘56: 5->1, 61∘56∘45: 4->1, 61∘56∘45∘34: 3->1, 61∘56∘45∘34∘23: 2->1, 6: 6->6})
+          |TC: missing: HashSet()
+          |""".stripMargin.split("\n")
+
+      resetLog()
+      val closure = Result.forValue(CategoryData.transitiveClosure(data))
+
+      val actual = Params.getLog.split("\n").filterNot(_.isEmpty)
+      actual.length === expected.size
+
+      val badAt = (0 until actual.length.min(expected.size)) find (i => actual(i) != expected(i))
+      badAt match {
+        case Some(i) =>
+          failure(s"$i:\n${actual(i)}\n${expected(i)}")
+        case None => ok
+      }
+      actual must be_==(expected)
+
+      val raw1 = closure.flatMap(_.factory).map { validData => validData.newCategory }
 
       raw1.isGood must beTrue
 
@@ -423,7 +447,7 @@ class CategoryConstructionTest extends Test with CategoryFactory:
       parsed match
         case parser.Success(res, _) => if !res.errorDetails.isEmpty then
           val p = Categories.read(source).iHope
-          res.errorDetails must be_==(None)
+          res.errorDetails must beNone
 
         case e: parser.NoSuccess => failure(s"Failed to parse: $e")
 
