@@ -278,6 +278,18 @@ object CategoryData:
 
   def Empty[Arr] = Map.empty[(Arr, Arr), Arr]
 
+  def newPartialData[Obj, Arr](
+                                baseGraph: Graph,
+                                comp: Composition[Arr],
+                                compositionFactory: (Arr, Arr) => Option[Arr]): PartialData =
+    new PartialData(baseGraph):
+
+      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] = // TODO: maybe just pass it?
+        compositionFactory(f.asInstanceOf[Arr], g.asInstanceOf[Arr]).map(itsanArrow)
+
+      override val compositionSource: CompositionTable = comp.asInstanceOf[CompositionTable] // same type
+  end newPartialData
+  
   /**
     * Builds a category given a limited (but sufficient) amount of data.
     * Objects have the same name as their identities.
@@ -289,14 +301,8 @@ object CategoryData:
     */
   def partial[Obj, Arr](sourceGraph: Graph)(
     comp: Composition[Arr] = Empty[Arr],
-    compositionFactory: (Arr, Arr) => Option[Arr] = nothing[Arr]):
-  PartialData =
-    new PartialData(addIdentitiesToGraph(sourceGraph)):
-
-      override def newComposition(f: Arrow, g: Arrow): Option[Arrow] = // TODO: maybe just pass it?
-        compositionFactory(f.asInstanceOf[Arr], g.asInstanceOf[Arr]).map(itsanArrow)
-
-      override val compositionSource: CompositionTable = comp.asInstanceOf[CompositionTable] // same type
+    compositionFactory: (Arr, Arr) => Option[Arr] = nothing[Arr]): PartialData =
+    newPartialData[Obj, Arr](addIdentitiesToGraph(sourceGraph), comp, compositionFactory)
 
   private def addIdentitiesToGraph(graph: Graph): Graph =
 
@@ -322,7 +328,6 @@ object CategoryData:
     ids: graph.Node => graph.Arrow,
     composition: (graph.Arrow, graph.Arrow) => Option[graph.Arrow]): CategoryData =
     new CategoryData(graph.name):
-
       def nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
       def arrows: Arrows = graph.arrows.asInstanceOf[Arrows]
       def d0(a: Arrow): Obj = graph.d0(a)
@@ -337,7 +342,6 @@ object CategoryData:
     log(s"TC: $data")
     val missing = data.missingCompositions
     log(s"TC: missing: $missing")
-
     if missing.isEmpty then data else
 
       val newArrows: Map[data.Arrow, (data.Obj, data.Obj)] =
@@ -350,18 +354,15 @@ object CategoryData:
       log(s"TC: new ones: $newArrows")
 
       if newArrows.isEmpty then data else
-
         val newData: Result[PartialData] =
           data.addArrows(newArrows).map(
-            graph =>
-              new PartialData(graph):
-                override def newComposition(f: Arrow, g: Arrow): Option[Arrow] = {
-                  val candidate = data.newComposition(f.asInstanceOf[data.Arrow], g.asInstanceOf[data.Arrow]) // TODO: fix the casting
-                  candidate.map(itsanArrow)
-                }
-
-                override val compositionSource: CompositionTable =
-                  data.composition.asInstanceOf[CompositionTable]
+            underlyingGraph =>
+              newPartialData[underlyingGraph.Node, underlyingGraph.Arrow](
+                underlyingGraph,
+                data.composition.asInstanceOf[Composition[underlyingGraph.Arrow]],
+                (f: underlyingGraph.Arrow, g: underlyingGraph.Arrow) => 
+                  data.newComposition(f.asInstanceOf[data.graph.Arrow], g.asInstanceOf[data.graph.Arrow]).asInstanceOf[Option[underlyingGraph.Arrow]]
+              )
           )
         newData map transitiveClosure iHope
 

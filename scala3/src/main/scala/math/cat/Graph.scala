@@ -4,7 +4,7 @@ import math.Base.*
 import math.sets.Sets.*
 import math.sets.*
 import scalakittens.Result.*
-import scalakittens.{Good, Params, Result}
+import scalakittens.{Good, Result}
 
 import java.io.Reader
 import scala.language.{implicitConversions, postfixOps}
@@ -134,7 +134,7 @@ trait Graph(val name: String) extends GraphData:
         type Arrows = graph.Arrows
 
         lazy val nodes: Nodes = graph.nodes
-        lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows)
+        lazy val arrows: Arrows = newArrows.keySet ++ graph.arrows
 
         private def d0d1(f: Arrow): Option[(Graph.this.Node, Graph.this.Node)] =
           newArrows.get(f)  // shortcut: no check required
@@ -256,17 +256,17 @@ object Graph:
       d =>
         new Graph(name) {
 
-          override type Node = d.Node // TODO: find a way to use N
-          override type Arrow = d.Arrow // TODO: find a way to use A
-          override type Nodes = Set[d.Node]
-          override type Arrows = Set[d.Arrow]
+          override type Node = N
+          override type Arrow = A
+          override type Nodes = Set[N]
+          override type Arrows = Set[A]
           // TODO: figure out why we even need it? d.Arrow is the same as A, by its definition
-          given ArrowIsA: Conversion[Arrow, A] with
-            def apply(a: Arrow): A = a match
-              case a: A => a
+//          given ArrowIsA: Conversion[Arrow, A] with
+//            def apply(a: Arrow): A = a match
+//              case a: A => a
 
-          val nodes: Nodes = d.nodes
-          val arrows: Arrows = d.arrows
+          val nodes: Nodes = d.nodes.asInstanceOf[Nodes]
+          val arrows: Arrows = d.arrows.asInstanceOf[Arrows]
 
           override def d0(f: Arrow): Node = d00(f)
           override def d1(f: Arrow): Node = d10(f)
