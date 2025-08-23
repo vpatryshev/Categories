@@ -22,7 +22,7 @@ object Functions:
       * @param g another injection
       * @return a composition
       */
-    infix def compose[T](g: Injection[T, X]): Injection[T, Y] =
+    private infix def compose[T](g: Injection[T, X]): Injection[T, Y] =
       injection:
         (t:T) => apply(g(t))
 
@@ -84,7 +84,7 @@ object Functions:
      * @param g another Injection
      * @return a composition
      */
-    infix def compose[T](g: Bijection[T, X]): Bijection[T, Y] =
+    private infix def compose[T](g: Bijection[T, X]): Bijection[T, Y] =
       bijection((t:T) => apply(g(t)), (y: Y) => g.unapply(unapply(y)))
 
     /**
@@ -110,10 +110,9 @@ object Functions:
     * @return a Bijection
     */
   def bijection[X, Y](f: X => Y, g: Y => X): Bijection[X, Y] =
-    new Bijection[X, Y] {
+    new Bijection[X, Y] :
       infix def apply(x: X): Y = f(x)
       infix def unapply(y: Y): X = g(y)
-    }
 
   /**
    * Identity isomorphism on type T.

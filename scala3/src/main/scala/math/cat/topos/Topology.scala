@@ -4,29 +4,26 @@ import scalakittens.Result
 import scalakittens.Result._
 
 /**
-  * See https://ncatlab.org/nlab/show/Lawvere-Tierney+topology
-  */
+ * See https://ncatlab.org/nlab/show/Lawvere-Tierney+topology
+ * 
+ * TODO: add tests and examples
+ */
 trait Topology[O,A]:
-  def topos: Topos {
-    type Obj = O
-    type Arrow = A
-  }
-  
+
   // inclusion of this topology into topos.Ω
   def inclusion: A
   
-  // classifying arros for this inclusion
+  // classifying arrows for this inclusion
   def closure: A
 
 object Topology:
-  type ToposWith[O, A] = Topos {
+  private type ToposWith[O, A] = Topos:
     type Obj = O
     type Arrow = A
-  }
 
-  def containsTruth[O, A](topos: ToposWith[O,A], inclusion: A): Boolean = false
-  def isClosed[O, A](topos: ToposWith[O,A], inclusion: A): Boolean = false
-  def closedUnderConjunction[O, A](topos: ToposWith[O,A], inclusion: A) = false
+  private def containsTruth[O, A](topos: ToposWith[O,A], inclusion: A): Boolean = false
+  private def isClosed[O, A](topos: ToposWith[O,A], inclusion: A): Boolean = false
+  private def closedUnderConjunction[O, A](topos: ToposWith[O,A], inclusion: A) = false
   
   def forInclusion[O, A](theTopos: ToposWith[O,A], theInclusion: A): Result[Topology[O, A]] =
     lazy val closureOp = ???

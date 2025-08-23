@@ -46,7 +46,7 @@ sealed trait Result[+T] extends Container[T] with Goodness:
   inline def optionally[U](f: T => U => U): U => U = this.map(f).getOrElse(identity[U])
   def iHope: T
 
-case class Good[T](val value: T) extends Result[T] with SomethingInside[T] with PositiveAttitude:
+case class Good[T](value: T) extends Result[T] with SomethingInside[T] with PositiveAttitude:
   val listErrors: Errors = Nil
   def onError[X >: Errors, Y](op: X => Y): Result[T] = this
   def asOption: Option[T] = Some(value)
@@ -97,7 +97,9 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
   lazy val tag: String = s"${ts2b32(timestamp)}"
   override lazy val toString = s"Error: ~$tag($errors)"
 
-  private def base32map = "abdeghjklmnopqrstvxyz.".zipWithIndex.map{case (c,i) => ('a'+i).toChar -> c}.toMap withDefault identity
+  private def base32map = "abdeghjklmnopqrstvxyz.".zipWithIndex.map {
+    case (c, i) => ('a' + i).toChar -> c
+  } .toMap.withDefault(identity)
 
   /**
     * Transforms a timestamp to a string
@@ -110,7 +112,7 @@ trait NoGood[T] extends NothingInside[T] with NegativeAttitude:
     */
   private def ts2b32(n: Long): String =
     val s0 = java.lang.Long.toString(((n+500)/1000) % 31557600, 32)
-    val s1 = s0 map base32map
+    val s1 = s0.map(base32map)
     "0"*(5-s1.length) + s1
 
   def iHope: T = throw new InstantiationException(errors)

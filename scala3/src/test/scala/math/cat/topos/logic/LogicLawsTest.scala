@@ -7,7 +7,7 @@ import org.specs2.execute.Result as MatchResult
 import scala.language.reflectiveCalls
 
 class LogicLawsTest extends Fixtures:
-  "Distributivity laws of logic" in {
+  "Distributivity laws of logic" should :
 
     // distributivity of conjunction over disjunction
     def conjunctionOverDisjunction(topos: GrothendieckTopos)(
@@ -53,8 +53,6 @@ class LogicLawsTest extends Fixtures:
     end distributivityTestCase
 
 
-    "hold for all known domains" in {
+    "hold for all known domains" in :
       test(distributivityTestCase)
       ok
-    }
-  }

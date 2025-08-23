@@ -12,12 +12,17 @@ import scala.language.{implicitConversions, postfixOps}
 
 /**
  * Morphism class for sets, and the accompanying object.
+ * @tparam X argument type
+ * @tparam Y value type
+ * @param d0 domain of this morphism
+ * @param d1 codomain of this morphism
+ * @param implementation implementation of this morphism
  */
 class SetMorphism[X, Y] (
     val tag: String,
     val d0: Set[X],
     val d1: Set[Y],
-    val function: X => Y)
+    val implementation: X => Y)
   extends Morphism[Set[X], Set[Y]] with Map[X, Y]:
 
   // TODO: investigate the impact of this caching.
@@ -25,7 +30,7 @@ class SetMorphism[X, Y] (
 //    if (d0.isFinite)
 //      buildMap(d0, function)
 //    else
-      function
+      implementation
 
   /**
    * Two set morphisms are equal if they have equal d0s and d1s and map d0 elements to the same values.
@@ -72,8 +77,7 @@ class SetMorphism[X, Y] (
     Result.forValue(x)
       .filter(d0 contains)
       .flatMap(x => Result.forValue( {
-        val y = function(x)
-        y
+        implementation(x)
       }))
       .asOption
 
@@ -98,8 +102,6 @@ class SetMorphism[X, Y] (
     * Pretends to be removing a value from this morphism because it's a map.
     * We actually don't.
     * @param key argument
-    * @tparam X argument type
-    * @tparam Y value type
     * @return an exception is thrown
     */
   override def removed(key: X): scala.collection.immutable.Map[X,Y] = itsImmutable
@@ -108,14 +110,16 @@ class SetMorphism[X, Y] (
     * Iterates over argument/value pairs.
     * @return the iterator
     */
-  def iterator: Iterator[(X, Y)] = d0.iterator map (x => (x, function(x)))
+  def iterator: Iterator[(X, Y)] = d0.iterator map (x => (x, implementation(x)))
 
   /**
     * Produces a product of this morphism, that is, a set of possible mappings
     * (It's functor Π)
     * @return
     */
-  def product: Set[Map[Y, X]] = exponent(d1, d0) filter(m => d1 forall {y => function(m(y)) == y})
+  def product: Set[Map[Y, X]] = exponent(d1, d0) filter :
+    map => d1 forall :
+      y => implementation(map(y)) == y
 
   /**
     * Restricts a morphism to a subdomain
@@ -123,7 +127,7 @@ class SetMorphism[X, Y] (
     * @return a morphism restricted to `newDomain`
     */
   infix def restrictTo(newDomain: Set[X]): Result[SetMorphism[X, Y]] =
-    OKif(newDomain subsetOf d0) returning new SetMorphism[X, Y](tag, newDomain, d1, function)
+    OKif(newDomain subsetOf d0) returning new SetMorphism[X, Y](tag, newDomain, d1, implementation)
 
   override lazy val toString: String = tag match
     case "" => d0 map (x => s"$x -> ${this(x)}") mkString ("{", ", ", "}")
@@ -147,7 +151,7 @@ object SetMorphism:
       for
         x <- f.d0
       yield
-        Result.forValue(f.function(x), s"${f.tag} failed on $x)") filter(
+        Result.forValue(f.implementation(x), s"${f.tag} failed on $x)") filter(
           (y: Y) => f.d1 contains y, 
           (y: Y) => s"${f.tag}: Value $y for $x should be in d1=${f.d1}")
     } returning f

@@ -8,11 +8,11 @@ case class Segment(p0: Pt, p1: Pt):
   private val miny = p0.y min p1.y
   private val maxy = p0.y max p1.y
   private val dp = p1 - p0
-  lazy val orthogonal = Pt(dp.y, -dp.x)
-  lazy val orthogonalUnit = orthogonal / l2
+  private lazy val orthogonal = Pt(dp.y, -dp.x)
+  lazy val orthogonalUnit: Pt = orthogonal / l2
   lazy val middle: Pt = p0 + (dp / 2)
   lazy val isPoint: Boolean = p0 == p1
-  lazy val l2: Rational = dp.l2
+  private lazy val l2: Rational = dp.l2
   lazy val unit: Pt = dp / l2
   lazy val orthonorm: Pt = orthogonal / l2
   
@@ -23,7 +23,7 @@ case class Segment(p0: Pt, p1: Pt):
       p.x >= minx && p.x <= maxx && p.y >= miny && p.y <= maxy
     online && between
   
-  def shift(vector: Pt) = Segment(p0 + vector, p1 + vector)
+  def shift(vector: Pt): Segment = Segment(p0 + vector, p1 + vector)
   
   private[geometry2d] def intersectsLine(seg: Segment): Boolean =
     val otherP0 = seg.p0 - p0
@@ -38,7 +38,7 @@ case class Segment(p0: Pt, p1: Pt):
     if length.isZero then this else
       shorten((length - delta) / length)
   
-  def shorten(coeff: Rational) =
+  private def shorten(coeff: Rational) =
     Segment(middle - (dp / 2 * coeff), middle + (dp / 2 * coeff))
 
 

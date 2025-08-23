@@ -163,19 +163,19 @@ object Categories extends CategoryFactory:
     */
   lazy val NaturalNumbers: Category = fromPoset[BigInt]("ℕ", PoSet.ofNaturalNumbers)
 
-  lazy val SimpleCategories = List(`𝟘`,`𝟙`, `𝟚`, `𝟛`, `𝟜`, `𝟝`,
+  lazy val SimpleCategories: List[Cat] = List(`𝟘`,`𝟙`, `𝟚`, `𝟛`, `𝟜`, `𝟝`,
     `𝟙+𝟙`,
     Z2, Z3, Z4
   )
 
-  lazy val LessSimpleCategories = List(
+  lazy val LessSimpleCategories: List[Cat] = List(
     W, // this one is the hardest for logic calculations
     `𝟝`,
     ParallelPair, Pullback, Pushout, /*Pushout4,*/ SplitMono, Square,
     AAAAAA,
     Simplicial3, M)
 
-  lazy val SomeKnownCategories = SimpleCategories ++ LessSimpleCategories
+  lazy val SomeKnownCategories: List[Cat] = SimpleCategories ++ LessSimpleCategories
 
   lazy val KnownCategories: List[Category] =
     (NaturalNumbers::Pushout4::SomeKnownCategories).sortBy(_.arrows.size)
@@ -193,12 +193,19 @@ object Categories extends CategoryFactory:
     * @return this<sup>op</sup>
     */
   def op(c: Category): Category =
-    val opgraph = ~c
-    new Category(opgraph.name):
-      override val graph: Graph = opgraph
-      override def nodes = c.nodes.asInstanceOf[Nodes]
+    val opGraph = ~c
+    new Category(opGraph.name):
+      override type Node = opGraph.Node
+      override type Arrow = opGraph.Arrow
+      override type Nodes = opGraph.Nodes
+      override type Arrows = opGraph.Arrows
+
+      override def nodes: Nodes = opGraph.nodes
+      def arrows: Arrows = opGraph.arrows
+      def d0(f: Arrow): Node = opGraph.d0(f)
+      def d1(f: Arrow): Node = opGraph.d1(f)
       override def id(o: Obj): Arrow = asArrow(c.id(o))
       override def m(f: Arrow, g: Arrow): Option[Arrow] =
         c.m(g, f).map(asArrow)
         
-      override lazy val op = c      
+      override lazy val op: Category = c

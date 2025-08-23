@@ -32,11 +32,11 @@ trait NonEnumerable[T, S <: Set[T]] extends Set[T]:
   /**
     * Have to implement for a set.
     * But it's not enumerable, so no array.
-    * @tparam S value type
+    * @tparam U value type
     * @return nothing
     * @throws an exception
     */
-  override def toArray[S >: T : ClassTag]: Array[S] = notEnumerable
+  override def toArray[U >: T : ClassTag]: Array[U] = notEnumerable
 
   /**
     * Have to implement it for a set. But can't do it.

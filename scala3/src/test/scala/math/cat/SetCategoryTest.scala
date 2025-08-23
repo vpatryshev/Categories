@@ -25,12 +25,12 @@ class SetCategoryTest extends Specification:
     new SetCategory(BigSet.comprehension[Set[Any]](_.size % 2 == 1))
 
   "SetCategory" should :
-    "buildGraph" in :
-      val sets = BigSet(Set(s1, s2))
+    "build" in :
+      val sets: Set[set] = BigSet(Set(s1, s2))
       val arrow = fun(s1,s2)("sample", _.toInt / 7)
-      val theGraph = graphOfSets(sets)
-      theGraph.nodes must be_==(sets)
-      theGraph.arrows.contains(arrow) must beTrue
+      val theCat = new SetCategory(sets)
+      theCat.nodes must be_==(sets)
+      theCat.arrows.contains(arrow) must beTrue
 
     "produce no coequalizer if category is too small" in :
       val f = fun(s1,s2)("f", _ => 3)
@@ -265,7 +265,8 @@ class SetCategoryTest extends Specification:
           p1.d0 must be_==(p2.d0)
           val sut = p1.d0
           sut.size === 5
-          for {i <- 1 to 3; j <- 2 to 4} sut((i, j)) must be_==(((i+j) %2 == 1))
+          for i <- 1 to 3; j <- 2 to 4 
+            do sut((i, j)) must be_==(((i+j) %2 == 1))
         case none => failure(s"Where's my pullback? $none")
 
       ok

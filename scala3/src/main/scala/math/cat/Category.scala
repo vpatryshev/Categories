@@ -19,6 +19,7 @@ import scalakittens.Containers.*
   * Category class, and the accompanying object.
   */
 abstract class Category(name: String) extends CategoryData(name):
+  thisCategory =>
 
   /**
     * Terminal object of this category (if exists)
@@ -32,9 +33,9 @@ abstract class Category(name: String) extends CategoryData(name):
   /**
     * an iterable of initial objects as defined
     */
-  lazy val allRootObjects_byDefinition: Objects = objects filter {
+  lazy val allRootObjects_byDefinition: Objects = objects filter :
     arrowsEndingAt(_) forall isEndomorphism
-  }
+
   /**
     * A fast alternative for the iterable (actually, a set) of initial objects
     */
@@ -71,16 +72,17 @@ abstract class Category(name: String) extends CategoryData(name):
   override lazy val toString: String =
     source getOrElse
       val prefix = if name.isEmpty then "" else name + ": "
-      if (isFinite)
-        val objectsAsString = asString(objects)
-        s"$prefix({$objectsAsString}, {" +
-          (nonIdentities map (a => s"$a: ${d0(a)} ->${d1(a)}")).mkString(", ") + "}, {" +
-          (composablePairs collect {
-            case (first, second) if !isIdentity(first) && !isIdentity(second) =>
-              concat(second, "∘", first) + s" = ${m(first, second).get}"
-          }).mkString(", ") + "})"
-      else
+      if isInfinite then
         s"$prefix{(infinite category)}"
+      else
+        val objectsAsString = asString(objects)
+        val arrowsAsString = asString(nonIdentities map (a => s"$a: ${d0(a)} -> ${d1(a)}"))
+        val compositionAsString = asString(composablePairs.collect {
+          case (first, second) if !isIdentity(first) && !isIdentity(second) =>
+            concat(second, "∘", first) + s" = ${m(first, second).get}"
+        })
+
+        s"$prefix({$objectsAsString}, {$arrowsAsString}, {$compositionAsString})"
 
   /**
     * Checks whether an arrow is an isomorphism.
@@ -96,7 +98,7 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param b second object
     * @return true iff `a` and `b` are isomorphic
     */
-  def isomorphic(a: Obj, b: Obj): Boolean = hom(a, b) exists isIsomorphism
+  private def isomorphic(a: Obj, b: Obj): Boolean = hom(a, b) exists isIsomorphism
 
   /**
     * This method is being used for rendering the category
@@ -376,12 +378,11 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return a set of pairs of arrows with the same codomain, starting at x and y.
     */
   def pairsWithTheSameCodomain(x: Obj, y: Obj): Set[(Arrow, Arrow)] = setOf(
-    product2(arrows, arrows) filter {
+    product2(arrows, arrows) filter :
       case (px, py) =>
         sameCodomain(px, py) &&
         d0(px) == x &&
         d0(py) == y
-    }
   )
 
   /**
@@ -476,14 +477,14 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param g second arrow
     * @return true if this is a pushout
     */
-  def isPushout(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean = (p: (Arrow, Arrow)) => {
-    val (px, py) = p
-    val pushoutObject = d1(px)
-    d1(py) == pushoutObject &&
-      follows(px, f) &&
-      m(f, px) == m(g, py) &&
-      pairsCoequalizing(f, g).forall(factorUniquelyOnLeft(px, py))
-  }
+  def isPushout(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean =
+    (p: (Arrow, Arrow)) =>
+      val (px, py) = p
+      val pushoutObject = d1(px)
+      d1(py) == pushoutObject &&
+        follows(px, f) &&
+        m(f, px) == m(g, py) &&
+        pairsCoequalizing(f, g).forall(factorUniquelyOnLeft(px, py))
 
   /**
     * Builds a predicate that checks if a pair of arrows p = (px, py), where
@@ -495,10 +496,9 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return true if q factors p uniquely on the left
     */
   def factorUniquelyOnLeft(f: Arrow, g: Arrow): ((Arrow, Arrow)) => Boolean =
-    (q: (Arrow, Arrow)) => {
+    (q: (Arrow, Arrow)) =>
       val (qx, qy) = q
       isSingleton(hom(d1(f), d1(qx)).filter(factorsOnRight((f, g), q)))
-    }
 
   /**
     * Builds a predicate that checks whether an arrow h: A -> B is such that
@@ -509,14 +509,14 @@ abstract class Category(name: String) extends CategoryData(name):
     * @param p a factored pair of arrows
     * @return the predicate described above.
     */
-  def factorsOnRight(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean = (h: Arrow) => {
-    val (px, py) = p
-    val (qx, qy) = q
-    sameDomain(px, qx) && sameDomain(py, qy) &&
-      follows(h, px) && follows(h, py) &&
-      sameCodomain(h, qx) && sameCodomain(h, qy) &&
-      qx ∈ m(px, h) && qy ∈ m(py, h)
-  }
+  def factorsOnRight(p: (Arrow, Arrow), q: (Arrow, Arrow)): Arrow => Boolean =
+    (h: Arrow) =>
+      val (px, py) = p
+      val (qx, qy) = q
+      sameDomain(px, qx) && sameDomain(py, qy) &&
+        follows(h, px) && follows(h, py) &&
+        sameCodomain(h, qx) && sameCodomain(h, qy) &&
+        qx ∈ m(px, h) && qy ∈ m(py, h)
 
   /**
     * Builds a set of all pairs (qx, qy) of arrows that end at the same codomain and start
@@ -538,16 +538,14 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return All such coequalizing pairs of arrows
     */
   def pairsCoequalizing(f: Arrow, g: Arrow): Set[(Arrow, Arrow)] = setOf(
-    product2(arrows, arrows).
-      filter(q => {
+    product2(arrows, arrows).filter:
+      q =>
         val (qx, qy) = q
         sameCodomain(qx, qy) &&
         follows(qx, f) &&
         follows(qy, g) &&
         m(f, qx) == m(g, qy)
-      }
     )
-  )
 
   /**
     * Checks if a given object is a terminal object (aka unit).
@@ -571,14 +569,14 @@ abstract class Category(name: String) extends CategoryData(name):
     * @return a map.
     */
   def buildBundles(setOfObjects: Objects, arrows: Arrows): Map[Obj, Arrows] =
-    if (Params.fullCheck)
+    if Params.fullCheck then
       val badArrows: Arrows = arrows filterNot (d0(_) ∈ setOfObjects)
 
       // TODO: return a Result
       require(badArrows.isEmpty, s"These arrows don't belong: ${asString(badArrows)} in $name")
 
     val grouped = arrows.groupBy(d0)
-    val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.function
+    val mor = SetMorphism.build(arrows, setOfObjects, d0).iHope.revert.implementation
     setOfObjects.map(o => o -> mor(o)).toMap withDefaultValue Set.empty[Arrow]
 
   /**
@@ -594,14 +592,12 @@ abstract class Category(name: String) extends CategoryData(name):
       n match
         case 0 => terminal map (x => (x, List()))
         case 1 => Good((x, id(x) :: Nil))
-        case _ => degree(x, n - 1).flatMap{
+        case _ => degree(x, n - 1).flatMap :
           case (x_n_1, previous_projections) =>
-            product(x, x_n_1) map {
+            product(x, x_n_1) map :
               case (p1, p_n_1) =>
                 val projections = p1 :: previous_projections map (m(p_n_1, _))
                 (d0(p1), projections.flatten)
-            }
-        }
     }
 
   /**
@@ -642,13 +638,12 @@ abstract class Category(name: String) extends CategoryData(name):
   private[cat] def canDeduce(arrows: Iterable[Arrow])(a: Arrow): Boolean =
     val from = d0(a)
     val to = d1(a)
-    hom(from, to).size == 1 && arrows.exists {
+    hom(from, to).size == 1 && arrows.exists :
       f => 
         val d1f = d1(f)
         d1f != from &&
         d1f != to &&
         arrows.exists { g => a ∈ m(f, g) }
-    }
 
   /**
     * Checks whether an arrow is an identity
@@ -686,22 +681,23 @@ abstract class Category(name: String) extends CategoryData(name):
     */
   def completeSubcategory(newName: String, setOfObjects: Objects): Result[Category] =
     val src = this
-    subgraph(newName, setOfObjects) map {
+    subgraph(newName, setOfObjects) map :
       sub =>
         new Category(newName):
-          override val graph = sub
-          override type Nodes = Set[Node]
-          override type Arrows = Set[Arrow]
-          override def d0(f: Arrow) = sub.d0(f)
-          override def d1(f: Arrow) = sub.d1(f)
-          override def nodes = sub.nodes.asInstanceOf[Nodes]
-          override def arrows = sub.arrows.asInstanceOf[Arrows]
+          override type Node = sub.Node
+          override type Arrow = sub.Arrow
+          override type Nodes = sub.Nodes
+          override type Arrows = sub.Arrows
+
+          def d0(f: Arrow): Obj = sub.d0(f)
+          def d1(f: Arrow): Obj = sub.d1(f)
+          override def nodes: Nodes = sub.nodes
+          override def arrows: Arrows = sub.arrows
 
           override def id(o: Obj): Arrow = src.id(o)
 
           override def m(f: Arrow, g: Arrow): Option[Arrow] =
             src.m(f, g) map asArrow
-    }
 
 
   /**

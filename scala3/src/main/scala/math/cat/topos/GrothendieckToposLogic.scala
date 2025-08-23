@@ -2,7 +2,7 @@ package math.cat.topos
 
 import math.Base.concat
 import math.cat.SetFunction.*
-import math.cat.topos.CategoryOfDiagrams.{BaseCategory, DiagramArrow}
+import math.cat.topos.CategoryOfDiagrams.BaseCategory
 import math.cat.{Morphism, SetFunction}
 import math.sets.Sets
 import Sets.{set, setOf}
@@ -21,7 +21,7 @@ trait GrothendieckToposLogic:
 
     def tuplingAt(left: Predicate, right: Predicate, o: domain.Obj): SetFunction =
       val dom = left.setAt(o)
-      if (Params.fullCheck)
+      if Params.fullCheck then
         require(right.setAt(o) == dom)
 
       val po: SetFunction = left.transformAt(o)
@@ -32,7 +32,7 @@ trait GrothendieckToposLogic:
         v => (po(v), qo(v))
       )
 
-    def binopMappingAt(
+    def binaryOpMappingAt(
                         ΩxΩ_to_Ω: DiagramArrow,
                         left: Predicate,
                         right: Predicate,
@@ -53,7 +53,7 @@ trait GrothendieckToposLogic:
 
     private def wrapTag(tag: Any): String =
       val ts = tag.toString
-      if (ts.contains("∧") || ts.contains("∨") || ts.contains("=>"))
+      if ts.contains("∧") || ts.contains("∨") || ts.contains("=>") then
         s"($ts)" else ts
 
     private def tag2(tag1: Any, op: String, tag2: Any): String = 
@@ -73,15 +73,15 @@ trait GrothendieckToposLogic:
       evalBinaryOp(ΩxΩ_to_Ω, opTag)(q)
       
     val bop: Cache[(DiagramArrow, String), Predicate => Predicate] =
-      Cache[(DiagramArrow, String), Predicate => Predicate](true, 
-        (arrow, opTag) => Cache[Predicate, Predicate](true, evalBinaryOp(arrow, opTag)(_)))
+      Cache[(DiagramArrow, String), Predicate => Predicate](
+        (arrow, opTag) => Cache[Predicate, Predicate](evalBinaryOp(arrow, opTag)(_)))
     
-    def evalBinaryOp(ΩxΩ_to_Ω: DiagramArrow, newTag: String)(q: Predicate): Predicate =
+    private def evalBinaryOp(ΩxΩ_to_Ω: DiagramArrow, newTag: String)(q: Predicate): Predicate =
       requireCompatibility(q)
 
       new Predicate(newTag, p.d0):
         def calculateMappingAt(o: d0.d0.Obj): d1.d1.Arrow =
-          Predicates.binopMappingAt(ΩxΩ_to_Ω, p, q, o)
+          Predicates.binaryOpMappingAt(ΩxΩ_to_Ω, p, q, o)
 
     end evalBinaryOp
     
@@ -96,19 +96,19 @@ trait GrothendieckToposLogic:
       *
       * @return a function that takes another predicate and returns their conjunction
       */
-    lazy val ∧ = binaryOp(Ω.conjunction)
+    lazy val ∧ : Predicate => Predicate = binaryOp(Ω.conjunction)
 
     /**
       * Disjunction with another predicate
       * @return  a function that takes another predicate and returns their disjunction
       */
-    lazy val ∨ = binaryOp(Ω.disjunction)
+    lazy val ∨ : Predicate => Predicate = binaryOp(Ω.disjunction)
 
     /**
       * implication of another predicate
       * @return  a function that takes another predicate `q` and returns `this implies q`
       */
-    lazy val ⟹ = binaryOp(Ω.implication)
+    lazy val ⟹ : Predicate => Predicate = binaryOp(Ω.implication)
 
   def ¬(p: topos.Predicate): topos.Predicate =
     p.binaryOpNamed(Ω.implication, "¬")(FalsePredicate)
@@ -123,21 +123,16 @@ trait GrothendieckToposLogic:
     * @return an arrow X -> Ω
     */
   infix def predicateForArrowToΩ(f: DiagramArrow): topos.Predicate =
-    f.d0 match
-      case d: topos.Diagram =>
-        new topos.Predicate(f.tag, d):
-          override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
-
-      case basura => throw new IllegalArgumentException(s"WTF: basura $basura")
+    new topos.Predicate(f.tag, f.d0):
+       override def calculateMappingAt(x: d0.d0.Obj): d1.d1.Arrow = f.calculateMappingAt(x)
 
   /**
     * Builds a predicate for a point in Ω
-    * @param pt the point
-    * @return an arrow pt -> Ω
+    * For a given point, produces an arrow pt -> Ω
     */
-  val predicateFor = Cache[topos.Point, Predicate](true, calculatePredicate)
+  val predicateFor: Point => Predicate = Cache[topos.Point, Predicate](calculatePredicate)
 
-  infix def calculatePredicate(pt: Point): Predicate =
+  private infix def calculatePredicate(pt: Point): Predicate =
 
     val inclusion: DiagramArrow = topos.standardInclusion(pt, Ω) iHope
 

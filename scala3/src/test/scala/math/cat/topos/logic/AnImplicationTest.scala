@@ -1,7 +1,6 @@
 package math.cat.topos.logic
 
 import math.cat.SetFunction.asFunction
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import math.cat.topos.{CategoryOfDiagrams, Fixtures, GrothendieckTopos}
 import math.cat.{Category, SetFunction}
 import org.specs2.execute.Result as MatchResult
@@ -68,7 +67,7 @@ class AnImplicationTest extends Fixtures:
   end check
 
   def checkAdjunction(topos: GrothendieckTopos)(p: topos.Predicate, context: String): MatchResult =
-    val testname = s"$context, adjunction for ${p.tag}"
+    val testName = s"$context, adjunction for ${p.tag}"
     reportIn(topos)(s"adjunction for ${p.tag}")
 
     for pt2 <- topos.Ω.points do
@@ -83,20 +82,20 @@ class AnImplicationTest extends Fixtures:
     val p_and_q = p ∧ q
     for pt3 <- topos.Ω.points do
       val r = pt3 asPredicateIn topos
-      checkAdjunctionpqr(topos)(p, q, p_and_q, r, context)
+      checkAdjunction_pqr(topos)(p, q, p_and_q, r, context)
     ok
 
-  def checkAdjunctionpqr(topos: GrothendieckTopos)(
+  def checkAdjunction_pqr(topos: GrothendieckTopos)(
     p: topos.Predicate, q: topos.Predicate, p_and_q: topos.Predicate, r: topos.Predicate, context: String
   ): MatchResult =
     val q2r = q ⟹ r
     val left = p_and_q ⟹ r
     val right = p ⟹ q2r
-    if (left != equals)
+    if left != equals then
       left.equalsWithDetails(right, printDetails = true, context) aka context must beTrue
     ok
 
-  "Implication" should:
+  "Implication" should :
     def checkAt(i: Int): MatchResult =
       groupedCategoriesToTest(i) foreach:
         case (cat, index) =>
@@ -107,12 +106,12 @@ class AnImplicationTest extends Fixtures:
     def nameThem(i: Int): String =
       groupedCategoriesToTest(i).map{_._1.name} mkString ", "
 
-//    "run all" in :
-//      s"work for domains: ${nameThem(0)}" in checkAt(0)
-//      s"work for domains: ${nameThem(1)}" in checkAt(1)
-//      s"work for domains: ${nameThem(2)}" in checkAt(2)
+    "run all" in :
+      s"work for domains: ${nameThem(0)}" in checkAt(0)
+      s"work for domains: ${nameThem(1)}" in checkAt(1)
+      s"work for domains: ${nameThem(2)}" in checkAt(2)
 
-    "do M" in :
-      val topos = `Set^M`
-      check(topos, 0, 1)
+//    "do M" in :
+//      val topos = `Set^M`
+//      check(topos, 0, 1)
 

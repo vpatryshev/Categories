@@ -1,7 +1,6 @@
 package math.cat.topos
 
 import math.cat.Categories.*
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result.Oops
 import scalakittens.{Bad, Good, Result}
 
@@ -20,12 +19,12 @@ trait TestTopologies:
     inclusionsToΩ map predicateForArrowToΩ
 
   def topologyCandidatesContainingTruth(topos: CategoryOfDiagrams) =
-    topologyCandidates(topos).filter(p => LawvereTopology.mustContainTruth(topos)(p).isGood)
+    topologyCandidates(topos).filter(p => topos.LawvereTopology.mustContainTruth(p).isGood)
 
-  def topologiesTested(topos: CategoryOfDiagrams): Map[String, Result[LawvereTopology]] =
+  def topologiesTested(topos: CategoryOfDiagrams): Map[String, Result[topos.LawvereTopology]] =
     val predicates: List[topos.Predicate] = topologyCandidates(topos)
-    val builder = LawvereTopology.forPredicate(topos)
+    val builder = topos.LawvereTopology.forPredicate
     predicates.map(p => p.tag -> builder(p)).toMap
 
-  def topologies(topos: CategoryOfDiagrams): Iterable[LawvereTopology] =
+  def topologies(topos: CategoryOfDiagrams): Iterable[topos.LawvereTopology] =
     topologiesTested(topos) collect { case (tag, Good(topo)) => topo }

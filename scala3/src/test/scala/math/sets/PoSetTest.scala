@@ -4,8 +4,8 @@ import testing.TestBase
 
 class PoSetTest extends TestBase:
 
-  "PoSet" >> {
-    "parse" >> {
+  "PoSet" should :
+    "parse" in :
       val expected = new PoSet[String](Set("abc", "def", "ab", "defgh"), (x, y) => y.contains(x))
       val actual: PoSet[String] =
         PoSet("({abc, def, defgh, ab},{abc<=abc, def<=def, def<=defgh, defgh<=defgh, ab<=abc, ab<=ab})").
@@ -20,71 +20,61 @@ class PoSetTest extends TestBase:
 
       expected.equals(actual) must beTrue // here we check equality
       actual.equals(expected) must beTrue // here we check equality again
-    }
 
-    "plain pairs" >> {
+    "plain pairs" in :
       val sut = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
       sut.le("a", "c") must beTrue
-    }
 
-    "plain comparator" >> {
+    "plain comparator" in :
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
       sut.le("a", "c") must beTrue
-    }
 
-    "Constructor_negativeTransitivity" >> {
+    "Constructor_negativeTransitivity" in :
       PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "c"))) should throwA[IllegalArgumentException]
-    }
 
-    "Constructor_negativeAntireflexivity" >> {
+    "Constructor_negativeAntireflexivity" in :
       PoSet(Set("a", "b", "c"), Set(("a", "b"), ("b", "a"))) should throwA[IllegalArgumentException]
-    }
 
-    "Equals_positive" >> {
+    "Equals_positive" in :
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("b", "c")))
       val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
       sut2 must be_==(sut1)
       sut1 must be_==(sut2)
-    }
 
-    "Equals_negative" >> {
+    "Equals_negative" in :
       val sut1 = PoSet(Set("a", "b", "c"), Set(("a", "b"), ("a", "c"), ("c", "b")))
 
       def naturalOrder(p: (String, String)) = p._1 <= p._2
 
       val sut2 = PoSet(Set("c", "a", "b"), (x: String, y: String) => x <= y)
       (sut1 == sut2) must beFalse
-    }
 
     // In Scala 3 the following code won't even compile    
-    //    "Equals_differentTypes (will issue warning)" >> {
+    //    "Equals_differentTypes (will issue warning)" in :
     //      val sut1 = PoSet(Set("1", "2", "3"), Set(("1", "2"), ("1", "3"), ("2", "3")))
     //      val sut2 = PoSet(Set(1, 2, 3), Set((1, 2), (1, 3), (2, 3)))
     //      (sut1 == sut2) must beFalse
     //    }
 
-    "UnaryOp" >> {
+    "UnaryOp" in :
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
       val opsut = ~sut
 
       opsut.le("c", "a") must beTrue
       ~opsut must be_==(sut)
-    }
 
-    "Discrete" >> {
+    "Discrete" in :
       val sut: PoSet[Int] = PoSet(Set(1, 2, 3))
       sut.le(3, 3) must beTrue
       sut.le(2, 3) must beFalse
       sut.le(3, 2) must beFalse
       sut === ~sut
-    }
 
-    "UnderlyingSet" >> {
+    "UnderlyingSet" in :
       val sut = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
       sut.elements must be_==(Set("a", "b", "c"))
-    }
 
-    "Parser" >> {
+    "Parser" in :
       val expected = PoSet(Set("a", "b", "c"), (a: String, b: String) => a <= b)
       val actual: PoSet[String] = PoSet("( { a, b, c} , { a <= b, b <= c, a <= c})").
         getOrElse(throw new IllegalArgumentException("Did not parse"))
@@ -94,17 +84,15 @@ class PoSetTest extends TestBase:
       actual.le("b", "c") must beTrue
       actual.le("a", "c") must beTrue
       expected must be_==(actual)
-    }
 
-    "Range" >> {
+    "Range" in :
       val sut = PoSet.range(0, 3, 1)
       sut contains 2 must beTrue
       sut.le(1, 2) must beTrue
       sut.le(0, 2) must beTrue
       sut.le(0, 1) must beTrue
-    }
 
-    "~" >> {
+    "~" in :
       val sut = ~PoSet.range(0, 3, 1)
       sut.le(1, 2) must beFalse
       sut.le(0, 2) must beFalse
@@ -113,6 +101,3 @@ class PoSetTest extends TestBase:
       sut.le(2, 1) must beTrue
       sut.le(2, 0) must beTrue
       sut.le(1, 0) must beTrue
-
-    }
-  }

@@ -4,7 +4,7 @@ import math.Base.*
 import math.sets.Sets.*
 import math.sets.*
 import scalakittens.Result.*
-import scalakittens.{Good, Params, Result}
+import scalakittens.{Good, Result}
 
 import java.io.Reader
 import scala.language.{implicitConversions, postfixOps}
@@ -16,9 +16,6 @@ trait Graph(val name: String) extends GraphData:
   graph =>
 
   def size: Int = nodes.size
-
-  def composablePairs: Iterable[(Arrow, Arrow)] =
-    for (f <- arrows; g <-arrows if follows(g, f)) yield (f, g)
 
   override lazy val hashCode: Int = getClass.hashCode + 41 + nodes.hashCode * 61 + arrows.hashCode
 
@@ -101,7 +98,9 @@ trait Graph(val name: String) extends GraphData:
   def unary_~ : Graph =
     new Graph(if graph.name.startsWith("~") then graph.name.tail else "~" + graph.name):
       type Node = graph.Node
+      override type Nodes = graph.Nodes
       type Arrow = graph.Arrow
+      type Arrows = graph.Arrows
       def nodes: Nodes = graph.nodes
       def arrows: Arrows = graph.arrows
       def d0(f: Arrow): Node = graph.d1(f)
@@ -112,7 +111,9 @@ trait Graph(val name: String) extends GraphData:
       returning {
         new Graph(name):
           type Node = graph.Node
+          type Nodes = graph.Nodes
           type Arrow = graph.Arrow
+          type Arrows = graph.Arrows
 
           def nodes: Nodes = setOfNodes
           def arrows: Arrows = graph.arrows filter (a => setOfNodes(d0(a)) && setOfNodes(d1(a)))
@@ -122,23 +123,26 @@ trait Graph(val name: String) extends GraphData:
 
   end subgraph
   
-  def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] = 
-    if (newArrows.isEmpty) then 
-      return Good(this)
+  def addArrows(newArrows: Map[Arrow, (Node, Node)]): Result[Graph] =
+    if newArrows.isEmpty then
+      Good(this)
+    else
+      val result = new Graph(name):
+        type Node = graph.Node
+        type Nodes = graph.Nodes
+        type Arrow = graph.Arrow
+        type Arrows = graph.Arrows
+
+        lazy val nodes: Nodes = graph.nodes
+        lazy val arrows: Arrows = newArrows.keySet ++ graph.arrows
+
+        private def d0d1(f: Arrow): Option[(Graph.this.Node, Graph.this.Node)] =
+          newArrows.get(f)  // shortcut: no check required
       
-    val result = new Graph(name):
-
-      lazy val nodes: Nodes = graph.nodes.asInstanceOf[Nodes]
-
-      lazy val arrows: Arrows = (newArrows.keySet ++ graph.arrows).asInstanceOf[Arrows]
-
-      private def d0d1(f: Arrow): Option[(Graph.this.Node, Graph.this.Node)] =
-        newArrows.get(f.asInstanceOf[graph.Arrow])  // shortcut: no check required
-      
-      def d0(f: Arrow): Node = d0d1(f).map(_._1).getOrElse(graph.d0(f))
-      def d1(f: Arrow): Node = d0d1(f).map(_._2).getOrElse(graph.d1(f))
+        def d0(f: Arrow): Node = d0d1(f).map(_._1).getOrElse(graph.d0(f))
+        def d1(f: Arrow): Node = d0d1(f).map(_._2).getOrElse(graph.d1(f))
     
-    result.validate orCommentTheError s"Failed in Graph $this"
+      result.validate orCommentTheError s"Failed in Graph $this"
   
   override def validate: Result[Graph] = super.validate returning this
 
@@ -162,12 +166,17 @@ private[cat] trait GraphData:
 
   implicit def asNode(x: Any): Node = x match
     case node: Node @unchecked if nodes(node) => node
-    case badNode: Node => 
+    case badNode: Node =>
       throw new IllegalArgumentException(s"<<$badNode>> is not listed as a node")
     case notaNode => 
       throw new IllegalArgumentException(s"<<$notaNode>> is not a node")
 
-  implicit def asArrow(a: Any): Arrow = 
+  def itsanArrow(a: Any): Arrow =
+    a match
+      case arrow: Arrow @unchecked => arrow
+
+
+  implicit def asArrow(a: Any): Arrow =
     a match
       case arrow: Arrow @unchecked if arrows(arrow) => arrow
       case badArrow: Arrow =>
@@ -187,23 +196,23 @@ private[cat] trait GraphData:
   protected lazy val finiteArrows: Boolean = arrows.isFinite
 
   lazy val isFinite: Boolean = finiteNodes && finiteArrows
+  lazy val isInfinite: Boolean = !isFinite
+
+  private def arrowOk(a: Arrow) =
+    OKif(d0(a) ∈ nodes, " d0 for " + a + " should be in set of nodes") andAlso
+    OKif(d1(a) ∈ nodes, " d1 for " + a + " should be in set of nodes")
 
   def validate: Result[GraphData] =
-    OKif(!finiteArrows) orElse {
-      def arrowOk(a: Arrow) = {
-        OKif(d0(a) ∈ nodes, " d0 for " + a + " should be in set of nodes") andAlso
-        OKif(d1(a) ∈ nodes, " d1 for " + a + " should be in set of nodes")
-      }
-      Result.fold(arrows map arrowOk)
-    } returning this
+    (OKif(!finiteArrows) orElse Result.fold(arrows map arrowOk)) returning this
 
   infix def build(name: String): Graph = new Graph(name):
-
+    override type Node = data.Node
+    override type Arrow = data.Arrow
+    override type Nodes = data.Nodes
+    type Arrows = data.Arrows
     def nodes: Nodes = data.nodes
     def arrows: Arrows = data.arrows
 
-    override type Node = data.Node
-    override type Arrow = data.Arrow
 
     def d0(f: Arrow): Node = data.d0(f)
     def d1(f: Arrow): Node = data.d1(f)
@@ -225,7 +234,9 @@ object Graph:
     target: A => N): Result[GraphData] =
     new GraphData {
       override type Node = N
+      override type Nodes = Set[N]
       override type Arrow = A
+      override type Arrows = Set[A]
       def nodes: Nodes = setOfNodes
       def arrows: Arrows = setOfArrows
       
@@ -241,19 +252,25 @@ object Graph:
     d10: A => N): Result[Graph] =
     val parsed: Result[GraphData] = data[N, A](nodes0, arrows0, d00, d10)
 
-    parsed.flatMap{
+    parsed.flatMap :
       d =>
         new Graph(name) {
 
           override type Node = N
           override type Arrow = A
-          val nodes: Nodes = d.nodes.asInstanceOf[Nodes] // TODO: get rid of cast
-          val arrows: Arrows = d.arrows.asInstanceOf[Arrows] // TODO: get rid of cast
+          override type Nodes = Set[N]
+          override type Arrows = Set[A]
+          // TODO: figure out why we even need it? d.Arrow is the same as A, by its definition
+//          given ArrowIsA: Conversion[Arrow, A] with
+//            def apply(a: Arrow): A = a match
+//              case a: A => a
+
+          val nodes: Nodes = d.nodes.asInstanceOf[Nodes]
+          val arrows: Arrows = d.arrows.asInstanceOf[Arrows]
 
           override def d0(f: Arrow): Node = d00(f)
           override def d1(f: Arrow): Node = d10(f)
         } validate
-    }
 
   def fromArrowMap[N <: Matchable, A <: Matchable] (name: String, nodes: Set[N], arrows: Map[A, (N, N)]): Result[Graph] =
     build(name, nodes, arrows.keySet, (a:A) => arrows(a)._1,  (a: A) => arrows(a)._2)
@@ -264,7 +281,10 @@ object Graph:
     
     new Graph(name):
       type Node = N
+      type Object = N
+      type Nodes = Set[N]
       type Arrow = N
+      type Arrows = Set[N]
       def nodes: Nodes = points
       def arrows: Arrows = Set.empty
       def d0(f: Arrow): Node = Map.empty(f) // there's nothing there, but we need a signature
@@ -278,7 +298,9 @@ object Graph:
 
     new Graph(name):
       type Node = N
+      override type Nodes = Set[N]
       type Arrow = (N, N)
+      type Arrows = Set[Arrow]
       def nodes: Nodes = points
       def arrows: Arrows = goodPairs
       def d0(f: Arrow): Node = f._1
@@ -293,7 +315,7 @@ object Graph:
       Graph.read(bufferFromContext(sc, args*)) iHope
   
   class GraphParser extends Sets.SetParser:
-    def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
+    private def all: Parser[Result[Graph]] = (name ?) ~ "("~graphData~")" ^^ {
       case nameOpt~"("~gOpt~")" =>
         val name = nameOpt getOrElse Good("graph")
         gOpt.andAlso(name) map { case (g, n) => g build n }
@@ -307,9 +329,9 @@ object Graph:
     }
 
     def graphData: Parser[Result[GraphData]] = parserOfSet~","~arrows ^^ {
-      case s~","~arrows => (arrows andAlso s).flatMap{
+      case s~","~arrows => (arrows andAlso s).flatMap :
         case (arr, s0) => Graph.data(s0, arr)
-      }
+
       case nonsense => Result.error(s"Failed to parse $nonsense")
     }
 

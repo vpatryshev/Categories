@@ -1,7 +1,6 @@
 package math.cat.topos
 
 import math.cat.Categories.*
-import math.cat.topos.CategoryOfDiagrams.DiagramArrow
 import scalakittens.Result.Oops
 import scalakittens.{Bad, Good, Result}
 
@@ -10,7 +9,7 @@ import scala.language.reflectiveCalls
 class TopologyTest extends Fixtures with TestTopologies:
 
 
-  "Topologies" should:
+  "Topologies" should :
     "  exist for 𝟘" in :
 
       val goodOnes = topologies(`Set^𝟘`)
